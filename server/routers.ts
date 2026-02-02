@@ -275,6 +275,91 @@ export const appRouter = router({
         });
         return { success: true };
       }),
+    getCommitteeMembers: protectedProcedure.query(async () => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      
+      const { users } = await import('../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      return await dbInstance.select().from(users).where(eq(users.role, 'committee'));
+    }),
+    getCommitteeWorkload: protectedProcedure.query(async () => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      
+      const { users, cases } = await import('../drizzle/schema');
+      const { eq, and, ne, sql } = await import('drizzle-orm');
+      
+      // Obtener todos los miembros del comité
+      const committeeMembers = await dbInstance.select().from(users).where(eq(users.role, 'committee'));
+      
+      // Contar casos activos por miembro
+      const workload = await Promise.all(
+        committeeMembers.map(async (member) => {
+          const activeCases = await dbInstance
+            .select({ count: sql<number>`count(*)` })
+            .from(cases)
+            .where(
+              and(
+                eq(cases.assignedTo, member.id),
+                ne(cases.status, 'closed')
+              )
+            );
+          
+          return {
+            userId: member.id,
+            userName: member.name,
+            activeCases: Number(activeCases[0]?.count || 0),
+          };
+        })
+      );
+      
+      return workload;
+    }),
+    assignCaseToCommittee: committeeProcedure
+      .input(z.object({
+        caseId: z.number(),
+        userId: z.number(),
+        role: z.enum(['investigador_principal', 'investigador_apoyo', 'coordinador']).default('investigador_principal'),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases, caseAssignments, caseFollowUps, notifications } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        // Actualizar el caso con el miembro asignado
+        await dbInstance.update(cases).set({ assignedTo: input.userId }).where(eq(cases.id, input.caseId));
+        
+        // Crear registro de asignación
+        await dbInstance.insert(caseAssignments).values({
+          caseId: input.caseId,
+          committeeMemberId: input.userId,
+          role: 'lead' as any,
+          assignedBy: ctx.user.id,
+        });
+        
+        // Agregar seguimiento
+        const assignedUser = await dbInstance.select().from(require('../drizzle/schema').users).where(eq(require('../drizzle/schema').users.id, input.userId)).limit(1);
+        await dbInstance.insert(caseFollowUps).values({
+          caseId: input.caseId,
+          userId: ctx.user.id,
+          action: `Caso asignado a ${assignedUser[0]?.name || 'miembro del comité'}`,
+        });
+        
+        // Crear notificación para el miembro asignado
+        const caseData = await dbInstance.select().from(cases).where(eq(cases.id, input.caseId)).limit(1);
+        await dbInstance.insert(notifications).values({
+          userId: input.userId,
+          title: 'Nuevo caso asignado',
+          message: `Se te ha asignado el caso ${caseData[0]?.caseNumber}`,
+          type: 'caso_asignado' as any,
+          isRead: false,
+        });
+        
+        return { success: true };
+      }),
   }),
 
   // Committee members

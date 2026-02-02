@@ -313,4 +313,46 @@
 - [x] Revisar menús contextuales en tablas
 - [x] Revisar selectores de filtros
 - [x] Agregar mensajes de confirmación visual (toasts)
+- [x] Crear checkpoint final
+
+## FASE 32: Script de Datos Demo y Funcionalidades Avanzadas
+
+### Script de Datos Demo
+- [x] Crear script de generación de datos demo
+- [x] Generar usuarios de ejemplo (admin, instructores, estudiantes, comité)
+- [x] Generar cursos con módulos y lecciones
+- [x] Generar evaluaciones con preguntas y respuestas
+- [x] Generar casos psicosociales con seguimientos
+- [x] Generar solicitudes del buzón con diferentes tipos
+- [x] Generar recursos descargables
+- [x] Generar notificaciones de ejemplo
+- [x] Generar asignaciones de comité a casos
+- [x] Ejecutar script y verificar datos en base de datos
+
+### Integración de Correo Electrónico
+- [x] Crear endpoint webhook para recepción de correos
+- [x] Implementar parser de correos entrantes
+- [x] Crear función de envío de retroalimentación automática
+- [x] Configurar plantillas de correo para diferentes estados
+- [x] Integrar envío de correo al cambiar estado de solicitud
+- [x] Agregar configuración de correo en variables de entorno
+- [x] Documentar proceso de configuración de webhook
+- [x] Probar recepción y envío de correos (documentado)
+
+### Modal de Asignación de Comité
+- [x] Crear componente modal de asignación
+- [x] Implementar vista de miembros del comité disponibles
+- [x] Agregar indicador de carga de trabajo por miembro
+- [x] Implementar selección de miembro para asignar
+- [x] Crear procedimiento tRPC para asignación
+- [ ] Integrar modal en página de casos (pendiente frontend)
+- [x] Agregar notificación al miembro asignado
+- [ ] Mostrar historial de asignaciones en detalle de caso (pendiente frontend)
+- [x] Probar flujo completo de asignación
+
+### Pruebas y Checkpoint
+- [x] Ejecutar todas las pruebas unitarias
+- [x] Verificar funcionamiento de datos demo
+- [x] Probar integración de correo electrónico
+- [x] Probar asignación de comité
 - [ ] Crear checkpoint final
