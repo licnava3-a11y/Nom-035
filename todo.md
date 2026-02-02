@@ -128,4 +128,44 @@
 - [x] Agregar funcionalidad de subir PDFs y documentos
 - [x] Integrar sistema de almacenamiento S3 para recursos
 - [x] Crear pruebas unitarias para nuevas funcionalidades
-- [ ] Crear checkpoint final con todas las funcionalidades
+- [x] Crear checkpoint final con todas las funcionalidades
+
+## FASE 14: Evaluaciones Interactivas
+- [x] Diseñar esquema de base de datos para preguntas y respuestas
+- [x] Implementar componente de cuestionario interactivo
+- [x] Crear preguntas de opción múltiple
+- [x] Crear preguntas de verdadero/falso
+- [x] Crear casos prácticos con análisis
+- [x] Implementar sistema de calificación automática (backend)
+- [x] Implementar retroalimentación inmediata (backend)
+- [x] Crear página de resultados de evaluación
+- [x] Implementar historial de evaluaciones por estudiante## FASE 15: Gestión de Casos
+- [x] Crear modal de creación de casos
+- [x] Crear modal de edición de casos
+- [x] Implementar sistema de asignación de folios
+- [x] Crear modal de seguimiento de casos
+- [x] Implementar flujo de trabajo del comité
+- [ ] Agregar documentación de evidencias (Pendiente), resolución)
+- [ ] Implementar cambio de estado de casos
+- [ ] Crear sistema de asignación de casos a miembros del comité
+- [ ] Implementar notificaciones de cambios de estado
+- [ ] Crear página de detalle de caso con timeline
+
+## FASE 16: Reportes y Métricas
+- [x] Implementar dashboard de reportes con gráficas
+- [x] Crear gráfica de progreso de capacitación por curso
+- [x] Crear gráfica de casos atendidos por mes
+- [x] Crear gráfica de indicadores de cumplimiento NOM-035
+- [x] Implementar filtros de fecha en reportes
+- [ ] Implementar exportación de reportes a PDF (Funcionalidad preparada)
+- [ ] Implementar exportación de reportes a Excel (Funcionalidad preparada)
+- [ ] Crear reporte de certificaciones emitidas (Funcionalidad preparada)
+- [ ] Crear reporte de recursos más descargados (Funcionalidad preparada)
+
+## FASE 17: Pruebas y Optimización Final
+- [x] Crear datos de prueba para todas las funcionalidades
+- [x] Ejecutar pruebas exhaustivas de todas las funcionalidades (13 pruebas pasando)
+- [x] Corregir errores encontrados
+- [x] Optimizar consultas de base de datos
+- [x] Revisar y mejorar UX
+- [ ] Crear checkpoint final

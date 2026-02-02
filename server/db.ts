@@ -143,6 +143,12 @@ export async function getModuleById(id: number) {
 }
 
 // Evaluation management
+export async function getAllEvaluations() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(evaluations);
+}
+
 export async function getEvaluationsByModuleId(moduleId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -190,6 +196,23 @@ export async function getEvaluationAttemptsByUser(userId: number, evaluationId: 
   if (!db) return [];
   return await db.select().from(evaluationAttempts)
     .where(eq(evaluationAttempts.userId, userId));
+}
+
+export async function getNextAttemptNumber(userId: number, evaluationId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 1;
+  const attempts = await db.select().from(evaluationAttempts)
+    .where(eq(evaluationAttempts.userId, userId));
+  const filtered = attempts.filter(a => a.evaluationId === evaluationId);
+  return filtered.length + 1;
+}
+
+export async function getEvaluationAttempts(userId: number, evaluationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const attempts = await db.select().from(evaluationAttempts)
+    .where(eq(evaluationAttempts.userId, userId));
+  return attempts.filter(a => a.evaluationId === evaluationId);
 }
 
 export async function getAttemptById(id: number) {

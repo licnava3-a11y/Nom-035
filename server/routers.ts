@@ -325,6 +325,121 @@ export const appRouter = router({
       }),
   }),
 
+  // Evaluations
+  evaluations: router({
+    list: protectedProcedure.query(async () => {
+      return await db.getAllEvaluations();
+    }),
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const evaluation = await db.getEvaluationById(input.id);
+        if (!evaluation) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Evaluación no encontrada' });
+        }
+        const questions = await db.getQuestionsByEvaluationId(input.id);
+        return { ...evaluation, questions };
+      }),
+    startAttempt: protectedProcedure
+      .input(z.object({ evaluationId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { evaluationAttempts } = await import('../drizzle/schema');
+        const attemptNumber = await db.getNextAttemptNumber(ctx.user.id, input.evaluationId);
+        
+        const result = await dbInstance.insert(evaluationAttempts).values({
+          userId: ctx.user.id,
+          evaluationId: input.evaluationId,
+          attemptNumber,
+          startedAt: new Date(),
+        });
+        
+        const insertId = (result as any).insertId || 0;
+        return { attemptId: Number(insertId), attemptNumber };
+      }),
+    submitAnswer: protectedProcedure
+      .input(z.object({
+        attemptId: z.number(),
+        questionId: z.number(),
+        selectedOptionId: z.number().optional(),
+        answerText: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { studentAnswers, questions, answerOptions } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        // Get question details
+        const question = await dbInstance.select().from(questions).where(eq(questions.id, input.questionId)).limit(1);
+        if (!question[0]) throw new TRPCError({ code: 'NOT_FOUND', message: 'Pregunta no encontrada' });
+        
+        let isCorrect = false;
+        let pointsEarned = 0;
+        
+        if (input.selectedOptionId) {
+          const option = await dbInstance.select().from(answerOptions).where(eq(answerOptions.id, input.selectedOptionId)).limit(1);
+          if (option[0]?.isCorrect) {
+            isCorrect = true;
+            pointsEarned = question[0].points;
+          }
+        }
+        
+        await dbInstance.insert(studentAnswers).values({
+          attemptId: input.attemptId,
+          questionId: input.questionId,
+          selectedOptionId: input.selectedOptionId,
+          answerText: input.answerText,
+          isCorrect,
+          pointsEarned,
+        });
+        
+        return { success: true, isCorrect, pointsEarned };
+      }),
+    completeAttempt: protectedProcedure
+      .input(z.object({ attemptId: z.number() }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { evaluationAttempts, studentAnswers, evaluations } = await import('../drizzle/schema');
+        const { eq, sum } = await import('drizzle-orm');
+        
+        // Get attempt details
+        const attempt = await dbInstance.select().from(evaluationAttempts).where(eq(evaluationAttempts.id, input.attemptId)).limit(1);
+        if (!attempt[0]) throw new TRPCError({ code: 'NOT_FOUND', message: 'Intento no encontrado' });
+        
+        // Calculate total score
+        const answers = await dbInstance.select().from(studentAnswers).where(eq(studentAnswers.attemptId, input.attemptId));
+        const totalPoints = answers.reduce((acc, ans) => acc + ans.pointsEarned, 0);
+        const maxPoints = answers.length; // Assuming 1 point per question
+        const score = (totalPoints / maxPoints) * 100;
+        
+        // Get evaluation passing score
+        const evaluation = await dbInstance.select().from(evaluations).where(eq(evaluations.id, attempt[0].evaluationId)).limit(1);
+        const passed = score >= (evaluation[0]?.passingScore || 70);
+        
+        // Update attempt
+        await dbInstance.update(evaluationAttempts)
+          .set({
+            score: score.toString(),
+            passed,
+            completedAt: new Date(),
+          })
+          .where(eq(evaluationAttempts.id, input.attemptId));
+        
+        return { success: true, score, passed };
+      }),
+    getAttempts: protectedProcedure
+      .input(z.object({ evaluationId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        return await db.getEvaluationAttempts(ctx.user.id, input.evaluationId);
+      }),
+  }),
+
   // Job positions
   jobPositions: router({
     list: protectedProcedure.query(async () => {

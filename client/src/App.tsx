@@ -10,6 +10,7 @@ import Courses from "./pages/Courses";
 import Cases from "./pages/Cases";
 import Resources from "./pages/Resources";
 import Evaluations from "./pages/Evaluations";
+import TakeEvaluation from "./pages/TakeEvaluation";
 import Committee from "./pages/Committee";
 import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
@@ -42,6 +43,11 @@ function Router() {
       <Route path={"/evaluations"}>
         <DashboardLayout>
           <Evaluations />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/evaluations/:id/take"}>
+        <DashboardLayout>
+          <TakeEvaluation />
         </DashboardLayout>
       </Route>
       <Route path={"/committee"}>

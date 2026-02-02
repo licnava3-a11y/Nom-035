@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,16 +11,33 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, Plus, Eye } from "lucide-react";
+import { AlertCircle, Plus, Eye, Edit, FileText } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { CaseDialog } from "@/components/CaseDialog";
+import { CaseFollowUpDialog } from "@/components/CaseFollowUpDialog";
 
 export default function Cases() {
   const { user } = useAuth();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [followUpDialogOpen, setFollowUpDialogOpen] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<any>(null);
+  
   const { data: cases, isLoading } = trpc.cases.list.useQuery(undefined, {
     enabled: user?.role === "admin" || user?.role === "committee",
   });
+
+  const handleEditCase = (caseData: any) => {
+    setSelectedCase(caseData);
+    setEditDialogOpen(true);
+  };
+
+  const handleAddFollowUp = (caseData: any) => {
+    setSelectedCase(caseData);
+    setFollowUpDialogOpen(true);
+  };
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
@@ -118,7 +136,7 @@ export default function Cases() {
             Seguimiento y atención de casos de riesgo psicosocial
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Registrar Caso
         </Button>
@@ -204,10 +222,16 @@ export default function Cases() {
                       {format(new Date(caseItem.createdAt), "dd/MM/yyyy", { locale: es })}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Ver Detalles
-                      </Button>
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" size="sm" onClick={() => handleEditCase(caseItem)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleAddFollowUp(caseItem)}>
+                          <FileText className="h-4 w-4 mr-2" />
+                          Seguimiento
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -220,7 +244,7 @@ export default function Cases() {
               <p className="text-sm text-muted-foreground text-center mb-4">
                 Aún no se han reportado casos de riesgo psicosocial.
               </p>
-              <Button>
+              <Button onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Registrar Primer Caso
               </Button>
@@ -228,6 +252,35 @@ export default function Cases() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialogs */}
+      <CaseDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={() => {
+          setCreateDialogOpen(false);
+        }}
+      />
+
+      <CaseDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        caseData={selectedCase}
+        onSuccess={() => {
+          setEditDialogOpen(false);
+          setSelectedCase(null);
+        }}
+      />
+
+      <CaseFollowUpDialog
+        open={followUpDialogOpen}
+        onOpenChange={setFollowUpDialogOpen}
+        caseId={selectedCase?.id || 0}
+        onSuccess={() => {
+          setFollowUpDialogOpen(false);
+          setSelectedCase(null);
+        }}
+      />
     </div>
   );
 }
