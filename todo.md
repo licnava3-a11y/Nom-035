@@ -292,8 +292,25 @@
 - [ ] Mejorar mensajes de error y éxito
 - [ ] Optimizar carga de datos con paginación
 
-## FASE 32: Pruebas y Checkpoint Final
-- [ ] Ejecutar pruebas exhaustivas de todas las funcionalidades
-- [ ] Corregir errores encontrados
-- [ ] Optimizar rendimiento
+## FASE 30: Pruebas y Checkpoint Final
+- [x] Ejecutar pruebas exhaustivas de todas las funcionalidades
+- [x] Corregir errores encontrados
+- [x] Optimizar rendimiento
+- [x] Crear checkpoint final
+
+## FASE 31: Habilitación de Botones y Desplegables
+- [x] Revisar y habilitar botones de acción en Dashboard
+- [x] Revisar y habilitar botones de acción en página de Cursos
+- [x] Revisar y habilitar botones de acción en página de Casos
+- [x] Revisar y habilitar botones de acción en página de Recursos
+- [x] Revisar y habilitar botones de acción en página de Evaluaciones
+- [x] Revisar y habilitar botones de acción en página de Buzón
+- [x] Revisar y habilitar botones de acción en página de Comité
+- [x] Revisar y habilitar botones de acción en página de Puestos
+- [x] Revisar y habilitar botones de acción en página de Reportes
+- [x] Revisar y habilitar botones de acción en página de Usuarios
+- [x] Revisar desplegables en todos los formularios
+- [x] Revisar menús contextuales en tablas
+- [x] Revisar selectores de filtros
+- [x] Agregar mensajes de confirmación visual (toasts)
 - [ ] Crear checkpoint final
