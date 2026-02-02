@@ -28,13 +28,14 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox } from "lucide-react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/", roles: ["admin", "instructor", "student", "committee"] },
   { icon: BookOpen, label: "Cursos", path: "/courses", roles: ["admin", "instructor", "student"] },
   { icon: ClipboardCheck, label: "Evaluaciones", path: "/evaluations", roles: ["admin", "instructor", "student"] },
   { icon: AlertCircle, label: "Casos", path: "/cases", roles: ["admin", "committee"] },
+  { icon: Inbox, label: "Buzón", path: "/mailbox", roles: ["admin", "committee"] },
   { icon: Users, label: "Comité", path: "/committee", roles: ["admin"] },
   { icon: FileText, label: "Recursos", path: "/resources", roles: ["admin", "instructor", "student", "committee"] },
   { icon: Briefcase, label: "Puestos", path: "/job-positions", roles: ["admin", "instructor"] },

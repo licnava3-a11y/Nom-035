@@ -18,6 +18,8 @@ import Reports from "./pages/Reports";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
+import Mailbox from "./pages/Mailbox";
+import MailboxForm from "./pages/MailboxForm";
 
 function Router() {
   return (
@@ -85,6 +87,16 @@ function Router() {
       <Route path={"/notifications"}>
         <DashboardLayout>
           <Notifications />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/mailbox"}>
+        <DashboardLayout>
+          <Mailbox />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/mailbox/form"}>
+        <DashboardLayout>
+          <MailboxForm />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />

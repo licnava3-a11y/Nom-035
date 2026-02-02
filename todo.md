@@ -252,4 +252,48 @@
 - [x] Ejecutar pruebas de filtros temporales
 - [x] Corregir errores encontrados
 - [x] Optimizar rendimiento (13 pruebas pasando)
+- [x] Crear checkpoint final
+
+## FASE 27: Páginas Frontend del Buzón Electrónico
+- [x] Crear página de gestión del buzón para administradores
+- [x] Crear formulario web público para enviar solicitudes
+- [ ] Crear página de detalle de solicitud del buzón (Pendiente)
+- [x] Implementar filtros y búsqueda en la página de gestión
+- [x] Agregar estadísticas del buzón en el dashboard
+
+## FASE 28: Componentes de Asignación de Comité
+- [ ] Crear modal de asignación de miembros a casos
+- [ ] Implementar vista de distribución de carga de trabajo
+- [ ] Agregar indicadores de casos asignados por miembro
+- [ ] Implementar reasignación de casos
+
+## FASE 29: Filtros Temporales Avanzados en Reportes
+- [ ] Implementar filtro por día específico
+- [ ] Implementar filtro por semana actual/anterior
+- [ ] Implementar filtro por mes actual/anterior
+- [ ] Implementar filtro por año actual/anterior
+- [ ] Implementar filtro por rango de fechas personalizado
+
+## FASE 30: Datos Demo
+- [ ] Crear script de datos demo para cursos y módulos
+- [ ] Crear datos demo para casos con seguimientos
+- [ ] Crear datos demo para evaluaciones con preguntas
+- [ ] Crear datos demo para usuarios en todos los roles
+- [ ] Crear datos demo para recursos descargables
+- [ ] Crear datos demo para solicitudes del buzón
+- [ ] Crear datos demo para notificaciones
+- [ ] Crear datos demo para asignaciones de comité
+
+## FASE 31: Optimización UI/UX
+- [ ] Optimizar todos los desplegables
+- [ ] Agregar botones de acción en todas las tablas
+- [ ] Mejorar navegación y accesos rápidos
+- [ ] Optimizar formularios con validación
+- [ ] Mejorar mensajes de error y éxito
+- [ ] Optimizar carga de datos con paginación
+
+## FASE 32: Pruebas y Checkpoint Final
+- [ ] Ejecutar pruebas exhaustivas de todas las funcionalidades
+- [ ] Corregir errores encontrados
+- [ ] Optimizar rendimiento
 - [ ] Crear checkpoint final
