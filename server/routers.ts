@@ -296,6 +296,33 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getResourceById(input.id);
       }),
+    create: instructorProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        category: z.enum(['manual', 'protocol', 'form', 'pdf', 'presentation', 'other']),
+        fileUrl: z.string(),
+        fileType: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await db.createResource({
+          ...input,
+          uploadedBy: ctx.user.id,
+        });
+      }),
+    update: instructorProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string(),
+        description: z.string().optional(),
+        category: z.enum(['manual', 'protocol', 'form', 'pdf', 'presentation', 'other']),
+        fileUrl: z.string(),
+        fileType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await db.updateResource(id, data);
+      }),
   }),
 
   // Job positions

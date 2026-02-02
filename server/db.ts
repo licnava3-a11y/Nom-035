@@ -266,6 +266,47 @@ export async function getResourceById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function createResource(data: {
+  title: string;
+  description?: string;
+  category: "manual" | "protocol" | "form" | "pdf" | "presentation" | "other";
+  fileUrl: string;
+  fileType: string;
+  uploadedBy: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(resources).values({
+    title: data.title,
+    description: data.description,
+    category: data.category,
+    resourceUrl: data.fileUrl,
+    fileKey: data.fileUrl,
+    uploadedBy: data.uploadedBy,
+  });
+  const insertId = (result as any)[0]?.insertId || 1;
+  return { id: Number(insertId), ...data };
+}
+
+export async function updateResource(id: number, data: {
+  title: string;
+  description?: string;
+  category: "manual" | "protocol" | "form" | "pdf" | "presentation" | "other";
+  fileUrl: string;
+  fileType: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(resources).set({
+    title: data.title,
+    description: data.description,
+    category: data.category,
+    resourceUrl: data.fileUrl,
+    fileKey: data.fileUrl,
+  }).where(eq(resources.id, id));
+  return { id, ...data };
+}
+
 // Job positions
 export async function getAllJobPositions() {
   const db = await getDb();

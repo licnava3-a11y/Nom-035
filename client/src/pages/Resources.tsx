@@ -3,14 +3,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { FileText, Download, Plus, Search } from "lucide-react";
+import { FileText, Download, Plus, Search, Edit } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+import { ResourceDialog } from "@/components/ResourceDialog";
 
 export default function Resources() {
   const { user } = useAuth();
   const { data: resources, isLoading } = trpc.resources.list.useQuery();
   const [searchQuery, setSearchQuery] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
+
+  const handleEdit = (resource: any) => {
+    setSelectedResource(resource);
+    setDialogOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedResource(null);
+    setDialogOpen(true);
+  };
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
@@ -86,7 +99,7 @@ export default function Resources() {
           </p>
         </div>
         {(user?.role === "admin" || user?.role === "instructor") && (
-          <Button>
+          <Button onClick={handleCreate}>
             <Plus className="h-4 w-4 mr-2" />
             Subir Recurso
           </Button>
@@ -133,12 +146,19 @@ export default function Resources() {
                     <span>{resource.downloadCount} descargas</span>
                   </div>
                 </div>
-                <Button className="w-full" asChild>
-                  <a href={resource.resourceUrl} download target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-2" />
-                    Descargar
-                  </a>
-                </Button>
+                <div className="flex gap-2">
+                  <Button className="flex-1" asChild>
+                    <a href={resource.resourceUrl} download target="_blank" rel="noopener noreferrer">
+                      <Download className="h-4 w-4 mr-2" />
+                      Descargar
+                    </a>
+                  </Button>
+                  {(user?.role === "admin" || user?.role === "instructor") && (
+                    <Button variant="outline" size="icon" onClick={() => handleEdit(resource)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -156,7 +176,7 @@ export default function Resources() {
                 : "Aún no se han subido recursos a la biblioteca"}
             </p>
             {!searchQuery && (user?.role === "admin" || user?.role === "instructor") && (
-              <Button>
+              <Button onClick={handleCreate}>
                 <Plus className="h-4 w-4 mr-2" />
                 Subir Primer Recurso
               </Button>
@@ -164,6 +184,13 @@ export default function Resources() {
           </CardContent>
         </Card>
       )}
+
+      {/* Resource Dialog */}
+      <ResourceDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        resource={selectedResource}
+      />
 
       {/* Information Card */}
       <Card>

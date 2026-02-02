@@ -1,14 +1,28 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { BookOpen, Clock, Play, Plus } from "lucide-react";
+import { BookOpen, Clock, Play, Plus, Edit } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { CourseDialog } from "@/components/CourseDialog";
 
 export default function Courses() {
   const { user } = useAuth();
   const { data: courses, isLoading } = trpc.courses.list.useQuery();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+
+  const handleEdit = (course: any) => {
+    setSelectedCourse(course);
+    setDialogOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedCourse(null);
+    setDialogOpen(true);
+  };
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
@@ -75,7 +89,7 @@ export default function Courses() {
           </p>
         </div>
         {(user?.role === "admin" || user?.role === "instructor") && (
-          <Button>
+          <Button onClick={handleCreate}>
             <Plus className="h-4 w-4 mr-2" />
             Crear Curso
           </Button>
@@ -111,19 +125,14 @@ export default function Courses() {
                 </div>
               </CardContent>
               <CardFooter className="flex gap-2">
-                <Button className="flex-1" asChild>
-                  <Link href={`/courses/${course.id}`}>
-                    <a className="flex items-center justify-center gap-2">
-                      <Play className="h-4 w-4" />
-                      Ver Curso
-                    </a>
-                  </Link>
+                <Button className="flex-1">
+                  <Play className="h-4 w-4 mr-2" />
+                  Ver Curso
                 </Button>
                 {(user?.role === "admin" || user?.role === "instructor") && (
-                  <Button variant="outline" asChild>
-                    <Link href={`/courses/${course.id}/edit`}>
-                      <a>Editar</a>
-                    </Link>
+                  <Button variant="outline" onClick={() => handleEdit(course)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Editar
                   </Button>
                 )}
               </CardFooter>
@@ -139,7 +148,7 @@ export default function Courses() {
               Aún no se han publicado cursos de capacitación.
             </p>
             {(user?.role === "admin" || user?.role === "instructor") && (
-              <Button>
+              <Button onClick={handleCreate}>
                 <Plus className="h-4 w-4 mr-2" />
                 Crear Primer Curso
               </Button>
@@ -147,6 +156,13 @@ export default function Courses() {
           </CardContent>
         </Card>
       )}
+
+      {/* Course Dialog */}
+      <CourseDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        course={selectedCourse}
+      />
     </div>
   );
 }

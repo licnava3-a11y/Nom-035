@@ -9,6 +9,12 @@ import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Cases from "./pages/Cases";
 import Resources from "./pages/Resources";
+import Evaluations from "./pages/Evaluations";
+import Committee from "./pages/Committee";
+import JobPositions from "./pages/JobPositions";
+import Reports from "./pages/Reports";
+import Users from "./pages/Users";
+import Profile from "./pages/Profile";
 
 function Router() {
   return (
@@ -31,6 +37,36 @@ function Router() {
       <Route path={"/resources"}>
         <DashboardLayout>
           <Resources />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/evaluations"}>
+        <DashboardLayout>
+          <Evaluations />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/committee"}>
+        <DashboardLayout>
+          <Committee />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/job-positions"}>
+        <DashboardLayout>
+          <JobPositions />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/reports"}>
+        <DashboardLayout>
+          <Reports />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/users"}>
+        <DashboardLayout>
+          <Users />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/profile"}>
+        <DashboardLayout>
+          <Profile />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />

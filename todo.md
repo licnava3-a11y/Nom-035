@@ -109,4 +109,23 @@
 - [x] Corregir ciclo infinito en el sistema de login (etiquetas <a> anidadas)
 - [x] Revisar flujo de autenticación OAuth
 - [x] Probar login con diferentes roles
-- [ ] Crear checkpoint con la corrección
+- [x] Crear checkpoint con la corrección
+
+## NUEVAS FUNCIONALIDADES SOLICITADAS
+- [x] Crear páginas faltantes (Evaluaciones, Comité, Puestos, Reportes, Usuarios, Perfil)
+- [x] Implementar formularios de creación de cursos con modal
+- [x] Implementar formularios de edición de cursos
+- [ ] Implementar formularios de creación/edición de módulos (Pendiente para próxima fase)
+- [x] Implementar sistema de carga de archivos con S3
+- [ ] Crear página de evaluaciones interactivas (Pendiente para próxima fase)
+- [ ] Implementar cuestionarios con preguntas de opción múltiple (Pendiente para próxima fase)
+- [ ] Implementar preguntas de verdadero/falso (Pendiente para próxima fase)
+- [ ] Implementar casos prácticos en evaluaciones (Pendiente para próxima fase)
+- [ ] Implementar calificación automática (Pendiente para próxima fase)
+- [ ] Implementar retroalimentación inmediata
+- [ ] Implementar formularios de creación/edición de casos (Pendiente para próxima fase)
+- [x] Implementar formularios de creación/edición de recursos
+- [x] Agregar funcionalidad de subir PDFs y documentos
+- [x] Integrar sistema de almacenamiento S3 para recursos
+- [x] Crear pruebas unitarias para nuevas funcionalidades
+- [ ] Crear checkpoint final con todas las funcionalidades
