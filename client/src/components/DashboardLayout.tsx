@@ -27,9 +27,19 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings } from "lucide-react";
+
 const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/", roles: ["admin", "instructor", "student", "committee"] },
+  { icon: BookOpen, label: "Cursos", path: "/courses", roles: ["admin", "instructor", "student"] },
+  { icon: ClipboardCheck, label: "Evaluaciones", path: "/evaluations", roles: ["admin", "instructor", "student"] },
+  { icon: AlertCircle, label: "Casos", path: "/cases", roles: ["admin", "committee"] },
+  { icon: Users, label: "Comité", path: "/committee", roles: ["admin"] },
+  { icon: FileText, label: "Recursos", path: "/resources", roles: ["admin", "instructor", "student", "committee"] },
+  { icon: Briefcase, label: "Puestos", path: "/job-positions", roles: ["admin", "instructor"] },
+  { icon: BarChart3, label: "Reportes", path: "/reports", roles: ["admin", "instructor"] },
+  { icon: Users, label: "Usuarios", path: "/users", roles: ["admin"] },
+  { icon: Settings, label: "Configuración", path: "/profile", roles: ["admin", "instructor", "student", "committee"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -171,7 +181,10 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                    NOM-035 STPS
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    Plataforma de Capacitación
                   </span>
                 </div>
               ) : null}
@@ -180,7 +193,7 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
+              {menuItems.filter(item => item.roles.includes(user?.role || "student")).map(item => {
                 const isActive = location === item.path;
                 return (
                   <SidebarMenuItem key={item.path}>

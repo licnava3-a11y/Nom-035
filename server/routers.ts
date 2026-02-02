@@ -1,10 +1,36 @@
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import * as db from "./db";
+
+// Admin-only procedure
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'admin') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los administradores pueden acceder a este recurso' });
+  }
+  return next({ ctx });
+});
+
+// Instructor or admin procedure
+const instructorProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'admin' && ctx.user.role !== 'instructor') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los instructores y administradores pueden acceder a este recurso' });
+  }
+  return next({ ctx });
+});
+
+// Committee or admin procedure
+const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== 'admin' && ctx.user.role !== 'committee') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los miembros del comité y administradores pueden acceder a este recurso' });
+  }
+  return next({ ctx });
+});
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -17,12 +43,277 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  // User management (admin only)
+  users: router({
+    list: adminProcedure.query(async () => {
+      return await db.getAllUsers();
+    }),
+    updateRole: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(['admin', 'instructor', 'student', 'committee']),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateUserRole(input.userId, input.role);
+        return { success: true };
+      }),
+  }),
+
+  // Courses management
+  courses: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      // Students only see published courses
+      if (ctx.user.role === 'student') {
+        return await db.getPublishedCourses();
+      }
+      // Admin and instructors see all courses
+      return await db.getAllCourses();
+    }),
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCourseById(input.id);
+      }),
+    create: instructorProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        description: z.string().optional(),
+        category: z.enum(['fundamentos', 'categorias_dominios', 'mobbing', 'burnout', 'protocolos', 'comite', 'analisis_puestos', 'otros']),
+        duration: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { courses } = await import('../drizzle/schema');
+        await dbInstance.insert(courses).values({
+          ...input,
+          createdBy: ctx.user.id,
+          isPublished: false,
+        });
+        return { success: true };
+      }),
+    update: instructorProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        category: z.enum(['fundamentos', 'categorias_dominios', 'mobbing', 'burnout', 'protocolos', 'comite', 'analisis_puestos', 'otros']).optional(),
+        duration: z.number().optional(),
+        isPublished: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { courses } = await import('../drizzle/schema');
+        const { id, ...updateData } = input;
+        await dbInstance.update(courses).set(updateData).where(require('drizzle-orm').eq(courses.id, id));
+        return { success: true };
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { courses } = await import('../drizzle/schema');
+        await dbInstance.delete(courses).where(require('drizzle-orm').eq(courses.id, input.id));
+        return { success: true };
+      }),
+  }),
+
+  // Modules management
+  modules: router({
+    listByCourse: protectedProcedure
+      .input(z.object({ courseId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getModulesByCourseId(input.courseId);
+      }),
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getModuleById(input.id);
+      }),
+    create: instructorProcedure
+      .input(z.object({
+        courseId: z.number(),
+        title: z.string().min(1),
+        description: z.string().optional(),
+        content: z.string().optional(),
+        orderIndex: z.number().default(0),
+        duration: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { modules } = await import('../drizzle/schema');
+        await dbInstance.insert(modules).values(input);
+        return { success: true };
+      }),
+    update: instructorProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        content: z.string().optional(),
+        orderIndex: z.number().optional(),
+        duration: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { modules } = await import('../drizzle/schema');
+        const { id, ...updateData } = input;
+        await dbInstance.update(modules).set(updateData).where(require('drizzle-orm').eq(modules.id, id));
+        return { success: true };
+      }),
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { modules } = await import('../drizzle/schema');
+        await dbInstance.delete(modules).where(require('drizzle-orm').eq(modules.id, input.id));
+        return { success: true };
+      }),
+  }),
+
+  // Student progress
+  progress: router({
+    my: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getStudentProgressByUserId(ctx.user.id);
+    }),
+    byCourse: protectedProcedure
+      .input(z.object({ courseId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        return await db.getStudentProgressByCourse(ctx.user.id, input.courseId);
+      }),
+  }),
+
+  // Cases management
+  cases: router({
+    list: committeeProcedure.query(async () => {
+      return await db.getAllCases();
+    }),
+    getById: committeeProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const caseData = await db.getCaseById(input.id);
+        if (!caseData) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Caso no encontrado' });
+        }
+        const followUps = await db.getCaseFollowUpsByCaseId(input.id);
+        const documents = await db.getCaseDocumentsByCaseId(input.id);
+        return { ...caseData, followUps, documents };
+      }),
+    create: publicProcedure
+      .input(z.object({
+        reporterName: z.string().optional(),
+        reporterEmail: z.string().email().optional(),
+        reporterPhone: z.string().optional(),
+        isAnonymous: z.boolean().default(false),
+        caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']),
+        description: z.string().min(10),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases } = await import('../drizzle/schema');
+        const caseNumber = `CASO-${Date.now()}`;
+        await dbInstance.insert(cases).values({
+          ...input,
+          caseNumber,
+          status: 'open',
+          priority: 'medium',
+        });
+        return { success: true, caseNumber };
+      }),
+    updateStatus: committeeProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(['open', 'investigating', 'resolved', 'closed']),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases } = await import('../drizzle/schema');
+        await dbInstance.update(cases).set({ status: input.status }).where(require('drizzle-orm').eq(cases.id, input.id));
+        return { success: true };
+      }),
+    addFollowUp: committeeProcedure
+      .input(z.object({
+        caseId: z.number(),
+        action: z.string().min(1),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { caseFollowUps } = await import('../drizzle/schema');
+        await dbInstance.insert(caseFollowUps).values({
+          ...input,
+          userId: ctx.user.id,
+        });
+        return { success: true };
+      }),
+  }),
+
+  // Committee members
+  committee: router({
+    list: adminProcedure.query(async () => {
+      return await db.getAllCommitteeMembers();
+    }),
+    add: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        position: z.string().optional(),
+        responsibilities: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { committeeMembers } = await import('../drizzle/schema');
+        await dbInstance.insert(committeeMembers).values(input);
+        return { success: true };
+      }),
+  }),
+
+  // Resources
+  resources: router({
+    list: protectedProcedure.query(async () => {
+      return await db.getAllResources();
+    }),
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getResourceById(input.id);
+      }),
+  }),
+
+  // Job positions
+  jobPositions: router({
+    list: protectedProcedure.query(async () => {
+      return await db.getAllJobPositions();
+    }),
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const position = await db.getJobPositionById(input.id);
+        if (!position) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Puesto no encontrado' });
+        }
+        const functions = await db.getJobFunctionsByPositionId(input.id);
+        return { ...position, functions };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
