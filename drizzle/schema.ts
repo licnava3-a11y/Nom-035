@@ -331,3 +331,107 @@ export const performanceEvaluations = mysqlTable("performanceEvaluations", {
 
 export type PerformanceEvaluation = typeof performanceEvaluations.$inferSelect;
 export type InsertPerformanceEvaluation = typeof performanceEvaluations.$inferInsert;
+
+/**
+ * Mailbox table - Electronic mailbox for complaints, suggestions, etc.
+ */
+export const mailbox = mysqlTable("mailbox", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(),
+  requestType: mysqlEnum("requestType", [
+    "queja",
+    "sugerencia",
+    "felicitacion",
+    "solicitud_capacitacion"
+  ]).notNull(),
+  complaintType: mysqlEnum("complaintType", [
+    "liderazgo_negativo",
+    "entorno_organizacional_desfavorable",
+    "conductas_contrarias_ambiente_laboral",
+    "carga_trabajo",
+    "falta_control_trabajo",
+    "jornadas_trabajo_extensas",
+    "interferencia_relacion_trabajo_familia",
+    "acoso_laboral",
+    "acoso_sexual",
+    "hostigamiento_sexual",
+    "mobbing",
+    "burnout",
+    "violencia_laboral",
+    "otros"
+  ]),
+  senderName: varchar("senderName", { length: 255 }),
+  senderEmail: varchar("senderEmail", { length: 320 }).notNull(),
+  senderPhone: varchar("senderPhone", { length: 20 }),
+  isAnonymous: boolean("isAnonymous").default(false).notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  message: text("message").notNull(),
+  status: mysqlEnum("status", ["recibido", "asignado", "en_proceso", "concluido"]).default("recibido").notNull(),
+  assignedTo: int("assignedTo"), // Committee member assigned
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  receivedVia: mysqlEnum("receivedVia", ["email", "web_form"]).default("web_form").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  concludedAt: timestamp("concludedAt"),
+});
+
+export type Mailbox = typeof mailbox.$inferSelect;
+export type InsertMailbox = typeof mailbox.$inferInsert;
+
+/**
+ * Mailbox responses table - Responses to mailbox requests
+ */
+export const mailboxResponses = mysqlTable("mailboxResponses", {
+  id: int("id").autoincrement().primaryKey(),
+  mailboxId: int("mailboxId").notNull(),
+  responderId: int("responderId").notNull(),
+  response: text("response").notNull(),
+  emailSent: boolean("emailSent").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MailboxResponse = typeof mailboxResponses.$inferSelect;
+export type InsertMailboxResponse = typeof mailboxResponses.$inferInsert;
+
+/**
+ * Notifications table - System notifications
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // Recipient
+  type: mysqlEnum("type", [
+    "new_case",
+    "case_status_change",
+    "case_assigned",
+    "deadline_approaching",
+    "new_mailbox_request",
+    "mailbox_status_change",
+    "system"
+  ]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  relatedEntityType: varchar("relatedEntityType", { length: 50 }), // e.g., "case", "mailbox"
+  relatedEntityId: int("relatedEntityId"),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Case assignments table - Committee member assignments to cases
+ */
+export const caseAssignments = mysqlTable("caseAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  caseId: int("caseId").notNull(),
+  committeeMemberId: int("committeeMemberId").notNull(),
+  role: mysqlEnum("role", ["lead", "support", "observer"]).default("support").notNull(),
+  assignedBy: int("assignedBy").notNull(),
+  isActive: boolean("isActive").default(true).notNull(),
+  assignedAt: timestamp("assignedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type CaseAssignment = typeof caseAssignments.$inferSelect;
+export type InsertCaseAssignment = typeof caseAssignments.$inferInsert;

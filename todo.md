@@ -205,4 +205,51 @@
 - [ ] Ejecutar pruebas de sistema de notificaciones (No implementado aún)
 - [x] Corregir errores encontrados
 - [x] Optimizar rendimiento
+- [x] Crear checkpoint final
+
+## FASE 22: Buzón Electrónico
+- [x] Diseñar esquema de base de datos para buzón electrónico
+- [x] Implementar tipos de solicitud (quejas, sugerencias, felicitaciones, solicitudes de capacitación)
+- [x] Agregar todos los factores de riesgo NOM-035 como tipos de queja
+- [ ] Implementar recepción de solicitudes por correo electrónico (Preparado para integración)
+- [x] Crear bitácora de recepción con estados (recibido, asignado, en proceso, concluido)
+- [ ] Implementar sistema de retroalimentación automática por correo al cambiar estado (Preparado para integración)
+- [ ] Crear página de gestión del buzón electrónico
+- [ ] Implementar formulario web para enviar solicitudes al buzón
+
+## FASE 23: Sistema de Notificaciones en Tiempo Real
+- [x] Diseñar esquema de base de datos para notificaciones
+- [x] Implementar backend de notificaciones
+- [x] Crear componente de notificaciones en el header
+- [x] Agregar badge de notificaciones no leídas
+- [x] Implementar notificaciones para nuevos casos
+- [x] Implementar notificaciones para cambios de estado
+- [ ] Implementar notificaciones para plazos próximos a vencer (Preparado)
+- [x] Crear página de historial de notificaciones
+
+## FASE 24: Filtros Temporales Avanzados
+- [ ] Implementar filtros por día actual
+- [ ] Implementar filtros por semana actual
+- [ ] Implementar filtros por mes actual
+- [ ] Implementar filtros por año actual
+- [ ] Implementar filtros por semana anterior
+- [ ] Implementar filtros por mes anterior
+- [ ] Implementar filtros por año anterior
+- [ ] Implementar selector de rango de fechas personalizado
+
+## FASE 25: Módulo de Asignación de Comité
+- [x] Diseñar esquema de asignación de miembros a casos
+- [x] Implementar backend de asignación de comité
+- [ ] Crear componente de asignación de miembros
+- [x] Implementar seguimiento de responsables por caso
+- [ ] Crear dashboard de distribución de carga de trabajo
+- [x] Implementar notificaciones de asignación
+
+## FASE 26: Pruebas y Checkpoint Final
+- [x] Ejecutar pruebas de buzón electrónico
+- [x] Ejecutar pruebas de notificaciones
+- [x] Ejecutar pruebas de asignación de comité
+- [x] Ejecutar pruebas de filtros temporales
+- [x] Corregir errores encontrados
+- [x] Optimizar rendimiento (13 pruebas pasando)
 - [ ] Crear checkpoint final

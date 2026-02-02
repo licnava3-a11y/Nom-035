@@ -22,6 +22,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { NotificationsDropdown } from "./NotificationsDropdown";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -268,6 +269,7 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
+            <NotificationsDropdown />
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>

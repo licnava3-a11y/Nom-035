@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations } from "../drizzle/schema";
+import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations, mailbox, mailboxResponses, notifications, caseAssignments } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -355,4 +355,170 @@ export async function getPerformanceEvaluationsByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(performanceEvaluations).where(eq(performanceEvaluations.userId, userId));
+}
+
+// Mailbox functions
+export async function getAllMailboxRequests() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(mailbox);
+}
+
+export async function getMailboxRequestById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(mailbox).where(eq(mailbox.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createMailboxRequest(data: {
+  requestType: "queja" | "sugerencia" | "felicitacion" | "solicitud_capacitacion";
+  complaintType?: string;
+  senderName?: string;
+  senderEmail: string;
+  senderPhone?: string;
+  isAnonymous: boolean;
+  subject: string;
+  message: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  receivedVia: "email" | "web_form";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Generate folio
+  const year = new Date().getFullYear();
+  const allRequests = await db.select().from(mailbox);
+  const consecutivo = allRequests.length + 1;
+  const folio = `BZN-${consecutivo.toString().padStart(4, '0')}/${year}`;
+  
+  const result = await db.insert(mailbox).values({
+    folio,
+    requestType: data.requestType,
+    complaintType: data.complaintType as any,
+    senderName: data.senderName,
+    senderEmail: data.senderEmail,
+    senderPhone: data.senderPhone,
+    isAnonymous: data.isAnonymous,
+    subject: data.subject,
+    message: data.message,
+    priority: data.priority || "medium",
+    receivedVia: data.receivedVia,
+    status: "recibido",
+  });
+  
+  const insertId = (result as any)[0]?.insertId || 1;
+  return { id: Number(insertId), folio, ...data };
+}
+
+export async function updateMailboxStatus(id: number, status: "recibido" | "asignado" | "en_proceso" | "concluido", assignedTo?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const updateData: any = { status };
+  if (assignedTo) {
+    updateData.assignedTo = assignedTo;
+  }
+  if (status === "concluido") {
+    updateData.concludedAt = new Date();
+  }
+  
+  await db.update(mailbox).set(updateData).where(eq(mailbox.id, id));
+  return { id, status, assignedTo };
+}
+
+export async function addMailboxResponse(mailboxId: number, responderId: number, response: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(mailboxResponses).values({
+    mailboxId,
+    responderId,
+    response,
+    emailSent: false,
+  });
+  
+  const insertId = (result as any)[0]?.insertId || 1;
+  return { id: Number(insertId), mailboxId, responderId, response };
+}
+
+export async function getMailboxResponses(mailboxId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(mailboxResponses).where(eq(mailboxResponses.mailboxId, mailboxId));
+}
+
+// Notifications functions
+export async function createNotification(data: {
+  userId: number;
+  type: "new_case" | "case_status_change" | "case_assigned" | "deadline_approaching" | "new_mailbox_request" | "mailbox_status_change" | "system";
+  title: string;
+  message: string;
+  relatedEntityType?: string;
+  relatedEntityId?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(notifications).values({
+    userId: data.userId,
+    type: data.type,
+    title: data.title,
+    message: data.message,
+    relatedEntityType: data.relatedEntityType,
+    relatedEntityId: data.relatedEntityId,
+    isRead: false,
+  });
+  
+  const insertId = (result as any)[0]?.insertId || 1;
+  return { id: Number(insertId), ...data };
+}
+
+export async function getUserNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(notifications).where(eq(notifications.userId, userId));
+}
+
+export async function markNotificationAsRead(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+  return { id, isRead: true };
+}
+
+export async function getUnreadNotificationsCount(userId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select().from(notifications).where(eq(notifications.userId, userId));
+  return result.filter(n => !n.isRead).length;
+}
+
+// Case assignments functions
+export async function assignCommitteeMemberToCase(caseId: number, committeeMemberId: number, assignedBy: number, role: "lead" | "support" | "observer" = "support") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(caseAssignments).values({
+    caseId,
+    committeeMemberId,
+    assignedBy,
+    role,
+    isActive: true,
+  });
+  
+  const insertId = (result as any)[0]?.insertId || 1;
+  return { id: Number(insertId), caseId, committeeMemberId, assignedBy, role };
+}
+
+export async function getCaseAssignments(caseId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(caseAssignments).where(eq(caseAssignments.caseId, caseId));
+}
+
+export async function getCommitteeMemberAssignments(committeeMemberId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(caseAssignments).where(eq(caseAssignments.committeeMemberId, committeeMemberId));
 }

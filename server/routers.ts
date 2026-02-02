@@ -468,6 +468,162 @@ export const appRouter = router({
         return { ...position, functions };
       }),
   }),
+
+  // Mailbox
+  mailbox: router({
+    list: committeeProcedure.query(async () => {
+      return await db.getAllMailboxRequests();
+    }),
+    getById: committeeProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const request = await db.getMailboxRequestById(input.id);
+        if (!request) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Solicitud no encontrada' });
+        }
+        const responses = await db.getMailboxResponses(input.id);
+        return { ...request, responses };
+      }),
+    create: publicProcedure
+      .input(z.object({
+        requestType: z.enum(["queja", "sugerencia", "felicitacion", "solicitud_capacitacion"]),
+        complaintType: z.enum([
+          "liderazgo_negativo",
+          "entorno_organizacional_desfavorable",
+          "conductas_contrarias_ambiente_laboral",
+          "carga_trabajo",
+          "falta_control_trabajo",
+          "jornadas_trabajo_extensas",
+          "interferencia_relacion_trabajo_familia",
+          "acoso_laboral",
+          "acoso_sexual",
+          "hostigamiento_sexual",
+          "mobbing",
+          "burnout",
+          "violencia_laboral",
+          "otros"
+        ]).optional(),
+        senderName: z.string().optional(),
+        senderEmail: z.string().email(),
+        senderPhone: z.string().optional(),
+        isAnonymous: z.boolean(),
+        subject: z.string(),
+        message: z.string(),
+        priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const request = await db.createMailboxRequest({
+          ...input,
+          receivedVia: "web_form",
+        });
+        
+        // Create notification for committee members
+        const committeeMembers = await db.getAllCommitteeMembers();
+        for (const member of committeeMembers) {
+          await db.createNotification({
+            userId: member.userId,
+            type: "new_mailbox_request",
+            title: "Nueva solicitud en el buzón",
+            message: `Nueva ${input.requestType}: ${input.subject}`,
+            relatedEntityType: "mailbox",
+            relatedEntityId: request.id,
+          });
+        }
+        
+        return request;
+      }),
+    updateStatus: committeeProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["recibido", "asignado", "en_proceso", "concluido"]),
+        assignedTo: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await db.updateMailboxStatus(input.id, input.status, input.assignedTo);
+        
+        // Get request details for email
+        const request = await db.getMailboxRequestById(input.id);
+        if (request) {
+          // Create notification for status change
+          const committeeMembers = await db.getAllCommitteeMembers();
+          for (const member of committeeMembers) {
+            await db.createNotification({
+              userId: member.userId,
+              type: "mailbox_status_change",
+              title: "Cambio de estado en solicitud",
+              message: `La solicitud ${request.folio} cambió a: ${input.status}`,
+              relatedEntityType: "mailbox",
+              relatedEntityId: input.id,
+            });
+          }
+        }
+        
+        return result;
+      }),
+    addResponse: committeeProcedure
+      .input(z.object({
+        mailboxId: z.number(),
+        response: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await db.addMailboxResponse(input.mailboxId, ctx.user.id, input.response);
+      }),
+  }),
+
+  // Notifications
+  notifications: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserNotifications(ctx.user.id);
+    }),
+    markAsRead: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return await db.markNotificationAsRead(input.id);
+      }),
+    unreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUnreadNotificationsCount(ctx.user.id);
+    }),
+  }),
+
+  // Case assignments
+  caseAssignments: router({
+    assign: committeeProcedure
+      .input(z.object({
+        caseId: z.number(),
+        committeeMemberId: z.number(),
+        role: z.enum(["lead", "support", "observer"]).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await db.assignCommitteeMemberToCase(
+          input.caseId,
+          input.committeeMemberId,
+          ctx.user.id,
+          input.role
+        );
+        
+        // Create notification for assigned member
+        await db.createNotification({
+          userId: input.committeeMemberId,
+          type: "case_assigned",
+          title: "Caso asignado",
+          message: `Se te ha asignado un nuevo caso`,
+          relatedEntityType: "case",
+          relatedEntityId: input.caseId,
+        });
+        
+        return result;
+      }),
+    getByCaseId: committeeProcedure
+      .input(z.object({ caseId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCaseAssignments(input.caseId);
+      }),
+    getByCommitteeMemberId: committeeProcedure
+      .input(z.object({ committeeMemberId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCommitteeMemberAssignments(input.committeeMemberId);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

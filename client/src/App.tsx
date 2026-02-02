@@ -17,6 +17,7 @@ import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
+import Notifications from "./pages/Notifications";
 
 function Router() {
   return (
@@ -79,6 +80,11 @@ function Router() {
       <Route path={"/profile"}>
         <DashboardLayout>
           <Profile />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/notifications"}>
+        <DashboardLayout>
+          <Notifications />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
