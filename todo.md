@@ -168,4 +168,41 @@
 - [x] Corregir errores encontrados
 - [x] Optimizar consultas de base de datos
 - [x] Revisar y mejorar UX
+- [x] Crear checkpoint final
+
+## FASE 18: Exportación de Reportes
+- [x] Implementar exportación de reportes a PDF con datos reales
+- [x] Implementar exportación de reportes a Excel con datos reales
+- [x] Crear reporte de capacitación en PDF
+- [x] Crear reporte de capacitación en Excel
+- [x] Crear reporte de casos en PDF
+- [x] Crear reporte de casos en Excel
+- [x] Crear reporte de cumplimiento NOM-035 en PDF
+- [x] Crear reporte de cumplimiento NOM-035 en Excel
+
+## FASE 19: Página de Detalle de Caso
+- [x] Crear página de detalle de caso individual
+- [x] Implementar timeline de seguimiento del caso
+- [x] Mostrar historial completo de acciones
+- [ ] Agregar sección de documentos adjuntos (Preparado para próxima fase)
+- [ ] Implementar asignación de miembros del comité (Preparado para próxima fase)
+- [x] Crear formulario de actualización de estado
+- [x] Agregar comentarios y notas al caso
+
+## FASE 20: Sistema de Notificaciones
+- [ ] Diseñar esquema de notificaciones en base de datos
+- [ ] Implementar backend de notificaciones
+- [ ] Crear componente de notificaciones en el frontend
+- [ ] Implementar notificaciones para nuevos casos
+- [ ] Implementar notificaciones para cambios de estado
+- [ ] Implementar notificaciones para plazos próximos a vencer
+- [ ] Agregar badge de notificaciones no leídas
+- [ ] Crear página de historial de notificaciones
+
+## FASE 21: Pruebas y Checkpoint Final
+- [x] Ejecutar pruebas exhaustivas de exportación
+- [x] Ejecutar pruebas de página de detalle de caso
+- [ ] Ejecutar pruebas de sistema de notificaciones (No implementado aún)
+- [x] Corregir errores encontrados
+- [x] Optimizar rendimiento
 - [ ] Crear checkpoint final

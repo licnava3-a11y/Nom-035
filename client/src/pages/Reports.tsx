@@ -244,11 +244,11 @@ export default function Reports() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/pdf', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar PDF
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/excel', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar Excel
                 </Button>
@@ -273,11 +273,11 @@ export default function Reports() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/cases/pdf', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar PDF
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/cases/excel', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar Excel
                 </Button>
@@ -302,11 +302,11 @@ export default function Reports() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/compliance/pdf', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar PDF
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/compliance/excel', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar Excel
                 </Button>
@@ -331,11 +331,11 @@ export default function Reports() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/pdf', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar PDF
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/excel', '_blank')}>
                   <Download className="h-4 w-4 mr-2" />
                   Descargar Excel
                 </Button>

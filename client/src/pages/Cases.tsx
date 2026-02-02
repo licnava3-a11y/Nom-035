@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertCircle, Plus, Eye, Edit, FileText } from "lucide-react";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -223,6 +224,12 @@ export default function Cases() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
+                        <Link href={`/cases/${caseItem.id}`}>
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver Detalle
+                          </Button>
+                        </Link>
                         <Button variant="outline" size="sm" onClick={() => handleEditCase(caseItem)}>
                           <Edit className="h-4 w-4 mr-2" />
                           Editar

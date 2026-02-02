@@ -246,6 +246,18 @@ export const appRouter = router({
         await dbInstance.update(cases).set({ status: input.status }).where(require('drizzle-orm').eq(cases.id, input.id));
         return { success: true };
       }),
+    getFollowUps: protectedProcedure
+      .input(z.object({
+        caseId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { caseFollowUps } = await import('../drizzle/schema');
+        const { desc } = await import('drizzle-orm');
+        return await dbInstance.select().from(caseFollowUps).where(require('drizzle-orm').eq(caseFollowUps.caseId, input.caseId)).orderBy(desc(caseFollowUps.createdAt));
+      }),
     addFollowUp: committeeProcedure
       .input(z.object({
         caseId: z.number(),
