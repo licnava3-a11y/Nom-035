@@ -193,175 +193,157 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {user?.role === "student" && (
             <>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/courses">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <BookOpen className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Explorar Cursos</CardTitle>
-                          <CardDescription>Accede a los programas de capacitación</CardDescription>
-                        </div>
+              <Link href="/courses">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <BookOpen className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Explorar Cursos</CardTitle>
+                        <CardDescription>Accede a los programas de capacitación</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/evaluations">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <ClipboardCheck className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Mis Evaluaciones</CardTitle>
-                          <CardDescription>Revisa tus exámenes y calificaciones</CardDescription>
-                        </div>
+              <Link href="/evaluations">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <ClipboardCheck className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Mis Evaluaciones</CardTitle>
+                        <CardDescription>Revisa tus exámenes y calificaciones</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/resources">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <FileText className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Recursos</CardTitle>
-                          <CardDescription>Descarga manuales y protocolos</CardDescription>
-                        </div>
+              <Link href="/resources">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <FileText className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Recursos</CardTitle>
+                        <CardDescription>Descarga manuales y protocolos</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
             </>
           )}
 
           {(user?.role === "admin" || user?.role === "committee") && (
             <>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/cases">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-destructive/10 rounded-lg">
-                          <AlertCircle className="h-6 w-6 text-destructive" />
-                        </div>
-                        <div>
-                          <CardTitle>Gestión de Casos</CardTitle>
-                          <CardDescription>Atención de casos psicosociales</CardDescription>
-                        </div>
+              <Link href="/cases">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-destructive/10 rounded-lg">
+                        <AlertCircle className="h-6 w-6 text-destructive" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Gestión de Casos</CardTitle>
+                        <CardDescription>Atención de casos psicosociales</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/committee">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Users className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Comité de Atención</CardTitle>
-                          <CardDescription>Administrar miembros del comité</CardDescription>
-                        </div>
+              <Link href="/committee">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Users className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Comité de Atención</CardTitle>
+                        <CardDescription>Administrar miembros del comité</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/reports">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <TrendingUp className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Reportes</CardTitle>
-                          <CardDescription>Métricas y estadísticas del sistema</CardDescription>
-                        </div>
+              <Link href="/reports">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <TrendingUp className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Reportes</CardTitle>
+                        <CardDescription>Métricas y estadísticas del sistema</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
             </>
           )}
 
           {user?.role === "instructor" && (
             <>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/courses">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <BookOpen className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Gestionar Cursos</CardTitle>
-                          <CardDescription>Crear y editar programas de capacitación</CardDescription>
-                        </div>
+              <Link href="/courses">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <BookOpen className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Gestionar Cursos</CardTitle>
+                        <CardDescription>Crear y editar programas de capacitación</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/job-positions">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Users className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Análisis de Puestos</CardTitle>
-                          <CardDescription>Evaluar riesgos psicosociales</CardDescription>
-                        </div>
+              <Link href="/job-positions">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Users className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Análisis de Puestos</CardTitle>
+                        <CardDescription>Evaluar riesgos psicosociales</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <Link href="/reports">
-                  <a className="block">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <TrendingUp className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle>Reportes</CardTitle>
-                          <CardDescription>Seguimiento y estadísticas</CardDescription>
-                        </div>
+              <Link href="/reports">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <TrendingUp className="h-6 w-6 text-primary" />
                       </div>
-                    </CardHeader>
-                  </a>
-                </Link>
-              </Card>
+                      <div>
+                        <CardTitle>Reportes</CardTitle>
+                        <CardDescription>Seguimiento y estadísticas</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
             </>
           )}
         </div>
@@ -383,14 +365,10 @@ export default function Dashboard() {
           </p>
           <div className="flex gap-2">
             <Button asChild variant="outline">
-              <Link href="/resources">
-                <a>Ver Recursos</a>
-              </Link>
+              <Link href="/resources">Ver Recursos</Link>
             </Button>
             <Button asChild>
-              <Link href="/courses">
-                <a>Comenzar Capacitación</a>
-              </Link>
+              <Link href="/courses">Comenzar Capacitación</Link>
             </Button>
           </div>
         </CardContent>

@@ -103,4 +103,10 @@
 - [x] Optimización de consultas de base de datos
 - [x] Revisión de errores críticos
 - [x] Mejoras de UX
-- [ ] Crear checkpoint final
+- [x] Crear checkpoint final
+
+## CORRECCIÓN URGENTE
+- [x] Corregir ciclo infinito en el sistema de login (etiquetas <a> anidadas)
+- [x] Revisar flujo de autenticación OAuth
+- [x] Probar login con diferentes roles
+- [ ] Crear checkpoint con la corrección
