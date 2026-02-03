@@ -551,3 +551,51 @@
 - [ ] Verificar foliado automático
 - [ ] Probar exportación a PDF
 - [ ] Crear checkpoint final
+
+
+## FASE 37: Formatos Legales, PDFs y Firmantes Externos
+
+### Paso 1: Crear Plantillas de Formatos Legales
+- [ ] Crear plantilla de Funciones del Comité
+- [ ] Crear plantilla de Acta Constitutiva
+- [ ] Crear plantilla de Aceptación de Cargo
+- [ ] Crear plantilla de Actas de Recorridos NOM-019
+- [ ] Integrar SignaturePad en cada formato
+- [ ] Agregar campos dinámicos y validaciones
+
+### Paso 2: Implementar Generación de PDFs
+- [ ] Instalar biblioteca de generación de PDFs (jsPDF o react-pdf)
+- [ ] Crear helper para generar códigos QR únicos
+- [ ] Implementar foliado automático con nomenclatura
+- [ ] Crear procedimiento tRPC para generar PDF
+- [ ] Incluir firmas digitalizadas en PDF
+- [ ] Agregar códigos QR de validación NOM-151
+- [ ] Implementar pie de página con folio
+
+### Paso 3: Crear Catálogo de Firmantes Externos
+- [ ] Crear tabla de firmantes externos en schema
+- [ ] Crear procedimientos tRPC para CRUD de firmantes
+- [ ] Implementar página de lista de firmantes
+- [ ] Crear formulario de solicitud de nuevo firmante
+- [ ] Implementar flujo de autorización por administrador
+- [ ] Enviar correo de autorización al administrador
+- [ ] Crear página de gestión de solicitudes pendientes
+- [ ] Agregar menú de Firmantes en navegación
+
+### Paso 4: Página de Gestión de Formatos
+- [ ] Crear página principal de formatos
+- [ ] Listar todos los documentos generados
+- [ ] Implementar filtros por tipo de formato
+- [ ] Agregar búsqueda por folio
+- [ ] Mostrar historial de versiones (borradores y finales)
+- [ ] Implementar descarga de PDFs
+- [ ] Agregar vista previa de documentos
+
+### Paso 5: Pruebas y Validación
+- [ ] Probar captura de firmas en cada formato
+- [ ] Validar generación de PDFs con firmas
+- [ ] Verificar códigos QR y foliado
+- [ ] Probar flujo completo de firmantes externos
+- [ ] Validar autorización de administrador
+- [ ] Crear tests unitarios
+- [ ] Crear checkpoint final
