@@ -24,6 +24,7 @@ import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import Mailbox from "./pages/Mailbox";
 import MailboxForm from "./pages/MailboxForm";
+import MailboxDetail from "./pages/MailboxDetail";
 import Employees from "./pages/Employees";
 import EmployeeNew from "./pages/EmployeeNew";
 import EmployeeEdit from "./pages/EmployeeEdit";
@@ -133,6 +134,11 @@ function Router() {
       <Route path={"/mailbox/form"}>
         <DashboardLayout>
           <MailboxForm />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/mailbox/:id"}>
+        <DashboardLayout>
+          <MailboxDetail />
         </DashboardLayout>
       </Route>
       <Route path={"/employees"}>

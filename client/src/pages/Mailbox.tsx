@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
@@ -41,12 +41,12 @@ export default function Mailbox() {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", label: string }> = {
-      received: { variant: "outline", label: "Recibido" },
-      assigned: { variant: "secondary", label: "Asignado" },
-      in_progress: { variant: "default", label: "En Proceso" },
-      completed: { variant: "default", label: "Concluido" },
+      recibido: { variant: "outline", label: "Recibido" },
+      asignado: { variant: "secondary", label: "Asignado" },
+      en_proceso: { variant: "default", label: "En Proceso" },
+      concluido: { variant: "default", label: "Concluido" },
     };
-    const config = variants[status] || variants.received;
+    const config = variants[status] || variants.recibido;
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -72,10 +72,10 @@ export default function Mailbox() {
 
   const stats = {
     total: mailboxItems?.length || 0,
-    received: mailboxItems?.filter((i: any) => i.status === "received").length || 0,
-    assigned: mailboxItems?.filter((i: any) => i.status === "assigned").length || 0,
-    in_progress: mailboxItems?.filter((i: any) => i.status === "in_progress").length || 0,
-    completed: mailboxItems?.filter((i: any) => i.status === "completed").length || 0,
+    received: mailboxItems?.filter((i: any) => i.status === "recibido").length || 0,
+    assigned: mailboxItems?.filter((i: any) => i.status === "asignado").length || 0,
+    in_progress: mailboxItems?.filter((i: any) => i.status === "en_proceso").length || 0,
+    completed: mailboxItems?.filter((i: any) => i.status === "concluido").length || 0,
   };
 
   if (isLoading) {
@@ -145,30 +145,28 @@ export default function Mailbox() {
                 className="pl-8"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="received">Recibido</SelectItem>
-                <SelectItem value="assigned">Asignado</SelectItem>
-                <SelectItem value="in_progress">En Proceso</SelectItem>
-                <SelectItem value="completed">Concluido</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar por tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
-                <SelectItem value="complaint">Queja</SelectItem>
-                <SelectItem value="suggestion">Sugerencia</SelectItem>
-                <SelectItem value="congratulation">Felicitación</SelectItem>
-                <SelectItem value="training_request">Solicitud de Capacitación</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="recibido">Recibido</option>
+              <option value="asignado">Asignado</option>
+              <option value="en_proceso">En Proceso</option>
+              <option value="concluido">Concluido</option>
+            </select>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="all">Todos los tipos</option>
+              <option value="complaint">Queja</option>
+              <option value="suggestion">Sugerencia</option>
+              <option value="congratulation">Felicitación</option>
+              <option value="training_request">Solicitud de Capacitación</option>
+            </select>
           </div>
         </CardContent>
       </Card>

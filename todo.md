@@ -1097,3 +1097,79 @@
 - [ ] Mostrar estadísticas de respuestas
 - [ ] Exportar reporte de respuestas a Excel
 - [ ] Visualizar resultados individuales y agregados
+
+
+## FASE 48: Corrección de Buzón Electrónico y Auditoría Exhaustiva
+
+### Corrección de Error en Buzón Electrónico
+- [x] Corregir error NotFoundError en botón "Ver detalle"
+- [x] Revisar manipulación del DOM en componente de Buzón
+- [x] Implementar validación de nodos antes de removeChild
+- [x] Probar funcionalidad de Ver detalle con diferentes tipos de mensajes
+
+### Auditoría Exhaustiva de Botones y Funcionalidades
+- [ ] Auditar todos los botones en Dashboard
+- [ ] Auditar todos los botones en página de Cursos
+- [ ] Auditar todos los botones en página de Evaluaciones
+- [ ] Auditar todos los botones en página de Casos
+- [ ] Auditar todos los botones en página de Comité
+- [ ] Auditar todos los botones en página de Recursos
+- [ ] Auditar todos los botones en página de Puestos
+- [ ] Auditar todos los botones en página de Trabajadores
+- [ ] Auditar todos los botones en página de Reportes
+- [ ] Auditar todos los botones en página de Usuarios
+- [ ] Auditar todos los botones en página de Configuración
+- [ ] Auditar todos los botones en página de Documentos
+- [ ] Crear lista de botones pendientes de programar
+- [ ] Programar funcionalidades faltantes en botones
+
+### Programación de Botones Pendientes
+- [ ] Identificar todos los botones con toast "Funcionalidad en desarrollo"
+- [ ] Priorizar botones por criticidad
+- [ ] Implementar funcionalidades críticas primero
+- [ ] Implementar funcionalidades secundarias
+- [ ] Probar cada funcionalidad implementada
+
+
+## FASE 49: Sistema de Roles Avanzado
+
+### Actualización de Roles
+- [ ] Agregar rol "committee_member" (Miembro del Comité)
+- [ ] Agregar rol "committee_coordinator" (Coordinador del Comité)
+- [ ] Actualizar enum de roles en schema.ts
+- [ ] Generar y aplicar migración SQL
+
+### Permisos de Miembro del Comité
+- [ ] Acceso a página de Comité
+- [ ] Acceso a documentos del comité
+- [ ] Acceso a casos asignados
+- [ ] Verificar que estén en listado de personal autorizado
+
+### Permisos de Coordinador del Comité
+- [ ] Todos los permisos de Miembro del Comité
+- [ ] Acceso completo a Buzón electrónico
+- [ ] Acceso a investigación de casos
+- [ ] Acceso a dictaminación de casos
+- [ ] Recibir notificaciones de buzón
+- [ ] Asignar casos a miembros del comité
+
+## FASE 50: Conexión de Formatos Legales a Backend
+
+### Integración con tRPC
+- [ ] Conectar DocumentActaConstitutiva con tRPC
+- [ ] Conectar DocumentFuncionesComite con tRPC
+- [ ] Conectar DocumentAceptacionCargo con tRPC
+- [ ] Conectar DocumentActaRecorridoNOM019 con tRPC
+- [ ] Conectar DocumentActaFinalResultados con tRPC
+
+### Generación Automática de PDFs
+- [ ] Implementar generación automática al finalizar documento
+- [ ] Subir PDF a S3 automáticamente
+- [ ] Guardar URL del PDF en base de datos
+- [ ] Enviar notificación al creador del documento
+
+### Firma Digital
+- [ ] Implementar flujo de firma digital
+- [ ] Guardar firmas en tabla signatures
+- [ ] Validar firmas antes de finalizar documento
+- [ ] Generar certificado de autenticidad

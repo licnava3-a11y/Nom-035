@@ -11,7 +11,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["admin", "instructor", "student", "committee"]).default("student").notNull(),
+  role: mysqlEnum("role", ["admin", "instructor", "student", "committee", "committee_member", "committee_coordinator"]).default("student").notNull(),
   
   // Campos NOM-035 STPS 2018 - Guía V
   curp: varchar("curp", { length: 18 }).unique(),
