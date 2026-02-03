@@ -77,3 +77,36 @@
 - [ ] Agregar enlace en menú de Encuestas NOM-035
 - [ ] Probar flujo completo de registro y seguimiento
 - [ ] Verificar que todas las acciones funcionan correctamente
+
+
+## FASE 70: Sistema de Notificaciones Automáticas por Correo
+
+### Integración con Servicio de Correos
+- [x] Integrar servicio de correos con router de acciones correctivas- [x] Crear plantillas HTML para notificaciones de acciones correctivas
+
+### Notificación al Asignar Acción
+- [x] Implementar envío de correo al crear acción correctiva
+- [x] Incluir detalles: descripción, nivel de riesgo, fecha límite
+- [x] Agregar enlace directo a la acción en el sistema
+
+### Notificación al Cambiar Estado
+- [x] Implementar envío de correo al cambiar estado de acción
+- [x] Notificar al responsable del cambio
+- [ ] Notificar al coordinador (opcional según configuración)
+
+### Sistema de Alertas de Vencimiento
+- [x] Crear procedimiento para detectar acciones próximas a vencer (7 días)
+- [x] Implementar envío automático de recordatorios
+- [x] Crear alerta para el día del vencimiento
+- [ ] Configurar tarea programada para envíos automáticos
+
+### Notificación al Coordinador
+- [x] Crear procedimiento para detectar acciones vencidas
+- [x] Implementar envío de resumen al coordinador
+- [x] Incluir lista de acciones vencidas con responsables
+
+### Pruebas y Validación
+- [x] Probar envío de notificaciones al crear acción
+- [x] Probar envío de notificaciones al cambiar estado
+- [x] Verificar alertas de vencimiento
+- [x] Validar formato y contenido de correos

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
 import * as db from '../db';
-// import { sendCorrectiveActionAssignmentEmail, sendCorrectiveActionStatusChangeEmail, sendCorrectiveActionDueDateAlert } from '../lib/survey-email-service';
+import { sendActionAssignmentNotification, sendActionStatusChangeNotification } from '../lib/corrective-actions-email-service';
 
 export const correctiveActionsRouter = router({
   // Crear nueva acción correctiva
@@ -40,15 +40,22 @@ export const correctiveActionsRouter = router({
         const [assignedUser] = await dbInstance.select().from(users).where(eq(users.id, input.responsibleUserId));
         
         if (assignedUser?.email) {
-          // TODO: Implementar envío de correo
-          /* await sendCorrectiveActionAssignmentEmail({
-            to: assignedUser.email,
-            actionTitle: input.category || 'Acción Correctiva',
-            actionDescription: input.description,
-            riskLevel: input.riskLevel,
-            dueDate: input.dueDate,
-            assignedBy: ctx.user.name || ctx.user.email,
-          }); */
+          // Enviar notificación de asignación
+          try {
+            await sendActionAssignmentNotification({
+              to: assignedUser.email,
+              responsibleName: assignedUser.name || assignedUser.email,
+              actionId: action.id,
+              description: input.description,
+              riskLevel: input.riskLevel,
+              department: input.departamento || 'No especificado',
+              dueDate: input.dueDate ? new Date(input.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Sin fecha límite',
+              actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${action.id}`,
+            });
+          } catch (error) {
+            console.error('Error al enviar notificación de asignación:', error);
+            // No lanzar error para no bloquear la creación de la acción
+          }
         }
       }
 
@@ -200,6 +207,16 @@ export const correctiveActionsRouter = router({
       const { correctiveActions, users } = await import('../../drizzle/schema');
       const { eq } = await import('drizzle-orm');
 
+      // Obtener estado anterior antes de actualizar
+      const [previousAction] = await dbInstance
+        .select({
+          status: correctiveActions.status,
+          description: correctiveActions.description,
+          responsibleUserId: correctiveActions.responsibleUserId,
+        })
+        .from(correctiveActions)
+        .where(eq(correctiveActions.id, input.id));
+
       const updateData: any = { status: input.status };
       if (input.notes) updateData.notes = input.notes;
       if (input.status === 'completada') {
@@ -210,28 +227,34 @@ export const correctiveActionsRouter = router({
         .set(updateData)
         .where(eq(correctiveActions.id, input.id));
 
-      // Obtener información de la acción y el responsable
-      const [action] = await dbInstance
-        .select({
-          description: correctiveActions.description,
-          category: correctiveActions.category,
-          responsibleUserId: correctiveActions.responsibleUserId,
-          responsibleUserEmail: users.email,
-        })
-        .from(correctiveActions)
-        .leftJoin(users, eq(correctiveActions.responsibleUserId, users.id))
-        .where(eq(correctiveActions.id, input.id));
+      // Obtener información del responsable para notificación
+      if (previousAction?.responsibleUserId) {
+        const [responsibleUser] = await dbInstance
+          .select({
+            name: users.name,
+            email: users.email,
+          })
+          .from(users)
+          .where(eq(users.id, previousAction.responsibleUserId));
 
-      // Enviar correo de cambio de estado
-      if (action?.responsibleUserEmail) {
-        // TODO: Implementar envío de correo
-        /* await sendCorrectiveActionStatusChangeEmail({
-          to: action.responsibleUserEmail,
-          actionTitle: action.category || 'Acción Correctiva',
-          newStatus: input.status,
-          notes: input.notes,
-          changedBy: ctx.user.name || ctx.user.email,
-        }); */
+        // Enviar correo de cambio de estado
+        if (responsibleUser?.email) {
+          try {
+            await sendActionStatusChangeNotification({
+              to: responsibleUser.email,
+              recipientName: responsibleUser.name || responsibleUser.email,
+              actionId: input.id,
+              description: previousAction.description,
+              oldStatus: previousAction.status,
+              newStatus: input.status,
+              changedBy: ctx.user.name || ctx.user.email || 'Sistema',
+              actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${input.id}`,
+            });
+          } catch (error) {
+            console.error('Error al enviar notificación de cambio de estado:', error);
+            // No lanzar error para no bloquear la actualización
+          }
+        }
       }
 
       return { success: true };
@@ -339,5 +362,220 @@ export const correctiveActionsRouter = router({
         .orderBy(correctiveActions.dueDate);
 
       return actions;
+    }),
+
+  // Enviar recordatorios de acciones próximas a vencer
+  sendDueReminders: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions, users } = await import('../../drizzle/schema');
+      const { eq, and, sql } = await import('drizzle-orm');
+      const { sendActionDueReminder } = await import('../lib/corrective-actions-email-service');
+
+      // Obtener acciones próximas a vencer (próximos 7 días)
+      const now = new Date();
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+      const actions = await dbInstance
+        .select({
+          id: correctiveActions.id,
+          description: correctiveActions.description,
+          riskLevel: correctiveActions.riskLevel,
+          dueDate: correctiveActions.dueDate,
+          responsibleUserId: correctiveActions.responsibleUserId,
+          responsibleUserName: users.name,
+          responsibleUserEmail: users.email,
+        })
+        .from(correctiveActions)
+        .leftJoin(users, eq(correctiveActions.responsibleUserId, users.id))
+        .where(
+          and(
+            sql`${correctiveActions.status} IN ('pendiente', 'en_proceso')`,
+            sql`${correctiveActions.dueDate} IS NOT NULL`,
+            sql`${correctiveActions.dueDate} BETWEEN ${now.toISOString().split('T')[0]} AND ${sevenDaysFromNow.toISOString().split('T')[0]}`
+          )
+        );
+
+      let sentCount = 0;
+      let errorCount = 0;
+
+      for (const action of actions) {
+        if (action.responsibleUserEmail && action.dueDate) {
+          const daysRemaining = Math.ceil((new Date(action.dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          
+          try {
+            await sendActionDueReminder({
+              to: action.responsibleUserEmail,
+              responsibleName: action.responsibleUserName || action.responsibleUserEmail,
+              actionId: action.id,
+              description: action.description,
+              riskLevel: action.riskLevel,
+              dueDate: new Date(action.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+              daysRemaining,
+              actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${action.id}`,
+            });
+            sentCount++;
+          } catch (error) {
+            console.error(`Error al enviar recordatorio para acción #${action.id}:`, error);
+            errorCount++;
+          }
+        }
+      }
+
+      return {
+        success: true,
+        sent: sentCount,
+        errors: errorCount,
+        total: actions.length,
+      };
+    }),
+
+  // Enviar alertas de acciones vencidas
+  sendOverdueAlerts: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions, users } = await import('../../drizzle/schema');
+      const { eq, and, sql, lt } = await import('drizzle-orm');
+      const { sendActionOverdueNotification } = await import('../lib/corrective-actions-email-service');
+
+      // Obtener acciones vencidas
+      const now = new Date();
+      const actions = await dbInstance
+        .select({
+          id: correctiveActions.id,
+          description: correctiveActions.description,
+          riskLevel: correctiveActions.riskLevel,
+          dueDate: correctiveActions.dueDate,
+          responsibleUserId: correctiveActions.responsibleUserId,
+          responsibleUserName: users.name,
+          responsibleUserEmail: users.email,
+        })
+        .from(correctiveActions)
+        .leftJoin(users, eq(correctiveActions.responsibleUserId, users.id))
+        .where(
+          and(
+            sql`${correctiveActions.status} IN ('pendiente', 'en_proceso')`,
+            sql`${correctiveActions.dueDate} IS NOT NULL`,
+            sql`${correctiveActions.dueDate} < ${now.toISOString().split('T')[0]}`
+          )
+        );
+
+      let sentCount = 0;
+      let errorCount = 0;
+
+      for (const action of actions) {
+        if (action.responsibleUserEmail && action.dueDate) {
+          const daysOverdue = Math.ceil((now.getTime() - new Date(action.dueDate).getTime()) / (1000 * 60 * 60 * 24));
+          
+          try {
+            await sendActionOverdueNotification({
+              to: action.responsibleUserEmail,
+              responsibleName: action.responsibleUserName || action.responsibleUserEmail,
+              actionId: action.id,
+              description: action.description,
+              riskLevel: action.riskLevel,
+              dueDate: new Date(action.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+              daysOverdue,
+              actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${action.id}`,
+            });
+            sentCount++;
+          } catch (error) {
+            console.error(`Error al enviar alerta de vencimiento para acción #${action.id}:`, error);
+            errorCount++;
+          }
+        }
+      }
+
+      return {
+        success: true,
+        sent: sentCount,
+        errors: errorCount,
+        total: actions.length,
+      };
+    }),
+
+  // Enviar resumen de acciones vencidas al coordinador
+  sendOverdueSummaryToCoordinator: protectedProcedure
+    .input(z.object({
+      coordinatorEmail: z.string().email(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions, users } = await import('../../drizzle/schema');
+      const { eq, and, sql } = await import('drizzle-orm');
+      const { sendOverdueActionsSummary } = await import('../lib/corrective-actions-email-service');
+
+      // Obtener acciones vencidas con información del responsable
+      const now = new Date();
+      const overdueActions = await dbInstance
+        .select({
+          id: correctiveActions.id,
+          description: correctiveActions.description,
+          departamento: correctiveActions.departamento,
+          dueDate: correctiveActions.dueDate,
+          responsibleUserName: users.name,
+          responsibleUserEmail: users.email,
+        })
+        .from(correctiveActions)
+        .leftJoin(users, eq(correctiveActions.responsibleUserId, users.id))
+        .where(
+          and(
+            sql`${correctiveActions.status} IN ('pendiente', 'en_proceso')`,
+            sql`${correctiveActions.dueDate} IS NOT NULL`,
+            sql`${correctiveActions.dueDate} < ${now.toISOString().split('T')[0]}`
+          )
+        );
+
+      if (overdueActions.length === 0) {
+        return {
+          success: true,
+          sent: 0,
+          message: 'No hay acciones vencidas para reportar',
+        };
+      }
+
+      // Obtener nombre del coordinador
+      const [coordinator] = await dbInstance
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.email, input.coordinatorEmail));
+
+      // Preparar datos para el correo
+      const summaryData = overdueActions.map(action => ({
+        id: action.id,
+        description: action.description,
+        responsibleName: action.responsibleUserName || action.responsibleUserEmail || 'Sin asignar',
+        department: action.departamento || 'No especificado',
+        dueDate: action.dueDate ? new Date(action.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Sin fecha',
+        daysOverdue: action.dueDate ? Math.ceil((now.getTime() - new Date(action.dueDate).getTime()) / (1000 * 60 * 60 * 24)) : 0,
+      }));
+
+      try {
+        await sendOverdueActionsSummary({
+          to: input.coordinatorEmail,
+          coordinatorName: coordinator?.name || input.coordinatorEmail,
+          overdueActions: summaryData,
+          dashboardUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions`,
+        });
+
+        return {
+          success: true,
+          sent: 1,
+          overdueCount: overdueActions.length,
+        };
+      } catch (error) {
+        console.error('Error al enviar resumen al coordinador:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Error al enviar el correo al coordinador',
+        });
+      }
     }),
 });
