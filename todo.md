@@ -855,3 +855,37 @@
 - [ ] Agregar navegación desde página Documents
 - [ ] Implementar guardado de borradores
 - [ ] Crear procedimientos tRPC para cada formato
+
+
+## FASE 43: Acta Final de Resultados NOM-035
+
+### Formato: Acta Final de Resultados
+- [x] Crear plantilla de Acta Final de Resultados
+- [x] Incluir elementos del Programa de Atención (numeral 8.4):
+  - [x] Áreas de trabajo y/o trabajadores sujetos al programa
+  - [x] Tipo de acciones y medidas de control
+  - [x] Fechas programadas para realización
+  - [x] Control de avances de implementación
+  - [x] Evaluación posterior a medidas de control
+  - [x] Responsable de ejecución
+- [x] Incluir niveles de acciones (numeral 8.5):
+  - [x] Primer nivel: Acciones organizacionales
+  - [x] Segundo nivel: Acciones grupales
+  - [x] Tercer nivel: Acciones individuales (clínico/terapéutico)
+- [x] Incluir datos del dictamen para Unidades de Verificación (numeral 9.3):
+  - [x] Clave y nombre de la norma
+  - [x] Nombre del verificador evaluado y aprobado
+  - [x] Fecha de verificación
+  - [x] Número de dictamen
+  - [x] Vigencia del dictamen
+  - [x] Lugar de emisión del dictamen
+  - [x] Fecha de emisión del dictamen
+  - [x] Número de registro del dictamen (STPS)
+- [x] Incluir método de identificación y análisis:
+  - [x] Guía de referencia II (Cuestionario de identificación)
+  - [x] Guía de referencia III (Cuestionario de evaluación)
+  - [x] Métodos desarrollados por el patrón (numerales 7.4 y 7.5)
+- [x] Agregar sección de firmas de responsables
+- [ ] Implementar foliado automático (AFR-001/2026)
+- [ ] Agregar código QR único para validación
+- [x] Registrar ruta /documents/acta-final-resultados

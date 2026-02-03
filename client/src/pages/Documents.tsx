@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Plus, Calendar, Users } from "lucide-react";
+import { FileText, Download, Plus, Calendar, Users, ClipboardCheck } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Documents() {
@@ -37,8 +37,16 @@ export default function Documents() {
       title: "Acta de Recorrido NOM-019",
       description: "Inspección de seguridad e higiene",
       icon: Calendar,
-      route: "/documents/acta-recorrido",
+      route: "/documents/acta-recorrido-nom019",
       color: "bg-orange-500/10 text-orange-500"
+    },
+    {
+      id: "acta-final-resultados",
+      title: "Acta Final de Resultados",
+      description: "Resultados de evaluación y programa de atención NOM-035",
+      icon: ClipboardCheck,
+      route: "/documents/acta-final-resultados",
+      color: "bg-red-500/10 text-red-500"
     }
   ];
 

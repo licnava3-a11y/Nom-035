@@ -34,6 +34,7 @@ import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
 import DocumentFuncionesComite from "./pages/DocumentFuncionesComite";
 import DocumentAceptacionCargo from "./pages/DocumentAceptacionCargo";
 import DocumentActaRecorridoNOM019 from "./pages/DocumentActaRecorridoNOM019";
+import DocumentActaFinalResultados from "./pages/DocumentActaFinalResultados";
 
 function Router() {
   return (
@@ -181,6 +182,11 @@ function Router() {
       <Route path={"/documents/acta-recorrido-nom019"}>
         <DashboardLayout>
           <DocumentActaRecorridoNOM019 />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents/acta-final-resultados"}>
+        <DashboardLayout>
+          <DocumentActaFinalResultados />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
