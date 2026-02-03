@@ -28,12 +28,24 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight } from "lucide-react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/", roles: ["admin", "instructor", "student", "committee"] },
   { icon: BookOpen, label: "Cursos", path: "/courses", roles: ["admin", "instructor", "student"] },
   { icon: ClipboardCheck, label: "Evaluaciones", path: "/evaluations", roles: ["admin", "instructor", "student"] },
+  { 
+    icon: ClipboardList, 
+    label: "Encuestas NOM-035", 
+    path: "/surveys", 
+    roles: ["admin", "committee"],
+    submenu: [
+      { label: "Guía I - ATS", path: "/surveys/guide-i" },
+      { label: "Guía II - Identificación", path: "/surveys/guide-ii" },
+      { label: "Guía III - Evaluación", path: "/surveys/guide-iii" },
+      { label: "Dashboard", path: "/surveys/dashboard" },
+    ]
+  },
   { icon: AlertCircle, label: "Casos", path: "/cases", roles: ["admin", "committee"] },
   { icon: Inbox, label: "Buzón", path: "/mailbox", roles: ["admin", "committee"] },
   { icon: Users, label: "Comité", path: "/committee", roles: ["admin"] },
@@ -124,9 +136,18 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
+  const [openSubmenus, setOpenSubmenus] = useState<string[]>([]);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+
+  const toggleSubmenu = (path: string) => {
+    setOpenSubmenus(prev => 
+      prev.includes(path) 
+        ? prev.filter(p => p !== path)
+        : [...prev, path]
+    );
+  };
 
   useEffect(() => {
     if (isCollapsed) {
@@ -201,20 +222,50 @@ function DashboardLayoutContent({
             <SidebarMenu className="px-2 py-1">
               {menuItems.filter(item => item.roles.includes(user?.role || "student")).map(item => {
                 const isActive = location === item.path;
+                const hasSubmenu = 'submenu' in item && item.submenu;
+                const isSubmenuOpen = openSubmenus.includes(item.path);
+                const isSubmenuItemActive = hasSubmenu && item.submenu?.some(sub => location === sub.path);
+                
                 return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <div key={item.path}>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        isActive={isActive || isSubmenuItemActive}
+                        onClick={() => hasSubmenu ? toggleSubmenu(item.path) : setLocation(item.path)}
+                        tooltip={item.label}
+                        className={`h-10 transition-all font-normal`}
+                      >
+                        <item.icon
+                          className={`h-4 w-4 ${isActive || isSubmenuItemActive ? "text-primary" : ""}`}
+                        />
+                        <span>{item.label}</span>
+                        {hasSubmenu && (
+                          <div className="ml-auto">
+                            {isSubmenuOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </div>
+                        )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    {hasSubmenu && isSubmenuOpen && (
+                      <div className="ml-6 mt-1 space-y-1">
+                        {item.submenu?.map(subItem => {
+                          const isSubActive = location === subItem.path;
+                          return (
+                            <SidebarMenuItem key={subItem.path}>
+                              <SidebarMenuButton
+                                isActive={isSubActive}
+                                onClick={() => setLocation(subItem.path)}
+                                tooltip={subItem.label}
+                                className="h-9 text-sm font-normal"
+                              >
+                                <span>{subItem.label}</span>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </SidebarMenu>

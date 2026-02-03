@@ -1511,3 +1511,53 @@
 - [ ] Mostrar trabajadores que respondieron
 - [ ] Mostrar trabajadores pendientes
 - [ ] Generar gráficas de resultados
+
+
+## FASE 58: Implementación Completa de Interfaz de Encuestas
+
+### Menú de Encuestas en Sidebar
+- [x] Agregar sección "Encuestas" en DashboardLayout
+- [x] Crear submenu con Guía I, II y III
+- [x] Agregar iconos y navegación
+
+### Poblar Base de Datos con Preguntas Oficiales
+- [x] Crear script SQL para insertar encuestas en tabla surveys
+- [x] Insertar 4 preguntas de Guía I (Acontecimientos Traumáticos Severos)
+- [ ] Insertar 72 preguntas de Guía II (Identificación de factores de riesgo)
+- [ ] Insertar 46 preguntas de Guía III (Evaluación profunda de factores de riesgo)
+- [ ] Ejecutar script con webdev_execute_sql
+
+### Páginas de Encuestas
+- [ ] Crear /client/src/pages/SurveyGuideI.tsx
+- [ ] Crear /client/src/pages/SurveyGuideII.tsx
+- [ ] Crear /client/src/pages/SurveyGuideIII.tsx
+- [ ] Implementar formularios dinámicos con validaciones
+- [ ] Implementar guardado de respuestas con tRPC
+- [ ] Mostrar mensaje de confirmación al completar
+- [ ] Registrar rutas en App.tsx
+
+### Dashboard de Seguimiento
+- [ ] Crear /client/src/pages/SurveysDashboard.tsx
+- [ ] Implementar estadísticas de participación
+- [ ] Mostrar trabajadores pendientes
+- [ ] Mostrar casos ATS detectados
+- [ ] Crear gráficas con recharts o chart.js
+- [ ] Implementar filtros por departamento
+- [ ] Implementar filtros por puesto
+- [ ] Implementar filtros por género
+- [ ] Implementar filtros por edad
+- [ ] Implementar filtros por antigüedad
+- [ ] Implementar filtros personalizados
+- [ ] Registrar ruta en App.tsx
+
+### Análisis de Resultados con Colorimetría NOM-035
+- [ ] Implementar colorimetría según niveles de riesgo (Nulo/Despreciable, Bajo, Medio, Alto, Muy Alto)
+- [ ] Crear gráficas de resultados por categoría
+- [ ] Crear gráficas de resultados por dominio
+- [ ] Crear gráficas de resultados por dimensión
+- [ ] Crear gráficas de resultados por ATS
+- [ ] Implementar acciones predefinidas según resultados
+- [ ] Permitir revisión por categoría
+- [ ] Permitir revisión por dominio
+- [ ] Permitir revisión por dimensión
+- [ ] Permitir revisión por ATS
