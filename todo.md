@@ -1814,3 +1814,31 @@
 - [ ] Implementar exportación de datos históricos a Excel
 - [ ] Crear procedimientos tRPC para datos históricos
 - [ ] Registrar ruta en App.tsx
+
+
+## FASE 66: CORRECCIÓN URGENTE - Errores Críticos en Sistema de Casos
+
+### Páginas 404 en Detalle del Caso
+- [x] Corregir página "Ver documentos" (404) - Redirige a /documents
+- [x] Corregir página "Asignar Comité" (404) - Redirige a /cases/assign
+- [ ] Auditar todas las rutas del sistema para detectar 404s
+- [ ] Crear lista completa de páginas 404 encontradas
+- [ ] Corregir o desarrollar todas las páginas 404 detectadas
+
+### Formulario de Seguimiento No Guarda
+- [x] Revisar procedimiento tRPC de guardado de seguimiento
+- [x] Verificar validaciones del formulario
+- [x] Corregir guardado de comentarios/acciones
+- [ ] Probar guardado con datos de prueba
+
+### Cambio de Estado No Guarda
+- [x] Revisar procedimiento tRPC de cambio de estado
+- [x] Verificar que el estado seleccionado se envía correctamente
+- [x] Corregir guardado de estado en base de datos
+- [ ] Probar cambio de estado con diferentes valores
+
+### Pruebas de Funcionalidad
+- [ ] Probar flujo completo de casos
+- [ ] Validar que todos los botones funcionen
+- [ ] Verificar que todos los formularios guarden correctamente
+- [ ] Crear checkpoint con correcciones

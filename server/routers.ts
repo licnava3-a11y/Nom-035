@@ -272,16 +272,30 @@ export const appRouter = router({
         caseId: z.number(),
         action: z.string().min(1),
         notes: z.string().optional(),
+        newStatus: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const dbInstance = await db.getDb();
         if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         
-        const { caseFollowUps } = await import('../drizzle/schema');
+        const { caseFollowUps, cases } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        // Insertar seguimiento
         await dbInstance.insert(caseFollowUps).values({
-          ...input,
+          caseId: input.caseId,
+          action: input.action,
+          notes: input.notes,
           userId: ctx.user.id,
         });
+        
+        // Actualizar estado del caso si se proporciona
+        if (input.newStatus) {
+          await dbInstance.update(cases)
+            .set({ status: input.newStatus })
+            .where(eq(cases.id, input.caseId));
+        }
+        
         return { success: true };
       }),
     getCommitteeMembers: protectedProcedure.query(async () => {

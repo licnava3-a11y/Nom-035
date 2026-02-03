@@ -18,7 +18,7 @@ export default function CaseDetail() {
   const caseId = params?.id ? parseInt(params.id) : 0;
 
   const [newComment, setNewComment] = useState("");
-  const [newStatus, setNewStatus] = useState("");
+  const [newStatus, setNewStatus] = useState<"open" | "investigating" | "resolved" | "closed" | "">("");
 
   // Obtener el caso
   const { data: caseData, isLoading: caseLoading } = trpc.cases.getById.useQuery({ id: caseId });
@@ -49,6 +49,7 @@ export default function CaseDetail() {
       caseId,
       action: newComment,
       notes: newStatus ? `Estado cambiado a: ${newStatus}` : undefined,
+      newStatus: newStatus ? (newStatus as "open" | "investigating" | "resolved" | "closed") : undefined,
     });
   };
 
@@ -265,7 +266,7 @@ export default function CaseDetail() {
                   <select
                     id="newStatus"
                     value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value)}
+                    onChange={(e) => setNewStatus(e.target.value as "" | "open" | "investigating" | "resolved" | "closed")}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <option value="">Mantener estado actual</option>
@@ -295,7 +296,7 @@ export default function CaseDetail() {
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => setLocation(`/cases/${caseId}/documents`)}
+                onClick={() => setLocation(`/documents`)}
               >
                 <FileText className="h-4 w-4 mr-2" />
                 Ver Documentos
@@ -303,7 +304,7 @@ export default function CaseDetail() {
               <Button 
                 variant="outline" 
                 className="w-full justify-start"
-                onClick={() => setLocation(`/case-assignment?caseId=${caseId}`)}
+                onClick={() => setLocation(`/cases/assign?caseId=${caseId}`)}
               >
                 <Users className="h-4 w-4 mr-2" />
                 Asignar Comité
