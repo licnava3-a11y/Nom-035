@@ -1842,3 +1842,50 @@
 - [ ] Validar que todos los botones funcionen
 - [ ] Verificar que todos los formularios guarden correctamente
 - [ ] Crear checkpoint con correcciones
+
+
+## FASE 67: Panel de Acciones Correctivas Completo
+
+### Procedimientos tRPC
+- [x] Crear router de acciones correctivas en /server/routers/correctiveActions.ts
+- [x] Implementar procedimiento create (crear acción correctiva)
+- [x] Implementar procedimiento getAll (listar todas las acciones)
+- [x] Implementar procedimiento getById (obtener acción por ID)
+- [x] Implementar procedimiento update (actualizar acción)
+- [x] Implementar procedimiento updateStatus (cambiar estado)
+- [x] Implementar procedimiento getByDepartment (filtrar por departamento)
+- [x] Implementar procedimiento getStatistics (estadísticas de cumplimiento)
+- [x] Registrar router en /server/routers.ts
+
+### Interfaz de Usuario
+- [ ] Crear /client/src/pages/surveys/CorrectiveActions.tsx
+- [ ] Implementar formulario de registro de acciones
+- [ ] Agregar campos: título, descripción, nivel de riesgo, departamento
+- [ ] Agregar campo de asignación de responsable (select de usuarios)
+- [ ] Agregar campo de fecha límite (date picker)
+- [ ] Implementar tabla de acciones correctivas existentes
+- [ ] Agregar columnas: título, responsable, estado, fecha límite, acciones
+- [ ] Implementar filtros por estado y departamento
+- [ ] Agregar botones de acción: editar, cambiar estado, eliminar
+
+### Dashboard de Cumplimiento
+- [ ] Crear sección de estadísticas generales
+- [ ] Mostrar total de acciones por estado (pendiente/en proceso/completada)
+- [ ] Implementar gráfica de cumplimiento por departamento
+- [ ] Agregar indicador de acciones vencidas
+- [ ] Mostrar próximas acciones a vencer (próximos 7 días)
+
+### Alertas por Correo
+- [ ] Implementar envío de correo al asignar acción correctiva
+- [ ] Implementar envío de correo al cambiar estado de acción
+- [ ] Implementar envío de correo al coordinador sobre vencimientos
+- [ ] Crear plantilla HTML para notificación de asignación
+- [ ] Crear plantilla HTML para notificación de cambio de estado
+- [ ] Crear plantilla HTML para alerta de vencimiento
+
+### Integración y Pruebas
+- [ ] Registrar ruta /surveys/corrective-actions en App.tsx
+- [ ] Agregar enlace en menú de Encuestas NOM-035
+- [ ] Crear tests unitarios para procedimientos tRPC
+- [ ] Probar flujo completo de registro y seguimiento
+- [ ] Crear checkpoint con panel completo
