@@ -1,0 +1,464 @@
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { Calendar, CheckCircle2, Clock, AlertCircle, TrendingUp } from "lucide-react";
+
+type RiskLevel = "nulo" | "bajo" | "medio" | "alto" | "muy_alto";
+type ActionStatus = "pendiente" | "en_proceso" | "completada" | "cancelada";
+
+export default function CorrectiveActions() {
+  const [activeTab, setActiveTab] = useState("registro");
+  
+  // Form state
+  const [description, setDescription] = useState("");
+  const [riskLevel, setRiskLevel] = useState<RiskLevel>("medio");
+  const [department, setDepartment] = useState("");
+  const [responsibleUserId, setResponsibleUserId] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  
+  // Filter state
+  const [statusFilter, setStatusFilter] = useState<ActionStatus | "todas">("todas");
+  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [searchText, setSearchText] = useState("");
+
+  // Queries
+  const { data: actions, refetch: refetchActions } = trpc.correctiveActions.getAll.useQuery();
+  const { data: stats } = trpc.correctiveActions.getStatistics.useQuery();
+  const { data: users } = trpc.users.list.useQuery() as any;
+
+  // Mutations
+  const createAction = trpc.correctiveActions.create.useMutation({
+    onSuccess: () => {
+      toast.success("Acción correctiva registrada exitosamente");
+      setDescription("");
+      setRiskLevel("medio");
+      setDepartment("");
+      setResponsibleUserId("");
+      setDueDate("");
+      refetchActions();
+      setActiveTab("seguimiento");
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const updateStatus = trpc.correctiveActions.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Estado actualizado exitosamente");
+      refetchActions();
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!description || !department || !responsibleUserId || !dueDate) {
+      toast.error("Por favor complete todos los campos obligatorios");
+      return;
+    }
+
+    createAction.mutate({
+      description,
+      riskLevel,
+      departamento: department,
+      responsibleUserId: parseInt(responsibleUserId),
+      dueDate,
+    });
+  };
+
+  const handleStatusChange = (id: number, newStatus: ActionStatus) => {
+    if (confirm(`¿Está seguro de cambiar el estado a "${newStatus}"?`)) {
+      updateStatus.mutate({ id, status: newStatus });
+    }
+  };
+
+  // Filter actions
+  const filteredActions = actions?.filter((action) => {
+    if (statusFilter !== "todas" && action.status !== statusFilter) return false;
+    if (departmentFilter && action.departamento !== departmentFilter) return false;
+    if (searchText && !action.description.toLowerCase().includes(searchText.toLowerCase())) return false;
+    return true;
+  });
+
+  // Get unique departments
+  const departments = Array.from(new Set(actions?.map((a) => a.departamento).filter(Boolean) || []));
+
+  const getRiskLevelColor = (level: RiskLevel) => {
+    switch (level) {
+      case "nulo": return "bg-blue-100 text-blue-800 border-blue-300";
+      case "bajo": return "bg-green-100 text-green-800 border-green-300";
+      case "medio": return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "alto": return "bg-orange-100 text-orange-800 border-orange-300";
+      case "muy_alto": return "bg-red-100 text-red-800 border-red-300";
+    }
+  };
+
+  const getStatusColor = (status: ActionStatus) => {
+    switch (status) {
+      case "pendiente": return "bg-gray-100 text-gray-800";
+      case "en_proceso": return "bg-blue-100 text-blue-800";
+      case "completada": return "bg-green-100 text-green-800";
+      case "cancelada": return "bg-red-100 text-red-800";
+    }
+  };
+
+  const getStatusLabel = (status: ActionStatus) => {
+    switch (status) {
+      case "pendiente": return "Pendiente";
+      case "en_proceso": return "En Proceso";
+      case "completada": return "Completada";
+      case "cancelada": return "Cancelada";
+    }
+  };
+
+  const getRiskLevelLabel = (level: RiskLevel) => {
+    switch (level) {
+      case "nulo": return "Nulo";
+      case "bajo": return "Bajo";
+      case "medio": return "Medio";
+      case "alto": return "Alto";
+      case "muy_alto": return "Muy Alto";
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Acciones Correctivas NOM-035</h1>
+        <p className="text-gray-600 mt-2">
+          Registro y seguimiento de medidas implementadas según nivel de riesgo detectado
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="registro">Registro</TabsTrigger>
+          <TabsTrigger value="seguimiento">Seguimiento</TabsTrigger>
+          <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
+        </TabsList>
+
+        {/* TAB: REGISTRO */}
+        <TabsContent value="registro">
+          <Card>
+            <CardHeader>
+              <CardTitle>Registrar Nueva Acción Correctiva</CardTitle>
+              <CardDescription>
+                Complete el formulario para registrar una nueva medida correctiva
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="description">Descripción de la Acción *</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describa la acción correctiva a implementar..."
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="riskLevel">Nivel de Riesgo *</Label>
+                    <select
+                      id="riskLevel"
+                      value={riskLevel}
+                      onChange={(e) => setRiskLevel(e.target.value as RiskLevel)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="nulo">Nulo</option>
+                      <option value="bajo">Bajo</option>
+                      <option value="medio">Medio</option>
+                      <option value="alto">Alto</option>
+                      <option value="muy_alto">Muy Alto</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Departamento *</Label>
+                    <Input
+                      id="department"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      placeholder="Ej: Recursos Humanos"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="responsible">Responsable *</Label>
+                    <select
+                      id="responsible"
+                      value={responsibleUserId}
+                      onChange={(e) => setResponsibleUserId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Seleccione un responsable</option>
+                      {users?.map((user: any) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="dueDate">Fecha Límite *</Label>
+                    <Input
+                      id="dueDate"
+                      type="date"
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full" disabled={createAction.isPending}>
+                  {createAction.isPending ? "Registrando..." : "Registrar Acción Correctiva"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB: SEGUIMIENTO */}
+        <TabsContent value="seguimiento">
+          <Card>
+            <CardHeader>
+              <CardTitle>Seguimiento de Acciones Correctivas</CardTitle>
+              <CardDescription>
+                Visualice y gestione todas las acciones correctivas registradas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Filters */}
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="statusFilter">Filtrar por Estado</Label>
+                  <select
+                    id="statusFilter"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as ActionStatus | "todas")}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="todas">Todas</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="completada">Completada</option>
+                    <option value="cancelada">Cancelada</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="departmentFilter">Filtrar por Departamento</Label>
+                  <select
+                    id="departmentFilter"
+                    value={departmentFilter}
+                    onChange={(e) => setDepartmentFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todos</option>
+                    {departments.map((dept) => (
+                      <option key={dept} value={dept || ""}>
+                        {dept}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="searchText">Buscar</Label>
+                  <Input
+                    id="searchText"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder="Buscar en descripción..."
+                  />
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b">
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ID</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Descripción</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Nivel</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Departamento</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Estado</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Fecha Límite</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredActions?.map((action) => (
+                      <tr key={action.id} className="border-b hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm">{action.id}</td>
+                        <td className="px-4 py-3 text-sm max-w-xs truncate">{action.description}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRiskLevelColor(action.riskLevel)}`}>
+                            {getRiskLevelLabel(action.riskLevel)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm">{action.departamento}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(action.status)}`}>
+                            {getStatusLabel(action.status)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {action.dueDate ? new Date(action.dueDate).toLocaleDateString("es-MX") : "Sin fecha"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={action.status}
+                            onChange={(e) => handleStatusChange(action.id, e.target.value as ActionStatus)}
+                            className="text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en_proceso">En Proceso</option>
+                            <option value="completada">Completada</option>
+                            <option value="cancelada">Cancelada</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {filteredActions?.length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    No se encontraron acciones correctivas
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TAB: ESTADÍSTICAS */}
+        <TabsContent value="estadisticas">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total de Acciones</CardTitle>
+                <TrendingUp className="h-4 w-4 text-gray-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{actions?.length || 0}</div>
+                <p className="text-xs text-gray-600 mt-1">Registradas en el sistema</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pendientes</CardTitle>
+                <Clock className="h-4 w-4 text-yellow-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-yellow-600">
+                  {stats?.byStatus.find(s => s.status === 'pendiente')?.count || 0}
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Sin iniciar</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">En Proceso</CardTitle>
+                <AlertCircle className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">
+                  {stats?.byStatus.find(s => s.status === 'en_proceso')?.count || 0}
+                </div>
+                <p className="text-xs text-gray-600 mt-1">En ejecución</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Completadas</CardTitle>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">
+                  {stats?.byStatus.find(s => s.status === 'completada')?.count || 0}
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Finalizadas</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Porcentaje de Cumplimiento</CardTitle>
+              <CardDescription>
+                Indicador de progreso en la implementación de acciones correctivas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {stats && actions && actions.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Progreso General</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      {Math.round(((stats.byStatus.find(s => s.status === 'completada')?.count || 0) / actions.length) * 100)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-4">
+                    <div
+                      className="bg-green-600 h-4 rounded-full transition-all duration-500"
+                      style={{ width: `${((stats.byStatus.find(s => s.status === 'completada')?.count || 0) / actions.length) * 100}%` }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 mt-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-yellow-600">
+                        {stats.byStatus.find(s => s.status === 'pendiente')?.count || 0}
+                      </div>
+                      <div className="text-xs text-gray-600">Pendientes</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {stats.byStatus.find(s => s.status === 'en_proceso')?.count || 0}
+                      </div>
+                      <div className="text-xs text-gray-600">En Proceso</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {stats.byStatus.find(s => s.status === 'completada')?.count || 0}
+                      </div>
+                      <div className="text-xs text-gray-600">Completadas</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  No hay datos de cumplimiento disponibles
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

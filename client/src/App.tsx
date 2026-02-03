@@ -42,6 +42,7 @@ import GuideII from "./pages/surveys/GuideII";
 import GuideIII from "./pages/surveys/GuideIII";
 import SurveysDashboard from "./pages/surveys/Dashboard";
 import SurveysTracking from "./pages/surveys/Tracking";
+import CorrectiveActions from "./pages/surveys/CorrectiveActions";
 
 function Router() {
   return (
@@ -230,6 +231,11 @@ function Router() {
       <Route path={"/surveys/tracking"}>
         <DashboardLayout>
           <SurveysTracking />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/corrective-actions"}>
+        <DashboardLayout>
+          <CorrectiveActions />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />

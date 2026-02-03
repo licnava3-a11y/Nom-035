@@ -34,3 +34,46 @@
 - [ ] Ejecutar todos los tests
 - [ ] Verificar que no hay errores de consola
 - [ ] Crear checkpoint con sistema completamente funcional
+
+
+## FASE 69: Panel de Acciones Correctivas - Interfaz Completa
+
+### Página Principal
+- [x] Crear /client/src/pages/surveys/CorrectiveActions.tsx
+- [x] Implementar estructura base con pestañas (Registro, Seguimiento, Estadísticas)
+- [x] Agregar navegación y breadcrumbs
+
+### Formulario de Registro
+- [x] Crear formulario de registro de acciones correctivas
+- [x] Agregar campos: descripción, nivel de riesgo, departamento
+- [x] Agregar campos: responsable (select de usuarios), fecha límite
+- [x] Implementar validaciones del formulario
+- [x] Conectar con procedimiento tRPC create
+- [x] Mostrar mensaje de éxito/error
+
+### Tabla de Acciones Existentes
+- [x] Crear tabla con columnas: ID, Descripción, Nivel, Responsable, Estado, Fecha límite
+- [x] Implementar filtros por estado (pendiente, en proceso, completada, cancelada)
+- [x] Implementar filtros por departamento
+- [ ] Implementar filtros por nivel de riesgo
+- [x] Agregar búsqueda por texto
+- [ ] Implementar paginación
+
+### Dashboard de Estadísticas
+- [x] Crear tarjetas de resumen (total, pendientes, en proceso, completadas)
+- [ ] Implementar gráfica de distribución por estado
+- [ ] Implementar gráfica de cumplimiento por departamento
+- [ ] Mostrar próximas acciones a vencer
+- [x] Agregar indicador de porcentaje de cumplimiento
+
+### Funcionalidades de Edición
+- [ ] Crear modal de edición de acciones
+- [x] Implementar cambio de estado con confirmación
+- [ ] Agregar botón de eliminar con confirmación
+- [x] Conectar con procedimientos tRPC update y updateStatus
+
+### Integración y Pruebas
+- [x] Registrar ruta /surveys/corrective-actions en App.tsx
+- [ ] Agregar enlace en menú de Encuestas NOM-035
+- [ ] Probar flujo completo de registro y seguimiento
+- [ ] Verificar que todas las acciones funcionan correctamente
