@@ -60,6 +60,12 @@ export default function Documents() {
             Gestión de formatos legales y documentación del comité
           </p>
         </div>
+        <Link href="/documents/history">
+          <Button>
+            <FileText className="h-4 w-4 mr-2" />
+            Ver Historial
+          </Button>
+        </Link>
       </div>
 
       {/* Document Types */}

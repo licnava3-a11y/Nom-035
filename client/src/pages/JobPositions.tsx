@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, AlertTriangle, TrendingUp, Plus, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 export default function JobPositions() {
   const { user } = useAuth();
@@ -85,7 +86,7 @@ export default function JobPositions() {
           </p>
         </div>
         {(user?.role === "admin" || user?.role === "instructor") && (
-          <Button>
+          <Button onClick={() => toast.info("Funcionalidad en desarrollo: Crear nuevo análisis de puesto")}>
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Análisis
           </Button>

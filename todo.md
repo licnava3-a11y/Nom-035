@@ -889,3 +889,97 @@
 - [ ] Implementar foliado automático (AFR-001/2026)
 - [ ] Agregar código QR único para validación
 - [x] Registrar ruta /documents/acta-final-resultados
+
+
+## FASE 44: Generación de PDFs, Procedimientos tRPC y Carga Masiva de Trabajadores
+
+### Generación de PDFs
+- [ ] Crear /server/lib/pdf-generator.ts con jsPDF
+- [ ] Implementar función generateActaConstitutivaPDF
+- [ ] Implementar función generateFuncionesComitePDF
+- [ ] Implementar función generateAceptacionCargoPDF
+- [ ] Implementar función generateActaRecorridoPDF
+- [ ] Implementar función generateActaFinalResultadosPDF
+- [ ] Generar código QR único con qrcode.toDataURL(documentId)
+- [ ] Implementar foliado automático (AC-001/2026, FC-001/2026, etc.)
+- [ ] Embeber firmas desde S3 en el PDF
+- [ ] Agregar pie de página con folio en todas las páginas
+
+### Procedimientos tRPC para Formatos Legales
+- [ ] Crear procedimiento documents.saveActaConstitutiva
+- [ ] Crear procedimiento documents.saveFuncionesComite
+- [ ] Crear procedimiento documents.saveAceptacionCargo
+- [ ] Crear procedimiento documents.saveActaRecorrido
+- [ ] Crear procedimiento documents.saveActaFinalResultados
+- [ ] Implementar estados de borrador y final
+- [ ] Vincular firmas con tabla signatures
+- [ ] Vincular participantes con tabla document_participants
+- [ ] Vincular evidencias con tabla document_evidence
+- [ ] Crear procedimiento documents.generatePDF
+- [ ] Crear procedimiento documents.getById
+- [ ] Crear procedimiento documents.list con filtros
+
+### Carga Masiva de Trabajadores
+- [ ] Instalar biblioteca xlsx
+- [ ] Crear plantilla Excel /public/plantilla_trabajadores.xlsx
+- [ ] Incluir campos de Guía V NOM-035 en plantilla:
+  - [ ] Nombre completo
+  - [ ] CURP (con validación de formato)
+  - [ ] RFC
+  - [ ] Email (con validación)
+  - [ ] Teléfono (10 dígitos)
+  - [ ] Fecha de nacimiento
+  - [ ] Sexo
+  - [ ] Estado civil
+  - [ ] Escolaridad
+  - [ ] Puesto
+  - [ ] Departamento
+  - [ ] Fecha de contratación
+  - [ ] Antigüedad en la empresa
+  - [ ] Antigüedad en el puesto
+  - [ ] Tipo de contratación
+  - [ ] Tipo de jornada
+- [ ] Agregar hoja de instrucciones en plantilla
+- [ ] Crear helper /server/lib/excel-processor.ts
+- [ ] Implementar función de lectura de archivo Excel
+- [ ] Implementar validaciones por campo
+- [ ] Crear procedimiento tRPC employees.bulkUpload
+- [ ] Implementar preview de datos antes de guardar
+- [ ] Generar reporte PDF de errores con jsPDF
+- [ ] Incluir en reporte: fila, campo, valor, motivo del error
+- [ ] Agregar botón "Importar desde Excel" en /employees
+- [ ] Crear modal de carga con drag & drop
+- [ ] Implementar barra de progreso durante importación
+- [ ] Mostrar resumen de importación (exitosos, errores)
+
+
+## FASE 45: Correcciones y Página de Historial de Documentos
+
+### Corrección de Errores de Drizzle ORM
+- [x] Definir relations para formatCatalog en schema.ts
+- [x] Definir relations para documents en schema.ts
+- [x] Definir relations para signatures en schema.ts
+- [x] Definir relations para documentParticipants en schema.ts
+- [x] Actualizar documents.ts para usar consultas correctas
+
+### Página de Historial de Documentos
+- [x] Crear /client/src/pages/DocumentsHistory.tsx
+- [x] Implementar lista de documentos generados
+- [x] Agregar filtros por tipo de formato
+- [x] Agregar búsqueda por folio
+- [x] Implementar descarga de PDFs
+- [x] Agregar vista previa de documentos
+- [x] Mostrar estado (borrador, final, archivado)
+- [x] Agregar fecha de creación y finalización
+- [x] Mostrar creador del documento
+- [x] Registrar ruta /documents/history
+
+### Correcciones en Detalle de Caso
+- [x] Activar botón "Ver Documentos" en detalle de caso
+- [x] Activar botón "Asignar Comité" en detalle de caso
+- [x] Conectar botones con funcionalidad real
+
+### Correcciones en Análisis de Puestos
+- [x] Corregir botón "Nuevo Análisis" que no funciona
+- [ ] Verificar formulario de creación de análisis
+- [ ] Validar guardado de datos

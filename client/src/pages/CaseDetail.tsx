@@ -291,11 +291,19 @@ export default function CaseDetail() {
               <CardTitle className="text-base">Acciones Rápidas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setLocation(`/cases/${caseId}/documents`)}
+              >
                 <FileText className="h-4 w-4 mr-2" />
                 Ver Documentos
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => setLocation(`/case-assignment?caseId=${caseId}`)}
+              >
                 <Users className="h-4 w-4 mr-2" />
                 Asignar Comité
               </Button>

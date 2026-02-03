@@ -1,4 +1,5 @@
 import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date } from "drizzle-orm/mysql-core";
+import { relations } from "drizzle-orm";
 
 /**
  * Core user table backing auth flow.
@@ -537,3 +538,56 @@ export const documentEvidence = mysqlTable('document_evidence', {
   description: text('description'),
   uploadedAt: timestamp('uploaded_at').notNull().defaultNow(),
 });
+
+
+// Relations para formatCatalog
+export const formatCatalogRelations = relations(formatCatalog, ({ many }) => ({
+  documents: many(documents),
+}));
+
+// Relations para documents
+export const documentsRelations = relations(documents, ({ one, many }) => ({
+  formatCatalog: one(formatCatalog, {
+    fields: [documents.formatCatalogId],
+    references: [formatCatalog.id],
+  }),
+  createdBy: one(users, {
+    fields: [documents.createdBy],
+    references: [users.id],
+  }),
+  signatures: many(signatures),
+  participants: many(documentParticipants),
+  evidence: many(documentEvidence),
+}));
+
+// Relations para signatures
+export const signaturesRelations = relations(signatures, ({ one }) => ({
+  document: one(documents, {
+    fields: [signatures.documentId],
+    references: [documents.id],
+  }),
+  user: one(users, {
+    fields: [signatures.userId],
+    references: [users.id],
+  }),
+}));
+
+// Relations para documentParticipants
+export const documentParticipantsRelations = relations(documentParticipants, ({ one }) => ({
+  document: one(documents, {
+    fields: [documentParticipants.documentId],
+    references: [documents.id],
+  }),
+  user: one(users, {
+    fields: [documentParticipants.userId],
+    references: [users.id],
+  }),
+}));
+
+// Relations para documentEvidence
+export const documentEvidenceRelations = relations(documentEvidence, ({ one }) => ({
+  document: one(documents, {
+    fields: [documentEvidence.documentId],
+    references: [documents.id],
+  }),
+}));

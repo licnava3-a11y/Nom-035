@@ -7,6 +7,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { employeesRouter } from "./routers/employees";
 import { signaturesRouter } from "./routers/signatures";
+import { documentsRouter } from "./routers/documents";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -35,6 +36,7 @@ const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
 export const appRouter = router({
   system: systemRouter,
   signatures: signaturesRouter,
+  documents: documentsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
