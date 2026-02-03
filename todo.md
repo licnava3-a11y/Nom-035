@@ -599,3 +599,35 @@
 - [ ] Validar autorización de administrador
 - [ ] Crear tests unitarios
 - [ ] Crear checkpoint final
+
+
+## FASE 38: Procedimiento de Atención a Riesgos Psicosociales
+
+### Esquema de Base de Datos
+- [ ] Crear tabla de procedimientos de atención (attention_procedures)
+- [ ] Crear tabla de quejas/denuncias (complaints)
+- [ ] Crear tabla de sugerencias (suggestions)
+- [ ] Crear tabla de necesidades de capacitación (training_needs)
+- [ ] Crear relaciones con usuarios y casos
+
+### Procedimientos tRPC
+- [ ] Crear procedimientos para CRUD de quejas/denuncias
+- [ ] Crear procedimientos para CRUD de sugerencias
+- [ ] Crear procedimientos para CRUD de necesidades de capacitación
+- [ ] Implementar flujo de escalamiento según protocolo
+- [ ] Crear notificaciones automáticas al comité
+
+### Interfaz de Usuario
+- [ ] Crear página principal de procedimientos
+- [ ] Implementar formulario de queja/denuncia anónima
+- [ ] Crear formulario de sugerencias
+- [ ] Implementar formulario de necesidades de capacitación
+- [ ] Crear dashboard de seguimiento para comité
+- [ ] Implementar estados del procedimiento (recibido, en proceso, resuelto)
+
+### Protocolo de Violencia Laboral
+- [ ] Implementar clasificación de casos (acoso, hostigamiento, violencia)
+- [ ] Crear flujo de atención inmediata
+- [ ] Implementar medidas cautelares
+- [ ] Crear procedimiento de investigación
+- [ ] Implementar resolución y seguimiento
