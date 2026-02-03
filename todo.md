@@ -631,3 +631,99 @@
 - [ ] Implementar medidas cautelares
 - [ ] Crear procedimiento de investigación
 - [ ] Implementar resolución y seguimiento
+
+
+## FASE 39: Sistema de Gestión de Cursos de Cumplimiento NOM-035
+
+### Catálogo de Cursos Especializados
+
+#### Cursos para Miembros del Comité
+- [ ] Crear curso "Protocolo de Atención a Violencia Laboral"
+  - [ ] Módulo 1: Marco legal y conceptos básicos
+  - [ ] Módulo 2: Identificación de casos de violencia laboral
+  - [ ] Módulo 3: Procedimiento de atención y contención
+  - [ ] Módulo 4: Investigación y resolución de casos
+  - [ ] Módulo 5: Medidas cautelares y seguimiento
+  - [ ] Evaluación final con casos prácticos
+
+- [ ] Crear curso "Funciones y Responsabilidades del Comité"
+  - [ ] Módulo 1: Integración y organización del comité
+  - [ ] Módulo 2: Atribuciones y responsabilidades legales
+  - [ ] Módulo 3: Procedimientos de operación
+  - [ ] Módulo 4: Documentación y registro de actividades
+
+#### Cursos por Dominio NOM-035
+
+**Dominio 1: Condiciones en el ambiente de trabajo**
+- [ ] Crear curso "Ambiente de Trabajo Favorable"
+  - [ ] Conceptualización del dominio
+  - [ ] Categorías: Condiciones peligrosas, condiciones deficientes
+  - [ ] Dimensiones: Condiciones físicas, equipamiento, carga de trabajo
+  - [ ] Casos prácticos de identificación
+  - [ ] Plan de acción para mejora de condiciones
+
+**Dominio 2: Factores propios de la actividad**
+- [ ] Crear curso "Gestión de Cargas de Trabajo"
+  - [ ] Conceptualización del dominio
+  - [ ] Categorías: Cargas cuantitativas, ritmo de trabajo
+  - [ ] Dimensiones: Carga mental, emocional y física
+  - [ ] Casos prácticos de sobrecarga
+  - [ ] Plan de acción para redistribución de cargas
+
+**Dominio 3: Organización del tiempo de trabajo**
+- [ ] Crear curso "Jornadas y Descansos Laborales"
+  - [ ] Conceptualización del dominio
+  - [ ] Categorías: Jornadas extensas, interferencia trabajo-familia
+  - [ ] Dimensiones: Tiempo de trabajo, tiempo de descanso
+  - [ ] Casos prácticos de desbalance
+  - [ ] Plan de acción para equilibrio laboral-personal
+
+**Dominio 4: Liderazgo y relaciones en el trabajo**
+- [ ] Crear curso "Liderazgo Positivo y Relaciones Laborales"
+  - [ ] Conceptualización del dominio
+  - [ ] Categorías: Liderazgo negativo, relaciones conflictivas
+  - [ ] Dimensiones: Claridad de funciones, participación, retroalimentación
+  - [ ] Casos prácticos de conflictos
+  - [ ] Plan de acción para mejora de clima laboral
+
+**Dominio 5: Entorno organizacional**
+- [ ] Crear curso "Reconocimiento y Desarrollo Organizacional"
+  - [ ] Conceptualización del dominio
+  - [ ] Categorías: Falta de reconocimiento, insuficiente capacitación
+  - [ ] Dimensiones: Reconocimiento, capacitación, estabilidad laboral
+  - [ ] Casos prácticos de desmotivación
+  - [ ] Plan de acción para reconocimiento y desarrollo
+
+**Dominio 6: Violencia laboral**
+- [ ] Crear curso "Prevención de Violencia Laboral"
+  - [ ] Conceptualización del dominio
+  - [ ] Categorías: Acoso, hostigamiento, malos tratos
+  - [ ] Dimensiones: Violencia física, psicológica, sexual
+  - [ ] Casos prácticos de identificación
+  - [ ] Plan de acción preventivo y correctivo
+
+### Estructura de Cursos
+
+- [ ] Implementar sistema de prerequisitos entre cursos
+- [ ] Crear evaluaciones diagnósticas por dominio
+- [ ] Implementar casos prácticos interactivos
+- [ ] Crear banco de planes de acción por categoría
+- [ ] Implementar certificación de cumplimiento
+- [ ] Crear dashboard de progreso por dominio
+- [ ] Implementar recordatorios de recertificación anual
+
+### Contenido Multimedia
+
+- [ ] Crear videos explicativos por cada dominio
+- [ ] Desarrollar infografías de cada categoría
+- [ ] Crear simuladores de casos prácticos
+- [ ] Implementar biblioteca de recursos descargables
+- [ ] Crear plantillas de planes de acción
+
+### Reportes y Cumplimiento
+
+- [ ] Implementar reporte de capacitación por trabajador
+- [ ] Crear dashboard de cumplimiento por dominio
+- [ ] Implementar alertas de capacitación pendiente
+- [ ] Crear certificados de cumplimiento NOM-035
+- [ ] Implementar historial de capacitaciones
