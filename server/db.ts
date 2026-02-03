@@ -265,7 +265,25 @@ export async function getCaseDocumentsByCaseId(caseId: number) {
 export async function getAllCommitteeMembers() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(committeeMembers).where(eq(committeeMembers.isActive, true));
+  
+  const result = await db
+    .select({
+      id: committeeMembers.id,
+      employeeId: committeeMembers.employeeId,
+      userId: committeeMembers.userId,
+      position: committeeMembers.position,
+      responsibilities: committeeMembers.responsibilities,
+      isActive: committeeMembers.isActive,
+      assignedAt: committeeMembers.assignedAt,
+      createdAt: committeeMembers.createdAt,
+      updatedAt: committeeMembers.updatedAt,
+      userName: users.name,
+      userEmail: users.email,
+    })
+    .from(committeeMembers)
+    .leftJoin(users, eq(committeeMembers.userId, users.id));
+  
+  return result;
 }
 
 export async function getCommitteeMemberByUserId(userId: number) {

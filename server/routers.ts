@@ -368,6 +368,37 @@ export const appRouter = router({
     list: adminProcedure.query(async () => {
       return await db.getAllCommitteeMembers();
     }),
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { committeeMembers, users } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        const result = await dbInstance
+          .select({
+            id: committeeMembers.id,
+            userId: committeeMembers.userId,
+            position: committeeMembers.position,
+            responsibilities: committeeMembers.responsibilities,
+            isActive: committeeMembers.isActive,
+            createdAt: committeeMembers.createdAt,
+            userName: users.name,
+            userEmail: users.email,
+          })
+          .from(committeeMembers)
+          .leftJoin(users, eq(committeeMembers.userId, users.id))
+          .where(eq(committeeMembers.id, input.id))
+          .limit(1);
+        
+        if (result.length === 0) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Miembro del comité no encontrado' });
+        }
+        
+        return result[0];
+      }),
     add: adminProcedure
       .input(z.object({
         userId: z.number(),
@@ -380,6 +411,41 @@ export const appRouter = router({
         
         const { committeeMembers } = await import('../drizzle/schema');
         await dbInstance.insert(committeeMembers).values(input);
+        return { success: true };
+      }),
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        position: z.string().optional(),
+        responsibilities: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { committeeMembers } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        await dbInstance
+          .update(committeeMembers)
+          .set({
+            position: input.position,
+            responsibilities: input.responsibilities,
+          })
+          .where(eq(committeeMembers.id, input.id));
+        
+        return { success: true };
+      }),
+    remove: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { committeeMembers } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        await dbInstance.delete(committeeMembers).where(eq(committeeMembers.id, input.id));
         return { success: true };
       }),
   }),

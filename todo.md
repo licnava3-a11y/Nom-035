@@ -406,3 +406,46 @@
 - [ ] Crear tests unitarios para nuevas funcionalidades
 - [ ] Ejecutar todas las pruebas
 - [ ] Crear checkpoint final
+
+
+## FASE 34: Auditoría de Botones de Acción
+
+### Módulo de Comité
+- [x] Revisar botones "Ver Perfil" y "Editar" en lista de miembros
+- [x] Verificar conexión con procedimientos tRPC
+- [x] Corregir navegación y funcionalidad
+
+### Módulo de Casos
+- [ ] Revisar botones de acciones en lista de casos
+- [ ] Verificar botones en detalle de caso
+- [ ] Corregir procedimientos tRPC faltantes
+
+### Módulo de Usuarios
+- [ ] Revisar botones de gestión de usuarios
+- [ ] Verificar control de acceso por rol
+- [ ] Corregir funcionalidades rotas
+
+### Módulo de Cursos
+- [ ] Revisar botones de inscripción y gestión
+- [ ] Verificar navegación a detalle de curso
+- [ ] Corregir procedimientos tRPC
+
+### Módulo de Evaluaciones
+- [ ] Revisar botón "Tomar Evaluación"
+- [ ] Verificar botones de gestión de evaluaciones
+- [ ] Corregir navegación y funcionalidad
+
+### Módulo de Recursos
+- [ ] Revisar botones de descarga
+- [ ] Verificar botones de gestión
+- [ ] Corregir procedimientos tRPC
+
+### Módulo de Buzón
+- [ ] Revisar botones de cambio de estado
+- [ ] Verificar botones de asignación
+- [ ] Corregir procedimientos tRPC
+
+### Pruebas y Validación
+- [ ] Crear tests para botones críticos
+- [ ] Verificar que todos los botones muestren feedback visual
+- [ ] Documentar correcciones realizadas
