@@ -1,0 +1,28 @@
+{
+  "query": "SELECT survey_id, COUNT(*) as total_preguntas, \n  SUM(CASE WHEN is_reverse_scored = 1 THEN 1 ELSE 0 END) as inversas,\n  SUM(CASE WHEN is_reverse_scored = 0 THEN 1 ELSE 0 END) as normales\nFROM survey_questions \nGROUP BY survey_id \nORDER BY survey_id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT survey_id, COUNT(*) as total_preguntas, \n  SUM(CASE WHEN is_reverse_scored = 1 THEN 1 ELSE 0 END) as inversas,\n  SUM(CASE WHEN is_reverse_scored = 0 THEN 1 ELSE 0 END) as normales\nFROM survey_questions \nGROUP BY survey_id \nORDER BY survey_id;",
+  "rows": [
+    {
+      "survey_id": "1",
+      "total_preguntas": "4",
+      "inversas": "0",
+      "normales": "4"
+    },
+    {
+      "survey_id": "2",
+      "total_preguntas": "46",
+      "inversas": "30",
+      "normales": "16"
+    },
+    {
+      "survey_id": "3",
+      "total_preguntas": "72",
+      "inversas": "37",
+      "normales": "35"
+    }
+  ],
+  "messages": [],
+  "stdout": "survey_id\ttotal_preguntas\tinversas\tnormales\n1\t4\t0\t4\n2\t46\t30\t16\n3\t72\t37\t35\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

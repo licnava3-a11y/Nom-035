@@ -16,8 +16,8 @@ async function determineApplicableGuide(db: any): Promise<'guia_ii' | 'guia_iii'
   const [result] = await db.select({ count: count() }).from(users);
   const totalWorkers = result?.count || 0;
   
-  // Guía II: 16-50 trabajadores
-  // Guía III: 51+ trabajadores
+  // Guía II: 16-50 trabajadores (46 preguntas - Cuestionario de identificación)
+  // Guía III: 51+ trabajadores (72 preguntas - Cuestionario de evaluación)
   return totalWorkers >= 51 ? 'guia_iii' : 'guia_ii';
 }
 

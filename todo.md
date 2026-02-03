@@ -1523,8 +1523,8 @@
 ### Poblar Base de Datos con Preguntas Oficiales
 - [x] Crear script SQL para insertar encuestas en tabla surveys
 - [x] Insertar 4 preguntas de Guía I (Acontecimientos Traumáticos Severos)
-- [ ] Insertar 72 preguntas de Guía II (Identificación de factores de riesgo)
-- [ ] Insertar 46 preguntas de Guía III (Evaluación profunda de factores de riesgo)
+- [ ] Insertar 46 preguntas de Guía II (Cuestionario de identificación - empresas 16-50 trabajadores)
+- [ ] Insertar 72 preguntas de Guía III (Cuestionario de evaluación - empresas 51+ trabajadores)
 - [ ] Ejecutar script con webdev_execute_sql
 
 ### Páginas de Encuestas
@@ -1561,3 +1561,52 @@
 - [ ] Permitir revisión por dominio
 - [ ] Permitir revisión por dimensión
 - [ ] Permitir revisión por ATS
+
+
+## FASE 59: Implementación Completa de Encuestas NOM-035
+
+### Poblar Base de Datos con Preguntas Oficiales
+- [x] Insertar 46 preguntas de Guía II con calificación correcta (normal/inversa)
+- [x] Insertar 72 preguntas de Guía III con calificación correcta (normal/inversa)
+- [x] Verificar que todas las preguntas tengan su categoría, dominio y dimensión
+
+### Crear Páginas de Encuestas
+- [ ] Crear /client/src/pages/SurveyGuideI.tsx con formulario de 4 preguntas ATS
+- [ ] Crear /client/src/pages/SurveyGuideII.tsx con formulario de 46 preguntas
+- [ ] Crear /client/src/pages/SurveyGuideIII.tsx con formulario de 72 preguntas
+- [ ] Implementar validaciones en formularios
+- [ ] Implementar sistema de enlaces únicos por trabajador
+- [ ] Implementar códigos QR para responder encuestas
+- [ ] Agregar captura de CURP para trabajadores no registrados
+- [ ] Registrar rutas en App.tsx
+
+### Implementar Cálculo de Calificación
+- [ ] Crear función de cálculo con valores inversos según Tabla 5
+- [ ] Implementar cálculo de calificación final (Cfinal)
+- [ ] Implementar cálculo por categoría (Ccat)
+- [ ] Implementar cálculo por dominio (Cdom)
+- [ ] Implementar cálculo por dimensión
+- [ ] Aplicar colorimetría según nivel de riesgo
+
+### Dashboard de Análisis
+- [ ] Crear /client/src/pages/SurveysDashboard.tsx
+- [ ] Implementar fórmula de cobertura (Ecuación 1)
+- [ ] Mostrar porcentaje de cumplimiento por guía
+- [ ] Identificar trabajadores que faltan de responder
+- [ ] Crear gráficas de resultados por categoría
+- [ ] Crear gráficas de resultados por dominio
+- [ ] Crear gráficas de resultados por dimensión
+- [ ] Implementar colorimetría en visualizaciones
+- [ ] Agregar filtros por departamento
+- [ ] Agregar filtros por puesto
+- [ ] Agregar filtros por género
+- [ ] Agregar filtros por edad
+- [ ] Agregar filtros por antigüedad
+- [ ] Mostrar acciones predefinidas según resultados
+- [ ] Mostrar casos ATS detectados
+
+### Integración con Sistema de Casos
+- [ ] Verificar creación automática de casos ATS desde Guía I
+- [ ] Implementar notificación al comité cuando se detecta ATS
+- [ ] Crear flujo de investigación de ATS
+- [ ] Crear flujo de dictamen de ATS

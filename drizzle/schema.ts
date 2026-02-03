@@ -633,9 +633,11 @@ export const surveyQuestions = mysqlTable('survey_questions', {
   surveyId: int('survey_id').notNull().references(() => surveys.id),
   questionText: text('question_text').notNull(),
   questionType: mysqlEnum('question_type', ['multiple_choice', 'scale', 'yes_no', 'text']).notNull(),
+  category: varchar('category', { length: 100 }), // Categoría NOM-035 (ej: "Ambiente de trabajo")
   domain: varchar('domain', { length: 100 }), // Dominio al que pertenece (ej: "Condiciones en el ambiente de trabajo")
-  subdomain: varchar('subdomain', { length: 100 }), // Subdominio
+  dimension: varchar('dimension', { length: 100 }), // Dimensión (ej: "Condiciones peligrosas e inseguras")
   order: int('order').notNull(), // Orden de la pregunta
+  isReverseScored: boolean('is_reverse_scored').default(false).notNull(), // Si la calificación es inversa (Siempre=4, Nunca=0)
   options: text('options'), // Opciones en JSON para preguntas de opción múltiple
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
