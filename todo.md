@@ -110,3 +110,21 @@
 - [x] Probar envío de notificaciones al cambiar estado
 - [x] Verificar alertas de vencimiento
 - [x] Validar formato y contenido de correos
+
+
+## FASE 71: Activación de Encuestas NOM-035
+
+### Diagnóstico
+- [x] Verificar rutas de encuestas en App.tsx
+- [x] Revisar componentes de Guía I, II y III
+- [x] Identificar causa de páginas no disponibles
+
+### Corrección
+- [x] Corregir rutas o componentes problemáticos
+- [x] Activar acceso a las tres guías
+- [x] Verificar que las encuestas cargan correctamente
+
+### Pruebas
+- [x] Probar acceso a Guía I
+- [x] Probar acceso a Guía II
+- [x] Probar acceso a Guía III

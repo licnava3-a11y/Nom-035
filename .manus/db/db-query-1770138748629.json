@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, survey_id, question_text, category FROM survey_questions LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, survey_id, question_text, category FROM survey_questions LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "survey_id": "1",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Accidente que tenga como consecuencia la muerte, la pérdida de un miembro o una lesión grave?",
+      "category": "NULL"
+    },
+    {
+      "id": "2",
+      "survey_id": "1",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Asaltos?",
+      "category": "NULL"
+    },
+    {
+      "id": "3",
+      "survey_id": "1",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Actos violentos que derivaron en lesiones graves?",
+      "category": "NULL"
+    },
+    {
+      "id": "4",
+      "survey_id": "1",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Secuestro?",
+      "category": "NULL"
+    },
+    {
+      "id": "30001",
+      "survey_id": "2",
+      "question_text": "Mi trabajo me exige hacer mucho esfuerzo físico",
+      "category": "Ambiente de trabajo"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsurvey_id\tquestion_text\tcategory\n1\t1\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Accidente que tenga como consecuencia la muerte, la pérdida de un miembro o una lesión grave?\tNULL\n2\t1\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Asaltos?\tNULL\n3\t1\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Actos violentos que derivaron en lesiones graves?\tNULL\n4\t1\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Secuestro?\tNULL\n30001\t2\tMi trabajo me exige hacer mucho esfuerzo físico\tAmbiente de trabajo\n",
+  "stderr": "",
+  "execution_time_ms": 110
+}

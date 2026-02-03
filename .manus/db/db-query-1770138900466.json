@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, question_text, options, question_type FROM survey_questions WHERE survey_id = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, question_text, options, question_type FROM survey_questions WHERE survey_id = 1;",
+  "rows": [
+    {
+      "id": "1",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Accidente que tenga como consecuencia la muerte, la pérdida de un miembro o una lesión grave?",
+      "options": "NULL",
+      "question_type": "yes_no"
+    },
+    {
+      "id": "2",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Asaltos?",
+      "options": "NULL",
+      "question_type": "yes_no"
+    },
+    {
+      "id": "3",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Actos violentos que derivaron en lesiones graves?",
+      "options": "NULL",
+      "question_type": "yes_no"
+    },
+    {
+      "id": "4",
+      "question_text": "¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Secuestro?",
+      "options": "NULL",
+      "question_type": "yes_no"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tquestion_text\toptions\tquestion_type\n1\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Accidente que tenga como consecuencia la muerte, la pérdida de un miembro o una lesión grave?\tNULL\tyes_no\n2\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Asaltos?\tNULL\tyes_no\n3\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Actos violentos que derivaron en lesiones graves?\tNULL\tyes_no\n4\t¿Ha presenciado o sufrido alguna vez, durante o con motivo del trabajo un acontecimiento como los siguientes: ¿Secuestro?\tNULL\tyes_no\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

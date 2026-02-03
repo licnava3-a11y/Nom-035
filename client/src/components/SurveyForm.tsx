@@ -24,7 +24,7 @@ export default function SurveyForm({ surveyId, title, description, instructions,
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Obtener preguntas de la encuesta
-  const { data: questions, isLoading } = (trpc as any).surveys.getQuestions.useQuery({ surveyId });
+  const { data: questions, isLoading } = (trpc as any).surveys.getQuestions.useQuery(surveyId);
   
   const submitSurvey = (trpc as any).surveys.submitResponse.useMutation({
     onSuccess: (data: any) => {
@@ -56,7 +56,8 @@ export default function SurveyForm({ surveyId, title, description, instructions,
     setIsSubmitting(true);
     
     // Convertir respuestas a formato esperado
-    const formattedAnswers = questions.map((q: any) => ({
+    const validQuestions = Array.isArray(questions) ? questions : [];
+    const formattedAnswers = validQuestions.map((q: any) => ({
       questionId: q.id,
       answerValue: answers[q.id],
     }));
@@ -114,6 +115,7 @@ export default function SurveyForm({ surveyId, title, description, instructions,
     );
   }
 
+  // En este punto questions está garantizado que existe y tiene elementos
   const progress = (Object.keys(answers).length / questions.length) * 100;
 
   return (
@@ -150,9 +152,15 @@ export default function SurveyForm({ surveyId, title, description, instructions,
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {questions.map((question: any, index: number) => {
-              const options = typeof question.options === 'string' 
-                ? JSON.parse(question.options) 
-                : question.options;
+              let options = [];
+              try {
+                options = typeof question.options === 'string' 
+                  ? JSON.parse(question.options) 
+                  : (Array.isArray(question.options) ? question.options : []);
+              } catch (e) {
+                console.error('Error parsing options:', e);
+                options = [];
+              }
 
               return (
                 <div key={question.id} className="space-y-4 p-6 border rounded-lg bg-card hover:border-primary/50 transition-colors">
