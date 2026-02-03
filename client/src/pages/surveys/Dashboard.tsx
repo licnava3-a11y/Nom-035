@@ -15,12 +15,42 @@ import {
   PieChart as PieChartIcon
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
+import React from "react";
 
 export default function SurveysDashboard() {
   const [, setLocation] = useLocation();
+  const [isDownloading, setIsDownloading] = React.useState<boolean>(false);
 
   // Obtener estadísticas de riesgo
   const { data: stats, isLoading } = (trpc as any).surveys.getRiskStatistics.useQuery();
+
+  // Mutation para generar reporte agregado
+  const generateAggregatedPDF = (trpc as any).surveys.generateAggregatedPDF.useMutation();
+
+  // Función para descargar PDF desde base64
+  const downloadPDF = (base64: string, filename: string) => {
+    const linkSource = `data:application/pdf;base64,${base64}`;
+    const downloadLink = document.createElement('a');
+    downloadLink.href = linkSource;
+    downloadLink.download = filename;
+    downloadLink.click();
+  };
+
+  // Handler para descargar reporte agregado
+  const handleDownloadAggregated = async () => {
+    try {
+      setIsDownloading(true);
+      const result = await generateAggregatedPDF.mutateAsync(1); // TODO: Usar ID de encuesta real
+      downloadPDF(result.pdf, result.filename);
+      toast.success('Reporte descargado exitosamente');
+    } catch (error) {
+      toast.error('Error al generar el reporte');
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const surveys = [
     {
@@ -299,22 +329,33 @@ export default function SurveysDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
-          <Button variant="outline" className="justify-start h-auto py-4">
+          <Button 
+            variant="outline" 
+            className="justify-start h-auto py-4"
+            onClick={() => setLocation('/surveys/tracking')}
+          >
             <div className="flex items-center gap-3">
-              <Download className="h-5 w-5" />
+              <Users className="h-5 w-5" />
               <div className="text-left">
-                <div className="font-medium">Descargar Reporte Individual</div>
+                <div className="font-medium">Ver Trabajadores Pendientes</div>
                 <div className="text-sm text-muted-foreground">
-                  Resultados detallados por trabajador
+                  Seguimiento de cobertura y notificaciones
                 </div>
               </div>
             </div>
           </Button>
-          <Button variant="outline" className="justify-start h-auto py-4">
+          <Button 
+            variant="outline" 
+            className="justify-start h-auto py-4"
+            onClick={handleDownloadAggregated}
+            disabled={isDownloading || !stats || stats.totalResponses === 0}
+          >
             <div className="flex items-center gap-3">
               <Download className="h-5 w-5" />
               <div className="text-left">
-                <div className="font-medium">Descargar Reporte Agregado</div>
+                <div className="font-medium">
+                  {isDownloading ? 'Generando...' : 'Descargar Reporte Agregado'}
+                </div>
                 <div className="text-sm text-muted-foreground">
                   Estadísticas generales de la organización
                 </div>

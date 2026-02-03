@@ -654,6 +654,148 @@ export const surveysRouter = router({
       };
     }),
 
+  // Obtener cobertura por departamento
+  getCoverageByDepartment: protectedProcedure
+    .input(z.number()) // surveyId
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener todos los usuarios con departamento
+      const allUsers = await db.select().from(users);
+      
+      // Obtener respuestas de la encuesta
+      const responses = await db
+        .select({ userId: surveyResponses.userId })
+        .from(surveyResponses)
+        .where(eq(surveyResponses.surveyId, input));
+      
+      const respondedUserIds = new Set(responses.map(r => r.userId));
+      
+      // Agrupar por departamento
+      const departmentStats: Record<string, { total: number; responded: number; pending: number; coverage: number }> = {};
+      
+      for (const user of allUsers) {
+        const dept = user.departamento || 'Sin departamento';
+        if (!departmentStats[dept]) {
+          departmentStats[dept] = { total: 0, responded: 0, pending: 0, coverage: 0 };
+        }
+        
+        departmentStats[dept].total++;
+        if (user.id && respondedUserIds.has(user.id)) {
+          departmentStats[dept].responded++;
+        } else {
+          departmentStats[dept].pending++;
+        }
+      }
+      
+      // Calcular cobertura
+      for (const dept in departmentStats) {
+        const stats = departmentStats[dept];
+        stats.coverage = stats.total > 0 ? (stats.responded / stats.total) * 100 : 0;
+      }
+      
+      return Object.entries(departmentStats).map(([department, stats]) => ({
+        department,
+        ...stats,
+      }));
+    }),
+
+  // Obtener lista de trabajadores pendientes
+  getPendingWorkers: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      department: z.string().optional(),
+      search: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener respuestas de la encuesta
+      const responses = await db
+        .select({ userId: surveyResponses.userId })
+        .from(surveyResponses)
+        .where(eq(surveyResponses.surveyId, input.surveyId));
+      
+      const respondedUserIds = new Set(responses.map(r => r.userId));
+      
+      // Obtener todos los usuarios
+      let allUsers = await db.select().from(users);
+      
+      // Filtrar usuarios pendientes
+      let pendingUsers = allUsers.filter(user => user.id && !respondedUserIds.has(user.id));
+      
+      // Aplicar filtro de departamento
+      if (input.department && input.department !== 'all') {
+        pendingUsers = pendingUsers.filter(user => user.departamento === input.department);
+      }
+      
+      // Aplicar filtro de búsqueda
+      if (input.search) {
+        const searchLower = input.search.toLowerCase();
+        pendingUsers = pendingUsers.filter(user => 
+          user.name?.toLowerCase().includes(searchLower) ||
+          user.email?.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      return pendingUsers.map(user => ({
+        id: user.id,
+        name: user.name || 'Sin nombre',
+        email: user.email || 'Sin correo',
+        department: user.departamento || 'Sin departamento',
+        position: user.puesto || 'Sin puesto',
+      }));
+    }),
+
+  // Generar PDF de trabajadores pendientes
+  generatePendingWorkersPDF: protectedProcedure
+    .input(z.number()) // surveyId
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener encuesta
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, input)).limit(1);
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Obtener respuestas
+      const responses = await db
+        .select({ userId: surveyResponses.userId })
+        .from(surveyResponses)
+        .where(eq(surveyResponses.surveyId, input));
+      
+      const respondedUserIds = new Set(responses.map(r => r.userId));
+      
+      // Obtener usuarios pendientes
+      const allUsers = await db.select().from(users);
+      const pendingUsers = allUsers.filter(user => user.id && !respondedUserIds.has(user.id));
+      
+      // Generar PDF
+      const pdfReports = await import('../lib/nom035-pdf-reports');
+      const pdfBuffer = await pdfReports.generatePendingWorkersReport({
+        surveyType: survey.type as 'guia_i' | 'guia_ii' | 'guia_iii',
+        surveyTitle: survey.title || 'Encuesta NOM-035',
+        totalWorkers: allUsers.length,
+        respondedWorkers: responses.length,
+        pendingWorkers: pendingUsers.map(user => ({
+          name: user.name || 'Sin nombre',
+          email: user.email || 'Sin correo',
+          department: user.departamento || 'Sin departamento',
+          position: user.puesto || 'Sin puesto',
+        })),
+        generatedAt: new Date(),
+      });
+      
+      return {
+        pdf: pdfBuffer.toString('base64'),
+        filename: `trabajadores_pendientes_${survey.type}_${Date.now()}.pdf`,
+      };
+    }),
+
   // Reactivar encuesta para un usuario (solo admin)
   reactivateSurvey: protectedProcedure
     .input(z.object({

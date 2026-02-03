@@ -1704,3 +1704,57 @@
 - [ ] Crear vista de acciones por trabajador/departamento
 - [ ] Implementar filtros por nivel de riesgo y estado
 - [ ] Agregar indicadores de cumplimiento de acciones
+
+
+## FASE 63: Integración de PDFs, Módulo de Seguimiento y Panel de Acciones Correctivas
+
+### Integración de Botones de Descarga PDF
+- [ ] Agregar botón de descarga de reporte individual en dashboard
+- [ ] Agregar botón de descarga de reporte agregado en dashboard
+- [ ] Implementar función de descarga de PDF desde base64
+- [ ] Agregar indicadores de carga durante generación de PDF
+- [ ] Mostrar mensajes de éxito/error en descarga
+
+### Módulo de Seguimiento
+- [ ] Crear /client/src/pages/surveys/Tracking.tsx
+- [ ] Implementar cálculo de fórmula de cobertura (Ecuación 1)
+- [ ] Mostrar porcentaje de cumplimiento por guía
+- [ ] Crear tabla de trabajadores pendientes de responder
+- [ ] Implementar filtros por departamento y puesto
+- [ ] Agregar búsqueda de trabajadores por nombre/correo
+- [ ] Mostrar fecha límite de respuesta
+- [ ] Implementar sistema de notificaciones por correo
+- [ ] Crear plantilla de correo para recordatorios
+- [ ] Agregar botón de envío manual de notificaciones
+- [ ] Implementar envío automático programado
+
+### Panel de Acciones Correctivas
+- [ ] Crear /client/src/pages/surveys/CorrectiveActions.tsx
+- [ ] Crear schema de tabla de acciones correctivas en drizzle
+- [ ] Generar migración SQL para tabla de acciones
+- [ ] Implementar formulario de captura de medidas correctivas
+- [ ] Agregar campos: descripción, nivel de riesgo, responsable, fecha límite
+- [ ] Implementar seguimiento de estado (pendiente, en proceso, completada)
+- [ ] Crear vista de acciones por trabajador/departamento
+- [ ] Implementar filtros por nivel de riesgo y estado
+- [ ] Agregar indicadores de cumplimiento de acciones
+- [ ] Crear procedimientos tRPC para CRUD de acciones
+- [ ] Registrar rutas en App.tsx
+
+
+## FASE 64: Indicador de Cobertura por Departamento y Exportación PDF
+
+### Indicador de Cobertura por Departamento
+- [x] Agregar campo department a tabla users en schema (ya existía)
+- [x] Generar migración SQL para agregar columna department (ya existía)
+- [x] Crear procedimiento tRPC para obtener cobertura por departamento
+- [x] Implementar gráfica de cobertura por departamento en Tracking.tsx
+- [x] Agregar filtro por departamento en lista de pendientes
+- [x] Mostrar porcentaje de cumplimiento por área
+
+### Exportación PDF de Trabajadores Pendientes
+- [x] Crear función en nom035-pdf-reports.ts para lista de pendientes
+- [x] Agregar procedimiento tRPC para generar PDF de pendientes
+- [x] Implementar botón de descarga en Tracking.tsx
+- [x] Incluir información de departamento en PDF
+- [x] Agregar fecha de generación y estadísticas generales

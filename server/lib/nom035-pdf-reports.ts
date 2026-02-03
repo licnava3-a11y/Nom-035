@@ -392,3 +392,146 @@ export async function generateGroupReport(
     }
   });
 }
+
+
+/**
+ * Genera reporte PDF de trabajadores pendientes de responder encuesta
+ */
+export async function generatePendingWorkersReport(data: {
+  surveyType: 'guia_i' | 'guia_ii' | 'guia_iii';
+  surveyTitle: string;
+  totalWorkers: number;
+  respondedWorkers: number;
+  pendingWorkers: Array<{
+    name: string;
+    email: string;
+    department: string;
+    position: string;
+  }>;
+  generatedAt: Date;
+}): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
+      const buffers: Buffer[] = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+      // Header
+      doc.fontSize(18).fillColor('#1e40af').text('Reporte de Trabajadores Pendientes', { align: 'center' });
+      doc.fontSize(12).fillColor('#666666').text(data.surveyTitle, { align: 'center' });
+      doc.moveDown(0.5);
+      doc.fontSize(10).fillColor('#999999').text(
+        `Generado el ${data.generatedAt.toLocaleDateString('es-MX', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`,
+        { align: 'center' }
+      );
+      doc.moveDown(2);
+
+      // Estadísticas generales
+      doc.fontSize(14).fillColor('#000000').text('Resumen de Cobertura', { underline: true });
+      doc.moveDown(0.5);
+
+      const coverage = data.totalWorkers > 0 ? (data.respondedWorkers / data.totalWorkers) * 100 : 0;
+      const coverageColor = 
+        coverage >= 90 ? '#10b981' : 
+        coverage >= 70 ? '#3b82f6' : 
+        coverage >= 50 ? '#f59e0b' : 
+        '#ef4444';
+
+      doc.fontSize(10).fillColor('#333333');
+      doc.text(`Total de trabajadores: ${data.totalWorkers}`);
+      doc.text(`Respuestas recibidas: ${data.respondedWorkers}`);
+      doc.text(`Trabajadores pendientes: ${data.pendingWorkers.length}`);
+      doc.fillColor(coverageColor).text(`Cobertura: ${coverage.toFixed(1)}%`, { continued: false });
+      doc.moveDown(2);
+
+      // Tabla de trabajadores pendientes
+      doc.fontSize(14).fillColor('#000000').text('Lista de Trabajadores Pendientes', { underline: true });
+      doc.moveDown(1);
+
+      if (data.pendingWorkers.length === 0) {
+        doc.fontSize(12).fillColor('#10b981').text('¡Excelente! Todos los trabajadores han completado la encuesta.', { align: 'center' });
+      } else {
+        // Encabezados de tabla
+        const tableTop = doc.y;
+        const colWidths = { name: 150, email: 150, department: 120, position: 100 };
+        let currentX = 50;
+
+        doc.fontSize(9).fillColor('#ffffff');
+        doc.rect(50, tableTop, 520, 20).fill('#1e40af');
+        
+        doc.text('Nombre', currentX + 5, tableTop + 5, { width: colWidths.name });
+        currentX += colWidths.name;
+        doc.text('Correo', currentX + 5, tableTop + 5, { width: colWidths.email });
+        currentX += colWidths.email;
+        doc.text('Departamento', currentX + 5, tableTop + 5, { width: colWidths.department });
+        currentX += colWidths.department;
+        doc.text('Puesto', currentX + 5, tableTop + 5, { width: colWidths.position });
+
+        // Filas de datos
+        doc.fontSize(8).fillColor('#333333');
+        let currentY = tableTop + 25;
+
+        data.pendingWorkers.forEach((worker, index) => {
+          // Verificar si necesitamos una nueva página
+          if (currentY > doc.page.height - 100) {
+            doc.addPage();
+            currentY = 50;
+            
+            // Repetir encabezados
+            doc.fontSize(9).fillColor('#ffffff');
+            doc.rect(50, currentY, 520, 20).fill('#1e40af');
+            let headerX = 50;
+            doc.text('Nombre', headerX + 5, currentY + 5, { width: colWidths.name });
+            headerX += colWidths.name;
+            doc.text('Correo', headerX + 5, currentY + 5, { width: colWidths.email });
+            headerX += colWidths.email;
+            doc.text('Departamento', headerX + 5, currentY + 5, { width: colWidths.department });
+            headerX += colWidths.department;
+            doc.text('Puesto', headerX + 5, currentY + 5, { width: colWidths.position });
+            
+            currentY += 25;
+            doc.fontSize(8).fillColor('#333333');
+          }
+
+          // Fondo alternado
+          if (index % 2 === 0) {
+            doc.rect(50, currentY, 520, 20).fill('#f3f4f6');
+          }
+
+          currentX = 50;
+          doc.fillColor('#333333');
+          doc.text(worker.name, currentX + 5, currentY + 5, { width: colWidths.name - 10 });
+          currentX += colWidths.name;
+          doc.text(worker.email, currentX + 5, currentY + 5, { width: colWidths.email - 10 });
+          currentX += colWidths.email;
+          doc.text(worker.department, currentX + 5, currentY + 5, { width: colWidths.department - 10 });
+          currentX += colWidths.department;
+          doc.text(worker.position, currentX + 5, currentY + 5, { width: colWidths.position - 10 });
+
+          currentY += 20;
+        });
+      }
+
+      // Footer
+      doc.fontSize(8).fillColor('#999999');
+      doc.text(
+        'Este reporte es confidencial y debe ser utilizado únicamente para cumplir con la NOM-035-STPS-2018.',
+        50,
+        doc.page.height - 70,
+        { align: 'center', width: doc.page.width - 100 }
+      );
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}

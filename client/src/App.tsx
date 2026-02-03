@@ -41,6 +41,7 @@ import GuideI from "./pages/surveys/GuideI";
 import GuideII from "./pages/surveys/GuideII";
 import GuideIII from "./pages/surveys/GuideIII";
 import SurveysDashboard from "./pages/surveys/Dashboard";
+import SurveysTracking from "./pages/surveys/Tracking";
 
 function Router() {
   return (
@@ -223,6 +224,12 @@ function Router() {
       <Route path={"/surveys/guide-iii"}>
         <DashboardLayout>
           <GuideIII />
+        </DashboardLayout>
+      </Route>
+
+      <Route path={"/surveys/tracking"}>
+        <DashboardLayout>
+          <SurveysTracking />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
