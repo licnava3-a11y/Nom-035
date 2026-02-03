@@ -1441,3 +1441,73 @@
 - [ ] Identificar todos los componentes Select en DocumentsHistory.tsx
 - [ ] Reemplazar por elementos nativos
 - [ ] Probar funcionalidad
+
+
+## FASE 57: Implementación de Sistema de Encuestas NOM-035
+
+### Lógica de Aplicación según NOM-035
+- [x] Guía I: Obligatoria para TODOS los trabajadores (detecta ATS)
+- [x] Guía II: Para empresas de 16-50 trabajadores
+- [x] Guía III: Para empresas de 51+ trabajadores
+- [x] Detección automática de qué guía aplicar
+
+### Sistema de Reporte de ATS al Comité
+- [x] Detectar ATS en respuestas de Guía I
+- [x] Crear caso automáticamente en sistema de casos
+- [ ] Notificar al comité automáticamente (TODO)
+- [ ] Crear flujo de investigación de ATS
+- [ ] Crear flujo de dictamen de ATS
+
+## FASE 57 (continuación): Implementación de Sistema de Encuestas NOM-035
+
+### Procedimientos tRPC para Encuestas
+- [x] Crear server/routers/surveys.ts
+- [x] Implementar surveys.getAll
+- [x] Implementar surveys.getById
+- [x] Implementar surveys.getQuestions
+- [x] Implementar surveys.submitResponse
+- [x] Implementar surveys.generateToken
+- [x] Implementar surveys.validateToken
+- [x] Implementar surveys.getResponsesByUser
+- [x] Implementar surveys.getStatistics
+- [x] Registrar surveysRouter en routers.ts
+
+### Menú de Encuestas en Sidebar
+- [ ] Agregar sección "Encuestas" en DashboardLayout
+- [ ] Crear submenu con Guía I, II y III
+- [ ] Agregar iconos apropiados
+
+### Guía I - Acontecimientos Traumáticos Severos
+- [ ] Crear página SurveyGuide1.tsx
+- [ ] Implementar 4 preguntas según NOM-035
+- [ ] Agregar validaciones
+- [ ] Conectar con tRPC
+- [ ] Registrar ruta /surveys/guide-1
+
+### Guía II - Identificación de Factores de Riesgo
+- [ ] Crear página SurveyGuide2.tsx
+- [ ] Implementar 72 preguntas organizadas por categorías
+- [ ] Implementar cálculo de calificación
+- [ ] Conectar con tRPC
+- [ ] Registrar ruta /surveys/guide-2
+
+### Guía III - Evaluación del Entorno Organizacional
+- [ ] Crear página SurveyGuide3.tsx
+- [ ] Implementar 46 preguntas
+- [ ] Implementar cálculo de calificación
+- [ ] Conectar con tRPC
+- [ ] Registrar ruta /surveys/guide-3
+
+### Sistema de Enlaces Únicos y Códigos QR
+- [ ] Crear página SurveyPublic.tsx para responder sin login
+- [ ] Implementar captura de CURP
+- [ ] Generar códigos QR
+- [ ] Validar respuestas únicas
+- [ ] Crear opción de reactivación por administrador
+
+### Dashboard de Seguimiento
+- [ ] Crear página SurveyTracking.tsx
+- [ ] Mostrar estadísticas por guía
+- [ ] Mostrar trabajadores que respondieron
+- [ ] Mostrar trabajadores pendientes
+- [ ] Generar gráficas de resultados
