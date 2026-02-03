@@ -1201,3 +1201,243 @@
 - [x] Reemplazar Select por elementos nativos
 - [x] Actualizar formularios
 - [x] Probar funcionalidad completa
+
+
+## FASE 51: Sistema Completo de Encuestas NOM-035
+
+### Schema de Encuestas (YA COMPLETADO EN FASE 47)
+- [x] Crear tabla surveys
+- [x] Crear tabla survey_questions
+- [x] Crear tabla survey_responses
+- [x] Crear tabla survey_answers
+- [x] Crear tabla survey_tokens
+
+### Menú de Encuestas en Sidebar
+- [ ] Agregar sección "Encuestas" en DashboardLayout
+- [ ] Crear submenu con Guía I, II y III
+- [ ] Agregar iconos apropiados para cada guía
+
+### Implementar Guía I (Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos)
+- [ ] Crear página SurveyGuide1.tsx
+- [ ] Implementar 4 preguntas de la Guía I según NOM-035
+- [ ] Agregar validaciones de respuestas
+- [ ] Conectar con tRPC para guardar respuestas
+
+### Implementar Guía II (Cuestionario de identificación de factores de riesgo psicosocial)
+- [ ] Crear página SurveyGuide2.tsx
+- [ ] Implementar 72 preguntas de la Guía II según NOM-035
+- [ ] Organizar preguntas por categorías (Ambiente, Factores propios, Organización, Jornada, Liderazgo, Relaciones, Violencia)
+- [ ] Implementar cálculo de calificación por categoría
+- [ ] Implementar cálculo de calificación final
+- [ ] Conectar con tRPC para guardar respuestas
+
+### Implementar Guía III (Cuestionario de evaluación del entorno organizacional)
+- [ ] Crear página SurveyGuide3.tsx
+- [ ] Implementar 46 preguntas de la Guía III según NOM-035
+- [ ] Organizar preguntas por categorías
+- [ ] Implementar cálculo de calificación
+- [ ] Conectar con tRPC para guardar respuestas
+
+### Sistema de Enlaces Únicos y Códigos QR
+- [ ] Crear procedimiento tRPC para generar tokens únicos por trabajador
+- [ ] Crear página pública SurveyPublic.tsx para responder sin login
+- [ ] Implementar captura de CURP para trabajadores no registrados
+- [ ] Generar códigos QR con qrcode library
+- [ ] Validar que no se pueda responder dos veces (check survey_responses)
+- [ ] Crear opción de administrador para reactivar encuesta
+
+### Envío de Encuestas
+- [ ] Crear procedimiento tRPC para enviar encuestas por correo
+- [ ] Crear plantilla de correo con enlace único
+- [ ] Implementar envío masivo a todos los trabajadores
+- [ ] Crear página de seguimiento de respuestas
+
+### Dashboard de Resultados
+- [ ] Crear página SurveyResults.tsx
+- [ ] Mostrar estadísticas por guía
+- [ ] Mostrar trabajadores que han respondido
+- [ ] Mostrar trabajadores pendientes
+- [ ] Generar gráficas de resultados
+
+## FASE 52: Datos de Empresa
+
+### Schema de Empresa
+- [ ] Crear tabla company_settings con campos:
+  - [ ] razonSocial (text)
+  - [ ] direccionFiscal (text)
+  - [ ] rfc (text, 12-13 caracteres)
+  - [ ] representanteLegal (text)
+  - [ ] logoUrl (text)
+  - [ ] firmaElectronicaUrl (text, opcional)
+  - [ ] giro (text)
+  - [ ] actividadesPreponderantes (text)
+  - [ ] numeroTrabajadores (int, calculado)
+  - [ ] numeroTrabajadoresActivos (int, calculado)
+  - [ ] createdAt, updatedAt
+- [ ] Generar migración SQL
+- [ ] Aplicar migración
+
+### Sección de Datos de Empresa en Sidebar
+- [ ] Crear página CompanySettings.tsx
+- [ ] Agregar enlace en DashboardLayout
+- [ ] Implementar formulario con todos los campos
+- [ ] Agregar upload de logotipo con S3
+- [ ] Agregar upload de firma electrónica con S3 (opcional)
+- [ ] Mostrar cantidad de trabajadores registrados (desde tabla users)
+- [ ] Mostrar cantidad de trabajadores activos (filtro status='active')
+- [ ] Conectar con tRPC para guardar/actualizar
+
+### Procedimientos tRPC para Empresa
+- [ ] Crear server/routers/company.ts
+- [ ] Implementar company.getSettings
+- [ ] Implementar company.updateSettings
+- [ ] Implementar company.uploadLogo
+- [ ] Implementar company.uploadSignature
+- [ ] Registrar companyRouter en routers.ts
+
+### Correlación de Campos
+- [ ] Identificar todos los lugares donde se usan datos de empresa
+- [ ] Reemplazar campos manuales por datos de company_settings
+- [ ] Actualizar formatos legales para usar datos de empresa
+- [ ] Actualizar reportes para usar datos de empresa
+
+## FASE 53: Conexión de Formatos Legales a Backend
+
+### Procedimientos tRPC para Formatos (YA INICIADO EN FASE 44)
+- [ ] Completar documents.saveActaConstitutiva
+- [ ] Completar documents.saveFuncionesComite
+- [ ] Completar documents.saveAceptacionCargo
+- [ ] Crear documents.saveActaRecorridoNOM019
+- [ ] Crear documents.saveActaFinalResultados
+- [ ] Implementar generación automática de PDFs en cada save
+- [ ] Implementar guardado de firmas en tabla signatures
+
+### Integración de Formularios con tRPC
+- [ ] Conectar DocumentActaConstitutiva.tsx con tRPC
+- [ ] Conectar DocumentFuncionesComite.tsx con tRPC
+- [ ] Conectar DocumentAceptacionCargo.tsx con tRPC
+- [ ] Conectar DocumentActaRecorridoNOM019.tsx con tRPC
+- [ ] Conectar DocumentActaFinalResultados.tsx con tRPC
+- [ ] Implementar estados de carga y error
+- [ ] Implementar confirmación de guardado
+
+### Sistema de Firma Digital
+- [ ] Crear componente SignatureFlow.tsx
+- [ ] Implementar flujo de firma paso a paso
+- [ ] Guardar firmas en S3
+- [ ] Vincular firmas con documentos en tabla signatures
+- [ ] Implementar validación de firmas completas
+- [ ] Generar PDF final con todas las firmas embebidas
+
+### Generación Automática de PDFs (YA INICIADO EN FASE 44)
+- [ ] Completar generateActaConstitutivaPDF
+- [ ] Completar generateFuncionesComitePDF
+- [ ] Completar generateAceptacionCargoPDF
+- [ ] Crear generateActaRecorridoNOM019PDF
+- [ ] Crear generateActaFinalResultadosPDF
+- [ ] Implementar foliado automático por tipo
+- [ ] Implementar generación de códigos QR únicos
+- [ ] Subir PDFs generados a S3
+- [ ] Guardar URL del PDF en tabla documents
+
+## FASE 54: Sistema de Permisos por Rol
+
+### Middleware de Permisos
+- [ ] Crear server/lib/permissions.ts con definición de permisos
+- [ ] Crear middleware checkPermission en routers.ts
+- [ ] Definir permisos para committee_member:
+  - [ ] Ver página de Comité
+  - [ ] Ver casos asignados
+  - [ ] Agregar comentarios a casos
+  - [ ] Ver documentos del comité
+- [ ] Definir permisos para committee_coordinator:
+  - [ ] Todos los permisos de committee_member
+  - [ ] Ver y gestionar buzón completo
+  - [ ] Asignar casos a miembros
+  - [ ] Realizar investigación de casos
+  - [ ] Crear dictámenes
+  - [ ] Gestionar documentos legales
+
+### Protección de Rutas en Frontend
+- [ ] Crear hook usePermissions en client/src/hooks/
+- [ ] Proteger rutas de Comité con permisos
+- [ ] Proteger rutas de Buzón con permisos
+- [ ] Proteger rutas de Casos con permisos
+- [ ] Mostrar/ocultar elementos UI según permisos
+- [ ] Agregar mensajes de "Acceso denegado"
+
+### Protección de Procedimientos tRPC
+- [ ] Proteger mailbox.* con permisos de committee_coordinator
+- [ ] Proteger cases.* con permisos de committee_member
+- [ ] Proteger documents.* con permisos de committee_member
+- [ ] Implementar filtrado de casos por asignación
+- [ ] Implementar filtrado de buzón por rol
+
+## FASE 55: Correlación de Campos
+
+### Auditoría de Campos Duplicados
+- [ ] Identificar todos los formularios que capturan datos de empresa
+- [ ] Identificar todos los formularios que capturan datos de trabajadores
+- [ ] Identificar todos los formularios que capturan datos de comité
+- [ ] Crear lista de campos a correlacionar
+
+### Implementación de Correlación
+- [ ] Reemplazar campos manuales de empresa por desplegables/autocompletado
+- [ ] Reemplazar campos manuales de trabajadores por desplegables
+- [ ] Reemplazar campos manuales de comité por desplegables
+- [ ] Implementar prellenado automático de campos correlacionados
+- [ ] Agregar validación de consistencia de datos
+
+### Testing de Correlación
+- [ ] Probar flujo completo de creación de documento
+- [ ] Verificar que datos de empresa se cargan automáticamente
+- [ ] Verificar que datos de trabajadores se cargan automáticamente
+- [ ] Verificar que no hay capturas duplicadas
+
+
+## FASE 56: Corrección de Select Restantes
+
+### Corregir Select en CaseDetail.tsx
+- [x] Identificar todos los componentes Select en CaseDetail.tsx
+- [x] Reemplazar por elementos nativos
+- [x] Probar funcionalidad
+
+### Corregir Select en CommitteeMemberNew.tsx
+- [x] Identificar todos los componentes Select en CommitteeMemberNew.tsx
+- [x] Reemplazar por elementos nativos
+- [x] Probar funcionalidad
+
+### Corregir Select en EmployeeEdit.tsx
+- [ ] Identificar todos los componentes Select en EmployeeEdit.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad
+
+### Corregir Select en EmployeeNew.tsx
+- [ ] Identificar todos los componentes Select en EmployeeNew.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad
+
+### Corregir Select en Employees.tsx
+- [ ] Identificar todos los componentes Select en Employees.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad
+
+### Corregir Select en MailboxForm.tsx
+- [ ] Identificar todos los componentes Select en MailboxForm.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad
+
+### Corregir Select en DocumentAceptacionCargo.tsx
+- [ ] Identificar todos los componentes Select en DocumentAceptacionCargo.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad
+
+### Corregir Select en DocumentActaFinalResultados.tsx
+- [ ] Identificar todos los componentes Select en DocumentActaFinalResultados.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad
+
+### Corregir Select en DocumentsHistory.tsx
+- [ ] Identificar todos los componentes Select en DocumentsHistory.tsx
+- [ ] Reemplazar por elementos nativos
+- [ ] Probar funcionalidad

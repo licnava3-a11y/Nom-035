@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { ArrowLeft, Clock, User, AlertCircle, FileText, MessageSquare, Users } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -261,18 +261,19 @@ export default function CaseDetail() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Cambiar Estado (opcional)</label>
-                  <Select value={newStatus} onValueChange={setNewStatus}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Mantener estado actual" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="open">Abierto</SelectItem>
-                      <SelectItem value="investigating">En Investigación</SelectItem>
-                      <SelectItem value="resolved">Resuelto</SelectItem>
-                      <SelectItem value="closed">Cerrado</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label htmlFor="newStatus" className="text-sm font-medium mb-2 block">Cambiar Estado (opcional)</label>
+                  <select
+                    id="newStatus"
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="">Mantener estado actual</option>
+                    <option value="open">Abierto</option>
+                    <option value="investigating">En Investigación</option>
+                    <option value="resolved">Resuelto</option>
+                    <option value="closed">Cerrado</option>
+                  </select>
                 </div>
 
                 <Button onClick={handleAddFollowUp} disabled={addFollowUpMutation.isPending} className="w-full">
