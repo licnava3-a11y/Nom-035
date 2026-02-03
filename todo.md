@@ -449,3 +449,26 @@
 - [ ] Crear tests para botones críticos
 - [ ] Verificar que todos los botones muestren feedback visual
 - [ ] Documentar correcciones realizadas
+
+
+## FASE 35: Completar Auditoría y Páginas del Comité
+
+### Paso 1: Continuar Auditoría de Módulos Restantes
+- [x] Auditar módulo de Casos (botones de acción, navegación) - No requiere correcciones
+- [ ] Auditar módulo de Usuarios (botones de gestión)
+- [ ] Auditar módulo de Cursos (botones de inscripción, detalle)
+- [ ] Auditar módulo de Evaluaciones (botón tomar evaluación)
+- [ ] Auditar módulo de Recursos (botones de descarga)
+- [ ] Auditar módulo de Buzón (botones de cambio de estado)
+
+### Paso 2: Crear Páginas Faltantes del Comité
+- [x] Crear página de perfil detallado (/committee/:id)
+- [x] Crear página de edición de miembro (/committee/:id/edit)
+- [x] Conectar ambas páginas a procedimientos tRPC
+
+### Paso 3: Implementar Formulario de Agregar Miembro
+- [x] Crear página /committee/new
+- [x] Implementar selector de usuarios existentes
+- [x] Agregar campos de posición y responsabilidades
+- [x] Conectar a procedimiento tRPC committee.add
+- [x] Agregar validaciones y feedback visual
