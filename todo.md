@@ -757,3 +757,28 @@
 - [ ] Crear ActaRecorridoNOM019.tsx
 - [ ] Agregar ruta /documents con navegación
 - [ ] Crear página de historial de documentos generados
+
+
+## FASE 41: Carga Masiva de Trabajadores mediante Excel
+
+### Plantilla Excel Guía V NOM-035
+- [ ] Investigar campos requeridos en Guía V de NOM-035-STPS-2018
+- [ ] Crear plantilla Excel con todos los campos de la Guía V
+- [ ] Agregar validaciones de formato en la plantilla (CURP, RFC, email, teléfono, fechas)
+- [ ] Incluir hoja de instrucciones en la plantilla
+- [ ] Generar plantilla de ejemplo con datos de demostración
+
+### Procesamiento de Archivo
+- [ ] Instalar biblioteca xlsx para procesamiento de Excel
+- [ ] Crear helper para leer y validar archivo Excel
+- [ ] Implementar validaciones de formato por campo
+- [ ] Crear procedimiento tRPC para carga masiva
+- [ ] Implementar manejo de errores y reporte de validación
+
+### UI de Carga Masiva
+- [ ] Agregar botón "Importar desde Excel" en página de trabajadores
+- [ ] Crear modal de carga con drag & drop
+- [ ] Implementar preview de datos antes de guardar
+- [ ] Mostrar errores de validación por fila
+- [ ] Agregar opción de descarga de plantilla
+- [ ] Implementar barra de progreso durante importación
