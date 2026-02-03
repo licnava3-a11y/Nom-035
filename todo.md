@@ -472,3 +472,79 @@
 - [x] Agregar campos de posición y responsabilidades
 - [x] Conectar a procedimiento tRPC committee.add
 - [x] Agregar validaciones y feedback visual
+
+
+## FASE 36: Sección de Formatos Legales del Comité
+
+### Esquema de Base de Datos
+- [x] Crear tabla de formatos (documents)
+- [x] Crear tabla de firmas digitales (signatures)
+- [x] Crear tabla de participantes en documentos (document_participants)
+- [x] Crear relaciones entre tablas
+- [x] Crear tabla de catálogo de formatos (format_catalog)
+- [x] Crear tabla de evidencias fotográficas (document_evidence)
+
+### Sistema de Firma Digitalizada
+- [ ] Implementar componente de captura de firma con canvas
+- [ ] Guardar firmas en formato imagen (PNG/SVG)
+- [ ] Almacenar firmas en S3
+- [ ] Vincular firmas con usuarios y documentos
+
+### Formato: Funciones del Comité
+- [ ] Crear plantilla de funciones del comité
+- [ ] Incluir elementos legales de NOM-035
+- [ ] Agregar sección de firmas
+- [ ] Implementar generación de PDF
+
+### Formato: Acta Constitutiva
+- [ ] Crear plantilla de acta constitutiva
+- [ ] Incluir datos de la empresa
+- [ ] Incluir lista de miembros del comité
+- [ ] Agregar sección de firmas de todos los miembros
+- [ ] Implementar foliado automático
+- [ ] Agregar código QR único para validación
+
+### Formato: Aceptación de Cargo
+- [ ] Crear plantilla de aceptación de cargo
+- [ ] Incluir datos del miembro
+- [ ] Incluir descripción de responsabilidades
+- [ ] Agregar campo de firma digitalizada
+- [ ] Implementar foliado automático
+
+### Formato: Actas de Recorridos NOM-019
+- [ ] Crear plantilla de acta de recorrido
+- [ ] Incluir elementos requeridos por NOM-019-STPS-2011
+- [ ] Agregar campos de áreas recorridas
+- [ ] Agregar campos de hallazgos y observaciones
+- [ ] Agregar campos de medidas correctivas
+- [ ] Incluir sección de participantes
+- [ ] Agregar campo para evidencia fotográfica
+- [ ] Agregar firmas de participantes
+
+### Formato: Bases de Funcionamiento
+- [ ] Crear plantilla de bases de funcionamiento
+- [ ] Incluir elementos legales requeridos
+- [ ] Agregar periodicidad de reuniones
+- [ ] Agregar procedimientos de operación
+- [ ] Agregar sección de firmas
+
+### Página de Gestión de Formatos
+- [ ] Crear página de lista de formatos
+- [ ] Implementar generación de cada formato
+- [ ] Agregar vista previa de documentos
+- [ ] Implementar descarga de PDFs
+- [ ] Agregar historial de formatos generados
+- [ ] Implementar búsqueda y filtros
+
+### Catálogo de Formatos (Administración)
+- [ ] Crear tabla de catálogo de formatos
+- [ ] Agregar campos: código, versión, fecha, referencia
+- [ ] Implementar nomenclatura de folios (CÓDIGO+CONSECUTIVO/AÑO)
+- [ ] Permitir al admin cambiar nomenclatura y versión
+
+### Pruebas y Validación
+- [ ] Probar generación de todos los formatos
+- [ ] Validar firma digitalizada en todos los formatos
+- [ ] Verificar foliado automático
+- [ ] Probar exportación a PDF
+- [ ] Crear checkpoint final
