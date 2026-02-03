@@ -1610,3 +1610,33 @@
 - [ ] Implementar notificación al comité cuando se detecta ATS
 - [ ] Crear flujo de investigación de ATS
 - [ ] Crear flujo de dictamen de ATS
+
+
+## FASE 60: Formularios de Encuestas y Sistema de Cálculo Completo
+
+### Páginas de Formularios
+- [ ] Crear /client/src/pages/SurveyGuideI.tsx con 4 preguntas ATS y lógica de detección
+- [ ] Crear /client/src/pages/SurveyGuideII.tsx con 46 preguntas organizadas por categoría
+- [ ] Crear /client/src/pages/SurveyGuideIII.tsx con 72 preguntas organizadas por categoría
+- [ ] Implementar validaciones en todos los formularios
+- [ ] Registrar rutas en App.tsx
+
+### Sistema de Cálculo
+- [x] Crear /server/lib/nom035-calculator.ts con funciones de cálculo
+- [x] Implementar cálculo con valores inversos según Tablas 2 y 5
+- [x] Implementar cálculo de Cfinal (calificación final)
+- [x] Implementar cálculo de Ccat (calificación por categoría)
+- [x] Implementar cálculo de Cdom (calificación por dominio)
+- [x] Implementar cálculo de Cdim (calificación por dimensión)
+- [x] Aplicar colorimetría oficial según nivel de riesgo
+
+### Dashboard de Análisis
+- [ ] Crear /client/src/pages/SurveysDashboard.tsx
+- [ ] Implementar fórmula de cobertura (Ecuación 1)
+- [ ] Mostrar porcentaje de cumplimiento por guía
+- [ ] Identificar trabajadores que faltan de responder
+- [ ] Crear gráficas de resultados por categoría
+- [ ] Crear gráficas de resultados por dominio
+- [ ] Implementar filtros avanzados
+- [ ] Mostrar acciones predefinidas según Tablas 4 y 7
+- [ ] Mostrar casos ATS detectados

@@ -5,6 +5,7 @@ import { getDb } from "../db";
 import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, users, cases } from "../../drizzle/schema";
 import { eq, and, desc, count, sql } from "drizzle-orm";
 import { randomBytes } from "crypto";
+import * as calculator from "../lib/nom035-calculator";
 
 // Helper para generar token único
 function generateToken(): string {
@@ -294,6 +295,166 @@ export const surveysRouter = router({
         totalResponses: totalResponses?.count || 0,
         pending,
         completionRate: totalWorkers?.count ? ((totalResponses?.count || 0) / totalWorkers.count * 100).toFixed(2) : '0',
+      };
+    }),
+
+  // Obtener resultado calculado de una respuesta
+  getCalculatedResult: protectedProcedure
+    .input(z.number()) // responseId
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener respuesta
+      const [response] = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.id, input))
+        .limit(1);
+      
+      if (!response) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta no encontrada" });
+      }
+      
+      // Obtener encuesta para determinar tipo
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, response.surveyId)).limit(1);
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Solo calcular para Guía II y III
+      if (survey.type !== 'guia_ii' && survey.type !== 'guia_iii') {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Solo se pueden calcular resultados de Guía II y III" });
+      }
+      
+      // Obtener respuestas individuales con información de preguntas
+      const answers = await db
+        .select({
+          questionId: surveyAnswers.questionId,
+          answer: surveyAnswers.answerValue,
+          isReverseScored: surveyQuestions.isReverseScored,
+          category: surveyQuestions.category,
+          domain: surveyQuestions.domain,
+          dimension: surveyQuestions.dimension,
+        })
+        .from(surveyAnswers)
+        .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+        .where(eq(surveyAnswers.responseId, input));
+      
+      // Calcular resultado
+      const result = calculator.calculateSurveyResult(
+        answers.map(a => ({
+          questionId: a.questionId,
+          answer: a.answer,
+          isReverseScored: Boolean(a.isReverseScored),
+          category: a.category || '',
+          domain: a.domain || '',
+          dimension: a.dimension,
+        })),
+        survey.type as 'guia_ii' | 'guia_iii'
+      );
+      
+      return {
+        responseId: input,
+        userId: response.userId,
+        surveyId: response.surveyId,
+        surveyType: survey.type,
+        completedAt: response.completedAt,
+        ...result,
+      };
+    }),
+
+  // Obtener estadísticas de riesgo por categoría/dominio
+  getRiskStatistics: protectedProcedure
+    .input(z.number()) // surveyId
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener todas las respuestas de la encuesta
+      const responses = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.surveyId, input));
+      
+      if (responses.length === 0) {
+        return {
+          totalResponses: 0,
+          riskDistribution: {},
+          categoryRisks: [],
+          domainRisks: [],
+        };
+      }
+      
+      // Obtener encuesta para determinar tipo
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, input)).limit(1);
+      if (!survey || (survey.type !== 'guia_ii' && survey.type !== 'guia_iii')) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Solo se pueden calcular estadísticas de Guía II y III" });
+      }
+      
+      // Calcular resultados para cada respuesta
+      const results = [];
+      for (const response of responses) {
+        const answers = await db
+          .select({
+            questionId: surveyAnswers.questionId,
+            answer: surveyAnswers.answerValue,
+            isReverseScored: surveyQuestions.isReverseScored,
+            category: surveyQuestions.category,
+            domain: surveyQuestions.domain,
+            dimension: surveyQuestions.dimension,
+          })
+          .from(surveyAnswers)
+          .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+          .where(eq(surveyAnswers.responseId, response.id));
+        
+        const result = calculator.calculateSurveyResult(
+          answers.map(a => ({
+            questionId: a.questionId,
+            answer: a.answer,
+            isReverseScored: Boolean(a.isReverseScored),
+            category: a.category || '',
+            domain: a.domain || '',
+            dimension: a.dimension,
+          })),
+          survey.type as 'guia_ii' | 'guia_iii'
+        );
+        
+        results.push(result);
+      }
+      
+      // Calcular distribución de riesgo
+      const riskDistribution: Record<string, number> = {};
+      for (const result of results) {
+        riskDistribution[result.finalRiskLevel] = (riskDistribution[result.finalRiskLevel] || 0) + 1;
+      }
+      
+      // Calcular riesgos promedio por categoría
+      const categoryRisks: Record<string, { count: number; avgScore: number }> = {};
+      for (const result of results) {
+        for (const cat of result.categories) {
+          if (!categoryRisks[cat.category]) {
+            categoryRisks[cat.category] = { count: 0, avgScore: 0 };
+          }
+          categoryRisks[cat.category].count++;
+          categoryRisks[cat.category].avgScore += cat.score;
+        }
+      }
+      
+      // Calcular promedios
+      for (const cat in categoryRisks) {
+        categoryRisks[cat].avgScore = categoryRisks[cat].avgScore / categoryRisks[cat].count;
+      }
+      
+      return {
+        totalResponses: responses.length,
+        riskDistribution,
+        categoryRisks: Object.entries(categoryRisks).map(([category, data]) => ({
+          category,
+          avgScore: data.avgScore,
+          riskLevel: calculator.determineRiskLevel(data.avgScore, survey.type as 'guia_ii' | 'guia_iii').level,
+        })),
+        domainRisks: [], // TODO: Implementar si es necesario
       };
     }),
 
