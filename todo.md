@@ -792,3 +792,29 @@
 - [x] Agregar contenedor de portales en index.html
 - [ ] Probar navegación en todas las secciones del menú
 - [ ] Verificar que no hay errores en consola
+
+
+## FASE 43: Auditoría Completa de Botones de Acción
+### Acciones Rápidas del Dashboard
+- [x] Corregir botón "Ver documentos" en Gestión de Casos
+- [x] Corregir botón "Asignar Comité" en Comité de Atención
+- [x] Verificar botón "Ver Reportes" funciona correctamente
+
+### Auditoría por Página
+- [ ] Dashboard - verificar todos los botones de acciones rápidas
+- [ ] Cursos - verificar botones de crear, editar, eliminar
+- [ ] Evaluaciones - verificar botones de acción
+- [ ] Casos - verificar botones de ver detalle, editar, seguimiento
+- [ ] Buzón - verificar botones de gestión
+- [ ] Comité - verificar botones de ver perfil, editar, agregar
+- [ ] Recursos - verificar botones de descarga y gestión
+- [ ] Puestos - verificar botones de CRUD
+- [ ] Trabajadores - verificar botones de ver perfil, editar, agregar
+- [ ] Reportes - verificar botones de exportación
+- [ ] Usuarios - verificar botones de gestión
+
+### Crear Rutas y Páginas Faltantes
+- [x] Crear página de documentos (/documents)
+- [x] Crear página de asignación de casos (/cases/assign)
+- [x] Verificar todas las rutas están registradas en App.tsx
+- [ ] Crear páginas de detalle faltantes

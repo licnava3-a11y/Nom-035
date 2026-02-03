@@ -277,6 +277,38 @@ export default function Dashboard() {
                 </Card>
               </Link>
 
+              <Link href="/documents">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <FileText className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle>Ver Documentos</CardTitle>
+                        <CardDescription>Formatos legales y actas del comité</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+
+              <Link href="/cases/assign">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Users className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle>Asignar Comité</CardTitle>
+                        <CardDescription>Asignar casos a miembros del comité</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+
               <Link href="/reports">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>

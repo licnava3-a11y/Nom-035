@@ -28,6 +28,8 @@ import Employees from "./pages/Employees";
 import EmployeeNew from "./pages/EmployeeNew";
 import EmployeeEdit from "./pages/EmployeeEdit";
 import EmployeeProfile from "./pages/EmployeeProfile";
+import Documents from "./pages/Documents";
+import CaseAssignment from "./pages/CaseAssignment";
 
 function Router() {
   return (
@@ -145,6 +147,16 @@ function Router() {
       <Route path={"/employees/:id"}>
         <DashboardLayout>
           <EmployeeProfile />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents"}>
+        <DashboardLayout>
+          <Documents />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/cases/assign"}>
+        <DashboardLayout>
+          <CaseAssignment />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
