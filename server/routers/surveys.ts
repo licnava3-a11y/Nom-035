@@ -279,7 +279,7 @@ export const surveysRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
       // Total de trabajadores
-      const [totalWorkers] = await db.select({ count: count() }).from(users);
+      const [totalWorkers] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(users);
       
       // Total de respuestas
       const [totalResponses] = await db
@@ -455,6 +455,202 @@ export const surveysRouter = router({
           riskLevel: calculator.determineRiskLevel(data.avgScore, survey.type as 'guia_ii' | 'guia_iii').level,
         })),
         domainRisks: [], // TODO: Implementar si es necesario
+      };
+    }),
+
+  // Generar reporte individual PDF
+  generateIndividualPDF: protectedProcedure
+    .input(z.number()) // responseId
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener respuesta
+      const [response] = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.id, input))
+        .limit(1);
+      
+      if (!response) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta no encontrada" });
+      }
+      
+      // Obtener encuesta
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, response.surveyId)).limit(1);
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Obtener usuario
+      if (!response.userId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Respuesta sin usuario asociado" });
+      }
+      const [user] = await db.select().from(users).where(eq(users.id, response.userId)).limit(1);
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Usuario no encontrado" });
+      }
+      
+      // Obtener respuestas individuales con información de preguntas
+      const answers = await db
+        .select({
+          questionId: surveyAnswers.questionId,
+          questionText: surveyQuestions.questionText,
+          answer: surveyAnswers.answerValue,
+          isReverseScored: surveyQuestions.isReverseScored,
+          category: surveyQuestions.category,
+          domain: surveyQuestions.domain,
+          dimension: surveyQuestions.dimension,
+        })
+        .from(surveyAnswers)
+        .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+        .where(eq(surveyAnswers.responseId, input));
+      
+      // Preparar datos del reporte
+      const reportData = {
+        employeeName: user.name || user.email || 'Usuario sin nombre',
+        employeeId: user.id.toString(),
+        department: undefined, // TODO: Agregar departamento si existe
+        position: undefined, // TODO: Agregar puesto si existe
+        surveyType: survey.type as 'guia_i' | 'guia_ii' | 'guia_iii',
+        surveyDate: response.completedAt || new Date(),
+        answers: answers.map(a => ({
+          questionId: a.questionId,
+          questionText: a.questionText || '',
+          answer: a.answer,
+          isReverseScored: Boolean(a.isReverseScored),
+          category: a.category || '',
+          domain: a.domain || '',
+          dimension: a.dimension || '',
+        })),
+      };
+      
+      // Generar PDF según el tipo de guía
+      const pdfReports = await import('../lib/nom035-pdf-reports');
+      let pdfBuffer: Buffer;
+      
+      if (survey.type === 'guia_i') {
+        // Detectar ATS
+        const hasATS = detectATS(answers.map(a => ({ questionId: a.questionId, answerValue: a.answer })));
+        pdfBuffer = await pdfReports.generateGuideIReport(reportData, hasATS);
+      } else {
+        pdfBuffer = await pdfReports.generateIndividualReport(reportData);
+      }
+      
+      // Retornar PDF como base64
+      return {
+        pdf: pdfBuffer.toString('base64'),
+        filename: `reporte_${survey.type}_${user.id}_${Date.now()}.pdf`,
+      };
+    }),
+
+  // Generar reporte agregado PDF
+  generateAggregatedPDF: protectedProcedure
+    .input(z.number()) // surveyId
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener encuesta
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, input)).limit(1);
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Obtener todas las respuestas
+      const responses = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.surveyId, input));
+      
+      // Total de trabajadores
+      const [totalWorkers] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(users);
+      
+      // Calcular cobertura
+      const coverage = totalWorkers?.count ? (responses.length / totalWorkers.count) * 100 : 0;
+      
+      // Calcular estadísticas
+      const riskDistribution: Record<string, number> = {};
+      const categoryScores: Record<string, number[]> = {};
+      let atsDetected = 0;
+      
+      if (survey.type === 'guia_i') {
+        // Contar casos ATS
+        for (const response of responses) {
+          const answers = await db
+            .select({ questionId: surveyAnswers.questionId, answer: surveyAnswers.answerValue })
+            .from(surveyAnswers)
+            .where(eq(surveyAnswers.responseId, response.id));
+          
+          if (detectATS(answers.map(a => ({ questionId: a.questionId, answerValue: a.answer })))) {
+            atsDetected++;
+          }
+        }
+      } else {
+        // Calcular para Guía II y III
+        for (const response of responses) {
+          const answers = await db
+            .select({
+              questionId: surveyAnswers.questionId,
+              answer: surveyAnswers.answerValue,
+              isReverseScored: surveyQuestions.isReverseScored,
+              category: surveyQuestions.category,
+              domain: surveyQuestions.domain,
+              dimension: surveyQuestions.dimension,
+            })
+            .from(surveyAnswers)
+            .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+            .where(eq(surveyAnswers.responseId, response.id));
+          
+          const result = calculator.calculateSurveyResult(
+            answers.map(a => ({
+              questionId: a.questionId,
+              answer: a.answer,
+              isReverseScored: Boolean(a.isReverseScored),
+              category: a.category || '',
+              domain: a.domain || '',
+              dimension: a.dimension || '',
+            })),
+            survey.type as 'guia_ii' | 'guia_iii'
+          );
+          
+          riskDistribution[result.finalRiskLevel] = (riskDistribution[result.finalRiskLevel] || 0) + 1;
+          
+          for (const cat of result.categories) {
+            if (!categoryScores[cat.category]) {
+              categoryScores[cat.category] = [];
+            }
+            categoryScores[cat.category].push(cat.score);
+          }
+        }
+      }
+      
+      // Calcular promedios por categoría
+      const averageRiskByCategory = Object.entries(categoryScores).map(([category, scores]) => ({
+        category,
+        averageScore: scores.reduce((a, b) => a + b, 0) / scores.length,
+      }));
+      
+      // Preparar datos del reporte
+      const reportData = {
+        organizationName: 'Organización', // TODO: Obtener nombre real
+        reportDate: new Date(),
+        totalEmployees: totalWorkers?.count || 0,
+        totalResponses: responses.length,
+        coverage,
+        riskDistribution,
+        averageRiskByCategory,
+        atsDetected,
+      };
+      
+      // Generar PDF
+      const pdfReports = await import('../lib/nom035-pdf-reports');
+      const pdfBuffer = await pdfReports.generateAggregatedReport(reportData);
+      
+      // Retornar PDF como base64
+      return {
+        pdf: pdfBuffer.toString('base64'),
+        filename: `reporte_agregado_${survey.type}_${Date.now()}.pdf`,
       };
     }),
 

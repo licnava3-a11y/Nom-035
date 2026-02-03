@@ -1670,3 +1670,37 @@
 - [ ] Agregar colorimetría oficial en reportes
 - [ ] Agregar procedimiento tRPC para generar PDFs
 - [ ] Crear botones de descarga en dashboard
+
+
+## FASE 62: Reportes PDF, Módulo de Seguimiento y Acciones Correctivas
+
+### Generación de Reportes PDF
+- [ ] Crear /server/lib/pdf-ge### Reportes PDF
+- [x] Crear /server/lib/nom035-pdf-reports.ts
+- [x] Implementar reporte individual de Guía I con detección ATS
+- [x] Implementar reporte individual de Guía II y III
+- [x] Implementar reporte grupal por departamento/área
+- [x] Implementar reporte organizacional completo
+- [x] Implementar reporte agregado con estadísticas generales
+- [x] Agregar colorimetría oficial en todos los reportes
+- [x] Agregar acciones recomendadas según nivel de riesgo
+- [x] Crear procedimientos tRPC para generar PDFs
+- [ ] Integrar botones de descarga en dashboard## Módulo de Seguimiento
+- [ ] Crear /client/src/pages/surveys/Tracking.tsx
+- [ ] Implementar cálculo de fórmula de cobertura (Ecuación 1)
+- [ ] Mostrar porcentaje de cumplimiento por guía
+- [ ] Crear lista de trabajadores pendientes de responder
+- [ ] Implementar filtros por departamento y puesto
+- [ ] Agregar sistema de notificaciones por correo
+- [ ] Crear plantilla de correo para recordatorios
+- [ ] Implementar envío automático de notificaciones
+
+### Panel de Acciones Correctivas
+- [ ] Crear /client/src/pages/surveys/CorrectiveActions.tsx
+- [ ] Implementar registro de acciones por nivel de riesgo
+- [ ] Crear formulario de captura de medidas correctivas
+- [ ] Implementar seguimiento de estado (pendiente, en proceso, completada)
+- [ ] Agregar asignación de responsables
+- [ ] Crear vista de acciones por trabajador/departamento
+- [ ] Implementar filtros por nivel de riesgo y estado
+- [ ] Agregar indicadores de cumplimiento de acciones
