@@ -485,10 +485,13 @@
 - [x] Crear tabla de evidencias fotográficas (document_evidence)
 
 ### Sistema de Firma Digitalizada
-- [ ] Implementar componente de captura de firma con canvas
-- [ ] Guardar firmas en formato imagen (PNG/SVG)
-- [ ] Almacenar firmas en S3
-- [ ] Vincular firmas con usuarios y documentos
+- [x] Implementar componente de captura de firma con canvas
+- [x] Guardar firmas en formato imagen (PNG/SVG)
+- [x] Almacenar firmas en S3
+- [x] Vincular firmas con usuarios y documentos
+- [x] Crear procedimientos tRPC para guardar firmas
+- [x] Implementar detección de dispositivo táctil
+- [x] Agregar validación de firma no vacía
 
 ### Formato: Funciones del Comité
 - [ ] Crear plantilla de funciones del comité

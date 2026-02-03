@@ -15,7 +15,8 @@ import CaseDetail from "./pages/CaseDetail";
 import Committee from "./pages/Committee";
 import CommitteeMemberProfile from "./pages/CommitteeMemberProfile";
 import CommitteeMemberEdit from "./pages/CommitteeMemberEdit";
-import CommitteeMemberNew from "./pages/CommitteeMemberNew";
+import CommitteeMemberNew from './pages/CommitteeMemberNew';
+import SignatureTest from './pages/SignatureTest';
 import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
 import Users from "./pages/Users";
@@ -84,6 +85,11 @@ function Router() {
       <Route path={"/committee/new"}>
         <DashboardLayout>
           <CommitteeMemberNew />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/signature-test"}>
+        <DashboardLayout>
+          <SignatureTest />
         </DashboardLayout>
       </Route>
       <Route path={"/job-positions"}>
