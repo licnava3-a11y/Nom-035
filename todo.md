@@ -564,7 +564,7 @@
 - [ ] Agregar campos dinámicos y validaciones
 
 ### Paso 2: Implementar Generación de PDFs
-- [ ] Instalar biblioteca de generación de PDFs (jsPDF o react-pdf) (en progreso)
+- [x] Instalar biblioteca de generación de PDFs (jsPDF o react-pdf)
 - [ ] Crear helper para generar códigos QR únicos
 - [ ] Implementar foliado automático con nomenclatura
 - [ ] Crear procedimiento tRPC para generar PDF
