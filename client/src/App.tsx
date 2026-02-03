@@ -37,6 +37,10 @@ import DocumentAceptacionCargo from "./pages/DocumentAceptacionCargo";
 import DocumentActaRecorridoNOM019 from "./pages/DocumentActaRecorridoNOM019";
 import DocumentActaFinalResultados from "./pages/DocumentActaFinalResultados";
 import DocumentsHistory from "./pages/DocumentsHistory";
+import GuideI from "./pages/surveys/GuideI";
+import GuideII from "./pages/surveys/GuideII";
+import GuideIII from "./pages/surveys/GuideIII";
+import SurveysDashboard from "./pages/surveys/Dashboard";
 
 function Router() {
   return (
@@ -199,6 +203,26 @@ function Router() {
       <Route path={"/documents/history"}>
         <DashboardLayout>
           <DocumentsHistory />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/dashboard"}>
+        <DashboardLayout>
+          <SurveysDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/guide-i"}>
+        <DashboardLayout>
+          <GuideI />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/guide-ii"}>
+        <DashboardLayout>
+          <GuideII />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/guide-iii"}>
+        <DashboardLayout>
+          <GuideIII />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />

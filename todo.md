@@ -1640,3 +1640,33 @@
 - [ ] Implementar filtros avanzados
 - [ ] Mostrar acciones predefinidas según Tablas 4 y 7
 - [ ] Mostrar casos ATS detectados
+
+
+## FASE 61: Implementación de Formularios, Dashboard y Reportes PDF
+
+### Formularios de Encuestas
+- [x] Crear /client/src/pages/surveys/GuideI.tsx con 4 preguntas ATS
+- [x] Implementar lógica de detección automática de ATS en Guía I
+- [x] Crear /client/src/pages/surveys/GuideII.tsx con 46 preguntas
+- [x] Crear /client/src/pages/surveys/GuideIII.tsx con 72 preguntas
+- [x] Implementar validaciones de formularios completos
+- [x] Registrar rutas de formularios en App.tsx
+- [x] Crear página de inicio de encuestas con instrucciones (Dashboard)
+
+### Dashboard de Análisis
+- [x] Crear /client/src/pages/surveys/Dashboard.tsx
+- [x] Implementar tarjetas de estadísticas (cobertura, pendientes, ATS)
+- [x] Crear gráfica de distribución de niveles de riesgo
+- [x] Crear gráficas por categoría y dominio
+- [ ] Implementar fórmula de cobertura (Ecuación 1)
+- [ ] Mostrar lista de trabajadores pendientes
+- [ ] Mostrar acciones recomendadas según nivel de riesgo
+- [ ] Implementar filtros por guía y periodo
+
+### Generación de Reportes PDF
+- [ ] Crear /server/lib/pdf-generator.ts con funciones de generación
+- [ ] Implementar reporte individual con resultados y acciones
+- [ ] Implementar reporte agregado con estadísticas generales
+- [ ] Agregar colorimetría oficial en reportes
+- [ ] Agregar procedimiento tRPC para generar PDFs
+- [ ] Crear botones de descarga en dashboard
