@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -244,10 +244,12 @@ export type InsertCaseDocument = typeof caseDocuments.$inferInsert;
 
 /**
  * Committee members table - Members of the attention committee
+ * Now references employees table instead of users directly
  */
 export const committeeMembers = mysqlTable("committeeMembers", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(),
+  employeeId: int("employeeId").unique(), // References employees table (optional for migration)
+  userId: int("userId").notNull().unique(), // Still keep for backward compatibility
   position: varchar("position", { length: 255 }),
   responsibilities: text("responsibilities"),
   isActive: boolean("isActive").default(true).notNull(),
@@ -435,3 +437,38 @@ export const caseAssignments = mysqlTable("caseAssignments", {
 
 export type CaseAssignment = typeof caseAssignments.$inferSelect;
 export type InsertCaseAssignment = typeof caseAssignments.$inferInsert;
+
+/**
+ * Employees table - Catalog of workers/employees
+ * This is the master catalog for all employees in the organization
+ */
+export const employees = mysqlTable("employees", {
+  id: int("id").autoincrement().primaryKey(),
+  // Personal Information
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  phone: varchar("phone", { length: 20 }),
+  curp: varchar("curp", { length: 18 }).unique(), // CURP (Mexican ID)
+  
+  // Employment Information
+  employeeNumber: varchar("employeeNumber", { length: 50 }).unique(),
+  department: varchar("department", { length: 100 }),
+  position: varchar("position", { length: 100 }),
+  hireDate: date("hireDate"),
+  contractType: mysqlEnum("contractType", ["permanent", "temporary", "contract"]).default("permanent"),
+  
+  // Status
+  isActive: boolean("isActive").default(true).notNull(),
+  terminationDate: date("terminationDate"),
+  
+  // Relationship with users table
+  userId: int("userId").unique(), // Link to users table when employee has system access
+  
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Employee = typeof employees.$inferSelect;
+export type InsertEmployee = typeof employees.$inferInsert;

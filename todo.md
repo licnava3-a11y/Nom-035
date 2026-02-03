@@ -355,4 +355,50 @@
 - [x] Verificar funcionamiento de datos demo
 - [x] Probar integración de correo electrónico
 - [x] Probar asignación de comité
+- [x] Crear checkpoint final
+
+
+## FASE 33: Corrección de Botones y Catálogo de Trabajadores
+
+### Esquema de Base de Datos
+- [x] Crear tabla de trabajadores (employees)
+- [x] Agregar campos de información personal y laboral
+- [x] Crear relación entre trabajadores y usuarios
+- [x] Crear relación entre trabajadores y miembros del comité
+- [ ] Migrar datos existentes a nueva estructura
+
+### Catálogo de Trabajadores
+- [x] Crear procedimientos tRPC para CRUD de trabajadores
+- [ ] Implementar página de lista de trabajadores
+- [ ] Implementar formulario de agregar trabajador
+- [ ] Implementar formulario de editar trabajador
+- [ ] Implementar vista de perfil de trabajador
+- [ ] Agregar búsqueda y filtros
+- [ ] Implementar paginación
+
+### Gestión de Comité
+- [ ] Modificar selección de miembros para usar catálogo de trabajadores
+- [ ] Implementar página de perfil de miembro del comité
+- [ ] Implementar formulario de edición de miembro
+- [ ] Agregar validación de trabajador activo
+- [ ] Implementar desactivación de miembros
+
+### Corrección de Botones de Acción
+- [ ] Auditar todos los botones del sistema
+- [ ] Corregir botón "Ver Perfil" en página de comité
+- [ ] Corregir botón "Editar" en página de comité
+- [ ] Revisar botones en página de casos
+- [ ] Revisar botones en página de cursos
+- [ ] Revisar botones en página de evaluaciones
+- [ ] Revisar botones en página de buzón
+- [ ] Revisar botones en página de recursos
+- [ ] Implementar navegación correcta para todos los botones
+
+### Pruebas y Validación
+- [ ] Probar CRUD completo de trabajadores
+- [ ] Probar selección de trabajadores para comité
+- [ ] Probar todos los botones corregidos
+- [ ] Verificar navegación en todas las páginas
+- [ ] Crear tests unitarios para nuevas funcionalidades
+- [ ] Ejecutar todas las pruebas
 - [ ] Crear checkpoint final

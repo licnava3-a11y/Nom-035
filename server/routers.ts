@@ -5,6 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import * as db from "./db";
+import { employeesRouter } from "./routers/employees";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -709,6 +710,9 @@ export const appRouter = router({
         return await db.getCommitteeMemberAssignments(input.committeeMemberId);
       }),
   }),
+
+  // Employees management
+  employees: employeesRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,0 +1,23 @@
+CREATE TABLE `employees` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`firstName` varchar(100) NOT NULL,
+	`lastName` varchar(100) NOT NULL,
+	`email` varchar(320) NOT NULL,
+	`phone` varchar(20),
+	`curp` varchar(18),
+	`employeeNumber` varchar(50),
+	`department` varchar(100),
+	`position` varchar(100),
+	`hireDate` date,
+	`contractType` enum('permanent','temporary','contract') DEFAULT 'permanent',
+	`isActive` boolean NOT NULL DEFAULT true,
+	`terminationDate` date,
+	`userId` int,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `employees_id` PRIMARY KEY(`id`),
+	CONSTRAINT `employees_email_unique` UNIQUE(`email`),
+	CONSTRAINT `employees_curp_unique` UNIQUE(`curp`),
+	CONSTRAINT `employees_employeeNumber_unique` UNIQUE(`employeeNumber`),
+	CONSTRAINT `employees_userId_unique` UNIQUE(`userId`)
+);
