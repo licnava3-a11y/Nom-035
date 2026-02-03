@@ -2,8 +2,8 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, users, cases } from "../../drizzle/schema";
-import { eq, and, desc, count, sql } from "drizzle-orm";
+import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, surveyNotifications, users, cases } from "../../drizzle/schema";
+import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
 
@@ -820,5 +820,191 @@ export const surveysRouter = router({
         ));
       
       return { success: true, message: "Encuesta reactivada exitosamente" };
+    }),
+
+  // Enviar invitaciones masivas a encuesta
+  sendSurveyInvitations: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      userIds: z.array(z.number()).optional(), // Si no se especifica, se envía a todos los pendientes
+      dueDate: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Solo admin puede enviar invitaciones
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Solo los administradores pueden enviar invitaciones" });
+      }
+      
+      const { sendSurveyInvitation } = await import('../lib/survey-email-service');
+      
+      // Obtener encuesta
+      const survey = await db.select().from(surveys).where(eq(surveys.id, input.surveyId)).limit(1);
+      if (!survey[0]) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Obtener usuarios pendientes
+      let targetUsers;
+      if (input.userIds && input.userIds.length > 0) {
+        targetUsers = await db.select().from(users).where(inArray(users.id, input.userIds));
+      } else {
+        // Obtener todos los usuarios que no han respondido
+        const responses = await db.select({ userId: surveyResponses.userId })
+          .from(surveyResponses)
+          .where(eq(surveyResponses.surveyId, input.surveyId));
+        
+        const respondedUserIds = responses.map(r => r.userId).filter((id): id is number => id !== null);
+        
+        if (respondedUserIds.length > 0) {
+          targetUsers = await db.select().from(users).where(not(inArray(users.id, respondedUserIds)));
+        } else {
+          targetUsers = await db.select().from(users);
+        }
+      }
+      
+      // Enviar invitaciones
+      const results = [];
+      for (const user of targetUsers) {
+        if (!user.email) continue;
+        
+        const result = await sendSurveyInvitation({
+          to: user.email,
+          userName: user.name || 'Usuario',
+          surveyTitle: survey[0].title,
+          surveyDescription: survey[0].description || '',
+          surveyUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/${survey[0].type}`,
+          dueDate: input.dueDate,
+        });
+        
+        // Registrar notificación
+        await db.insert(surveyNotifications).values({
+          surveyId: input.surveyId,
+          userId: user.id,
+          type: 'invitation',
+          subject: `Invitación: ${survey[0].title}`,
+          body: `Invitación a encuesta NOM-035`,
+          sentAt: result.success ? new Date() : null,
+          status: result.success ? 'sent' : 'failed',
+          error: result.error,
+        });
+        
+        results.push({ userId: user.id, success: result.success });
+      }
+      
+      const successCount = results.filter(r => r.success).length;
+      return { 
+        success: true, 
+        message: `Invitaciones enviadas: ${successCount} de ${results.length}`,
+        results 
+      };
+    }),
+
+  // Enviar recordatorios masivos
+  sendSurveyReminders: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      userIds: z.array(z.number()).optional(),
+      daysRemaining: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Solo los administradores pueden enviar recordatorios" });
+      }
+      
+      const { sendSurveyReminder } = await import('../lib/survey-email-service');
+      
+      const survey = await db.select().from(surveys).where(eq(surveys.id, input.surveyId)).limit(1);
+      if (!survey[0]) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Obtener usuarios pendientes
+      let targetUsers;
+      if (input.userIds && input.userIds.length > 0) {
+        targetUsers = await db.select().from(users).where(inArray(users.id, input.userIds));
+      } else {
+        const responses = await db.select({ userId: surveyResponses.userId })
+          .from(surveyResponses)
+          .where(eq(surveyResponses.surveyId, input.surveyId));
+        
+        const respondedUserIds = responses.map(r => r.userId).filter((id): id is number => id !== null);
+        
+        if (respondedUserIds.length > 0) {
+          targetUsers = await db.select().from(users).where(not(inArray(users.id, respondedUserIds)));
+        } else {
+          targetUsers = await db.select().from(users);
+        }
+      }
+      
+      const results = [];
+      for (const user of targetUsers) {
+        if (!user.email) continue;
+        
+        const result = await sendSurveyReminder({
+          to: user.email,
+          userName: user.name || 'Usuario',
+          surveyTitle: survey[0].title,
+          surveyUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/${survey[0].type}`,
+          daysRemaining: input.daysRemaining,
+        });
+        
+        await db.insert(surveyNotifications).values({
+          surveyId: input.surveyId,
+          userId: user.id,
+          type: 'reminder',
+          subject: `Recordatorio: ${survey[0].title}`,
+          body: `Recordatorio de encuesta NOM-035 pendiente`,
+          sentAt: result.success ? new Date() : null,
+          status: result.success ? 'sent' : 'failed',
+          error: result.error,
+        });
+        
+        results.push({ userId: user.id, success: result.success });
+      }
+      
+      const successCount = results.filter(r => r.success).length;
+      return { 
+        success: true, 
+        message: `Recordatorios enviados: ${successCount} de ${results.length}`,
+        results 
+      };
+    }),
+
+  // Obtener log de notificaciones
+  getNotificationsLog: protectedProcedure
+    .input(z.object({
+      surveyId: z.number().optional(),
+      userId: z.number().optional(),
+      type: z.enum(['invitation', 'reminder', 'completion']).optional(),
+      status: z.enum(['pending', 'sent', 'failed']).optional(),
+      limit: z.number().default(50),
+    }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Solo los administradores pueden ver el log" });
+      }
+      
+      const conditions = [];
+      if (input.surveyId) conditions.push(eq(surveyNotifications.surveyId, input.surveyId));
+      if (input.userId) conditions.push(eq(surveyNotifications.userId, input.userId));
+      if (input.type) conditions.push(eq(surveyNotifications.type, input.type));
+      if (input.status) conditions.push(eq(surveyNotifications.status, input.status));
+      
+      const notifications = await db.select()
+        .from(surveyNotifications)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(surveyNotifications.createdAt))
+        .limit(input.limit);
+      
+      return notifications;
     }),
 });

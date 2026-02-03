@@ -1778,10 +1778,13 @@
 - [x] Implementar servicio de envío de correos (nodemailer)
 - [x] Crear plantilla HTML profesional para invitaciones a encuestas
 - [x] Crear plantilla HTML para recordatorios a pendientes
-- [ ] Implementar procedimiento tRPC para enviar notificaciones
-- [ ] Agregar programación de envíos periódicos
-- [ ] Crear log de notificaciones enviadas
-- [ ] Implementar botón de envío manual en Tracking
+- [x] Implementar procedimiento tRPC para enviar invitaciones masivas
+- [x] Implementar procedimiento tRPC para enviar recordatorios masivos
+- [ ] Agregar programación de envíos periódicos automáticos
+- [x] Crear log de notificaciones enviadas (procedimiento tRPC getNotificationsLog)
+- [ ] Implementar interfaz de gestión manual en Tracking
+- [ ] Agregar botón de envío manual de invitaciones
+- [ ] Agregar botón de envío manual de recordatorios
 
 ### Panel de Acciones Correctivas
 - [x] Crear schema de tabla de acciones correctivas
@@ -1790,6 +1793,9 @@
 - [ ] Implementar formulario de registro de acciones
 - [ ] Agregar campos: descripción, nivel de riesgo, responsable, fecha límite
 - [ ] Implementar seguimiento de estado (pendiente, en proceso, completada)
+- [ ] Agregar alertas por correo al asignar acción correctiva
+- [ ] Agregar alertas por correo al cambiar estado de acción
+- [ ] Agregar alertas por correo al coordinador sobre vencimientos
 - [ ] Crear vista de acciones por trabajador
 - [ ] Crear vista de acciones por departamento
 - [ ] Implementar filtros por nivel de riesgo y estado
@@ -1805,5 +1811,6 @@
 - [ ] Crear gráfica de evolución de cobertura
 - [ ] Agregar filtros por fecha y departamento
 - [ ] Implementar exportación de reportes históricos a PDF
+- [ ] Implementar exportación de datos históricos a Excel
 - [ ] Crear procedimientos tRPC para datos históricos
 - [ ] Registrar ruta en App.tsx
