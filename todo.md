@@ -556,12 +556,12 @@
 ## FASE 37: Formatos Legales, PDFs y Firmantes Externos
 
 ### Paso 1: Crear Plantillas de Formatos Legales
-- [ ] Crear plantilla de Funciones del Comité
-- [ ] Crear plantilla de Acta Constitutiva
-- [ ] Crear plantilla de Aceptación de Cargo
-- [ ] Crear plantilla de Actas de Recorridos NOM-019
-- [ ] Integrar SignaturePad en cada formato
-- [ ] Agregar campos dinámicos y validaciones
+- [x] Crear plantilla de Funciones del Comité
+- [x] Crear plantilla de Acta Constitutiva
+- [x] Crear plantilla de Aceptación de Cargo
+- [x] Crear plantilla de Actas de Recorridos NOM-019
+- [x] Integrar SignaturePad en cada formato
+- [x] Agregar campos dinámicos y validaciones
 
 ### Paso 2: Implementar Generación de PDFs
 - [x] Instalar biblioteca de generación de PDFs (jsPDF o react-pdf)
@@ -752,10 +752,10 @@
 - [ ] Implementar dashboard de seguimiento para comité
 
 ### Seguimiento 3: Formatos Legales Restantes
-- [ ] Crear FuncionesComite.tsx
-- [ ] Crear AceptacionCargo.tsx
-- [ ] Crear ActaRecorridoNOM019.tsx
-- [ ] Agregar ruta /documents con navegación
+- [x] Crear FuncionesComite.tsx
+- [x] Crear AceptacionCargo.tsx
+- [x] Crear ActaRecorridoNOM019.tsx
+- [x] Agregar ruta /documents con navegación
 - [ ] Crear página de historial de documentos generados
 
 
@@ -818,3 +818,40 @@
 - [x] Crear página de asignación de casos (/cases/assign)
 - [x] Verificar todas las rutas están registradas en App.tsx
 - [ ] Crear páginas de detalle faltantes
+
+
+## FASE 44: Páginas de Formatos Legales Individuales
+### Acta Constitutiva
+- [ ] Crear página /documents/acta-constitutiva
+- [ ] Incluir campos: fecha, lugar, asistentes con firmas
+- [ ] Agregar sección de antecedentes y objeto
+- [ ] Incluir declaraciones y acuerdos
+- [ ] Integrar SignaturePad para cada asistente
+
+### Funciones del Comité
+- [ ] Crear página /documents/funciones-comite
+- [ ] Listar funciones generales del comité
+- [ ] Detallar funciones por posición (coordinador, secretario, vocal)
+- [ ] Incluir responsabilidades específicas
+- [ ] Agregar firma del coordinador
+
+### Aceptación de Cargo
+- [ ] Crear página /documents/aceptacion-cargo
+- [ ] Campos: datos del miembro (nombre, puesto, departamento)
+- [ ] Declaración de aceptación de responsabilidades
+- [ ] Compromisos específicos del cargo
+- [ ] Firma del miembro y testigos
+
+### Acta de Recorrido NOM-019
+- [ ] Crear página /documents/acta-recorrido
+- [ ] Campos: fecha, hora, área inspeccionada
+- [ ] Tabla de hallazgos (condición, riesgo, acción correctiva)
+- [ ] Subida de evidencias fotográficas múltiples
+- [ ] Firmas de inspector y responsable del área
+- [ ] Plan de acción con fechas compromiso
+
+### Integración
+- [ ] Registrar todas las rutas en App.tsx
+- [ ] Agregar navegación desde página Documents
+- [ ] Implementar guardado de borradores
+- [ ] Crear procedimientos tRPC para cada formato

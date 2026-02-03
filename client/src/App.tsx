@@ -30,6 +30,10 @@ import EmployeeEdit from "./pages/EmployeeEdit";
 import EmployeeProfile from "./pages/EmployeeProfile";
 import Documents from "./pages/Documents";
 import CaseAssignment from "./pages/CaseAssignment";
+import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
+import DocumentFuncionesComite from "./pages/DocumentFuncionesComite";
+import DocumentAceptacionCargo from "./pages/DocumentAceptacionCargo";
+import DocumentActaRecorridoNOM019 from "./pages/DocumentActaRecorridoNOM019";
 
 function Router() {
   return (
@@ -157,6 +161,26 @@ function Router() {
       <Route path={"/cases/assign"}>
         <DashboardLayout>
           <CaseAssignment />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents/acta-constitutiva"}>
+        <DashboardLayout>
+          <DocumentActaConstitutiva />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents/funciones-comite"}>
+        <DashboardLayout>
+          <DocumentFuncionesComite />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents/aceptacion-cargo"}>
+        <DashboardLayout>
+          <DocumentAceptacionCargo />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents/acta-recorrido-nom019"}>
+        <DashboardLayout>
+          <DocumentActaRecorridoNOM019 />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
