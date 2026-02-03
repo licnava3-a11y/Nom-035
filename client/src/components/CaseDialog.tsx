@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// Select components replaced with native HTML select elements
 import { Checkbox } from "@/components/ui/checkbox";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -182,35 +182,37 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="caseType">Tipo de Caso *</Label>
-              <Select value={caseType} onValueChange={setCaseType} disabled={!!caseData}>
-                <SelectTrigger id="caseType">
-                  <SelectValue placeholder="Selecciona el tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mobbing">Mobbing</SelectItem>
-                  <SelectItem value="burnout">Burnout</SelectItem>
-                  <SelectItem value="violence">Violencia Laboral</SelectItem>
-                  <SelectItem value="stress">Estrés Laboral</SelectItem>
-                  <SelectItem value="other">Otro</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                id="caseType"
+                value={caseType}
+                onChange={(e) => setCaseType(e.target.value)}
+                disabled={!!caseData}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">Selecciona el tipo</option>
+                <option value="mobbing">Mobbing</option>
+                <option value="burnout">Burnout</option>
+                <option value="violence">Violencia Laboral</option>
+                <option value="stress">Estrés Laboral</option>
+                <option value="other">Otro</option>
+              </select>
             </div>
 
             {caseData && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="status">Estado</Label>
-                  <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Selecciona el estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="open">Abierto</SelectItem>
-                      <SelectItem value="investigating">En Investigación</SelectItem>
-                      <SelectItem value="resolved">Resuelto</SelectItem>
-                      <SelectItem value="closed">Cerrado</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <select
+                    id="status"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="open">Abierto</option>
+                    <option value="investigating">En Investigación</option>
+                    <option value="resolved">Resuelto</option>
+                    <option value="closed">Cerrado</option>
+                  </select>
                 </div>
               </>
             )}

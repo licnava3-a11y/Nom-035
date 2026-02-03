@@ -48,7 +48,7 @@ export default function CaseDetail() {
     addFollowUpMutation.mutate({
       caseId,
       action: newComment,
-      notes: newStatus ? `Estado cambiado a: ${newStatus}` : undefined,
+      notes: newComment, // Guardar el comentario en notes también
       newStatus: newStatus ? (newStatus as "open" | "investigating" | "resolved" | "closed") : undefined,
     });
   };
