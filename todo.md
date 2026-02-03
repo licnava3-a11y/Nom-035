@@ -983,3 +983,117 @@
 - [x] Corregir botón "Nuevo Análisis" que no funciona
 - [ ] Verificar formulario de creación de análisis
 - [ ] Validar guardado de datos
+
+
+## FASE 46: Carga Masiva de Trabajadores con Excel
+
+### Instalación de Dependencias
+- [ ] Instalar xlsx para lectura de archivos Excel
+- [ ] Verificar jspdf ya instalado para reportes PDF
+
+### Plantilla Excel
+- [ ] Crear plantilla Excel con campos de Guía V NOM-035
+- [ ] Incluir campos: CURP, RFC, Nombre, Apellidos, Fecha de nacimiento, Sexo, Estado civil
+- [ ] Incluir campos: Puesto, Departamento, Fecha de ingreso, Tipo de contrato, Jornada laboral
+- [ ] Incluir campos: Correo electrónico, Teléfono, Dirección
+- [ ] Incluir campos: Último grado de estudios, Nombre de carrera, Habilidades
+- [ ] Agregar instrucciones de uso en primera hoja
+- [ ] Agregar validaciones de formato en columnas
+- [ ] Crear script para generar plantilla desde backend
+
+### Procedimientos tRPC
+- [ ] Crear endpoint para descargar plantilla Excel
+- [ ] Crear endpoint para procesar archivo Excel
+- [ ] Implementar validaciones de datos (CURP, RFC, correos, fechas)
+- [ ] Implementar lógica de inserción masiva en base de datos
+- [ ] Generar reporte de errores y advertencias
+- [ ] Crear endpoint para generar PDF de reporte de errores
+
+### Componente de Importación
+- [ ] Crear componente ImportWorkers con upload de archivo
+- [ ] Implementar preview de datos antes de confirmar
+- [ ] Mostrar errores y advertencias en tabla
+- [ ] Implementar confirmación de importación
+- [ ] Mostrar progreso de importación
+- [ ] Descargar reporte PDF de errores automáticamente
+
+### Integración en Trabajadores
+- [ ] Agregar botón "Importar desde Excel" en página Trabajadores
+- [ ] Agregar botón "Descargar Plantilla" en página Trabajadores
+- [ ] Integrar componente ImportWorkers en modal o página separada
+- [ ] Actualizar lista de trabajadores después de importación exitosa
+
+### Validaciones Específicas
+- [ ] Validar formato de CURP (18 caracteres)
+- [ ] Validar formato de RFC (12-13 caracteres)
+- [ ] Validar formato de correo electrónico
+- [ ] Validar formato de fechas (dd/mm/yyyy)
+- [ ] Validar que CURP y RFC no estén duplicados
+- [ ] Validar que campos obligatorios no estén vacíos
+- [ ] Validar que puesto exista en catálogo
+- [ ] Validar que departamento exista en catálogo
+
+
+## FASE 47: Actualización de Schema y Sistema de Encuestas NOM-035
+
+### Actualización de Schema de Trabajadores
+- [x] Agregar campo CURP (18 caracteres, único) a tabla users
+- [x] Agregar campo RFC (12-13 caracteres, único) a tabla users
+- [x] Agregar campo teléfono celular a tabla users
+- [x] Agregar campo fecha de nacimiento a tabla users
+- [x] Agregar campo sexo a tabla users
+- [x] Agregar campo estado civil a tabla users
+- [x] Agregar campo puesto a tabla users
+- [x] Agregar campo departamento a tabla users
+- [x] Agregar campo fecha de ingreso a tabla users
+- [x] Agregar campo tipo de contrato a tabla users
+- [x] Agregar campo jornada laboral a tabla users
+- [x] Generar migración SQL con drizzle-kit
+- [x] Aplicar migración a base de datos
+
+### Schema de Encuestas
+- [x] Crear tabla surveys (id, type, title, description, status, createdAt)
+- [x] Crear tabla survey_questions (id, surveyId, questionText, questionType, order)
+- [x] Crear tabla survey_responses (id, surveyId, userId, token, completedAt)
+- [x] Crear tabla survey_answers (id, responseId, questionId, answerValue)
+- [x] Crear tabla survey_tokens (id, userId, surveyId, token, expiresAt, usedAt)
+- [x] Generar migración SQL
+- [x] Aplicar migración a base de datos
+
+### Menú de Encuestas en Sidebar
+- [ ] Agregar sección "Encuestas" en DashboardLayout
+- [ ] Crear submenu con Guía I, II y III
+- [ ] Agregar iconos apropiados
+- [ ] Configurar rutas para cada guía
+
+### Implementación de Guías NOM-035
+- [ ] Crear página para Guía I (Cuestionario de identificación)
+- [ ] Crear página para Guía II (Cuestionario de evaluación)
+- [ ] Crear página para Guía III (Cuestionario de evaluación complementaria)
+- [ ] Implementar preguntas según NOM-035-STPS-2018
+- [ ] Agregar cálculo de resultados por dominio
+- [ ] Agregar interpretación de resultados
+
+### Sistema de Enlaces y QR
+- [ ] Crear endpoint para generar token único por trabajador
+- [ ] Crear endpoint para validar token
+- [ ] Generar código QR con enlace único
+- [ ] Crear página pública para responder encuesta
+- [ ] Implementar captura de CURP en página pública
+- [ ] Validar CURP contra base de datos
+
+### Envío de Encuestas
+- [ ] Crear endpoint para enviar encuesta por correo
+- [ ] Crear plantilla de correo con enlace único
+- [ ] Crear endpoint para enviar encuesta por SMS/WhatsApp
+- [ ] Implementar integración con servicio de SMS
+- [ ] Agregar botón "Enviar Encuesta" en lista de trabajadores
+- [ ] Implementar envío masivo de encuestas
+
+### Seguimiento de Respuestas
+- [ ] Crear página de seguimiento de encuestas
+- [ ] Mostrar lista de trabajadores con estado de respuesta
+- [ ] Filtrar por encuesta, departamento, estado
+- [ ] Mostrar estadísticas de respuestas
+- [ ] Exportar reporte de respuestas a Excel
+- [ ] Visualizar resultados individuales y agregados

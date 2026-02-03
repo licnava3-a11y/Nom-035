@@ -43,6 +43,20 @@
       "when": 1770081152354,
       "tag": "0005_silent_rocket_raccoon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1770085792178,
+      "tag": "0006_lonely_darkstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1770085967781,
+      "tag": "0007_wooden_jimmy_woo",
+      "breakpoints": true
     }
   ]
 }

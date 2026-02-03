@@ -8,6 +8,7 @@ import * as db from "./db";
 import { employeesRouter } from "./routers/employees";
 import { signaturesRouter } from "./routers/signatures";
 import { documentsRouter } from "./routers/documents";
+import { importRouter } from "./routers/import";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -37,6 +38,7 @@ export const appRouter = router({
   system: systemRouter,
   signatures: signaturesRouter,
   documents: documentsRouter,
+  import: importRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

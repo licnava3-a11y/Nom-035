@@ -12,6 +12,25 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["admin", "instructor", "student", "committee"]).default("student").notNull(),
+  
+  // Campos NOM-035 STPS 2018 - Guía V
+  curp: varchar("curp", { length: 18 }).unique(),
+  rfc: varchar("rfc", { length: 13 }).unique(),
+  telefono: varchar("telefono", { length: 15 }),
+  fechaNacimiento: date("fechaNacimiento"),
+  sexo: mysqlEnum("sexo", ["Masculino", "Femenino", "Otro"]),
+  estadoCivil: mysqlEnum("estadoCivil", ["Soltero(a)", "Casado(a)", "Divorciado(a)", "Viudo(a)", "Unión libre"]),
+  puesto: varchar("puesto", { length: 255 }),
+  departamento: varchar("departamento", { length: 255 }),
+  fechaIngreso: date("fechaIngreso"),
+  tipoContrato: mysqlEnum("tipoContrato", ["Planta", "Temporal", "Por obra", "Honorarios", "Otro"]),
+  jornadaLaboral: mysqlEnum("jornadaLaboral", ["Diurna", "Nocturna", "Mixta", "Por turnos"]),
+  direccion: text("direccion"),
+  ultimoGradoEstudios: varchar("ultimoGradoEstudios", { length: 100 }),
+  nombreCarrera: varchar("nombreCarrera", { length: 255 }),
+  habilidadesTransversales: text("habilidadesTransversales"),
+  habilidadesLongitudinales: text("habilidadesLongitudinales"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -589,5 +608,123 @@ export const documentEvidenceRelations = relations(documentEvidence, ({ one }) =
   document: one(documents, {
     fields: [documentEvidence.documentId],
     references: [documents.id],
+  }),
+}));
+
+
+// ============================================================================
+// SISTEMA DE ENCUESTAS NOM-035 STPS 2018 (Guías I, II y III)
+// ============================================================================
+
+// Encuestas (Guía I, II, III)
+export const surveys = mysqlTable('surveys', {
+  id: int('id').primaryKey().autoincrement(),
+  type: mysqlEnum('type', ['guia_i', 'guia_ii', 'guia_iii']).notNull(), // Tipo de guía NOM-035
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  status: mysqlEnum('status', ['active', 'inactive', 'archived']).default('active').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
+// Preguntas de encuestas
+export const surveyQuestions = mysqlTable('survey_questions', {
+  id: int('id').primaryKey().autoincrement(),
+  surveyId: int('survey_id').notNull().references(() => surveys.id),
+  questionText: text('question_text').notNull(),
+  questionType: mysqlEnum('question_type', ['multiple_choice', 'scale', 'yes_no', 'text']).notNull(),
+  domain: varchar('domain', { length: 100 }), // Dominio al que pertenece (ej: "Condiciones en el ambiente de trabajo")
+  subdomain: varchar('subdomain', { length: 100 }), // Subdominio
+  order: int('order').notNull(), // Orden de la pregunta
+  options: text('options'), // Opciones en JSON para preguntas de opción múltiple
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Respuestas de encuestas (una por trabajador por encuesta)
+export const surveyResponses = mysqlTable('survey_responses', {
+  id: int('id').primaryKey().autoincrement(),
+  surveyId: int('survey_id').notNull().references(() => surveys.id),
+  userId: int('user_id').references(() => users.id), // Puede ser null si se responde con CURP
+  curp: varchar('curp', { length: 18 }), // CURP capturado si no hay userId
+  token: varchar('token', { length: 64 }).notNull().unique(), // Token único para la respuesta
+  completedAt: timestamp('completed_at'), // Null si no ha completado
+  startedAt: timestamp('started_at').notNull().defaultNow(),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  deviceInfo: text('device_info'),
+  results: text('results'), // Resultados calculados en JSON
+});
+
+// Respuestas individuales a preguntas
+export const surveyAnswers = mysqlTable('survey_answers', {
+  id: int('id').primaryKey().autoincrement(),
+  responseId: int('response_id').notNull().references(() => surveyResponses.id),
+  questionId: int('question_id').notNull().references(() => surveyQuestions.id),
+  answerValue: text('answer_value').notNull(), // Valor de la respuesta
+  answeredAt: timestamp('answered_at').notNull().defaultNow(),
+});
+
+// Tokens de encuestas (para envío por correo/SMS/QR)
+export const surveyTokens = mysqlTable('survey_tokens', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id),
+  surveyId: int('survey_id').notNull().references(() => surveys.id),
+  token: varchar('token', { length: 64 }).notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(), // Fecha de expiración del token
+  usedAt: timestamp('used_at'), // Null si no se ha usado
+  sentVia: mysqlEnum('sent_via', ['email', 'sms', 'whatsapp', 'qr']), // Medio de envío
+  sentAt: timestamp('sent_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// Relations para surveys
+export const surveysRelations = relations(surveys, ({ many }) => ({
+  questions: many(surveyQuestions),
+  responses: many(surveyResponses),
+  tokens: many(surveyTokens),
+}));
+
+// Relations para surveyQuestions
+export const surveyQuestionsRelations = relations(surveyQuestions, ({ one, many }) => ({
+  survey: one(surveys, {
+    fields: [surveyQuestions.surveyId],
+    references: [surveys.id],
+  }),
+  answers: many(surveyAnswers),
+}));
+
+// Relations para surveyResponses
+export const surveyResponsesRelations = relations(surveyResponses, ({ one, many }) => ({
+  survey: one(surveys, {
+    fields: [surveyResponses.surveyId],
+    references: [surveys.id],
+  }),
+  user: one(users, {
+    fields: [surveyResponses.userId],
+    references: [users.id],
+  }),
+  answers: many(surveyAnswers),
+}));
+
+// Relations para surveyAnswers
+export const surveyAnswersRelations = relations(surveyAnswers, ({ one }) => ({
+  response: one(surveyResponses, {
+    fields: [surveyAnswers.responseId],
+    references: [surveyResponses.id],
+  }),
+  question: one(surveyQuestions, {
+    fields: [surveyAnswers.questionId],
+    references: [surveyQuestions.id],
+  }),
+}));
+
+// Relations para surveyTokens
+export const surveyTokensRelations = relations(surveyTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [surveyTokens.userId],
+    references: [users.id],
+  }),
+  survey: one(surveys, {
+    fields: [surveyTokens.surveyId],
+    references: [surveys.id],
   }),
 }));
