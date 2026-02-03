@@ -369,11 +369,15 @@
 
 ### Catálogo de Trabajadores
 - [x] Crear procedimientos tRPC para CRUD de trabajadores
-- [ ] Implementar página de lista de trabajadores
-- [ ] Implementar formulario de agregar trabajador
-- [ ] Implementar formulario de editar trabajador
-- [ ] Implementar vista de perfil de trabajador
-- [ ] Agregar búsqueda y filtros
+- [x] Implementar página de lista de trabajadores con filtros y búsqueda
+- [x] Implementar formulario de agregar trabajador con validaciones
+- [x] Implementar formulario de editar trabajador con validaciones
+- [x] Implementar vista de perfil detallado de trabajador
+- [x] Agregar ruta de trabajadores al menú de navegación
+- [x] Conectar botones de acción (Ver Perfil, Editar)
+- [x] Implementar estados de carga y errores
+- [x] Agregar confirmaciones para acciones destructivas
+- [x] Agregar búsqueda y filtros
 - [ ] Implementar paginación
 
 ### Gestión de Comité

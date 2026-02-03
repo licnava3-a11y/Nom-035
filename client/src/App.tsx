@@ -20,6 +20,10 @@ import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import Mailbox from "./pages/Mailbox";
 import MailboxForm from "./pages/MailboxForm";
+import Employees from "./pages/Employees";
+import EmployeeNew from "./pages/EmployeeNew";
+import EmployeeEdit from "./pages/EmployeeEdit";
+import EmployeeProfile from "./pages/EmployeeProfile";
 
 function Router() {
   return (
@@ -97,6 +101,26 @@ function Router() {
       <Route path={"/mailbox/form"}>
         <DashboardLayout>
           <MailboxForm />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees"}>
+        <DashboardLayout>
+          <Employees />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees/new"}>
+        <DashboardLayout>
+          <EmployeeNew />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees/:id/edit"}>
+        <DashboardLayout>
+          <EmployeeEdit />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees/:id"}>
+        <DashboardLayout>
+          <EmployeeProfile />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
