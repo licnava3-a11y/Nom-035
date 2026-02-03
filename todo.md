@@ -1758,3 +1758,52 @@
 - [x] Implementar botón de descarga en Tracking.tsx
 - [x] Incluir información de departamento en PDF
 - [x] Agregar fecha de generación y estadísticas generales
+
+
+## FASE 65: Auditoría Completa, Notificaciones, Acciones Correctivas y Reportes Históricos
+
+### Auditoría y Corrección de Errores
+- [x] Ejecutar auditoría completa del código frontend y backend
+- [x] Detectar y resolver errores de TypeScript
+- [x] Validar correlación de datos en todos los formularios
+- [x] Revisar y corregir desplegables (Select components)
+- [x] Validar todos los botones de acción
+- [x] Optimizar consultas de base de datos
+- [x] Mejorar manejo de errores y validaciones
+- [x] Eliminar código duplicado
+
+### Sistema de Notificaciones por Correo
+- [x] Crear schema de tabla de notificaciones en drizzle
+- [x] Generar migración SQL para tabla de notificaciones
+- [x] Implementar servicio de envío de correos (nodemailer)
+- [x] Crear plantilla HTML profesional para invitaciones a encuestas
+- [x] Crear plantilla HTML para recordatorios a pendientes
+- [ ] Implementar procedimiento tRPC para enviar notificaciones
+- [ ] Agregar programación de envíos periódicos
+- [ ] Crear log de notificaciones enviadas
+- [ ] Implementar botón de envío manual en Tracking
+
+### Panel de Acciones Correctivas
+- [x] Crear schema de tabla de acciones correctivas
+- [x] Generar migración SQL para acciones correctivas
+- [ ] Crear /client/src/pages/surveys/CorrectiveActions.tsx
+- [ ] Implementar formulario de registro de acciones
+- [ ] Agregar campos: descripción, nivel de riesgo, responsable, fecha límite
+- [ ] Implementar seguimiento de estado (pendiente, en proceso, completada)
+- [ ] Crear vista de acciones por trabajador
+- [ ] Crear vista de acciones por departamento
+- [ ] Implementar filtros por nivel de riesgo y estado
+- [ ] Agregar indicadores de cumplimiento
+- [ ] Crear procedimientos tRPC para CRUD de acciones
+- [ ] Registrar ruta en App.tsx
+
+### Módulo de Reportes Históricos
+- [ ] Crear /client/src/pages/surveys/HistoricalReports.tsx
+- [ ] Implementar gráfica de evolución temporal de niveles de riesgo
+- [ ] Agregar comparativa entre periodos (mes, trimestre, año)
+- [ ] Implementar análisis de tendencias por departamento
+- [ ] Crear gráfica de evolución de cobertura
+- [ ] Agregar filtros por fecha y departamento
+- [ ] Implementar exportación de reportes históricos a PDF
+- [ ] Crear procedimientos tRPC para datos históricos
+- [ ] Registrar ruta en App.tsx

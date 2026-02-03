@@ -71,6 +71,13 @@
       "when": 1770107544896,
       "tag": "0009_classy_lockjaw",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1770111462634,
+      "tag": "0010_slow_proteus",
+      "breakpoints": true
     }
   ]
 }

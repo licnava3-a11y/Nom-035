@@ -730,3 +730,69 @@ export const surveyTokensRelations = relations(surveyTokens, ({ one }) => ({
     references: [surveys.id],
   }),
 }));
+
+
+/**
+ * Survey Notifications table - Email notifications for surveys
+ */
+export const surveyNotifications = mysqlTable("surveyNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("surveyId").notNull(),
+  userId: int("userId"),
+  type: mysqlEnum("type", ["invitation", "reminder", "completion"]).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  sentAt: timestamp("sentAt"),
+  status: mysqlEnum("status", ["pending", "sent", "failed"]).default("pending").notNull(),
+  error: text("error"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SurveyNotification = typeof surveyNotifications.$inferSelect;
+export type InsertSurveyNotification = typeof surveyNotifications.$inferInsert;
+
+/**
+ * Corrective Actions table - Actions taken based on survey results
+ */
+export const correctiveActions = mysqlTable("correctiveActions", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyResponseId: int("surveyResponseId"),
+  riskLevel: mysqlEnum("riskLevel", ["nulo", "bajo", "medio", "alto", "muy_alto"]).notNull(),
+  category: varchar("category", { length: 255 }),
+  description: text("description").notNull(),
+  responsibleUserId: int("responsibleUserId"),
+  departamento: varchar("departamento", { length: 255 }),
+  dueDate: date("dueDate"),
+  status: mysqlEnum("status", ["pendiente", "en_proceso", "completada", "cancelada"]).default("pendiente").notNull(),
+  notes: text("notes"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CorrectiveAction = typeof correctiveActions.$inferSelect;
+export type InsertCorrectiveAction = typeof correctiveActions.$inferInsert;
+
+// Relations para surveyNotifications
+export const surveyNotificationsRelations = relations(surveyNotifications, ({ one }) => ({
+  survey: one(surveys, {
+    fields: [surveyNotifications.surveyId],
+    references: [surveys.id],
+  }),
+  user: one(users, {
+    fields: [surveyNotifications.userId],
+    references: [users.id],
+  }),
+}));
+
+// Relations para correctiveActions
+export const correctiveActionsRelations = relations(correctiveActions, ({ one }) => ({
+  surveyResponse: one(surveyResponses, {
+    fields: [correctiveActions.surveyResponseId],
+    references: [surveyResponses.id],
+  }),
+  responsible: one(users, {
+    fields: [correctiveActions.responsibleUserId],
+    references: [users.id],
+  }),
+}));
