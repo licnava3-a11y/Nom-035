@@ -157,10 +157,13 @@ function DashboardLayoutContent({
     }
 
     return () => {
+      // Cleanup: always remove event listeners and reset styles
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
+      if (document.body) {
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
     };
   }, [isResizing, setSidebarWidth]);
 

@@ -727,3 +727,33 @@
 - [ ] Implementar alertas de capacitación pendiente
 - [ ] Crear certificados de cumplimiento NOM-035
 - [ ] Implementar historial de capacitaciones
+
+
+## FASE 40: Corrección de Error DOM y Seguimientos Pendientes
+
+### Corrección de Error DOM
+- [x] Corregir error removeChild en menú lateral del comité
+- [x] Agregar validación previa antes de eliminar nodos DOM
+- [ ] Probar navegación del menú sin errores
+
+### Seguimiento 1: Helper de PDFs
+- [ ] Crear /server/lib/pdf-generator.ts
+- [ ] Implementar función generateActaConstitutivaPDF
+- [ ] Generar código QR único con qrcode.toDataURL()
+- [ ] Agregar foliado en pie de página (AC-001/2026)
+- [ ] Embeber firmas desde S3 en el PDF
+- [ ] Crear procedimiento tRPC documents.generatePDF
+
+### Seguimiento 2: Tabla Complaints
+- [ ] Crear migración SQL para tabla complaints
+- [ ] Implementar campos (type, description, status, priority, userId)
+- [ ] Crear procedimientos tRPC CRUD para complaints
+- [ ] Crear página /procedures/report con formulario anónimo
+- [ ] Implementar dashboard de seguimiento para comité
+
+### Seguimiento 3: Formatos Legales Restantes
+- [ ] Crear FuncionesComite.tsx
+- [ ] Crear AceptacionCargo.tsx
+- [ ] Crear ActaRecorridoNOM019.tsx
+- [ ] Agregar ruta /documents con navegación
+- [ ] Crear página de historial de documentos generados
