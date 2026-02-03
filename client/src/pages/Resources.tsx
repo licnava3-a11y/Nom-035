@@ -211,6 +211,128 @@ export default function Resources() {
           </ul>
         </CardContent>
       </Card>
+
+      {/* Course Descriptions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Contenido de los Cursos</CardTitle>
+          <CardDescription>Descripción detallada de cada programa de capacitación</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="font-semibold text-base">1. Introducción a la NOM-035-STPS-2018</h3>
+            <p className="text-sm text-muted-foreground">
+              <strong>Duración:</strong> 4 horas | <strong>Modalidad:</strong> En línea
+            </p>
+            <p className="text-sm">
+              Curso introductorio que aborda los fundamentos de la norma oficial mexicana sobre factores de riesgo psicosocial en el trabajo.
+            </p>
+            <div className="text-sm">
+              <strong>Objetivos de aprendizaje:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Comprender el marco legal y obligaciones de la NOM-035</li>
+                <li>Identificar los factores de riesgo psicosocial en el entorno laboral</li>
+                <li>Conocer las responsabilidades del patrón y trabajadores</li>
+                <li>Entender el proceso de identificación, análisis y prevención</li>
+              </ul>
+            </div>
+            <div className="text-sm">
+              <strong>Temario:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Módulo 1: Antecedentes y marco normativo</li>
+                <li>Módulo 2: Factores de riesgo psicosocial y entorno organizacional</li>
+                <li>Módulo 3: Obligaciones del patrón según el número de trabajadores</li>
+                <li>Módulo 4: Política de prevención y medidas de control</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t pt-6 space-y-3">
+            <h3 className="font-semibold text-base">2. Identificación y Análisis de Factores de Riesgo Psicosocial</h3>
+            <p className="text-sm text-muted-foreground">
+              <strong>Duración:</strong> 6 horas | <strong>Modalidad:</strong> En línea
+            </p>
+            <p className="text-sm">
+              Curso práctico para aplicar las guías de referencia II y III de la NOM-035, utilizando cuestionarios validados para identificar y evaluar factores de riesgo.
+            </p>
+            <div className="text-sm">
+              <strong>Objetivos de aprendizaje:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Aplicar correctamente los cuestionarios de las Guías II y III</li>
+                <li>Interpretar resultados de las evaluaciones</li>
+                <li>Identificar áreas de riesgo alto, medio y bajo</li>
+                <li>Elaborar informes de resultados</li>
+              </ul>
+            </div>
+            <div className="text-sm">
+              <strong>Temario:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Módulo 1: Guía de referencia II - Cuestionario de identificación</li>
+                <li>Módulo 2: Guía de referencia III - Cuestionario de evaluación</li>
+                <li>Módulo 3: Análisis e interpretación de resultados</li>
+                <li>Módulo 4: Elaboración de informes y documentación</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t pt-6 space-y-3">
+            <h3 className="font-semibold text-base">3. Prevención del Mobbing y Burnout</h3>
+            <p className="text-sm text-muted-foreground">
+              <strong>Duración:</strong> 5 horas | <strong>Modalidad:</strong> En línea
+            </p>
+            <p className="text-sm">
+              Curso especializado en la prevención, detección y atención de casos de acoso laboral (mobbing) y síndrome de desgaste ocupacional (burnout).
+            </p>
+            <div className="text-sm">
+              <strong>Objetivos de aprendizaje:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Identificar señales de mobbing y burnout en el entorno laboral</li>
+                <li>Aplicar protocolos de actuación ante casos detectados</li>
+                <li>Implementar medidas preventivas organizacionales</li>
+                <li>Conocer el marco legal y consecuencias jurídicas</li>
+              </ul>
+            </div>
+            <div className="text-sm">
+              <strong>Temario:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Módulo 1: Definición y tipos de mobbing</li>
+                <li>Módulo 2: Síndrome de burnout - causas y consecuencias</li>
+                <li>Módulo 3: Protocolo de atención y canalización</li>
+                <li>Módulo 4: Estrategias de prevención y cultura organizacional</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t pt-6 space-y-3">
+            <h3 className="font-semibold text-base">4. Formación del Comité de Atención</h3>
+            <p className="text-sm text-muted-foreground">
+              <strong>Duración:</strong> 8 horas | <strong>Modalidad:</strong> En línea
+            </p>
+            <p className="text-sm">
+              Curso integral para miembros del comité de atención, cubriendo desde la constitución del comité hasta la investigación y dictaminación de casos.
+            </p>
+            <div className="text-sm">
+              <strong>Objetivos de aprendizaje:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Constituir y formalizar el comité de atención</li>
+                <li>Conocer funciones y responsabilidades de cada miembro</li>
+                <li>Aplicar metodologías de investigación de casos</li>
+                <li>Elaborar dictamenes y programas de atención</li>
+              </ul>
+            </div>
+            <div className="text-sm">
+              <strong>Temario:</strong>
+              <ul className="list-disc list-inside ml-4 mt-2 space-y-1 text-muted-foreground">
+                <li>Módulo 1: Constitución del comité y acta constitutiva</li>
+                <li>Módulo 2: Funciones del coordinador, secretario y vocales</li>
+                <li>Módulo 3: Recepción, investigación y seguimiento de casos</li>
+                <li>Módulo 4: Elaboración de dictamenes y programas de intervención</li>
+                <li>Módulo 5: Confidencialidad y aspectos éticos</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

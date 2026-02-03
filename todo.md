@@ -1173,3 +1173,31 @@
 - [ ] Guardar firmas en tabla signatures
 - [ ] Validar firmas antes de finalizar documento
 - [ ] Generar certificado de autenticidad
+
+
+## FASE 50: Corrección de Errores removeChild y Mejoras en Recursos
+
+### Agregar Descripción de Cursos en Recursos
+- [x] Leer página de Recursos para identificar estructura
+- [x] Agregar descripción detallada del contenido de cada curso
+- [x] Incluir objetivos de aprendizaje
+- [x] Incluir temario o módulos del curso
+- [x] Incluir duración estimada
+
+### Corrección de Error en Reportes
+- [x] Identificar componentes Select en Reports.tsx
+- [x] Reemplazar Select por elementos nativos
+- [x] Actualizar lógica de filtros
+- [x] Probar funcionalidad completa
+
+### Corrección de Error en Puestos
+- [x] Identificar componentes Select en JobPositions.tsx (no tiene Select)
+- [x] Reemplazar Select por elementos nativos
+- [x] Actualizar lógica de filtros
+- [x] Probar funcionalidad completa
+
+### Corrección de Error en Configuración
+- [x] Identificar componentes Select en Profile.tsx (no tiene Select)
+- [x] Reemplazar Select por elementos nativos
+- [x] Actualizar formularios
+- [x] Probar funcionalidad completa

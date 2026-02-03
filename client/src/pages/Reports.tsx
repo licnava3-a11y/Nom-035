@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { BarChart3, Download, FileText, TrendingUp, Users, AlertCircle, Calendar } from "lucide-react";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useState } from "react";
@@ -56,18 +56,19 @@ export default function Reports() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Select value={timePeriod} onValueChange={setTimePeriod}>
-            <SelectTrigger className="w-[180px]">
-              <Calendar className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Periodo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">Última semana</SelectItem>
-              <SelectItem value="month">Último mes</SelectItem>
-              <SelectItem value="quarter">Último trimestre</SelectItem>
-              <SelectItem value="year">Último año</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="relative w-[180px]">
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <select
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="week">Última semana</option>
+              <option value="month">Último mes</option>
+              <option value="quarter">Último trimestre</option>
+              <option value="year">Último año</option>
+            </select>
+          </div>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Exportar
