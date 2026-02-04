@@ -43,6 +43,7 @@ import DocumentAceptacionCargo from "./pages/DocumentAceptacionCargo";
 import DocumentActaRecorridoNOM019 from "./pages/DocumentActaRecorridoNOM019";
 import DocumentActaFinalResultados from "./pages/DocumentActaFinalResultados";
 import DocumentsHistory from "./pages/DocumentsHistory";
+import DocumentGallery from "./pages/DocumentGallery";
 import GuideI from "./pages/surveys/GuideI";
 import GuideII from "./pages/surveys/GuideII";
 import GuideIII from "./pages/surveys/GuideIII";
@@ -250,6 +251,11 @@ function Router() {
       <Route path={"/documents/history"}>
         <DashboardLayout>
           <DocumentsHistory />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/documents/gallery"}>
+        <DashboardLayout>
+          <DocumentGallery />
         </DashboardLayout>
       </Route>
       <Route path={"/surveys/dashboard"}>

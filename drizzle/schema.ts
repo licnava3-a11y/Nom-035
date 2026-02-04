@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date, bigint } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -538,6 +538,8 @@ export const signatures = mysqlTable('signatures', {
   signedAt: timestamp('signed_at').notNull().defaultNow(),
   ipAddress: varchar('ip_address', { length: 45 }), // IP desde donde se firmó
   deviceInfo: text('device_info'), // Información del dispositivo
+  signatureHash: varchar('signature_hash', { length: 64 }), // SHA-256 hash de la firma para validación
+  serverTimestamp: bigint('server_timestamp', { mode: 'number' }), // Unix timestamp del servidor (ms)
 });
 
 // Participantes en documentos (para actas de recorrido)

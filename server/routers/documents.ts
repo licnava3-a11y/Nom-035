@@ -191,9 +191,10 @@ export const documentsRouter = router({
 
     const documentId = result.insertId;
 
-    // Guardar firmas
+    // Guardar firmas con hash y timestamp
+    const { prepareSignatureData } = await import('../lib/signatureUtils');
     for (const firma of input.firmas) {
-      await db.insert(signatures).values({
+      const signatureData = prepareSignatureData({
         documentId,
         userId: firma.userId || null,
         signerName: firma.nombre,
@@ -202,6 +203,7 @@ export const documentsRouter = router({
         ipAddress: firma.ipAddress || null,
         deviceInfo: firma.deviceInfo || null,
       });
+      await db.insert(signatures).values(signatureData);
     }
 
     // Si es final, generar PDF
@@ -435,9 +437,10 @@ export const documentsRouter = router({
 
     const documentId = result.insertId;
 
-    // Guardar firmas
+    // Guardar firmas con hash y timestamp
+    const { prepareSignatureData } = await import('../lib/signatureUtils');
     for (const firma of input.firmas) {
-      await db.insert(signatures).values({
+      const signatureData = prepareSignatureData({
         documentId,
         userId: firma.userId || null,
         signerName: firma.nombre,
@@ -446,6 +449,7 @@ export const documentsRouter = router({
         ipAddress: firma.ipAddress || null,
         deviceInfo: firma.deviceInfo || null,
       });
+      await db.insert(signatures).values(signatureData);
     }
 
     // Guardar participantes
@@ -500,9 +504,10 @@ export const documentsRouter = router({
 
     const documentId = result.insertId;
 
-    // Guardar firmas
+    // Guardar firmas con hash y timestamp
+    const { prepareSignatureData } = await import('../lib/signatureUtils');
     for (const firma of input.firmas) {
-      await db.insert(signatures).values({
+      const signatureData = prepareSignatureData({
         documentId,
         userId: firma.userId || null,
         signerName: firma.nombre,
@@ -511,6 +516,7 @@ export const documentsRouter = router({
         ipAddress: firma.ipAddress || null,
         deviceInfo: firma.deviceInfo || null,
       });
+      await db.insert(signatures).values(signatureData);
     }
 
     return { success: true, documentId, folio };
@@ -554,16 +560,151 @@ export const documentsRouter = router({
   getById: protectedProcedure.input(z.number()).query(async ({ input }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-
     const [doc] = await db.select().from(documents).where(eq(documents.id, input)).limit(1);
-
     if (!doc) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "Documento no encontrado",
       });
     }
-
     return doc;
   }),
+
+  // Generar PDF de Acta de Recorrido
+  generateActaRecorridoPDF: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ input: documentId }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener documento con firmas y participantes
+      const [doc] = await db
+        .select()
+        .from(documents)
+        .where(eq(documents.id, documentId))
+        .limit(1);
+
+      if (!doc) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Documento no encontrado" });
+      }
+
+      if (doc.type !== 'acta_recorrido') {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "El documento no es un Acta de Recorrido" });
+      }
+
+      // Obtener firmas
+      const sigs = await db
+        .select()
+        .from(signatures)
+        .where(eq(signatures.documentId, documentId));
+
+      // Obtener participantes
+      const participants = await db
+        .select()
+        .from(documentParticipants)
+        .where(eq(documentParticipants.documentId, documentId));
+
+      // Parsear contenido JSON
+      const content = JSON.parse(doc.content || '{}');
+
+      // Importar generador PDF
+      const { generateActaRecorridoPDF } = await import('../pdfGenerator');
+
+      // Generar PDF
+      const pdfBuffer = await generateActaRecorridoPDF({
+        folio: doc.folio,
+        title: doc.title,
+        content,
+        participants: participants.map(p => ({
+          name: p.name,
+          curp: p.curp,
+          ine: p.ine,
+          role: p.role,
+        })),
+        signatures: sigs.map(s => ({
+          signerName: s.signerName,
+          signerRole: s.signerRole,
+          signatureImageUrl: s.signatureImageUrl,
+          signedAt: s.signedAt,
+          signatureHash: s.signatureHash,
+        })),
+        qrCode: doc.qrCode || `https://validate.nom035.mx/${doc.folio}`,
+        createdAt: doc.createdAt,
+      });
+
+      // Subir PDF a S3
+      const fileName = `documents/${doc.folio}-acta-recorrido.pdf`;
+      const { url: pdfUrl } = await storagePut(fileName, pdfBuffer, 'application/pdf');
+
+      // Actualizar documento con URL del PDF
+      await db
+        .update(documents)
+        .set({ pdfUrl, updatedAt: new Date() })
+        .where(eq(documents.id, documentId));
+
+      return { pdfUrl };
+    }),
+
+  // Generar PDF de Acta Final de Resultados
+  generateActaFinalResultadosPDF: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ input: documentId }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener documento con firmas
+      const [doc] = await db
+        .select()
+        .from(documents)
+        .where(eq(documents.id, documentId))
+        .limit(1);
+
+      if (!doc) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Documento no encontrado" });
+      }
+
+      if (doc.type !== 'acta_final_resultados') {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "El documento no es un Acta Final de Resultados" });
+      }
+
+      // Obtener firmas
+      const sigs = await db
+        .select()
+        .from(signatures)
+        .where(eq(signatures.documentId, documentId));
+
+      // Parsear contenido JSON
+      const content = JSON.parse(doc.content || '{}');
+
+      // Importar generador PDF
+      const { generateActaFinalResultadosPDF } = await import('../pdfGenerator');
+
+      // Generar PDF
+      const pdfBuffer = await generateActaFinalResultadosPDF({
+        folio: doc.folio,
+        title: doc.title,
+        content,
+        signatures: sigs.map(s => ({
+          signerName: s.signerName,
+          signerRole: s.signerRole,
+          signatureImageUrl: s.signatureImageUrl,
+          signedAt: s.signedAt,
+          signatureHash: s.signatureHash,
+        })),
+        qrCode: doc.qrCode || `https://validate.nom035.mx/${doc.folio}`,
+        createdAt: doc.createdAt,
+      });
+
+      // Subir PDF a S3
+      const fileName = `documents/${doc.folio}-acta-final-resultados.pdf`;
+      const { url: pdfUrl } = await storagePut(fileName, pdfBuffer, 'application/pdf');
+
+      // Actualizar documento con URL del PDF
+      await db
+        .update(documents)
+        .set({ pdfUrl, updatedAt: new Date() })
+        .where(eq(documents.id, documentId));
+
+      return { pdfUrl };
+    }),
 });

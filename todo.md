@@ -712,3 +712,24 @@
 - [x] Optimizar compresión de imágenes PNG (300x120px)
 - [x] Reducir tamaño de base64 en documentos
 - [x] Mantener aspect ratio 5:2 en todas las resoluciones
+
+
+## FASE 112: Generación PDF, Galería de Documentos y Validación con Timestamp/Hash
+- [x] Instalar dependencias para generación PDF (jspdf, qrcode)
+- [x] Crear procedimiento tRPC para generar PDF de Acta de Recorrido
+- [x] Implementar generador PDF con firmas digitales incluidas
+- [x] Agregar código QR NOM-151 con URL de validación
+- [x] Formato oficial en hoja carta (letter size)
+- [x] Crear procedimiento tRPC para generar PDF de Acta Final de Resultados
+- [x] Implementar generador PDF con todas las secciones y firmas
+- [x] Crear página de galería de documentos (DocumentGallery.tsx)
+- [x] Implementar filtros por tipo, fecha y estado
+- [x] Agregar botón de descarga individual de PDF
+- [x] Implementar descarga masiva (descarga secuencial)
+- [x] Agregar campo timestamp en tabla signatures
+- [x] Agregar campo signatureHash (SHA-256) en tabla signatures
+- [x] Implementar cálculo automático de hash al guardar firma
+- [x] Crear helper prepareSignatureData para validación
+- [x] Probar generación PDF en diferentes documentos
+- [x] Verificar códigos QR funcionan correctamente
+- [x] Crear tests unitarios para validación de firmas y PDFs
