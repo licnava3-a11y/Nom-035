@@ -33,7 +33,12 @@ export default function SurveyForm({ surveyId, title, description, instructions,
       } else {
         toast.success("Gracias por completar el cuestionario. Tus respuestas han sido registradas.");
       }
-      setLocation("/surveys/dashboard");
+      // Redirigir a la página de resultados
+      if (data.responseId) {
+        setLocation(`/surveys/results/${data.responseId}`);
+      } else {
+        setLocation("/surveys/dashboard");
+      }
     },
     onError: (error: any) => {
       toast.error(`Error: ${error.message}`);

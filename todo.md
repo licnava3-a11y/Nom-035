@@ -128,3 +128,77 @@
 - [x] Probar acceso a Guía I
 - [x] Probar acceso a Guía II
 - [x] Probar acceso a Guía III
+
+
+## FASE 72: Sistema de Resultados de Encuestas NOM-035
+
+### Backend - Cálculo de Resultados
+- [x] Crear procedimiento tRPC para calcular nivel de riesgo por categoría
+- [x] Implementar algoritmo de calificación según tablas NOM-035
+- [x] Calcular puntajes por dominio y dimensión
+- [x] Generar recomendaciones automáticas según nivel de riesgo
+- [x] Guardar resultados calculados en base de datos
+
+### Frontend - Página de Resultados
+- [x] Crear componente SurveyResults.tsx
+- [x] Mostrar nivel de riesgo general (Nulo, Bajo, Medio, Alto, Muy Alto)
+- [x] Implementar gráficas por categoría con Chart.js
+- [x] Mostrar gráficas por dominio y dimensión
+- [x] Agregar sección de recomendaciones personalizadas
+- [x] Diseñar interfaz profesional con colores según nivel de riesgo
+
+### Pruebas
+- [x] Probar cálculo con respuestas de prueba
+- [x] Verificar que gráficas se generan correctamente
+- [x] Validar recomendaciones según nivel de riesgo
+
+
+## FASE 73: Panel de Administración de Encuestas
+
+### Backend - Consultas Agregadas
+- [ ] Crear procedimiento para obtener respuestas agregadas
+- [ ] Implementar filtros por departamento y periodo
+- [ ] Crear procedimiento para exportar a Excel
+- [ ] Generar estadísticas por encuesta
+
+### Frontend - Panel de Administración
+- [ ] Crear página SurveyAdmin.tsx
+- [ ] Implementar tabla de respuestas con filtros
+- [ ] Agregar gráficas de estadísticas generales
+- [ ] Implementar botón de exportación a Excel
+- [ ] Mostrar reportes por departamento
+- [ ] Agregar vista de comparación entre periodos
+
+### Pruebas
+- [ ] Probar filtros de departamento y periodo
+- [ ] Verificar exportación a Excel
+- [ ] Validar estadísticas agregadas
+
+
+## FASE 74: Sistema de Tokens de Acceso Anónimo
+
+### Backend - Generación de Tokens
+- [ ] Crear tabla survey_tokens en schema
+- [ ] Implementar procedimiento para generar tokens únicos
+- [ ] Crear procedimiento para validar tokens
+- [ ] Asociar tokens a encuestas específicas
+- [ ] Implementar expiración de tokens
+
+### Frontend - Acceso Anónimo
+- [ ] Crear página de acceso con token
+- [ ] Modificar SurveyForm para aceptar tokens
+- [ ] Implementar validación de token en frontend
+- [ ] Guardar respuestas con token en lugar de userId
+- [ ] Mostrar mensaje de confirmación sin identificación
+
+### Gestión de Tokens
+- [ ] Crear interfaz para generar tokens masivos
+- [ ] Implementar exportación de tokens a Excel
+- [ ] Agregar vista de tokens activos/usados
+- [ ] Implementar revocación de tokens
+
+### Pruebas
+- [ ] Probar generación de tokens
+- [ ] Verificar acceso anónimo con token
+- [ ] Validar que respuestas se guardan correctamente
+- [ ] Probar expiración de tokens

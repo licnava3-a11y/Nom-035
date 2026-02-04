@@ -6,6 +6,7 @@ import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens,
 import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
+import * as scoring from "../lib/nom035-scoring";
 
 // Helper para generar token único
 function generateToken(): string {
@@ -207,6 +208,12 @@ export const surveysRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al crear respuesta" });
       }
       
+      // Obtener preguntas para calcular resultados
+      const questions = await db
+        .select()
+        .from(surveyQuestions)
+        .where(eq(surveyQuestions.surveyId, input.surveyId));
+      
       // Guardar respuestas individuales
       for (const answer of input.answers) {
         await db.insert(surveyAnswers).values({
@@ -224,34 +231,99 @@ export const surveysRouter = router({
           .where(eq(surveyTokens.token, input.responseToken));
       }
       
-      // Detectar ATS en Guía I y crear caso automáticamente
+      // Calcular resultados según el tipo de encuesta
       const [survey] = await db.select().from(surveys).where(eq(surveys.id, input.surveyId)).limit(1);
-      if (survey && survey.type === 'guia_i') {
-        const hasATS = detectATS(input.answers);
-        if (hasATS) {
-          // Generar número de caso único
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      let results: any = {};
+      let atsDetected = false;
+      
+      if (survey.type === 'guia_i') {
+        // Guía I - Detectar Acontecimientos Traumáticos Severos
+        const guideIResult = scoring.calculateGuideIResult(input.answers);
+        results = {
+          type: 'guia_i',
+          atsDetected: guideIResult.atsDetected,
+          score: guideIResult.score,
+          riskLevel: guideIResult.riskLevel,
+          recommendations: scoring.getRecommendations(guideIResult.riskLevel, 'guia_i'),
+          calculatedAt: new Date().toISOString(),
+        };
+        atsDetected = guideIResult.atsDetected;
+        
+        // Crear caso automáticamente si se detecta ATS
+        if (atsDetected) {
           const caseNumber = `ATS-${Date.now()}-${ctx.user.id}`;
-          
-          // Crear caso automáticamente
           await db.insert(cases).values({
             caseNumber,
             reporterName: ctx.user.name || 'Anónimo',
             reporterEmail: ctx.user.email || '',
             isAnonymous: false,
-            caseType: 'other', // ATS se categoriza como "other" por ahora
+            caseType: 'other',
             description: `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${ctx.user.name || ctx.user.email}. Se requiere investigación y dictamen por parte del comité.`,
             status: 'open',
             priority: 'critical',
             createdAt: new Date(),
           });
-          
-          // TODO: Enviar notificación al comité
         }
+      } else if (survey.type === 'guia_ii') {
+        // Guía II - Empresas de 16 a 50 trabajadores
+        const totalScore = scoring.calculateTotalScore(
+          input.answers,
+          questions.map(q => ({ id: q.id, isReverseScored: q.isReverseScored }))
+        );
+        const guideIIResult = scoring.calculateGuideIIResult(totalScore);
+        const categoryScores = scoring.calculateCategoryScores(
+          input.answers,
+          questions.map(q => ({ id: q.id, category: q.category, isReverseScored: q.isReverseScored }))
+        );
         
-        return { success: true, responseId: newResponse.id, atsDetected: hasATS };
+        results = {
+          type: 'guia_ii',
+          totalScore,
+          riskLevel: guideIIResult.riskLevel,
+          category: guideIIResult.category,
+          categoryScores,
+          recommendations: scoring.getRecommendations(guideIIResult.riskLevel, 'guia_ii'),
+          calculatedAt: new Date().toISOString(),
+        };
+      } else if (survey.type === 'guia_iii') {
+        // Guía III - Empresas de más de 50 trabajadores
+        const totalScore = scoring.calculateTotalScore(
+          input.answers,
+          questions.map(q => ({ id: q.id, isReverseScored: q.isReverseScored }))
+        );
+        const guideIIIResult = scoring.calculateGuideIIIResult(totalScore);
+        const categoryScores = scoring.calculateCategoryScores(
+          input.answers,
+          questions.map(q => ({ id: q.id, category: q.category, isReverseScored: q.isReverseScored }))
+        );
+        const domainScores = scoring.calculateDomainScores(
+          input.answers,
+          questions.map(q => ({ id: q.id, domain: q.domain, isReverseScored: q.isReverseScored }))
+        );
+        
+        results = {
+          type: 'guia_iii',
+          totalScore,
+          riskLevel: guideIIIResult.riskLevel,
+          category: guideIIIResult.category,
+          categoryScores,
+          domainScores,
+          recommendations: scoring.getRecommendations(guideIIIResult.riskLevel, 'guia_iii'),
+          calculatedAt: new Date().toISOString(),
+        };
       }
       
-      return { success: true, responseId: newResponse.id, atsDetected: false };
+      // Guardar resultados en la respuesta
+      await db
+        .update(surveyResponses)
+        .set({ results: JSON.stringify(results) })
+        .where(eq(surveyResponses.id, newResponse.id));
+      
+      return { success: true, responseId: newResponse.id, atsDetected, results };
     }),
 
   // Obtener respuestas de un usuario
@@ -973,6 +1045,56 @@ export const surveysRouter = router({
         success: true, 
         message: `Recordatorios enviados: ${successCount} de ${results.length}`,
         results 
+      };
+    }),
+
+  // Obtener resultados de una respuesta
+  getResults: protectedProcedure
+    .input(z.number()) // responseId
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const [response] = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.id, input))
+        .limit(1);
+      
+      if (!response) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta no encontrada" });
+      }
+      
+      // Verificar que el usuario tiene permiso para ver los resultados
+      if (response.userId !== ctx.user.id && ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permiso para ver estos resultados" });
+      }
+      
+      // Obtener encuesta
+      const [survey] = await db
+        .select()
+        .from(surveys)
+        .where(eq(surveys.id, response.surveyId))
+        .limit(1);
+      
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Parsear resultados
+      let results = null;
+      if (response.results) {
+        try {
+          results = JSON.parse(response.results);
+        } catch (e) {
+          console.error('Error parsing results:', e);
+        }
+      }
+      
+      return {
+        response,
+        survey,
+        results,
       };
     }),
 
