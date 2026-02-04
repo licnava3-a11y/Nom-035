@@ -174,7 +174,6 @@ export default function MailboxDetail() {
                     <span className="text-sm text-muted-foreground">Teléfono:</span>
                     <p className="font-medium">{mailboxItem.senderPhone || "N/A"}</p>
                   </div>
-
                 </>
               )}
             </div>
@@ -275,17 +274,19 @@ export default function MailboxDetail() {
           <div className="space-y-4">
             <h4 className="font-semibold">Historial</h4>
             {mailboxItem.responses && mailboxItem.responses.length > 0 ? (
-              mailboxItem.responses.map((resp: any) => (
-                <div key={resp.id} className="border-l-2 border-primary pl-4 py-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">{resp.responderName}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(resp.createdAt).toLocaleString("es-MX")}
-                    </span>
+              <>
+                {mailboxItem.responses.map((resp: any, index: number) => (
+                  <div key={`response-${resp.id || index}`} className="border-l-2 border-primary pl-4 py-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">{resp.responderName || 'Usuario'}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {resp.createdAt ? new Date(resp.createdAt).toLocaleString("es-MX") : 'Fecha no disponible'}
+                      </span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{resp.response || ''}</p>
                   </div>
-                  <p className="text-sm whitespace-pre-wrap">{resp.response}</p>
-                </div>
-              ))
+                ))}
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">
                 No hay respuestas registradas aún
