@@ -218,6 +218,15 @@ export const employeesRouter = router({
   }),
 
   /**
+   * Get positions by department
+   */
+  getPositionsByDepartment: protectedProcedure
+    .input(z.object({ department: z.string() }))
+    .query(async ({ input }) => {
+      return await employeesDb.getPositionsByDepartment(input.department);
+    }),
+
+  /**
    * Get employee statistics
    */
   getStats: protectedProcedure.query(async ({ ctx }) => {

@@ -31,9 +31,14 @@ export default function EmployeeNew() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch departments and positions for autocomplete
+  // Fetch departments for dropdown
   const { data: departments } = trpc.employees.getDepartments.useQuery();
-  const { data: positions } = trpc.employees.getPositions.useQuery();
+  
+  // Fetch positions filtered by selected department
+  const { data: positions } = trpc.employees.getPositionsByDepartment.useQuery(
+    { department: formData.department },
+    { enabled: !!formData.department } // Only fetch when department is selected
+  );
 
   const createMutation = trpc.employees.create.useMutation({
     onSuccess: () => {
@@ -235,34 +240,57 @@ export default function EmployeeNew() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="department">Departamento</Label>
-                <Input
-                  id="department"
+                <Select
                   value={formData.department}
-                  onChange={(e) => handleChange("department", e.target.value)}
-                  placeholder="Recursos Humanos"
-                  list="departments-list"
-                />
-                <datalist id="departments-list">
-                  {departments?.map((dept) => dept && (
-                    <option key={dept} value={dept} />
-                  ))}
-                </datalist>
+                  onValueChange={(value) => {
+                    handleChange("department", value);
+                    // Clear position when department changes
+                    handleChange("position", "");
+                  }}
+                >
+                  <SelectTrigger id="department">
+                    <SelectValue placeholder="Seleccionar departamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments?.map((dept) => dept && (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Seleccione primero el departamento
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="position">Puesto</Label>
-                <Input
-                  id="position"
+                <Select
                   value={formData.position}
-                  onChange={(e) => handleChange("position", e.target.value)}
-                  placeholder="Gerente de Recursos Humanos"
-                  list="positions-list"
-                />
-                <datalist id="positions-list">
-                  {positions?.map((pos) => pos && (
-                    <option key={pos} value={pos} />
-                  ))}
-                </datalist>
+                  onValueChange={(value) => handleChange("position", value)}
+                  disabled={!formData.department}
+                >
+                  <SelectTrigger id="position">
+                    <SelectValue placeholder={
+                      formData.department 
+                        ? "Seleccionar puesto" 
+                        : "Seleccione departamento primero"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positions?.map((pos) => pos && (
+                      <SelectItem key={pos} value={pos}>
+                        {pos}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.department && positions && positions.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No hay puestos registrados para este departamento
+                  </p>
+                )}
               </div>
             </div>
 

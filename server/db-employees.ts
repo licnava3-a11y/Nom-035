@@ -185,6 +185,27 @@ export async function getAllPositions() {
 }
 
 /**
+ * Get positions by department
+ */
+export async function getPositionsByDepartment(department: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .selectDistinct({ position: employees.position })
+    .from(employees)
+    .where(
+      and(
+        eq(employees.isActive, true),
+        eq(employees.department, department),
+        sql`${employees.position} IS NOT NULL`
+      )
+    );
+
+  return result.map((r) => r.position).filter(Boolean);
+}
+
+/**
  * Get employee with user info
  */
 export async function getEmployeeWithUser(employeeId: number) {
