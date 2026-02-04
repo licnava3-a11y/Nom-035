@@ -477,6 +477,9 @@ export const employees = mysqlTable("employees", {
   position: varchar("position", { length: 100 }),
   hireDate: date("hireDate"),
   contractType: mysqlEnum("contractType", ["permanent", "temporary", "contract"]).default("permanent"),
+  contract1ExpirationDate: date("contract1ExpirationDate"),
+  contract2ExpirationDate: date("contract2ExpirationDate"),
+  contract3ExpirationDate: date("contract3ExpirationDate"),
   
   // Status
   isActive: boolean("isActive").default(true).notNull(),
@@ -841,5 +844,94 @@ export const employeeDocumentsRelations = relations(employeeDocuments, ({ one })
   uploader: one(users, {
     fields: [employeeDocuments.uploadedBy],
     references: [users.id],
+  }),
+}));
+
+
+/**
+ * Job Profiles table - Position profiles with required competencies
+ */
+export const jobProfiles = mysqlTable("jobProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  positionId: int("positionId").notNull(), // FK to jobPositions
+  competencyName: varchar("competencyName", { length: 255 }).notNull(),
+  competencyType: mysqlEnum("competencyType", ["tecnica", "transversal", "conocimiento"]).notNull(),
+  requiredLevel: mysqlEnum("requiredLevel", ["basico", "intermedio", "avanzado", "experto"]).notNull(),
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type JobProfile = typeof jobProfiles.$inferSelect;
+export type InsertJobProfile = typeof jobProfiles.$inferInsert;
+
+/**
+ * Employee Competencies table - Employee's actual competencies
+ */
+export const employeeCompetencies = mysqlTable("employeeCompetencies", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employeeId").notNull(),
+  competencyName: varchar("competencyName", { length: 255 }).notNull(),
+  competencyType: mysqlEnum("competencyType", ["tecnica", "transversal", "conocimiento"]).notNull(),
+  currentLevel: mysqlEnum("currentLevel", ["basico", "intermedio", "avanzado", "experto"]).notNull(),
+  certificationDate: date("certificationDate"),
+  expirationDate: date("expirationDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmployeeCompetency = typeof employeeCompetencies.$inferSelect;
+export type InsertEmployeeCompetency = typeof employeeCompetencies.$inferInsert;
+
+/**
+ * Training Needs (DNC) table - Automatically generated training needs
+ */
+export const trainingNeeds = mysqlTable("trainingNeeds", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employeeId").notNull(),
+  competencyName: varchar("competencyName", { length: 255 }).notNull(),
+  competencyType: mysqlEnum("competencyType", ["tecnica", "transversal", "conocimiento"]).notNull(),
+  requiredLevel: mysqlEnum("requiredLevel", ["basico", "intermedio", "avanzado", "experto"]).notNull(),
+  currentLevel: mysqlEnum("currentLevel", ["ninguno", "basico", "intermedio", "avanzado", "experto"]).notNull(),
+  gap: int("gap").notNull(), // Numeric gap (1-4)
+  priority: mysqlEnum("priority", ["baja", "media", "alta", "critica"]).notNull(),
+  status: mysqlEnum("status", ["pendiente", "en_proceso", "completada", "cancelada"]).default("pendiente").notNull(),
+  recommendedCourseId: int("recommendedCourseId"), // FK to courses
+  dueDate: date("dueDate"),
+  completedDate: date("completedDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TrainingNeed = typeof trainingNeeds.$inferSelect;
+export type InsertTrainingNeed = typeof trainingNeeds.$inferInsert;
+
+// Relations para jobProfiles
+export const jobProfilesRelations = relations(jobProfiles, ({ one }) => ({
+  position: one(jobPositions, {
+    fields: [jobProfiles.positionId],
+    references: [jobPositions.id],
+  }),
+}));
+
+// Relations para employeeCompetencies
+export const employeeCompetenciesRelations = relations(employeeCompetencies, ({ one }) => ({
+  employee: one(employees, {
+    fields: [employeeCompetencies.employeeId],
+    references: [employees.id],
+  }),
+}));
+
+// Relations para trainingNeeds
+export const trainingNeedsRelations = relations(trainingNeeds, ({ one }) => ({
+  employee: one(employees, {
+    fields: [trainingNeeds.employeeId],
+    references: [employees.id],
+  }),
+  recommendedCourse: one(courses, {
+    fields: [trainingNeeds.recommendedCourseId],
+    references: [courses.id],
   }),
 }));

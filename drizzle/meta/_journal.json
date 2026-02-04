@@ -85,6 +85,20 @@
       "when": 1770209088106,
       "tag": "0011_stale_madame_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1770210107568,
+      "tag": "0012_normal_frank_castle",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1770210301263,
+      "tag": "0013_slimy_crystal",
+      "breakpoints": true
     }
   ]
 }

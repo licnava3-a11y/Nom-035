@@ -15,6 +15,7 @@ import {
   Edit,
   UserX,
   UserCheck,
+  FolderOpen,
 } from "lucide-react";
 
 export default function EmployeeProfile() {
@@ -121,6 +122,12 @@ export default function EmployeeProfile() {
               </div>
             </div>
             <div className="flex gap-2">
+              <Link href={`/employees/${employeeId}/documents`}>
+                <Button variant="default">
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Expediente Electrónico
+                </Button>
+              </Link>
               <Link href={`/employees/${employeeId}/edit`}>
                 <Button variant="outline">
                   <Edit className="mr-2 h-4 w-4" />

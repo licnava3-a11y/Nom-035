@@ -29,6 +29,7 @@ import Employees from "./pages/Employees";
 import EmployeeNew from "./pages/EmployeeNew";
 import EmployeeEdit from "./pages/EmployeeEdit";
 import EmployeeProfile from "./pages/EmployeeProfile";
+import EmployeeDocuments from "./pages/EmployeeDocuments";
 import Documents from "./pages/Documents";
 import CaseAssignment from "./pages/CaseAssignment";
 import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
@@ -167,6 +168,11 @@ function Router() {
       <Route path={"/employees/:id"}>
         <DashboardLayout>
           <EmployeeProfile />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees/:id/documents"}>
+        <DashboardLayout>
+          <EmployeeDocuments />
         </DashboardLayout>
       </Route>
       <Route path={"/documents"}>

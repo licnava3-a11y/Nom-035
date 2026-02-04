@@ -372,3 +372,34 @@
 - [ ] Crear procedimiento para envío de reporte consolidado a RRHH
 - [ ] Agregar validación de datos correlacionados en formulario
 - [ ] Probar flujo completo de contratación
+
+
+## FASE 86: Frontend de Expediente Electrónico
+- [x] Crear componente EmployeeDocuments.tsx
+- [x] Implementar interfaz drag-and-drop para subir documentos
+- [x] Agregar visualizador PDF/imagen integrado
+- [x] Crear tabla de documentos con filtros por tipo
+- [x] Implementar alertas visuales de documentos faltantes
+- [x] Agregar alertas de documentos próximos a vencer
+- [x] Integrar con procedimientos tRPC existentes
+- [x] Agregar enlace en página de detalle del trabajador
+
+## FASE 87: Perfiles de Puesto y DNC Automática
+- [x] Crear tabla job_profiles en schema
+- [x] Agregar campos: competencias requeridas, habilidades, conocimientos
+- [x] Crear procedimientos tRPC para gestionar perfiles
+- [x] Implementar comparativa automática perfil vs trabajador
+- [x] Generar DNC personalizada con gaps identificados
+- [x] Recomendar cursos según necesidades detectadas
+- [x] Crear interfaz de gestión de perfiles de puesto
+- [ ] Agregar vista de DNC en expediente del trabajador
+
+## FASE 88: Flujo de Contratación Automatizado
+- [x] Crear procedimiento para generar usuario/contraseña automáticamente
+- [x] Implementar servicio de correo para envío de credenciales
+- [x] Crear plantilla HTML para correo de bienvenida
+- [x] Agregar campos de vencimiento de contratos (1, 2, 3) en schema
+- [x] Implementar sistema de alertas de vencimiento (7 días)
+- [x] Crear procedimiento para reporte consolidado a RRHH
+- [ ] Integrar generación de credenciales en formulario de alta
+- [ ] Probar flujo completo de contratación
