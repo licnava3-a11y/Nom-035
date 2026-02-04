@@ -32,6 +32,7 @@ import EmployeeProfile from "./pages/EmployeeProfile";
 import EmployeeDocuments from "./pages/EmployeeDocuments";
 import EmployeeTrainingNeeds from "./pages/EmployeeTrainingNeeds";
 import CompetenciesDashboard from "./pages/CompetenciesDashboard";
+import SkillsMatrix from "./pages/SkillsMatrix";
 import Documents from "./pages/Documents";
 import CaseAssignment from "./pages/CaseAssignment";
 import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
@@ -126,6 +127,11 @@ function Router() {
       <Route path={"/competencies-dashboard"}>
         <DashboardLayout>
           <CompetenciesDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/skills-matrix"}>
+        <DashboardLayout>
+          <SkillsMatrix />
         </DashboardLayout>
       </Route>
       <Route path={"/users"}>

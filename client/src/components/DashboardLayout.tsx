@@ -53,6 +53,7 @@ const menuItems = [
   { icon: Briefcase, label: "Puestos", path: "/job-positions", roles: ["admin", "instructor"] },
   { icon: UserCog, label: "Trabajadores", path: "/employees", roles: ["admin"] },
   { icon: Target, label: "Competencias", path: "/competencies-dashboard", roles: ["admin"] },
+  { icon: ClipboardList, label: "Matriz de Habilidades", path: "/skills-matrix", roles: ["admin"] },
   { icon: BarChart3, label: "Reportes", path: "/reports", roles: ["admin", "instructor"] },
   { icon: Users, label: "Usuarios", path: "/users", roles: ["admin"] },
   { icon: Settings, label: "Configuración", path: "/settings", roles: ["admin"] },

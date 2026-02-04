@@ -951,3 +951,65 @@ export const systemSettings = mysqlTable("systemSettings", {
 
 export type SystemSetting = typeof systemSettings.$inferSelect;
 export type InsertSystemSetting = typeof systemSettings.$inferInsert;
+
+/**
+ * Skills Matrix tables - Organizational competency matrix
+ */
+
+// Competencies catalog
+export const competencies = mysqlTable("competencies", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  type: varchar("type", { length: 50 }).notNull(), // Técnica, Blanda, Específica
+  category: varchar("category", { length: 100 }), // Categoría adicional
+  createdBy: int("createdBy").notNull(), // FK to users
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Competency = typeof competencies.$inferSelect;
+export type InsertCompetency = typeof competencies.$inferInsert;
+
+// Skills Matrix - Employee competency levels
+export const skillsMatrix = mysqlTable("skillsMatrix", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employeeId").notNull(), // FK to employees
+  competencyId: int("competencyId").notNull(), // FK to competencies
+  level: varchar("level", { length: 50 }).notNull(), // Sin evaluar, Básico, Intermedio, Avanzado, Experto
+  evaluatedBy: int("evaluatedBy"), // FK to users
+  evaluationDate: timestamp("evaluationDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SkillsMatrixEntry = typeof skillsMatrix.$inferSelect;
+export type InsertSkillsMatrixEntry = typeof skillsMatrix.$inferInsert;
+
+// Skills Matrix Import History
+export const skillsMatrixImports = mysqlTable("skillsMatrixImports", {
+  id: int("id").autoincrement().primaryKey(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  importedBy: int("importedBy").notNull(), // FK to users
+  recordsImported: int("recordsImported").notNull(),
+  recordsFailed: int("recordsFailed").notNull(),
+  status: varchar("status", { length: 50 }).notNull(), // success, partial, failed
+  errorLog: text("errorLog"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SkillsMatrixImport = typeof skillsMatrixImports.$inferSelect;
+export type InsertSkillsMatrixImport = typeof skillsMatrixImports.$inferInsert;
+
+// Relations para skillsMatrix
+export const skillsMatrixRelations = relations(skillsMatrix, ({ one }) => ({
+  employee: one(employees, {
+    fields: [skillsMatrix.employeeId],
+    references: [employees.id],
+  }),
+  competency: one(competencies, {
+    fields: [skillsMatrix.competencyId],
+    references: [competencies.id],
+  }),
+}));

@@ -539,3 +539,80 @@
 - [x] Verificar errores de consola en navegador - Error de tRPC "require is not defined" detectado
 - [ ] Corregir error de tRPC en navegador
 - [ ] Guardar checkpoint con correcciones
+
+
+## FASE 102: Matriz de Habilidades Completa
+- [ ] Crear schema de base de datos para matriz de habilidades
+- [ ] Implementar procedimientos tRPC para gestión de matriz
+- [ ] Crear componente SkillsMatrix.tsx con vista organizacional
+- [ ] Diseñar layout: competencias en horizontal, trabajadores en vertical
+- [ ] Mostrar niveles promedio por departamento/empresa
+- [ ] Implementar niveles: Sin evaluar, Básico, Intermedio, Avanzado, Experto
+- [ ] Agregar funcionalidad de importación desde Excel
+- [ ] Agregar funcionalidad de exportación a Excel con análisis de desarrollo
+- [ ] Incluir sugerencias de plan de desarrollo y sucesión
+- [ ] Agregar filtros por departamento, puesto y nombre
+- [ ] Integrar en dashboard principal
+- [ ] Probar con datos de prueba
+
+## FASE 103: Módulo de Minutas de Reunión
+- [ ] Crear schema de base de datos para minutas
+- [ ] Implementar foliado automático (CÓDIGO + CONSECUTIVO / AÑO)
+- [ ] Crear catálogo de formatos con versiones
+- [ ] Implementar procedimientos tRPC para gestión de minutas
+- [ ] Crear componente Minutes.tsx para listado
+- [ ] Crear componente MinuteForm.tsx para creación/edición
+- [ ] Implementar firma digital con canvas táctil
+- [ ] Agregar campo para subir logotipo
+- [ ] Implementar gestión de participantes (nombre, CURP, INE)
+- [ ] Agregar catálogo de convocados
+- [ ] Implementar subida de evidencia fotográfica múltiple
+- [ ] Agregar foto de validación de representantes
+- [ ] Implementar guardado de borradores
+- [ ] Crear historial de minutas por tipo de reunión
+- [ ] Agregar documentación de respaldo (objetivo, resultados, lista asistencia)
+- [ ] Probar funcionalidad completa
+
+## FASE 104: Código QR Único (NOM-151)
+- [ ] Implementar generación de código QR único por minuta
+- [ ] Agregar QR al pie de página del documento
+- [ ] Crear endpoint de verificación de QR
+- [ ] Implementar exportación a PDF con QR y firmas
+- [ ] Formato hoja carta por ambos lados
+- [ ] Probar validez y trazabilidad de documentos
+
+## FASE 105: Filtros Temporales Avanzados
+- [ ] Agregar filtros temporales en Dashboard
+- [ ] Agregar filtros temporales en CompetenciesDashboard
+- [ ] Agregar filtros temporales en Cases
+- [ ] Agregar filtros temporales en Courses
+- [ ] Agregar filtros temporales en Reportes
+- [ ] Implementar opciones: Día actual, Semana actual, Mes actual, Año actual
+- [ ] Implementar opciones: Día anterior, Semana anterior, Mes anterior, Año anterior
+- [ ] Agregar selector de rango de fechas personalizado
+- [ ] Probar filtros en todos los módulos
+
+## FASE 106: Pruebas de Funcionalidades Críticas
+- [ ] Probar tabla de acciones existentes
+- [ ] Probar dashboard de estadísticas
+- [ ] Probar funcionalidades de edición
+- [ ] Probar integración entre módulos
+- [ ] Ejecutar tests completos
+- [ ] Verificar errores de consola
+- [ ] Guardar checkpoint final
+
+
+## FASE 102: Matriz de Habilidades Completa
+- [x] Crear tablas de base de datos (competencies, skillsMatrix, skillsMatrixImports)
+- [x] Crear router tRPC skillsMatrixRouter con 7 procedimientos
+- [x] Crear componente SkillsMatrix.tsx con vista organizacional
+- [x] Implementar tabla interactiva (empleados × competencias)
+- [x] Agregar filtros por departamento, puesto, empleado
+- [x] Implementar funcionalidad de importación Excel
+- [x] Implementar funcionalidad de exportación Excel
+- [x] Agregar edición inline de niveles de habilidad
+- [x] Implementar indicadores visuales de niveles (colores, badges)
+- [x] Agregar estadísticas (empleados evaluados, nivel promedio, brechas)
+- [x] Agregar ruta en App.tsx
+- [x] Agregar enlace en DashboardLayout
+- [ ] Probar funcionalidad completa con datos reales
