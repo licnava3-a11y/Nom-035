@@ -630,12 +630,12 @@
 
 ## FASE 104: Módulo de Minutas de Reunión - Frontend
 - [x] Crear componente MeetingMinutes.tsx con listado de minutas
-- [ ] Implementar formulario de creación de minuta (pendiente para siguiente sesión)
-- [ ] Agregar gestión de participantes con campos CURP/INE (pendiente)
-- [ ] Implementar carga de evidencia fotográfica (drag-and-drop) (pendiente)
-- [ ] Crear interfaz de firma digital con canvas (pendiente)
-- [ ] Implementar visualización de código QR único (pendiente)
-- [ ] Agregar exportación a PDF con formato oficial (pendiente)
+- [x] Implementar formulario de creación de minuta
+- [x] Agregar gestión de participantes con campos CURP/INE
+- [x] Implementar carga de evidencia fotográfica (drag-and-drop)
+- [x] Crear interfaz de firma digital con canvas
+- [ ] Implementar visualización de código QR único en detalle de minuta
+- [ ] Agregar exportación a PDF con formato oficial
 - [x] Crear ruta y enlace en menú principal
 
 ## FASE 105: Filtros Temporales Avanzados

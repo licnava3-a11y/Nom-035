@@ -34,6 +34,7 @@ import EmployeeTrainingNeeds from "./pages/EmployeeTrainingNeeds";
 import CompetenciesDashboard from "./pages/CompetenciesDashboard";
 import SkillsMatrix from "./pages/SkillsMatrix";
 import MeetingMinutes from "./pages/MeetingMinutes";
+import MeetingMinuteForm from "./pages/MeetingMinuteForm";
 import Documents from "./pages/Documents";
 import CaseAssignment from "./pages/CaseAssignment";
 import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
@@ -138,6 +139,11 @@ function Router() {
       <Route path={"/meeting-minutes"}>
         <DashboardLayout>
           <MeetingMinutes />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/meeting-minutes/new"}>
+        <DashboardLayout>
+          <MeetingMinuteForm />
         </DashboardLayout>
       </Route>
       <Route path={"/users"}>
