@@ -616,3 +616,43 @@
 - [x] Agregar ruta en App.tsx
 - [x] Agregar enlace en DashboardLayout
 - [ ] Probar funcionalidad completa con datos reales
+
+
+## FASE 103: Módulo de Minutas de Reunión - Backend
+- [x] Crear tablas de base de datos (meeting_minutes, meeting_participants, meeting_attachments)
+- [x] Implementar sistema de foliado automático con formato personalizable
+- [x] Crear procedimientos tRPC para CRUD de minutas
+- [x] Implementar generación de código QR único (NOM-151) por minuta
+- [x] Crear procedimiento para gestión de participantes con CURP/INE
+- [x] Implementar almacenamiento de evidencia fotográfica en S3
+- [x] Crear procedimiento para firma digital de participantes
+- [x] Implementar validación de firmas y sellado de tiempo
+
+## FASE 104: Módulo de Minutas de Reunión - Frontend
+- [x] Crear componente MeetingMinutes.tsx con listado de minutas
+- [ ] Implementar formulario de creación de minuta (pendiente para siguiente sesión)
+- [ ] Agregar gestión de participantes con campos CURP/INE (pendiente)
+- [ ] Implementar carga de evidencia fotográfica (drag-and-drop) (pendiente)
+- [ ] Crear interfaz de firma digital con canvas (pendiente)
+- [ ] Implementar visualización de código QR único (pendiente)
+- [ ] Agregar exportación a PDF con formato oficial (pendiente)
+- [x] Crear ruta y enlace en menú principal
+
+## FASE 105: Filtros Temporales Avanzados
+- [ ] Agregar filtros temporales en CompetenciesDashboard (día/semana/mes/año)
+- [ ] Implementar filtros temporales en Dashboard de casos
+- [ ] Agregar filtros temporales en reportes de capacitaciones
+- [ ] Implementar comparación entre periodos (actual vs anterior)
+- [ ] Crear componente reutilizable DateRangeFilter
+- [ ] Actualizar procedimientos tRPC para soportar filtros temporales
+- [ ] Agregar gráficas de tendencias históricas
+
+## FASE 106: Catálogo Maestro de Competencias
+- [ ] Crear tabla master_competencies con clasificación por tipo
+- [ ] Implementar niveles estandarizados (Básico, Intermedio, Avanzado, Experto)
+- [ ] Crear procedimientos tRPC para gestión del catálogo
+- [ ] Implementar correlación automática con perfiles de puesto
+- [ ] Agregar correlación automática con evaluaciones
+- [ ] Crear componente CompetenciesCatalog.tsx
+- [ ] Implementar importación/exportación Excel del catálogo
+- [ ] Agregar ruta y enlace en menú principal

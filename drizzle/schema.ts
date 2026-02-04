@@ -1013,3 +1013,83 @@ export const skillsMatrixRelations = relations(skillsMatrix, ({ one }) => ({
     references: [competencies.id],
   }),
 }));
+
+
+// Meeting Minutes - Minutas de Reunión (NOM-151)
+export const meetingMinutes = mysqlTable("meetingMinutes", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(), // Foliado automático
+  title: varchar("title", { length: 255 }).notNull(),
+  meetingDate: timestamp("meetingDate").notNull(),
+  meetingType: varchar("meetingType", { length: 100 }).notNull(), // Ordinaria, Extraordinaria, Comité, etc.
+  location: varchar("location", { length: 255 }),
+  agenda: text("agenda").notNull(),
+  agreements: text("agreements"), // Acuerdos tomados
+  observations: text("observations"),
+  qrCode: text("qrCode"), // Código QR único (NOM-151)
+  qrCodeUrl: varchar("qrCodeUrl", { length: 500 }), // URL del código QR en S3
+  status: varchar("status", { length: 50 }).notNull().default("draft"), // draft, finalized, signed
+  createdBy: int("createdBy").notNull(), // FK to users
+  finalizedAt: timestamp("finalizedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type MeetingMinute = typeof meetingMinutes.$inferSelect;
+export type InsertMeetingMinute = typeof meetingMinutes.$inferInsert;
+
+// Meeting Participants - Participantes de la reunión
+export const meetingParticipants = mysqlTable("meetingParticipants", {
+  id: int("id").autoincrement().primaryKey(),
+  meetingMinuteId: int("meetingMinuteId").notNull(), // FK to meetingMinutes
+  employeeId: int("employeeId"), // FK to employees (opcional si es externo)
+  name: varchar("name", { length: 255 }).notNull(), // Nombre completo
+  curp: varchar("curp", { length: 18 }), // CURP del participante
+  ineNumber: varchar("ineNumber", { length: 20 }), // Número de INE
+  role: varchar("role", { length: 100 }), // Rol en la reunión (Presidente, Secretario, Vocal, etc.)
+  signature: text("signature"), // Firma digital (base64)
+  signedAt: timestamp("signedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MeetingParticipant = typeof meetingParticipants.$inferSelect;
+export type InsertMeetingParticipant = typeof meetingParticipants.$inferInsert;
+
+// Meeting Attachments - Evidencia fotográfica y documentos
+export const meetingAttachments = mysqlTable("meetingAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  meetingMinuteId: int("meetingMinuteId").notNull(), // FK to meetingMinutes
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileUrl: varchar("fileUrl", { length: 500 }).notNull(), // URL en S3
+  fileType: varchar("fileType", { length: 50 }).notNull(), // photo, document, other
+  fileSize: int("fileSize"), // Tamaño en bytes
+  uploadedBy: int("uploadedBy").notNull(), // FK to users
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MeetingAttachment = typeof meetingAttachments.$inferSelect;
+export type InsertMeetingAttachment = typeof meetingAttachments.$inferInsert;
+
+// Relations para meetingMinutes
+export const meetingMinutesRelations = relations(meetingMinutes, ({ many }) => ({
+  participants: many(meetingParticipants),
+  attachments: many(meetingAttachments),
+}));
+
+export const meetingParticipantsRelations = relations(meetingParticipants, ({ one }) => ({
+  meetingMinute: one(meetingMinutes, {
+    fields: [meetingParticipants.meetingMinuteId],
+    references: [meetingMinutes.id],
+  }),
+  employee: one(employees, {
+    fields: [meetingParticipants.employeeId],
+    references: [employees.id],
+  }),
+}));
+
+export const meetingAttachmentsRelations = relations(meetingAttachments, ({ one }) => ({
+  meetingMinute: one(meetingMinutes, {
+    fields: [meetingAttachments.meetingMinuteId],
+    references: [meetingMinutes.id],
+  }),
+}));

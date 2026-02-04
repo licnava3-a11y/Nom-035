@@ -28,7 +28,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature } from "lucide-react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/", roles: ["admin", "instructor", "student", "committee"] },
@@ -54,6 +54,7 @@ const menuItems = [
   { icon: UserCog, label: "Trabajadores", path: "/employees", roles: ["admin"] },
   { icon: Target, label: "Competencias", path: "/competencies-dashboard", roles: ["admin"] },
   { icon: ClipboardList, label: "Matriz de Habilidades", path: "/skills-matrix", roles: ["admin"] },
+  { icon: FileSignature, label: "Minutas de Reunión", path: "/meeting-minutes", roles: ["admin", "committee"] },
   { icon: BarChart3, label: "Reportes", path: "/reports", roles: ["admin", "instructor"] },
   { icon: Users, label: "Usuarios", path: "/users", roles: ["admin"] },
   { icon: Settings, label: "Configuración", path: "/settings", roles: ["admin"] },
