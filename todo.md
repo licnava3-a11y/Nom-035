@@ -682,3 +682,14 @@
 - [x] Mover botón "Ver Comité" de Acciones Rápidas (eliminado)
 - [ ] Probar detalle de caso con diferentes IDs
 - [ ] Guardar checkpoint con correcciones
+
+
+## FASE 109: Corrección de Guardado de Firmas y Recorridos
+- [x] Implementar procedimiento tRPC saveActaRecorrido en documents.ts
+- [x] Implementar procedimiento tRPC saveActaFinalResultados en documents.ts
+- [x] Actualizar DocumentActaRecorridoNOM019 para usar tRPC y guardar datos
+- [x] Actualizar DocumentActaFinalResultados para usar tRPC y guardar datos
+- [x] Guardar firmas digitales en tabla signatures
+- [x] Guardar participantes en tabla documentParticipants
+- [x] Crear tests para verificar guardado de documentos con firmas
+- [x] Verificar que los 4 tests de documentos pasan exitosamente

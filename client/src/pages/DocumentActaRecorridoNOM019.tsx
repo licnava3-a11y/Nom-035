@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { SignaturePad } from "@/components/SignaturePad";
 import { Save, MapPin, Plus, Trash2, Camera } from "lucide-react";
 
@@ -28,6 +30,8 @@ interface Participante {
 
 export default function DocumentActaRecorridoNOM019() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const saveActaMutation = trpc.documents.saveActaRecorrido.useMutation();
   const [formData, setFormData] = useState({
     organizacion: "",
     fecha: new Date().toISOString().split("T")[0],
@@ -102,9 +106,62 @@ export default function DocumentActaRecorridoNOM019() {
     setParticipantes(participantes.map((part) => (part.id === id ? { ...part, [campo]: valor } : part)));
   };
 
-  const handleSave = () => {
-    console.log("Guardando acta de recorrido:", { formData, observaciones, participantes });
-    alert("Acta de recorrido guardada exitosamente");
+  const handleSave = async () => {
+    try {
+      // Validar campos obligatorios
+      if (!formData.organizacion || !formData.fecha || !formData.objetivo) {
+        alert("Por favor complete todos los campos obligatorios: Organización, Fecha y Objetivo");
+        return;
+      }
+
+      // Preparar firmas desde participantes
+      const firmas = participantes
+        .filter(p => p.firma)
+        .map(p => ({
+          url: p.firma,
+          nombre: p.nombre,
+          cargo: p.cargo,
+          userId: user?.id,
+        }));
+
+      // Preparar participantes sin firma
+      const participantesData = participantes.map(p => ({
+        nombre: p.nombre,
+        cargo: p.cargo,
+        curp: undefined,
+        ine: undefined,
+      }));
+
+      // Preparar observaciones
+      const observacionesData = observaciones.map(obs => ({
+        area: obs.area,
+        descripcion: obs.descripcion,
+        riesgo: obs.riesgo,
+        accionCorrectiva: obs.accionCorrectiva,
+        responsable: obs.responsable,
+        plazo: obs.plazo,
+      }));
+
+      const result = await saveActaMutation.mutateAsync({
+        title: `Acta de Recorrido - ${formData.organizacion}`,
+        organizacion: formData.organizacion,
+        fecha: formData.fecha,
+        horaInicio: formData.horaInicio,
+        horaFin: formData.horaFin,
+        objetivo: formData.objetivo,
+        alcance: formData.alcance,
+        observaciones: observacionesData,
+        participantes: participantesData,
+        firmas,
+        status: "final",
+      });
+
+      alert(`✅ Acta de recorrido guardada exitosamente con folio: ${result.folio}`);
+      setLocation("/documents");
+    } catch (error: any) {
+      console.error("Error guardando acta:", error);
+      alert(`Error al guardar el acta: ${error.message || "Ocurrió un error inesperado"}`);
+    }
   };
 
   return (

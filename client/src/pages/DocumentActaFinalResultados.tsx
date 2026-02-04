@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { useLocation } from "wouter";
 import { SignaturePad } from "@/components/SignaturePad";
 import { Save, FileCheck, Plus, Trash2, Building2, ClipboardCheck } from "lucide-react";
 
@@ -28,6 +30,8 @@ interface Firmante {
 
 export default function DocumentActaFinalResultados() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const saveActaMutation = trpc.documents.saveActaFinalResultados.useMutation();
   const [esUnidadVerificacion, setEsUnidadVerificacion] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -130,9 +134,62 @@ export default function DocumentActaFinalResultados() {
     setFirmantes(firmantes.map((firmante) => (firmante.id === id ? { ...firmante, [campo]: valor } : firmante)));
   };
 
-  const handleSave = () => {
-    console.log("Guardando acta final de resultados:", { formData, accionesControl, firmantes });
-    alert("Acta final de resultados guardada exitosamente");
+  const handleSave = async () => {
+    try {
+      // Validar campos obligatorios
+      if (!formData.organizacion || !formData.rfc || !formData.metodoUtilizado) {
+        alert("Por favor complete todos los campos obligatorios: Organización, RFC y Método Utilizado");
+        return;
+      }
+
+      // Preparar firmas desde firmantes
+      const firmas = firmantes
+        .filter(f => f.firma)
+        .map(f => ({
+          url: f.firma,
+          nombre: f.nombre,
+          cargo: f.cargo,
+          userId: user?.id,
+        }));
+
+      const result = await saveActaMutation.mutateAsync({
+        title: `Acta Final de Resultados - ${formData.organizacion}`,
+        organizacion: formData.organizacion,
+        rfc: formData.rfc,
+        domicilio: formData.domicilio,
+        telefono: formData.telefono,
+        actividadPrincipal: formData.actividadPrincipal,
+        fechaEvaluacion: formData.fechaEvaluacion,
+        esUnidadVerificacion,
+        nombreUnidadVerificacion: esUnidadVerificacion ? formData.nombreUnidadVerificacion : undefined,
+        numeroAcreditacion: esUnidadVerificacion ? formData.numeroAcreditacion : undefined,
+        numeroAprobacionSTPS: esUnidadVerificacion ? formData.numeroAprobacionSTPS : undefined,
+        domicilioUnidadVerificacion: esUnidadVerificacion ? formData.domicilioUnidadVerificacion : undefined,
+        claveNorma: esUnidadVerificacion ? formData.claveNorma : undefined,
+        nombreVerificador: esUnidadVerificacion ? formData.nombreVerificador : undefined,
+        fechaVerificacion: esUnidadVerificacion ? formData.fechaVerificacion : undefined,
+        numeroDictamen: esUnidadVerificacion ? formData.numeroDictamen : undefined,
+        vigenciaDictamen: esUnidadVerificacion ? formData.vigenciaDictamen : undefined,
+        lugarEmisionDictamen: esUnidadVerificacion ? formData.lugarEmisionDictamen : undefined,
+        fechaEmisionDictamen: esUnidadVerificacion ? formData.fechaEmisionDictamen : undefined,
+        numeroRegistroDictamen: esUnidadVerificacion ? formData.numeroRegistroDictamen : undefined,
+        metodoUtilizado: formData.metodoUtilizado,
+        guiaReferencia: formData.guiaReferencia,
+        areasTrabajo: formData.areasTrabajo,
+        numeroTrabajadores: formData.numeroTrabajadores,
+        resultadosGenerales: formData.resultadosGenerales,
+        factoresRiesgoIdentificados: formData.factoresRiesgoIdentificados,
+        accionesControl,
+        firmas,
+        status: "final",
+      });
+
+      alert(`✅ Acta final de resultados guardada exitosamente con folio: ${result.folio}`);
+      setLocation("/documents");
+    } catch (error: any) {
+      console.error("Error guardando acta:", error);
+      alert(`Error al guardar el acta: ${error.message || "Ocurrió un error inesperado"}`);
+    }
   };
 
   return (

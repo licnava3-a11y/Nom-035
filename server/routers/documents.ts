@@ -397,6 +397,125 @@ export const documentsRouter = router({
     return { success: true, documentId, folio };
   }),
 
+  // Guardar Acta de Recorrido NOM-019
+  saveActaRecorrido: protectedProcedure.input(actaRecorridoSchema).mutation(async ({ ctx, input }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+    let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "AR")).limit(1);
+
+    if (!catalog) {
+      const [newCatalog] = await db.insert(formatCatalog).values({
+        code: "AR",
+        name: "Acta de Recorrido NOM-019",
+        version: "1.0",
+        versionDate: new Date(),
+        reference: "NOM-019-STPS-2011",
+      });
+      catalog = { id: newCatalog.insertId, code: "AR" } as any;
+    }
+
+    const [lastDoc] = await db.select().from(documents).where(eq(documents.type, "acta_recorrido")).orderBy(desc(documents.id)).limit(1);
+
+    const consecutivo = lastDoc ? parseInt(lastDoc.folio.split("-")[1].split("/")[0]) + 1 : 1;
+    const folio = generateFolio("acta_recorrido", consecutivo);
+    const qrCode = `${folio}-${Date.now()}`;
+
+    const [result] = await db.insert(documents).values({
+      formatCatalogId: catalog.id,
+      folio,
+      title: input.title,
+      type: "acta_recorrido",
+      status: input.status,
+      content: JSON.stringify(input),
+      qrCode,
+      createdBy: ctx.user.id,
+      finalizedAt: input.status === "final" ? new Date() : null,
+    });
+
+    const documentId = result.insertId;
+
+    // Guardar firmas
+    for (const firma of input.firmas) {
+      await db.insert(signatures).values({
+        documentId,
+        userId: firma.userId || null,
+        signerName: firma.nombre,
+        signerRole: firma.cargo,
+        signatureImageUrl: firma.url,
+        ipAddress: firma.ipAddress || null,
+        deviceInfo: firma.deviceInfo || null,
+      });
+    }
+
+    // Guardar participantes
+    for (const participante of input.participantes) {
+      await db.insert(documentParticipants).values({
+        documentId,
+        name: participante.nombre,
+        role: participante.cargo,
+        curp: participante.curp || null,
+        ine: participante.ine || null,
+      });
+    }
+
+    return { success: true, documentId, folio };
+  }),
+
+  // Guardar Acta Final de Resultados
+  saveActaFinalResultados: protectedProcedure.input(actaFinalResultadosSchema).mutation(async ({ ctx, input }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+    let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "AFR")).limit(1);
+
+    if (!catalog) {
+      const [newCatalog] = await db.insert(formatCatalog).values({
+        code: "AFR",
+        name: "Acta Final de Resultados",
+        version: "1.0",
+        versionDate: new Date(),
+        reference: "NOM-035-STPS-2018",
+      });
+      catalog = { id: newCatalog.insertId, code: "AFR" } as any;
+    }
+
+    const [lastDoc] = await db.select().from(documents).where(eq(documents.type, "acta_final_resultados")).orderBy(desc(documents.id)).limit(1);
+
+    const consecutivo = lastDoc ? parseInt(lastDoc.folio.split("-")[1].split("/")[0]) + 1 : 1;
+    const folio = generateFolio("acta_final_resultados", consecutivo);
+    const qrCode = `${folio}-${Date.now()}`;
+
+    const [result] = await db.insert(documents).values({
+      formatCatalogId: catalog.id,
+      folio,
+      title: input.title,
+      type: "acta_final_resultados",
+      status: input.status,
+      content: JSON.stringify(input),
+      qrCode,
+      createdBy: ctx.user.id,
+      finalizedAt: input.status === "final" ? new Date() : null,
+    });
+
+    const documentId = result.insertId;
+
+    // Guardar firmas
+    for (const firma of input.firmas) {
+      await db.insert(signatures).values({
+        documentId,
+        userId: firma.userId || null,
+        signerName: firma.nombre,
+        signerRole: firma.cargo,
+        signatureImageUrl: firma.url,
+        ipAddress: firma.ipAddress || null,
+        deviceInfo: firma.deviceInfo || null,
+      });
+    }
+
+    return { success: true, documentId, folio };
+  }),
+
   // Listar documentos
   list: protectedProcedure
     .input(
