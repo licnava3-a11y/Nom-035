@@ -78,6 +78,13 @@
       "when": 1770111462634,
       "tag": "0010_slow_proteus",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1770209088106,
+      "tag": "0011_stale_madame_masque",
+      "breakpoints": true
     }
   ]
 }

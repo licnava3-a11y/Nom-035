@@ -796,3 +796,50 @@ export const correctiveActionsRelations = relations(correctiveActions, ({ one })
     references: [users.id],
   }),
 }));
+
+
+/**
+ * Employee Documents table - Digital file management for employees
+ */
+export const employeeDocuments = mysqlTable("employeeDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employeeId").notNull(),
+  documentType: mysqlEnum("documentType", [
+    "contrato",
+    "identificacion",
+    "comprobante_domicilio",
+    "acta_nacimiento",
+    "curp",
+    "rfc",
+    "nss",
+    "certificado_estudios",
+    "carta_recomendacion",
+    "examen_medico",
+    "carta_antecedentes",
+    "otro"
+  ]).notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  fileSize: int("fileSize"), // Size in bytes
+  mimeType: varchar("mimeType", { length: 100 }),
+  uploadedBy: int("uploadedBy").notNull(),
+  notes: text("notes"),
+  expirationDate: date("expirationDate"), // For documents that expire
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmployeeDocument = typeof employeeDocuments.$inferSelect;
+export type InsertEmployeeDocument = typeof employeeDocuments.$inferInsert;
+
+// Relations para employeeDocuments
+export const employeeDocumentsRelations = relations(employeeDocuments, ({ one }) => ({
+  employee: one(employees, {
+    fields: [employeeDocuments.employeeId],
+    references: [employees.id],
+  }),
+  uploader: one(users, {
+    fields: [employeeDocuments.uploadedBy],
+    references: [users.id],
+  }),
+}));

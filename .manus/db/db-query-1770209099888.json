@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `employeeDocuments` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`employeeId` int NOT NULL,\n\t`documentType` enum('contrato','identificacion','comprobante_domicilio','acta_nacimiento','curp','rfc','nss','certificado_estudios','carta_recomendacion','examen_medico','carta_antecedentes','otro') NOT NULL,\n\t`fileName` varchar(255) NOT NULL,\n\t`fileUrl` text NOT NULL,\n\t`fileSize` int,\n\t`mimeType` varchar(100),\n\t`uploadedBy` int NOT NULL,\n\t`notes` text,\n\t`expirationDate` date,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `employeeDocuments_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `employeeDocuments` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`employeeId` int NOT NULL,\n\t`documentType` enum('contrato','identificacion','comprobante_domicilio','acta_nacimiento','curp','rfc','nss','certificado_estudios','carta_recomendacion','examen_medico','carta_antecedentes','otro') NOT NULL,\n\t`fileName` varchar(255) NOT NULL,\n\t`fileUrl` text NOT NULL,\n\t`fileSize` int,\n\t`mimeType` varchar(100),\n\t`uploadedBy` int NOT NULL,\n\t`notes` text,\n\t`expirationDate` date,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `employeeDocuments_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 566
+}

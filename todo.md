@@ -361,3 +361,14 @@
 - [ ] Crear componente EmployeeCompetencies.tsx
 - [ ] Crear componente DNCReport.tsx con gráficas
 - [ ] Integrar DNC con programa de capacitación personal
+
+
+## FASE 84: Flujo de Contratación Automatizado
+- [ ] Crear procedimiento para generar usuario/contraseña automáticamente
+- [ ] Implementar servicio de correo para envío de credenciales
+- [ ] Crear plantilla HTML para correo de bienvenida
+- [ ] Agregar campos de fecha de vencimiento de contratos (1, 2, 3)
+- [ ] Implementar sistema de alertas de vencimiento (7 días anticipación)
+- [ ] Crear procedimiento para envío de reporte consolidado a RRHH
+- [ ] Agregar validación de datos correlacionados en formulario
+- [ ] Probar flujo completo de contratación
