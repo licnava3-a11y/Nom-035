@@ -4,7 +4,7 @@ import { getDb } from "../db";
 import { users, surveys, surveyTokens, surveyNotifications } from "../../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { sendEmail, type EmailConfig } from "../lib/email-service";
-import crypto from "crypto";
+// crypto se importará dinámicamente en el servidor
 
 export const surveyDistributionRouter = router({
   /**
@@ -164,6 +164,7 @@ export const surveyDistributionRouter = router({
             token = existingToken[0].token;
           } else {
             // Generar nuevo token único
+            const crypto = await import("crypto");
             token = crypto.randomBytes(32).toString("hex");
             
             // Calcular fecha de expiración (30 días)

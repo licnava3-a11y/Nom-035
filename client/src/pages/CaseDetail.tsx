@@ -295,13 +295,6 @@ export default function CaseDetail() {
             <CardContent className="space-y-2">
               <Button 
                 variant="outline" 
-                onClick={() => setLocation(`/committee`)}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Ver Comité
-              </Button>
-              <Button 
-                variant="outline" 
                 className="w-full justify-start"
                 onClick={() => setLocation(`/cases/assign?caseId=${caseId}`)}
               >

@@ -673,3 +673,12 @@
 - [ ] Implementar sistema de recordatorios automáticos
 - [ ] Crear dashboard de seguimiento de respuestas
 - [ ] Probar envío completo de encuestas
+
+
+## FASE 107: Corrección de Errores en Sistema de Casos
+- [x] Diagnosticar error "Caso no encontrado" en CaseDetail (error de tRPC con crypto)
+- [x] Verificar query tRPC en CaseDetail
+- [x] Corregir carga de datos del caso (corregido import de crypto)
+- [x] Mover botón "Ver Comité" de Acciones Rápidas (eliminado)
+- [ ] Probar detalle de caso con diferentes IDs
+- [ ] Guardar checkpoint con correcciones
