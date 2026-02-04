@@ -95,8 +95,6 @@ export default function SignatureTest() {
             onCancel={() => setShowSignaturePad(false)}
             signerName="Usuario de Prueba"
             signerRole="Probador"
-            width={600}
-            height={250}
           />
         </div>
       )}

@@ -733,3 +733,27 @@
 - [x] Probar generación PDF en diferentes documentos
 - [x] Verificar códigos QR funcionan correctamente
 - [x] Crear tests unitarios para validación de firmas y PDFs
+
+
+## FASE 113: Sistema de Capacitación - FASE 1: DNC Completo y Automatizado
+- [ ] Modificar tabla trainingNeeds agregando campos de trazabilidad
+- [ ] Agregar campos: source, sourceReferenceId, approvedBy, approvedAt, rejectedReason, addedToProgramAt
+- [ ] Generar migración SQL y aplicar
+- [ ] Crear router server/routers/trainingNeeds.ts con procedimientos:
+  - [ ] generateFromPerformanceEvaluation - Generar DNC desde evaluación
+  - [ ] generateFromSkillsMatrix - Generar DNC desde matriz de habilidades
+  - [ ] generateFromJobProfile - Generar DNC desde perfil de puesto
+  - [ ] list - Listar DNC con filtros avanzados
+  - [ ] approve - Aprobar DNC (jefe de área)
+  - [ ] reject - Rechazar DNC con motivo
+  - [ ] addToProgram - Agregar DNC aprobada al programa
+  - [ ] getPendingApproval - DNC pendientes de aprobación
+  - [ ] getByEmployee - DNC de un empleado específico
+  - [ ] exportToExcel - Exportar DNC a Excel
+- [ ] Crear página client/src/pages/TrainingNeedsDetection.tsx
+- [ ] Crear componente client/src/components/DNCApprovalDialog.tsx
+- [ ] Mejorar página EmployeeTrainingNeeds.tsx
+- [ ] Crear tests server/trainingNeeds.test.ts con 12-15 tests
+- [ ] Probar generación automática de DNC
+- [ ] Probar flujo de aprobación
+- [ ] Guardar checkpoint FASE 1

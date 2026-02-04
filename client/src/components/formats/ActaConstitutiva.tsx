@@ -329,8 +329,6 @@ export function ActaConstitutiva() {
               signerRole={
                 formData.attendees.find(a => a.id === currentSigningMember)?.position
               }
-              width={600}
-              height={250}
             />
           </div>
         </div>

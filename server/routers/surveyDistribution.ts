@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { users, surveys, surveyTokens, surveyNotifications } from "../../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
-import { sendEmail, type EmailConfig } from "../lib/email-service";
+import { sendEmail } from "../lib/email-service";
 // crypto se importará dinámicamente en el servidor
 
 export const surveyDistributionRouter = router({
@@ -12,6 +13,7 @@ export const surveyDistributionRouter = router({
    */
   getRequiredSurveys: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
     
     // Contar trabajadores activos (excluyendo administradores)
     const result = await db
@@ -60,6 +62,7 @@ export const surveyDistributionRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
       if (input.excludeCompleted) {
         // Obtener empleados que NO han completado la encuesta
@@ -116,6 +119,7 @@ export const surveyDistributionRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
       // Obtener información de la encuesta
       const survey = await db
@@ -232,7 +236,7 @@ export const surveyDistributionRouter = router({
           
           // Enviar correo
           if (employee.email) {
-            const emailConfig: EmailConfig = {
+            const emailConfig = {
               from: process.env.SMTP_FROM || "noreply@nom035.com",
               to: employee.email,
               subject,
@@ -273,6 +277,7 @@ export const surveyDistributionRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
       // Total de tokens enviados
       const sentTokens = await db
@@ -322,11 +327,12 @@ export const surveyDistributionRouter = router({
       surveyId: z.number(),
       customMessage: z.string().optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      // Obtener tokens pendientes (no usados)
-      const pendingTokens = await db
+      // Obtener tokens pendientes
+      const tokens = await db
         .select({
           token: surveyTokens.token,
           userId: surveyTokens.userId,
@@ -351,7 +357,7 @@ export const surveyDistributionRouter = router({
         errors: [] as string[],
       };
       
-      for (const tokenData of pendingTokens) {
+      for (const tokenData of tokens) {
         try {
           const surveyLink = `${process.env.VITE_OAUTH_PORTAL_URL || "http://localhost:3000"}/surveys/respond/${tokenData.token}`;
           
@@ -388,7 +394,7 @@ export const surveyDistributionRouter = router({
           `;
           
           if (tokenData.userEmail) {
-            const emailConfig: EmailConfig = {
+            const emailConfig = {
               from: process.env.SMTP_FROM || "noreply@nom035.com",
               to: tokenData.userEmail,
               subject,
