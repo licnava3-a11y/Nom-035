@@ -700,3 +700,15 @@
 - [x] Corregir cálculo de coordenadas eliminando escalado CSS
 - [x] Ajustar canvas para usar dimensiones nativas sin style override
 - [x] Probar firma digital en diferentes resoluciones
+
+
+## FASE 111: Corrección de Login y Mejoras de SignaturePad
+- [x] Diagnosticar error de login en la pantalla de autenticación
+- [x] Verificar que OAuth funciona correctamente
+- [x] Implementar SignaturePad responsive con ResizeObserver
+- [x] Ajustar canvas dinámicamente según ancho del contenedor
+- [x] Agregar vista previa de firma guardada
+- [x] Implementar botón de editar/reemplazar firma
+- [x] Optimizar compresión de imágenes PNG (300x120px)
+- [x] Reducir tamaño de base64 en documentos
+- [x] Mantener aspect ratio 5:2 en todas las resoluciones
