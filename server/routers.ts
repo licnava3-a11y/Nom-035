@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { eq, desc } from "drizzle-orm";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -135,7 +136,7 @@ export const appRouter = router({
         
         const { courses } = await import('../drizzle/schema');
         const { id, ...updateData } = input;
-        await dbInstance.update(courses).set(updateData).where(require('drizzle-orm').eq(courses.id, id));
+        await dbInstance.update(courses).set(updateData).where(eq(courses.id, id));
         return { success: true };
       }),
     delete: adminProcedure
@@ -145,7 +146,7 @@ export const appRouter = router({
         if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         
         const { courses } = await import('../drizzle/schema');
-        await dbInstance.delete(courses).where(require('drizzle-orm').eq(courses.id, input.id));
+        await dbInstance.delete(courses).where(eq(courses.id, input.id));
         return { success: true };
       }),
   }),
@@ -194,7 +195,7 @@ export const appRouter = router({
         
         const { modules } = await import('../drizzle/schema');
         const { id, ...updateData } = input;
-        await dbInstance.update(modules).set(updateData).where(require('drizzle-orm').eq(modules.id, id));
+        await dbInstance.update(modules).set(updateData).where(eq(modules.id, id));
         return { success: true };
       }),
     delete: adminProcedure
@@ -204,7 +205,7 @@ export const appRouter = router({
         if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         
         const { modules } = await import('../drizzle/schema');
-        await dbInstance.delete(modules).where(require('drizzle-orm').eq(modules.id, input.id));
+        await dbInstance.delete(modules).where(eq(modules.id, input.id));
         return { success: true };
       }),
   }),
@@ -270,7 +271,7 @@ export const appRouter = router({
         if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         
         const { cases } = await import('../drizzle/schema');
-        await dbInstance.update(cases).set({ status: input.status }).where(require('drizzle-orm').eq(cases.id, input.id));
+        await dbInstance.update(cases).set({ status: input.status }).where(eq(cases.id, input.id));
         return { success: true };
       }),
     getFollowUps: protectedProcedure
@@ -282,8 +283,7 @@ export const appRouter = router({
         if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         
         const { caseFollowUps } = await import('../drizzle/schema');
-        const { desc } = await import('drizzle-orm');
-        return await dbInstance.select().from(caseFollowUps).where(require('drizzle-orm').eq(caseFollowUps.caseId, input.caseId)).orderBy(desc(caseFollowUps.createdAt));
+        return await dbInstance.select().from(caseFollowUps).where(eq(caseFollowUps.caseId, input.caseId)).orderBy(desc(caseFollowUps.createdAt));
       }),
     addFollowUp: committeeProcedure
       .input(z.object({
@@ -382,7 +382,8 @@ export const appRouter = router({
         });
         
         // Agregar seguimiento
-        const assignedUser = await dbInstance.select().from(require('../drizzle/schema').users).where(eq(require('../drizzle/schema').users.id, input.userId)).limit(1);
+        const { users } = await import('../drizzle/schema');
+        const assignedUser = await dbInstance.select().from(users).where(eq(users.id, input.userId)).limit(1);
         await dbInstance.insert(caseFollowUps).values({
           caseId: input.caseId,
           userId: ctx.user.id,
