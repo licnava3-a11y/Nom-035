@@ -328,7 +328,7 @@ export default function SurveysDashboard() {
             Herramientas para análisis y reportes de cumplimiento NOM-035
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+        <CardContent className="grid gap-4 md:grid-cols-3">
           <Button 
             variant="outline" 
             className="justify-start h-auto py-4"
@@ -358,6 +358,21 @@ export default function SurveysDashboard() {
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Estadísticas generales de la organización
+                </div>
+              </div>
+            </div>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="justify-start h-auto py-4"
+            onClick={() => setLocation('/surveys/admin')}
+          >
+            <div className="flex items-center gap-3">
+              <BarChart3 className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-medium">Panel de Administración</div>
+                <div className="text-sm text-muted-foreground">
+                  Análisis detallado y comparación de periodos
                 </div>
               </div>
             </div>

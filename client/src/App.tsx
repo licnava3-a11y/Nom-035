@@ -44,6 +44,7 @@ import SurveysDashboard from "./pages/surveys/Dashboard";
 import SurveysTracking from "./pages/surveys/Tracking";
 import CorrectiveActions from "./pages/surveys/CorrectiveActions";
 import SurveyResults from "./pages/surveys/SurveyResults";
+import SurveyAdmin from "./pages/surveys/SurveyAdmin";
 
 function Router() {
   return (
@@ -242,6 +243,11 @@ function Router() {
       <Route path={"/surveys/results/:responseId"}>
         <DashboardLayout>
           <SurveyResults />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/admin"}>
+        <DashboardLayout>
+          <SurveyAdmin />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />

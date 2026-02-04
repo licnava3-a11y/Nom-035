@@ -1372,4 +1372,74 @@ export const surveysRouter = router({
     return departments.map(d => d.department).filter(Boolean);
   }),
 
+  // Exportar resultados agregados a Excel
+  exportToExcel: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      department: z.string().optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const conditions = [eq(surveyResponses.surveyId, input.surveyId)];
+      
+      if (input.department) {
+        const usersInDept = await db.select({ id: users.id })
+          .from(users)
+          .where(eq(users.departamento, input.department));
+        const userIds = usersInDept.map(u => u.id);
+        if (userIds.length > 0) {
+          conditions.push(inArray(surveyResponses.userId, userIds));
+        }
+      }
+
+      if (input.startDate) {
+        conditions.push(sql`${surveyResponses.startedAt} >= ${input.startDate}`);
+      }
+
+      if (input.endDate) {
+        conditions.push(sql`${surveyResponses.startedAt} <= ${input.endDate}`);
+      }
+
+      const responses = await db.select()
+        .from(surveyResponses)
+        .where(and(...conditions))
+        .orderBy(desc(surveyResponses.startedAt));
+
+      // Preparar datos para Excel
+      const excelData = responses.map(response => {
+        let riskLevel = 'N/A';
+        let totalScore = 0;
+        let categories = {};
+
+        if (response.results) {
+          try {
+            const results = JSON.parse(response.results);
+            riskLevel = results.overallRiskLevel || 'N/A';
+            totalScore = results.totalScore || 0;
+            categories = results.categories || {};
+          } catch (e) {
+            console.error('Error parsing results:', e);
+          }
+        }
+
+        return {
+          ID: response.id,
+          'Usuario ID': response.userId || 'N/A',
+          'CURP': response.curp || 'N/A',
+          'Fecha Inicio': response.startedAt ? new Date(response.startedAt).toLocaleDateString('es-MX') : 'N/A',
+          'Fecha Completado': response.completedAt ? new Date(response.completedAt).toLocaleDateString('es-MX') : 'En progreso',
+          'Nivel de Riesgo': riskLevel,
+          'Puntaje Total': totalScore,
+          'IP': response.ipAddress || 'N/A',
+          ...categories
+        };
+      });
+
+      return excelData;
+    }),
+
 });
