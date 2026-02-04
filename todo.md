@@ -528,3 +528,14 @@
 - [x] Verificar manejo de errores en frontend y backend
 - [x] Corregir todos los errores identificados (cursos y evaluaciones duplicados)
 - [ ] Guardar checkpoint final
+
+
+## FASE 101: Corrección de Sistema de Casos y Auditoría de Botones
+- [x] Auditar sistema de casos e identificar problema del menú de documentos
+- [x] Corregir menú de documentos en "Ver detalle" → "Acciones Rápidas" para que apunte a Comité
+- [x] Auditoría completa de todos los botones de acción en sistema de casos
+- [x] Verificar que todos los enlaces y navegaciones funcionan correctamente
+- [x] Ejecutar todos los tests del sistema (pnpm test) - 88/90 tests pasados (97.8%)
+- [x] Verificar errores de consola en navegador - Error de tRPC "require is not defined" detectado
+- [ ] Corregir error de tRPC en navegador
+- [ ] Guardar checkpoint con correcciones
