@@ -27,9 +27,16 @@ export default function EmployeeNew() {
     position: "",
     hireDate: "",
     contractType: "permanent" as "permanent" | "temporary" | "contract",
+    gender: "", // Nuevo campo para género extraído de CURP
+    birthState: "", // Nuevo campo para estado de nacimiento extraído de CURP
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [curpValidation, setCurpValidation] = useState<{
+    valid: boolean;
+    message: string;
+    data?: any;
+  } | null>(null);
 
   // Fetch departments for dropdown
   const { data: departments } = trpc.employees.getDepartments.useQuery();
@@ -93,6 +100,46 @@ export default function EmployeeNew() {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
+      });
+    }
+  };
+
+  const utils = trpc.useUtils();
+
+  // Validar CURP cuando el usuario termina de escribir
+  const handleCURPBlur = async () => {
+    if (!formData.curp || formData.curp.length !== 18) {
+      setCurpValidation(null);
+      return;
+    }
+
+    try {
+      const result = await utils.employees.validateCURP.fetch({ curp: formData.curp });
+      
+      if (result.valid) {
+        setCurpValidation({
+          valid: true,
+          message: "✓ CURP válida",
+          data: result
+        });
+        
+        // Autocompletar campos
+        setFormData(prev => ({
+          ...prev,
+          hireDate: prev.hireDate || result.fechaNacimiento || "",
+          gender: result.genero || "",
+          birthState: result.estado || ""
+        }));
+      } else {
+        setCurpValidation({
+          valid: false,
+          message: "✗ CURP inválida: " + (result.errors?.join(", ") || "Formato incorrecto")
+        });
+      }
+    } catch (error) {
+      setCurpValidation({
+        valid: false,
+        message: "Error al validar CURP"
       });
     }
   };
@@ -192,12 +239,28 @@ export default function EmployeeNew() {
                   id="curp"
                   value={formData.curp}
                   onChange={(e) => handleChange("curp", e.target.value.toUpperCase())}
+                  onBlur={handleCURPBlur}
                   placeholder="PEGG850101HCHRRN09"
                   maxLength={18}
                   className={errors.curp ? "border-destructive" : ""}
                 />
                 {errors.curp && (
                   <p className="text-sm text-destructive">{errors.curp}</p>
+                )}
+                {curpValidation && (
+                  <p className={`text-sm ${
+                    curpValidation.valid ? "text-green-600" : "text-destructive"
+                  }`}>
+                    {curpValidation.message}
+                  </p>
+                )}
+                {curpValidation?.valid && curpValidation.data && (
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>• Fecha de nacimiento: {curpValidation.data.fechaNacimiento}</p>
+                    <p>• Género: {curpValidation.data.genero}</p>
+                    <p>• Estado: {curpValidation.data.estado}</p>
+                    <p>• Edad: {curpValidation.data.edad} años</p>
+                  </div>
                 )}
                 <p className="text-xs text-muted-foreground">
                   18 caracteres alfanuméricos

@@ -330,3 +330,34 @@
 - [ ] Verificar notificación al cambiar estado
 - [ ] Probar envío de resumen diario
 - [ ] Validar envío de resumen semanal
+
+
+## FASE 81: Validación de CURP con Autocompletado
+- [x] Investigar APIs gratuitas de validación de CURP
+- [x] Crear función de validación de CURP en backend
+- [x] Implementar extracción de datos desde CURP (nombre, fecha nacimiento, género, estado)
+- [x] Agregar autocompletado en formulario de trabajadores
+- [x] Validar que datos extraídos coincidan con capturados
+- [x] Agregar indicador visual de validación exitosa/fallida
+- [x] Probar con CURPs válidos e inválidos
+
+## FASE 82: Gestión de Expediente Electrónico
+- [ ] Crear tabla employee_documents en schema
+- [ ] Definir tipos de documentos (contrato, identificación, comprobantes, certificados)
+- [ ] Crear procedimientos tRPC para subir/descargar/eliminar documentos
+- [ ] Implementar componente EmployeeDocuments.tsx
+- [ ] Agregar visualizador de documentos (PDF, imágenes)
+- [ ] Implementar alertas de documentos faltantes
+- [ ] Agregar filtros por tipo de documento y fecha
+- [ ] Integrar con módulo de trabajadores
+
+## FASE 83: Perfiles de Puesto y DNC Automática
+- [ ] Crear tabla position_profiles con competencias requeridas
+- [ ] Crear tabla employee_competencies con competencias del trabajador
+- [ ] Crear procedimiento para comparar competencias
+- [ ] Implementar cálculo de brechas de competencias
+- [ ] Generar DNC automática basada en brechas
+- [ ] Crear componente PositionProfiles.tsx
+- [ ] Crear componente EmployeeCompetencies.tsx
+- [ ] Crear componente DNCReport.tsx con gráficas
+- [ ] Integrar DNC con programa de capacitación personal

@@ -249,4 +249,14 @@ export const employeesRouter = router({
     .query(async ({ input }) => {
       return await employeesDb.isCommitteeMember(input.id);
     }),
+
+  /**
+   * Validate CURP and extract data
+   */
+  validateCURP: protectedProcedure
+    .input(z.object({ curp: z.string() }))
+    .query(async ({ input }) => {
+      const { validateCURP } = await import('../lib/curp-validator');
+      return validateCURP(input.curp);
+    }),
 });
