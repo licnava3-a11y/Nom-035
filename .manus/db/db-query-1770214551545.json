@@ -1,0 +1,65 @@
+{
+  "query": "SELECT * FROM evaluations LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT * FROM evaluations LIMIT 5;",
+  "rows": [
+    {
+      "id": "61",
+      "moduleId": "61",
+      "title": "Evaluación del Módulo 1",
+      "description": "Evaluación de conocimientos adquiridos en este módulo.",
+      "passingScore": "70",
+      "maxAttempts": "3",
+      "timeLimit": "30",
+      "createdAt": "2026-02-02 23:22:25",
+      "updatedAt": "2026-02-02 23:22:25"
+    },
+    {
+      "id": "62",
+      "moduleId": "62",
+      "title": "Evaluación del Módulo 2",
+      "description": "Evaluación de conocimientos adquiridos en este módulo.",
+      "passingScore": "70",
+      "maxAttempts": "3",
+      "timeLimit": "30",
+      "createdAt": "2026-02-02 23:22:25",
+      "updatedAt": "2026-02-02 23:22:25"
+    },
+    {
+      "id": "63",
+      "moduleId": "63",
+      "title": "Evaluación del Módulo 3",
+      "description": "Evaluación de conocimientos adquiridos en este módulo.",
+      "passingScore": "70",
+      "maxAttempts": "3",
+      "timeLimit": "30",
+      "createdAt": "2026-02-02 23:22:25",
+      "updatedAt": "2026-02-02 23:22:25"
+    },
+    {
+      "id": "64",
+      "moduleId": "64",
+      "title": "Evaluación del Módulo 4",
+      "description": "Evaluación de conocimientos adquiridos en este módulo.",
+      "passingScore": "70",
+      "maxAttempts": "3",
+      "timeLimit": "30",
+      "createdAt": "2026-02-02 23:22:25",
+      "updatedAt": "2026-02-02 23:22:25"
+    },
+    {
+      "id": "65",
+      "moduleId": "65",
+      "title": "Evaluación del Módulo 5",
+      "description": "Evaluación de conocimientos adquiridos en este módulo.",
+      "passingScore": "70",
+      "maxAttempts": "3",
+      "timeLimit": "30",
+      "createdAt": "2026-02-02 23:22:25",
+      "updatedAt": "2026-02-02 23:22:25"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tmoduleId\ttitle\tdescription\tpassingScore\tmaxAttempts\ttimeLimit\tcreatedAt\tupdatedAt\n61\t61\tEvaluación del Módulo 1\tEvaluación de conocimientos adquiridos en este módulo.\t70\t3\t30\t2026-02-02 23:22:25\t2026-02-02 23:22:25\n62\t62\tEvaluación del Módulo 2\tEvaluación de conocimientos adquiridos en este módulo.\t70\t3\t30\t2026-02-02 23:22:25\t2026-02-02 23:22:25\n63\t63\tEvaluación del Módulo 3\tEvaluación de conocimientos adquiridos en este módulo.\t70\t3\t30\t2026-02-02 23:22:25\t2026-02-02 23:22:25\n64\t64\tEvaluación del Módulo 4\tEvaluación de conocimientos adquiridos en este módulo.\t70\t3\t30\t2026-02-02 23:22:25\t2026-02-02 23:22:25\n65\t65\tEvaluación del Módulo 5\tEvaluación de conocimientos adquiridos en este módulo.\t70\t3\t30\t2026-02-02 23:22:25\t2026-02-02 23:22:25\n",
+  "stderr": "",
+  "execution_time_ms": 347
+}
