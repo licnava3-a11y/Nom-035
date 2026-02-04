@@ -693,3 +693,10 @@
 - [x] Guardar participantes en tabla documentParticipants
 - [x] Crear tests para verificar guardado de documentos con firmas
 - [x] Verificar que los 4 tests de documentos pasan exitosamente
+
+
+## FASE 110: Corrección de Posicionamiento en SignaturePad
+- [x] Revisar componente SignaturePad.tsx
+- [x] Corregir cálculo de coordenadas eliminando escalado CSS
+- [x] Ajustar canvas para usar dimensiones nativas sin style override
+- [x] Probar firma digital en diferentes resoluciones

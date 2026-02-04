@@ -97,7 +97,6 @@ export function SignaturePad({
             width,
             height,
             className: 'signature-canvas',
-            style: { width: '100%', height: 'auto' },
           }}
           backgroundColor="rgb(255, 255, 255)"
           penColor="rgb(0, 0, 0)"
