@@ -48,6 +48,7 @@ import SurveysTracking from "./pages/surveys/Tracking";
 import CorrectiveActions from "./pages/surveys/CorrectiveActions";
 import SurveyResults from "./pages/surveys/SurveyResults";
 import SurveyAdmin from "./pages/surveys/SurveyAdmin";
+import Settings from "./pages/Settings";
 
 function Router() {
   return (
@@ -130,6 +131,11 @@ function Router() {
       <Route path={"/users"}>
         <DashboardLayout>
           <Users />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/settings"}>
+        <DashboardLayout>
+          <Settings />
         </DashboardLayout>
       </Route>
       <Route path={"/profile"}>

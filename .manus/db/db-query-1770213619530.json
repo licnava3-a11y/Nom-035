@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, title, category FROM courses ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, title, category FROM courses ORDER BY id;",
+  "rows": [
+    {
+      "id": "21",
+      "title": "Introducción a la NOM-035-STPS-2018",
+      "category": "fundamentos"
+    },
+    {
+      "id": "22",
+      "title": "Identificación y Análisis de Factores de Riesgo Psicosocial",
+      "category": "categorias_dominios"
+    },
+    {
+      "id": "23",
+      "title": "Prevención del Mobbing y Acoso Laboral",
+      "category": "mobbing"
+    },
+    {
+      "id": "24",
+      "title": "Gestión del Síndrome de Burnout",
+      "category": "burnout"
+    },
+    {
+      "id": "25",
+      "title": "Comité de Atención de Casos: Funciones y Protocolos",
+      "category": "comite"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tcategory\n21\tIntroducción a la NOM-035-STPS-2018\tfundamentos\n22\tIdentificación y Análisis de Factores de Riesgo Psicosocial\tcategorias_dominios\n23\tPrevención del Mobbing y Acoso Laboral\tmobbing\n24\tGestión del Síndrome de Burnout\tburnout\n25\tComité de Atención de Casos: Funciones y Protocolos\tcomite\n",
+  "stderr": "",
+  "execution_time_ms": 351
+}

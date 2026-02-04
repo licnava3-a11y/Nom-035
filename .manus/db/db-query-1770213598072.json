@@ -1,0 +1,9 @@
+{
+  "query": "\n-- Identificar cursos duplicados y mantener solo el de menor ID\nDELETE c1 FROM courses c1\nINNER JOIN courses c2 \nWHERE c1.id > c2.id \nAND c1.title = c2.title \nAND c1.category = c2.category;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute \n-- Identificar cursos duplicados y mantener solo el de menor ID\nDELETE c1 FROM courses c1\nINNER JOIN courses c2 \nWHERE c1.id > c2.id \nAND c1.title = c2.title \nAND c1.category = c2.category;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 357
+}

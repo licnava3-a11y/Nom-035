@@ -1,0 +1,18 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_employees,\n  COUNT(DISTINCT email) as unique_emails,\n  COUNT(CASE WHEN email IS NULL THEN 1 END) as null_emails,\n  COUNT(CASE WHEN firstName IS NULL OR lastName IS NULL THEN 1 END) as null_names,\n  COUNT(CASE WHEN position IS NULL THEN 1 END) as null_positions,\n  COUNT(CASE WHEN department IS NULL THEN 1 END) as null_departments\nFROM employees;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute \nSELECT \n  COUNT(*) as total_employees,\n  COUNT(DISTINCT email) as unique_emails,\n  COUNT(CASE WHEN email IS NULL THEN 1 END) as null_emails,\n  COUNT(CASE WHEN firstName IS NULL OR lastName IS NULL THEN 1 END) as null_names,\n  COUNT(CASE WHEN position IS NULL THEN 1 END) as null_positions,\n  COUNT(CASE WHEN department IS NULL THEN 1 END) as null_departments\nFROM employees;\n",
+  "rows": [
+    {
+      "total_employees": "4",
+      "unique_emails": "4",
+      "null_emails": "0",
+      "null_names": "0",
+      "null_positions": "0",
+      "null_departments": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_employees\tunique_emails\tnull_emails\tnull_names\tnull_positions\tnull_departments\n4\t4\t0\t0\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 348
+}

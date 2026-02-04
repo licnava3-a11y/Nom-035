@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { BookOpen, ClipboardCheck, AlertCircle, FileText, TrendingUp, Users, Award } from "lucide-react";
+import { BookOpen, ClipboardCheck, AlertCircle, FileText, TrendingUp, Users, Award, Target, ArrowRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export default function Dashboard() {
@@ -12,6 +12,12 @@ export default function Dashboard() {
   const { data: cases, isLoading: casesLoading } = trpc.cases.list.useQuery(undefined, {
     enabled: user?.role === "admin" || user?.role === "committee",
   });
+
+  // Get top 3 critical competency gaps for admin
+  const { data: criticalGaps, isLoading: gapsLoading } = trpc.competenciesStats.getTopGaps.useQuery(
+    { limit: 3 },
+    { enabled: user?.role === "admin" }
+  );
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
@@ -186,6 +192,71 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* Critical Competency Gaps Widget - Admin Only */}
+      {user?.role === "admin" && (
+        <Card className="border-orange-200 bg-orange-50/50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-orange-600" />
+                <CardTitle className="text-orange-900">Brechas Críticas de Competencias</CardTitle>
+              </div>
+              <Link href="/competencies-dashboard">
+                <Button variant="outline" size="sm" className="gap-2">
+                  Ver Dashboard Completo
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+            <CardDescription className="text-orange-700">
+              Top 3 competencias con mayor brecha organizacional
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {gapsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+              </div>
+            ) : criticalGaps && criticalGaps.length > 0 ? (
+              <div className="space-y-4">
+                {criticalGaps.map((gap, index) => (
+                  <div key={index} className="flex items-center gap-4 p-4 bg-white rounded-lg border border-orange-200">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                      <span className="text-lg font-bold text-orange-600">#{index + 1}</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold text-gray-900">{gap.competencyName}</h3>
+                        <span className="text-sm font-medium text-orange-600">
+                          {gap.employeesAffected} empleado{gap.employeesAffected !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <span>Brecha promedio: <strong>{(gap.totalGap / gap.employeesAffected).toFixed(1)}</strong></span>
+                        <span className="text-gray-400">•</span>
+                        <span className="capitalize">{gap.competencyType}</span>
+                      </div>
+                      <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-orange-500 h-2 rounded-full transition-all"
+                          style={{ width: `${((gap.totalGap / gap.employeesAffected) / 4) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Target className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <p>No hay brechas críticas detectadas</p>
+                <p className="text-sm mt-1">Todos los empleados cumplen con las competencias requeridas</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Actions */}
       <div>

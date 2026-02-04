@@ -1,0 +1,22 @@
+{
+  "query": "\nSELECT \n  'employeeCompetencies' as tabla,\n  COUNT(*) as total_registros,\n  COUNT(CASE WHEN employeeId IS NULL THEN 1 END) as null_employeeId,\n  COUNT(CASE WHEN competencyName IS NULL THEN 1 END) as null_competencyName\nFROM employeeCompetencies\nUNION ALL\nSELECT \n  'jobProfiles' as tabla,\n  COUNT(*) as total_registros,\n  COUNT(CASE WHEN positionId IS NULL THEN 1 END) as null_positionId,\n  COUNT(CASE WHEN competencyName IS NULL THEN 1 END) as null_competencyName\nFROM jobProfiles;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute \nSELECT \n  'employeeCompetencies' as tabla,\n  COUNT(*) as total_registros,\n  COUNT(CASE WHEN employeeId IS NULL THEN 1 END) as null_employeeId,\n  COUNT(CASE WHEN competencyName IS NULL THEN 1 END) as null_competencyName\nFROM employeeCompetencies\nUNION ALL\nSELECT \n  'jobProfiles' as tabla,\n  COUNT(*) as total_registros,\n  COUNT(CASE WHEN positionId IS NULL THEN 1 END) as null_positionId,\n  COUNT(CASE WHEN competencyName IS NULL THEN 1 END) as null_competencyName\nFROM jobProfiles;\n",
+  "rows": [
+    {
+      "tabla": "jobProfiles",
+      "total_registros": "30",
+      "null_employeeId": "0",
+      "null_competencyName": "0"
+    },
+    {
+      "tabla": "employeeCompetencies",
+      "total_registros": "18",
+      "null_employeeId": "0",
+      "null_competencyName": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "tabla\ttotal_registros\tnull_employeeId\tnull_competencyName\njobProfiles\t30\t0\t0\nemployeeCompetencies\t18\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 351
+}

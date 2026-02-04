@@ -55,7 +55,7 @@ const menuItems = [
   { icon: Target, label: "Competencias", path: "/competencies-dashboard", roles: ["admin"] },
   { icon: BarChart3, label: "Reportes", path: "/reports", roles: ["admin", "instructor"] },
   { icon: Users, label: "Usuarios", path: "/users", roles: ["admin"] },
-  { icon: Settings, label: "Configuración", path: "/profile", roles: ["admin", "instructor", "student", "committee"] },
+  { icon: Settings, label: "Configuración", path: "/settings", roles: ["admin"] },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

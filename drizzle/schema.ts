@@ -935,3 +935,19 @@ export const trainingNeedsRelations = relations(trainingNeeds, ({ one }) => ({
     references: [courses.id],
   }),
 }));
+
+/**
+ * System Settings table - Global configuration
+ */
+export const systemSettings = mysqlTable("systemSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  settingKey: varchar("settingKey", { length: 100 }).notNull().unique(),
+  settingValue: text("settingValue"),
+  description: text("description"),
+  updatedBy: int("updatedBy"), // FK to users
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SystemSetting = typeof systemSettings.$inferSelect;
+export type InsertSystemSetting = typeof systemSettings.$inferInsert;

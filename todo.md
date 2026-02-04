@@ -427,3 +427,83 @@
 - [x] Agregar filtros por departamento y tipo de competencia
 - [x] Crear procedimientos tRPC para estadísticas agregadas
 - [x] Agregar acceso desde menú principal
+
+## FASE 92: Auditoría Completa del Sistema
+- [ ] Auditar todas las rutas y páginas faltantes (errores 404)
+- [ ] Verificar funcionamiento de todos los botones de acción
+- [ ] Auditar todas las llamadas tRPC y procedimientos
+- [ ] Verificar correlaciones de datos entre formularios
+- [ ] Auditar todos los desplegables y selects
+- [ ] Verificar integridad de tablas de base de datos
+- [ ] Auditar guardado y recuperación de datos
+- [ ] Verificar backend y manejo de errores
+- [ ] Desarrollar páginas faltantes identificadas
+- [ ] Corregir todos los errores 404 encontrados
+
+## FASE 93: Integración de Generación Automática de Credenciales
+- [ ] Conectar hiring.generateCredentials en EmployeeNew.tsx
+- [ ] Agregar campos de correo empresarial y personal en formulario
+- [ ] Implementar envío automático de credenciales al crear empleado
+- [ ] Agregar feedback visual de envío exitoso
+- [ ] Probar flujo completo de alta con generación de credenciales
+
+## FASE 94: Configuración de Correo RRHH en Settings
+- [ ] Crear componente Settings.tsx si no existe
+- [ ] Agregar sección de configuración de notificaciones
+- [ ] Implementar campo para correo RRHH
+- [ ] Crear procedimiento tRPC para guardar configuración
+- [ ] Actualizar procedimiento de alertas para usar correo configurado
+- [ ] Agregar validación de formato de correo
+
+## FASE 95: Widget de Competencias Críticas en Dashboard
+- [ ] Agregar widget en Dashboard.tsx
+- [ ] Mostrar top 3 brechas críticas
+- [ ] Agregar enlace directo a dashboard de competencias
+- [ ] Implementar actualización automática de datos
+- [ ] Agregar indicadores visuales de prioridad
+
+
+## FASE 95: Corrección de Problemas Críticos
+- [x] Eliminar cursos duplicados en base de datos (mantener solo 1 de cada uno)
+- [ ] Verificar integridad de datos de empleados
+- [ ] Verificar integridad de datos de competencias
+- [ ] Verificar integridad de datos de perfiles de puesto
+- [ ] Corregir cualquier inconsistencia encontrada
+
+## FASE 96: Integración de Credenciales Automáticas en Formulario de Alta
+- [x] Modificar componente de formulario de alta de empleados
+- [x] Agregar checkbox para generar credenciales automáticamente
+- [x] Integrar llamada a hiring.createEmployeeAccount al guardar
+- [x] Mostrar confirmación de envío de credenciales
+- [x] Agregar validación de correos (empresarial/personal)
+- [ ] Probar flujo completo de alta con generación de credenciales
+
+## FASE 97: Configuración de Correo RRHH en Settings
+- [x] Crear tabla system_settings en schema
+- [x] Agregar campo hr_email para correo de RRHH
+- [x] Crear procedimiento tRPC para obtener/actualizar configuración
+- [x] Crear componente Settings.tsx
+- [x] Agregar sección de configuración de RRHH
+- [x] Implementar formulario de configuración de correo
+- [ ] Actualizar procedimientos que envían correos a RRHH
+- [ ] Probar envío de correos a dirección configurada
+
+## FASE 98: Widget de Competencias Críticas en Dashboard
+- [ ] Modificar componente Dashboard.tsx
+- [ ] Agregar tarjeta de "Brechas Críticas"
+- [ ] Mostrar top 3 brechas más críticas de la organización
+- [ ] Agregar indicadores visuales de prioridad
+- [ ] Implementar enlace directo al dashboard de competencias
+- [ ] Agregar gráfica mini de distribución de brechas
+- [ ] Probar visualización con datos reales
+
+## FASE 99: Auditoría Final y Pruebas Completas
+- [ ] Verificar todas las rutas del sistema
+- [ ] Probar todos los botones de acción
+- [ ] Verificar correlaciones de datos
+- [ ] Probar guardado de datos en todas las tablas
+- [ ] Verificar desplegables y filtros
+- [ ] Probar flujos completos de cada módulo
+- [ ] Verificar que no hay errores en consola
+- [ ] Ejecutar pruebas unitarias
+- [ ] Crear reporte final de auditoría

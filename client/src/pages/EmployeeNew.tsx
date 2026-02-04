@@ -29,7 +29,10 @@ export default function EmployeeNew() {
     contractType: "permanent" as "permanent" | "temporary" | "contract",
     gender: "", // Nuevo campo para género extraído de CURP
     birthState: "", // Nuevo campo para estado de nacimiento extraído de CURP
+    personalEmail: "", // Correo personal opcional
   });
+
+  const [generateCredentials, setGenerateCredentials] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [curpValidation, setCurpValidation] = useState<{
@@ -47,9 +50,25 @@ export default function EmployeeNew() {
     { enabled: !!formData.department } // Only fetch when department is selected
   );
 
+  const generateCredentialsMutation = trpc.hiring.createEmployeeAccount.useMutation();
+
   const createMutation = trpc.employees.create.useMutation({
-    onSuccess: () => {
-      alert("Trabajador creado exitosamente");
+    onSuccess: async (data) => {
+      // Si se seleccionó generar credenciales, llamar al procedimiento
+      if (generateCredentials && data?.employeeId) {
+        try {
+          await generateCredentialsMutation.mutateAsync({
+            employeeId: data.employeeId,
+            role: "student",
+            sendToPersonalEmail: !formData.email && !!formData.personalEmail,
+          });
+          alert("Trabajador creado exitosamente. Las credenciales de acceso han sido enviadas por correo electrónico.");
+        } catch (error: any) {
+          alert(`Trabajador creado, pero hubo un error al enviar las credenciales: ${error.message}`);
+        }
+      } else {
+        alert("Trabajador creado exitosamente");
+      }
       setLocation("/employees");
     },
     onError: (error: any) => {
@@ -204,21 +223,40 @@ export default function EmployeeNew() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">
-                Correo Electrónico <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-                placeholder="juan.perez@empresa.com"
-                className={errors.email ? "border-destructive" : ""}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">
+                  Correo Empresarial <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  placeholder="juan.perez@empresa.com"
+                  className={errors.email ? "border-destructive" : ""}
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Correo corporativo del empleado
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="personalEmail">Correo Personal</Label>
+                <Input
+                  id="personalEmail"
+                  type="email"
+                  value={formData.personalEmail}
+                  onChange={(e) => handleChange("personalEmail", e.target.value)}
+                  placeholder="juan.perez@gmail.com"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Opcional - usado como respaldo para envío de credenciales
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -375,6 +413,41 @@ export default function EmployeeNew() {
                 </SelectContent>
               </Select>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Generación Automática de Credenciales</CardTitle>
+            <CardDescription>
+              Configuración de acceso al sistema
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="generateCredentials"
+                checked={generateCredentials}
+                onChange={(e) => setGenerateCredentials(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <Label htmlFor="generateCredentials" className="cursor-pointer">
+                Generar usuario y contraseña automáticamente y enviar por correo
+              </Label>
+            </div>
+            {generateCredentials && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm">
+                <p className="font-medium text-blue-900 mb-2">ℹ️ Información importante:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-blue-800">
+                  <li>Se generará un usuario y contraseña aleatorios</li>
+                  <li>Las credenciales se enviarán al correo empresarial</li>
+                  <li>Si no hay correo empresarial, se enviarán al correo personal</li>
+                  <li>El empleado recibirá instrucciones para acceder al sistema</li>
+                </ul>
+              </div>
+            )}
           </CardContent>
         </Card>
 
