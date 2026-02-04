@@ -1129,4 +1129,247 @@ export const surveysRouter = router({
       
       return notifications;
     }),
+
+  // ============================================
+  // PANEL DE ADMINISTRACIÓN DE ENCUESTAS
+  // ============================================
+
+  // Obtener respuestas agregadas por encuesta
+  getAggregatedResponses: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      department: z.string().optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const conditions = [eq(surveyResponses.surveyId, input.surveyId)];
+      
+      if (input.department) {
+        // Filtrar por departamento del usuario
+        const usersInDept = await db.select({ id: users.id })
+          .from(users)
+          .where(eq(users.departamento, input.department));
+        const userIds = usersInDept.map(u => u.id);
+        if (userIds.length > 0) {
+          conditions.push(inArray(surveyResponses.userId, userIds));
+        }
+      }
+
+      if (input.startDate) {
+        conditions.push(sql`${surveyResponses.startedAt} >= ${input.startDate}`);
+      }
+
+      if (input.endDate) {
+        conditions.push(sql`${surveyResponses.startedAt} <= ${input.endDate}`);
+      }
+
+      const responses = await db.select()
+        .from(surveyResponses)
+        .where(and(...conditions))
+        .orderBy(desc(surveyResponses.startedAt));
+
+      return responses;
+    }),
+
+  // Obtener estadísticas generales de encuestas
+  getSurveyStatistics: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      department: z.string().optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const conditions = [eq(surveyResponses.surveyId, input.surveyId)];
+      
+      if (input.department) {
+        const usersInDept = await db.select({ id: users.id })
+          .from(users)
+          .where(eq(users.departamento, input.department));
+        const userIds = usersInDept.map(u => u.id);
+        if (userIds.length > 0) {
+          conditions.push(inArray(surveyResponses.userId, userIds));
+        }
+      }
+
+      if (input.startDate) {
+        conditions.push(sql`${surveyResponses.startedAt} >= ${input.startDate}`);
+      }
+
+      if (input.endDate) {
+        conditions.push(sql`${surveyResponses.startedAt} <= ${input.endDate}`);
+      }
+
+      const responses = await db.select()
+        .from(surveyResponses)
+        .where(and(...conditions));
+
+      // Calcular estadísticas
+      const totalResponses = responses.length;
+      const riskLevels = { nulo: 0, bajo: 0, medio: 0, alto: 0, muy_alto: 0 };
+      let totalScore = 0;
+
+      responses.forEach(response => {
+        if (response.results) {
+          try {
+            const results = JSON.parse(response.results);
+            const level = results.overallRiskLevel;
+            if (level && riskLevels.hasOwnProperty(level)) {
+              riskLevels[level as keyof typeof riskLevels]++;
+            }
+            if (results.totalScore) {
+              totalScore += results.totalScore;
+            }
+          } catch (e) {
+            console.error('Error parsing results:', e);
+          }
+        }
+      });
+
+      const averageScore = totalResponses > 0 ? totalScore / totalResponses : 0;
+
+      return {
+        totalResponses,
+        riskLevels,
+        averageScore,
+        distribution: Object.entries(riskLevels).map(([level, count]) => ({
+          level,
+          count,
+          percentage: totalResponses > 0 ? (count / totalResponses) * 100 : 0
+        }))
+      };
+    }),
+
+  // Comparar estadísticas entre periodos
+  comparePeriods: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      period1Start: z.string(),
+      period1End: z.string(),
+      period2Start: z.string(),
+      period2End: z.string(),
+      department: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener estadísticas del periodo 1
+      const period1Conditions = [
+        eq(surveyResponses.surveyId, input.surveyId),
+        sql`${surveyResponses.startedAt} >= ${input.period1Start}`,
+        sql`${surveyResponses.startedAt} <= ${input.period1End}`
+      ];
+
+      if (input.department) {
+        const usersInDept = await db.select({ id: users.id })
+          .from(users)
+          .where(eq(users.departamento, input.department));
+        const userIds = usersInDept.map(u => u.id);
+        if (userIds.length > 0) {
+          period1Conditions.push(inArray(surveyResponses.userId, userIds));
+        }
+      }
+
+      const period1Responses = await db.select()
+        .from(surveyResponses)
+        .where(and(...period1Conditions));
+
+      // Obtener estadísticas del periodo 2
+      const period2Conditions = [
+        eq(surveyResponses.surveyId, input.surveyId),
+        sql`${surveyResponses.startedAt} >= ${input.period2Start}`,
+        sql`${surveyResponses.startedAt} <= ${input.period2End}`
+      ];
+
+      if (input.department) {
+        const usersInDept = await db.select({ id: users.id })
+          .from(users)
+          .where(eq(users.departamento, input.department));
+        const userIds = usersInDept.map(u => u.id);
+        if (userIds.length > 0) {
+          period2Conditions.push(inArray(surveyResponses.userId, userIds));
+        }
+      }
+
+      const period2Responses = await db.select()
+        .from(surveyResponses)
+        .where(and(...period2Conditions));
+
+      // Calcular estadísticas para ambos periodos
+      const calculateStats = (responses: any[]) => {
+        const totalResponses = responses.length;
+        const riskLevels = { nulo: 0, bajo: 0, medio: 0, alto: 0, muy_alto: 0 };
+        let totalScore = 0;
+
+        responses.forEach(response => {
+          if (response.results) {
+            try {
+              const results = JSON.parse(response.results);
+              const level = results.overallRiskLevel;
+              if (level && riskLevels.hasOwnProperty(level)) {
+                riskLevels[level as keyof typeof riskLevels]++;
+              }
+              if (results.totalScore) {
+                totalScore += results.totalScore;
+              }
+            } catch (e) {
+              console.error('Error parsing results:', e);
+            }
+          }
+        });
+
+        const averageScore = totalResponses > 0 ? totalScore / totalResponses : 0;
+
+        return {
+          totalResponses,
+          riskLevels,
+          averageScore,
+          distribution: Object.entries(riskLevels).map(([level, count]) => ({
+            level,
+            count,
+            percentage: totalResponses > 0 ? (count / totalResponses) * 100 : 0
+          }))
+        };
+      };
+
+      const period1Stats = calculateStats(period1Responses);
+      const period2Stats = calculateStats(period2Responses);
+
+      return {
+        period1: period1Stats,
+        period2: period2Stats,
+        comparison: {
+          responseDiff: period2Stats.totalResponses - period1Stats.totalResponses,
+          scoreDiff: period2Stats.averageScore - period1Stats.averageScore,
+          riskLevelChanges: Object.keys(period1Stats.riskLevels).map(level => ({
+            level,
+            period1Count: period1Stats.riskLevels[level as keyof typeof period1Stats.riskLevels],
+            period2Count: period2Stats.riskLevels[level as keyof typeof period2Stats.riskLevels],
+            diff: period2Stats.riskLevels[level as keyof typeof period2Stats.riskLevels] - 
+                  period1Stats.riskLevels[level as keyof typeof period1Stats.riskLevels]
+          }))
+        }
+      };
+    }),
+
+  // Obtener departamentos disponibles
+  getDepartments: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+    const departments = await db.selectDistinct({ department: users.departamento })
+      .from(users)
+      .where(not(eq(users.departamento, '')));
+
+    return departments.map(d => d.department).filter(Boolean);
+  }),
+
 });

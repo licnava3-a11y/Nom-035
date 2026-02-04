@@ -157,7 +157,7 @@
 
 ### Backend - Consultas Agregadas
 - [ ] Crear procedimiento para obtener respuestas agregadas
-- [ ] Implementar filtros por departamento y periodo
+- [x] Implementar filtros por departamento y periodo
 - [ ] Crear procedimiento para exportar a Excel
 - [ ] Generar estadísticas por encuesta
 
@@ -258,3 +258,75 @@
 - [ ] Probar módulo de Documentos
 - [ ] Probar módulo de Reportes
 - [ ] Probar módulo de Acciones Correctivas
+
+
+## FASE 76: Panel de Administración de Encuestas NOM-035
+
+### Backend - Procedimientos tRPC
+- [x] Crear procedimiento para obtener respuestas agregadas por encuesta
+- [x] Implementar filtros por departamento y periodo
+- [x] Crear procedimiento para estadísticas generales (promedios, distribución)
+- [ ] Implementar exportación a Excel de resultados agregados
+- [x] Crear procedimiento para comparación entre periodos
+
+### Frontend - Interfaz de Administración
+- [ ] Crear componente SurveyAdmin.tsx
+- [ ] Implementar tabla de respuestas agregadas con filtros
+- [ ] Agregar gráficas estadísticas (Chart.js)
+- [ ] Implementar botón de exportación a Excel
+- [ ] Crear vista de comparación entre periodos
+- [ ] Agregar ruta en App.tsx
+
+### Pruebas
+- [ ] Probar filtros de departamento y periodo
+- [ ] Verificar exportación a Excel
+- [ ] Validar gráficas estadísticas
+- [ ] Probar comparación entre periodos
+
+## FASE 77: Sistema de Tokens de Acceso Anónimo
+
+### Backend - Gestión de Tokens
+- [ ] Crear tabla survey_tokens en schema
+- [ ] Generar migración SQL para tabla de tokens
+- [ ] Implementar procedimiento para generar token único
+- [ ] Crear procedimiento para validar token y expiración
+- [ ] Implementar procedimiento para generar tokens masivos
+- [ ] Crear procedimiento para listar tokens activos
+
+### Frontend - Interfaz de Tokens
+- [ ] Crear componente TokenManagement.tsx
+- [ ] Implementar formulario de generación de token único
+- [ ] Crear interfaz para generación masiva de tokens
+- [ ] Implementar exportación a Excel de tokens
+- [ ] Agregar generación de códigos QR para tokens
+- [ ] Crear página pública de acceso con token (sin login)
+- [ ] Agregar rutas en App.tsx
+
+### Pruebas
+- [ ] Probar generación de token único
+- [ ] Verificar validación de token y expiración
+- [ ] Probar generación masiva de tokens
+- [ ] Validar exportación a Excel
+- [ ] Probar acceso anónimo con token
+- [ ] Verificar códigos QR
+
+## FASE 78: Notificaciones Automáticas del Buzón
+
+### Backend - Servicio de Correos
+- [ ] Crear servicio mailbox-email-service.ts
+- [ ] Implementar plantilla de nueva solicitud para coordinador
+- [ ] Crear plantilla de cambio de estado para remitente
+- [ ] Implementar plantilla de resumen diario/semanal
+- [ ] Integrar servicio con router de mailbox
+
+### Backend - Procedimientos de Notificación
+- [ ] Modificar procedimiento create para enviar correo al coordinador
+- [ ] Modificar procedimiento updateStatus para notificar al remitente
+- [ ] Crear procedimiento para enviar resumen diario
+- [ ] Crear procedimiento para enviar resumen semanal
+
+### Pruebas
+- [ ] Probar envío de correo al crear solicitud
+- [ ] Verificar notificación al cambiar estado
+- [ ] Probar envío de resumen diario
+- [ ] Validar envío de resumen semanal
