@@ -51,6 +51,7 @@ import SurveysTracking from "./pages/surveys/Tracking";
 import CorrectiveActions from "./pages/surveys/CorrectiveActions";
 import SurveyResults from "./pages/surveys/SurveyResults";
 import SurveyAdmin from "./pages/surveys/SurveyAdmin";
+import SurveySend from "./pages/SurveySend";
 import Settings from "./pages/Settings";
 
 function Router() {
@@ -254,6 +255,11 @@ function Router() {
       <Route path={"/surveys/dashboard"}>
         <DashboardLayout>
           <SurveysDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/send"}>
+        <DashboardLayout>
+          <SurveySend />
         </DashboardLayout>
       </Route>
       <Route path={"/surveys/guide-i"}>

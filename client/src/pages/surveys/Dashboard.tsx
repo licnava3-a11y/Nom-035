@@ -12,7 +12,8 @@ import {
   Download,
   ChevronRight,
   BarChart3,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  Mail
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
@@ -122,11 +123,17 @@ export default function SurveysDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Encuestas NOM-035-STPS-2018</h1>
-        <p className="text-muted-foreground mt-2">
-          Identificación y análisis de los factores de riesgo psicosocial en el trabajo
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Encuestas NOM-035-STPS-2018</h1>
+          <p className="text-muted-foreground mt-2">
+            Identificación y análisis de los factores de riesgo psicosocial en el trabajo
+          </p>
+        </div>
+        <Button onClick={() => setLocation("/surveys/send")} size="lg">
+          <Mail className="h-4 w-4 mr-2" />
+          Envío Masivo
+        </Button>
       </div>
 
       {/* Alert de información */}

@@ -656,3 +656,20 @@
 - [ ] Crear componente CompetenciesCatalog.tsx
 - [ ] Implementar importación/exportación Excel del catálogo
 - [ ] Agregar ruta y enlace en menú principal
+
+
+## FASE 106: Sistema de Envío de Encuestas NOM-035 por Correo
+- [ ] Implementar lógica de selección de guías según cantidad de trabajadores
+  - [ ] Menos de 15: Solo Guía I
+  - [ ] 15-50: Guía I + Guía II
+  - [ ] Más de 50: Guía I + Guía II + Guía III
+- [ ] Crear procedimiento tRPC para conteo de trabajadores activos
+- [ ] Crear procedimiento tRPC para envío masivo de encuestas por correo
+- [ ] Implementar generación de enlaces únicos por empleado
+- [ ] Crear plantillas HTML de correo para cada guía
+- [ ] Implementar tabla de seguimiento de envíos (survey_invitations)
+- [ ] Crear interfaz de envío masivo con selección de destinatarios
+- [ ] Agregar preview de correo antes de enviar
+- [ ] Implementar sistema de recordatorios automáticos
+- [ ] Crear dashboard de seguimiento de respuestas
+- [ ] Probar envío completo de encuestas

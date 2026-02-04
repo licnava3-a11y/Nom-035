@@ -18,6 +18,7 @@ import { systemSettingsRouter } from "./routers/systemSettings";
 import { competenciesStatsRouter } from "./routers/competenciesStats";
 import { skillsMatrixRouter } from "./routers/skillsMatrix";
 import { meetingMinutesRouter } from "./routers/meetingMinutes";
+import { surveyDistributionRouter } from "./routers/surveyDistribution";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -57,6 +58,7 @@ export const appRouter = router({
   competenciesStats: competenciesStatsRouter,
   skillsMatrix: skillsMatrixRouter,
   meetingMinutes: meetingMinutesRouter,
+  surveyDistribution: surveyDistributionRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
