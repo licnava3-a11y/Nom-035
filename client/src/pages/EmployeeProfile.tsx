@@ -16,6 +16,7 @@ import {
   UserX,
   UserCheck,
   FolderOpen,
+  Target,
 } from "lucide-react";
 
 export default function EmployeeProfile() {
@@ -126,6 +127,12 @@ export default function EmployeeProfile() {
                 <Button variant="default">
                   <FolderOpen className="mr-2 h-4 w-4" />
                   Expediente Electrónico
+                </Button>
+              </Link>
+              <Link href={`/employees/${employeeId}/training-needs`}>
+                <Button variant="default">
+                  <Target className="mr-2 h-4 w-4" />
+                  DNC (Necesidades de Capacitación)
                 </Button>
               </Link>
               <Link href={`/employees/${employeeId}/edit`}>

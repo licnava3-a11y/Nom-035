@@ -30,6 +30,8 @@ import EmployeeNew from "./pages/EmployeeNew";
 import EmployeeEdit from "./pages/EmployeeEdit";
 import EmployeeProfile from "./pages/EmployeeProfile";
 import EmployeeDocuments from "./pages/EmployeeDocuments";
+import EmployeeTrainingNeeds from "./pages/EmployeeTrainingNeeds";
+import CompetenciesDashboard from "./pages/CompetenciesDashboard";
 import Documents from "./pages/Documents";
 import CaseAssignment from "./pages/CaseAssignment";
 import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
@@ -120,6 +122,11 @@ function Router() {
           <Reports />
         </DashboardLayout>
       </Route>
+      <Route path={"/competencies-dashboard"}>
+        <DashboardLayout>
+          <CompetenciesDashboard />
+        </DashboardLayout>
+      </Route>
       <Route path={"/users"}>
         <DashboardLayout>
           <Users />
@@ -173,6 +180,11 @@ function Router() {
       <Route path={"/employees/:id/documents"}>
         <DashboardLayout>
           <EmployeeDocuments />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees/:id/training-needs"}>
+        <DashboardLayout>
+          <EmployeeTrainingNeeds />
         </DashboardLayout>
       </Route>
       <Route path={"/documents"}>

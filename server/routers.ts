@@ -14,6 +14,7 @@ import { correctiveActionsRouter } from "./routers/correctiveActions";
 import { employeeDocumentsRouter } from "./routers/employeeDocuments";
 import { jobProfilesRouter } from "./routers/jobProfiles";
 import { hiringRouter } from "./routers/hiring";
+import { competenciesStatsRouter } from "./routers/competenciesStats";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -49,6 +50,7 @@ export const appRouter = router({
   employeeDocuments: employeeDocumentsRouter,
   jobProfiles: jobProfilesRouter,
   hiring: hiringRouter,
+  competenciesStats: competenciesStatsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

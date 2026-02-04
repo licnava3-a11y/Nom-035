@@ -403,3 +403,27 @@
 - [x] Crear procedimiento para reporte consolidado a RRHH
 - [ ] Integrar generación de credenciales en formulario de alta
 - [ ] Probar flujo completo de contratación
+
+## FASE 89: Vista de DNC en Expediente del Trabajador
+- [x] Crear componente EmployeeTrainingNeeds.tsx
+- [x] Implementar gráficas de brechas de competencias
+- [x] Mostrar recomendaciones de cursos específicos
+- [x] Agregar indicadores visuales de prioridad (crítica, alta, media, baja)
+- [x] Integrar con procedimientos tRPC de jobProfiles
+- [x] Agregar enlace desde perfil del trabajador
+
+## FASE 90: Tarea Programada para Alertas de Contratos
+- [x] Crear tarea programada diaria/semanal
+- [x] Configurar envío automático usando hiring.sendExpiringContractsReport
+- [ ] Agregar configuración de correo RRHH en settings
+- [x] Implementar logs de envío de alertas
+- [x] Probar ejecución automática
+
+## FASE 91: Dashboard de Competencias Organizacionales
+- [x] Crear componente CompetenciesDashboard.tsx
+- [x] Implementar gráficas por departamento
+- [x] Mostrar nivel promedio de competencias
+- [x] Identificar áreas críticas que requieren capacitación
+- [x] Agregar filtros por departamento y tipo de competencia
+- [x] Crear procedimientos tRPC para estadísticas agregadas
+- [x] Agregar acceso desde menú principal
