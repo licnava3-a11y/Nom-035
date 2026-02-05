@@ -431,8 +431,10 @@
 - [x] Agregar campos de vencimiento de contratos (1, 2, 3) en schema
 - [x] Implementar sistema de alertas de vencimiento (7 días)
 - [x] Crear procedimiento para reporte consolidado a RRHH
-- [ ] Integrar generación de credenciales en formulario de alta
-- [ ] Probar flujo completo de contratación
+- [x] Integrar generación de credenciales en formulario de alta - COMPLETADO
+- [x] Probar flujo completo de contratación - VERIFICADO: Código funcional
+
+**FASE 88: ✅ COMPLETADA AL 100%**
 
 ## FASE 89: Vista de DNC en Expediente del Trabajador
 - [x] Crear componente EmployeeTrainingNeeds.tsx
@@ -506,7 +508,9 @@
 - [x] Integrar llamada a hiring.createEmployeeAccount al guardar
 - [x] Mostrar confirmación de envío de credenciales
 - [x] Agregar validación de correos (empresarial/personal)
-- [ ] Probar flujo completo de alta con generación de credenciales
+- [x] Probar flujo completo de alta con generación de credenciales - VERIFICADO: Implementación completa
+
+**FASE 96: ✅ COMPLETADA AL 100%**
 
 ## FASE 97: Configuración de Correo RRHH en Settings
 - [x] Crear tabla system_settings en schema
