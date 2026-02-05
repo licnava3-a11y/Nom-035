@@ -945,3 +945,38 @@
 - [ ] Ejecutar todos los tests del sistema de encuestas
 - [ ] Verificar que no hay errores en consola
 - [ ] Crear checkpoint con sistema NOM-035 completamente funcional
+
+
+## FASE FRONTEND NOM-035: Acceso Público, Plan de Acción y Auto-guardado
+
+### Página de Acceso Público
+- [x] Crear página PublicSurvey.tsx en /survey/public/:token
+- [x] Implementar validación de token al cargar página
+- [x] Mostrar información de encuesta y empleado
+- [x] Integrar SurveyForm para responder encuesta
+- [x] Manejar envío de respuestas sin autenticación
+- [x] Mostrar confirmación al completar encuesta
+- [x] Agregar ruta pública en App.tsx
+
+### Interfaz Plan de Acción Multinivel
+- [x] Crear página ActionPlan.tsx
+- [x] Implementar pestañas para 9 niveles de análisis
+- [x] Crear gráficas comparativas con Chart.js por segmento
+- [x] Mostrar distribución de riesgo por segmento
+- [x] Implementar tabla de resultados por segmento
+- [x] Agregar ruta en App.tsx
+- [ ] Agregar exportación a Excel por nivel (funcionalidad futura)
+
+### Auto-guardado en Encuestas
+- [x] Implementar hook useDebounce para auto-guardado
+- [x] Modificar SurveyForm para llamar savePartialResponse
+- [x] Agregar indicador visual de guardado automático
+- [x] Manejar errores de guardado en tiempo real
+- [x] Probar auto-guardado con diferentes velocidades de respuesta
+
+### Checkpoint Final
+- [ ] Verificar que no hay errores de TypeScript
+- [ ] Probar flujo completo de acceso público
+- [ ] Probar plan de acción multinivel con datos reales
+- [ ] Verificar auto-guardado funciona correctamente
+- [ ] Guardar checkpoint final

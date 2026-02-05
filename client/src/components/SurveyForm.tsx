@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,11 @@ export default function SurveyForm({ surveyId, title, description, instructions,
   const [, setLocation] = useLocation();
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSavedAnswer, setLastSavedAnswer] = useState<{ questionId: number; value: string } | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  
+  // Debounce de respuestas para auto-guardado
+  const debouncedAnswers = useDebounce(answers, 1000);
 
   // Obtener preguntas de la encuesta
   const { data: questions, isLoading } = (trpc as any).surveys.getQuestions.useQuery(surveyId);
@@ -46,8 +52,33 @@ export default function SurveyForm({ surveyId, title, description, instructions,
     },
   });
 
+  // Mutation para auto-guardado
+  const savePartialMutation = (trpc as any).surveys.savePartialResponse.useMutation({
+    onSuccess: () => {
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    },
+    onError: () => {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    },
+  });
+
+  // Auto-guardar cuando cambian las respuestas (con debounce)
+  useEffect(() => {
+    if (!lastSavedAnswer) return;
+    
+    setSaveStatus('saving');
+    savePartialMutation.mutate({
+      surveyId,
+      questionId: lastSavedAnswer.questionId,
+      answerValue: lastSavedAnswer.value,
+    });
+  }, [debouncedAnswers]);
+
   const handleAnswerChange = (questionId: number, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
+    setLastSavedAnswer({ questionId, value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -145,8 +176,32 @@ export default function SurveyForm({ surveyId, title, description, instructions,
 
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Progreso: {Object.keys(answers).length} de {questions.length} preguntas
+              <div className="flex items-center gap-4">
+                <span className="text-muted-foreground">
+                  Progreso: {Object.keys(answers).length} de {questions.length} preguntas
+                </span>
+                {/* Indicador de auto-guardado */}
+                {saveStatus === 'saving' && (
+                  <span className="flex items-center gap-2 text-blue-600 text-xs">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Guardando...
+                  </span>
+                )}
+                {saveStatus === 'saved' && (
+                  <span className="flex items-center gap-2 text-green-600 text-xs">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Guardado
+                  </span>
+                )}
+                {saveStatus === 'error' && (
+                  <span className="flex items-center gap-2 text-red-600 text-xs">
+                    <AlertCircle className="h-3 w-3" />
+                    Error al guardar
+                  </span>
+                )}
+              </div>
+              <span className="text-muted-foreground text-xs">
+                Auto-guardado activado
               </span>
               <span className="font-medium">{Math.round(progress)}%</span>
             </div>

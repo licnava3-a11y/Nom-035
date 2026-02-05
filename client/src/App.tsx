@@ -53,6 +53,8 @@ import CorrectiveActions from "./pages/surveys/CorrectiveActions";
 import SurveyResults from "./pages/surveys/SurveyResults";
 import SurveyAdmin from "./pages/surveys/SurveyAdmin";
 import SurveySend from "./pages/SurveySend";
+import PublicSurvey from "./pages/surveys/PublicSurvey";
+import ActionPlan from "./pages/surveys/ActionPlan";
 import Settings from "./pages/Settings";
 
 function Router() {
@@ -302,6 +304,15 @@ function Router() {
       <Route path={"/surveys/admin"}>
         <DashboardLayout>
           <SurveyAdmin />
+        </DashboardLayout>
+      </Route>
+      {/* Ruta pública para responder encuestas sin autenticación */}
+      <Route path={"/survey/public/:token"}>
+        <PublicSurvey />
+      </Route>
+      <Route path={"/surveys/action-plan/:surveyId"}>
+        <DashboardLayout>
+          <ActionPlan />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
