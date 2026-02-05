@@ -11,6 +11,7 @@ import { signaturesRouter } from "./routers/signatures";
 import { documentsRouter } from "./routers/documents";
 import { importRouter } from "./routers/import";
 import { surveysRouter } from "./routers/surveys";
+import { surveysAdminRouter } from "./routers/surveysAdmin";
 import { trainingNeedsRouter } from "./routers/trainingNeeds";
 import { correctiveActionsRouter } from "./routers/correctiveActions";
 import { employeeDocumentsRouter } from "./routers/employeeDocuments";
@@ -54,6 +55,7 @@ export const appRouter = router({
   documents: documentsRouter,
   import: importRouter,
   surveys: surveysRouter,
+  surveysAdmin: surveysAdminRouter,
   correctiveActions: correctiveActionsRouter,
   employeeDocuments: employeeDocumentsRouter,
   jobProfiles: jobProfilesRouter,

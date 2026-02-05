@@ -60,6 +60,7 @@ import PublicSurvey from "./pages/surveys/PublicSurvey";
 import ActionPlan from "./pages/surveys/ActionPlan";
 import SampleSize from "./pages/surveys/SampleSize";
 import TokensDashboard from "./pages/surveys/TokensDashboard";
+import SurveysAdminPanel from "./pages/SurveysAdminPanel";
 import Settings from "./pages/Settings";
 
 function Router() {
@@ -342,6 +343,11 @@ function Router() {
       <Route path={"/surveys/tokens-dashboard"}>
         <DashboardLayout>
           <TokensDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/admin-panel"}>
+        <DashboardLayout>
+          <SurveysAdminPanel />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />
