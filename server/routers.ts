@@ -11,6 +11,7 @@ import { signaturesRouter } from "./routers/signatures";
 import { documentsRouter } from "./routers/documents";
 import { importRouter } from "./routers/import";
 import { surveysRouter } from "./routers/surveys";
+import { trainingNeedsRouter } from "./routers/trainingNeeds";
 import { correctiveActionsRouter } from "./routers/correctiveActions";
 import { employeeDocumentsRouter } from "./routers/employeeDocuments";
 import { jobProfilesRouter } from "./routers/jobProfiles";
@@ -60,6 +61,7 @@ export const appRouter = router({
   skillsMatrix: skillsMatrixRouter,
   meetingMinutes: meetingMinutesRouter,
   surveyDistribution: surveyDistributionRouter,
+  trainingNeeds: trainingNeedsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

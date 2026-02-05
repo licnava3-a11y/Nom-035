@@ -345,4 +345,75 @@ export const meetingMinutesRouter = router({
         { value: "Otra", label: "Otra" },
       ];
     }),
+
+  // Generar PDF de minuta
+  generatePDF: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = (await getDb())!;
+      
+      // Obtener minuta completa
+      const [minute] = await db
+        .select()
+        .from(meetingMinutes)
+        .where(eq(meetingMinutes.id, input.id));
+
+      if (!minute) {
+        throw new Error("Minuta no encontrada");
+      }
+
+      // Obtener participantes con firmas
+      const participants = await db
+        .select()
+        .from(meetingParticipants)
+        .where(eq(meetingParticipants.meetingMinuteId, input.id));
+
+      // Obtener adjuntos
+      const attachments = await db
+        .select()
+        .from(meetingAttachments)
+        .where(eq(meetingAttachments.meetingMinuteId, input.id));
+
+      // Importar generador PDF
+      const { generateMeetingMinutePDF } = await import('../pdfGenerator');
+
+      // Generar PDF
+      const pdfBuffer = await generateMeetingMinutePDF({
+        folio: minute.folio,
+        title: minute.title,
+        meetingDate: minute.meetingDate,
+        meetingType: minute.meetingType,
+        location: minute.location || '',
+        agenda: minute.agenda,
+        agreements: minute.agreements || '',
+        observations: minute.observations || '',
+        participants: participants.map(p => ({
+          name: p.name,
+          role: p.role || '',
+          curp: p.curp || '',
+          ineNumber: p.ineNumber || '',
+          signature: p.signature || '',
+          signedAt: p.signedAt,
+        })),
+        attachments: attachments.map(a => ({
+          fileName: a.fileName,
+          fileUrl: a.fileUrl,
+          fileType: a.fileType,
+        })),
+        qrCode: minute.qrCode || '',
+        createdAt: minute.createdAt,
+      });
+
+      // Subir PDF a S3
+      const fileName = `meeting-minutes/${minute.folio}-minuta.pdf`;
+      const { url: pdfUrl } = await storagePut(fileName, pdfBuffer, 'application/pdf');
+
+      // Actualizar minuta con URL del PDF
+      await db
+        .update(meetingMinutes)
+        .set({ updatedAt: new Date() })
+        .where(eq(meetingMinutes.id, input.id));
+
+      return { pdfUrl };
+    }),
 });

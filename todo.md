@@ -817,3 +817,74 @@
 - [ ] Agregar widget en página Home.tsx
 - [ ] Vincular widget a página de DNC para acción inmediata
 - [ ] Implementar gráfica de tendencias de brechas
+
+
+## FASE 122: Router DNC Adaptado al Schema Actual
+- [ ] Crear server/routers/trainingNeeds.ts usando enums del schema actual
+- [ ] Usar enums en español: status ("pendiente", "en_proceso", "completada", "cancelada")
+- [ ] Usar enums en español: priority ("baja", "media", "alta", "critica")
+- [ ] Usar enums en español: currentLevel ("ninguno", "basico", "intermedio", "avanzado", "experto")
+- [ ] Implementar procedimientos CRUD (create, update, delete, getById, list)
+- [ ] Implementar generateFromPerformanceEvaluation
+- [ ] Implementar generateFromSkillsMatrix
+- [ ] Registrar router en appRouter
+- [ ] Probar todos los procedimientos
+
+## FASE 123: Dashboard de Brechas Críticas Funcional
+- [ ] Crear procedimiento tRPC getTopSkillGaps en router de competencias
+- [ ] Calcular top 3 competencias con mayor brecha organizacional
+- [ ] Actualizar widget en Home.tsx con datos reales
+- [ ] Vincular widget a página de acción inmediata (DNC o capacitación)
+- [ ] Agregar gráfica de tendencias de brechas
+
+## FASE 124: Generación PDF de Minutas
+- [ ] Crear módulo server/pdfGenerators/minutas.ts
+- [ ] Implementar generador PDF con firmas digitales incluidas
+- [ ] Agregar código QR NOM-151 con URL de validación
+- [ ] Formato oficial en hoja carta (letter size)
+- [ ] Crear procedimiento tRPC meetings.generatePDF
+- [ ] Probar generación PDF con minutas existentes
+
+
+## FASE DNC: Sistema de Detección de Necesidades de Capacitación
+
+### Backend - Router trainingNeeds.ts
+- [x] Crear router trainingNeeds.ts con 10 procedimientos tRPC
+- [x] Implementar CRUD básico (create, update, delete, getById, list)
+- [x] Implementar procedimientos de aprobación (approve, reject, getPendingApprovals)
+- [x] Implementar generación automática desde evaluación de desempeño
+- [x] Implementar generación automática desde matriz de habilidades
+- [x] Implementar procedimiento getCriticalGaps para dashboard
+- [x] Adaptar todos los enums a español (pendiente, en_proceso, completada, cancelada)
+- [x] Registrar router en appRouter
+
+### Dashboard de Brechas Críticas
+- [x] Crear procedimiento getCriticalGaps en router trainingNeeds
+- [x] Calcular top 3 competencias con mayor brecha organizacional
+- [x] Actualizar widget en Dashboard.tsx para usar datos reales
+- [x] Implementar visualización con barras de progreso
+- [x] Agregar navegación a CompetenciesDashboard
+
+### Generación PDF de Minutas
+- [x] Crear procedimiento generatePDF en router meetingMinutes
+- [x] Implementar función generateMeetingMinutePDF en pdfGenerator.ts
+- [x] Incluir formato oficial hoja carta con encabezado y folio
+- [x] Agregar firmas digitales de participantes
+- [x] Incluir código QR NOM-151 para validación
+- [x] Integrar con S3 para almacenamiento del PDF
+- [x] Agregar pie de página con información legal y timestamp
+
+### Frontend - Páginas DNC
+- [ ] Crear página TrainingNeedsList.tsx con tabla y filtros
+- [ ] Crear página TrainingNeedNew.tsx para registro manual
+- [ ] Crear página TrainingNeedDetail.tsx para ver/editar
+- [ ] Implementar flujo de aprobación de necesidades
+- [ ] Agregar rutas en App.tsx
+- [ ] Agregar enlaces en menú de navegación
+
+### Pruebas y Checkpoint
+- [ ] Crear tests unitarios para router trainingNeeds
+- [ ] Probar generación automática de DNC desde evaluaciones
+- [ ] Probar dashboard de brechas críticas
+- [ ] Probar generación PDF de minutas
+- [ ] Guardar checkpoint con todas las funcionalidades

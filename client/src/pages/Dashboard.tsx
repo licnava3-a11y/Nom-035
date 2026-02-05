@@ -14,8 +14,8 @@ export default function Dashboard() {
   });
 
   // Get top 3 critical competency gaps for admin
-  const { data: criticalGaps, isLoading: gapsLoading } = trpc.competenciesStats.getTopGaps.useQuery(
-    { limit: 3 },
+  const { data: criticalGaps, isLoading: gapsLoading } = trpc.trainingNeeds.getCriticalGaps.useQuery(
+    undefined,
     { enabled: user?.role === "admin" }
   );
 
@@ -229,18 +229,18 @@ export default function Dashboard() {
                       <div className="flex items-center justify-between mb-1">
                         <h3 className="font-semibold text-gray-900">{gap.competencyName}</h3>
                         <span className="text-sm font-medium text-orange-600">
-                          {gap.employeesAffected} empleado{gap.employeesAffected !== 1 ? 's' : ''}
+                          {gap.affectedEmployees} empleado{gap.affectedEmployees !== 1 ? 's' : ''}
                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>Brecha promedio: <strong>{(gap.totalGap / gap.employeesAffected).toFixed(1)}</strong></span>
+                        <span>Brecha promedio: <strong>{Number(gap.avgGap).toFixed(1)}</strong></span>
                         <span className="text-gray-400">•</span>
                         <span className="capitalize">{gap.competencyType}</span>
                       </div>
                       <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-orange-500 h-2 rounded-full transition-all"
-                          style={{ width: `${((gap.totalGap / gap.employeesAffected) / 4) * 100}%` }}
+                          style={{ width: `${(Number(gap.avgGap) / 4) * 100}%` }}
                         ></div>
                       </div>
                     </div>

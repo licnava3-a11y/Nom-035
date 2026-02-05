@@ -497,3 +497,250 @@ export async function generateActaFinalResultadosPDF(data: ActaFinalResultadosDa
   const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
   return pdfBuffer;
 }
+
+interface MeetingMinuteParticipant {
+  name: string;
+  role: string;
+  curp: string;
+  ineNumber: string;
+  signature: string;
+  signedAt: Date | null;
+}
+
+interface MeetingMinuteAttachment {
+  fileName: string;
+  fileUrl: string;
+  fileType: string;
+}
+
+interface MeetingMinuteData {
+  folio: string;
+  title: string;
+  meetingDate: Date;
+  meetingType: string;
+  location: string;
+  agenda: string;
+  agreements: string;
+  observations: string;
+  participants: MeetingMinuteParticipant[];
+  attachments: MeetingMinuteAttachment[];
+  qrCode: string;
+  createdAt: Date;
+}
+
+/**
+ * Genera PDF de Minuta de Reunión con firmas digitales y código QR NOM-151
+ */
+export async function generateMeetingMinutePDF(data: MeetingMinuteData): Promise<Buffer> {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'letter', // 8.5" x 11"
+  });
+  
+  let currentY = 50;
+  
+  // Encabezado
+  addHeader(doc, data.folio, data.title);
+  
+  // Información general
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Información General', 20, currentY);
+  currentY += 8;
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  
+  // Fecha y tipo de reunión
+  const fechaReunion = new Date(data.meetingDate).toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  doc.text(`Fecha: ${fechaReunion}`, 20, currentY);
+  currentY += 7;
+  doc.text(`Tipo de Reunión: ${data.meetingType}`, 20, currentY);
+  currentY += 7;
+  
+  // Lugar
+  if (data.location) {
+    doc.text(`Lugar: ${data.location}`, 20, currentY);
+    currentY += 10;
+  } else {
+    currentY += 3;
+  }
+  
+  // Orden del día (Agenda)
+  doc.setFont('helvetica', 'bold');
+  doc.text('Orden del Día:', 20, currentY);
+  currentY += 6;
+  doc.setFont('helvetica', 'normal');
+  const agendaLines = doc.splitTextToSize(data.agenda, 170);
+  doc.text(agendaLines, 20, currentY);
+  currentY += agendaLines.length * 5 + 5;
+  
+  // Acuerdos tomados
+  if (data.agreements) {
+    if (currentY > 230) {
+      doc.addPage();
+      currentY = 50;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.text('Acuerdos Tomados:', 20, currentY);
+    currentY += 6;
+    doc.setFont('helvetica', 'normal');
+    const agreementsLines = doc.splitTextToSize(data.agreements, 170);
+    doc.text(agreementsLines, 20, currentY);
+    currentY += agreementsLines.length * 5 + 5;
+  }
+  
+  // Observaciones
+  if (data.observations) {
+    if (currentY > 230) {
+      doc.addPage();
+      currentY = 50;
+    }
+    doc.setFont('helvetica', 'bold');
+    doc.text('Observaciones:', 20, currentY);
+    currentY += 6;
+    doc.setFont('helvetica', 'normal');
+    const observationsLines = doc.splitTextToSize(data.observations, 170);
+    doc.text(observationsLines, 20, currentY);
+    currentY += observationsLines.length * 5 + 10;
+  }
+  
+  // Participantes y firmas
+  if (data.participants.length > 0) {
+    if (currentY > 200) {
+      doc.addPage();
+      currentY = 50;
+    }
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Participantes y Firmas', 20, currentY);
+    currentY += 8;
+    
+    doc.setFontSize(9);
+    
+    for (const participant of data.participants) {
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 50;
+      }
+      
+      // Nombre y rol
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${participant.name}`, 20, currentY);
+      currentY += 5;
+      
+      doc.setFont('helvetica', 'normal');
+      if (participant.role) {
+        doc.text(`Rol: ${participant.role}`, 20, currentY);
+        currentY += 5;
+      }
+      
+      // CURP e INE
+      if (participant.curp) {
+        doc.text(`CURP: ${participant.curp}`, 20, currentY);
+        currentY += 5;
+      }
+      if (participant.ineNumber) {
+        doc.text(`INE: ${participant.ineNumber}`, 20, currentY);
+        currentY += 5;
+      }
+      
+      // Firma digital
+      if (participant.signature) {
+        try {
+          doc.addImage(participant.signature, 'PNG', 20, currentY, 40, 15);
+          currentY += 17;
+          
+          if (participant.signedAt) {
+            doc.setFontSize(7);
+            doc.setTextColor(100, 100, 100);
+            doc.text(
+              `Firmado: ${new Date(participant.signedAt).toLocaleString('es-MX')}`,
+              20,
+              currentY
+            );
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(9);
+            currentY += 5;
+          }
+        } catch (error) {
+          console.error('Error adding signature image:', error);
+          doc.text('[Firma no disponible]', 20, currentY);
+          currentY += 5;
+        }
+      } else {
+        doc.text('_________________________', 20, currentY);
+        doc.text('Firma', 20, currentY + 5);
+        currentY += 10;
+      }
+      
+      currentY += 5;
+    }
+  }
+  
+  // Adjuntos
+  if (data.attachments.length > 0) {
+    if (currentY > 230) {
+      doc.addPage();
+      currentY = 50;
+    }
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Adjuntos', 20, currentY);
+    currentY += 8;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    
+    for (const attachment of data.attachments) {
+      if (currentY > 250) {
+        doc.addPage();
+        currentY = 50;
+      }
+      
+      doc.text(`• ${attachment.fileName} (${attachment.fileType})`, 20, currentY);
+      currentY += 5;
+    }
+    
+    currentY += 5;
+  }
+  
+  // Código QR NOM-151
+  if (data.qrCode) {
+    if (currentY > 220) {
+      doc.addPage();
+      currentY = 50;
+    }
+    
+    try {
+      const qrDataUrl = await generateQRCodeDataURL(data.qrCode);
+      doc.addImage(qrDataUrl, 'PNG', 160, currentY, 30, 30);
+      
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Código de Validación', 160, currentY + 33, { align: 'left' });
+      doc.text('NOM-151-SCFI-2016', 160, currentY + 37, { align: 'left' });
+      doc.setTextColor(0, 0, 0);
+    } catch (error) {
+      console.error('Error adding QR code:', error);
+    }
+  }
+  
+  // Pie de página
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    addFooter(doc, i, totalPages, data.createdAt);
+  }
+  
+  // Convertir a buffer
+  const pdfData = doc.output('arraybuffer');
+  return Buffer.from(pdfData);
+}
