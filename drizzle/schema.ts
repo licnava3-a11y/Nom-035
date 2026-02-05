@@ -922,6 +922,31 @@ export const trainingNeeds = mysqlTable("trainingNeeds", {
 export type TrainingNeed = typeof trainingNeeds.$inferSelect;
 export type InsertTrainingNeed = typeof trainingNeeds.$inferInsert;
 
+/**
+ * Organizational Competencies table - Transversal competencies required across the organization
+ * Includes soft skills (habilidades blandas) and organizational-wide competencies
+ */
+export const organizationalCompetencies = mysqlTable("organizationalCompetencies", {
+  id: int("id").autoincrement().primaryKey(),
+  competencyName: varchar("competencyName", { length: 255 }).notNull(),
+  competencyCategory: mysqlEnum("competencyCategory", [
+    "soft_skill", // Habilidades blandas (comunicación, liderazgo, trabajo en equipo)
+    "organizational", // Competencias organizacionales transversales
+    "leadership", // Competencias de liderazgo
+    "technical_transversal" // Competencias técnicas transversales
+  ]).notNull(),
+  description: text("description"),
+  requiredLevel: mysqlEnum("requiredLevel", ["basico", "intermedio", "avanzado", "experto"]).notNull(),
+  appliesToDepartments: text("appliesToDepartments"), // JSON array of department names, null = all departments
+  appliesToRoles: text("appliesToRoles"), // JSON array of role types, null = all roles
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OrganizationalCompetency = typeof organizationalCompetencies.$inferSelect;
+export type InsertOrganizationalCompetency = typeof organizationalCompetencies.$inferInsert;
+
 // Relations para jobProfiles
 export const jobProfilesRelations = relations(jobProfiles, ({ one }) => ({
   position: one(jobPositions, {

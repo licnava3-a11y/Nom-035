@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { jobProfiles, employeeCompetencies, trainingNeeds, employees, jobPositions } from "../../drizzle/schema";
+import { jobProfiles, employeeCompetencies, trainingNeeds, employees, jobPositions, organizationalCompetencies } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -231,6 +231,8 @@ export const jobProfilesRouter = router({
 
       // Calculate gaps and create training needs
       const needs: any[] = [];
+      
+      // 1. Process position-specific competencies
       for (const req of requirements) {
         const currentLevel = competencyMap.get(req.competencyName) || "ninguno";
         const gap = levelValue[req.requiredLevel] - levelValue[currentLevel];
@@ -248,6 +250,59 @@ export const jobProfilesRouter = router({
             competencyName: req.competencyName,
             competencyType: req.competencyType,
             requiredLevel: req.requiredLevel,
+            currentLevel: currentLevel as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
+            gap,
+            priority,
+            status: "pendiente" as const,
+            dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+          });
+        }
+      }
+
+      // 2. Process organizational competencies (soft skills & transversal)
+      const orgCompetencies = await db
+        .select()
+        .from(organizationalCompetencies)
+        .where(eq(organizationalCompetencies.isActive, true));
+
+      // Filter applicable organizational competencies
+      const applicableOrgCompetencies = orgCompetencies.filter((c) => {
+        const departments = c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null;
+        // If no department restriction or employee's department is in the list
+        return !departments || departments.includes(employee.department);
+      });
+
+      // Check gaps for organizational competencies
+      for (const orgComp of applicableOrgCompetencies) {
+        const currentLevel = competencyMap.get(orgComp.competencyName) || "ninguno";
+        const gap = levelValue[orgComp.requiredLevel] - levelValue[currentLevel];
+
+        if (gap > 0) {
+          // Soft skills and transversal competencies have slightly different priority logic
+          let priority: "baja" | "media" | "alta" | "critica";
+          if (orgComp.competencyCategory === "leadership") {
+            // Leadership competencies are high priority
+            if (gap >= 3) priority = "critica";
+            else if (gap >= 2) priority = "alta";
+            else priority = "media";
+          } else if (orgComp.competencyCategory === "soft_skill") {
+            // Soft skills are medium-high priority
+            if (gap >= 3) priority = "alta";
+            else if (gap === 2) priority = "media";
+            else priority = "baja";
+          } else {
+            // Organizational and technical_transversal
+            if (gap >= 3) priority = "critica";
+            else if (gap === 2) priority = "alta";
+            else if (gap === 1) priority = "media";
+            else priority = "baja";
+          }
+
+          needs.push({
+            employeeId: input.employeeId,
+            competencyName: orgComp.competencyName,
+            competencyType: "transversal" as const, // Mark as transversal
+            requiredLevel: orgComp.requiredLevel,
             currentLevel: currentLevel as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
             gap,
             priority,

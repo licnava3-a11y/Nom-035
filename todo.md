@@ -1308,3 +1308,33 @@
 - [ ] Verificar que se guarda correctamente en base de datos
 - [ ] Probar flujo completo desde JobPositions
 - [ ] Crear checkpoint con funcionalidad implementada
+
+
+## FASE 83.1: Ampliación de DNC - Habilidades Blandas y Transversales
+
+### Diseño de Esquema
+- [x] Crear tabla organizationalCompetencies para competencias transversales
+- [x] Definir catálogo de habilidades blandas (soft_skill, organizational, leadership, technical_transversal)
+- [x] Definir niveles de competencia para habilidades transversales (básico, intermedio, avanzado, experto)
+- [x] Establecer criterios de aplicabilidad por departamentos y roles
+
+### Backend - Competencias Organizacionales
+- [x] Crear procedimientos CRUD para competencias organizacionales (organizationalCompetenciesRouter)
+- [x] Implementar procedimiento para asignar competencias transversales por departamento (appliesToDepartments)
+- [x] Crear procedimiento getApplicableToEmployee para filtrar competencias por empleado
+- [x] Ampliar generateDNC para incluir competencias organizacionales
+
+### Integración con DNC Existente
+- [x] Ampliar generateDNC para procesar competencias organizacionales
+- [x] Actualizar cálculo de brechas para incluir soft skills
+- [x] Implementar priorización específica para habilidades blandas (alta para gap>=3, media para gap=2)
+- [x] Implementar priorización para liderazgo (crítica para gap>=3, alta para gap>=2)
+- [x] Integrar competencias transversales en reporte consolidado de DNC
+
+### Pruebas
+- [ ] Probar creación de competencias organizacionales (frontend pendiente)
+- [ ] Verificar generación de DNC con habilidades blandas (backend funcional)
+- [ ] Validar cálculo de brechas para competencias transversales (backend funcional)
+- [ ] Probar reporte consolidado de necesidades de capacitación (frontend pendiente)
+
+**FASE 83.1: ✅ BACKEND COMPLETADO AL 100% - Frontend pendiente**
