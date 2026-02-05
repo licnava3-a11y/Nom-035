@@ -358,6 +358,26 @@ export const jobProfilesRouter = router({
     }),
 
   /**
+   * Get ALL training needs (for DNC dashboard)
+   */
+  getAllTrainingNeeds: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Database connection failed",
+      });
+    }
+
+    const needs = await db
+      .select()
+      .from(trainingNeeds)
+      .orderBy(desc(trainingNeeds.priority), trainingNeeds.competencyName);
+
+    return needs;
+  }),
+
+  /**
    * Update training need status
    */
   updateTrainingNeedStatus: protectedProcedure

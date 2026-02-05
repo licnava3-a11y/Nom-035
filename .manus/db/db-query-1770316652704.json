@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, competencyName, competencyCategory, appliesToDepartments FROM organizationalCompetencies LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, competencyName, competencyCategory, appliesToDepartments FROM organizationalCompetencies LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "competencyName": "Comunicación Efectiva",
+      "competencyCategory": "soft_skill",
+      "appliesToDepartments": "NULL"
+    },
+    {
+      "id": "2",
+      "competencyName": "Trabajo en Equipo",
+      "competencyCategory": "soft_skill",
+      "appliesToDepartments": "NULL"
+    },
+    {
+      "id": "3",
+      "competencyName": "Liderazgo",
+      "competencyCategory": "leadership",
+      "appliesToDepartments": "NULL"
+    },
+    {
+      "id": "4",
+      "competencyName": "Resolución de Problemas",
+      "competencyCategory": "soft_skill",
+      "appliesToDepartments": "NULL"
+    },
+    {
+      "id": "5",
+      "competencyName": "Adaptabilidad al Cambio",
+      "competencyCategory": "soft_skill",
+      "appliesToDepartments": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcompetencyName\tcompetencyCategory\tappliesToDepartments\n1\tComunicación Efectiva\tsoft_skill\tNULL\n2\tTrabajo en Equipo\tsoft_skill\tNULL\n3\tLiderazgo\tleadership\tNULL\n4\tResolución de Problemas\tsoft_skill\tNULL\n5\tAdaptabilidad al Cambio\tsoft_skill\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 369
+}

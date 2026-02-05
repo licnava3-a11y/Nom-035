@@ -121,6 +121,9 @@ export const organizationalCompetenciesRouter = router({
 
       // Filter competencies applicable to this employee
       const applicableCompetencies = allCompetencies.filter((c) => {
+        // Handle special case: "all" means applies to everyone
+        if (c.appliesToDepartments === "all") return true;
+
         const departments = c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null;
         const roles = c.appliesToRoles ? JSON.parse(c.appliesToRoles) : null;
 
@@ -138,7 +141,7 @@ export const organizationalCompetenciesRouter = router({
 
       return applicableCompetencies.map((c) => ({
         ...c,
-        appliesToDepartments: c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null,
+        appliesToDepartments: c.appliesToDepartments === "all" ? "all" : (c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null),
         appliesToRoles: c.appliesToRoles ? JSON.parse(c.appliesToRoles) : null,
       }));
     }),

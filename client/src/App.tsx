@@ -33,6 +33,8 @@ import EmployeeDocuments from "./pages/EmployeeDocuments";
 import EmployeeTrainingNeeds from "./pages/EmployeeTrainingNeeds";
 import CompetenciesDashboard from "./pages/CompetenciesDashboard";
 import SkillsMatrix from "./pages/SkillsMatrix";
+import EmployeeCompetencyEvaluation from "./pages/EmployeeCompetencyEvaluation";
+import DNCDashboard from "./pages/DNCDashboard";
 import MeetingMinutes from "./pages/MeetingMinutes";
 import MeetingMinuteForm from "./pages/MeetingMinuteForm";
 import Documents from "./pages/Documents";
@@ -136,13 +138,21 @@ function Router() {
         <DashboardLayout>
           <CompetenciesDashboard />
         </DashboardLayout>
-      </Route>
-      <Route path={"/skills-matrix"}>
+      </Route>      <Route path={"/skills-matrix"}>
         <DashboardLayout>
           <SkillsMatrix />
         </DashboardLayout>
       </Route>
-      <Route path={"/meeting-minutes"}>
+      <Route path={" /competency-evaluation"}>
+        <DashboardLayout>
+          <EmployeeCompetencyEvaluation />
+        </DashboardLayout>
+      </Route>
+      <Route path="/dnc-dashboard">
+        <DashboardLayout>
+          <DNCDashboard />
+        </DashboardLayout>
+      </Route>      <Route path={"/meeting-minutes"}>
         <DashboardLayout>
           <MeetingMinutes />
         </DashboardLayout>

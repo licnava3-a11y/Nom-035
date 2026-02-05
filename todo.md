@@ -1352,3 +1352,29 @@
 - Organizacionales: 5 competencias (Pensamiento Crítico, Gestión del Tiempo, Ética Profesional, etc.)
 
 **FASE 83.2: ✅ COMPLETADA AL 100%**
+
+
+## FASE 83.3: Formulario de Evaluación de Competencias Organizacionales
+- [ ] Crear componente EmployeeCompetencyEvaluation.tsx
+- [ ] Implementar selección de empleado con autocomplete
+- [ ] Mostrar competencias organizacionales aplicables al empleado
+- [ ] Implementar escala de evaluación (ninguno, básico, intermedio, avanzado, experto)
+- [ ] Calcular y mostrar brechas (gaps) automáticamente
+- [ ] Integrar con procedimientos tRPC (addEmployeeCompetency, getEmployeeCompetencies)
+- [ ] Agregar ruta en App.tsx
+- [ ] Probar funcionalidad completa
+- [ ] Crear checkpoint
+
+
+## FASE 83.4: Frontend de DNC Consolidada
+- [x] Crear componente DNCDashboard.tsx con vista consolidada (100% completado)
+- [x] Implementar filtros por empleado, departamento, prioridad y estado (4 filtros operativos)
+- [x] Crear tabla detallada con información de brechas y competencias (mostrando 3 registros)
+- [x] Agregar gráficos de distribución por categoría (técnicas, blandas, transversales, liderazgo) (con barras de progreso)
+- [x] Agregar gráficos de distribución por prioridad (baja, media, alta, crítica) (con barras de progreso)
+- [x] Crear procedimiento getAllTrainingNeeds en backend (sin filtro por empleado)
+- [ ] Implementar exportación a Excel con análisis detallado (funcionalidad pendiente)
+- [x] Agregar ruta en App.tsx y enlace en navegación (/dnc-dashboard)
+- [x] Probar funcionalidad completa con datos reales (dashboard funcional al 100%)
+
+**FASE 83.4: ✅ COMPLETADA AL 95% - Solo falta exportación a Excel**
