@@ -291,7 +291,18 @@
 - [ ] Validar gráficas estadísticas
 - [ ] Probar comparación entre periodos
 
-## FASE 77: Sistema de Tokens de Acceso Anónimo
+## FASE 77: Implementación de Funcionalidad "Crear Análisis de Puesto"
+- [x] Revisar estructura de base de datos (tabla jobPositions existente)
+- [x] Crear procedimientos tRPC (create, update en routers.ts)
+- [x] Implementar funciones de base de datos (createJobPosition, updateJobPosition en db.ts)
+- [x] Crear componente JobAnalysisDialog con formulario completo
+- [x] Actualizar JobPositions.tsx para usar datos reales de la base de datos
+- [x] Conectar formulario con procedimientos tRPC
+- [x] Probar funcionalidad en navegador (creación exitosa)
+- [x] Verificar que el nuevo puesto aparece en la lista
+- [x] Confirmar actualización de contador de puestos
+
+## FASE 78: Sistema de Tokens de Acceso Anónimo
 
 ### Backend - Gestión de Tokens
 - [ ] Crear tabla survey_tokens en schema
@@ -1262,3 +1273,27 @@
 - [ ] Corregir errores de navegación encontrados
 - [ ] Verificar que reload funcione en caso de error
 - [ ] Guardar checkpoint final con todas las correcciones
+
+
+## FASE 77: Implementación de Análisis de Puesto
+
+### Backend - Schema y Procedimientos
+- [ ] Revisar si existe tabla job_analysis en schema
+- [ ] Crear/actualizar tabla job_analysis con campos necesarios
+- [ ] Crear procedimiento tRPC para crear análisis de puesto
+- [ ] Crear procedimiento tRPC para listar análisis de puestos
+- [ ] Crear procedimiento tRPC para obtener detalle de análisis
+- [ ] Crear procedimiento tRPC para actualizar análisis
+
+### Frontend - Formulario de Creación
+- [ ] Crear componente JobAnalysisForm.tsx
+- [ ] Implementar campos del formulario (título, descripción, requisitos, competencias)
+- [ ] Conectar formulario con procedimientos tRPC
+- [ ] Agregar validaciones
+- [ ] Implementar navegación desde JobPositions.tsx
+
+### Integración y Pruebas
+- [ ] Probar creación de análisis de puesto
+- [ ] Verificar que se guarda correctamente en base de datos
+- [ ] Probar flujo completo desde JobPositions
+- [ ] Crear checkpoint con funcionalidad implementada

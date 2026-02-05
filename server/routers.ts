@@ -663,6 +663,33 @@ export const appRouter = router({
         const functions = await db.getJobFunctionsByPositionId(input.id);
         return { ...position, functions };
       }),
+    create: instructorProcedure
+      .input(z.object({
+        positionName: z.string().min(1, 'El nombre del puesto es requerido'),
+        department: z.string().optional(),
+        description: z.string().optional(),
+        riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const position = await db.createJobPosition({
+          ...input,
+          createdBy: ctx.user.id,
+        });
+        return position;
+      }),
+    update: instructorProcedure
+      .input(z.object({
+        id: z.number(),
+        positionName: z.string().min(1, 'El nombre del puesto es requerido').optional(),
+        department: z.string().optional(),
+        description: z.string().optional(),
+        riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await db.updateJobPosition(id, data);
+        return { success: true };
+      }),
   }),
 
   // Mailbox

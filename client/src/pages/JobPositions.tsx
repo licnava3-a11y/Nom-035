@@ -1,15 +1,22 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, AlertTriangle, TrendingUp, Plus, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
+import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
 
 export default function JobPositions() {
   const { user } = useAuth();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Datos de ejemplo - en producción vendrían de la API
-  const jobPositions = [
+  // Obtener puestos reales de la base de datos
+  const { data: jobPositions = [], refetch } = trpc.jobPositions.list.useQuery();
+
+  // Datos de ejemplo para demostración (se mostrarán si no hay datos reales)
+  const examplePositions = [
     {
       id: 1,
       title: "Gerente de Recursos Humanos",
@@ -57,6 +64,23 @@ export default function JobPositions() {
     },
   ];
 
+  // Usar datos reales si existen, si no usar ejemplos
+  const displayPositions = jobPositions.length > 0 ? jobPositions.map(pos => ({
+    id: pos.id,
+    title: pos.positionName,
+    department: pos.department || 'Sin departamento',
+    employees: 0, // TODO: calcular empleados por puesto
+    riskLevel: pos.riskLevel === 'low' ? 'bajo' : pos.riskLevel === 'medium' ? 'medio' : pos.riskLevel === 'high' ? 'alto' : 'muy_alto',
+    lastAnalysis: new Date(pos.createdAt).toISOString().split('T')[0],
+    factors: {
+      workload: 2,
+      control: 3,
+      leadership: 3,
+      relationships: 3,
+      workEnvironment: 3,
+    },
+  })) : examplePositions;
+
   const getRiskBadge = (level: string) => {
     switch (level) {
       case "bajo":
@@ -86,7 +110,7 @@ export default function JobPositions() {
           </p>
         </div>
         {(user?.role === "admin" || user?.role === "instructor") && (
-          <Button onClick={() => toast.info("Funcionalidad en desarrollo: Crear nuevo análisis de puesto")}>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Análisis
           </Button>
@@ -101,7 +125,7 @@ export default function JobPositions() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{jobPositions.length}</div>
+            <div className="text-2xl font-bold">{displayPositions.length}</div>
             <p className="text-xs text-muted-foreground">Total de puestos</p>
           </CardContent>
         </Card>
@@ -113,7 +137,7 @@ export default function JobPositions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
-              {jobPositions.filter((p) => p.riskLevel === "alto").length}
+              {displayPositions.filter((p) => p.riskLevel === "alto").length}
             </div>
             <p className="text-xs text-muted-foreground">Requieren atención</p>
           </CardContent>
@@ -126,7 +150,7 @@ export default function JobPositions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {jobPositions.reduce((acc, p) => acc + p.employees, 0)}
+              {displayPositions.reduce((acc, p) => acc + p.employees, 0)}
             </div>
             <p className="text-xs text-muted-foreground">Total evaluados</p>
           </CardContent>
@@ -147,7 +171,16 @@ export default function JobPositions() {
       {/* Job Positions List */}
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Puestos de Trabajo</h2>
-        {jobPositions.map((position) => (
+        {displayPositions.length === 0 && (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">
+                No hay puestos registrados. Crea el primer análisis de puesto.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+        {displayPositions.map((position) => (
           <Card key={position.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -291,6 +324,13 @@ export default function JobPositions() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Diálogo de creación */}
+      <JobAnalysisDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSuccess={refetch}
+      />
     </div>
   );
 }

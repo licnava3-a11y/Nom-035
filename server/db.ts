@@ -365,6 +365,20 @@ export async function getJobFunctionsByPositionId(positionId: number) {
   return await db.select().from(jobFunctions).where(eq(jobFunctions.positionId, positionId));
 }
 
+export async function createJobPosition(data: typeof jobPositions.$inferInsert) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  const result = await db.insert(jobPositions).values(data);
+  return { id: Number(result[0].insertId), ...data };
+}
+
+export async function updateJobPosition(id: number, data: Partial<typeof jobPositions.$inferInsert>) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  await db.update(jobPositions).set(data).where(eq(jobPositions.id, id));
+  return { id, ...data };
+}
+
 // Performance evaluations
 export async function getPerformanceEvaluationsByUserId(userId: number) {
   const db = await getDb();
