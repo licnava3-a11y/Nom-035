@@ -88,6 +88,25 @@ export default function SurveyResults() {
     enabled: !!responseId,
   });
 
+  const exportPDFMutation = trpc.surveys.generateConsolidatedReport.useMutation({
+    onSuccess: (result) => {
+      // Abrir PDF en nueva pestaña
+      window.open(result.pdfUrl, '_blank');
+    },
+    onError: (error) => {
+      alert(`Error al generar PDF: ${error.message}`);
+    },
+  });
+
+  const handleExportPDF = () => {
+    if (!data) return;
+    
+    exportPDFMutation.mutate({
+      surveyIds: [data.survey.id],
+      includeMultilevelAnalysis: false,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="container py-8">
@@ -157,9 +176,13 @@ export default function SurveyResults() {
           <h1 className="text-3xl font-bold mt-2">Resultados de Encuesta</h1>
           <p className="text-muted-foreground">{survey.title}</p>
         </div>
-        <Button variant="outline">
+        <Button 
+          variant="outline"
+          onClick={handleExportPDF}
+          disabled={exportPDFMutation.isPending}
+        >
           <Download className="h-4 w-4 mr-2" />
-          Descargar PDF
+          {exportPDFMutation.isPending ? 'Generando PDF...' : 'Descargar PDF'}
         </Button>
       </div>
 

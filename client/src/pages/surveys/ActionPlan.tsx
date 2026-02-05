@@ -69,6 +69,18 @@ export default function ActionPlan() {
     },
   });
 
+  // Mutation para exportar a PDF
+  const exportPDFMutation = trpc.surveys.generateConsolidatedReport.useMutation({
+    onSuccess: (result) => {
+      // Abrir PDF en nueva pestaña
+      window.open(result.pdfUrl, '_blank');
+      toast.success('Reporte PDF generado exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al generar PDF: ${error.message}`);
+    },
+  });
+
   const handleExport = () => {
     const analysisTypeMap: Record<string, any> = {
       organizational: 'organizational',
@@ -109,14 +121,27 @@ export default function ActionPlan() {
             Análisis de resultados de encuestas NOM-035 por diferentes segmentos organizacionales
           </p>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={handleExport}
-          disabled={exportMutation.isPending}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          {exportMutation.isPending ? 'Exportando...' : 'Exportar Reporte Completo'}
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleExport}
+            disabled={exportMutation.isPending}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {exportMutation.isPending ? 'Exportando...' : 'Exportar Excel'}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => exportPDFMutation.mutate({
+              surveyIds: [surveyId],
+              includeMultilevelAnalysis: true,
+            })}
+            disabled={exportPDFMutation.isPending}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {exportPDFMutation.isPending ? 'Generando PDF...' : 'Exportar PDF'}
+          </Button>
+        </div>
       </div>
 
       {/* Tabs para diferentes niveles de análisis */}

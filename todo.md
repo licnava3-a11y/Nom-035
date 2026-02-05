@@ -1166,3 +1166,29 @@
 - [x] Usar alternativa ligera para PDFs (tablas con colores en lugar de gráficas)
 - [x] Probar generador PDF sin canvas (compilación exitosa)
 - [ ] Guardar checkpoint con corrección
+
+
+## FASE VALIDACIONES Y EXPORTACIÓN PDF
+
+### Validaciones en Tiempo Real
+- [x] Leer archivo shared/validators.ts para entender funciones disponibles
+- [x] Leer formulario EmployeeNew.tsx
+- [x] Crear hook useValidation con funciones de validación
+- [x] Agregar validación en tiempo real de CURP con mensajes de error
+- [x] Mostrar indicadores visuales (✓ válido / ✗ inválido)
+- [x] Borde verde/rojo según validación
+- [ ] Agregar validación en tiempo real de RFC con mensajes de error (futuro)
+- [ ] Agregar validación en tiempo real de NSS con mensajes de error (futuro)
+- [ ] Agregar verificación de correo único contra base de datos (futuro)
+- [ ] Probar validaciones en formulario (pruebas manuales)
+
+### Exportación a PDF de Resultados
+- [x] Leer página SurveyResults.tsx
+- [x] Agregar botón "Exportar a PDF" en SurveyResults
+- [x] Conectar con procedimiento generateConsolidatedReport
+- [x] Implementar descarga automática del PDF (abre en nueva pestaña)
+- [x] Leer página ActionPlan.tsx
+- [x] Agregar botón "Exportar a PDF" en ActionPlan
+- [x] Conectar con procedimiento generateConsolidatedReport
+- [x] Implementar descarga automática del PDF (abre en nueva pestaña)
+- [ ] Probar exportación desde ambas páginas (pruebas manuales)

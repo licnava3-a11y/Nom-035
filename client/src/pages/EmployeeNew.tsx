@@ -12,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, XCircle } from "lucide-react";
+import { useValidation } from "@/hooks/useValidation";
 
 export default function EmployeeNew() {
   const [, setLocation] = useLocation();
@@ -40,6 +41,9 @@ export default function EmployeeNew() {
     message: string;
     data?: any;
   } | null>(null);
+
+  // Hook de validaciones en tiempo real
+  const { validations, validateCURPField, validateRFCField, validateNSSField } = useValidation();
 
   // Fetch departments for dropdown
   const { data: departments } = trpc.employees.getDepartments.useQuery();
@@ -113,6 +117,12 @@ export default function EmployeeNew() {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    
+    // Validaciones en tiempo real
+    if (field === 'curp' && value.length === 18) {
+      validateCURPField(value);
+    }
+    
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => {
@@ -273,23 +283,45 @@ export default function EmployeeNew() {
 
               <div className="space-y-2">
                 <Label htmlFor="curp">CURP</Label>
-                <Input
-                  id="curp"
-                  value={formData.curp}
-                  onChange={(e) => handleChange("curp", e.target.value.toUpperCase())}
-                  onBlur={handleCURPBlur}
-                  placeholder="PEGG850101HCHRRN09"
-                  maxLength={18}
-                  className={errors.curp ? "border-destructive" : ""}
-                />
+                <div className="relative">
+                  <Input
+                    id="curp"
+                    value={formData.curp}
+                    onChange={(e) => handleChange("curp", e.target.value.toUpperCase())}
+                    onBlur={handleCURPBlur}
+                    placeholder="PEGG850101HCHRRN09"
+                    maxLength={18}
+                    className={`pr-10 ${
+                      errors.curp || (validations.curp && !validations.curp.valid)
+                        ? "border-destructive"
+                        : validations.curp?.valid
+                        ? "border-green-500"
+                        : ""
+                    }`}
+                  />
+                  {validations.curp && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {validations.curp.valid ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-destructive" />
+                      )}
+                    </div>
+                  )}
+                </div>
                 {errors.curp && (
                   <p className="text-sm text-destructive">{errors.curp}</p>
                 )}
-                {curpValidation && (
-                  <p className={`text-sm ${
-                    curpValidation.valid ? "text-green-600" : "text-destructive"
-                  }`}>
-                    {curpValidation.message}
+                {validations.curp && !validations.curp.valid && (
+                  <p className="text-sm text-destructive flex items-center gap-1">
+                    <XCircle className="h-4 w-4" />
+                    {validations.curp.error}
+                  </p>
+                )}
+                {validations.curp?.valid && (
+                  <p className="text-sm text-green-600 flex items-center gap-1">
+                    <CheckCircle2 className="h-4 w-4" />
+                    CURP válida
                   </p>
                 )}
                 {curpValidation?.valid && curpValidation.data && (
