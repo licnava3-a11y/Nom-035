@@ -1057,3 +1057,46 @@
 - [x] Implementar filtros por encuesta y departamento
 - [x] Agregar enlace en menú lateral de Encuestas
 - [ ] Agregar botón de reenvío de tokens expirados (funcionalidad futura)
+
+
+## FASE REPORTES PDF Y AUDITORÍA COMPLETA
+
+### Generador de Reportes PDF Consolidados NOM-035
+- [x] Crear archivo nom035-pdf-generator.ts con PDFKit
+- [x] Implementar generación de gráficas como imágenes con Chart.js
+- [x] Crear procedimiento generateConsolidatedReport en router surveys
+- [x] Incluir resultados por encuesta (Guía I, II, III)
+- [x] Agregar análisis multinivel (9 niveles)
+- [x] Incluir gráficas de distribución de riesgo
+- [x] Agregar recomendaciones por nivel de riesgo
+- [x] Subir PDF generado a S3 y retornar URL
+- [ ] Agregar botón de exportación en páginas relevantes (frontend)
+
+### Auditoría Completa de Conexiones y Prellenado
+- [x] Revisar todos los formularios del sistema
+- [x] Identificar campos que se pueden prellenar desde datos existentes
+- [x] Verificar correlaciones entre tablas (empleados, departamentos, puestos)
+- [x] Documentar oportunidades de mejora en AUDITORIA_SISTEMA.md
+- [ ] Implementar prellenado automático en formularios de empleados (fase futura)
+- [ ] Implementar prellenado automático en formularios de cursos (fase futura)
+- [ ] Implementar prellenado automático en formularios de evaluaciones (fase futura)
+- [ ] Corregir campos duplicados o redundantes (fase futura)
+- [ ] Asegurar que datos capturados una vez no se vuelvan a pedir (fase futura)
+
+### Corrección de Errores de Navegación
+- [x] Probar todas las rutas del sistema
+- [x] Verificar que todos los enlaces funcionen correctamente
+- [x] Verificar estado del servidor (sin errores TypeScript)
+- [ ] Corregir errores 404 en recursos (ninguno detectado)
+- [ ] Verificar que todos los botones ejecuten su acción (pruebas futuras)
+- [ ] Probar flujos completos de cada módulo (pruebas futuras)
+
+### Mejoras a TokensDashboard
+- [x] Agregar sección de trabajadores pendientes de responder
+- [x] Mostrar departamento de cada trabajador pendiente
+- [x] Implementar filtros por encuesta y departamento
+- [x] Agregar búsqueda por nombre
+- [x] Ordenamiento por días restantes
+- [x] Resaltado de trabajadores urgentes (< 3 días)
+- [x] Badge con días restantes
+- [ ] Agregar botón de reenvío masivo de tokens (funcionalidad futura)

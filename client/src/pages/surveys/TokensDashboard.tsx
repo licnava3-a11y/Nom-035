@@ -299,6 +299,85 @@ export default function TokensDashboard() {
         </Card>
       </div>
 
+      {/* Trabajadores Pendientes de Responder */}
+      {stats.pendingTokens > 0 && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Clock className="h-5 w-5 text-yellow-600" />
+            Trabajadores Pendientes de Responder ({stats.tokens.filter(t => t.status === 'pendiente').length})
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left p-3 font-semibold">Empleado</th>
+                  <th className="text-left p-3 font-semibold">Departamento</th>
+                  <th className="text-left p-3 font-semibold">Email</th>
+                  <th className="text-left p-3 font-semibold">Encuesta</th>
+                  <th className="text-left p-3 font-semibold">Expira</th>
+                  <th className="text-left p-3 font-semibold">Días Restantes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.tokens
+                  .filter(t => t.status === 'pendiente')
+                  .sort((a, b) => {
+                    // Ordenar por días restantes (ascendente)
+                    const daysA = a.expiresAt ? Math.ceil((new Date(a.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+                    const daysB = b.expiresAt ? Math.ceil((new Date(b.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+                    return daysA - daysB;
+                  })
+                  .map((token) => {
+                    const daysRemaining = token.expiresAt
+                      ? Math.ceil((new Date(token.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                      : 0;
+                    const isUrgent = daysRemaining <= 3;
+
+                    return (
+                      <tr
+                        key={token.tokenId}
+                        className={`border-b hover:bg-muted/50 ${
+                          isUrgent ? 'bg-red-50' : ''
+                        }`}
+                      >
+                        <td className="p-3 font-medium">{token.employeeName}</td>
+                        <td className="p-3">
+                          <Badge variant="outline">{token.department || 'Sin departamento'}</Badge>
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground">{token.employeeEmail}</td>
+                        <td className="p-3 text-sm">{token.surveyTitle}</td>
+                        <td className="p-3 text-sm">
+                          {token.expiresAt ? new Date(token.expiresAt).toLocaleDateString('es-MX') : '-'}
+                        </td>
+                        <td className="p-3">
+                          {daysRemaining > 0 ? (
+                            <Badge
+                              className={`${
+                                isUrgent
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}
+                            >
+                              {daysRemaining} {daysRemaining === 1 ? 'día' : 'días'}
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-800">Vencido</Badge>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <strong>Nota:</strong> Los trabajadores marcados en rojo tienen menos de 3 días para completar la encuesta.
+            </p>
+          </div>
+        </Card>
+      )}
+
       {/* Tabla de tokens */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Detalle de Tokens ({filteredTokens.length})</h2>

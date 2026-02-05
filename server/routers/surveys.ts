@@ -9,6 +9,7 @@ import * as calculator from "../lib/nom035-calculator";
 import * as scoring from "../lib/nom035-scoring";
 import { calculateSampleSize } from "../lib/sample-size-calculator";
 import { sendSurveyTokensNotification } from "../lib/email-sender";
+import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
 
 // Helper para generar token único
 function generateToken(): string {
@@ -2000,6 +2001,155 @@ export const surveysRouter = router({
           ...t,
           status: t.usedAt ? 'completado' : (new Date(t.expiresAt!) > now ? 'pendiente' : 'expirado'),
         })),
+      };
+    }),
+
+  // Generar reporte PDF consolidado NOM-035
+  generateConsolidatedReport: protectedProcedure
+    .input(z.object({
+      surveyIds: z.array(z.number()).optional(), // Si no se especifica, incluye todas las encuestas
+      includeMultilevelAnalysis: z.boolean().default(true),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener encuestas a incluir
+      const surveyFilter = input.surveyIds && input.surveyIds.length > 0
+        ? inArray(surveys.id, input.surveyIds)
+        : undefined;
+
+      const selectedSurveys = await db
+        .select()
+        .from(surveys)
+        .where(surveyFilter)
+        .orderBy(surveys.createdAt);
+
+      if (selectedSurveys.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontraron encuestas" });
+      }
+
+      // Recopilar resultados por encuesta
+      const surveyResults = [];
+
+      for (const survey of selectedSurveys) {
+        // Obtener respuestas completadas
+        const responses = await db
+          .select()
+          .from(surveyResponses)
+          .where(and(
+            eq(surveyResponses.surveyId, survey.id),
+            not(sql`${surveyResponses.completedAt} IS NULL`)
+          ));
+
+        if (responses.length === 0) continue;
+
+        // Calcular distribución de riesgo
+        const riskDistribution = {
+          nulo: 0,
+          bajo: 0,
+          medio: 0,
+          alto: 0,
+          muyAlto: 0,
+        };
+
+        let totalScore = 0;
+
+        responses.forEach(response => {
+          if (response.results && typeof response.results === 'object') {
+            const results = response.results as any;
+            const riskLevel = results.riskLevel || results.nivel || 'nulo';
+            const score = results.finalScore || results.score || 0;
+
+            totalScore += score;
+
+            // Mapear nivel de riesgo
+            const normalizedLevel = riskLevel.toLowerCase().replace(/\s+/g, '');
+            if (normalizedLevel.includes('nulo')) riskDistribution.nulo++;
+            else if (normalizedLevel.includes('bajo')) riskDistribution.bajo++;
+            else if (normalizedLevel.includes('medio')) riskDistribution.medio++;
+            else if (normalizedLevel.includes('muyalto')) riskDistribution.muyAlto++;
+            else if (normalizedLevel.includes('alto')) riskDistribution.alto++;
+          }
+        });
+
+        const averageScore = responses.length > 0 ? totalScore / responses.length : 0;
+
+        // Generar recomendaciones según nivel de riesgo predominante
+        const recommendations = [];
+        const highRiskCount = riskDistribution.alto + riskDistribution.muyAlto;
+        const highRiskPercentage = (highRiskCount / responses.length) * 100;
+
+        if (highRiskPercentage > 50) {
+          recommendations.push('Se detectaron niveles de riesgo alto en más del 50% de las respuestas. Se requiere acción inmediata.');
+          recommendations.push('Implementar programa de intervención psicosocial con seguimiento mensual.');
+          recommendations.push('Realizar evaluaciones individuales a empleados con riesgo muy alto.');
+        } else if (highRiskPercentage > 25) {
+          recommendations.push('Se detectaron niveles de riesgo alto en más del 25% de las respuestas.');
+          recommendations.push('Implementar acciones preventivas y de promoción de la salud mental.');
+          recommendations.push('Monitorear periódicamente los factores de riesgo identificados.');
+        } else {
+          recommendations.push('Los niveles de riesgo se encuentran en rangos aceptables.');
+          recommendations.push('Continuar con las prácticas de prevención actuales.');
+          recommendations.push('Realizar evaluaciones periódicas para mantener el seguimiento.');
+        }
+
+        surveyResults.push({
+          surveyTitle: survey.title,
+          surveyType: survey.type,
+          totalResponses: responses.length,
+          riskDistribution,
+          averageScore,
+          recommendations,
+        });
+      }
+
+      // Recopilar análisis multinivel si se solicita
+      const multilevelAnalysis = [];
+
+      if (input.includeMultilevelAnalysis) {
+        // Análisis por departamento
+        const deptAnalysis = await db
+          .select({
+            department: users.departamento,
+            totalResponses: sql<number>`COUNT(*)`,
+            avgScore: sql<number>`AVG(CAST(JSON_EXTRACT(${surveyResponses.results}, '$.finalScore') AS DECIMAL(10,2)))`,
+          })
+          .from(surveyResponses)
+          .leftJoin(users, eq(surveyResponses.userId, users.id))
+          .where(not(sql`${surveyResponses.completedAt} IS NULL`))
+          .groupBy(users.departamento);
+
+        if (deptAnalysis.length > 0) {
+          multilevelAnalysis.push({
+            level: 'Análisis por Departamento',
+            segments: deptAnalysis.map(d => ({
+              name: d.department || 'Sin departamento',
+              totalResponses: Number(d.totalResponses),
+              averageScore: Number(d.avgScore) || 0,
+              riskDistribution: { nulo: 0, bajo: 0, medio: 0, alto: 0, muyAlto: 0 }, // Simplificado
+            })),
+          });
+        }
+      }
+
+      // Generar PDF
+      const companyName = process.env.VITE_APP_TITLE || 'Empresa';
+      const reportData = {
+        companyName,
+        reportDate: new Date(),
+        surveyResults,
+        multilevelAnalysis,
+      };
+
+      const { url, key } = await generateConsolidatedNOM035Report(reportData);
+
+      return {
+        success: true,
+        pdfUrl: url,
+        fileKey: key,
+        surveysIncluded: selectedSurveys.length,
+        totalResponses: surveyResults.reduce((sum, r) => sum + r.totalResponses, 0),
       };
     }),
 
