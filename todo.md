@@ -759,3 +759,23 @@
 - [ ] Probar generación automática de DNC
 - [ ] Probar flujo de aprobación
 - [ ] Guardar checkpoint FASE 1
+
+
+## FASE 115: Corrección de Catálogo de Trabajadores para Comité
+- [x] Investigar error "Miembro no encontrado" en página de agregar miembros al comité
+- [x] Revisar router de comité y procedimientos de búsqueda de trabajadores
+- [x] Crear componente EmployeeSearchDialog con búsqueda por nombre, apellido, número
+- [x] Reescribir CommitteeMemberNew con búsqueda mejorada de trabajadores
+- [x] Implementar diálogo de búsqueda con filtros en tiempo real
+- [x] Guardar checkpoint con corrección
+
+## FASE 116: FASE 1 DNC - Frontend y Tests
+- [ ] Crear página client/src/pages/TrainingNeedsDetection.tsx
+- [ ] Implementar tabla de necesidades con filtros (status, priority, sourceType)
+- [ ] Agregar botones de generación automática (desde evaluación, desde matriz)
+- [ ] Crear componente client/src/components/DNCApprovalDialog.tsx
+- [ ] Implementar flujo de aprobación/rechazo para jefes
+- [ ] Crear tests server/trainingNeeds.test.ts (12-15 tests)
+- [ ] Probar generación automática y cálculo de brechas
+- [ ] Probar flujo de aprobación completo
+- [ ] Guardar checkpoint FASE 1 completa
