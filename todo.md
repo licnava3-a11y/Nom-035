@@ -735,21 +735,23 @@
 - [x] Crear tests unitarios para validación de firmas y PDFs
 
 
-## FASE 113: Sistema de Capacitación - FASE 1: DNC Completo y Automatizado
-- [ ] Modificar tabla trainingNeeds agregando campos de trazabilidad
-- [ ] Agregar campos: source, sourceReferenceId, approvedBy, approvedAt, rejectedReason, addedToProgramAt
-- [ ] Generar migración SQL y aplicar
-- [ ] Crear router server/routers/trainingNeeds.ts con procedimientos:
-  - [ ] generateFromPerformanceEvaluation - Generar DNC desde evaluación
-  - [ ] generateFromSkillsMatrix - Generar DNC desde matriz de habilidades
-  - [ ] generateFromJobProfile - Generar DNC desde perfil de puesto
-  - [ ] list - Listar DNC con filtros avanzados
-  - [ ] approve - Aprobar DNC (jefe de área)
-  - [ ] reject - Rechazar DNC con motivo
-  - [ ] addToProgram - Agregar DNC aprobada al programa
-  - [ ] getPendingApproval - DNC pendientes de aprobación
-  - [ ] getByEmployee - DNC de un empleado específico
-  - [ ] exportToExcel - Exportar DNC a Excel
+## FASE 114: Sistema de Capacitación - FASE 1: DNC Completo y Automatizado (Backend)
+- [x] Modificar tabla trainingNeeds agregando campos de trazabilidad
+- [x] Agregar campos: sourceType, sourceId, detectedBy, approvedBy, approvedAt, rejectedReason
+- [x] Generar migración SQL (0018_conscious_shiva.sql) y aplicar
+- [x] Crear router server/routers/trainingNeeds.ts con 10 procedimientos:
+  - [x] create - Crear necesidad manual
+  - [x] update - Actualizar necesidad
+  - [x] delete - Eliminar necesidad
+  - [x] getById - Obtener por ID con join a employees
+  - [x] list - Listar DNC con filtros avanzados (status, priority, employeeId, sourceType, search)
+  - [x] approve - Aprobar DNC (jefe de área)
+  - [x] reject - Rechazar DNC con motivo
+  - [x] getPendingApprovals - DNC pendientes de aprobación
+  - [x] generateFromPerformanceEvaluation - Generar DNC desde evaluación de desempeño
+  - [x] generateFromSkillsMatrix - Generar DNC desde matriz de habilidades
+- [x] Registrar trainingNeedsRouter en appRouter
+- [x] Corregir errores TypeScript (employees.name, fechas, validaciones db)
 - [ ] Crear página client/src/pages/TrainingNeedsDetection.tsx
 - [ ] Crear componente client/src/components/DNCApprovalDialog.tsx
 - [ ] Mejorar página EmployeeTrainingNeeds.tsx
