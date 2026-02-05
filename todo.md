@@ -2,6 +2,13 @@
 
 ## FASE 68: AUDITORÍA COMPLETA Y CORRECCIÓN DE ERRORES
 
+### CRÍTICO: Corrección de Error de Login
+- [x] Diagnosticar error "OAuth callback failed" con ECONNRESET
+- [x] Identificar causa: query SQL muy largo en upsertUser con ON DUPLICATE KEY UPDATE
+- [x] Reemplazar estrategia con SELECT + INSERT/UPDATE separados
+- [x] Probar login exitosamente
+- [x] Verificar que usuario se actualiza correctamente en base de datos
+
 ### Auditoría de Componentes Select
 - [x] Buscar todos los componentes Select en /client/src
 - [x] Identificar Selects que causan errores removeChild (CaseDialog.tsx)
@@ -1235,3 +1242,22 @@
 - [ ] Agregar notificación de documentos próximos a vencer
 - [ ] Implementar permisos (solo RH y Admin pueden ver/editar)
 
+
+
+## CORRECCIÓN CRÍTICA: Error de OAuth Callback Failed
+- [ ] Revisar logs del servidor para identificar causa del error
+- [ ] Verificar configuración de variables de entorno OAuth
+- [ ] Revisar callback handler en server/_core/oauth.ts
+- [ ] Verificar configuración de sesiones y cookies
+- [ ] Probar login después de corrección
+
+## FASE 68: AUDITORÍA COMPLETA Y CORRECCIÓN DE ERRORES
+- [ ] Revisar todas las conexiones entre módulos
+- [ ] Verificar prellenado de datos ya capturados
+- [ ] Asegurar que datos solo se capturen una vez
+- [ ] Probar funcionalidades críticas: Login, Encuestas, Empleados, Cursos
+- [ ] Revisar warnings de TypeScript y optimizar código
+- [ ] Probar con datos ficticios (mínimo 10 registros)
+- [ ] Corregir errores de navegación encontrados
+- [ ] Verificar que reload funcione en caso de error
+- [ ] Guardar checkpoint final con todas las correcciones
