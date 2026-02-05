@@ -1100,3 +1100,58 @@
 - [x] Resaltado de trabajadores urgentes (< 3 días)
 - [x] Badge con días restantes
 - [ ] Agregar botón de reenvío masivo de tokens (funcionalidad futura)
+
+
+## FASE OPORTUNIDADES DE MEJORA: Implementación de Mejoras Identificadas en Auditoría
+
+### 🔴 ALTA PRIORIDAD: Validaciones de Datos Personales
+- [x] Crear archivo validators.ts con funciones de validación
+- [x] Implementar validación de CURP con algoritmo oficial mexicano
+- [x] Implementar validación de RFC con algoritmo oficial mexicano
+- [x] Implementar validación de NSS (Número de Seguridad Social)
+- [x] Agregar validación de correo electrónico único en sistema (backend)
+- [x] Integrar validaciones en router employees (backend)
+- [ ] Integrar validaciones en formulario EmployeeNew.tsx (frontend)
+- [ ] Integrar validaciones en formulario EmployeeEdit.tsx (frontend)
+- [ ] Agregar mensajes de error descriptivos para cada validación (frontend)
+
+### 🔴 ALTA PRIORIDAD: Prellenado Inteligente
+- [x] Crear procedimiento tRPC prefillCompetenciesFromPosition en jobProfiles
+- [x] Implementar prellenado de competencias desde perfil de puesto
+- [x] Procedimiento getPositionsByDepartment ya existe en router employees
+- [x] Procedimiento generateDNC ya existe para generación automática de necesidades
+- [ ] Integrar prefillCompetenciesFromPosition al crear/editar empleado (frontend)
+- [ ] Sugerir puestos disponibles al cambiar departamento de empleado (frontend)
+- [ ] Validar que puesto seleccionado pertenezca al departamento (frontend)
+- [ ] Mostrar brecha de competencias al asignar puesto nuevo (frontend)
+
+### 🟡 MEDIA PRIORIDAD: Autocompletar Dirección
+- [x] Investigar API SEPOMEX para códigos postales mexicanos
+- [x] Crear helper postal-code-api.ts con integración Bluewire + COPOMEX
+- [x] Crear procedimiento tRPC getAddressByPostalCode en router employees
+- [x] Implementar autocompletar colonia desde código postal (backend)
+- [x] Implementar autocompletar municipio desde código postal (backend)
+- [x] Implementar autocompletar estado desde código postal (backend)
+- [ ] Integrar en formulario EmployeeNew.tsx (frontend)
+- [ ] Integrar en formulario EmployeeEdit.tsx (frontend)
+
+### 🟡 MEDIA PRIORIDAD: Mejoras de Experiencia de Usuario
+- [ ] Convertir EmployeeNew en wizard de 3 pasos (Datos personales, Datos laborales, Documentos)
+- [ ] Implementar auto-guardado en formularios largos
+- [ ] Agregar indicador visual de progreso en wizard
+- [ ] Implementar filtros avanzados en Employees (departamento, puesto, status)
+- [ ] Implementar filtros avanzados en Courses (tipo, instructor, fecha)
+- [ ] Agregar exportación a Excel en listados principales
+
+### Validaciones de Fechas y Periodos
+- [ ] Validar que fecha de ingreso no sea futura
+- [ ] Validar que edad del empleado >= 18 años
+- [ ] Validar que fecha de fin de curso > fecha de inicio
+- [ ] Agregar validaciones en formularios correspondientes
+
+### Sugerencias Inteligentes
+- [ ] Sugerir participantes en minutas según tipo de reunión
+- [ ] Prellenar participantes desde comité si es reunión de comité
+- [ ] Guardar plantillas de participantes frecuentes
+- [ ] Sugerir instructor con filtro por competencias
+- [ ] Sugerir participantes de curso según departamento/puesto

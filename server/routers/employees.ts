@@ -2,6 +2,8 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
+import { validateCURP, validateRFC, validateNSS, validateEmail, validateHireDate, validateAge } from "../../shared/validators";
+import { getAddressByPostalCode } from "../lib/postal-code-api";
 
 export const employeesRouter = router({
   /**
@@ -64,6 +66,9 @@ export const employeesRouter = router({
         email: z.string().email("Email inválido"),
         phone: z.string().optional(),
         curp: z.string().length(18, "CURP debe tener 18 caracteres").optional(),
+        rfc: z.string().optional(),
+        nss: z.string().optional(),
+        birthDate: z.string().optional(),
         employeeNumber: z.string().optional(),
         department: z.string().optional(),
         position: z.string().optional(),
@@ -77,6 +82,70 @@ export const employeesRouter = router({
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Solo administradores pueden crear empleados",
+        });
+      }
+
+      // Validar CURP si se proporciona
+      if (input.curp) {
+        const curpValidation = validateCURP(input.curp);
+        if (!curpValidation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: curpValidation.error || "CURP inválido",
+          });
+        }
+      }
+
+      // Validar RFC si se proporciona
+      if (input.rfc) {
+        const rfcValidation = validateRFC(input.rfc, 'fisica');
+        if (!rfcValidation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: rfcValidation.error || "RFC inválido",
+          });
+        }
+      }
+
+      // Validar NSS si se proporciona
+      if (input.nss) {
+        const nssValidation = validateNSS(input.nss);
+        if (!nssValidation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: nssValidation.error || "NSS inválido",
+          });
+        }
+      }
+
+      // Validar edad si se proporciona fecha de nacimiento
+      if (input.birthDate) {
+        const ageValidation = validateAge(input.birthDate);
+        if (!ageValidation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: ageValidation.error || "Edad inválida",
+          });
+        }
+      }
+
+      // Validar fecha de ingreso si se proporciona
+      if (input.hireDate) {
+        const hireDateValidation = validateHireDate(input.hireDate);
+        if (!hireDateValidation.valid) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: hireDateValidation.error || "Fecha de ingreso inválida",
+          });
+        }
+      }
+
+      // Validar que el correo no exista
+      const existingEmployee = await employeesDb.getEmployeeByEmail(input.email);
+      if (existingEmployee) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Ya existe un empleado con este correo electrónico",
         });
       }
 
@@ -224,6 +293,32 @@ export const employeesRouter = router({
     .input(z.object({ department: z.string() }))
     .query(async ({ input }) => {
       return await employeesDb.getPositionsByDepartment(input.department);
+    }),
+
+  /**
+   * Get address information by postal code
+   * Returns state, municipality and colonies for Mexican postal codes
+   */
+  getAddressByPostalCode: protectedProcedure
+    .input(z.object({ postalCode: z.string().length(5, "Código postal debe tener 5 dígitos") }))
+    .query(async ({ input }) => {
+      try {
+        const addressData = await getAddressByPostalCode(input.postalCode);
+        
+        if (!addressData) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Código postal no encontrado",
+          });
+        }
+
+        return addressData;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Error al consultar código postal",
+        });
+      }
     }),
 
   /**

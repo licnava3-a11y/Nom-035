@@ -337,6 +337,81 @@ export const jobProfilesRouter = router({
     }),
 
   /**
+   * Prefill employee competencies from position requirements
+   * Creates employee competency records with "ninguno" level for all required competencies
+   */
+  prefillCompetenciesFromPosition: protectedProcedure
+    .input(z.object({ employeeId: z.number(), positionName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
+
+      // Get position by name
+      const [positionRecord] = await db
+        .select()
+        .from(jobPositions)
+        .where(eq(jobPositions.positionName, input.positionName))
+        .limit(1);
+
+      if (!positionRecord) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Perfil de puesto no encontrado",
+        });
+      }
+
+      // Get position requirements
+      const requirements = await db
+        .select()
+        .from(jobProfiles)
+        .where(eq(jobProfiles.positionId, positionRecord.id));
+
+      if (requirements.length === 0) {
+        return {
+          success: true,
+          message: "No hay competencias definidas para este puesto",
+          prefilledCount: 0,
+        };
+      }
+
+      // Get existing employee competencies
+      const existingCompetencies = await db
+        .select()
+        .from(employeeCompetencies)
+        .where(eq(employeeCompetencies.employeeId, input.employeeId));
+
+      const existingCompetencyNames = new Set(
+        existingCompetencies.map((c) => c.competencyName)
+      );
+
+      // Prefill only competencies that don't exist yet
+      const competenciesToAdd = requirements
+        .filter((req) => !existingCompetencyNames.has(req.competencyName))
+        .map((req) => ({
+          employeeId: input.employeeId,
+          competencyName: req.competencyName,
+          competencyType: req.competencyType,
+          currentLevel: "basico" as const,
+          notes: `Competencia requerida para el puesto: ${input.positionName}`,
+        }));
+
+      if (competenciesToAdd.length > 0) {
+        await db.insert(employeeCompetencies).values(competenciesToAdd);
+      }
+
+      return {
+        success: true,
+        prefilledCount: competenciesToAdd.length,
+        totalRequirements: requirements.length,
+      };
+    }),
+
+  /**
    * Get all positions with their competency requirements
    */
   getAllPositionsWithProfiles: protectedProcedure.query(async ({ ctx }) => {
