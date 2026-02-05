@@ -193,7 +193,7 @@ export default function OrganizationalCompetenciesManager() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Gestión de Competencias Organizacionales</h1>
+          <h1 className="text-3xl font-bold">Catálogo de Competencias Organizacionales</h1>
           <p className="text-muted-foreground mt-1">
             Administra el catálogo de habilidades blandas, liderazgo y competencias transversales
           </p>

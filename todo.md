@@ -1422,3 +1422,11 @@
 - [x] Agregar procedimiento delete al router correctiveActions - COMPLETADO
 - [x] Agregar enlace de Acciones Correctivas en menú de Encuestas NOM-035 - COMPLETADO
 - [ ] Probar funcionalidad completa de FASE 69 (Panel de Acciones Correctivas)
+
+
+## CAMBIO DE NOMBRE - 5 FEB 2026
+- [x] Cambiar "Gestión de Competencias Organizacionales" por "Catálogo de Competencias Organizacionales"
+- [x] Actualizar nombre en DashboardLayout.tsx (menú de navegación) - COMPLETADO
+- [x] Actualizar título en componente OrganizationalCompetenciesManager.tsx - COMPLETADO
+- [x] Verificar cambios en navegador - VERIFICADO: Menú y título actualizados correctamente
+- [ ] Guardar checkpoint

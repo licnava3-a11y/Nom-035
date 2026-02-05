@@ -59,7 +59,7 @@ const menuItems = [
   { icon: ClipboardList, label: "Matriz de Habilidades", path: "/skills-matrix", roles: ["admin"] },
   { icon: ClipboardCheck, label: "Evaluación de Competencias", path: "/competency-evaluation", roles: ["admin"] },
   { icon: Target, label: "DNC Consolidada", path: "/dnc-dashboard", roles: ["admin"] },
-  { icon: Settings, label: "Gestión de Competencias", path: "/competencies-manager", roles: ["admin"] },
+  { icon: Settings, label: "Catálogo de Competencias", path: "/competencies-manager", roles: ["admin"] },
   { icon: FileSignature, label: "Minutas de Reunión", path: "/meeting-minutes", roles: ["admin", "committee"] },
   { icon: BarChart3, label: "Reportes", path: "/reports", roles: ["admin", "instructor"] },
   { icon: Users, label: "Usuarios", path: "/users", roles: ["admin"] },
