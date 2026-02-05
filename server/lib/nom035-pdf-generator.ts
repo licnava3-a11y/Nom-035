@@ -1,5 +1,4 @@
 import PDFDocument from 'pdfkit';
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { storagePut } from '../storage';
 
 /**
@@ -59,81 +58,35 @@ const COLORS = {
 };
 
 /**
- * Genera gráfica de distribución de riesgo como imagen
+ * Genera tabla de distribución de riesgo (alternativa ligera a gráfica)
  */
-async function generateRiskDistributionChart(
-  distribution: { nulo: number; bajo: number; medio: number; alto: number; muyAlto: number }
-): Promise<Buffer> {
-  const width = 600;
-  const height = 400;
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
+function addRiskDistributionTable(
+  doc: PDFKit.PDFDocument,
+  distribution: { nulo: number; bajo: number; medio: number; alto: number; muyAlto: number },
+  yPosition: number
+): number {
+  const tableData = [
+    { nivel: 'Nulo', cantidad: distribution.nulo, color: COLORS.nulo },
+    { nivel: 'Bajo', cantidad: distribution.bajo, color: COLORS.bajo },
+    { nivel: 'Medio', cantidad: distribution.medio, color: COLORS.medio },
+    { nivel: 'Alto', cantidad: distribution.alto, color: COLORS.alto },
+    { nivel: 'Muy Alto', cantidad: distribution.muyAlto, color: COLORS.muyAlto },
+  ];
 
-  const configuration = {
-    type: 'doughnut' as const,
-    data: {
-      labels: ['Nulo', 'Bajo', 'Medio', 'Alto', 'Muy Alto'],
-      datasets: [{
-        data: [distribution.nulo, distribution.bajo, distribution.medio, distribution.alto, distribution.muyAlto],
-        backgroundColor: [COLORS.nulo, COLORS.bajo, COLORS.medio, COLORS.alto, COLORS.muyAlto],
-        borderWidth: 0,
-      }],
-    },
-    options: {
-      responsive: false,
-      plugins: {
-        legend: {
-          position: 'bottom' as const,
-          labels: {
-            font: {
-              size: 14,
-            },
-          },
-        },
-      },
-    },
-  };
+  doc.fontSize(11).font('Helvetica-Bold').fillColor('#000000').text('Distribución de Riesgo:', 50, yPosition);
+  yPosition += 20;
 
-  return chartJSNodeCanvas.renderToBuffer(configuration);
+  doc.fontSize(10).font('Helvetica');
+  tableData.forEach((row) => {
+    doc.fillColor(row.color).circle(60, yPosition + 5, 5).fill();
+    doc.fillColor('#000000').text(`${row.nivel}: ${row.cantidad} respuestas (${((row.cantidad / (distribution.nulo + distribution.bajo + distribution.medio + distribution.alto + distribution.muyAlto)) * 100).toFixed(1)}%)`, 75, yPosition);
+    yPosition += 20;
+  });
+
+  return yPosition + 10;
 }
 
-/**
- * Genera gráfica de barras para análisis multinivel
- */
-async function generateMultilevelBarChart(
-  segments: Array<{ name: string; averageScore: number }>
-): Promise<Buffer> {
-  const width = 700;
-  const height = 400;
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
 
-  const configuration = {
-    type: 'bar' as const,
-    data: {
-      labels: segments.map(s => s.name),
-      datasets: [{
-        label: 'Puntaje Promedio',
-        data: segments.map(s => s.averageScore),
-        backgroundColor: COLORS.primary,
-      }],
-    },
-    options: {
-      responsive: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-        },
-      },
-      plugins: {
-        legend: {
-          display: false,
-        },
-      },
-    },
-  };
-
-  return chartJSNodeCanvas.renderToBuffer(configuration);
-}
 
 /**
  * Agrega encabezado al PDF
@@ -202,11 +155,11 @@ async function addSurveyResultsSection(doc: PDFKit.PDFDocument, surveyResults: S
 
     doc.moveDown(1);
 
-    // Gráfica de distribución
-    const chartBuffer = await generateRiskDistributionChart(result.riskDistribution);
-    doc.image(chartBuffer, 50, doc.y, { width: 400 });
+    // Tabla de distribución de riesgo
+    const newY = addRiskDistributionTable(doc, result.riskDistribution, doc.y);
+    doc.y = newY;
 
-    doc.moveDown(15);
+    doc.moveDown(1);
 
     // Recomendaciones
     if (result.recommendations.length > 0) {
@@ -256,12 +209,8 @@ async function addMultilevelAnalysisSection(doc: PDFKit.PDFDocument, multilevelA
 
     doc.moveDown(1);
 
-    // Gráfica de barras
+    // Tabla de datos
     if (analysis.segments.length > 0) {
-      const chartBuffer = await generateMultilevelBarChart(analysis.segments);
-      doc.image(chartBuffer, 50, doc.y, { width: 500 });
-
-      doc.moveDown(15);
 
       // Tabla de datos
       doc.fontSize(11)

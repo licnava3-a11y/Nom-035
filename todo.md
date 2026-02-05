@@ -1155,3 +1155,14 @@
 - [ ] Guardar plantillas de participantes frecuentes
 - [ ] Sugerir instructor con filtro por competencias
 - [ ] Sugerir participantes de curso según departamento/puesto
+
+
+## CORRECCIÓN URGENTE: Error de instalación de canvas
+
+### Error de dependencias del sistema
+- [x] Identificar error: canvas requiere pixman-1 y dependencias del sistema
+- [x] Desinstalar paquetes canvas y chartjs-node-canvas
+- [x] Modificar generador PDF para no usar canvas
+- [x] Usar alternativa ligera para PDFs (tablas con colores en lugar de gráficas)
+- [x] Probar generador PDF sin canvas (compilación exitosa)
+- [ ] Guardar checkpoint con corrección
