@@ -779,3 +779,41 @@
 - [ ] Probar generación automática y cálculo de brechas
 - [ ] Probar flujo de aprobación completo
 - [ ] Guardar checkpoint FASE 1 completa
+
+
+## FASE 117: Completar FASE 1 DNC - Router Backend (PENDIENTE)
+- [ ] Revisar schema actual de trainingNeeds y ajustar enums (status, priority, currentLevel)
+- [ ] Decidir si agregar campos de trazabilidad (sourceType, sourceId, detectedBy, approvedBy, approvedAt, rejectedReason) o trabajar con schema actual
+- [ ] Crear archivo server/routers/trainingNeeds.ts con 10 procedimientos usando enums correctos
+- [ ] Implementar procedimientos CRUD (create, update, delete, getById, list)
+- [ ] Implementar procedimientos de aprobación (approve, reject, getPendingApprovals)
+- [ ] Implementar generación automática (generateFromPerformanceEvaluation, generateFromSkillsMatrix)
+- [ ] Registrar router en appRouter
+- [ ] Probar todos los procedimientos con tests manuales
+
+## FASE 118: Frontend de DNC
+- [ ] Crear página TrainingNeedsDetection.tsx con tabla y filtros
+- [ ] Implementar botones de generación automática
+- [ ] Crear componente DNCApprovalDialog para jefes de área
+- [ ] Implementar flujo de aprobación/rechazo
+- [ ] Agregar ruta en App.tsx
+
+## FASE 119: Tests Unitarios de DNC
+- [ ] Crear archivo server/trainingNeeds.test.ts
+- [ ] Implementar 12-15 tests cubriendo todos los procedimientos
+- [ ] Probar generación automática y cálculo de brechas
+- [ ] Probar flujo de aprobación completo
+
+## FASE 120: Programa de Capacitación Anual
+- [ ] Crear tabla trainingPrograms en schema
+- [ ] Crear router server/routers/trainingPrograms.ts
+- [ ] Implementar métricas de cumplimiento por departamento/puesto
+- [ ] Implementar alertas de vencimientos de capacitación obligatoria
+- [ ] Crear página frontend TrainingProgram.tsx
+- [ ] Agregar dashboard de cumplimiento
+
+## FASE 121: Dashboard de Brechas Críticas
+- [ ] Crear procedimiento tRPC para obtener top 3 brechas organizacionales
+- [ ] Agregar widget en página Home.tsx
+- [ ] Vincular widget a página de DNC para acción inmediata
+- [ ] Implementar gráfica de tendencias de brechas
