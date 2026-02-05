@@ -1192,3 +1192,46 @@
 - [x] Conectar con procedimiento generateConsolidatedReport
 - [x] Implementar descarga automática del PDF (abre en nueva pestaña)
 - [ ] Probar exportación desde ambas páginas (pruebas manuales)
+
+
+## FASE GESTIÓN DE DOCUMENTOS DE EMPLEADOS
+
+### Estructura de Base de Datos
+- [ ] Crear tabla employeeDocuments en drizzle/schema.ts
+- [ ] Campos: id, employeeId, documentType, fileName, fileUrl, fileKey, mimeType, fileSize
+- [ ] Campos adicionales: uploadedAt, expiresAt, status (vigente/por_vencer/vencido), uploadedBy
+- [ ] Generar migración SQL con pnpm drizzle-kit generate
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Backend (tRPC + S3)
+- [x] Actualizar procedimiento upload para subir archivos a S3
+- [x] Procedimiento list para listar documentos del empleado (ya existía)
+- [x] Actualizar procedimiento delete para eliminar documentos de S3
+- [x] Crear procedimiento getStats para estadísticas de documentos
+- [x] Validar tipos de archivo permitidos (PDF, JPG, PNG, DOCX)
+- [x] Validar tamaño máximo de archivo (10MB)
+- [x] Implementar verificación de vigencia automática (status: vigente/por_vencer/vencido)
+
+### Frontend - Componente de Carga
+- [ ] Crear componente DocumentUpload.tsx con drag & drop
+- [ ] Implementar preview de archivos antes de subir
+- [ ] Mostrar progreso de carga
+- [ ] Validación de tipo y tamaño en cliente
+- [ ] Selector de tipo de documento (INE, Contrato, CURP, RFC, NSS, Comprobante domicilio, etc.)
+- [ ] Campo opcional de fecha de vigencia
+
+### Frontend - Visualización
+- [ ] Crear componente DocumentViewer.tsx para visualizar PDF e imágenes
+- [ ] Crear componente DocumentList.tsx con lista de documentos
+- [ ] Indicadores visuales de estado (vigente/por vencer/vencido)
+- [ ] Botón de descarga de documento
+- [ ] Botón de eliminación con confirmación
+- [ ] Filtros por tipo de documento
+
+### Integración en Perfil
+- [ ] Agregar pestaña "Documentos" en EmployeeDetail.tsx
+- [ ] Integrar DocumentUpload y DocumentList
+- [ ] Mostrar contador de documentos en tarjeta de información
+- [ ] Agregar notificación de documentos próximos a vencer
+- [ ] Implementar permisos (solo RH y Admin pueden ver/editar)
+

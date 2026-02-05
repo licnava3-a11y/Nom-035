@@ -15,24 +15,28 @@ export const employeeDocumentsRouter = router({
       z.object({
         employeeId: z.number(),
         documentType: z.enum([
-          "contrato",
-          "identificacion",
-          "comprobante_domicilio",
-          "acta_nacimiento",
-          "curp",
-          "rfc",
-          "nss",
-          "certificado_estudios",
-          "carta_recomendacion",
-          "examen_medico",
-          "carta_antecedentes",
-          "otro",
+          "ine",
+          "curp_document",
+          "rfc_document",
+          "nss_document",
+          "birth_certificate",
+          "proof_of_address",
+          "contract",
+          "job_offer",
+          "resignation",
+          "termination",
+          "recommendation",
+          "diploma",
+          "certificate",
+          "medical_exam",
+          "background_check",
+          "other",
         ]),
         fileName: z.string(),
         fileData: z.string(), // Base64 encoded file data
         mimeType: z.string(),
         notes: z.string().optional(),
-        expirationDate: z.string().optional(), // ISO date string
+        expiresAt: z.string().optional(), // ISO date string
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -57,17 +61,33 @@ export const employeeDocumentsRouter = router({
       // Upload to S3
       const { url: fileUrl } = await storagePut(fileKey, fileBuffer, input.mimeType);
 
+      // Calculate status based on expiration date
+      let status: "vigente" | "por_vencer" | "vencido" = "vigente";
+      if (input.expiresAt) {
+        const expiresDate = new Date(input.expiresAt);
+        const today = new Date();
+        const daysUntilExpiration = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysUntilExpiration < 0) {
+          status = "vencido";
+        } else if (daysUntilExpiration <= 30) {
+          status = "por_vencer";
+        }
+      }
+
       // Save document metadata to database
       const [document] = await db.insert(employeeDocuments).values({
         employeeId: input.employeeId,
         documentType: input.documentType,
         fileName: input.fileName,
         fileUrl,
+        fileKey,
         fileSize,
         mimeType: input.mimeType,
         uploadedBy: ctx.user.id,
         notes: input.notes,
-        expirationDate: input.expirationDate ? new Date(input.expirationDate) : undefined,
+        expiresAt: input.expiresAt ? new Date(input.expiresAt) : undefined,
+        status,
       });
 
       return { success: true, documentId: document.insertId };
@@ -82,18 +102,22 @@ export const employeeDocumentsRouter = router({
         employeeId: z.number(),
         documentType: z
           .enum([
-            "contrato",
-            "identificacion",
-            "comprobante_domicilio",
-            "acta_nacimiento",
-            "curp",
-            "rfc",
-            "nss",
-            "certificado_estudios",
-            "carta_recomendacion",
-            "examen_medico",
-            "carta_antecedentes",
-            "otro",
+            "ine",
+            "curp_document",
+            "rfc_document",
+            "nss_document",
+            "birth_certificate",
+            "proof_of_address",
+            "contract",
+            "job_offer",
+            "resignation",
+            "termination",
+            "recommendation",
+            "diploma",
+            "certificate",
+            "medical_exam",
+            "background_check",
+            "other",
           ])
           .optional(),
       })
@@ -149,11 +173,19 @@ export const employeeDocumentsRouter = router({
         });
       }
 
+      // Delete from S3
+      if (document.fileKey) {
+        try {
+          const storage = await import("../storage");
+          await storage.storageDelete(document.fileKey);
+        } catch (error) {
+          console.error("Error deleting file from S3:", error);
+          // Continue with database deletion even if S3 deletion fails
+        }
+      }
+
       // Delete from database
       await db.delete(employeeDocuments).where(eq(employeeDocuments.id, input.documentId));
-
-      // Note: We don't delete from S3 to maintain audit trail
-      // Files can be cleaned up periodically by a separate job
 
       return { success: true };
     }),
@@ -194,5 +226,67 @@ export const employeeDocumentsRouter = router({
       const missingTypes = requiredTypes.filter((type) => !existingTypes.has(type));
 
       return missingTypes;
+    }),
+
+  /**
+   * Get document statistics for an employee
+   */
+  getStats: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
+
+      const documents = await db
+        .select()
+        .from(employeeDocuments)
+        .where(eq(employeeDocuments.employeeId, input.employeeId));
+
+      // Update status for documents with expiration dates
+      const today = new Date();
+      for (const doc of documents) {
+        if (doc.expiresAt) {
+          const expiresDate = new Date(doc.expiresAt);
+          const daysUntilExpiration = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+          let newStatus: "vigente" | "por_vencer" | "vencido" = "vigente";
+          if (daysUntilExpiration < 0) {
+            newStatus = "vencido";
+          } else if (daysUntilExpiration <= 30) {
+            newStatus = "por_vencer";
+          }
+
+          // Update status if changed
+          if (newStatus !== doc.status) {
+            await db
+              .update(employeeDocuments)
+              .set({ status: newStatus })
+              .where(eq(employeeDocuments.id, doc.id));
+          }
+        }
+      }
+
+      // Recalculate stats
+      const updatedDocuments = await db
+        .select()
+        .from(employeeDocuments)
+        .where(eq(employeeDocuments.employeeId, input.employeeId));
+
+      const total = updatedDocuments.length;
+      const vigente = updatedDocuments.filter((d) => d.status === "vigente").length;
+      const porVencer = updatedDocuments.filter((d) => d.status === "por_vencer").length;
+      const vencido = updatedDocuments.filter((d) => d.status === "vencido").length;
+
+      return {
+        total,
+        vigente,
+        porVencer,
+        vencido,
+      };
     }),
 });

@@ -810,26 +810,38 @@ export const employeeDocuments = mysqlTable("employeeDocuments", {
   id: int("id").autoincrement().primaryKey(),
   employeeId: int("employeeId").notNull(),
   documentType: mysqlEnum("documentType", [
-    "contrato",
-    "identificacion",
-    "comprobante_domicilio",
-    "acta_nacimiento",
-    "curp",
-    "rfc",
-    "nss",
-    "certificado_estudios",
-    "carta_recomendacion",
-    "examen_medico",
-    "carta_antecedentes",
-    "otro"
+    "ine", // Identificación oficial (INE/IFE)
+    "curp_document", // Documento de CURP
+    "rfc_document", // Constancia de RFC
+    "nss_document", // Documento de NSS (IMSS)
+    "birth_certificate", // Acta de nacimiento
+    "proof_of_address", // Comprobante de domicilio
+    "contract", // Contrato laboral
+    "job_offer", // Carta oferta
+    "resignation", // Renuncia
+    "termination", // Finiquito
+    "recommendation", // Carta de recomendación
+    "diploma", // Título o diploma
+    "certificate", // Certificado
+    "medical_exam", // Examen médico
+    "background_check", // Carta de antecedentes
+    "other" // Otro documento
   ]).notNull(),
   fileName: varchar("fileName", { length: 255 }).notNull(),
-  fileUrl: text("fileUrl").notNull(),
-  fileSize: int("fileSize"), // Size in bytes
-  mimeType: varchar("mimeType", { length: 100 }),
-  uploadedBy: int("uploadedBy").notNull(),
-  notes: text("notes"),
-  expirationDate: date("expirationDate"), // For documents that expire
+  fileUrl: varchar("fileUrl", { length: 500 }).notNull(), // URL en S3
+  fileKey: varchar("fileKey", { length: 500 }).notNull(), // Key en S3 para eliminación
+  mimeType: varchar("mimeType", { length: 100 }).notNull(), // application/pdf, image/jpeg, etc.
+  fileSize: int("fileSize").notNull(), // Tamaño en bytes
+  
+  // Control de vigencia
+  expiresAt: date("expiresAt"), // Fecha de vencimiento (opcional)
+  status: mysqlEnum("status", ["vigente", "por_vencer", "vencido"]).default("vigente").notNull(),
+  
+  // Auditoría
+  uploadedBy: int("uploadedBy").notNull(), // FK to users
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+  notes: text("notes"), // Notas adicionales sobre el documento
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1095,3 +1107,4 @@ export const meetingAttachmentsRelations = relations(meetingAttachments, ({ one 
     references: [meetingMinutes.id],
   }),
 }));
+

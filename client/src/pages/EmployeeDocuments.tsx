@@ -9,18 +9,22 @@ import { toast } from "sonner";
 import { Upload, FileText, Image, FileCheck, AlertCircle, X, Eye, Download, Trash2 } from "lucide-react";
 
 const DOCUMENT_TYPES = [
-  { value: "contrato", label: "Contrato" },
-  { value: "identificacion", label: "Identificación Oficial" },
-  { value: "comprobante_domicilio", label: "Comprobante de Domicilio" },
-  { value: "acta_nacimiento", label: "Acta de Nacimiento" },
-  { value: "curp", label: "CURP" },
-  { value: "rfc", label: "RFC" },
-  { value: "nss", label: "NSS" },
-  { value: "certificado_estudios", label: "Certificado de Estudios" },
-  { value: "carta_recomendacion", label: "Carta de Recomendación" },
-  { value: "examen_medico", label: "Examen Médico" },
-  { value: "carta_antecedentes", label: "Carta de Antecedentes" },
-  { value: "otro", label: "Otro" },
+  { value: "ine", label: "INE" },
+  { value: "curp_document", label: "CURP" },
+  { value: "rfc_document", label: "RFC" },
+  { value: "nss_document", label: "NSS" },
+  { value: "birth_certificate", label: "Acta de Nacimiento" },
+  { value: "proof_of_address", label: "Comprobante de Domicilio" },
+  { value: "contract", label: "Contrato" },
+  { value: "job_offer", label: "Oferta de Trabajo" },
+  { value: "resignation", label: "Renuncia" },
+  { value: "termination", label: "Terminación" },
+  { value: "recommendation", label: "Carta de Recomendación" },
+  { value: "diploma", label: "Diploma" },
+  { value: "certificate", label: "Certificado" },
+  { value: "medical_exam", label: "Examen Médico" },
+  { value: "background_check", label: "Carta de Antecedentes" },
+  { value: "other", label: "Otro" },
 ];
 
 export default function EmployeeDocuments() {
@@ -77,7 +81,7 @@ export default function EmployeeDocuments() {
 
       uploadMutation.mutate({
         employeeId,
-        documentType: selectedType as "contrato" | "identificacion" | "comprobante_domicilio" | "acta_nacimiento" | "curp" | "rfc" | "nss" | "certificado_estudios" | "carta_recomendacion" | "examen_medico" | "carta_antecedentes" | "otro",
+        documentType: selectedType as "ine" | "curp_document" | "rfc_document" | "nss_document" | "birth_certificate" | "proof_of_address" | "contract" | "job_offer" | "resignation" | "termination" | "recommendation" | "diploma" | "certificate" | "medical_exam" | "background_check" | "other",
         fileName: file.name,
         fileData: base64Data,
         mimeType: file.type,
