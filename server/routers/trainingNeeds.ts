@@ -3,6 +3,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { eq, and, desc, sql, or, like } from "drizzle-orm";
 import { getDb } from "../db";
+import { sendCriticalGapsNotification } from "../lib/email-sender";
 import {
   trainingNeeds,
   employees,
@@ -312,6 +313,24 @@ export const trainingNeedsRouter = router({
         .groupBy(trainingNeeds.competencyName, trainingNeeds.competencyType)
         .orderBy(desc(sql`AVG(${trainingNeeds.gap})`), desc(sql`COUNT(DISTINCT ${trainingNeeds.employeeId})`))
         .limit(3);
+
+      // Enviar notificación si hay brechas críticas
+      if (results.length > 0) {
+        const ownerEmail = process.env.OWNER_EMAIL || 'admin@example.com';
+        try {
+          await sendCriticalGapsNotification(
+            ownerEmail,
+            results.map(r => ({
+              competency: r.competencyName,
+              avgGap: Number(r.avgGap),
+              affectedEmployees: Number(r.affectedEmployees),
+            }))
+          );
+        } catch (error) {
+          console.error('Error al enviar notificación de brechas críticas:', error);
+          // No lanzar error, solo registrar en consola
+        }
+      }
 
       return results;
     }),

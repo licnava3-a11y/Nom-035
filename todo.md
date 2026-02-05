@@ -980,3 +980,80 @@
 - [ ] Probar plan de acción multinivel con datos reales
 - [ ] Verificar auto-guardado funciona correctamente
 - [ ] Guardar checkpoint final
+
+
+## FASE MEJORAS NOM-035: Tamaño de Muestra, Exportación Excel, Notificaciones y Dashboard
+
+### Cálculo de Tamaño de Muestra Guía III
+- [ ] Implementar fórmula de cálculo de tamaño de muestra según cantidad de trabajadores
+- [ ] Crear procedimiento tRPC getSampleSizeStats para obtener estadísticas
+- [ ] Agregar indicador en menú lateral (DashboardLayout) con datos de muestra
+- [ ] Mostrar: Total trabajadores, Muestra requerida, Respondidos, % Completado
+- [ ] Preparar datos para inclusión en reporte final
+
+### Exportación a Excel Multinivel
+- [ ] Crear procedimiento tRPC exportActionPlanToExcel por nivel de análisis
+- [ ] Implementar generación de Excel con formato profesional (encabezados, colores)
+- [ ] Agregar gráficas en Excel por segmento
+- [ ] Conectar botones de exportación en ActionPlan.tsx con procedimiento
+- [ ] Probar exportación para todos los niveles de análisis
+
+### Notificaciones Automáticas por Correo
+- [ ] Implementar envío de correo al detectar brechas críticas
+- [ ] Implementar envío de correo al generar tokens de encuesta
+- [ ] Crear templates HTML profesionales para correos
+- [ ] Incluir información relevante en cada tipo de notificación
+- [ ] Probar envío de correos en diferentes escenarios
+
+### Dashboard de Seguimiento de Tokens
+- [ ] Crear procedimiento tRPC getTokenTrackingStats
+- [ ] Implementar métricas: Enviados, Completados, Pendientes, % Participación
+- [ ] Agregar análisis por departamento
+- [ ] Crear página TokenTracking.tsx con gráficas de participación
+- [ ] Agregar ruta en App.tsx y enlace en menú lateral
+
+### Checkpoint Final
+- [ ] Verificar que no hay errores de TypeScript
+- [ ] Probar todas las funcionalidades implementadas
+- [ ] Actualizar todo.md marcando tareas completadas
+- [ ] Guardar checkpoint con descripción detallada
+
+
+## FASE MEJORAS NOM-035: Tamaño de Muestra, Exportación Excel, Notificaciones y Dashboard Tokens
+
+### Cálculo de Tamaño de Muestra Guía III
+- [x] Crear archivo sample-size-calculator.ts con fórmula oficial NOM-035
+- [x] Implementar procedimiento getSampleSizeStats en router surveys
+- [x] Crear página SampleSize.tsx con visualización completa
+- [x] Agregar enlace "Tamaño de Muestra" en menú lateral de Encuestas
+- [x] Mostrar métricas: Total trabajadores, Muestra requerida, Respondidos, % Completado
+- [x] Implementar barra de progreso visual
+- [x] Preparar datos para inclusión en reporte final
+
+### Exportación a Excel Multinivel
+- [x] Crear archivo excel-generator.ts con ExcelJS
+- [x] Implementar formato profesional con colores corporativos
+- [x] Agregar procedimiento exportToExcel en router actionPlan
+- [x] Conectar botón "Exportar Reporte Completo" en ActionPlan.tsx
+- [x] Implementar exportación según pestaña activa (9 niveles)
+- [x] Subir archivo generado a S3 y retornar URL
+
+### Notificaciones Automáticas por Correo
+- [x] Instalar nodemailer para envío de correos
+- [x] Crear helper email-sender.ts con configuración SMTP
+- [x] Implementar templates HTML profesionales para correos
+- [x] Crear notificación de brechas críticas detectadas
+- [x] Crear notificación de tokens de encuesta generados
+- [x] Integrar notificación en getCriticalGaps
+- [x] Integrar notificación en generateTokensForAllEmployees
+- [ ] Configurar variables de entorno SMTP en Settings (pendiente credenciales del usuario)
+
+### Dashboard de Seguimiento de Tokens
+- [x] Crear procedimiento getTokenStats en router surveys
+- [x] Implementar métricas: Enviados, Completados, Pendientes, Expirados
+- [x] Crear página TokensDashboard.tsx
+- [x] Implementar gráficas de participación por departamento
+- [x] Agregar tabla de tokens con estado y fecha de uso
+- [x] Implementar filtros por encuesta y departamento
+- [x] Agregar enlace en menú lateral de Encuestas
+- [ ] Agregar botón de reenvío de tokens expirados (funcionalidad futura)

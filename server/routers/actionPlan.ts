@@ -4,6 +4,8 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { surveyResponses, users, surveys } from "../../drizzle/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
+import { generateActionPlanExcel } from "../lib/excel-generator";
+import { storagePut } from "../storage";
 
 /**
  * Router para Plan de Acción Multinivel NOM-035
@@ -529,5 +531,113 @@ export const actionPlanRouter = router({
         }));
 
       return analysis;
+    }),
+
+  // Exportar análisis a Excel
+  exportToExcel: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      analysisType: z.enum([
+        'organizational',
+        'departmental',
+        'position',
+        'age',
+        'gender',
+        'marital',
+        'schedule',
+        'contract',
+        'tenure'
+      ]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener datos según tipo de análisis
+      let data: any[] = [];
+      let title = '';
+      let subtitle = '';
+
+      switch (input.analysisType) {
+        case 'organizational':
+          // Llamar al procedimiento correspondiente
+          const orgRouter = actionPlanRouter.createCaller(ctx);
+          const orgData = await orgRouter.getOrganizationalAnalysis({ surveyId: input.surveyId });
+          data = [orgData];
+          title = 'Análisis Organizacional NOM-035';
+          subtitle = 'Evaluación del entorno organizacional - Nivel empresa';
+          break;
+        case 'departmental':
+          const deptRouter = actionPlanRouter.createCaller(ctx);
+          data = await deptRouter.getDepartmentalAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis Departamental NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por departamento';
+          break;
+        case 'position':
+          const posRouter = actionPlanRouter.createCaller(ctx);
+          data = await posRouter.getPositionAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Puesto NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por puesto de trabajo';
+          break;
+        case 'age':
+          const ageRouter = actionPlanRouter.createCaller(ctx);
+          data = await ageRouter.getAgeRangeAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Rango de Edad NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por grupo etáreo';
+          break;
+        case 'gender':
+          const genderRouter = actionPlanRouter.createCaller(ctx);
+          data = await genderRouter.getGenderAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Género NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por género';
+          break;
+        case 'marital':
+          const maritalRouter = actionPlanRouter.createCaller(ctx);
+          data = await maritalRouter.getMaritalStatusAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Estado Civil NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por estado civil';
+          break;
+        case 'schedule':
+          const scheduleRouter = actionPlanRouter.createCaller(ctx);
+          data = await scheduleRouter.getWorkScheduleAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Jornada Laboral NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por tipo de jornada';
+          break;
+        case 'contract':
+          const contractRouter = actionPlanRouter.createCaller(ctx);
+          data = await contractRouter.getContractTypeAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Tipo de Contrato NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por tipo de contrato';
+          break;
+        case 'tenure':
+          const tenureRouter = actionPlanRouter.createCaller(ctx);
+          data = await tenureRouter.getTenureAnalysis({ surveyId: input.surveyId });
+          title = 'Análisis por Antigüedad NOM-035';
+          subtitle = 'Evaluación del entorno organizacional por antigüedad en el puesto';
+          break;
+      }
+
+      // Generar Excel
+      const excelBuffer = await generateActionPlanExcel({
+        title,
+        subtitle,
+        data,
+        surveyId: input.surveyId,
+      });
+
+      // Subir a S3
+      const timestamp = Date.now();
+      const fileName = `action-plan-${input.analysisType}-${timestamp}.xlsx`;
+      const { url } = await storagePut(
+        `reports/${fileName}`,
+        excelBuffer,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+
+      return {
+        success: true,
+        url,
+        fileName,
+      };
     }),
 });

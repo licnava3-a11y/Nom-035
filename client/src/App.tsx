@@ -55,6 +55,8 @@ import SurveyAdmin from "./pages/surveys/SurveyAdmin";
 import SurveySend from "./pages/SurveySend";
 import PublicSurvey from "./pages/surveys/PublicSurvey";
 import ActionPlan from "./pages/surveys/ActionPlan";
+import SampleSize from "./pages/surveys/SampleSize";
+import TokensDashboard from "./pages/surveys/TokensDashboard";
 import Settings from "./pages/Settings";
 
 function Router() {
@@ -313,6 +315,16 @@ function Router() {
       <Route path={"/surveys/action-plan/:surveyId"}>
         <DashboardLayout>
           <ActionPlan />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/sample-size"}>
+        <DashboardLayout>
+          <SampleSize />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/tokens-dashboard"}>
+        <DashboardLayout>
+          <TokensDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/404"} component={NotFound} />

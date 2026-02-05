@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'wouter';
 import { trpc } from '@/lib/trpc';
+import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -54,6 +55,38 @@ const RISK_COLORS = {
 export default function ActionPlan() {
   const params = useParams();
   const surveyId = params.surveyId ? parseInt(params.surveyId) : 1; // Default a encuesta 1
+  const [currentTab, setCurrentTab] = useState('organizational');
+
+  // Mutation para exportar a Excel
+  const exportMutation = trpc.actionPlan.exportToExcel.useMutation({
+    onSuccess: (data) => {
+      // Descargar archivo
+      window.open(data.url, '_blank');
+      toast.success('Reporte exportado exitosamente');
+    },
+    onError: (error) => {
+      toast.error(`Error al exportar: ${error.message}`);
+    },
+  });
+
+  const handleExport = () => {
+    const analysisTypeMap: Record<string, any> = {
+      organizational: 'organizational',
+      departmental: 'departmental',
+      position: 'position',
+      age: 'age',
+      gender: 'gender',
+      marital: 'marital',
+      schedule: 'schedule',
+      contract: 'contract',
+      tenure: 'tenure',
+    };
+
+    exportMutation.mutate({
+      surveyId,
+      analysisType: analysisTypeMap[currentTab],
+    });
+  };
 
   // Queries para cada nivel de análisis
   const { data: orgAnalysis, isLoading: loadingOrg } = trpc.actionPlan.getOrganizationalAnalysis.useQuery({ surveyId });
@@ -76,14 +109,18 @@ export default function ActionPlan() {
             Análisis de resultados de encuestas NOM-035 por diferentes segmentos organizacionales
           </p>
         </div>
-        <Button variant="outline">
+        <Button 
+          variant="outline" 
+          onClick={handleExport}
+          disabled={exportMutation.isPending}
+        >
           <Download className="h-4 w-4 mr-2" />
-          Exportar Reporte Completo
+          {exportMutation.isPending ? 'Exportando...' : 'Exportar Reporte Completo'}
         </Button>
       </div>
 
       {/* Tabs para diferentes niveles de análisis */}
-      <Tabs defaultValue="organizational" className="space-y-6">
+      <Tabs defaultValue="organizational" className="space-y-6" onValueChange={setCurrentTab}>
         <TabsList className="grid grid-cols-3 lg:grid-cols-9 gap-2 h-auto p-2">
           <TabsTrigger value="organizational" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />

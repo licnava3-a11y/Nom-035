@@ -43,6 +43,8 @@ const menuItems = [
       { label: "Guía I - ATS", path: "/surveys/guide-i" },
       { label: "Guía II - Identificación", path: "/surveys/guide-ii" },
       { label: "Guía III - Evaluación", path: "/surveys/guide-iii" },
+      { label: "Tamaño de Muestra", path: "/surveys/sample-size", badge: true },
+      { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard" },
       { label: "Dashboard", path: "/surveys/dashboard" },
     ]
   },

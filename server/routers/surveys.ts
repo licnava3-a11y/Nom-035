@@ -7,6 +7,8 @@ import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
 import * as scoring from "../lib/nom035-scoring";
+import { calculateSampleSize } from "../lib/sample-size-calculator";
+import { sendSurveyTokensNotification } from "../lib/email-sender";
 
 // Helper para generar token único
 function generateToken(): string {
@@ -1771,6 +1773,24 @@ export const surveysRouter = router({
         }
       }
 
+      // Obtener nombre de la encuesta
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, input.surveyId)).limit(1);
+      const surveyName = survey?.title || 'Encuesta NOM-035';
+
+      // Enviar notificación al administrador
+      const ownerEmail = process.env.OWNER_EMAIL || 'admin@example.com';
+      try {
+        await sendSurveyTokensNotification(
+          ownerEmail,
+          surveyName,
+          tokensGenerated.length,
+          expiresAt
+        );
+      } catch (error) {
+        console.error('Error al enviar notificación de tokens generados:', error);
+        // No lanzar error, solo registrar en consola
+      }
+
       return {
         generated: tokensGenerated.length,
         tokens: tokensGenerated,
@@ -1829,6 +1849,158 @@ export const surveysRouter = router({
       }));
 
       return excelData;
+    }),
+
+  // Obtener estadísticas de tamaño de muestra para Guía III
+  getSampleSizeStats: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener total de trabajadores activos (todos los usuarios excepto admin)
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(users);
+      const totalWorkers = totalResult?.count || 0;
+
+      // Calcular tamaño de muestra requerido
+      const sampleCalc = calculateSampleSize(totalWorkers);
+
+      // Obtener respuestas completadas para esta encuesta
+      const [responsesResult] = await db
+        .select({ count: count() })
+        .from(surveyResponses)
+        .where(
+          and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            sql`${surveyResponses.completedAt} IS NOT NULL`
+          )
+        );
+      const completedResponses = responsesResult?.count || 0;
+
+      // Calcular porcentaje de completado
+      const percentageCompleted = sampleCalc.sampleSize > 0
+        ? Math.round((completedResponses / sampleCalc.sampleSize) * 100 * 100) / 100
+        : 0;
+
+      // Determinar si se alcanzó el tamaño de muestra
+      const sampleReached = completedResponses >= sampleCalc.sampleSize;
+
+      return {
+        totalWorkers,
+        sampleSize: sampleCalc.sampleSize,
+        completedResponses,
+        percentageCompleted,
+        sampleReached,
+        confidenceLevel: sampleCalc.confidenceLevel,
+        marginOfError: sampleCalc.marginOfError,
+      };
+    }),
+
+  // Obtener estadísticas de tokens de encuestas
+  getTokenStats: protectedProcedure
+    .input(z.object({
+      surveyId: z.number().optional(),
+      department: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Construir condiciones de filtro
+      const whereConditions = [];
+      if (input.surveyId) {
+        whereConditions.push(eq(surveyTokens.surveyId, input.surveyId));
+      }
+      if (input.department) {
+        whereConditions.push(eq(users.departamento, input.department));
+      }
+
+      // Obtener todos los tokens con información del usuario
+      const tokens = await db
+        .select({
+          tokenId: surveyTokens.id,
+          token: surveyTokens.token,
+          surveyId: surveyTokens.surveyId,
+          surveyTitle: surveys.title,
+          employeeName: users.name,
+          employeeEmail: users.email,
+          department: users.departamento,
+          expiresAt: surveyTokens.expiresAt,
+          usedAt: surveyTokens.usedAt,
+          sentVia: surveyTokens.sentVia,
+        })
+        .from(surveyTokens)
+        .leftJoin(users, eq(surveyTokens.userId, users.id))
+        .leftJoin(surveys, eq(surveyTokens.surveyId, surveys.id))
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+        .orderBy(desc(surveyTokens.createdAt));
+
+      // Calcular estadísticas
+      const now = new Date();
+      const totalTokens = tokens.length;
+      const completedTokens = tokens.filter(t => t.usedAt !== null).length;
+      const pendingTokens = tokens.filter(t => t.usedAt === null && new Date(t.expiresAt!) > now).length;
+      const expiredTokens = tokens.filter(t => t.usedAt === null && new Date(t.expiresAt!) <= now).length;
+      const completionRate = totalTokens > 0 ? Math.round((completedTokens / totalTokens) * 100 * 100) / 100 : 0;
+
+      // Estadísticas por departamento
+      const byDepartment: Record<string, { total: number; completed: number; pending: number; expired: number }> = {};
+      tokens.forEach(t => {
+        const dept = t.department || 'Sin departamento';
+        if (!byDepartment[dept]) {
+          byDepartment[dept] = { total: 0, completed: 0, pending: 0, expired: 0 };
+        }
+        byDepartment[dept].total++;
+        if (t.usedAt) {
+          byDepartment[dept].completed++;
+        } else if (new Date(t.expiresAt!) > now) {
+          byDepartment[dept].pending++;
+        } else {
+          byDepartment[dept].expired++;
+        }
+      });
+
+      // Estadísticas por encuesta
+      const bySurvey: Record<number, { surveyTitle: string; total: number; completed: number; pending: number; expired: number }> = {};
+      tokens.forEach(t => {
+        if (!bySurvey[t.surveyId]) {
+          bySurvey[t.surveyId] = { surveyTitle: t.surveyTitle || 'Sin título', total: 0, completed: 0, pending: 0, expired: 0 };
+        }
+        bySurvey[t.surveyId].total++;
+        if (t.usedAt) {
+          bySurvey[t.surveyId].completed++;
+        } else if (new Date(t.expiresAt!) > now) {
+          bySurvey[t.surveyId].pending++;
+        } else {
+          bySurvey[t.surveyId].expired++;
+        }
+      });
+
+      return {
+        totalTokens,
+        completedTokens,
+        pendingTokens,
+        expiredTokens,
+        completionRate,
+        byDepartment: Object.entries(byDepartment).map(([dept, stats]) => ({
+          department: dept,
+          ...stats,
+          completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
+        })),
+        bySurvey: Object.entries(bySurvey).map(([surveyId, stats]) => ({
+          surveyId: parseInt(surveyId),
+          ...stats,
+          completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
+        })),
+        tokens: tokens.map(t => ({
+          ...t,
+          status: t.usedAt ? 'completado' : (new Date(t.expiresAt!) > now ? 'pendiente' : 'expirado'),
+        })),
+      };
     }),
 
 });
