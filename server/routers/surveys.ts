@@ -155,6 +155,119 @@ export const surveysRouter = router({
       return { valid: true, surveyId: tokenData.surveyId, userId: tokenData.userId };
     }),
 
+  // Guardar respuesta parcial (auto-guardado en tiempo real)
+  savePartialResponse: publicProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      token: z.string().optional(), // Token de acceso anónimo
+      userId: z.number().optional(), // ID de usuario autenticado
+      questionId: z.number(),
+      answerValue: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Validar que se proporcione token o userId
+      if (!input.token && !input.userId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Se requiere token o userId" });
+      }
+
+      // Buscar o crear respuesta parcial
+      let responseId: number;
+
+      if (input.token) {
+        // Acceso mediante token
+        const [tokenData] = await db
+          .select()
+          .from(surveyTokens)
+          .where(eq(surveyTokens.token, input.token))
+          .limit(1);
+
+        if (!tokenData) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Token inválido" });
+        }
+
+        // Buscar respuesta existente
+        const [existingResponse] = await db
+          .select()
+          .from(surveyResponses)
+          .where(and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            eq(surveyResponses.userId, tokenData.userId)
+          ))
+          .limit(1);
+
+        if (existingResponse) {
+          responseId = existingResponse.id;
+        } else {
+          // Crear nueva respuesta
+          const responseToken = generateToken();
+          const [newResponse] = await db.insert(surveyResponses).values({
+            surveyId: input.surveyId,
+            userId: tokenData.userId,
+            token: responseToken,
+            startedAt: new Date(),
+          });
+          responseId = newResponse.insertId;
+        }
+      } else {
+        // Acceso autenticado
+        const [existingResponse] = await db
+          .select()
+          .from(surveyResponses)
+          .where(and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            eq(surveyResponses.userId, input.userId!)
+          ))
+          .limit(1);
+
+        if (existingResponse) {
+          responseId = existingResponse.id;
+        } else {
+          // Crear nueva respuesta
+          const responseToken = generateToken();
+          const [newResponse] = await db.insert(surveyResponses).values({
+            surveyId: input.surveyId,
+            userId: input.userId!,
+            token: responseToken,
+            startedAt: new Date(),
+          });
+          responseId = newResponse.insertId;
+        }
+      }
+
+      // Verificar si ya existe una respuesta para esta pregunta
+      const [existingAnswer] = await db
+        .select()
+        .from(surveyAnswers)
+        .where(and(
+          eq(surveyAnswers.responseId, responseId),
+          eq(surveyAnswers.questionId, input.questionId)
+        ))
+        .limit(1);
+
+      if (existingAnswer) {
+        // Actualizar respuesta existente
+        await db
+          .update(surveyAnswers)
+          .set({
+            answerValue: input.answerValue,
+            answeredAt: new Date(),
+          })
+          .where(eq(surveyAnswers.id, existingAnswer.id));
+      } else {
+        // Crear nueva respuesta
+        await db.insert(surveyAnswers).values({
+          responseId,
+          questionId: input.questionId,
+          answerValue: input.answerValue,
+        });
+      }
+
+      return { success: true, responseId };
+    }),
+
   // Enviar respuesta de encuesta
   submitResponse: protectedProcedure
     .input(z.object({
@@ -1438,6 +1551,282 @@ export const surveysRouter = router({
           ...categories
         };
       });
+
+      return excelData;
+    }),
+
+  // Generar token único para un empleado por CURP
+  generateTokenByCURP: protectedProcedure
+    .input(z.object({
+      curp: z.string().length(18),
+      surveyId: z.number(),
+      expiresInDays: z.number().default(30),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Buscar usuario por CURP
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.curp, input.curp))
+        .limit(1);
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontró empleado con ese CURP" });
+      }
+
+      // Verificar si ya existe un token activo para este usuario y encuesta
+      const [existingToken] = await db
+        .select()
+        .from(surveyTokens)
+        .where(and(
+          eq(surveyTokens.userId, user.id),
+          eq(surveyTokens.surveyId, input.surveyId),
+          sql`${surveyTokens.expiresAt} > NOW()`,
+          sql`${surveyTokens.usedAt} IS NULL`
+        ))
+        .limit(1);
+
+      if (existingToken) {
+        // Retornar token existente
+        const surveyUrl = `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/${input.surveyId}/token/${existingToken.token}`;
+        return {
+          token: existingToken.token,
+          surveyUrl,
+          expiresAt: existingToken.expiresAt,
+          employee: {
+            name: user.name,
+            curp: user.curp,
+            email: user.email,
+          },
+        };
+      }
+
+      // Generar nuevo token
+      const token = generateToken();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
+
+      await db.insert(surveyTokens).values({
+        userId: user.id,
+        surveyId: input.surveyId,
+        token,
+        expiresAt,
+        sentVia: 'email',
+      });
+
+      const surveyUrl = `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/${input.surveyId}/token/${token}`;
+
+      return {
+        token,
+        surveyUrl,
+        expiresAt,
+        employee: {
+          name: user.name,
+          curp: user.curp,
+          email: user.email,
+        },
+      };
+    }),
+
+  // Validar token para acceso anónimo a encuesta
+  validateSurveyToken: publicProcedure
+    .input(z.object({
+      token: z.string(),
+      surveyId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [tokenRecord] = await db
+        .select({
+          id: surveyTokens.id,
+          userId: surveyTokens.userId,
+          surveyId: surveyTokens.surveyId,
+          token: surveyTokens.token,
+          expiresAt: surveyTokens.expiresAt,
+          usedAt: surveyTokens.usedAt,
+          userName: users.name,
+          userCurp: users.curp,
+          userEmail: users.email,
+        })
+        .from(surveyTokens)
+        .leftJoin(users, eq(surveyTokens.userId, users.id))
+        .where(and(
+          eq(surveyTokens.token, input.token),
+          eq(surveyTokens.surveyId, input.surveyId)
+        ))
+        .limit(1);
+
+      if (!tokenRecord) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Token inválido" });
+      }
+
+      // Verificar si el token ha expirado
+      if (new Date() > new Date(tokenRecord.expiresAt)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Token expirado" });
+      }
+
+      // Verificar si el token ya fue usado
+      if (tokenRecord.usedAt) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Token ya utilizado" });
+      }
+
+      return {
+        valid: true,
+        userId: tokenRecord.userId,
+        surveyId: tokenRecord.surveyId,
+        employee: {
+          name: tokenRecord.userName,
+          curp: tokenRecord.userCurp,
+          email: tokenRecord.userEmail,
+        },
+      };
+    }),
+
+  // Generar tokens para todos los empleados
+  generateTokensForAllEmployees: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      expiresInDays: z.number().default(30),
+      department: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener empleados (filtrar por departamento si se especifica)
+      const whereConditions = [sql`${users.curp} IS NOT NULL`];
+      
+      if (input.department) {
+        whereConditions.push(eq(users.departamento, input.department));
+      }
+
+      const employees = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          curp: users.curp,
+          email: users.email,
+          departamento: users.departamento,
+        })
+        .from(users)
+        .where(and(...whereConditions));
+
+      if (employees.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontraron empleados con CURP" });
+      }
+
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
+
+      const tokensGenerated = [];
+
+      for (const employee of employees) {
+        // Verificar si ya existe un token activo
+        const [existingToken] = await db
+          .select()
+          .from(surveyTokens)
+          .where(and(
+            eq(surveyTokens.userId, employee.id),
+            eq(surveyTokens.surveyId, input.surveyId),
+            sql`${surveyTokens.expiresAt} > NOW()`,
+            sql`${surveyTokens.usedAt} IS NULL`
+          ))
+          .limit(1);
+
+        if (existingToken) {
+          // Usar token existente
+          tokensGenerated.push({
+            employeeName: employee.name,
+            curp: employee.curp,
+            email: employee.email,
+            token: existingToken.token,
+            surveyUrl: `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/${input.surveyId}/token/${existingToken.token}`,
+            expiresAt: existingToken.expiresAt,
+          });
+        } else {
+          // Generar nuevo token
+          const token = generateToken();
+
+          await db.insert(surveyTokens).values({
+            userId: employee.id,
+            surveyId: input.surveyId,
+            token,
+            expiresAt,
+            sentVia: 'email',
+          });
+
+          tokensGenerated.push({
+            employeeName: employee.name,
+            curp: employee.curp,
+            email: employee.email,
+            token,
+            surveyUrl: `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/${input.surveyId}/token/${token}`,
+            expiresAt,
+          });
+        }
+      }
+
+      return {
+        generated: tokensGenerated.length,
+        tokens: tokensGenerated,
+      };
+    }),
+
+  // Marcar token como usado
+  markTokenAsUsed: publicProcedure
+    .input(z.object({
+      token: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      await db
+        .update(surveyTokens)
+        .set({ usedAt: new Date() })
+        .where(eq(surveyTokens.token, input.token));
+
+      return { success: true };
+    }),
+
+  // Exportar tokens a Excel
+  exportTokensToExcel: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const tokens = await db
+        .select({
+          employeeName: users.name,
+          curp: users.curp,
+          email: users.email,
+          departamento: users.departamento,
+          token: surveyTokens.token,
+          expiresAt: surveyTokens.expiresAt,
+          usedAt: surveyTokens.usedAt,
+        })
+        .from(surveyTokens)
+        .leftJoin(users, eq(surveyTokens.userId, users.id))
+        .where(eq(surveyTokens.surveyId, input.surveyId))
+        .orderBy(users.name);
+
+      const excelData = tokens.map(t => ({
+        'Nombre': t.employeeName,
+        'CURP': t.curp,
+        'Email': t.email,
+        'Departamento': t.departamento,
+        'URL de Encuesta': `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/${input.surveyId}/token/${t.token}`,
+        'Expira': t.expiresAt ? new Date(t.expiresAt).toLocaleDateString('es-MX') : '',
+        'Usado': t.usedAt ? 'Sí' : 'No',
+      }));
 
       return excelData;
     }),

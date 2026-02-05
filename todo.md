@@ -888,3 +888,60 @@
 - [ ] Probar dashboard de brechas críticas
 - [ ] Probar generación PDF de minutas
 - [ ] Guardar checkpoint con todas las funcionalidades
+
+
+## FASE NOM-035 COMPLETA: Sistema de Encuestas con Acceso Único y Plan de Acción Multinivel
+
+### Sistema de Tokens Únicos por CURP
+- [x] Crear tabla survey_tokens en schema con campos: token, employeeId, curp, surveyType, expiresAt, usedAt
+- [x] Implementar procedimiento generateTokenByCURP en router surveys
+- [x] Implementar procedimiento validateToken para acceso anónimo
+- [x] Crear procedimiento generateTokensForAllEmployees (generación masiva)
+- [x] Implementar exportación de tokens a Excel con URLs únicas
+- [x] Implementar procedimiento markTokenAsUsed
+- [ ] Crear página de acceso público con validación de token/CURP (frontend)
+
+### Guardado en Tiempo Real y Tabulación Automática
+- [x] Implementar procedimiento savePartialResponse en backend
+- [x] Implementar cálculo automático de resultados al completar encuesta
+- [x] Aplicar algoritmos oficiales de calificación NOM-035 (tablas de puntuación)
+- [x] Guardar resultados calculados en campo results de surveyResponses
+- [ ] Modificar SurveyForm para auto-guardar cada respuesta (debounced) (frontend)
+- [ ] Crear indicador visual de guardado automático en frontend
+
+### Emisión de Resultados con Colorimetría Oficial
+- [x] Implementar niveles de riesgo: Nulo, Bajo, Medio, Alto, Muy Alto
+- [x] Aplicar colores oficiales NOM-035 por nivel de riesgo
+- [x] Crear gráficas por categoría con Chart.js
+- [x] Crear gráficas por dominio y dimensión
+- [x] Implementar página de resultados individuales con colorimetría (SurveyResults.tsx)
+- [x] Agregar sección de recomendaciones según nivel de riesgo
+
+### Plan de Acción Multinivel
+- [x] Crear procedimiento getOrganizationalAnalysis (nivel empresa)
+- [x] Crear procedimiento getDepartmentalAnalysis (por departamento)
+- [x] Crear procedimiento getPositionAnalysis (por puesto)
+- [x] Crear procedimiento getAgeRangeAnalysis (por rango de edad)
+- [x] Crear procedimiento getGenderAnalysis (por género)
+- [x] Crear procedimiento getMaritalStatusAnalysis (por estado civil)
+- [x] Crear procedimiento getWorkScheduleAnalysis (por jornada)
+- [x] Crear procedimiento getContractTypeAnalysis (por tipo de contrato)
+- [x] Crear procedimiento getTenureAnalysis (por antigüedad en puesto)
+- [ ] Crear página ActionPlan.tsx con pestañas para cada nivel de análisis (frontend)
+- [ ] Implementar gráficas comparativas por segmento (frontend)
+- [ ] Agregar exportación a Excel de cada nivel de análisis (frontend)
+
+### Pruebas Integrales de Guías I, II y III
+- [ ] Probar flujo completo de Guía I (16 centros de trabajo o menos)
+- [ ] Probar flujo completo de Guía II (identificación y análisis de factores de riesgo)
+- [ ] Probar flujo completo de Guía III (identificación y análisis de factores de riesgo y violencia laboral)
+- [ ] Verificar guardado en tiempo real en las tres guías
+- [ ] Verificar cálculo automático de resultados
+- [ ] Verificar emisión de resultados con colorimetría correcta
+- [ ] Probar acceso mediante token/CURP
+- [ ] Validar que resultados se guardan correctamente en base de datos
+
+### Checkpoint Final
+- [ ] Ejecutar todos los tests del sistema de encuestas
+- [ ] Verificar que no hay errores en consola
+- [ ] Crear checkpoint con sistema NOM-035 completamente funcional

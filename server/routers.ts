@@ -21,6 +21,7 @@ import { competenciesStatsRouter } from "./routers/competenciesStats";
 import { skillsMatrixRouter } from "./routers/skillsMatrix";
 import { meetingMinutesRouter } from "./routers/meetingMinutes";
 import { surveyDistributionRouter } from "./routers/surveyDistribution";
+import { actionPlanRouter } from "./routers/actionPlan";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -822,6 +823,9 @@ export const appRouter = router({
 
   // Employees management
   employees: employeesRouter,
+
+  // Action Plan (Plan de Acción Multinivel NOM-035)
+  actionPlan: actionPlanRouter,
 });
 
 export type AppRouter = typeof appRouter;
