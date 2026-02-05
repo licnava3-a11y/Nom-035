@@ -79,8 +79,8 @@ export const organizationalCompetenciesRouter = router({
       // Parse JSON fields
       return competencies.map((c) => ({
         ...c,
-        appliesToDepartments: c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null,
-        appliesToRoles: c.appliesToRoles ? JSON.parse(c.appliesToRoles) : null,
+        appliesToDepartments: c.appliesToDepartments && c.appliesToDepartments !== "all" ? JSON.parse(c.appliesToDepartments) : c.appliesToDepartments,
+        appliesToRoles: c.appliesToRoles && c.appliesToRoles !== "all" ? JSON.parse(c.appliesToRoles) : c.appliesToRoles,
       }));
     }),
 

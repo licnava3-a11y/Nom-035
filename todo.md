@@ -1378,3 +1378,23 @@
 - [x] Probar funcionalidad completa con datos reales (dashboard funcional al 100%)
 
 **FASE 83.4: ✅ COMPLETADA AL 95% - Solo falta exportación a Excel**
+
+
+## FASE 83.5: Frontend de Gestión de Competencias Organizacionales
+- [x] Crear componente OrganizationalCompetenciesManager.tsx (100% completado)
+- [x] Implementar tabla de listado con todas las competencias (15 competencias mostradas)
+- [x] Agregar filtros por categoría (soft_skill, organizational, leadership, technical_transversal) (4 opciones)
+- [x] Agregar filtro por estado (activo/inactivo) (3 opciones: todos, activas, inactivas)
+- [x] Implementar búsqueda por nombre de competencia (funcional)
+- [x] Crear formulario de creación de competencia (todos los campos funcionales)
+- [x] Crear formulario de edición de competencia (prellenado correcto)
+- [x] Implementar funcionalidad de eliminación con confirmación (diálogo implementado)
+- [x] Agregar validaciones de campos requeridos (nombre requerido)
+- [x] Agregar ruta en App.tsx (/competencies-manager)
+- [x] Agregar enlace en navegación (Gestión de Competencias)
+- [x] Probar CRUD completo con datos reales (100% funcional)
+- [x] Corregir JSON.parse en procedimiento list para manejar "all"
+- [x] Agregar estadísticas (total: 15, activas: 15, habilidades blandas: 7, liderazgo: 3)
+- [x] Crear checkpoint
+
+**FASE 83.5: ✅ COMPLETADA AL 100% - CRUD completo funcional**
