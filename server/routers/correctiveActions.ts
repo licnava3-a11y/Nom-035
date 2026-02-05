@@ -578,4 +578,20 @@ export const correctiveActionsRouter = router({
         });
       }
     }),
+
+  // Eliminar acción correctiva
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+
+      await dbInstance.delete(correctiveActions)
+        .where(eq(correctiveActions.id, input.id));
+
+      return { success: true };
+    }),
 });

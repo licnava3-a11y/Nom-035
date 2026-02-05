@@ -144,7 +144,7 @@ function Router() {
           <SkillsMatrix />
         </DashboardLayout>
       </Route>
-      <Route path={" /competency-evaluation"}>
+      <Route path={"/competency-evaluation"}>
         <DashboardLayout>
           <EmployeeCompetencyEvaluation />
         </DashboardLayout>

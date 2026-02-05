@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Calendar, CheckCircle2, Clock, AlertCircle, TrendingUp } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, AlertCircle, TrendingUp, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 type RiskLevel = "nulo" | "bajo" | "medio" | "alto" | "muy_alto";
 type ActionStatus = "pendiente" | "en_proceso" | "completada" | "cancelada";
@@ -25,7 +26,14 @@ export default function CorrectiveActions() {
   // Filter state
   const [statusFilter, setStatusFilter] = useState<ActionStatus | "todas">("todas");
   const [departmentFilter, setDepartmentFilter] = useState("");
+  const [riskLevelFilter, setRiskLevelFilter] = useState<RiskLevel | "todos">("todos");
   const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Edit modal state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingAction, setEditingAction] = useState<any>(null);
 
   // Queries
   const { data: actions, refetch: refetchActions } = trpc.correctiveActions.getAll.useQuery();
@@ -49,12 +57,34 @@ export default function CorrectiveActions() {
     },
   });
 
+  const updateAction = trpc.correctiveActions.update.useMutation({
+    onSuccess: () => {
+      toast.success("Acción actualizada exitosamente");
+      setEditDialogOpen(false);
+      setEditingAction(null);
+      refetchActions();
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
   const updateStatus = trpc.correctiveActions.updateStatus.useMutation({
     onSuccess: () => {
       toast.success("Estado actualizado exitosamente");
       refetchActions();
     },
     onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const deleteAction = trpc.correctiveActions.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Acción eliminada exitosamente");
+      refetchActions();
+    },
+    onError: (error: any) => {
       toast.error(`Error: ${error.message}`);
     },
   });
@@ -77,8 +107,32 @@ export default function CorrectiveActions() {
   };
 
   const handleStatusChange = (id: number, newStatus: ActionStatus) => {
-    if (confirm(`¿Está seguro de cambiar el estado a "${newStatus}"?`)) {
+    if (confirm(`¿Está seguro de cambiar el estado a "${getStatusLabel(newStatus)}"?`)) {
       updateStatus.mutate({ id, status: newStatus });
+    }
+  };
+
+  const handleEdit = (action: any) => {
+    setEditingAction(action);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateAction = () => {
+    if (!editingAction) return;
+    
+    updateAction.mutate({
+      id: editingAction.id,
+      description: editingAction.description,
+      riskLevel: editingAction.riskLevel,
+      departamento: editingAction.departamento,
+      responsibleUserId: editingAction.responsibleUserId,
+      dueDate: editingAction.dueDate,
+    });
+  };
+
+  const handleDelete = (id: number, description: string) => {
+    if (confirm(`¿Está seguro de eliminar la acción "${description.substring(0, 50)}..."?`)) {
+      deleteAction.mutate({ id });
     }
   };
 
@@ -86,8 +140,30 @@ export default function CorrectiveActions() {
   const filteredActions = actions?.filter((action) => {
     if (statusFilter !== "todas" && action.status !== statusFilter) return false;
     if (departmentFilter && action.departamento !== departmentFilter) return false;
+    if (riskLevelFilter !== "todos" && action.riskLevel !== riskLevelFilter) return false;
     if (searchText && !action.description.toLowerCase().includes(searchText.toLowerCase())) return false;
     return true;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil((filteredActions?.length || 0) / itemsPerPage);
+  const paginatedActions = filteredActions?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Get upcoming actions (due in next 7 days)
+  const upcomingActions = actions?.filter((action) => {
+    if (action.status === "completada" || action.status === "cancelada") return false;
+    if (!action.dueDate) return false;
+    const dueDate = new Date(action.dueDate);
+    const today = new Date();
+    const diffTime = dueDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 7;
+  }).sort((a, b) => {
+    if (!a.dueDate || !b.dueDate) return 0;
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
 
   // Get unique departments
@@ -248,7 +324,7 @@ export default function CorrectiveActions() {
             </CardHeader>
             <CardContent>
               {/* Filters */}
-              <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="statusFilter">Filtrar por Estado</Label>
                   <select
@@ -283,6 +359,23 @@ export default function CorrectiveActions() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="riskLevelFilter">Filtrar por Nivel de Riesgo</Label>
+                  <select
+                    id="riskLevelFilter"
+                    value={riskLevelFilter}
+                    onChange={(e) => setRiskLevelFilter(e.target.value as RiskLevel | "todos")}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="todos">Todos</option>
+                    <option value="nulo">Nulo</option>
+                    <option value="bajo">Bajo</option>
+                    <option value="medio">Medio</option>
+                    <option value="alto">Alto</option>
+                    <option value="muy_alto">Muy Alto</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="searchText">Buscar</Label>
                   <Input
                     id="searchText"
@@ -308,7 +401,7 @@ export default function CorrectiveActions() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredActions?.map((action) => (
+                    {paginatedActions?.map((action) => (
                       <tr key={action.id} className="border-b hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{action.id}</td>
                         <td className="px-4 py-3 text-sm max-w-xs truncate">{action.description}</td>
@@ -326,7 +419,22 @@ export default function CorrectiveActions() {
                         <td className="px-4 py-3 text-sm">
                           {action.dueDate ? new Date(action.dueDate).toLocaleDateString("es-MX") : "Sin fecha"}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(action)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(action.id, action.description)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                           <select
                             value={action.status}
                             onChange={(e) => handleStatusChange(action.id, e.target.value as ActionStatus)}
@@ -349,6 +457,45 @@ export default function CorrectiveActions() {
                   </div>
                 )}
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6">
+                  <div className="text-sm text-gray-600">
+                    Mostrando {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredActions?.length || 0)} de {filteredActions?.length || 0} acciones
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -407,9 +554,119 @@ export default function CorrectiveActions() {
             </Card>
           </div>
 
+          {/* Upcoming Actions */}
+          {upcomingActions && upcomingActions.length > 0 && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Próximas Acciones a Vencer (7 días)</CardTitle>
+                <CardDescription>
+                  Acciones correctivas que vencen en los próximos 7 días
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {upcomingActions.slice(0, 5).map((action) => {
+                    if (!action.dueDate) return null;
+                    const dueDate = new Date(action.dueDate);
+                    const today = new Date();
+                    const diffTime = dueDate.getTime() - today.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    return (
+                      <div key={action.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{action.description.substring(0, 80)}...</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRiskLevelColor(action.riskLevel)}`}>
+                              {getRiskLevelLabel(action.riskLevel)}
+                            </span>
+                            <span className="text-xs text-gray-600">{action.departamento}</span>
+                          </div>
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className={`text-sm font-semibold ${diffDays <= 2 ? 'text-red-600' : 'text-orange-600'}`}>
+                            {diffDays === 0 ? 'Hoy' : diffDays === 1 ? 'Mañana' : `${diffDays} días`}
+                          </p>
+                          <p className="text-xs text-gray-600">{dueDate.toLocaleDateString("es-MX")}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Distribution Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Distribución por Estado</CardTitle>
+                <CardDescription>Cantidad de acciones por estado actual</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {stats?.byStatus.map((item) => {
+                    const percentage = actions?.length ? (item.count / actions.length) * 100 : 0;
+                    return (
+                      <div key={item.status} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">{getStatusLabel(item.status)}</span>
+                          <span className="text-gray-600">{item.count} ({percentage.toFixed(0)}%)</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              item.status === 'completada' ? 'bg-green-600' :
+                              item.status === 'en_proceso' ? 'bg-blue-600' :
+                              item.status === 'pendiente' ? 'bg-yellow-600' :
+                              'bg-red-600'
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Cumplimiento por Departamento</CardTitle>
+                <CardDescription>Porcentaje de acciones completadas por área</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {departments.map((dept) => {
+                    const deptActions = actions?.filter(a => a.departamento === dept) || [];
+                    const completed = deptActions.filter(a => a.status === 'completada').length;
+                    const percentage = deptActions.length ? (completed / deptActions.length) * 100 : 0;
+                    
+                    return (
+                      <div key={dept} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-medium">{dept}</span>
+                          <span className="text-gray-600">{completed}/{deptActions.length} ({percentage.toFixed(0)}%)</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-600 h-2 rounded-full"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle>Porcentaje de Cumplimiento</CardTitle>
+              <CardTitle>Porcentaje de Cumplimiento General</CardTitle>
               <CardDescription>
                 Indicador de progreso en la implementación de acciones correctivas
               </CardDescription>
@@ -459,6 +716,93 @@ export default function CorrectiveActions() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar Acción Correctiva</DialogTitle>
+            <DialogDescription>
+              Modifique los detalles de la acción correctiva
+            </DialogDescription>
+          </DialogHeader>
+          {editingAction && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Descripción *</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editingAction.description}
+                  onChange={(e) => setEditingAction({ ...editingAction, description: e.target.value })}
+                  rows={4}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-riskLevel">Nivel de Riesgo *</Label>
+                  <select
+                    id="edit-riskLevel"
+                    value={editingAction.riskLevel}
+                    onChange={(e) => setEditingAction({ ...editingAction, riskLevel: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="nulo">Nulo</option>
+                    <option value="bajo">Bajo</option>
+                    <option value="medio">Medio</option>
+                    <option value="alto">Alto</option>
+                    <option value="muy_alto">Muy Alto</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-department">Departamento *</Label>
+                  <Input
+                    id="edit-department"
+                    value={editingAction.departamento}
+                    onChange={(e) => setEditingAction({ ...editingAction, departamento: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-responsible">Responsable *</Label>
+                  <select
+                    id="edit-responsible"
+                    value={editingAction.responsibleUserId}
+                    onChange={(e) => setEditingAction({ ...editingAction, responsibleUserId: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    {users?.map((user: any) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-dueDate">Fecha Límite *</Label>
+                  <Input
+                    id="edit-dueDate"
+                    type="date"
+                    value={editingAction.dueDate}
+                    onChange={(e) => setEditingAction({ ...editingAction, dueDate: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleUpdateAction} disabled={updateAction.isPending}>
+                  {updateAction.isPending ? "Actualizando..." : "Actualizar"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

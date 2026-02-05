@@ -124,8 +124,8 @@ export const organizationalCompetenciesRouter = router({
         // Handle special case: "all" means applies to everyone
         if (c.appliesToDepartments === "all") return true;
 
-        const departments = c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null;
-        const roles = c.appliesToRoles ? JSON.parse(c.appliesToRoles) : null;
+        const departments = c.appliesToDepartments && c.appliesToDepartments !== "all" ? JSON.parse(c.appliesToDepartments) : null;
+        const roles = c.appliesToRoles && c.appliesToRoles !== "all" ? JSON.parse(c.appliesToRoles) : null;
 
         // If no restrictions, applies to everyone
         if (!departments && !roles) return true;

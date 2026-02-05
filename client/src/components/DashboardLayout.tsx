@@ -46,6 +46,7 @@ const menuItems = [
       { label: "Tamaño de Muestra", path: "/surveys/sample-size", badge: true },
       { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard" },
       { label: "Dashboard", path: "/surveys/dashboard" },
+      { label: "Acciones Correctivas", path: "/surveys/corrective-actions" },
     ]
   },
   { icon: AlertCircle, label: "Casos", path: "/cases", roles: ["admin", "committee"] },

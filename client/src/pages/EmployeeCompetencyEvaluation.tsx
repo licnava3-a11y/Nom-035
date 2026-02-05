@@ -5,10 +5,9 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Save, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-type CompetencyLevel = "ninguno" | "basico" | "intermedio" | "avanzado" | "experto";
+type CompetencyLevel = "basico" | "intermedio" | "avanzado" | "experto";
 
 const levelValue: Record<CompetencyLevel, number> = {
-  ninguno: 0,
   basico: 1,
   intermedio: 2,
   avanzado: 3,
@@ -16,7 +15,6 @@ const levelValue: Record<CompetencyLevel, number> = {
 };
 
 const levelLabels: Record<CompetencyLevel, string> = {
-  ninguno: "Sin Evaluar",
   basico: "Básico",
   intermedio: "Intermedio",
   avanzado: "Avanzado",
@@ -24,7 +22,6 @@ const levelLabels: Record<CompetencyLevel, string> = {
 };
 
 const levelColors: Record<CompetencyLevel, string> = {
-  ninguno: "bg-gray-100 text-gray-700 border-gray-300",
   basico: "bg-yellow-100 text-yellow-800 border-yellow-300",
   intermedio: "bg-blue-100 text-blue-800 border-blue-300",
   avanzado: "bg-green-100 text-green-800 border-green-300",
@@ -85,9 +82,8 @@ export default function EmployeeCompetencyEvaluation() {
         );
         if (existing) {
           levels[comp.id] = existing.currentLevel as CompetencyLevel;
-        } else {
-          levels[comp.id] = "ninguno";
         }
+        // No establecer nivel por defecto si no existe
       });
       setCompetencyLevels(levels);
     }
@@ -104,7 +100,7 @@ export default function EmployeeCompetencyEvaluation() {
     if (!selectedEmployeeId) return;
 
     const level = competencyLevels[competencyId];
-    if (!level || level === "ninguno") {
+    if (!level) {
       toast.error("Por favor selecciona un nivel de competencia");
       return;
     }
@@ -195,8 +191,8 @@ export default function EmployeeCompetencyEvaluation() {
           )}
 
           {applicableCompetencies.map((comp) => {
-            const currentLevel = competencyLevels[comp.id] || "ninguno";
-            const gap = calculateGap(comp.requiredLevel as CompetencyLevel, currentLevel);
+            const currentLevel = competencyLevels[comp.id];
+            const gap = currentLevel ? calculateGap(comp.requiredLevel as CompetencyLevel, currentLevel) : levelValue[comp.requiredLevel as CompetencyLevel];
 
             return (
               <Card key={comp.id} className="p-6">
@@ -236,12 +232,12 @@ export default function EmployeeCompetencyEvaluation() {
                       <label className="text-sm font-medium text-gray-700">Nivel Actual</label>
                       <select
                         className="mt-1 w-full p-2 border rounded-lg"
-                        value={currentLevel}
+                        value={currentLevel || ""}
                         onChange={(e) =>
                           handleLevelChange(comp.id, e.target.value as CompetencyLevel)
                         }
                       >
-                        <option value="ninguno">Sin Evaluar</option>
+                        <option value="">-- Seleccionar nivel --</option>
                         <option value="basico">Básico</option>
                         <option value="intermedio">Intermedio</option>
                         <option value="avanzado">Avanzado</option>
@@ -254,7 +250,7 @@ export default function EmployeeCompetencyEvaluation() {
                   <div className="flex justify-end">
                     <Button
                       onClick={() => handleSave(comp.id, comp.competencyName)}
-                      disabled={isSaving || currentLevel === "ninguno"}
+                      disabled={isSaving || !currentLevel}
                     >
                       {isSaving ? (
                         <>

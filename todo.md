@@ -1398,3 +1398,23 @@
 - [x] Crear checkpoint
 
 **FASE 83.5: ✅ COMPLETADA AL 100% - CRUD completo funcional**
+
+
+## FASE 83.6: Refactorización de Formulario de Evaluación de Competencias
+- [ ] Refactorizar componente EmployeeCompetencyEvaluation.tsx
+- [ ] Simplificar lógica de consultas tRPC
+- [ ] Implementar carga correcta de competencias organizacionales aplicables
+- [ ] Mostrar competencias actuales del empleado
+- [ ] Crear interfaz de evaluación con escala de niveles (ninguno, básico, intermedio, avanzado, experto)
+- [ ] Implementar cálculo automático de brechas (gaps) en tiempo real
+- [ ] Agregar guardado de evaluaciones
+- [ ] Probar funcionalidad completa con empleado real
+- [ ] Crear checkpoint
+
+
+## CORRECCIONES URGENTES - 5 FEB 2026
+- [x] Corregir error 404 en página de Evaluación por Competencias (/competency-evaluation) - VERIFICADO: Página funciona correctamente
+- [x] Corregir errores de TypeScript en CorrectiveActions.tsx (manejo de valores null en fechas) - COMPLETADO
+- [x] Agregar procedimiento delete al router correctiveActions - COMPLETADO
+- [x] Agregar enlace de Acciones Correctivas en menú de Encuestas NOM-035 - COMPLETADO
+- [ ] Probar funcionalidad completa de FASE 69 (Panel de Acciones Correctivas)
