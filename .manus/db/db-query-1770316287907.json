@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, competencyName, competencyCategory, requiredLevel FROM organizationalCompetencies ORDER BY competencyCategory, competencyName;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, competencyName, competencyCategory, requiredLevel FROM organizationalCompetencies ORDER BY competencyCategory, competencyName;",
+  "rows": [
+    {
+      "id": "5",
+      "competencyName": "Adaptabilidad al Cambio",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "1",
+      "competencyName": "Comunicación Efectiva",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "8",
+      "competencyName": "Inteligencia Emocional",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "11",
+      "competencyName": "Manejo de Conflictos",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "14",
+      "competencyName": "Negociación",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "4",
+      "competencyName": "Resolución de Problemas",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "2",
+      "competencyName": "Trabajo en Equipo",
+      "competencyCategory": "soft_skill",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "12",
+      "competencyName": "Creatividad e Innovación",
+      "competencyCategory": "organizational",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "13",
+      "competencyName": "Ética Profesional",
+      "competencyCategory": "organizational",
+      "requiredLevel": "avanzado"
+    },
+    {
+      "id": "7",
+      "competencyName": "Gestión del Tiempo",
+      "competencyCategory": "organizational",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "10",
+      "competencyName": "Orientación a Resultados",
+      "competencyCategory": "organizational",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "6",
+      "competencyName": "Pensamiento Crítico",
+      "competencyCategory": "organizational",
+      "requiredLevel": "intermedio"
+    },
+    {
+      "id": "15",
+      "competencyName": "Delegación Efectiva",
+      "competencyCategory": "leadership",
+      "requiredLevel": "avanzado"
+    },
+    {
+      "id": "3",
+      "competencyName": "Liderazgo",
+      "competencyCategory": "leadership",
+      "requiredLevel": "avanzado"
+    },
+    {
+      "id": "9",
+      "competencyName": "Toma de Decisiones",
+      "competencyCategory": "leadership",
+      "requiredLevel": "avanzado"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcompetencyName\tcompetencyCategory\trequiredLevel\n5\tAdaptabilidad al Cambio\tsoft_skill\tintermedio\n1\tComunicación Efectiva\tsoft_skill\tintermedio\n8\tInteligencia Emocional\tsoft_skill\tintermedio\n11\tManejo de Conflictos\tsoft_skill\tintermedio\n14\tNegociación\tsoft_skill\tintermedio\n4\tResolución de Problemas\tsoft_skill\tintermedio\n2\tTrabajo en Equipo\tsoft_skill\tintermedio\n12\tCreatividad e Innovación\torganizational\tintermedio\n13\tÉtica Profesional\torganizational\tavanzado\n7\tGestión del Tiempo\torganizational\tintermedio\n10\tOrientación a Resultados\torganizational\tintermedio\n6\tPensamiento Crítico\torganizational\tintermedio\n15\tDelegación Efectiva\tleadership\tavanzado\n3\tLiderazgo\tleadership\tavanzado\n9\tToma de Decisiones\tleadership\tavanzado\n",
+  "stderr": "",
+  "execution_time_ms": 343
+}

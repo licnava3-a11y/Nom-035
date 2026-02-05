@@ -1338,3 +1338,17 @@
 - [ ] Probar reporte consolidado de necesidades de capacitación (frontend pendiente)
 
 **FASE 83.1: ✅ BACKEND COMPLETADO AL 100% - Frontend pendiente**
+
+
+## FASE 83.2: Datos Iniciales de Competencias Organizacionales
+- [x] Definir 15 habilidades blandas y transversales esenciales
+- [x] Insertar competencias en tabla organizationalCompetencies (15 registros)
+- [x] Verificar inserción correcta en base de datos (15 competencias activas)
+- [x] Crear checkpoint con datos iniciales
+
+**Competencias agregadas:**
+- Liderazgo: 3 competencias (Liderazgo, Toma de Decisiones, Delegación Efectiva)
+- Soft Skills: 7 competencias (Comunicación, Trabajo en Equipo, Resolución de Problemas, etc.)
+- Organizacionales: 5 competencias (Pensamiento Crítico, Gestión del Tiempo, Ética Profesional, etc.)
+
+**FASE 83.2: ✅ COMPLETADA AL 100%**
