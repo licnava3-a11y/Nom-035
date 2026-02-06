@@ -20,10 +20,15 @@ export function registerOAuthRoutes(app: Express) {
     }
 
     try {
+      console.log("[OAuth] Starting callback with code:", code?.substring(0, 10) + "...");
       const tokenResponse = await sdk.exchangeCodeForToken(code, state);
+      console.log("[OAuth] Token exchange successful");
+      
       const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
+      console.log("[OAuth] User info retrieved:", { openId: userInfo.openId, email: userInfo.email });
 
       if (!userInfo.openId) {
+        console.error("[OAuth] Missing openId from user info");
         res.status(400).json({ error: "openId missing from user info" });
         return;
       }
@@ -35,14 +40,18 @@ export function registerOAuthRoutes(app: Express) {
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
         lastSignedIn: new Date(),
       });
+      console.log("[OAuth] User upserted successfully");
 
       const sessionToken = await sdk.createSessionToken(userInfo.openId, {
         name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
       });
+      console.log("[OAuth] Session token created");
 
       const cookieOptions = getSessionCookieOptions(req);
+      console.log("[OAuth] Cookie options:", { ...cookieOptions, hostname: req.hostname });
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      console.log("[OAuth] Cookie set, redirecting to /");
 
       res.redirect(302, "/");
     } catch (error) {

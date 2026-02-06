@@ -65,8 +65,30 @@ export function useAuth(options?: UseAuthOptions) {
     if (meQuery.isLoading || logoutMutation.isPending) return;
     if (state.user) return;
     if (typeof window === "undefined") return;
-    if (window.location.pathname === redirectPath) return;
+    
+    // Prevenir ciclos infinitos: verificar si ya estamos en una URL de login/callback
+    const currentPath = window.location.pathname;
+    if (currentPath.includes("/oauth/") || currentPath.includes("/login")) {
+      console.log("[useAuth] Already in auth flow, skipping redirect");
+      return;
+    }
+    
+    // Verificar si la URL de redirección es la misma que la actual
+    try {
+      const redirectUrl = new URL(redirectPath, window.location.origin);
+      if (window.location.pathname === redirectUrl.pathname) {
+        console.log("[useAuth] Already at redirect path, skipping redirect");
+        return;
+      }
+    } catch (e) {
+      // Si redirectPath no es una URL válida, comparar directamente
+      if (window.location.pathname === redirectPath) {
+        console.log("[useAuth] Already at redirect path, skipping redirect");
+        return;
+      }
+    }
 
+    console.log("[useAuth] Redirecting to:", redirectPath);
     window.location.href = redirectPath
   }, [
     redirectOnUnauthenticated,
