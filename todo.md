@@ -1795,3 +1795,34 @@
 - [ ] Verificar gráfica "Resultados por Departamento" en Panel NOM-035 (pendiente)
 - [ ] Configuración SMTP - DEJADA PENDIENTE POR SOLICITUD DEL USUARIO
 
+
+## PRUEBAS COMPLETADAS - 6 FEB 2026
+- [x] Crear token de prueba para usuario María González
+- [x] Verificar acceso a página de aplicación con token
+- [x] Confirmar que flujo automático detecta Guía I completada y presenta Guía III
+- [x] Acceder al Panel de Administración NOM-035
+- [x] Verificar estadísticas generales (20 respuestas, 100% completadas, 5 alto riesgo)
+- [x] Verificar gráfica "Distribución por Nivel de Riesgo" - funcional
+- [x] Verificar gráfica "Resultados por Departamento" - ✅ MUESTRA CORRECTAMENTE LOS 5 DEPARTAMENTOS
+  * Tecnología
+  * Recursos Humanos
+  * Ventas
+  * Producción
+  * Administración
+- [x] Confirmar correlación de datos con departamentos reales
+- [x] Documentar resultados de pruebas
+
+## RESULTADO FINAL
+✅✅✅ TODAS LAS PRUEBAS EXITOSAS
+- Flujo de encuestas con token: FUNCIONAL
+- Visualización de gráficas: CORRECTA
+- Correlación de datos por departamento: VERIFICADA
+
+
+
+## BUG CRÍTICO - COMPONENTES SELECT (6 FEB 2026)
+- [x] Corregir error NotFoundError en /meeting-minutes: "No se pudo ejecutar 'removeChild' en 'Node'"
+- [x] Corregir error NotFoundError en /reports: "No se pudo ejecutar 'removeChild' en 'Node'"
+- [x] Reemplazar componentes Select de shadcn/ui por elementos HTML nativos en MeetingMinutes.tsx
+- [x] Reemplazar componentes Select de shadcn/ui por elementos HTML nativos en Reports.tsx
+- [x] Probar ambas páginas después de corrección - AMBAS FUNCIONAN CORRECTAMENTE
