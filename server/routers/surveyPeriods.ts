@@ -4,10 +4,10 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { surveyPeriods, users, surveyTokens, surveys, surveyResponses } from "../../drizzle/schema";
 import { eq, and, sql, gte, lte, isNull } from "drizzle-orm";
+import crypto from "crypto";
 
 // Función para generar token único
 function generateToken(): string {
-  const crypto = require("crypto");
   return crypto.randomBytes(32).toString("hex");
 }
 
