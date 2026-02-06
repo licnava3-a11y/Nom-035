@@ -49,6 +49,7 @@ const menuItems = [
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions" },
       { label: "Panel de Administración", path: "/surveys/admin-panel" },
       { label: "Periodos de Aplicación", path: "/surveys/periods" },
+      { label: "Panel de Administración NOM-035", path: "/surveys/nom035-admin" },
     ]
   },
   { icon: AlertCircle, label: "Casos", path: "/cases", roles: ["admin", "committee"] },

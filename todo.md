@@ -1574,3 +1574,90 @@
 - [x] Verificar estadísticas del periodo - VERIFICADO: 0 respuestas completadas, 0% tasa de completitud
 
 **PRUEBA DE SISTEMA DE PERIODOS: ✅ FUNCIONAL - Sistema operativo**
+
+
+## FASE 76: Panel de Administración NOM-035 (FRONTEND) - 6 FEB 2026
+- [x] Crear componente Nom035AdminPanel.tsx - COMPLETADO
+- [x] Implementar sección de estadísticas generales con tarjetas - COMPLETADO
+- [x] Implementar gráfica de distribución de riesgo (Chart.js - Doughnut) - COMPLETADO
+- [x] Implementar gráfica de resultados por departamento (Chart.js - Bar) - COMPLETADO
+- [x] Implementar sección de comparación entre periodos - COMPLETADO
+  - [x] Selector múltiple de periodos (máximo 5) - COMPLETADO
+  - [x] Gráfica comparativa de tasas de completitud - COMPLETADO
+  - [x] Gráfica comparativa de porcentajes de alto riesgo - COMPLETADO
+  - [x] Tabla comparativa de estadísticas - COMPLETADO
+- [x] Implementar sección de tendencias históricas - COMPLETADO
+  - [x] Gráfica de línea con evolución temporal - COMPLETADO
+  - [x] Selector de tipo de encuesta (Guía I, II, III) - COMPLETADO
+- [x] Implementar sección de recomendaciones automáticas - COMPLETADO
+  - [x] Tarjetas de recomendaciones con prioridad - COMPLETADO
+  - [x] Lista de acciones sugeridas - COMPLETADO
+  - [x] Indicadores visuales de prioridad (Alta, Media, Baja) - COMPLETADO
+- [x] Agregar filtros por periodo y tipo de encuesta - COMPLETADO
+- [x] Agregar ruta en App.tsx - COMPLETADO
+- [x] Agregar enlace en menú de Encuestas NOM-035 - COMPLETADO
+- [ ] Probar funcionalidad completa
+- [ ] Guardar checkpoint
+
+**FASE 76: ✅ IMPLEMENTACIÓN COMPLETA - Pendiente pruebas**
+
+## FASE 78: Sistema de Tokens Avanzado CON Autenticación - 6 FEB 2026
+
+### Backend
+- [ ] Crear router surveyTokensAdvanced con procedimientos tRPC
+- [ ] Implementar generateMassiveTokens para generación masiva
+- [ ] Implementar getTokensByPeriod para obtener tokens de un periodo
+- [ ] Implementar exportTokensToExcel para exportación
+- [ ] Implementar validateToken para validación de token
+- [ ] Implementar getSurveyByToken para obtener encuesta asociada
+- [ ] Implementar getNextSurveyInSequence para flujo automático Guía I → II/III
+- [ ] Determinar automáticamente Guía II o III según tamaño de empresa
+- [ ] Implementar lógica de sesión persistente para no volver a autenticar
+
+### Frontend
+- [ ] Crear componente SurveyTokensManager.tsx
+- [ ] Implementar botón de generación masiva de tokens
+- [ ] Implementar tabla de tokens generados con información
+- [ ] Implementar botón de exportación a Excel
+- [ ] Implementar generación de códigos QR por token
+- [ ] Crear página pública SurveyPublicAccess.tsx CON autenticación
+- [ ] Implementar formulario de acceso con token
+- [ ] Implementar flujo automático: Guía I → Guía II/III sin re-autenticar
+- [ ] Mostrar indicador de progreso (Guía I completada, continuar con II/III)
+- [ ] Agregar rutas en App.tsx
+- [ ] Agregar enlaces en menú
+- [ ] Probar flujo completo
+- [ ] Guardar checkpoint
+
+## FASE 82: Expediente Electrónico - 6 FEB 2026
+
+### Backend
+- [ ] Crear tabla employee_documents en schema
+  - [ ] Campos: id, employeeId, documentType, fileName, fileUrl, fileKey, uploadDate, expirationDate, status, uploadedBy
+- [ ] Generar migración SQL
+- [ ] Ejecutar migración
+- [ ] Crear router employeeDocuments con procedimientos tRPC
+- [ ] Implementar uploadDocument para subir documentos a S3
+- [ ] Implementar getDocumentsByEmployee para obtener documentos de un empleado
+- [ ] Implementar getDocumentById para obtener detalles de un documento
+- [ ] Implementar deleteDocument para eliminar documento
+- [ ] Implementar getExpiringDocuments para alertas de vencimiento
+- [ ] Implementar getMissingDocuments para documentos faltantes
+- [ ] Crear procedimiento de alertas automáticas por correo (7 días antes)
+
+### Frontend
+- [ ] Crear componente EmployeeDocuments.tsx
+- [ ] Implementar sección de carga de documentos (drag & drop)
+- [ ] Implementar selector de tipo de documento (catálogo)
+- [ ] Implementar campo de fecha de vencimiento
+- [ ] Implementar tabla de documentos con filtros
+- [ ] Implementar visualizador integrado de documentos (PDF, imágenes)
+- [ ] Implementar botón de descarga de documentos
+- [ ] Implementar botón de eliminación con confirmación
+- [ ] Implementar sección de alertas de documentos próximos a vencer
+- [ ] Implementar sección de documentos faltantes
+- [ ] Agregar acceso desde perfil de empleado
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar enlace en menú de Trabajadores
+- [ ] Probar funcionalidad completa
+- [ ] Guardar checkpoint
