@@ -4,10 +4,12 @@ import { trpc } from "../lib/trpc";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import SurveyFormWithToken from "../components/SurveyFormWithToken";
 
 export default function SurveyApply() {
   const [, setLocation] = useLocation();
   const [tokenParam, setTokenParam] = useState<string | null>(null);
+  const [showSurvey, setShowSurvey] = useState(false);
 
   useEffect(() => {
     // Obtener token de la URL
@@ -90,6 +92,18 @@ export default function SurveyApply() {
   const surveyTypeToDisplay = tokenInfo?.nextSurvey || tokenInfo?.surveyType;
   const surveyName = getSurveyDisplayName(surveyTypeToDisplay || "");
 
+  // Si ya se hizo clic en "Comenzar Encuesta", mostrar el formulario
+  if (showSurvey && tokenParam && surveyTypeToDisplay) {
+    return (
+      <SurveyFormWithToken
+        token={tokenParam}
+        surveyType={surveyTypeToDisplay}
+        periodId={tokenInfo?.periodId || 0}
+        employeeId={tokenInfo?.userId || 0}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto py-8">
@@ -144,6 +158,9 @@ export default function SurveyApply() {
             <p>
               • La encuesta tomará aproximadamente 15-20 minutos.
             </p>
+            <p>
+              • Tus respuestas se guardarán automáticamente mientras avanzas.
+            </p>
           </div>
         </Card>
 
@@ -152,11 +169,7 @@ export default function SurveyApply() {
           <Button
             size="lg"
             className="px-8 py-6 text-lg"
-            onClick={() => {
-              // TODO: Redirigir a la encuesta correspondiente
-              // Por ahora, mostrar mensaje
-              alert("Funcionalidad de encuesta en desarrollo. Se redirigirá a la encuesta correspondiente.");
-            }}
+            onClick={() => setShowSurvey(true)}
           >
             Comenzar Encuesta
           </Button>

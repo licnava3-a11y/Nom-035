@@ -164,6 +164,143 @@ export const surveyTokensAdvancedRouter = router({
     }),
 
   /**
+   * Enviar respuesta de encuesta usando token
+   * Maneja flujo automático entre Guía I → Guía II/III
+   */
+  submitSurveyResponse: publicProcedure
+    .input(z.object({
+      token: z.string(),
+      surveyType: z.string(),
+      periodId: z.number(),
+      answers: z.array(z.object({
+        questionId: z.number(),
+        answerValue: z.string(),
+      })),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Validar el token
+      const [tokenData] = await db
+        .select({
+          id: surveyTokens.id,
+          userId: surveyTokens.userId,
+          periodId: surveyTokens.periodId,
+          usedAt: surveyTokens.usedAt,
+          expiresAt: surveyTokens.expiresAt,
+        })
+        .from(surveyTokens)
+        .where(eq(surveyTokens.token, input.token))
+        .limit(1);
+
+      if (!tokenData) {
+        throw new TRPCError({ 
+          code: "NOT_FOUND", 
+          message: "Token no encontrado o inválido" 
+        });
+      }
+
+      // Verificar si el token ha expirado
+      if (tokenData.expiresAt && new Date(tokenData.expiresAt) < new Date()) {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST", 
+          message: "El token ha expirado" 
+        });
+      }
+
+      // Verificar si el periodId coincide
+      if (tokenData.periodId !== input.periodId) {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST", 
+          message: "El token no corresponde a este periodo" 
+        });
+      }
+
+      // Convertir respuestas a formato JSON
+      const results: Record<string, string> = {};
+      input.answers.forEach(answer => {
+        results[`q${answer.questionId}`] = answer.answerValue;
+      });
+
+      // Obtener surveyId basado en surveyType
+      const getSurveyId = (type: string): number => {
+        switch (type) {
+          case "guia_i":
+            return 1;
+          case "guia_ii":
+            return 2;
+          case "guia_iii":
+            return 3;
+          default:
+            return 1;
+        }
+      };
+
+      const surveyId = getSurveyId(input.surveyType);
+
+      // Verificar si ya existe una respuesta para este usuario y periodo
+      const [existingResponse] = await db
+        .select()
+        .from(surveyResponses)
+        .where(
+          and(
+            eq(surveyResponses.userId, tokenData.userId),
+            eq(surveyResponses.periodId, input.periodId)
+          )
+        )
+        .limit(1);
+
+      let responseId: number;
+
+      if (existingResponse) {
+        // Actualizar respuesta existente
+        await db
+          .update(surveyResponses)
+          .set({
+            results: JSON.stringify(results),
+            completedAt: new Date(),
+          })
+          .where(eq(surveyResponses.id, existingResponse.id));
+        
+        responseId = existingResponse.id;
+      } else {
+        // Crear nueva respuesta
+        const [newResponse] = await db
+          .insert(surveyResponses)
+          .values({
+            surveyId: surveyId,
+            userId: tokenData.userId,
+            periodId: input.periodId,
+            token: input.token,
+            results: JSON.stringify(results),
+            completedAt: new Date(),
+            startedAt: new Date(),
+          });
+        
+        responseId = newResponse.insertId;
+      }
+
+      // Marcar el token como usado
+      await db
+        .update(surveyTokens)
+        .set({ usedAt: new Date() })
+        .where(eq(surveyTokens.id, tokenData.id));
+
+      // Determinar si debe completar la siguiente encuesta
+      const shouldContinue = await shouldCompleteNextSurvey(db, String(tokenData.userId), input.surveyType);
+
+      return {
+        success: true,
+        responseId,
+        nextSurvey: shouldContinue.nextSurveyType,
+        message: shouldContinue.shouldComplete 
+          ? `Encuesta completada. Ahora procederás a completar la ${getSurveyName(shouldContinue.nextSurveyType || '')}.`
+          : "¡Gracias por completar todas las encuestas requeridas!",
+      };
+    }),
+
+  /**
    * Regenerar token para un usuario específico
    */
   regenerateToken: protectedProcedure

@@ -1748,3 +1748,50 @@
 - [ ] Probar flujo completo con token de prueba
 - [ ] Verificar que respuestas se guardan correctamente en BD
 - [ ] Guardar checkpoint final
+
+
+## INTEGRACIÓN DE COMPONENTES DE ENCUESTAS - 6 FEB 2026
+- [ ] Revisar componentes existentes de Guía I, II y III
+- [ ] Revisar componente SurveyApply.tsx actual
+- [ ] Identificar estructura de datos y props necesarias
+- [ ] Integrar componente de Guía I con SurveyApply
+- [ ] Integrar componente de Guía II con SurveyApply
+- [ ] Integrar componente de Guía III con SurveyApply
+- [ ] Implementar flujo automático: Guía I → Guía II/III sin re-autenticación
+- [ ] Guardar respuestas con token y periodId
+- [ ] Probar flujo completo con token de prueba
+- [ ] Verificar que respuestas se guardan correctamente en BD
+
+## CORRELACIÓN DE DATOS DE PRUEBA - 6 FEB 2026
+- [ ] Obtener lista de departamentos reales desde tabla employees
+- [ ] Modificar script seedSurveyData.ts para usar departamentos reales
+- [ ] Ejecutar script actualizado
+- [ ] Verificar gráfica "Resultados por Departamento" en Panel NOM-035
+- [ ] Confirmar que datos se visualizan correctamente
+
+## CONFIGURACIÓN SMTP - 6 FEB 2026
+- [ ] Solicitar credenciales SMTP al usuario usando webdev_request_secrets
+- [ ] Configurar variables de entorno SMTP
+- [ ] Verificar integración con servicio de correos
+- [ ] Probar envío de notificación de prueba
+- [ ] Activar notificaciones automáticas de documentos próximos a vencer
+
+## ACTUALIZACIÓN - 6 FEB 2026 - TAREAS COMPLETADAS
+- [x] Revisar componentes existentes de Guía I, II y III
+- [x] Revisar componente SurveyApply.tsx actual
+- [x] Identificar estructura de datos y props necesarias
+- [x] Integrar componente de Guía I con SurveyApply
+- [x] Integrar componente de Guía II con SurveyApply
+- [x] Integrar componente de Guía III con SurveyApply
+- [x] Implementar flujo automático: Guía I → Guía II/III sin re-autenticación
+- [x] Crear componente SurveyFormWithToken para manejar encuestas con token
+- [x] Agregar procedimiento submitSurveyResponse al router surveyTokensAdvanced
+- [x] Guardar respuestas con token y periodId
+- [x] Obtener lista de departamentos reales desde tabla users
+- [x] Crear script seed-survey-responses.ts para generar datos con departamentos reales
+- [x] Ejecutar script actualizado - 11 respuestas generadas con 5 departamentos
+- [ ] Probar flujo completo con token de prueba (pendiente)
+- [ ] Verificar que respuestas se guardan correctamente en BD (pendiente)
+- [ ] Verificar gráfica "Resultados por Departamento" en Panel NOM-035 (pendiente)
+- [ ] Configuración SMTP - DEJADA PENDIENTE POR SOLICITUD DEL USUARIO
+
