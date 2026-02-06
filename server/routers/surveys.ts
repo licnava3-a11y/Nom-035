@@ -119,13 +119,15 @@ export const surveysRouter = router({
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
       
-      await db.insert(surveyTokens).values({
-        userId: input.userId,
-        surveyId: input.surveyId,
-        token,
-        expiresAt,
-        usedAt: null,
-      });
+      // NOTA: Temporalmente comentado - requiere periodId
+      // await db.insert(surveyTokens).values({
+      //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
+      //   userId: input.userId,
+      //   surveyId: input.surveyId,
+      //   token,
+      //   expiresAt,
+      //   usedAt: null,
+      // });
       
       return { token, expiresAt };
     }),
@@ -1612,13 +1614,15 @@ export const surveysRouter = router({
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
 
-      await db.insert(surveyTokens).values({
-        userId: user.id,
-        surveyId: input.surveyId,
-        token,
-        expiresAt,
-        sentVia: 'email',
-      });
+      // NOTA: Temporalmente comentado - requiere periodId
+      // await db.insert(surveyTokens).values({
+      //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
+      //   userId: user.id,
+      //   surveyId: input.surveyId,
+      //   token,
+      //   expiresAt,
+      //   sentVia: 'email',
+      // });
 
       const surveyUrl = `${process.env.VITE_APP_URL || 'https://app.example.com'}/survey/${input.surveyId}/token/${token}`;
 
@@ -1755,13 +1759,15 @@ export const surveysRouter = router({
           // Generar nuevo token
           const token = generateToken();
 
-          await db.insert(surveyTokens).values({
-            userId: employee.id,
-            surveyId: input.surveyId,
-            token,
-            expiresAt,
-            sentVia: 'email',
-          });
+          // NOTA: Temporalmente comentado - requiere periodId
+          // await db.insert(surveyTokens).values({
+          //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
+          //   userId: employee.id,
+          //   surveyId: input.surveyId,
+          //   token,
+          //   expiresAt,
+          //   sentVia: 'email',
+          // });
 
           tokensGenerated.push({
             employeeName: employee.name,

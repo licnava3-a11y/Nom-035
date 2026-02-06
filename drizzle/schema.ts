@@ -621,6 +621,20 @@ export const documentEvidenceRelations = relations(documentEvidence, ({ one }) =
 // SISTEMA DE ENCUESTAS NOM-035 STPS 2018 (Guías I, II y III)
 // ============================================================================
 
+// Periodos de aplicación de encuestas
+export const surveyPeriods = mysqlTable('survey_periods', {
+  id: int('id').primaryKey().autoincrement(),
+  name: varchar('name', { length: 255 }).notNull(), // Ej: "Evaluación Primer Semestre 2026"
+  surveyType: mysqlEnum('survey_type', ['guia_i', 'guia_ii', 'guia_iii']).notNull(),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date').notNull(),
+  status: mysqlEnum('status', ['draft', 'active', 'closed', 'archived']).default('draft').notNull(),
+  description: text('description'),
+  createdBy: int('created_by').notNull().references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
+});
+
 // Encuestas (Guía I, II, III)
 export const surveys = mysqlTable('surveys', {
   id: int('id').primaryKey().autoincrement(),
@@ -651,6 +665,7 @@ export const surveyQuestions = mysqlTable('survey_questions', {
 export const surveyResponses = mysqlTable('survey_responses', {
   id: int('id').primaryKey().autoincrement(),
   surveyId: int('survey_id').notNull().references(() => surveys.id),
+  periodId: int('period_id').references(() => surveyPeriods.id), // Periodo de aplicación
   userId: int('user_id').references(() => users.id), // Puede ser null si se responde con CURP
   curp: varchar('curp', { length: 18 }), // CURP capturado si no hay userId
   token: varchar('token', { length: 64 }).notNull().unique(), // Token único para la respuesta
@@ -673,6 +688,7 @@ export const surveyAnswers = mysqlTable('survey_answers', {
 // Tokens de encuestas (para envío por correo/SMS/QR)
 export const surveyTokens = mysqlTable('survey_tokens', {
   id: int('id').primaryKey().autoincrement(),
+  periodId: int('period_id').notNull().references(() => surveyPeriods.id), // Periodo de aplicación
   userId: int('user_id').notNull().references(() => users.id),
   surveyId: int('survey_id').notNull().references(() => surveys.id),
   token: varchar('token', { length: 64 }).notNull().unique(),
@@ -701,6 +717,10 @@ export const surveyQuestionsRelations = relations(surveyQuestions, ({ one, many 
 
 // Relations para surveyResponses
 export const surveyResponsesRelations = relations(surveyResponses, ({ one, many }) => ({
+  period: one(surveyPeriods, {
+    fields: [surveyResponses.periodId],
+    references: [surveyPeriods.id],
+  }),
   survey: one(surveys, {
     fields: [surveyResponses.surveyId],
     references: [surveys.id],
@@ -724,8 +744,22 @@ export const surveyAnswersRelations = relations(surveyAnswers, ({ one }) => ({
   }),
 }));
 
+// Relations para surveyPeriods
+export const surveyPeriodsRelations = relations(surveyPeriods, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [surveyPeriods.createdBy],
+    references: [users.id],
+  }),
+  responses: many(surveyResponses),
+  tokens: many(surveyTokens),
+}));
+
 // Relations para surveyTokens
 export const surveyTokensRelations = relations(surveyTokens, ({ one }) => ({
+  period: one(surveyPeriods, {
+    fields: [surveyTokens.periodId],
+    references: [surveyPeriods.id],
+  }),
   user: one(users, {
     fields: [surveyTokens.userId],
     references: [users.id],

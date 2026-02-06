@@ -1450,3 +1450,62 @@
 - [ ] Agregar enlace en menú de navegación (DashboardLayout.tsx)
 - [ ] Probar funcionalidad completa en navegador
 - [ ] Guardar checkpoint
+
+
+## SISTEMA DE PERIODOS DE APLICACIÓN DE ENCUESTAS NOM-035 - 6 FEB 2026
+- [ ] Crear tabla survey_periods en schema para gestionar periodos de aplicación
+- [ ] Agregar campos: nombre del periodo, fecha inicio, fecha fin, tipo de encuesta, estado
+- [ ] Crear procedimientos tRPC para CRUD de periodos
+- [ ] Implementar procedimiento para generar periodo con trabajadores activos
+- [ ] Crear procedimiento para obtener trabajadores activos al momento de generación
+- [ ] Implementar asociación de respuestas con periodos específicos
+- [ ] Crear componente frontend SurveyPeriodsManager.tsx
+- [ ] Implementar formulario de creación de periodo
+- [ ] Agregar tabla de periodos existentes con acciones (editar, eliminar, cerrar)
+- [ ] Implementar vista de trabajadores asignados por periodo
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar enlace en menú de Encuestas NOM-035
+- [ ] Probar funcionalidad completa
+
+## FASE 76: Panel de Administración NOM-035 (ACTUALIZADA)
+- [ ] Modificar backend para incluir análisis por periodo
+- [ ] Crear procedimiento para comparación entre periodos
+- [ ] Implementar cálculo de tendencias temporales
+- [ ] Crear componente NOM035Dashboard.tsx
+- [ ] Implementar selector de periodos para comparación
+- [ ] Agregar gráficas de tendencias por dominio
+- [ ] Implementar gráficas comparativas entre periodos
+- [ ] Mostrar recomendaciones automáticas basadas en tendencias
+- [ ] Agregar exportación de análisis comparativo a Excel
+- [ ] Probar funcionalidad completa
+
+## FASE 78: Sistema de Tokens de Acceso Anónimo (ACTUALIZADA)
+- [ ] Crear tabla survey_tokens en schema
+- [ ] Agregar campos: token único, periodo_id, fecha expiración, estado
+- [ ] Crear procedimiento para generar token único
+- [ ] Implementar procedimiento para generar tokens masivos por periodo
+- [ ] Crear procedimiento para validar token y expiración
+- [ ] Implementar procedimiento para listar tokens por periodo
+- [ ] Crear componente TokenManagement.tsx
+- [ ] Implementar generación de tokens masivos para trabajadores del periodo
+- [ ] Agregar generación de códigos QR por token
+- [ ] Implementar exportación de tokens a Excel con QR
+- [ ] Crear página pública de acceso con token (sin login)
+- [ ] Modificar SurveyForm para aceptar tokens
+- [ ] Agregar rutas públicas en App.tsx
+- [ ] Probar flujo completo de acceso anónimo
+
+## FASE 82: Expediente Electrónico
+- [ ] Crear tabla employee_documents en schema
+- [ ] Definir tipos de documentos (contrato, identificación, comprobantes, certificados)
+- [ ] Agregar campos: empleado_id, tipo, nombre archivo, URL S3, fecha subida, fecha vencimiento
+- [ ] Crear procedimientos tRPC para subir/descargar/eliminar documentos
+- [ ] Implementar integración con S3 para almacenamiento
+- [ ] Crear procedimiento para alertas de documentos próximos a vencer
+- [ ] Implementar componente EmployeeDocuments.tsx
+- [ ] Agregar visualizador de documentos (PDF, imágenes)
+- [ ] Implementar carga de archivos con drag & drop
+- [ ] Agregar filtros por tipo de documento y fecha
+- [ ] Implementar sistema de alertas visuales
+- [ ] Integrar con módulo de trabajadores
+- [ ] Probar funcionalidad completa
