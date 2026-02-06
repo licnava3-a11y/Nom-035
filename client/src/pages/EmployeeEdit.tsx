@@ -5,13 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// Select components replaced with native HTML elements
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function EmployeeEdit() {
@@ -291,25 +285,23 @@ export default function EmployeeEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="department">Departamento</Label>
-                <Select
+                <select
+                  id="department"
                   value={formData.department}
-                  onValueChange={(value) => {
-                    handleChange("department", value);
+                  onChange={(e) => {
+                    handleChange("department", e.target.value);
                     // Clear position when department changes
                     handleChange("position", "");
                   }}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                  <SelectTrigger id="department">
-                    <SelectValue placeholder="Seleccionar departamento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments?.map((dept) => dept && (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="">Seleccionar departamento</option>
+                  {departments?.map((dept) => dept && (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
                 <p className="text-xs text-muted-foreground">
                   Seleccione primero el departamento
                 </p>
@@ -317,26 +309,24 @@ export default function EmployeeEdit() {
 
               <div className="space-y-2">
                 <Label htmlFor="position">Puesto</Label>
-                <Select
+                <select
+                  id="position"
                   value={formData.position}
-                  onValueChange={(value) => handleChange("position", value)}
+                  onChange={(e) => handleChange("position", e.target.value)}
                   disabled={!formData.department}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <SelectTrigger id="position">
-                    <SelectValue placeholder={
-                      formData.department 
-                        ? "Seleccionar puesto" 
-                        : "Seleccione departamento primero"
-                    } />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions?.map((pos) => pos && (
-                      <SelectItem key={pos} value={pos}>
-                        {pos}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="">
+                    {formData.department 
+                      ? "Seleccionar puesto" 
+                      : "Seleccione departamento primero"}
+                  </option>
+                  {positions?.map((pos) => pos && (
+                    <option key={pos} value={pos}>
+                      {pos}
+                    </option>
+                  ))}
+                </select>
                 {formData.department && positions && positions.length === 0 && (
                   <p className="text-xs text-muted-foreground">
                     No hay puestos registrados para este departamento
@@ -347,21 +337,16 @@ export default function EmployeeEdit() {
 
             <div className="space-y-2">
               <Label htmlFor="contractType">Tipo de Contrato</Label>
-              <Select
+              <select
+                id="contractType"
                 value={formData.contractType}
-                onValueChange={(value: "permanent" | "temporary" | "contract") =>
-                  handleChange("contractType", value)
-                }
+                onChange={(e) => handleChange("contractType", e.target.value as "permanent" | "temporary" | "contract")}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <SelectTrigger id="contractType">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="permanent">Permanente</SelectItem>
-                  <SelectItem value="temporary">Temporal</SelectItem>
-                  <SelectItem value="contract">Por Contrato</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="permanent">Permanente</option>
+                <option value="temporary">Temporal</option>
+                <option value="contract">Por Contrato</option>
+              </select>
             </div>
           </CardContent>
         </Card>

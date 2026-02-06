@@ -1826,3 +1826,23 @@
 - [x] Reemplazar componentes Select de shadcn/ui por elementos HTML nativos en MeetingMinutes.tsx
 - [x] Reemplazar componentes Select de shadcn/ui por elementos HTML nativos en Reports.tsx
 - [x] Probar ambas páginas después de corrección - AMBAS FUNCIONAN CORRECTAMENTE
+
+
+## AUDITORÍA COMPLETA - COMPONENTES SELECT (6 FEB 2026)
+- [x] Buscar todos los archivos que importan componentes Select de shadcn/ui - 12 archivos identificados
+- [x] Identificar y listar todos los usos de Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+- [x] Reemplazar componentes Select en páginas críticas (4/12 archivos completados):
+  - [x] MeetingMinutes.tsx
+  - [x] Reports.tsx
+  - [x] EmployeeNew.tsx
+  - [x] EmployeeEdit.tsx
+- [ ] Reemplazar componentes Select en archivos de media prioridad (8 archivos pendientes):
+  - [ ] CourseDialog.tsx
+  - [ ] ResourceDialog.tsx
+  - [ ] DocumentAceptacionCargo.tsx
+  - [ ] DocumentActaFinalResultados.tsx
+  - [ ] DocumentGallery.tsx
+  - [ ] DocumentsHistory.tsx
+  - [ ] EmployeeDocuments.tsx
+  - [ ] ComponentShowcase.tsx
+- [x] Documentar cambios realizados - Reporte de auditoría creado
