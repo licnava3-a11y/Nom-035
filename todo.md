@@ -1706,11 +1706,21 @@
 
 ## DATOS DE PRUEBA - 6 FEB 2026
 - [ ] Crear script para generar respuestas de encuestas de prueba
-- [ ] Generar al menos 10 respuestas para Guía I
-- [ ] Generar al menos 5 respuestas para Guía II
-- [ ] Generar al menos 5 respuestas para Guía III
-- [ ] Asignar diferentes niveles de riesgo (bajo, medio, alto)
-- [ ] Distribuir respuestas entre diferentes departamentos
+- [ ] Generar al menos 10 respuestas para Guía I con diferentes niveles de riesgo
+- [ ] Generar al menos 5 respuestas para Guía II con diferentes niveles de riesgo
+- [ ] Generar al menos 5 respuestas para Guía III con diferentes niveles de riesgo
+- [ ] Distribuir respuestas entre diferentes departamentos (RRHH, IT, Ventas, Operaciones)
 - [ ] Ejecutar script y verificar datos en base de datos
 - [ ] Probar Panel de Administración NOM-035 con datos reales
 - [ ] Verificar que las gráficas se generan correctamente
+
+## INTEGRACIÓN DE COMPONENTES DE ENCUESTAS - 6 FEB 2026
+- [ ] Leer componentes existentes de Guía I, II y III
+- [ ] Modificar SurveyApply para integrar componentes de encuestas
+- [ ] Implementar lógica de renderizado condicional según tipo de encuesta
+- [ ] Conectar formularios de encuestas con procedimientos tRPC
+- [ ] Implementar guardado de respuestas al completar encuesta
+- [ ] Implementar flujo automático Guía I → II/III después de completar
+- [ ] Probar flujo completo con token de prueba
+- [ ] Verificar que las respuestas se guardan correctamente
+- [ ] Guardar checkpoint final

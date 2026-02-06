@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO surveys (title, description, type, status, created_at, updated_at) \nVALUES \n  ('Guía I', 'Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos', 'nom035', 'active', NOW(), NOW()),\n  ('Guía II', 'Cuestionario para identificar los factores de riesgo psicosocial en los centros de trabajo', 'nom035', 'active', NOW(), NOW()),\n  ('Guía III', 'Cuestionario para identificar los factores de riesgo psicosocial y evaluar el entorno organizacional en los centros de trabajo', 'nom035', 'active', NOW(), NOW())\nON DUPLICATE KEY UPDATE title=title;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute INSERT INTO surveys (title, description, type, status, created_at, updated_at) \nVALUES \n  ('Guía I', 'Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos', 'nom035', 'active', NOW(), NOW()),\n  ('Guía II', 'Cuestionario para identificar los factores de riesgo psicosocial en los centros de trabajo', 'nom035', 'active', NOW(), NOW()),\n  ('Guía III', 'Cuestionario para identificar los factores de riesgo psicosocial y evaluar el entorno organizacional en los centros de trabajo', 'nom035', 'active', NOW(), NOW())\nON DUPLICATE KEY UPDATE title=title;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 1: Data truncated for column 'type' at row 1"
+  ]
+}
