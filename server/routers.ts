@@ -24,6 +24,7 @@ import { meetingMinutesRouter } from "./routers/meetingMinutes";
 import { surveyDistributionRouter } from "./routers/surveyDistribution";
 import { surveyPeriodsRouter } from "./routers/surveyPeriods";
 import { nom035AdminRouter } from "./routers/nom035Admin";
+import { surveyTokensAdvancedRouter } from "./routers/surveyTokensAdvanced";
 import { actionPlanRouter } from "./routers/actionPlan";
 import { organizationalCompetenciesRouter } from "./routers/organizationalCompetencies";
 
@@ -69,6 +70,7 @@ export const appRouter = router({
   surveyDistribution: surveyDistributionRouter,
   surveyPeriods: surveyPeriodsRouter,
   nom035Admin: nom035AdminRouter,
+  surveyTokensAdvanced: surveyTokensAdvancedRouter,
   trainingNeeds: trainingNeedsRouter,
   organizationalCompetencies: organizationalCompetenciesRouter,
   auth: router({
