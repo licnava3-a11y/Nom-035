@@ -1846,3 +1846,27 @@
   - [ ] EmployeeDocuments.tsx
   - [ ] ComponentShowcase.tsx
 - [x] Documentar cambios realizados - Reporte de auditoría creado
+
+
+## CORRECCIÓN ARCHIVOS MEDIA PRIORIDAD - SELECT (6 FEB 2026)
+- [x] Corregir CourseDialog.tsx - 3 Select reemplazados (category, level, status)
+- [x] Corregir ResourceDialog.tsx - 1 Select reemplazado (category)
+- [x] Probar funcionalidad de creación/edición de cursos - Página carga correctamente
+- [ ] Probar funcionalidad de gestión de recursos
+
+## MONITOREO PÁGINAS PENDIENTES (6 FEB 2026)
+- [x] Verificar si hay errores activos en DocumentGallery.tsx - Sin errores detectados
+- [x] Verificar si hay errores activos en DocumentsHistory.tsx - Sin errores detectados
+- [x] Verificar si hay errores activos en EmployeeDocuments.tsx - Sin errores detectados
+- [x] Verificar si hay errores activos en DocumentAceptacionCargo.tsx - Sin errores detectados
+- [x] Verificar si hay errores activos en DocumentActaFinalResultados.tsx - Sin errores detectados
+- [x] Verificar si hay errores activos en ComponentShowcase.tsx - Sin errores detectados
+- [x] Documentar cualquier error encontrado - Ningún error de removeChild detectado en logs
+
+## AUDITORÍA COMPONENTES SHADCN/UI (6 FEB 2026)
+- [x] Buscar uso de componentes Dialog en el proyecto - 11 archivos identificados
+- [x] Buscar uso de componentes Popover en el proyecto - 1 archivo identificado
+- [x] Buscar uso de componentes Dropdown en el proyecto - 0 archivos (no utilizado)
+- [x] Identificar componentes que manipulan directamente el DOM - Solo Select es problemático
+- [x] Documentar componentes potencialmente problemáticos - Dialog y Popover son SEGUROS
+- [x] Crear plan de acción para componentes problemáticos encontrados - Reporte completo creado

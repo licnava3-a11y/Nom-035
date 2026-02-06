@@ -11,13 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// Select components replaced with native HTML elements
 import { ResourceUpload } from "./ResourceUpload";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -158,19 +152,19 @@ export function ResourceDialog({ open, onOpenChange, resource }: ResourceDialogP
 
             <div className="space-y-2">
               <Label htmlFor="category">Categoría *</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as any)}>
-                <SelectTrigger id="category">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manual">Manual</SelectItem>
-                  <SelectItem value="protocol">Protocolo</SelectItem>
-                  <SelectItem value="form">Formato</SelectItem>
-                  <SelectItem value="pdf">PDF</SelectItem>
-                  <SelectItem value="presentation">Presentación</SelectItem>
-                  <SelectItem value="other">Otro</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value as any)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="manual">Manual</option>
+                <option value="protocol">Protocolo</option>
+                <option value="form">Formato</option>
+                <option value="pdf">PDF</option>
+                <option value="presentation">Presentación</option>
+                <option value="other">Otro</option>
+              </select>
             </div>
 
             {fileUrl && (

@@ -11,13 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// Select components replaced with native HTML elements
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -160,49 +154,49 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
 
               <div className="space-y-2">
                 <Label htmlFor="category">Categoría *</Label>
-                <Select value={category} onValueChange={(value) => setCategory(value as any)}>
-                  <SelectTrigger id="category">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fundamentos">Fundamentos NOM-035</SelectItem>
-                    <SelectItem value="mobbing">Mobbing y Acoso Laboral</SelectItem>
-                    <SelectItem value="burnout">Prevención del Burnout</SelectItem>
-                    <SelectItem value="comite">Comité de Atención</SelectItem>
-                    <SelectItem value="protocolos">Protocolos de Intervención</SelectItem>
-                    <SelectItem value="evaluacion">Evaluación de Riesgos</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as any)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="fundamentos">Fundamentos NOM-035</option>
+                  <option value="mobbing">Mobbing y Acoso Laboral</option>
+                  <option value="burnout">Prevención del Burnout</option>
+                  <option value="comite">Comité de Atención</option>
+                  <option value="protocolos">Protocolos de Intervención</option>
+                  <option value="evaluacion">Evaluación de Riesgos</option>
+                </select>
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="level">Nivel *</Label>
-                <Select value={level} onValueChange={(value) => setLevel(value as any)}>
-                  <SelectTrigger id="level">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="basico">Básico</SelectItem>
-                    <SelectItem value="intermedio">Intermedio</SelectItem>
-                    <SelectItem value="avanzado">Avanzado</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select
+                  id="level"
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as any)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="basico">Básico</option>
+                  <option value="intermedio">Intermedio</option>
+                  <option value="avanzado">Avanzado</option>
+                </select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="status">Estado *</Label>
-                <Select value={status} onValueChange={(value) => setStatus(value as any)}>
-                  <SelectTrigger id="status">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Borrador</SelectItem>
-                    <SelectItem value="published">Publicado</SelectItem>
-                    <SelectItem value="archived">Archivado</SelectItem>
-                  </SelectContent>
-                </Select>
+                <select
+                  id="status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as any)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="draft">Borrador</option>
+                  <option value="published">Publicado</option>
+                  <option value="archived">Archivado</option>
+                </select>
               </div>
             </div>
           </div>
