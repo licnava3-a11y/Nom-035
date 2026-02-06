@@ -63,6 +63,7 @@ import TokensDashboard from "./pages/surveys/TokensDashboard";
 import SurveysAdminPanel from "./pages/SurveysAdminPanel";
 import SurveyPeriodsManager from "./pages/SurveyPeriodsManager";
 import Nom035AdminPanel from "./pages/Nom035AdminPanel";
+import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
 
 function Router() {
@@ -362,6 +363,8 @@ function Router() {
           <Nom035AdminPanel />
         </DashboardLayout>
       </Route>
+      {/* Ruta pública de aplicación de encuestas */}
+      <Route path="/survey/apply" component={SurveyApply} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

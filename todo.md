@@ -1666,3 +1666,45 @@
 - [ ] Agregar enlace en menú de Trabajadores
 - [ ] Probar funcionalidad completa
 - [ ] Guardar checkpoint
+
+
+## FASE 78: Sistema de Tokens Avanzado (FRONTEND) - 6 FEB 2026
+- [ ] Crear página pública de aplicación de encuestas (/survey/apply)
+- [ ] Implementar validación de token con surveyTokensAdvanced.getTokenInfo
+- [ ] Mostrar información del empleado y encuesta a completar
+- [ ] Implementar flujo automático Guía I → II/III
+- [ ] Mostrar mensaje si ya completó todas las encuestas
+- [ ] Agregar ruta pública en App.tsx
+- [ ] Probar flujo completo con token de prueba
+
+## FASE 82: Expediente Electrónico - 6 FEB 2026
+
+### Backend
+- [ ] Crear tabla employee_documents en schema
+- [ ] Crear router employeeDocuments con procedimientos tRPC
+- [ ] Implementar upload para subir documentos a S3
+- [ ] Implementar list para obtener documentos de un empleado
+- [ ] Implementar delete para eliminar documentos
+- [ ] Implementar getExpiringDocuments para alertas de vencimiento
+- [ ] Agregar router a routers.ts
+
+### Frontend
+- [ ] Crear componente EmployeeDocuments.tsx
+- [ ] Implementar sección de carga de archivos con drag & drop
+- [ ] Implementar lista de documentos con visualizador
+- [ ] Implementar alertas de documentos próximos a vencer
+- [ ] Agregar filtros por tipo de documento
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar enlace en menú de Trabajadores
+- [ ] Probar funcionalidad completa
+
+## DATOS DE PRUEBA - 6 FEB 2026
+- [ ] Crear script para generar respuestas de encuestas de prueba
+- [ ] Generar al menos 10 respuestas para Guía I
+- [ ] Generar al menos 5 respuestas para Guía II
+- [ ] Generar al menos 5 respuestas para Guía III
+- [ ] Asignar diferentes niveles de riesgo (bajo, medio, alto)
+- [ ] Distribuir respuestas entre diferentes departamentos
+- [ ] Ejecutar script y verificar datos en base de datos
+- [ ] Probar Panel de Administración NOM-035 con datos reales
+- [ ] Verificar que las gráficas se generan correctamente
