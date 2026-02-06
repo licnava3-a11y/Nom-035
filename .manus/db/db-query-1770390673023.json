@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, title, type, description FROM surveys ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, title, type, description FROM surveys ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Guía I - Acontecimientos Traumáticos Severos",
+      "type": "guia_i",
+      "description": "Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos"
+    },
+    {
+      "id": "2",
+      "title": "Guía II - Identificación de Factores de Riesgo Psicosocial",
+      "type": "guia_ii",
+      "description": "Cuestionario para identificar factores de riesgo psicosocial en el trabajo (empresas de 16 a 50 trabajadores)"
+    },
+    {
+      "id": "3",
+      "title": "Guía III - Evaluación de Factores de Riesgo Psicosocial",
+      "type": "guia_iii",
+      "description": "Cuestionario para evaluar el entorno organizacional y factores de riesgo psicosocial (empresas de 51 o más trabajadores)"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\ttype\tdescription\n1\tGuía I - Acontecimientos Traumáticos Severos\tguia_i\tCuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos\n2\tGuía II - Identificación de Factores de Riesgo Psicosocial\tguia_ii\tCuestionario para identificar factores de riesgo psicosocial en el trabajo (empresas de 16 a 50 trabajadores)\n3\tGuía III - Evaluación de Factores de Riesgo Psicosocial\tguia_iii\tCuestionario para evaluar el entorno organizacional y factores de riesgo psicosocial (empresas de 51 o más trabajadores)\n",
+  "stderr": "",
+  "execution_time_ms": 354
+}

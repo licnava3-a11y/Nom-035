@@ -107,13 +107,17 @@ async function generateTestData() {
     const allSurveys = await db.select().from(surveys);
     const surveyMap: Record<string, number> = {};
     allSurveys.forEach(survey => {
-      surveyMap[survey.title] = survey.id;
+      surveyMap[survey.type] = survey.id;
     });
 
     console.log(`✅ Encontradas ${allSurveys.length} encuestas\n`);
+    allSurveys.forEach(s => {
+      console.log(`   - ID: ${s.id}, Tipo: ${s.type}, Título: ${s.title}`);
+    });
+    console.log("");
 
     // 5. Generar respuestas
-    const surveyTypes = ["Guía I", "Guía II", "Guía III"];
+    const surveyTypes = ["guia_i", "guia_ii", "guia_iii"];
     const responseCounts = [10, 5, 5]; // 10 para Guía I, 5 para Guía II, 5 para Guía III
 
     let totalGenerated = 0;
@@ -143,7 +147,7 @@ async function generateTestData() {
         // Obtener surveyId
         const surveyId = surveyMap[surveyType];
         if (!surveyId) {
-          console.warn(`  ⚠️ Encuesta "${surveyType}" no encontrada, omitiendo...`);
+          console.warn(`  ⚠️ Encuesta tipo "${surveyType}" no encontrada, omitiendo...`);
           continue;
         }
 

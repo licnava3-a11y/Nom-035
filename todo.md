@@ -1724,3 +1724,27 @@
 - [ ] Probar flujo completo con token de prueba
 - [ ] Verificar que las respuestas se guardan correctamente
 - [ ] Guardar checkpoint final
+
+
+## CONCLUSIÓN: Datos de Prueba e Integración de Encuestas - 6 FEB 2026
+
+### Script de Datos de Prueba
+- [ ] Revisar estructura actual de tabla surveys en base de datos
+- [ ] Identificar nombres reales de encuestas en BD
+- [ ] Ajustar script para usar nombres correctos
+- [ ] Ejecutar script y generar 20+ respuestas de prueba
+- [ ] Verificar datos en base de datos con consulta SQL
+- [ ] Probar Panel de Administración NOM-035 con datos reales
+- [ ] Verificar que gráficas se generan correctamente
+
+### Integración de Componentes de Encuestas
+- [ ] Leer componentes existentes de Guía I (GuideI.tsx o similar)
+- [ ] Leer componentes existentes de Guía II (GuideII.tsx o similar)
+- [ ] Leer componentes existentes de Guía III (GuideIII.tsx o similar)
+- [ ] Modificar SurveyApply para renderizar componente según tipo de encuesta
+- [ ] Implementar lógica de guardado de respuestas al completar
+- [ ] Conectar con procedimientos tRPC de guardado
+- [ ] Implementar flujo automático Guía I → II/III después de completar
+- [ ] Probar flujo completo con token de prueba
+- [ ] Verificar que respuestas se guardan correctamente en BD
+- [ ] Guardar checkpoint final
