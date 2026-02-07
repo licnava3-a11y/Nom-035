@@ -169,6 +169,20 @@
       "when": 1770503373286,
       "tag": "0023_smiling_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1770504136880,
+      "tag": "0024_broad_gorgon",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1770504363903,
+      "tag": "0025_mature_alex_power",
+      "breakpoints": true
     }
   ]
 }

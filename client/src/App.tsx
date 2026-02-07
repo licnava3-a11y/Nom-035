@@ -69,6 +69,9 @@ import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
 import CompanyGeneralData from "./pages/company/GeneralData";
 import CompanyLogo from "./pages/company/Logo";
+import CompanyLegalRepresentative from "./pages/company/LegalRepresentative";
+import CompanyDigitalSignature from "./pages/company/DigitalSignature";
+import CompanySurveyReport from "./pages/company/SurveyReport";
 
 function Router() {
   return (
@@ -389,6 +392,21 @@ function Router() {
       <Route path={"/company/logo"}>
         <DashboardLayout>
           <CompanyLogo />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/company/legal-representative"}>
+        <DashboardLayout>
+          <CompanyLegalRepresentative />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/company/digital-signature"}>
+        <DashboardLayout>
+          <CompanyDigitalSignature />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/company/survey-report"}>
+        <DashboardLayout>
+          <CompanySurveyReport />
         </DashboardLayout>
       </Route>
       

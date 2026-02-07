@@ -90,6 +90,7 @@ const hierarchicalMenuItems = [
           { label: "Periodos de Aplicación", path: "/surveys/periods" },
         ],
       },
+      { label: "Informe de Resultados", path: "/company/survey-report" },
       { label: "Casos", path: "/cases" },
       { label: "Buzón", path: "/mailbox" },
       { label: "Comité", path: "/committee" },

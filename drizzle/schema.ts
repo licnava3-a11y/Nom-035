@@ -1286,6 +1286,11 @@ export const companyLegalRepresentative = mysqlTable("company_legal_representati
   cargo: varchar("cargo", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }),
   telefono: varchar("telefono", { length: 15 }),
+  rfc: varchar("rfc", { length: 13 }),
+  curp: varchar("curp", { length: 18 }),
+  domicilio: text("domicilio"),
+  actaConstitutiva: varchar("acta_constitutiva", { length: 100 }),
+  poderNotarial: varchar("poder_notarial", { length: 100 }),
   firmaUrl: varchar("firma_url", { length: 512 }), // URL de firma digitalizada
   firmaKey: varchar("firma_key", { length: 512 }), // S3 key
   certificadoUrl: varchar("certificado_url", { length: 512 }), // Certificado NOM-151
@@ -1343,6 +1348,28 @@ export const companySurveyReport = mysqlTable("company_survey_report", {
   metodologiaAplicacion: text("metodologia_aplicacion"),
   observaciones: text("observaciones"),
   responsableAplicacion: varchar("responsable_aplicacion", { length: 255 }),
+  // Campos del informe NOM-035 (Numeral 7.5)
+  // a) Datos del centro de trabajo
+  nombreCentroTrabajo: varchar("nombre_centro_trabajo", { length: 255 }),
+  domicilioCentroTrabajo: text("domicilio_centro_trabajo"),
+  actividadPrincipal: text("actividad_principal"),
+  // b) Objetivo
+  objetivoInforme: text("objetivo_informe"),
+  // c) Principales actividades realizadas
+  actividadesRealizadas: text("actividades_realizadas"),
+  // d) Método utilizado
+  metodoUtilizado: text("metodo_utilizado"),
+  // e) Resultados obtenidos
+  resultadosObtenidos: text("resultados_obtenidos"),
+  nivelRiesgoGeneral: mysqlEnum("nivel_riesgo_general", ["bajo", "medio", "alto", "muy_alto"]),
+  // f) Conclusiones
+  conclusiones: text("conclusiones"),
+  // g) Recomendaciones y acciones de intervención
+  recomendaciones: text("recomendaciones"),
+  accionesIntervencion: text("acciones_intervencion"),
+  // h) Datos del responsable de la evaluación
+  nombreResponsableEvaluacion: varchar("nombre_responsable_evaluacion", { length: 255 }),
+  cedulaProfesional: varchar("cedula_profesional", { length: 20 }),
   reporteUrl: varchar("reporte_url", { length: 512 }), // PDF del reporte
   reporteKey: varchar("reporte_key", { length: 512 }),
   createdBy: int("created_by").references(() => users.id),

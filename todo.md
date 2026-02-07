@@ -2481,8 +2481,99 @@
 
 ### Checkpoint
 - [x] Marcar tareas completadas
-- [ ] Guardar checkpoint con Fase 2 parcialmente implementada
+- [x] Guardar checkpoint con Fase 2 parcialmente implementada (f0b7f468)
+- [x] Entregar resultados al usuario
+
+**FASE 2 PARCIALMENTE COMPLETADA: 2/5 componentes implementados (Datos Generales y Logo)** ✅
+**Pendiente: Representante Legal, Firma Digital, Reporte Encuesta**
+
+
+## FASE 90: Completar Fase 2 - Componentes Restantes de Empresa
+
+### Componente LegalRepresentative.tsx
+- [ ] Crear componente con lista de representantes legales
+- [ ] Implementar formulario de creación/edición
+- [ ] Agregar funcionalidad de eliminación con confirmación
+- [ ] Integrar con tRPC company.legalRepresentative
+
+### Componente DigitalSignature.tsx
+- [ ] Crear componente con catálogo de firmas digitales
+- [ ] Implementar formulario de solicitud de nuevo firmante
+- [ ] Agregar funcionalidad de autorización por administrador
+- [ ] Implementar upload de firma digital a S3
+- [ ] Integrar con tRPC company.digitalSignature
+
+### Componente SurveyReport.tsx
+- [ ] Crear componente con lista de reportes de encuesta
+- [ ] Implementar formulario de creación/edición de reporte
+- [ ] Agregar campos: periodo, fecha aplicación, tamaño muestra, cobertura
+- [ ] Integrar con tRPC company.surveyReport
+
+### Integración y Pruebas
+- [ ] Agregar rutas en App.tsx para los 3 componentes
+- [ ] Probar CRUD completo de cada módulo
+- [ ] Verificar navegación desde menú Empresa
+- [ ] Capturar screenshots de los componentes
+- [ ] Verificar que no hay errores TypeScript
+
+### Checkpoint Final Fase 2
+- [ ] Marcar todas las tareas como completadas
+- [ ] Guardar checkpoint con Fase 2 100% completada
 - [ ] Entregar resultados al usuario
 
-**FASE 2 PARCIALMENTE COMPLETADA: 2/5 componentes implementados (Datos Generales y Logo)**
-**Pendiente: Representante Legal, Firma Digital, Reporte Encuesta**
+
+## FASE 91: Agregar Campos Completos a Representante Legal
+
+### Actualización de Schema
+- [ ] Agregar campos RFC, CURP, domicilio a company_legal_representative
+- [ ] Agregar campos actaConstitutiva, poderNotarial a company_legal_representative
+- [ ] Generar migración SQL con drizzle-kit
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Actualización de Componente
+- [ ] Actualizar LegalRepresentative.tsx para incluir todos los campos
+- [ ] Actualizar db-company.ts para manejar nuevos campos
+- [ ] Actualizar router company.ts para validar nuevos campos
+- [ ] Verificar que no hay errores TypeScript
+
+### Pruebas
+- [ ] Probar creación de representante legal con todos los campos
+- [ ] Probar edición de representante legal
+- [ ] Verificar que los datos se guardan correctamente
+
+
+## FASE 92: Agregar Campos del Informe NOM-035 (Numeral 7.5)
+
+### Actualización de Schema
+- [ ] Agregar campos del informe al schema company_survey_report:
+  - [ ] Datos del centro de trabajo (nombre, domicilio, actividad principal)
+  - [ ] Objetivo del informe
+  - [ ] Principales actividades realizadas
+  - [ ] Método utilizado (conforme numeral 7.4)
+  - [ ] Resultados obtenidos
+  - [ ] Conclusiones
+  - [ ] Recomendaciones y acciones de intervención
+  - [ ] Datos del responsable (nombre completo, cédula profesional)
+- [ ] Generar migración SQL con drizzle-kit
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Actualización de Componente
+- [ ] Actualizar SurveyReport.tsx para incluir todos los campos del informe
+- [ ] Organizar formulario en secciones (Datos, Metodología, Resultados, Responsable)
+- [ ] Actualizar router company.ts para validar nuevos campos
+- [ ] Verificar que no hay errores TypeScript
+
+### Pruebas
+- [ ] Probar creación de reporte con todos los campos
+- [ ] Probar edición de reporte
+- [ ] Verificar que los datos se guardan correctamente
+
+
+## FASE 93: Incorporar Informe de Resultados en Menú NOM-035
+
+### Actualización del Menú
+- [ ] Agregar "Informe de Resultados" como segundo nivel en "Prevención de Riesgos Psicosociales NOM-035"
+- [ ] Vincular a la ruta /company/survey-report
+- [ ] Agregar ruta en App.tsx para SurveyReport.tsx
+- [ ] Verificar navegación desde el menú
+- [ ] Probar funcionalidad completa del informe
