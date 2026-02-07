@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-// Select components replaced with native HTML select elements
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -43,7 +43,11 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
   const utils = trpc.useUtils();
 
   useEffect(() => {
-    if (caseData) {
+    if (open && !caseData) {
+      // Modo creación: resetear formulario cuando se abre el modal
+      resetForm();
+    } else if (caseData) {
+      // Modo edición: cargar datos del caso
       setReporterName(caseData.reporterName || "");
       setReporterEmail(caseData.reporterEmail || "");
       setReporterPhone(caseData.reporterPhone || "");
@@ -52,10 +56,8 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
       setDescription(caseData.description);
       setStatus(caseData.status);
       setPriority(caseData.priority);
-    } else {
-      resetForm();
     }
-  }, [caseData, open]);
+  }, [open, caseData]);
 
   const resetForm = () => {
     setReporterName("");
@@ -71,8 +73,14 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validación básica
     if (!caseType || !description) {
       toast.error("Por favor completa todos los campos requeridos");
+      return;
+    }
+
+    if (description.length < 10) {
+      toast.error("La descripción debe tener al menos 10 caracteres");
       return;
     }
 
@@ -97,13 +105,13 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
         toast.success("Caso creado exitosamente");
       }
 
-      utils.cases.list.invalidate();
+      await utils.cases.list.invalidate();
       onSuccess?.();
       onOpenChange(false);
       resetForm();
     } catch (error) {
+      console.error("Error al guardar el caso:", error);
       toast.error("Error al guardar el caso");
-      console.error(error);
     }
   };
 
@@ -182,20 +190,22 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="caseType">Tipo de Caso *</Label>
-              <select
-                id="caseType"
+              <Select
                 value={caseType}
-                onChange={(e) => setCaseType(e.target.value)}
+                onValueChange={(value) => setCaseType(value)}
                 disabled={!!caseData}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">Selecciona el tipo</option>
-                <option value="mobbing">Mobbing</option>
-                <option value="burnout">Burnout</option>
-                <option value="violence">Violencia Laboral</option>
-                <option value="stress">Estrés Laboral</option>
-                <option value="other">Otro</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona el tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mobbing">Mobbing</SelectItem>
+                  <SelectItem value="burnout">Burnout</SelectItem>
+                  <SelectItem value="violence">Violencia Laboral</SelectItem>
+                  <SelectItem value="stress">Estrés Laboral</SelectItem>
+                  <SelectItem value="other">Otro</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {caseData && (

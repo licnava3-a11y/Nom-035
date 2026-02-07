@@ -2077,3 +2077,28 @@
 - [ ] Agregar manejo de errores visible en frontend
 - [ ] Verificar validación del formulario de creación de casos
 - [ ] Probar creación de caso después de corrección
+
+
+## FASE 76: Corrección de Error Crítico en Creación de Casos
+
+### Diagnóstico
+- [x] Revisar procedimiento tRPC cases.create en backend
+- [x] Verificar validación del formulario en CaseDialog
+- [x] Identificar causa del error: select nativo no dispara onChange en React
+- [x] Crear test de depuración para reproducir el error
+- [x] Confirmar que el backend funciona correctamente
+
+### Corrección
+- [x] Reemplazar select nativo por componente Select de shadcn/ui
+- [x] Corregir useEffect que reseteaba el formulario incorrectamente
+- [x] Eliminar logging de depuración
+- [x] Limpiar código y optimizar manejo de estado
+
+### Pruebas
+- [x] Probar creación de caso con nuevo componente Select
+- [x] Verificar que el valor de caseType se guarda correctamente
+- [x] Validar que el caso se crea exitosamente en la base de datos
+- [x] Confirmar que la lista de casos se actualiza automáticamente
+
+**FASE 76: ✅ COMPLETADA AL 100% - Error crítico corregido**
+
