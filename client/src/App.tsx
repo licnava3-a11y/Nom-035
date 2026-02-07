@@ -67,6 +67,8 @@ import SurveyPeriodsManager from "./pages/SurveyPeriodsManager";
 import Nom035AdminPanel from "./pages/Nom035AdminPanel";
 import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
+import CompanyGeneralData from "./pages/company/GeneralData";
+import CompanyLogo from "./pages/company/Logo";
 
 function Router() {
   return (
@@ -377,6 +379,19 @@ function Router() {
       </Route>
       {/* Ruta pública de aplicación de encuestas */}
       <Route path="/survey/apply" component={SurveyApply} />
+      
+      {/* Rutas de Empresa */}
+      <Route path={"/company/general-data"}>
+        <DashboardLayout>
+          <CompanyGeneralData />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/company/logo"}>
+        <DashboardLayout>
+          <CompanyLogo />
+        </DashboardLayout>
+      </Route>
+      
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

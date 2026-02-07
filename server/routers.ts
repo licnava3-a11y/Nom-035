@@ -29,6 +29,7 @@ import { actionPlanRouter } from "./routers/actionPlan";
 import { organizationalCompetenciesRouter } from "./routers/organizationalCompetencies";
 import { surveyAlertsRouter } from "./routers/surveyAlerts";
 import { complianceRouter } from "./routers/compliance";
+import { companyRouter } from "./routers/company";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -77,6 +78,7 @@ export const appRouter = router({
   organizationalCompetencies: organizationalCompetenciesRouter,
   surveyAlerts: surveyAlertsRouter,
   compliance: complianceRouter,
+  company: companyRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

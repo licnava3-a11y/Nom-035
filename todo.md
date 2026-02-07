@@ -2436,3 +2436,53 @@
 - [x] Entregar resultados al usuario
 
 **FASE 1 COMPLETADA: Menú jerárquico con 8 menús principales funcional** ✅
+
+
+## FASE 89: Implementación Fase 2 - Módulos de Empresa
+
+### Esquema de Base de Datos
+- [x] Crear tabla company_general_data (razón social, RFC, dirección, giro, actividades, representante legal)
+- [x] Crear tabla company_logo (logo, fecha de actualización)
+- [x] Crear tabla company_legal_representative (nombre, cargo, firma digital, certificado)
+- [x] Crear tabla company_digital_signature (firmante, cargo, firma, certificado, fecha)
+- [x] Crear tabla company_survey_report (periodo, fecha aplicación, tamaño muestra, cobertura)
+- [x] Generar migraciones SQL con drizzle-kit (0023_smiling_gunslinger.sql)
+- [x] Aplicar migraciones con webdev_execute_sql (5 tablas creadas exitosamente)
+
+### Procedimientos tRPC
+- [x] Crear router company en server/routers/company.ts
+- [x] Crear archivo db-company.ts con funciones helper
+- [x] Implementar CRUD para datos generales (get, update con upsert)
+- [x] Implementar CRUD para logo (get, upload con S3)
+- [x] Implementar CRUD para representante legal (list, get, create, update, delete)
+- [x] Implementar CRUD para firma digital (list, get, create, authorize, delete)
+- [x] Implementar CRUD para reporte de encuesta (list, get, create, update)
+- [x] Integrar con storage S3 para logos y firmas (storagePut)
+- [x] Agregar validaciones de datos (RFC regex, email, URL, tamaños de archivo)
+- [x] Registrar company router en appRouter principal
+
+### Componentes React
+- [x] Crear /client/src/pages/company/GeneralData.tsx con formulario completo (10 campos)
+- [x] Crear /client/src/pages/company/Logo.tsx con upload de imagen y preview
+- [ ] Crear /client/src/pages/company/LegalRepresentative.tsx con formulario (pendiente)
+- [ ] Crear /client/src/pages/company/DigitalSignature.tsx con catálogo y upload (pendiente)
+- [ ] Crear /client/src/pages/company/SurveyReport.tsx con formulario (pendiente)
+- [x] Agregar rutas en App.tsx para los 2 componentes creados
+- [x] Implementar validación de formularios (validación en frontend y backend)
+- [x] Agregar mensajes de éxito/error con toast (usando alert temporal)
+
+### Pruebas y Verificación
+- [x] Verificar que no hay errores TypeScript (0 errors confirmado)
+- [x] Verificar que el servidor funciona correctamente (running)
+- [x] Probar navegación desde el menú Empresa (menú jerárquico visible)
+- [x] Capturar screenshot del dashboard
+- [ ] Probar CRUD completo de cada módulo (pendiente pruebas funcionales)
+- [ ] Verificar upload de archivos a S3 (pendiente prueba real)
+
+### Checkpoint
+- [x] Marcar tareas completadas
+- [ ] Guardar checkpoint con Fase 2 parcialmente implementada
+- [ ] Entregar resultados al usuario
+
+**FASE 2 PARCIALMENTE COMPLETADA: 2/5 componentes implementados (Datos Generales y Logo)**
+**Pendiente: Representante Legal, Firma Digital, Reporte Encuesta**

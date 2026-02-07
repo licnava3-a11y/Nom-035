@@ -1227,3 +1227,128 @@ export const complianceEvidence = mysqlTable("complianceEvidence", {
 
 export type ComplianceEvidenceItem = typeof complianceEvidence.$inferSelect;
 export type InsertComplianceEvidenceItem = typeof complianceEvidence.$inferInsert;
+
+
+/**
+ * ============================================================================
+ * MÓDULOS DE EMPRESA - NOM-035-STPS-2018 Capítulo 5
+ * ============================================================================
+ */
+
+/**
+ * Datos generales de la empresa (NOM-035 Cap. 5.1)
+ * Información básica del centro de trabajo
+ */
+export const companyGeneralData = mysqlTable("company_general_data", {
+  id: int("id").autoincrement().primaryKey(),
+  razonSocial: varchar("razon_social", { length: 255 }).notNull(),
+  rfc: varchar("rfc", { length: 13 }).notNull().unique(),
+  direccionFiscal: text("direccion_fiscal").notNull(),
+  giro: varchar("giro", { length: 255 }),
+  actividadesPreponderantes: text("actividades_preponderantes"),
+  numeroTrabajadores: int("numero_trabajadores"),
+  representanteLegal: varchar("representante_legal", { length: 255 }),
+  telefonoContacto: varchar("telefono_contacto", { length: 15 }),
+  emailContacto: varchar("email_contacto", { length: 320 }),
+  paginaWeb: varchar("pagina_web", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompanyGeneralData = typeof companyGeneralData.$inferSelect;
+export type InsertCompanyGeneralData = typeof companyGeneralData.$inferInsert;
+
+/**
+ * Logo de la empresa
+ * Almacena el logo corporativo para uso en reportes y documentos
+ */
+export const companyLogo = mysqlTable("company_logo", {
+  id: int("id").autoincrement().primaryKey(),
+  logoUrl: varchar("logo_url", { length: 512 }).notNull(),
+  logoKey: varchar("logo_key", { length: 512 }).notNull(), // S3 key
+  mimeType: varchar("mime_type", { length: 100 }),
+  fileSize: int("file_size"), // bytes
+  uploadedBy: int("uploaded_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompanyLogo = typeof companyLogo.$inferSelect;
+export type InsertCompanyLogo = typeof companyLogo.$inferInsert;
+
+/**
+ * Representante legal de la empresa
+ * Persona autorizada para firmar documentos oficiales
+ */
+export const companyLegalRepresentative = mysqlTable("company_legal_representative", {
+  id: int("id").autoincrement().primaryKey(),
+  nombre: varchar("nombre", { length: 255 }).notNull(),
+  cargo: varchar("cargo", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  telefono: varchar("telefono", { length: 15 }),
+  firmaUrl: varchar("firma_url", { length: 512 }), // URL de firma digitalizada
+  firmaKey: varchar("firma_key", { length: 512 }), // S3 key
+  certificadoUrl: varchar("certificado_url", { length: 512 }), // Certificado NOM-151
+  certificadoKey: varchar("certificado_key", { length: 512 }),
+  vigenciaInicio: date("vigencia_inicio"),
+  vigenciaFin: date("vigencia_fin"),
+  activo: boolean("activo").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompanyLegalRepresentative = typeof companyLegalRepresentative.$inferSelect;
+export type InsertCompanyLegalRepresentative = typeof companyLegalRepresentative.$inferInsert;
+
+/**
+ * Catálogo de firmas digitales
+ * Registro de personas autorizadas para firmar documentos (NOM-151)
+ */
+export const companyDigitalSignature = mysqlTable("company_digital_signature", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").references(() => users.id), // Puede ser null si es firmante externo
+  nombreFirmante: varchar("nombre_firmante", { length: 255 }).notNull(),
+  cargo: varchar("cargo", { length: 255 }).notNull(),
+  departamento: varchar("departamento", { length: 255 }),
+  firmaUrl: varchar("firma_url", { length: 512 }).notNull(), // Firma digitalizada
+  firmaKey: varchar("firma_key", { length: 512 }).notNull(),
+  certificadoUrl: varchar("certificado_url", { length: 512 }), // Certificado NOM-151
+  certificadoKey: varchar("certificado_key", { length: 512 }),
+  tipoFirmante: mysqlEnum("tipo_firmante", ["interno", "externo"]).default("interno").notNull(),
+  autorizadoPor: int("autorizado_por").references(() => users.id), // Admin que autorizó
+  estadoAutorizacion: mysqlEnum("estado_autorizacion", ["pendiente", "autorizado", "rechazado"]).default("pendiente").notNull(),
+  fechaAutorizacion: timestamp("fecha_autorizacion"),
+  activo: boolean("activo").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompanyDigitalSignature = typeof companyDigitalSignature.$inferSelect;
+export type InsertCompanyDigitalSignature = typeof companyDigitalSignature.$inferInsert;
+
+/**
+ * Datos del reporte de la encuesta NOM-035
+ * Información sobre la aplicación de encuestas (Cap. 5.2-5.7)
+ */
+export const companySurveyReport = mysqlTable("company_survey_report", {
+  id: int("id").autoincrement().primaryKey(),
+  periodoAplicacion: varchar("periodo_aplicacion", { length: 100 }).notNull(), // Ej: "2024-Q1"
+  fechaInicio: date("fecha_inicio").notNull(),
+  fechaFin: date("fecha_fin").notNull(),
+  guiaAplicada: mysqlEnum("guia_aplicada", ["guia-i", "guia-ii", "guia-iii"]).notNull(),
+  tamañoMuestra: int("tamaño_muestra").notNull(),
+  cobertura: decimal("cobertura", { precision: 5, scale: 2 }), // Porcentaje
+  numeroTrabajadoresTotal: int("numero_trabajadores_total").notNull(),
+  numeroTrabajadoresEncuestados: int("numero_trabajadores_encuestados").notNull(),
+  metodologiaAplicacion: text("metodologia_aplicacion"),
+  observaciones: text("observaciones"),
+  responsableAplicacion: varchar("responsable_aplicacion", { length: 255 }),
+  reporteUrl: varchar("reporte_url", { length: 512 }), // PDF del reporte
+  reporteKey: varchar("reporte_key", { length: 512 }),
+  createdBy: int("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompanySurveyReport = typeof companySurveyReport.$inferSelect;
+export type InsertCompanySurveyReport = typeof companySurveyReport.$inferInsert;

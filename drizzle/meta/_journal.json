@@ -162,6 +162,13 @@
       "when": 1770499353122,
       "tag": "0022_magenta_the_call",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1770503373286,
+      "tag": "0023_smiling_gunslinger",
+      "breakpoints": true
     }
   ]
 }
