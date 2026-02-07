@@ -1182,3 +1182,48 @@ export const alertLogs = mysqlTable("alertLogs", {
 
 export type AlertLog = typeof alertLogs.$inferSelect;
 export type InsertAlertLog = typeof alertLogs.$inferInsert;
+
+
+// Compliance Checklist - Items de verificación NOM-035
+export const complianceChecklist = mysqlTable("complianceChecklist", {
+  id: int("id").autoincrement().primaryKey(),
+  section: varchar("section", { length: 10 }).notNull(), // A, B, C, D, E, F, G
+  sectionName: varchar("sectionName", { length: 200 }).notNull(),
+  itemCode: varchar("itemCode", { length: 10 }).notNull(), // A1, B1, etc.
+  requirement: text("requirement").notNull(),
+  evidence: text("evidence").notNull(), // Descripción de evidencia en sistema
+  fundament: varchar("fundament", { length: 100 }), // Fundamento legal (numeral NOM-035)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ComplianceChecklistItem = typeof complianceChecklist.$inferSelect;
+export type InsertComplianceChecklistItem = typeof complianceChecklist.$inferInsert;
+
+// Compliance Checks - Registros de verificación
+export const complianceChecks = mysqlTable("complianceChecks", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistItemId: int("checklistItemId").notNull(), // FK to complianceChecklist
+  isCompliant: boolean("isCompliant").default(false).notNull(),
+  verifiedBy: int("verifiedBy"), // FK to users
+  verifiedAt: timestamp("verifiedAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ComplianceCheck = typeof complianceChecks.$inferSelect;
+export type InsertComplianceCheck = typeof complianceChecks.$inferInsert;
+
+// Compliance Evidence - Evidencias asociadas
+export const complianceEvidence = mysqlTable("complianceEvidence", {
+  id: int("id").autoincrement().primaryKey(),
+  checkId: int("checkId").notNull(), // FK to complianceChecks
+  evidenceType: varchar("evidenceType", { length: 50 }).notNull(), // document, screenshot, report, export
+  evidenceUrl: varchar("evidenceUrl", { length: 500 }), // URL en S3
+  description: text("description"),
+  uploadedBy: int("uploadedBy").notNull(), // FK to users
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ComplianceEvidenceItem = typeof complianceEvidence.$inferSelect;
+export type InsertComplianceEvidenceItem = typeof complianceEvidence.$inferInsert;

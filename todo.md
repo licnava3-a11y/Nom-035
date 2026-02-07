@@ -2286,3 +2286,62 @@
 - [ ] Verificar breadcrumbs en todas las rutas
 - [ ] Probar menú colapsable en desktop y móvil
 - [ ] Validar que el estado persiste entre sesiones
+
+
+## FASE 83: Sistema de Auditoría y Cumplimiento NOM-035-STPS-2018
+
+### Base de Datos
+- [ ] Crear tabla compliance_checklist (items de verificación)
+- [ ] Crear tabla compliance_checks (registros de verificación)
+- [ ] Crear tabla compliance_evidence (evidencias asociadas)
+- [ ] Generar migraciones SQL
+
+### Backend - Procedimientos tRPC
+- [ ] Crear procedimiento para obtener checklist completo
+- [ ] Implementar procedimiento para marcar items como cumplidos
+- [ ] Crear procedimiento para asociar evidencias
+- [ ] Implementar cálculo de porcentaje de cumplimiento
+- [ ] Crear procedimiento para generar matriz de trazabilidad
+- [ ] Implementar exportación de checklist a PDF/Excel
+
+### Frontend - Checklist de Cumplimiento
+- [ ] Crear componente ComplianceChecklist.tsx
+- [ ] Implementar secciones A-G según NOM-035
+- [ ] Agregar checkboxes interactivos para cada ítem
+- [ ] Implementar asociación de evidencias por ítem
+- [ ] Agregar indicadores de cumplimiento por sección
+- [ ] Crear ruta /compliance/checklist en App.tsx
+
+### Frontend - Matriz de Trazabilidad
+- [ ] Crear componente TraceabilityMatrix.tsx
+- [ ] Implementar tabla requisito-módulo-evidencia
+- [ ] Agregar filtros por sección normativa
+- [ ] Implementar exportación a Excel
+- [ ] Crear ruta /compliance/traceability en App.tsx
+
+### Frontend - Guía de Evidencias
+- [ ] Crear componente EvidenceGuide.tsx
+- [ ] Implementar listado de evidencias por requisito
+- [ ] Agregar instrucciones de preparación para STPS
+- [ ] Implementar generación de paquete de evidencias
+- [ ] Crear ruta /compliance/evidence-guide en App.tsx
+
+### Frontend - Dashboard de Cumplimiento
+- [ ] Crear componente ComplianceDashboard.tsx
+- [ ] Implementar gráfica de cumplimiento general
+- [ ] Agregar gráficas por sección (A-G)
+- [ ] Mostrar items pendientes prioritarios
+- [ ] Agregar indicadores de riesgo de auditoría
+- [ ] Crear ruta /compliance en App.tsx
+
+### Integración y Navegación
+- [ ] Agregar menú "Cumplimiento NOM-035" en sidebar
+- [ ] Crear submenu con 4 opciones (Dashboard, Checklist, Trazabilidad, Evidencias)
+- [ ] Agregar breadcrumbs en todas las páginas de cumplimiento
+
+### Pruebas
+- [ ] Probar checklist completo (secciones A-G)
+- [ ] Verificar cálculo de porcentaje de cumplimiento
+- [ ] Probar asociación de evidencias
+- [ ] Validar matriz de trazabilidad
+- [ ] Probar exportación de documentos
