@@ -31,6 +31,15 @@ export default function SurveysTracking() {
   // Obtener cobertura por departamento
   const { data: departmentCoverage, isLoading: isLoadingDepts } = (trpc as any).surveys.getCoverageByDepartment.useQuery(surveyId);
 
+  // Estabilizar lista de departamentos para evitar re-renders del Select
+  const departments = React.useMemo(() => {
+    if (!departmentCoverage || !Array.isArray(departmentCoverage)) return [];
+    return departmentCoverage.map((dept: any) => ({
+      value: dept.department,
+      label: dept.department
+    }));
+  }, [departmentCoverage]);
+
   // Obtener trabajadores pendientes
   const { data: pendingWorkers, isLoading: isLoadingPending } = (trpc as any).surveys.getPendingWorkers.useQuery({
     surveyId,
@@ -295,9 +304,9 @@ export default function SurveysTracking() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                {departmentCoverage && departmentCoverage.map((dept: any) => (
-                  <SelectItem key={dept.department} value={dept.department}>
-                    {dept.department}
+                {departments.map((dept) => (
+                  <SelectItem key={`dept-${dept.value}`} value={dept.value}>
+                    {dept.label}
                   </SelectItem>
                 ))}
               </SelectContent>
