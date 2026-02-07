@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { WorkerSelector } from "@/components/WorkerSelector";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -28,6 +29,7 @@ interface CaseDialogProps {
 }
 
 export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDialogProps) {
+  const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
   const [reporterName, setReporterName] = useState("");
   const [reporterEmail, setReporterEmail] = useState("");
   const [reporterPhone, setReporterPhone] = useState("");
@@ -60,6 +62,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
   }, [open, caseData]);
 
   const resetForm = () => {
+    setSelectedWorkerId(null);
     setReporterName("");
     setReporterEmail("");
     setReporterPhone("");
@@ -68,6 +71,26 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
     setDescription("");
     setStatus("open");
     setPriority("medium");
+  };
+
+  const handleWorkerSelect = (workerId: number | null, workerData?: {
+    fullName: string;
+    email: string;
+    department: string | null;
+    curp: string | null;
+    employeeNumber: string | null;
+    position: string | null;
+  }) => {
+    setSelectedWorkerId(workerId);
+    if (workerData) {
+      setReporterName(workerData.fullName);
+      setReporterEmail(workerData.email);
+      // El teléfono no está disponible en los datos del trabajador, se mantiene vacío
+    } else {
+      setReporterName("");
+      setReporterEmail("");
+      setReporterPhone("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,6 +174,18 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
               {!isAnonymous && (
                 <>
                   <div className="space-y-2">
+                    <Label>Trabajador</Label>
+                    <WorkerSelector
+                      value={selectedWorkerId}
+                      onChange={handleWorkerSelect}
+                      placeholder="Seleccionar trabajador..."
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Selecciona un trabajador para prellenar automáticamente nombre y correo
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="reporterName">Nombre del Reportante</Label>
                     <Input
                       id="reporterName"
@@ -178,7 +213,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                         id="reporterPhone"
                         value={reporterPhone}
                         onChange={(e) => setReporterPhone(e.target.value)}
-                        placeholder="(555) 123-4567"
+                        placeholder="+52 614 123 4567"
                       />
                     </div>
                   </div>

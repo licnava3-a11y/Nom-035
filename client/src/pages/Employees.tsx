@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Search, User, Mail, Phone, Building, Briefcase, Calendar } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 // Using alert for now instead of toast
 
 export default function Employees() {
@@ -83,6 +84,7 @@ export default function Employees() {
 
   return (
     <div className="container mx-auto py-8">
+      <Breadcrumb items={[{ label: "Trabajadores" }]} />
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Catálogo de Trabajadores</h1>

@@ -370,15 +370,31 @@
 - [x] Agregar indicador visual de validación exitosa/fallida
 - [x] Probar con CURPs válidos e inválidos
 
-## FASE 82: Gestión de Expediente Electrónico
-- [ ] Crear tabla employee_documents en schema
-- [ ] Definir tipos de documentos (contrato, identificación, comprobantes, certificados)
-- [ ] Crear procedimientos tRPC para subir/descargar/eliminar documentos
-- [ ] Implementar componente EmployeeDocuments.tsx
-- [ ] Agregar visualizador de documentos (PDF, imágenes)
-- [ ] Implementar alertas de documentos faltantes
-- [ ] Agregar filtros por tipo de documento y fecha
-- [ ] Integrar con módulo de trabajadores
+## FASE 82: Mejoras Prioritarias de UX
+
+### Prellenado Automático
+- [x] Crear hook useWorkerSearch para búsqueda de trabajadores
+- [x] Crear componente WorkerSelector reutilizable con autocompletado
+- [x] Integrar WorkerSelector en CaseDialog
+- [x] Implementar prellenado de nombre y correo al seleccionar trabajador
+- [x] Mantener campos editables para casos especiales
+- [x] Agregar búsqueda por nombre, email o número de empleado
+
+### Breadcrumb
+- [x] Crear componente Breadcrumb reutilizable
+- [x] Agregar breadcrumb en página de trabajadores
+- [x] Implementar navegación jerárquica (Home > Trabajadores)
+
+### Menú Lateral Colapsable
+- [x] Revisar sidebar existente (DashboardLayout)
+- [x] Verificar funcionalidad de colapso con SidebarProvider
+- [x] Confirmar que el sidebar ya es colapsable y funcional
+
+### Pruebas
+- [x] Probar prellenado automático en creación de casos (Carlos Ramírez)
+- [x] Verificar que nombre y correo se prellenan correctamente
+- [x] Verificar breadcrumb en página de trabajadores
+- [x] Confirmar sidebar colapsable funcional
 
 ## FASE 83: Perfiles de Puesto y DNC Automática
 - [x] Crear tabla jobProfiles con competencias requeridas (ya existía)
@@ -2233,3 +2249,40 @@
 ### Documentación
 - [x] Crear AUDITORIA_PROFUNDA.md con hallazgos detallados
 - [x] Documentar plan de acción sugerido (49 horas estimadas)
+
+
+## FASE 82: Mejoras Prioritarias de UX
+
+### Prellenado Automático de Datos
+- [ ] Crear hook useWorkerAutofill para obtener datos de trabajador
+- [ ] Implementar prellenado en formulario de creación de casos
+- [ ] Implementar prellenado en formulario de asignación de encuestas
+- [ ] Implementar prellenado en formulario de documentos
+- [ ] Agregar selector de trabajador con búsqueda/autocompletado
+- [ ] Validar que los datos se actualicen automáticamente al seleccionar trabajador
+
+### Navegación Breadcrumb
+- [ ] Crear componente Breadcrumb reutilizable
+- [ ] Definir estructura de rutas y títulos para breadcrumbs
+- [ ] Agregar breadcrumbs en páginas de trabajadores
+- [ ] Agregar breadcrumbs en páginas de cursos
+- [ ] Agregar breadcrumbs en páginas de evaluaciones
+- [ ] Agregar breadcrumbs en páginas de encuestas
+- [ ] Agregar breadcrumbs en páginas de casos
+- [ ] Agregar breadcrumbs en todas las páginas restantes
+
+### Menú Lateral Colapsable
+- [ ] Diseñar componente CollapsibleSidebar con iconos
+- [ ] Implementar estado de colapso (expandido/colapsado)
+- [ ] Agregar iconos de Lucide para cada sección del menú
+- [ ] Implementar animaciones de transición suaves
+- [ ] Guardar estado de colapso en localStorage
+- [ ] Actualizar DashboardLayout para usar nuevo sidebar
+- [ ] Ajustar responsive design para móviles
+- [ ] Probar en diferentes resoluciones de pantalla
+
+### Pruebas
+- [ ] Probar prellenado en diferentes formularios
+- [ ] Verificar breadcrumbs en todas las rutas
+- [ ] Probar menú colapsable en desktop y móvil
+- [ ] Validar que el estado persiste entre sesiones
