@@ -477,4 +477,140 @@ export const nom035AdminRouter = router({
         recommendations,
       };
     }),
+
+  /**
+   * Exportar reporte a Excel
+   */
+  exportToExcel: protectedProcedure
+    .input(z.object({
+      periodId: z.number().optional(),
+      surveyType: z.enum(["guia_i", "guia_ii", "guia_iii"]),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener datos para el reporte
+      let conditions = [];
+      if (input.periodId) {
+        conditions.push(eq(surveyResponses.periodId, input.periodId));
+      }
+      const [survey] = await db
+        .select({ id: surveys.id })
+        .from(surveys)
+        .where(eq(surveys.type, input.surveyType))
+        .limit(1);
+      if (survey) {
+        conditions.push(eq(surveyResponses.surveyId, survey.id));
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const responses = await db
+        .select()
+        .from(surveyResponses)
+        .where(whereClause)
+        .orderBy(desc(surveyResponses.completedAt));
+
+      // Preparar datos para Excel
+      const excelData = responses.map(response => {
+        let riskLevel = 'N/A';
+        let totalScore = 0;
+        if (response.results) {
+          try {
+            const results = JSON.parse(response.results);
+            riskLevel = results.riskLevel || 'N/A';
+            totalScore = results.totalScore || 0;
+          } catch (e) {
+            // Ignorar
+          }
+        }
+        return {
+          'ID': response.id,
+          'Usuario ID': response.userId || 'N/A',
+          'CURP': response.curp || 'N/A',
+          'Fecha Completado': response.completedAt ? new Date(response.completedAt).toLocaleDateString('es-MX') : 'En progreso',
+          'Nivel de Riesgo': riskLevel,
+          'Puntaje Total': totalScore,
+        };
+      });
+
+      // Generar archivo Excel usando xlsx
+      const XLSX = await import('xlsx');
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Resultados NOM-035');
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+      const filename = `NOM035_${input.surveyType}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      return {
+        base64: buffer.toString('base64'),
+        filename,
+      };
+    }),
+
+  /**
+   * Exportar reporte a PDF
+   */
+  exportToPDF: protectedProcedure
+    .input(z.object({
+      periodId: z.number().optional(),
+      surveyType: z.enum(["guia_i", "guia_ii", "guia_iii"]),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener estadísticas para el reporte
+      let conditions = [];
+      if (input.periodId) {
+        conditions.push(eq(surveyResponses.periodId, input.periodId));
+      }
+      const [survey] = await db
+        .select({ id: surveys.id })
+        .from(surveys)
+        .where(eq(surveys.type, input.surveyType))
+        .limit(1);
+      if (survey) {
+        conditions.push(eq(surveyResponses.surveyId, survey.id));
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const responses = await db
+        .select()
+        .from(surveyResponses)
+        .where(whereClause);
+
+      // Calcular distribución de riesgo
+      const riskDistribution: Record<string, number> = {};
+      responses.forEach(response => {
+        if (response.results && response.completedAt) {
+          try {
+            const results = JSON.parse(response.results);
+            const level = results.riskLevel || 'N/A';
+            riskDistribution[level] = (riskDistribution[level] || 0) + 1;
+          } catch (e) {
+            // Ignorar
+          }
+        }
+      });
+
+      // Generar PDF usando la librería existente
+      const { generateAggregatedReport } = await import('../lib/nom035-pdf-reports');
+      const pdfBuffer = await generateAggregatedReport({
+        organizationName: 'Organización',
+        reportDate: new Date(),
+        totalEmployees: responses.length,
+        totalResponses: responses.filter(r => r.completedAt).length,
+        coverage: responses.length > 0 ? (responses.filter(r => r.completedAt).length / responses.length) * 100 : 0,
+        riskDistribution,
+        averageRiskByCategory: [],
+        atsDetected: 0,
+      });
+
+      const filename = `NOM035_Reporte_${input.surveyType}_${new Date().toISOString().split('T')[0]}.pdf`;
+      return {
+        base64: pdfBuffer.toString('base64'),
+        filename,
+      };
+    }),
 });

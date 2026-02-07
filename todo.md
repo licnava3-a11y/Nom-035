@@ -1924,3 +1924,39 @@
 - [x] Incluir definiciones de niveles de riesgo en reportes exportados - Leyenda incluida en PDF
 - [x] Probar exportación de reportes con nuevos cambios - Panel NOM-035 verificado
 - [x] Documentar algoritmos de calificación validados - Documentación completa creada
+
+
+## MEJORAS PANEL NOM-035 (7 FEB 2026)
+- [ ] Agregar botones "Exportar a Excel" y "Exportar a PDF" en Panel NOM-035
+- [ ] Implementar procedimiento tRPC para exportación directa a Excel
+- [ ] Implementar procedimiento tRPC para exportación directa a PDF
+- [ ] Probar exportación desde Panel NOM-035
+
+## DASHBOARD EJECUTIVO NOM-035 (7 FEB 2026)
+- [ ] Diseñar vista simplificada para directivos
+- [ ] Implementar indicadores clave (% alto riesgo, tendencia mensual)
+- [ ] Agregar gráficas de semáforo para departamentos críticos
+- [ ] Crear ruta /surveys/nom035-executive para dashboard ejecutivo
+- [ ] Probar dashboard ejecutivo
+
+## ALERTAS AUTOMÁTICAS RIESGO ALTO (7 FEB 2026)
+- [ ] Diseñar sistema de notificaciones automáticas
+- [ ] Implementar detección de respuestas de alto/muy alto riesgo
+- [ ] Configurar envío de correos a RH y directivos
+- [ ] Agregar configuración de destinatarios de alertas
+- [ ] Probar sistema de alertas automáticas
+
+## MEJORAS PANEL NOM-035 (7 FEB 2026)
+- [x] Agregar botones "Exportar a Excel" y "Exportar a PDF" en Panel NOM-035 - Botones agregados exitosamente
+- [x] Implementar procedimiento tRPC exportToExcel en server/routers/nom035Admin.ts - Implementado con formato base64
+- [x] Implementar procedimiento tRPC exportToPDF en server/routers/nom035Admin.ts - Implementado con formato base64
+- [x] Conectar botones de exportación con procedimientos tRPC en frontend - Conexión completada
+- [ ] Probar exportación a Excel desde Panel NOM-035 - Pendiente de prueba funcional
+- [ ] Probar exportación a PDF desde Panel NOM-035 - Pendiente de prueba funcional
+- [ ] Crear dashboard ejecutivo NOM-035 simplificado para directivos - PENDIENTE
+- [ ] Diseñar vista con indicadores clave (% alto riesgo, tendencia mensual, departamentos críticos) - PENDIENTE
+- [ ] Implementar gráficas de semáforo para decisiones rápidas - PENDIENTE
+- [ ] Configurar sistema de alertas automáticas de riesgo alto - PENDIENTE
+- [ ] Implementar envío de correos automáticos a RH y directivos - PENDIENTE (requiere SMTP)
+- [ ] Configurar detección de respuestas de alto/muy alto riesgo - PENDIENTE
+- [ ] Probar sistema de alertas con datos de prueba - PENDIENTE

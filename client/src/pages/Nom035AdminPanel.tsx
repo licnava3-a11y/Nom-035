@@ -39,6 +39,68 @@ export default function Nom035AdminPanel() {
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | undefined>();
   const [comparisonPeriods, setComparisonPeriods] = useState<number[]>([]);
 
+  // Mutations para exportación
+  const exportExcelMutation = trpc.nom035Admin.exportToExcel.useMutation({
+    onSuccess: (data: any) => {
+      // Crear archivo Excel y descargar usando base64
+      const byteCharacters = atob(data.base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('Reporte exportado exitosamente');
+    },
+    onError: (error: any) => {
+      toast.error(`Error al exportar: ${error.message}`);
+    },
+  });
+
+  const exportPDFMutation = trpc.nom035Admin.exportToPDF.useMutation({
+    onSuccess: (data: any) => {
+      // Crear archivo PDF y descargar usando base64
+      const byteCharacters = atob(data.base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('Reporte exportado exitosamente');
+    },
+    onError: (error: any) => {
+      toast.error(`Error al exportar: ${error.message}`);
+    },
+  });
+
+  // Funciones de exportación
+  const handleExportExcel = () => {
+    exportExcelMutation.mutate({
+      periodId: selectedPeriodId,
+      surveyType,
+    });
+  };
+
+  const handleExportPDF = () => {
+    exportPDFMutation.mutate({
+      periodId: selectedPeriodId,
+      surveyType,
+    });
+  };
+
   // Queries
   const { data: periods } = trpc.surveyPeriods.list.useQuery({
     surveyType,
@@ -232,6 +294,26 @@ export default function Nom035AdminPanel() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Botones de Exportación */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => handleExportExcel()}
+              disabled={!stats || stats.total === 0}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Exportar a Excel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleExportPDF()}
+              disabled={!stats || stats.total === 0}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Exportar a PDF
+            </Button>
           </div>
         </div>
       </div>
