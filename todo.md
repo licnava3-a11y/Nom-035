@@ -2625,3 +2625,59 @@
 
 **FASE 3 BACKEND COMPLETADO: 5 tablas, 19 funciones helper, 5 subrouters tRPC** ✅
 **Pendiente: 5 componentes React frontend**
+
+
+## FASE 95: Componentes Frontend NMX-025
+
+### Componente Policy.tsx
+- [x] Crear /client/src/pages/equality/Policy.tsx
+- [x] Implementar formulario de política de igualdad
+- [x] Agregar upload de documento de política a S3
+- [x] Implementar lista de políticas con historial
+- [x] Agregar visualización de política activa
+- [x] Conectar con trpc.equality.policy
+
+### Componente SalaryGap.tsx
+- [x] Crear /client/src/pages/equality/SalaryGap.tsx
+- [x] Implementar formulario de cálculo de brecha salarial (con totalMujeres, totalHombres)
+- [x] Agregar dashboard con indicadores clave (total, promedio, riesgo alto/medio)
+- [x] Implementar lista de cálculos históricos
+- [x] Conectar con trpc.equality.salaryGap
+
+### Componente AffirmativeActions.tsx
+- [x] Crear /client/src/pages/equality/AffirmativeActions.tsx
+- [x] Implementar lista de acciones afirmativas
+- [x] Agregar formulario de creación/edición
+- [x] Implementar dashboard con estadísticas (total, planificadas, en progreso, completadas)
+- [x] Agregar indicadores de progreso con badges
+- [x] Conectar con trpc.equality.affirmativeActions
+
+### Componente Complaints.tsx
+- [x] Crear /client/src/pages/equality/Complaints.tsx
+- [x] Implementar sistema de tickets con folios automáticos
+- [x] Agregar formulario de nueva queja (con denuncias anónimas)
+- [x] Implementar lista con filtros por estado
+- [x] Agregar dashboard con estadísticas (total, pendientes, en investigación, resueltas)
+- [x] Conectar con trpc.equality.complaints
+
+### Componente Committee.tsx
+- [x] Crear /client/src/pages/equality/Committee.tsx
+- [x] Implementar lista de miembros del comité
+- [x] Agregar formulario de agregar/remover miembros
+- [x] Implementar selector de usuarios desde employees
+- [x] Agregar visualización de cargos y estado (activo/inactivo)
+- [x] Conectar con trpc.equality.committee
+
+### Rutas y Pruebas
+- [x] Crear directorio /client/src/pages/equality
+- [x] Agregar rutas en App.tsx para los 5 componentes
+- [ ] Verificar que no hay errores TypeScript (6 errores menores de tipos enum)
+- [ ] Probar navegación desde menú Igualdad Laboral
+- [ ] Probar funcionalidad completa de cada módulo
+
+### Checkpoint
+- [x] Marcar tareas completadas
+- [ ] Guardar checkpoint con Fase 3 completa
+- [ ] Entregar resultados al usuario
+
+**FASE 95 CASI COMPLETADA: 5/5 componentes implementados, 5 rutas agregadas, 6 errores TypeScript menores pendientes**

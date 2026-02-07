@@ -72,6 +72,11 @@ import CompanyLogo from "./pages/company/Logo";
 import CompanyLegalRepresentative from "./pages/company/LegalRepresentative";
 import CompanyDigitalSignature from "./pages/company/DigitalSignature";
 import CompanySurveyReport from "./pages/company/SurveyReport";
+import EqualityPolicy from "./pages/equality/Policy";
+import EqualitySalaryGap from "./pages/equality/SalaryGap";
+import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
+import EqualityComplaints from "./pages/equality/Complaints";
+import EqualityCommittee from "./pages/equality/Committee";
 
 function Router() {
   return (
@@ -407,6 +412,33 @@ function Router() {
       <Route path={"/company/survey-report"}>
         <DashboardLayout>
           <CompanySurveyReport />
+        </DashboardLayout>
+      </Route>
+
+      {/* Rutas de Igualdad Laboral NMX-025 */}
+      <Route path={"/equality/policy"}>
+        <DashboardLayout>
+          <EqualityPolicy />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/equality/salary-gap"}>
+        <DashboardLayout>
+          <EqualitySalaryGap />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/equality/affirmative-actions"}>
+        <DashboardLayout>
+          <EqualityAffirmativeActions />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/equality/complaints"}>
+        <DashboardLayout>
+          <EqualityComplaints />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/equality/committee"}>
+        <DashboardLayout>
+          <EqualityCommittee />
         </DashboardLayout>
       </Route>
       
