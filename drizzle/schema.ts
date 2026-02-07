@@ -1379,3 +1379,168 @@ export const companySurveyReport = mysqlTable("company_survey_report", {
 
 export type CompanySurveyReport = typeof companySurveyReport.$inferSelect;
 export type InsertCompanySurveyReport = typeof companySurveyReport.$inferInsert;
+
+
+/**
+ * ============================================================================
+ * MÓDULOS DE IGUALDAD LABORAL Y NO DISCRIMINACIÓN NMX-025-SCFI-2015
+ * ============================================================================
+ */
+
+/**
+ * Política de Igualdad Laboral y No Discriminación
+ * Requisito 4.1.1 de NMX-025-SCFI-2015
+ */
+export const equalityPolicy = mysqlTable("equality_policy", {
+  id: int("id").autoincrement().primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descripcion: text("descripcion").notNull(),
+  fechaAprobacion: date("fecha_aprobacion").notNull(),
+  fechaVigencia: date("fecha_vigencia"),
+  documentoUrl: varchar("documento_url", { length: 512 }),
+  documentoKey: varchar("documento_key", { length: 512 }),
+  aprobadoPor: int("aprobado_por").references(() => users.id),
+  estado: mysqlEnum("estado", ["borrador", "vigente", "archivado"]).default("borrador").notNull(),
+  createdBy: int("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EqualityPolicy = typeof equalityPolicy.$inferSelect;
+export type InsertEqualityPolicy = typeof equalityPolicy.$inferInsert;
+
+/**
+ * Indicadores de Brecha Salarial
+ * Requisito 4.2.1 de NMX-025-SCFI-2015
+ */
+export const equalitySalaryGap = mysqlTable("equality_salary_gap", {
+  id: int("id").autoincrement().primaryKey(),
+  periodo: varchar("periodo", { length: 100 }).notNull(), // Ej: "2024-Q1"
+  fechaCalculo: date("fecha_calculo").notNull(),
+  departamento: varchar("departamento", { length: 255 }),
+  puesto: varchar("puesto", { length: 255 }),
+  // Datos agregados por género
+  totalMujeres: int("total_mujeres").notNull(),
+  totalHombres: int("total_hombres").notNull(),
+  salarioPromedioMujeres: decimal("salario_promedio_mujeres", { precision: 10, scale: 2 }).notNull(),
+  salarioPromedioHombres: decimal("salario_promedio_hombres", { precision: 10, scale: 2 }).notNull(),
+  brechaPorcentual: decimal("brecha_porcentual", { precision: 5, scale: 2 }).notNull(), // %
+  // Análisis
+  nivelRiesgo: mysqlEnum("nivel_riesgo", ["bajo", "medio", "alto"]).default("bajo").notNull(),
+  observaciones: text("observaciones"),
+  accionesRecomendadas: text("acciones_recomendadas"),
+  calculadoPor: int("calculado_por").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EqualitySalaryGap = typeof equalitySalaryGap.$inferSelect;
+export type InsertEqualitySalaryGap = typeof equalitySalaryGap.$inferInsert;
+
+/**
+ * Acciones Afirmativas
+ * Requisito 4.3.1 de NMX-025-SCFI-2015
+ */
+export const equalityAffirmativeActions = mysqlTable("equality_affirmative_actions", {
+  id: int("id").autoincrement().primaryKey(),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  tipo: mysqlEnum("tipo", [
+    "capacitacion",
+    "promocion",
+    "contratacion",
+    "conciliacion",
+    "infraestructura",
+    "otro"
+  ]).notNull(),
+  descripcion: text("descripcion").notNull(),
+  objetivo: text("objetivo").notNull(),
+  fechaInicio: date("fecha_inicio").notNull(),
+  fechaFin: date("fecha_fin"),
+  responsable: varchar("responsable", { length: 255 }).notNull(),
+  departamento: varchar("departamento", { length: 255 }),
+  presupuesto: decimal("presupuesto", { precision: 10, scale: 2 }),
+  estado: mysqlEnum("estado", ["planeada", "en_progreso", "completada", "cancelada"]).default("planeada").notNull(),
+  resultadosEsperados: text("resultados_esperados"),
+  resultadosObtenidos: text("resultados_obtenidos"),
+  evidenciaUrl: varchar("evidencia_url", { length: 512 }),
+  evidenciaKey: varchar("evidencia_key", { length: 512 }),
+  createdBy: int("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EqualityAffirmativeAction = typeof equalityAffirmativeActions.$inferSelect;
+export type InsertEqualityAffirmativeAction = typeof equalityAffirmativeActions.$inferInsert;
+
+/**
+ * Quejas y Denuncias de Discriminación
+ * Requisito 4.4.1 de NMX-025-SCFI-2015
+ */
+export const equalityComplaints = mysqlTable("equality_complaints", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(),
+  tipo: mysqlEnum("tipo", [
+    "discriminacion_genero",
+    "acoso_laboral",
+    "acoso_sexual",
+    "discriminacion_edad",
+    "discriminacion_discapacidad",
+    "otro"
+  ]).notNull(),
+  descripcion: text("descripcion").notNull(),
+  fechaIncidente: date("fecha_incidente"),
+  // Confidencialidad
+  denuncianteNombre: varchar("denunciante_nombre", { length: 255 }), // Opcional para denuncias anónimas
+  denuncianteEmail: varchar("denunciante_email", { length: 255 }),
+  denuncianteTelefono: varchar("denunciante_telefono", { length: 20 }),
+  esAnonima: boolean("es_anonima").default(false).notNull(),
+  // Seguimiento
+  estado: mysqlEnum("estado", [
+    "recibida",
+    "en_investigacion",
+    "resuelta",
+    "cerrada",
+    "desestimada"
+  ]).default("recibida").notNull(),
+  prioridad: mysqlEnum("prioridad", ["baja", "media", "alta", "urgente"]).default("media").notNull(),
+  investigadorAsignado: int("investigador_asignado").references(() => users.id),
+  fechaAsignacion: date("fecha_asignacion"),
+  fechaResolucion: date("fecha_resolucion"),
+  resolucion: text("resolucion"),
+  accionesCorrectivas: text("acciones_correctivas"),
+  // Evidencia
+  evidenciaUrl: varchar("evidencia_url", { length: 512 }),
+  evidenciaKey: varchar("evidencia_key", { length: 512 }),
+  observaciones: text("observaciones"),
+  createdBy: int("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EqualityComplaint = typeof equalityComplaints.$inferSelect;
+export type InsertEqualityComplaint = typeof equalityComplaints.$inferInsert;
+
+/**
+ * Comité de Igualdad Laboral y No Discriminación
+ * Requisito 4.1.2 de NMX-025-SCFI-2015
+ */
+export const equalityCommittee = mysqlTable("equality_committee", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").references(() => users.id).notNull(),
+  cargo: mysqlEnum("cargo", [
+    "presidente",
+    "secretario",
+    "vocal",
+    "asesor"
+  ]).notNull(),
+  fechaDesignacion: date("fecha_designacion").notNull(),
+  fechaTermino: date("fecha_termino"),
+  activo: boolean("activo").default(true).notNull(),
+  observaciones: text("observaciones"),
+  designadoPor: int("designado_por").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EqualityCommitteeMember = typeof equalityCommittee.$inferSelect;
+export type InsertEqualityCommitteeMember = typeof equalityCommittee.$inferInsert;

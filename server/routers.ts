@@ -30,6 +30,7 @@ import { organizationalCompetenciesRouter } from "./routers/organizationalCompet
 import { surveyAlertsRouter } from "./routers/surveyAlerts";
 import { complianceRouter } from "./routers/compliance";
 import { companyRouter } from "./routers/company";
+import { equalityRouter } from "./routers/equality";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -869,6 +870,9 @@ export const appRouter = router({
 
   // Action Plan (Plan de Acción Multinivel NOM-035)
   actionPlan: actionPlanRouter,
+
+  // Equality and Non-Discrimination NMX-025 (Igualdad Laboral y No Discriminación)
+  equality: equalityRouter,
 });
 
 export type AppRouter = typeof appRouter;

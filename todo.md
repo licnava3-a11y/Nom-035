@@ -2577,3 +2577,51 @@
 - [ ] Agregar ruta en App.tsx para SurveyReport.tsx
 - [ ] Verificar navegación desde el menú
 - [ ] Probar funcionalidad completa del informe
+
+
+## FASE 94: Implementación Fase 3 - Módulos de Igualdad Laboral NMX-025
+
+### Esquema de Base de Datos
+- [x] Crear tabla equality_policy (política de igualdad, fecha aprobación, documento URL)
+- [x] Crear tabla equality_salary_gap (indicadores de brecha salarial por género, puesto, departamento)
+- [x] Crear tabla equality_affirmative_actions (acciones afirmativas, tipo, descripción, fecha inicio, responsable)
+- [x] Crear tabla equality_complaints (quejas y denuncias, tipo, descripción, estado, fecha)
+- [x] Crear tabla equality_committee (comité de igualdad, miembros, cargos, fecha designación)
+- [x] Generar migraciones SQL con drizzle-kit (0026_groovy_zarek.sql)
+- [x] Aplicar migraciones con webdev_execute_sql (5 tablas creadas)
+
+### Procedimientos tRPC
+- [x] Crear router equality en server/routers/equality.ts (5 subrouters)
+- [x] Crear archivo db-equality.ts con funciones helper (19 funciones)
+- [x] Implementar CRUD para política de igualdad (get, list, create, update con S3)
+- [x] Implementar CRUD para indicadores de brecha salarial (list, get, calculate)
+- [x] Implementar algoritmo de cálculo de brecha salarial por género (entrada manual temporal)
+- [x] Implementar CRUD para acciones afirmativas (list, get, create, update, delete)
+- [x] Implementar CRUD para quejas y denuncias (list, get, create, updateStatus con folio)
+- [x] Implementar CRUD para comité de igualdad (list, get, addMember, removeMember, updateMember)
+- [x] Registrar equality router en appRouter principal
+
+### Componentes React
+- [ ] Crear /client/src/pages/equality/Policy.tsx con formulario y upload
+- [ ] Crear /client/src/pages/equality/SalaryGap.tsx con dashboard e indicadores
+- [ ] Crear /client/src/pages/equality/AffirmativeActions.tsx con lista y formulario
+- [ ] Crear /client/src/pages/equality/Complaints.tsx con sistema de seguimiento
+- [ ] Crear /client/src/pages/equality/Committee.tsx con gestión de miembros
+- [ ] Agregar rutas en App.tsx para los 5 componentes
+- [ ] Implementar validaciones de formularios
+- [ ] Agregar visualizaciones de datos (gráficas de brecha salarial)
+
+### Pruebas y Verificación
+- [ ] Probar navegación desde el menú Igualdad Laboral
+- [x] Verificar que no hay errores TypeScript (0 errors confirmado)
+- [ ] Probar funcionalidad completa de cada módulo
+- [ ] Verificar cálculo de brecha salarial con datos de prueba
+- [ ] Capturar screenshots de cada módulo
+
+### Checkpoint
+- [x] Marcar tareas completadas de backend
+- [ ] Guardar checkpoint con Fase 3 parcialmente implementada
+- [ ] Entregar resultados al usuario
+
+**FASE 3 BACKEND COMPLETADO: 5 tablas, 19 funciones helper, 5 subrouters tRPC** ✅
+**Pendiente: 5 componentes React frontend**
