@@ -2173,3 +2173,24 @@
 - [x] Confirmar registro de alertas en base de datos
 - [x] Validar historial de alertas
 
+
+
+## FASE 80: Corrección de Error removeChild en Página de Períodos de Encuestas
+
+### Diagnóstico
+- [x] Localizar componente /surveys/periods (SurveyPeriodsManager.tsx)
+- [x] Identificar componentes Select problemáticos (3 Select dinámicos)
+- [x] Analizar causa del error removeChild (opciones no estabilizadas)
+
+### Corrección
+- [x] Aplicar useMemo para estabilizar opciones de Select
+- [x] Crear surveyTypeOptions, statusOptions y createSurveyTypeOptions
+- [x] Actualizar todos los Select para usar opciones estabilizadas
+- [x] Agregar keys únicas con prefijos (filter-type-, filter-status-, create-survey-)
+
+### Pruebas
+- [x] Verificar que la página carga sin errores removeChild
+- [x] Probar Select de Tipo de Encuesta (funciona correctamente)
+- [x] Probar Select de Estado (funciona correctamente)
+- [x] Validar filtrado combinado (Guía I + Activo)
+- [x] Confirmar que no hay errores en consola

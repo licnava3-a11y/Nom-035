@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +48,28 @@ export default function SurveyPeriodsManager() {
   });
 
   const { data: activeEmployees } = trpc.surveyPeriods.getActiveEmployees.useQuery();
+
+  // Estabilizar opciones de Select para evitar errores de removeChild
+  const surveyTypeOptions = useMemo(() => [
+    { value: "all", label: "Todas las guías" },
+    { value: "guia_i", label: "Guía I" },
+    { value: "guia_ii", label: "Guía II" },
+    { value: "guia_iii", label: "Guía III" },
+  ], []);
+
+  const statusOptions = useMemo(() => [
+    { value: "all", label: "Todos los estados" },
+    { value: "draft", label: "Borrador" },
+    { value: "active", label: "Activo" },
+    { value: "closed", label: "Cerrado" },
+    { value: "archived", label: "Archivado" },
+  ], []);
+
+  const createSurveyTypeOptions = useMemo(() => [
+    { value: "guia_i", label: "Guía I - Identificación y análisis de factores de riesgo psicosocial" },
+    { value: "guia_ii", label: "Guía II - Identificación de trabajadores expuestos a acontecimientos traumáticos severos" },
+    { value: "guia_iii", label: "Guía III - Identificación de trabajadores que fueron sujetos a acontecimientos traumáticos severos" },
+  ], []);
 
   // Mutations
   const createPeriodMutation = trpc.surveyPeriods.create.useMutation({
@@ -201,9 +223,11 @@ export default function SurveyPeriodsManager() {
                       <SelectValue placeholder="Seleccione el tipo de encuesta" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="guia_i">Guía I - Identificación y análisis de factores de riesgo psicosocial</SelectItem>
-                      <SelectItem value="guia_ii">Guía II - Identificación de trabajadores expuestos a acontecimientos traumáticos severos</SelectItem>
-                      <SelectItem value="guia_iii">Guía III - Identificación de trabajadores que fueron sujetos a acontecimientos traumáticos severos</SelectItem>
+                      {createSurveyTypeOptions.map((option) => (
+                        <SelectItem key={`create-survey-${option.value}`} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -275,10 +299,11 @@ export default function SurveyPeriodsManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas las guías</SelectItem>
-                  <SelectItem value="guia_i">Guía I</SelectItem>
-                  <SelectItem value="guia_ii">Guía II</SelectItem>
-                  <SelectItem value="guia_iii">Guía III</SelectItem>
+                  {surveyTypeOptions.map((option) => (
+                    <SelectItem key={`filter-type-${option.value}`} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -289,11 +314,11 @@ export default function SurveyPeriodsManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos los estados</SelectItem>
-                  <SelectItem value="draft">Borrador</SelectItem>
-                  <SelectItem value="active">Activo</SelectItem>
-                  <SelectItem value="closed">Cerrado</SelectItem>
-                  <SelectItem value="archived">Archivado</SelectItem>
+                  {statusOptions.map((option) => (
+                    <SelectItem key={`filter-status-${option.value}`} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
