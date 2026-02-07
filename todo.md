@@ -1909,3 +1909,18 @@
 - [x] Actualizar gráficas del Panel NOM-035 con clasificación correcta - Solo 5 niveles oficiales
 - [x] Probar que todas las gráficas muestren solo niveles oficiales de la NOM-035 - VERIFICADO
 - [x] Documentar clasificación oficial y colores utilizados - Documentación completa creada
+
+
+## VALIDACIÓN Y MEJORAS NOM-035 (7 FEB 2026)
+- [x] Revisar algoritmos de cálculo de niveles de riesgo en Guía I - Algoritmo correcto en nom035-calculator.ts
+- [x] Revisar algoritmos de cálculo de niveles de riesgo en Guía II - Tablas oficiales implementadas correctamente
+- [x] Revisar algoritmos de cálculo de niveles de riesgo en Guía III - Tablas oficiales implementadas correctamente
+- [x] Validar que todos los algoritmos asignen solo los 5 niveles oficiales - CONFIRMADO
+- [x] Verificar tablas de calificación según NOM-035-STPS-2018 - Conforme a norma oficial
+- [x] Agregar leyenda de colores en Panel NOM-035 - Leyenda agregada exitosamente
+- [x] Incluir explicación de cada nivel de riesgo en la leyenda - Descripciones completas incluidas
+- [x] Actualizar funcionalidad de exportación a Excel con clasificación oficial - Comentario agregado en surveys.ts
+- [x] Actualizar funcionalidad de exportación a PDF con clasificación oficial - Leyenda agregada en nom035-pdf-reports.ts
+- [x] Incluir definiciones de niveles de riesgo en reportes exportados - Leyenda incluida en PDF
+- [x] Probar exportación de reportes con nuevos cambios - Panel NOM-035 verificado
+- [x] Documentar algoritmos de calificación validados - Documentación completa creada

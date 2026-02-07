@@ -1528,6 +1528,8 @@ export const surveysRouter = router({
         .orderBy(desc(surveyResponses.startedAt));
 
       // Preparar datos para Excel
+      // NOTA: Los niveles de riesgo son conforme NOM-035-STPS-2018:
+      // Nulo, Bajo, Medio, Alto, Muy Alto
       const excelData = responses.map(response => {
         let riskLevel = 'N/A';
         let totalScore = 0;

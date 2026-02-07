@@ -305,6 +305,65 @@ export default function Nom035AdminPanel() {
             </Card>
           </div>
 
+          {/* Leyenda de Niveles de Riesgo */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Leyenda de Niveles de Riesgo NOM-035-STPS-2018</CardTitle>
+              <CardDescription>
+                Clasificación oficial de niveles de riesgo psicosocial
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Nulo"] }}></div>
+                  <div>
+                    <p className="font-semibold text-sm">Nulo o Despreciable</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      No requiere acciones correctivas. Mantener condiciones actuales.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Bajo"] }}></div>
+                  <div>
+                    <p className="font-semibold text-sm">Bajo</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Riesgo mínimo. Implementar acciones de mejora continua.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Medio"] }}></div>
+                  <div>
+                    <p className="font-semibold text-sm">Medio</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Riesgo moderado. Acciones correctivas en plazo de 1 año.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Alto"] }}></div>
+                  <div>
+                    <p className="font-semibold text-sm">Alto</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Riesgo significativo. Intervención urgente requerida.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded" style={{ backgroundColor: riskColors["Muy Alto"] }}></div>
+                  <div>
+                    <p className="font-semibold text-sm">Muy Alto</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Riesgo crítico. Intervención inmediata del comité.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Gráficas */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>

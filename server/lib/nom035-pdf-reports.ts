@@ -247,6 +247,13 @@ export async function generateAggregatedReport(data: AggregatedReportData): Prom
       }
       doc.moveDown(2);
 
+      // Leyenda de niveles de riesgo NOM-035-STPS-2018
+      doc.fontSize(12).fillColor('#000000').text('Leyenda de Niveles de Riesgo NOM-035-STPS-2018', { underline: true });
+      doc.moveDown(0.5);
+      doc.fontSize(9).fillColor('#666666');
+      doc.text('Nulo: No requiere acciones correctivas | Bajo: Riesgo mínimo | Medio: Acciones en 1 año | Alto: Intervención urgente | Muy Alto: Intervención inmediata');
+      doc.moveDown(1.5);
+
       // Distribución de niveles de riesgo
       doc.fontSize(14).fillColor('#000000').text('Distribución de Niveles de Riesgo', { underline: true });
       doc.moveDown(0.5);
