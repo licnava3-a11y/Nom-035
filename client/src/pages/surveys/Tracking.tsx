@@ -50,6 +50,10 @@ export default function SurveysTracking() {
   // Mutation para generar PDF
   const generatePDF = (trpc as any).surveys.generatePendingWorkersPDF.useMutation();
 
+  // Mutation para enviar recordatorios
+  const sendReminders = (trpc as any).surveys.sendPendingWorkersReminders.useMutation();
+  const [isSendingReminders, setIsSendingReminders] = React.useState(false);
+
   // Calcular fórmula de cobertura (Ecuación 1)
   const totalWorkers = stats?.totalResponses ? 
     Math.round((stats.totalResponses / (stats.completionRate ? parseFloat(stats.completionRate) / 100 : 1))) : 
@@ -93,9 +97,39 @@ export default function SurveysTracking() {
   };
 
   // Handler para enviar notificaciones
-  const handleSendReminders = () => {
-    toast.success("Notificaciones enviadas exitosamente");
-    // TODO: Implementar envío real de correos
+  const handleSendReminders = async () => {
+    try {
+      setIsSendingReminders(true);
+      const result = await sendReminders.mutateAsync({
+        surveyId,
+        department: selectedDepartment === "all" ? undefined : selectedDepartment,
+      });
+      
+      if (result.sent > 0) {
+        toast.success(
+          `Recordatorios enviados exitosamente: ${result.sent} de ${result.total}`,
+          {
+            description: result.failed > 0 
+              ? `${result.failed} correos fallaron. Revisa la configuración SMTP.`
+              : 'Todos los correos fueron enviados correctamente.'
+          }
+        );
+      } else {
+        toast.error(
+          `No se pudieron enviar los recordatorios (${result.failed} fallos)`,
+          {
+            description: 'Verifica la configuración SMTP en las variables de entorno.'
+          }
+        );
+      }
+    } catch (error) {
+      toast.error("Error al enviar recordatorios", {
+        description: error instanceof Error ? error.message : 'Error desconocido'
+      });
+      console.error(error);
+    } finally {
+      setIsSendingReminders(false);
+    }
   };
 
   return (
@@ -270,10 +304,10 @@ export default function SurveysTracking() {
             <div className="flex gap-2">
               <Button
                 onClick={handleSendReminders}
-                disabled={!pendingWorkers || pendingWorkers.length === 0}
+                disabled={isSendingReminders || !pendingWorkers || pendingWorkers.length === 0}
               >
                 <Mail className="mr-2 h-4 w-4" />
-                Enviar Recordatorios
+                {isSendingReminders ? "Enviando..." : "Enviar Recordatorios"}
               </Button>
               <Button 
                 variant="outline"

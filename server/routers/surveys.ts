@@ -939,6 +939,84 @@ export const surveysRouter = router({
       }));
     }),
 
+  // Enviar recordatorios masivos a trabajadores pendientes
+  sendPendingWorkersReminders: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      department: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Obtener encuesta
+      const [survey] = await db.select().from(surveys).where(eq(surveys.id, input.surveyId)).limit(1);
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+      
+      // Obtener respuestas de la encuesta
+      const responses = await db
+        .select({ userId: surveyResponses.userId })
+        .from(surveyResponses)
+        .where(eq(surveyResponses.surveyId, input.surveyId));
+      
+      const respondedUserIds = new Set(responses.map(r => r.userId));
+      
+      // Obtener todos los usuarios
+      let allUsers = await db.select().from(users);
+      
+      // Filtrar usuarios pendientes con email válido
+      let pendingUsers = allUsers.filter(user => 
+        user.id && 
+        !respondedUserIds.has(user.id) && 
+        user.email && 
+        user.email.includes('@')
+      );
+      
+      // Aplicar filtro de departamento si se especifica
+      if (input.department && input.department !== 'all') {
+        pendingUsers = pendingUsers.filter(user => user.departamento === input.department);
+      }
+      
+      // Enviar correos
+      const results = {
+        total: pendingUsers.length,
+        sent: 0,
+        failed: 0,
+        errors: [] as string[],
+      };
+      
+      // Importar dinámicamente el servicio de correo
+      const { sendSurveyReminder } = await import('../lib/survey-email-service');
+      
+      // URL base para las encuestas (ajustar según configuración)
+      const baseUrl = process.env.VITE_APP_URL || 'http://localhost:3000';
+      
+      for (const user of pendingUsers) {
+        try {
+          const result = await sendSurveyReminder({
+            to: user.email!,
+            userName: user.name || 'Usuario',
+            surveyTitle: survey.title,
+            surveyUrl: `${baseUrl}/surveys/${survey.id}/respond`,
+          });
+          
+          if (result.success) {
+            results.sent++;
+          } else {
+            results.failed++;
+            results.errors.push(`${user.email}: ${result.error}`);
+          }
+        } catch (error) {
+          results.failed++;
+          results.errors.push(`${user.email}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+        }
+      }
+      
+      return results;
+    }),
+
   // Generar PDF de trabajadores pendientes
   generatePendingWorkersPDF: protectedProcedure
     .input(z.number()) // surveyId
