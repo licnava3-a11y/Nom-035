@@ -2382,3 +2382,28 @@
 - [x] Probar Select de empleados (4 empleados mostrados correctamente)
 - [x] Probar Select de niveles de competencia (Básico, Intermedio, Avanzado, Experto)
 - [x] Validar carga de 15 competencias aplicables para Carlos Ramírez
+
+
+## FASE 85: Interfaz Completa de Auditoría NOM-035
+
+### Componente ComplianceChecklist
+- [ ] Crear /client/src/pages/ComplianceChecklist.tsx
+- [ ] Implementar vista por secciones A-G con acordeones
+- [ ] Agregar checkboxes para marcar cumplimiento de 27 items
+- [ ] Implementar campo de notas por item
+- [ ] Agregar indicadores de progreso por sección
+- [ ] Conectar con procedimientos tRPC (getChecklist, updateCompliance)
+
+### Dashboard de Cumplimiento
+- [ ] Crear componente ComplianceDashboard.tsx
+- [ ] Implementar gráfico circular de cumplimiento general
+- [ ] Agregar gráficos de barras por sección (A-G)
+- [ ] Mostrar lista de items pendientes
+- [ ] Implementar tarjetas de resumen (total, cumplidos, pendientes)
+- [ ] Agregar exportación a PDF
+
+### Integración
+- [ ] Agregar ruta /compliance en App.tsx
+- [ ] Agregar enlace en menú lateral
+- [ ] Probar flujo completo de verificación
+- [ ] Validar guardado de estado de cumplimiento

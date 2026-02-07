@@ -48,6 +48,8 @@ import DocumentActaFinalResultados from "./pages/DocumentActaFinalResultados";
 import DocumentsHistory from "./pages/DocumentsHistory";
 import DocumentGallery from "./pages/DocumentGallery";
 import GuideI from "./pages/surveys/GuideI";
+import ComplianceChecklist from "./pages/ComplianceChecklist";
+import ComplianceDashboard from "./pages/ComplianceDashboard";
 import GuideII from "./pages/surveys/GuideII";
 import GuideIII from "./pages/surveys/GuideIII";
 import SurveysDashboard from "./pages/surveys/Dashboard";
@@ -361,6 +363,16 @@ function Router() {
       <Route path={"/surveys/nom035-admin"}>
         <DashboardLayout>
           <Nom035AdminPanel />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/compliance"}>
+        <DashboardLayout>
+          <ComplianceDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/compliance/checklist"}>
+        <DashboardLayout>
+          <ComplianceChecklist />
         </DashboardLayout>
       </Route>
       {/* Ruta pública de aplicación de encuestas */}
