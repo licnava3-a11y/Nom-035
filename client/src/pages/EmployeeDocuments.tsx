@@ -4,7 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Select } from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Upload, FileText, Image, FileCheck, AlertCircle, X, Eye, Download, Trash2 } from "lucide-react";
 
@@ -158,12 +158,16 @@ export default function EmployeeDocuments() {
           <div>
             <label className="block text-sm font-medium mb-2">Tipo de Documento</label>
             <Select value={selectedType} onValueChange={setSelectedType}>
-              <option value="">Seleccionar tipo...</option>
-              {DOCUMENT_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar tipo..." />
+              </SelectTrigger>
+              <SelectContent>
+                {DOCUMENT_TYPES.map((type) => (
+                  <SelectItem key={`doc-type-${type.value}`} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
 
@@ -200,12 +204,17 @@ export default function EmployeeDocuments() {
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Filtrar:</label>
             <Select value={filterType} onValueChange={setFilterType}>
-              <option value="all">Todos</option>
-              {DOCUMENT_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {DOCUMENT_TYPES.map((type) => (
+                  <SelectItem key={`filter-${type.value}`} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
         </div>

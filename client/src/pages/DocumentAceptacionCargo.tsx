@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SignaturePad } from "@/components/SignaturePad";
 import { Save, FileCheck } from "lucide-react";
 
@@ -24,13 +24,13 @@ export default function DocumentAceptacionCargo() {
     firma: "",
   });
 
-  const cargos = [
+  const cargos = useMemo(() => [
     "Coordinador del Comité",
     "Secretario del Comité",
     "Vocal del Comité",
     "Representante de los Trabajadores",
     "Representante del Patrón",
-  ];
+  ], []);
 
   const handleSave = () => {
     console.log("Guardando aceptación de cargo:", formData);
