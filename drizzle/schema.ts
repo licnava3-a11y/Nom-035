@@ -1167,3 +1167,18 @@ export const meetingAttachmentsRelations = relations(meetingAttachments, ({ one 
   }),
 }));
 
+
+// Alert Logs - Registro de alertas automáticas enviadas
+export const alertLogs = mysqlTable("alertLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  alertType: varchar("alertType", { length: 50 }).notNull(), // 'low_coverage', 'worker_pending'
+  surveyId: int("surveyId").notNull(), // FK to surveys
+  triggeredAt: timestamp("triggeredAt").defaultNow().notNull(),
+  details: text("details"), // JSON con detalles de la alerta
+  notificationSent: boolean("notificationSent").default(false).notNull(),
+  notificationError: text("notificationError"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AlertLog = typeof alertLogs.$inferSelect;
+export type InsertAlertLog = typeof alertLogs.$inferInsert;

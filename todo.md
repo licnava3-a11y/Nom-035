@@ -2144,3 +2144,32 @@
 - [ ] Configurar variables de entorno SMTP (pendiente del usuario)
 - [ ] Probar envío real de correos con SMTP configurado
 
+
+
+## FASE 79: Sistema de Alertas Automáticas para Cobertura y Trabajadores Pendientes
+
+### Análisis y Diseño
+- [x] Diseñar lógica de detección de cobertura < 80%
+- [x] Diseñar lógica de detección de trabajadores sin responder por 2+ días
+- [x] Crear tabla para registro de alertas enviadas (evitar duplicados)
+- [x] Definir estructura de notificaciones al propietario
+
+### Backend
+- [x] Crear procedimiento tRPC para verificar alertas de cobertura
+- [x] Crear procedimiento tRPC para verificar trabajadores pendientes por tiempo
+- [x] Implementar sistema de notificación al propietario usando notifyOwner
+- [x] Crear job programado que ejecute verificaciones cada 6 horas
+- [x] Integrar job en el servidor para ejecución automática
+
+### Base de Datos
+- [x] Crear tabla alert_logs para registrar alertas enviadas
+- [x] Agregar campos: alert_type, survey_id, triggered_at, details, notification_sent
+
+### Pruebas
+- [x] Verificar que el job se inicia correctamente al arrancar el servidor
+- [x] Validar que no se envían alertas duplicadas (verificación de 24 horas)
+- [x] Probar manualmente con cobertura < 80% (Guía III: 45.45% cobertura)
+- [x] Verificar envío de notificaciones al propietario
+- [x] Confirmar registro de alertas en base de datos
+- [x] Validar historial de alertas
+
