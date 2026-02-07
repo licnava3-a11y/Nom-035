@@ -2057,3 +2057,23 @@
 - [ ] Configurar credenciales SMTP para notificaciones automáticas
 - [ ] Implementar sistema de roles con dashboards personalizados
 - [ ] Agregar filtros avanzados por fechas en todos los paneles
+
+
+## FASE 99: AUDITORÍA FINAL Y PRUEBAS COMPLETAS (7 FEB 2026) - EN PROGRESO
+- [ ] Revisar logs del servidor para identificar warnings y errores
+- [ ] Revisar logs del navegador para identificar errores de consola
+- [ ] Auditar todas las rutas y verificar que funcionan correctamente
+- [ ] Probar todos los botones de acción del sistema
+- [ ] Verificar correlaciones de datos entre tablas
+- [ ] Probar flujos completos de cada módulo crítico
+- [ ] Verificar que no existan duplicidades en títulos, campos y desplegables
+- [ ] Probar con al menos 10 registros de datos de prueba en cada módulo
+- [ ] Optimizar rendimiento del sistema
+- [ ] Crear checkpoint final con documentación completa
+
+## ERROR CRÍTICO DETECTADO EN AUDITORÍA (7 FEB 2026)
+- [ ] 🔴 URGENTE: Corregir error en creación de casos - Modal se abre pero caso no se crea
+- [ ] Revisar procedimiento tRPC cases.create en server/routers/cases.ts
+- [ ] Agregar manejo de errores visible en frontend
+- [ ] Verificar validación del formulario de creación de casos
+- [ ] Probar creación de caso después de corrección
