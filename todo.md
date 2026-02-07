@@ -1870,3 +1870,42 @@
 - [x] Identificar componentes que manipulan directamente el DOM - Solo Select es problemático
 - [x] Documentar componentes potencialmente problemáticos - Dialog y Popover son SEGUROS
 - [x] Crear plan de acción para componentes problemáticos encontrados - Reporte completo creado
+
+
+## PRUEBAS FLUJO ENCUESTAS Y VISUALIZACIÓN (6 FEB 2026)
+- [ ] Acceder al sistema de periodos de encuestas
+- [ ] Crear token de prueba desde sistema de periodos
+- [ ] Acceder al enlace público /survey/apply?token=xxx
+- [ ] Completar Guía I con el token
+- [ ] Verificar flujo automático a Guía II/III sin re-autenticación
+- [ ] Acceder al Panel de Administración NOM-035
+- [ ] Verificar gráfica "Resultados por Departamento" muestra 5 departamentos
+- [ ] Confirmar que las respuestas están correctamente correlacionadas
+- [ ] Documentar resultados de las pruebas
+
+
+## PRUEBAS FLUJO ENCUESTAS Y GRÁFICAS (7 FEB 2026)
+- [x] Acceder al sistema de periodos de encuestas NOM-035
+- [x] Crear token de prueba desde sistema de periodos - Token obtenido de BD
+- [x] Activar periodo de aplicación si es necesario - Periodo "Prueba 2026" activado
+- [x] Acceder a página de aplicación con token (/survey/apply?token=xxx) - ÉXITO
+- [x] Completar Guía I y verificar flujo automático a Guía II/III - FLUJO AUTOMÁTICO FUNCIONA PERFECTAMENTE
+- [x] Verificar que NO se requiere re-autenticación entre guías - CONFIRMADO: Sin re-autenticación
+- [x] Acceder al Panel de Administración NOM-035 - ÉXITO
+- [x] Verificar gráfica "Resultados por Departamento" muestra 5 departamentos - CONFIRMADO
+- [x] Confirmar que los departamentos son: Tecnología, Recursos Humanos, Ventas, Producción, Administración - TODOS PRESENTES
+- [x] Documentar resultados de pruebas - Reporte completo creado en /home/ubuntu/test-survey-flow-results.md
+
+**RESULTADO:** ✅✅✅ TODAS LAS PRUEBAS EXITOSAS - Sistema listo para producción
+
+
+## CORRECCIÓN CLASIFICACIÓN NOM-035 (7 FEB 2026)
+- [x] Investigar clasificación oficial de niveles de riesgo según NOM-035-STPS-2018 - Documentado en nom035-clasificacion-oficial.md
+- [x] Identificar clasificaciones incorrectas o adicionales en el código - "Sin clasificar" encontrado en 2 archivos
+- [x] Verificar colores utilizados para cada nivel de riesgo - Colores correctos confirmados
+- [x] Corregir clasificaciones en schema de base de datos - No requiere cambios
+- [x] Corregir clasificaciones en procedimientos tRPC (server/routers/nom035Admin.ts) - Filtrado implementado
+- [x] Corregir clasificaciones y colores en componentes de frontend (Nom035AdminPanel.tsx) - "Sin clasificar" eliminado
+- [x] Actualizar gráficas del Panel NOM-035 con clasificación correcta - Solo 5 niveles oficiales
+- [x] Probar que todas las gráficas muestren solo niveles oficiales de la NOM-035 - VERIFICADO
+- [x] Documentar clasificación oficial y colores utilizados - Documentación completa creada

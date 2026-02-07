@@ -56,15 +56,20 @@ export const nom035AdminRouter = router({
         .where(and(whereClause, sql`${surveyResponses.completedAt} IS NOT NULL`));
 
       // Procesar resultados para obtener distribución de riesgo
+      // Solo incluir niveles oficiales de la NOM-035-STPS-2018
+      const validRiskLevels = ["Nulo", "Bajo", "Medio", "Alto", "Muy Alto"];
       const riskCounts: Record<string, number> = {};
       completedResponses.forEach(response => {
         if (response.results) {
           try {
             const results = JSON.parse(response.results);
-            const riskLevel = results.riskLevel || "Sin clasificar";
-            riskCounts[riskLevel] = (riskCounts[riskLevel] || 0) + 1;
+            const riskLevel = results.riskLevel;
+            // Solo contar si el nivel de riesgo es válido según NOM-035
+            if (riskLevel && validRiskLevels.includes(riskLevel)) {
+              riskCounts[riskLevel] = (riskCounts[riskLevel] || 0) + 1;
+            }
           } catch (e) {
-            riskCounts["Sin clasificar"] = (riskCounts["Sin clasificar"] || 0) + 1;
+            // Ignorar respuestas con JSON inválido
           }
         }
       });

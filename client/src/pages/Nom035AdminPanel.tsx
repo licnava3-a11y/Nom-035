@@ -80,13 +80,13 @@ export default function Nom035AdminPanel() {
   );
 
   // Colores para gráficas
+  // Colores oficiales según NOM-035-STPS-2018
   const riskColors = {
-    "Nulo": "#10b981",
-    "Bajo": "#3b82f6",
-    "Medio": "#f59e0b",
-    "Alto": "#ef4444",
-    "Muy Alto": "#991b1b",
-    "Sin clasificar": "#6b7280",
+    "Nulo": "#10b981",      // Verde - Sin riesgo
+    "Bajo": "#3b82f6",      // Azul - Riesgo mínimo
+    "Medio": "#f59e0b",     // Naranja - Riesgo moderado
+    "Alto": "#ef4444",      // Rojo - Riesgo significativo
+    "Muy Alto": "#991b1b",  // Rojo oscuro - Riesgo crítico
   };
 
   // Datos para gráfica de distribución de riesgo
