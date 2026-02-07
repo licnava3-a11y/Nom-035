@@ -10,7 +10,12 @@ import { Plus, AlertCircle, CheckCircle, Clock, XCircle, AlertTriangle } from "l
 
 export default function Complaints() {
   const [isCreating, setIsCreating] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    tipo: "discriminacion_genero" | "acoso_laboral" | "acoso_sexual" | "discriminacion_edad" | "discriminacion_discapacidad" | "otro" | "";
+    descripcion: string;
+    denuncianteNombre: string;
+    denuncianteEmail: string;
+  }>({
     tipo: "",
     descripcion: "",
     denuncianteNombre: "",
@@ -44,10 +49,19 @@ export default function Complaints() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMutation.mutate(formData);
+    if (!formData.tipo) {
+      alert("Por favor seleccione un tipo de queja");
+      return;
+    }
+    createMutation.mutate({
+      tipo: formData.tipo as "discriminacion_genero" | "acoso_laboral" | "acoso_sexual" | "discriminacion_edad" | "discriminacion_discapacidad" | "otro",
+      descripcion: formData.descripcion,
+      denuncianteNombre: formData.denuncianteNombre || undefined,
+      denuncianteEmail: formData.denuncianteEmail || undefined,
+    });
   };
 
-  const handleStatusChange = (id: number, estado: string) => {
+  const handleStatusChange = (id: number, estado: "recibida" | "en_investigacion" | "resuelta" | "cerrada" | "desestimada") => {
     if (confirm(`¿Cambiar estado a "${estado}"?`)) {
       updateStatusMutation.mutate({ id, estado });
     }
@@ -150,13 +164,21 @@ export default function Complaints() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="tipo">Tipo de Queja *</Label>
-                  <Input
+                  <select
                     id="tipo"
                     value={formData.tipo}
-                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
-                    placeholder="Ej: Discriminación, Acoso, Desigualdad salarial"
+                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     required
-                  />
+                  >
+                    <option value="">Seleccione un tipo...</option>
+                    <option value="discriminacion_genero">Discriminación de Género</option>
+                    <option value="acoso_laboral">Acoso Laboral</option>
+                    <option value="acoso_sexual">Acoso Sexual</option>
+                    <option value="discriminacion_edad">Discriminación por Edad</option>
+                    <option value="discriminacion_discapacidad">Discriminación por Discapacidad</option>
+                    <option value="otro">Otro</option>
+                  </select>
                 </div>
 
                 <div>

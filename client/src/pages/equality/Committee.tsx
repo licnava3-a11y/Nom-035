@@ -9,7 +9,11 @@ import { Plus, UserMinus, Users, CheckCircle, XCircle } from "lucide-react";
 
 export default function Committee() {
   const [isAdding, setIsAdding] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    userId: string;
+    cargo: "presidente" | "secretario" | "vocal" | "asesor" | "";
+    fechaDesignacion: string;
+  }>({
     userId: "",
     cargo: "",
     fechaDesignacion: "",
@@ -43,9 +47,13 @@ export default function Committee() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.cargo) {
+      alert("Por favor seleccione un cargo");
+      return;
+    }
     addMemberMutation.mutate({
       userId: parseInt(formData.userId),
-      cargo: formData.cargo,
+      cargo: formData.cargo as "presidente" | "secretario" | "vocal" | "asesor",
       fechaDesignacion: formData.fechaDesignacion,
     });
   };
@@ -134,13 +142,19 @@ export default function Committee() {
 
               <div>
                 <Label htmlFor="cargo">Cargo en el Comité *</Label>
-                <Input
+                <select
                   id="cargo"
                   value={formData.cargo}
-                  onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                  placeholder="Ej: Presidente, Secretario, Vocal"
+                  onChange={(e) => setFormData({ ...formData, cargo: e.target.value as any })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   required
-                />
+                >
+                  <option value="">Seleccione un cargo...</option>
+                  <option value="presidente">Presidente</option>
+                  <option value="secretario">Secretario</option>
+                  <option value="vocal">Vocal</option>
+                  <option value="asesor">Asesor</option>
+                </select>
               </div>
 
               <div>

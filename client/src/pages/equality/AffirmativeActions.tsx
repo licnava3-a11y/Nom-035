@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, CheckCircle, Clock, XCircle, Target } from "lucide-react";
 
 type ActionFormData = {
-  tipo: string;
+  titulo: string;
+  tipo: "capacitacion" | "promocion" | "contratacion" | "conciliacion" | "infraestructura" | "otro" | "";
   descripcion: string;
   objetivo: string;
   responsable: string;
@@ -21,6 +22,7 @@ export default function AffirmativeActions() {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<ActionFormData>({
+    titulo: "",
     tipo: "",
     descripcion: "",
     objetivo: "",
@@ -66,6 +68,7 @@ export default function AffirmativeActions() {
 
   const resetForm = () => {
     setFormData({
+      titulo: "",
       tipo: "",
       descripcion: "",
       objetivo: "",
@@ -79,15 +82,29 @@ export default function AffirmativeActions() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.tipo) {
+      alert("Por favor seleccione un tipo de acción");
+      return;
+    }
+    const data = {
+      titulo: formData.titulo,
+      tipo: formData.tipo as "capacitacion" | "promocion" | "contratacion" | "conciliacion" | "infraestructura" | "otro",
+      descripcion: formData.descripcion,
+      objetivo: formData.objetivo,
+      responsable: formData.responsable,
+      fechaInicio: formData.fechaInicio,
+      fechaFin: formData.fechaFin || undefined,
+    };
     if (editingId) {
-      updateMutation.mutate({ id: editingId, ...formData });
+      updateMutation.mutate({ id: editingId, ...data });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(data);
     }
   };
 
   const handleEdit = (action: any) => {
     setFormData({
+      titulo: action.titulo,
       tipo: action.tipo,
       descripcion: action.descripcion,
       objetivo: action.objetivo,
@@ -126,7 +143,7 @@ export default function AffirmativeActions() {
   const totalActions = actions.length;
   const inProgress = actions.filter(a => a.estado === "en_progreso").length;
   const completed = actions.filter(a => a.estado === "completada").length;
-  const planned = actions.filter(a => a.estado === "planificada").length;
+  const planned = actions.filter(a => a.estado === "planeada").length;
 
   if (isLoading) {
     return <div className="p-6">Cargando...</div>;
@@ -187,13 +204,21 @@ export default function AffirmativeActions() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="tipo">Tipo de Acción *</Label>
-                  <Input
+                  <select
                     id="tipo"
                     value={formData.tipo}
-                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
-                    placeholder="Ej: Capacitación, Sensibilización, Política"
+                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value as any })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     required
-                  />
+                  >
+                    <option value="">Seleccione un tipo...</option>
+                    <option value="capacitacion">Capacitación</option>
+                    <option value="promocion">Promoción</option>
+                    <option value="contratacion">Contratación</option>
+                    <option value="conciliacion">Conciliación</option>
+                    <option value="infraestructura">Infraestructura</option>
+                    <option value="otro">Otro</option>
+                  </select>
                 </div>
 
                 <div>

@@ -2681,3 +2681,32 @@
 - [ ] Entregar resultados al usuario
 
 **FASE 95 CASI COMPLETADA: 5/5 componentes implementados, 5 rutas agregadas, 6 errores TypeScript menores pendientes**
+
+
+## FASE 96: Corrección de Errores TypeScript en Módulos NMX-025
+
+### Corrección en Complaints.tsx
+- [x] Agregar type assertion para campo 'tipo' en formData (tipo con union type incluyendo "")
+- [x] Cambiar Input a Select con opciones enum (6 opciones: discriminacion_genero, acoso_laboral, acoso_sexual, discriminacion_edad, discriminacion_discapacidad, otro)
+- [x] Agregar type assertion para campo 'estado' en updateStatus (5 estados: recibida, en_investigacion, resuelta, cerrada, desestimada)
+- [x] Agregar validación en handleSubmit para verificar que tipo no está vacío
+
+### Corrección en AffirmativeActions.tsx
+- [x] Agregar campo 'titulo' faltante en ActionFormData
+- [x] Corregir tipos en updateMutation para coincidir con schema (6 tipos enum)
+- [x] Corregir tipos en createMutation para coincidir con schema
+- [x] Cambiar Input a Select con opciones enum (capacitacion, promocion, contratacion, conciliacion, infraestructura, otro)
+- [x] Corregir comparación de estado 'planificada' a 'planeada' (línea 146)
+- [x] Agregar validación en handleSubmit para verificar que tipo no está vacío
+
+### Corrección en Committee.tsx
+- [x] Agregar type assertion para campo 'cargo' en formData (union type con "")
+- [x] Cambiar Input a Select con opciones enum (presidente, secretario, vocal, asesor)
+- [x] Agregar validación en handleSubmit para verificar que cargo no está vacío
+
+### Verificación Final
+- [x] Ejecutar pnpm tsc para verificar 0 errores TypeScript (confirmado: 0 errors)
+- [x] Guardar checkpoint con correcciones
+- [x] Entregar resultados al usuario
+
+**FASE 96 COMPLETADA: 6 errores TypeScript corregidos exitosamente** ✅
