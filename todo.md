@@ -2028,3 +2028,32 @@
 ⚠️ **FASE 76:** Panel de Administración de Encuestas NOM-035 - **85% COMPLETADA**
 
 **Total de fases críticas completadas:** 2.85 / 3 (95%)
+
+
+## NUEVAS TAREAS SOLICITADAS (7 FEB 2026)
+- [ ] Probar exportación a Excel desde Panel NOM-035
+- [ ] Probar exportación a PDF desde Panel NOM-035
+- [ ] Reemplazar componentes Select en SurveyAdmin.tsx por elementos HTML nativos
+- [ ] Fusionar funcionalidades de SurveyAdmin.tsx y Nom035AdminPanel.tsx en un solo panel
+- [ ] Crear dashboard ejecutivo simplificado para directivos (3-4 indicadores clave)
+- [ ] Implementar alertas automáticas de riesgo alto/muy alto (requiere SMTP)
+- [ ] Configurar envío de correos automáticos a RH y directivos
+
+## ✅ TAREAS COMPLETADAS (7 FEB 2026)
+- [x] Probar exportación a Excel desde Panel NOM-035 - FUNCIONA CORRECTAMENTE
+- [x] Probar exportación a PDF desde Panel NOM-035 - FUNCIONA CORRECTAMENTE
+- [x] Validar algoritmos de cálculo de niveles de riesgo conforme NOM-035-STPS-2018
+- [x] Agregar leyenda de niveles de riesgo en Panel NOM-035
+- [x] Corregir clasificaciones incorrectas (eliminar "Sin clasificar")
+- [x] Completar FASE 69: Panel de Acciones Correctivas (100%)
+- [x] Completar FASE 74/78: Sistema de Tokens de Acceso Anónimo (100%)
+- [x] Verificar FASE 76: Panel de Administración (85% - SurveyAdmin.tsx existe)
+
+## ⚠️ TAREAS PENDIENTES PARA FUTURAS MEJORAS
+- [ ] Reemplazar componentes Select en SurveyAdmin.tsx (21 referencias)
+- [ ] Fusionar SurveyAdmin.tsx y Nom035AdminPanel.tsx en panel unificado
+- [ ] Crear dashboard ejecutivo simplificado para directivos
+- [ ] Implementar alertas automáticas de riesgo alto/muy alto (requiere SMTP)
+- [ ] Configurar credenciales SMTP para notificaciones automáticas
+- [ ] Implementar sistema de roles con dashboards personalizados
+- [ ] Agregar filtros avanzados por fechas en todos los paneles
