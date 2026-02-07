@@ -2345,3 +2345,40 @@
 - [ ] Probar asociación de evidencias
 - [ ] Validar matriz de trazabilidad
 - [ ] Probar exportación de documentos
+
+
+## FASE 84: Corrección de Error insertBefore en Evaluación de Competencias
+
+### Diagnóstico
+- [ ] Localizar componente /competency-evaluation
+- [ ] Identificar componentes Select o listas dinámicas problemáticas
+- [ ] Analizar causa del error insertBefore
+
+### Corrección
+- [ ] Aplicar useMemo para estabilizar datos dinámicos
+- [ ] Agregar validación de nodos antes de manipulación DOM
+- [ ] Mejorar keys en listas dinámicas
+
+### Pruebas
+- [ ] Verificar que la página carga sin errores insertBefore
+- [ ] Probar interacción con componentes Select
+- [ ] Validar funcionalidad completa de la página
+
+
+## FASE 84: Corrección de Error insertBefore en Evaluación de Competencias
+
+### Diagnóstico
+- [x] Localizar componente /competency-evaluation (EmployeeCompetencyEvaluation.tsx)
+- [x] Identificar selects nativos problemáticos (2 selects nativos HTML)
+- [x] Analizar causa del error insertBefore (opciones dinámicas no estabilizadas)
+
+### Corrección
+- [x] Reemplazar selects nativos por Select de shadcn/ui
+- [x] Aplicar useMemo para estabilizar employeeOptions y levelOptions
+- [x] Agregar keys únicas con prefijos (employee-, level-)
+
+### Pruebas
+- [x] Verificar que la página carga sin errores insertBefore
+- [x] Probar Select de empleados (4 empleados mostrados correctamente)
+- [x] Probar Select de niveles de competencia (Básico, Intermedio, Avanzado, Experto)
+- [x] Validar carga de 15 competencias aplicables para Carlos Ramírez

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Save, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
@@ -60,6 +61,26 @@ export default function EmployeeCompetencyEvaluation() {
       { employeeId: selectedEmployeeId! },
       { enabled: !!selectedEmployeeId }
     );
+
+  // Stabilize employee options
+  const employeeOptions = useMemo(() => {
+    if (!employees) return [];
+    return employees.map((emp) => ({
+      value: emp.id.toString(),
+      label: `${emp.firstName} ${emp.lastName} - ${emp.position} (${emp.department})`,
+    }));
+  }, [employees]);
+
+  // Stabilize level options
+  const levelOptions = useMemo(
+    () => [
+      { value: "basico", label: "Básico" },
+      { value: "intermedio", label: "Intermedio" },
+      { value: "avanzado", label: "Avanzado" },
+      { value: "experto", label: "Experto" },
+    ],
+    []
+  );
 
   // Add competency mutation
   const addCompetencyMutation = trpc.jobProfiles.addEmployeeCompetency.useMutation({
@@ -158,18 +179,21 @@ export default function EmployeeCompetencyEvaluation() {
       {/* Employee Selection */}
       <Card className="p-6">
         <h2 className="text-lg font-semibold mb-4">Seleccionar Empleado</h2>
-        <select
-          className="w-full p-3 border rounded-lg"
-          value={selectedEmployeeId || ""}
-          onChange={(e) => setSelectedEmployeeId(Number(e.target.value) || null)}
+        <Select
+          value={selectedEmployeeId?.toString() || ""}
+          onValueChange={(value) => setSelectedEmployeeId(value ? Number(value) : null)}
         >
-          <option value="">-- Selecciona un empleado --</option>
-          {employees?.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {emp.firstName} {emp.lastName} - {emp.position} ({emp.department})
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="-- Selecciona un empleado --" />
+          </SelectTrigger>
+          <SelectContent>
+            {employeeOptions.map((option) => (
+              <SelectItem key={`employee-${option.value}`} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Card>
 
       {/* Competencies Evaluation */}
@@ -230,19 +254,23 @@ export default function EmployeeCompetencyEvaluation() {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700">Nivel Actual</label>
-                      <select
-                        className="mt-1 w-full p-2 border rounded-lg"
+                      <Select
                         value={currentLevel || ""}
-                        onChange={(e) =>
-                          handleLevelChange(comp.id, e.target.value as CompetencyLevel)
+                        onValueChange={(value) =>
+                          handleLevelChange(comp.id, value as CompetencyLevel)
                         }
                       >
-                        <option value="">-- Seleccionar nivel --</option>
-                        <option value="basico">Básico</option>
-                        <option value="intermedio">Intermedio</option>
-                        <option value="avanzado">Avanzado</option>
-                        <option value="experto">Experto</option>
-                      </select>
+                        <SelectTrigger className="mt-1 w-full">
+                          <SelectValue placeholder="-- Seleccionar nivel --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {levelOptions.map((option) => (
+                            <SelectItem key={`level-${comp.id}-${option.value}`} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
