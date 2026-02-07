@@ -28,47 +28,113 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart } from "lucide-react";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/", roles: ["admin", "instructor", "student", "committee"] },
-  { icon: BookOpen, label: "Cursos", path: "/courses", roles: ["admin", "instructor", "student"] },
-  { icon: ClipboardCheck, label: "Evaluaciones", path: "/evaluations", roles: ["admin", "instructor", "student"] },
-  { 
-    icon: ClipboardList, 
-    label: "Encuestas NOM-035", 
-    path: "/surveys", 
+// Nueva arquitectura jerárquica con 8 menús principales
+const hierarchicalMenuItems = [
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
+    path: "/",
+    roles: ["admin", "instructor", "student", "committee"],
+  },
+  {
+    icon: Building2,
+    label: "Empresa",
+    roles: ["admin"],
+    submenu: [
+      { label: "Datos Generales", path: "/company/general" },
+      { label: "Datos del Reporte de la Encuesta", path: "/company/survey-report" },
+      { label: "Logo", path: "/company/logo" },
+      { label: "Representante Legal", path: "/company/legal-representative" },
+      { label: "Firma Digital", path: "/company/digital-signature" },
+    ],
+  },
+  {
+    icon: Users,
+    label: "Gestión de Talento",
+    roles: ["admin"],
+    submenu: [
+      { label: "Trabajadores", path: "/employees" },
+      { label: "Puestos", path: "/job-positions" },
+      { label: "Competencias", path: "/competencies-dashboard" },
+      { label: "Matriz de Habilidades", path: "/skills-matrix" },
+      { label: "Evaluación de Competencias", path: "/competency-evaluation" },
+      { label: "DNC Consolidada", path: "/dnc-dashboard" },
+      { label: "Catálogo de Competencias", path: "/competencies-manager" },
+    ],
+  },
+  {
+    icon: GraduationCap,
+    label: "Capacitación y Desarrollo",
+    roles: ["admin", "instructor", "student"],
+    submenu: [
+      { label: "Cursos", path: "/courses" },
+      { label: "Evaluaciones", path: "/evaluations" },
+      { label: "Recursos", path: "/resources" },
+    ],
+  },
+  {
+    icon: ShieldCheck,
+    label: "Prevención de Riesgos Psicosociales",
     roles: ["admin", "committee"],
     submenu: [
-      { label: "Guía I - ATS", path: "/surveys/guide-i" },
-      { label: "Guía II - Identificación", path: "/surveys/guide-ii" },
-      { label: "Guía III - Evaluación", path: "/surveys/guide-iii" },
-      { label: "Tamaño de Muestra", path: "/surveys/sample-size", badge: true },
-      { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard" },
-      { label: "Dashboard", path: "/surveys/dashboard" },
+      {
+        label: "Encuestas",
+        submenu: [
+          { label: "Guía I - ATS", path: "/surveys/guide-i" },
+          { label: "Guía II - Identificación", path: "/surveys/guide-ii" },
+          { label: "Guía III - Evaluación", path: "/surveys/guide-iii" },
+          { label: "Tamaño de Muestra", path: "/surveys/sample-size" },
+          { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard" },
+          { label: "Periodos de Aplicación", path: "/surveys/periods" },
+        ],
+      },
+      { label: "Casos", path: "/cases" },
+      { label: "Buzón", path: "/mailbox" },
+      { label: "Comité", path: "/committee" },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions" },
-      { label: "Panel de Administración", path: "/surveys/admin-panel" },
-      { label: "Periodos de Aplicación", path: "/surveys/periods" },
-      { label: "Panel de Administración NOM-035", path: "/surveys/nom035-admin" },
-    ]
+      { label: "Minutas de Reunión", path: "/meeting-minutes" },
+      { label: "Cumplimiento NOM-035", path: "/compliance" },
+      { label: "Panel de Administración", path: "/surveys/nom035-admin" },
+    ],
   },
-  { icon: AlertCircle, label: "Casos", path: "/cases", roles: ["admin", "committee"] },
-  { icon: Inbox, label: "Buzón", path: "/mailbox", roles: ["admin", "committee"] },
-  { icon: Users, label: "Comité", path: "/committee", roles: ["admin"] },
-  { icon: FileText, label: "Recursos", path: "/resources", roles: ["admin", "instructor", "student", "committee"] },
-  { icon: Briefcase, label: "Puestos", path: "/job-positions", roles: ["admin", "instructor"] },
-  { icon: UserCog, label: "Trabajadores", path: "/employees", roles: ["admin"] },
-  { icon: Target, label: "Competencias", path: "/competencies-dashboard", roles: ["admin"] },
-  { icon: ClipboardList, label: "Matriz de Habilidades", path: "/skills-matrix", roles: ["admin"] },
-  { icon: ClipboardCheck, label: "Evaluación de Competencias", path: "/competency-evaluation", roles: ["admin"] },
-  { icon: Target, label: "DNC Consolidada", path: "/dnc-dashboard", roles: ["admin"] },
-  { icon: Settings, label: "Catálogo de Competencias", path: "/competencies-manager", roles: ["admin"] },
-  { icon: FileSignature, label: "Minutas de Reunión", path: "/meeting-minutes", roles: ["admin", "committee"] },
-  { icon: ShieldCheck, label: "Cumplimiento NOM-035", path: "/compliance", roles: ["admin", "committee"] },
-  { icon: BarChart3, label: "Reportes", path: "/reports", roles: ["admin", "instructor"] },
-  { icon: Users, label: "Usuarios", path: "/users", roles: ["admin"] },
-  { icon: Settings, label: "Configuración", path: "/settings", roles: ["admin"] },
+  {
+    icon: Scale,
+    label: "Igualdad Laboral y No Discriminación",
+    roles: ["admin"],
+    submenu: [
+      { label: "Política de Igualdad", path: "/equality/policy" },
+      { label: "Indicadores de Brecha Salarial", path: "/equality/salary-gap" },
+      { label: "Acciones Afirmativas", path: "/equality/affirmative-actions" },
+      { label: "Quejas y Denuncias", path: "/equality/complaints" },
+      { label: "Comité de Igualdad", path: "/equality/committee" },
+    ],
+  },
+  {
+    icon: PieChart,
+    label: "Reportes y Análisis",
+    roles: ["admin", "instructor"],
+    submenu: [
+      { label: "Dashboard Ejecutivo", path: "/reports/executive" },
+      { label: "Reportes Normativos", path: "/reports/regulatory" },
+      { label: "Análisis de Competencias", path: "/reports/competencies" },
+      { label: "Exportaciones", path: "/reports/exports" },
+    ],
+  },
+  {
+    icon: Settings,
+    label: "Administración",
+    roles: ["admin"],
+    submenu: [
+      { label: "Usuarios", path: "/users" },
+      { label: "Configuración", path: "/settings" },
+    ],
+  },
 ];
+
+// Mantener compatibilidad con código existente
+const menuItems = hierarchicalMenuItems;
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -149,18 +215,72 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
-  const [openSubmenus, setOpenSubmenus] = useState<string[]>([]);
+  const [openSubmenus, setOpenSubmenus] = useState<string[]>(() => {
+    // Cargar estado de localStorage
+    const saved = localStorage.getItem('open-submenus');
+    return saved ? JSON.parse(saved) : [];
+  });
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
 
-  const toggleSubmenu = (path: string) => {
-    setOpenSubmenus(prev => 
-      prev.includes(path) 
-        ? prev.filter(p => p !== path)
-        : [...prev, path]
-    );
+  // Patrón de acordeón: solo un menú principal expandido a la vez
+  const toggleSubmenu = (itemKey: string, isMainMenu: boolean = false) => {
+    setOpenSubmenus(prev => {
+      if (prev.includes(itemKey)) {
+        // Si ya está abierto, cerrarlo
+        return prev.filter(p => p !== itemKey);
+      } else {
+        // Si es menú principal, cerrar otros menús principales (patrón acordeón)
+        if (isMainMenu) {
+          const mainMenuKeys = menuItems.map((_, index) => `menu-${index}`);
+          const newOpen = prev.filter(p => !mainMenuKeys.includes(p));
+          return [...newOpen, itemKey];
+        }
+        // Si es submenú, solo agregarlo
+        return [...prev, itemKey];
+      }
+    });
   };
+
+  // Persistir estado en localStorage
+  useEffect(() => {
+    localStorage.setItem('open-submenus', JSON.stringify(openSubmenus));
+  }, [openSubmenus]);
+
+  // Expansión automática del menú que contiene la ruta activa
+  useEffect(() => {
+    if (!location || location === '/') return;
+
+    // Buscar menú principal que contiene la ruta activa
+    menuItems.forEach((item, index) => {
+      const itemKey = `menu-${index}`;
+      
+      // Verificar si la ruta activa está en submenús de nivel 1
+      if (item.submenu) {
+        const hasActiveSubmenu = item.submenu.some((sub: any) => sub.path === location);
+        if (hasActiveSubmenu && !openSubmenus.includes(itemKey)) {
+          setOpenSubmenus(prev => [...prev, itemKey]);
+        }
+
+        // Verificar si la ruta activa está en submenús de nivel 2
+        item.submenu.forEach((subItem: any, subIndex: number) => {
+          if ('submenu' in subItem && subItem.submenu) {
+            const hasActiveNestedSubmenu = subItem.submenu.some((nested: any) => nested.path === location);
+            const subItemKey = `submenu-${index}-${subIndex}`;
+            if (hasActiveNestedSubmenu) {
+              setOpenSubmenus(prev => {
+                const newOpen = [...prev];
+                if (!newOpen.includes(itemKey)) newOpen.push(itemKey);
+                if (!newOpen.includes(subItemKey)) newOpen.push(subItemKey);
+                return newOpen;
+              });
+            }
+          }
+        });
+      }
+    });
+  }, [location]);
 
   useEffect(() => {
     if (isCollapsed) {
@@ -233,18 +353,19 @@ function DashboardLayoutContent({
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.filter(item => item.roles.includes(user?.role || "student")).map(item => {
-                const isActive = location === item.path;
+              {menuItems.filter(item => item.roles.includes(user?.role || "student")).map((item, index) => {
+                const itemKey = `menu-${index}`;
+                const isActive = item.path ? location === item.path : false;
                 const hasSubmenu = 'submenu' in item && item.submenu;
-                const isSubmenuOpen = openSubmenus.includes(item.path);
-                const isSubmenuItemActive = hasSubmenu && item.submenu?.some(sub => location === sub.path);
+                const isSubmenuOpen = openSubmenus.includes(itemKey);
+                const isSubmenuItemActive = hasSubmenu && item.submenu?.some((sub: any) => sub.path === location);
                 
                 return (
-                  <div key={item.path}>
+                  <div key={itemKey}>
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         isActive={isActive || isSubmenuItemActive}
-                        onClick={() => hasSubmenu ? toggleSubmenu(item.path) : setLocation(item.path)}
+                        onClick={() => hasSubmenu ? toggleSubmenu(itemKey, true) : (item.path && setLocation(item.path))}
                         tooltip={item.label}
                         className={`h-10 transition-all font-normal`}
                       >
@@ -261,19 +382,51 @@ function DashboardLayoutContent({
                     </SidebarMenuItem>
                     {hasSubmenu && isSubmenuOpen && (
                       <div className="ml-6 mt-1 space-y-1">
-                        {item.submenu?.map(subItem => {
-                          const isSubActive = location === subItem.path;
+                        {item.submenu?.map((subItem: any, subIndex: number) => {
+                          const subItemKey = subItem.path || `submenu-${index}-${subIndex}`;
+                          const isSubActive = subItem.path ? location === subItem.path : false;
+                          const hasNestedSubmenu = 'submenu' in subItem && subItem.submenu;
+                          const isNestedSubmenuOpen = openSubmenus.includes(subItemKey);
+                          const isNestedSubmenuItemActive = hasNestedSubmenu && subItem.submenu?.some((nested: any) => nested.path === location);
+                          
                           return (
-                            <SidebarMenuItem key={subItem.path}>
-                              <SidebarMenuButton
-                                isActive={isSubActive}
-                                onClick={() => setLocation(subItem.path)}
-                                tooltip={subItem.label}
-                                className="h-9 text-sm font-normal"
-                              >
-                                <span>{subItem.label}</span>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            <div key={subItemKey}>
+                              <SidebarMenuItem>
+                                <SidebarMenuButton
+                                  isActive={isSubActive || isNestedSubmenuItemActive}
+                                  onClick={() => hasNestedSubmenu ? toggleSubmenu(subItemKey) : (subItem.path && setLocation(subItem.path))}
+                                  tooltip={subItem.label}
+                                  className="h-9 text-sm font-normal"
+                                >
+                                  <span>{subItem.label}</span>
+                                  {hasNestedSubmenu && (
+                                    <div className="ml-auto">
+                                      {isNestedSubmenuOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                    </div>
+                                  )}
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              {hasNestedSubmenu && isNestedSubmenuOpen && (
+                                <div className="ml-6 mt-1 space-y-1">
+                                  {subItem.submenu?.map((nestedItem: any, nestedIndex: number) => {
+                                    const nestedItemKey = nestedItem.path || `nested-${index}-${subIndex}-${nestedIndex}`;
+                                    const isNestedActive = nestedItem.path ? location === nestedItem.path : false;
+                                    return (
+                                      <SidebarMenuItem key={nestedItemKey}>
+                                        <SidebarMenuButton
+                                          isActive={isNestedActive}
+                                          onClick={() => nestedItem.path && setLocation(nestedItem.path)}
+                                          tooltip={nestedItem.label}
+                                          className="h-8 text-xs font-normal"
+                                        >
+                                          <span>{nestedItem.label}</span>
+                                        </SidebarMenuButton>
+                                      </SidebarMenuItem>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
