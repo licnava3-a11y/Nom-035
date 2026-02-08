@@ -77,6 +77,8 @@ import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
 import EqualityComplaints from "./pages/equality/Complaints";
 import EqualityCommittee from "./pages/equality/Committee";
+import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
 
 function Router() {
   return (
@@ -84,6 +86,11 @@ function Router() {
       <Route path={"/"}>
         <DashboardLayout>
           <Dashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/executive-dashboard"}>
+        <DashboardLayout>
+          <ExecutiveDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/courses"}>
@@ -358,6 +365,11 @@ function Router() {
       <Route path={"/surveys/tokens-dashboard"}>
         <DashboardLayout>
           <TokensDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/mass-email"}>
+        <DashboardLayout>
+          <MassSurveyEmail />
         </DashboardLayout>
       </Route>
       <Route path={"/surveys/admin-panel"}>

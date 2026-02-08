@@ -94,6 +94,7 @@ const hierarchicalMenuItems = [
           { label: "Tamaño de Muestra", path: "/surveys/sample-size", description: "Cálculo del tamaño de muestra para aplicación de encuestas" },
           { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard", description: "Gestión de tokens de acceso para encuestas" },
           { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación de encuestas" },
+          { label: "Envío Masivo", path: "/surveys/mass-email", description: "Envío masivo de invitaciones por correo electrónico" },
         ],
       },
               { 
@@ -129,7 +130,7 @@ const hierarchicalMenuItems = [
     description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
-      { label: "Dashboard Ejecutivo", path: "/reports/executive", description: "Dashboard ejecutivo con métricas clave de la organización" },
+      { label: "Dashboard Ejecutivo", path: "/executive-dashboard", description: "Métricas consolidadas de empleados, NOM-035 y NMX-025 con gráficas interactivas" },
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
       { label: "Análisis de Competencias", path: "/reports/competencies", description: "Análisis de brechas de competencias y DNC" },
       { label: "Exportaciones", path: "/reports/exports", description: "Exportación de datos en Excel, Word y PDF" },

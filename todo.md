@@ -2977,3 +2977,55 @@
 - [ ] Probar todas las métricas con datos reales
 - [ ] Verificar que los filtros temporales funcionen correctamente
 - [ ] Guardar checkpoint con todas las funcionalidades completadas
+
+
+## FASE 109: Implementar Frontend del Dashboard Ejecutivo
+
+### Crear Página ExecutiveDashboard.tsx
+- [x] Crear archivo ExecutiveDashboard.tsx en client/src/pages/
+- [x] Importar trpc.executiveDashboard.getMetrics
+- [x] Agregar DateRangeFilter para filtros temporales
+- [x] Crear cards de métricas clave (empleados, representantes, firmantes, casos)
+- [x] Implementar gráfica de distribución por departamento (Chart.js)
+- [x] Implementar gráfica de tendencia de factores de riesgo (Chart.js)
+- [x] Implementar gráfica de distribución de género (Chart.js)
+- [x] Agregar comparación período actual vs anterior
+- [x] Agregar breadcrumbs "Dashboard Ejecutivo"
+
+### Integrar en Menú Lateral
+- [x] Agregar ruta /executive-dashboard en App.tsx
+- [x] Agregar opción "Dashboard Ejecutivo" en DashboardLayout
+- [x] Agregar tooltip descriptivo en menú lateral
+- [x] Probar navegación desde menú lateral
+
+## FASE 110: UI de Envío Masivo de Encuestas
+
+### Crear Componente MassSurveyEmail
+- [x] Crear archivo MassSurveyEmail.tsx en client/src/pages/surveys/
+- [x] Importar trpc.surveys.sendMassEmail
+- [x] Crear selector de encuesta (dropdown)
+- [x] Crear selector de tipo de destinatarios (todos, departamento, puesto)
+- [x] Agregar campo de mensaje personalizado opcional
+- [x] Implementar vista previa del correo
+- [x] Agregar diálogo de confirmación antes de envío
+- [x] Mostrar progreso y resultados del envío (enviados/fallidos)
+- [x] Integrar en menú de Encuestas
+
+## FASE 111: Extender Filtros Temporales
+
+### Agregar Filtros en Courses
+- [ ] Importar DateRangeFilter en Courses.tsx
+- [ ] Agregar estado dateRange
+- [ ] Integrar filtros en UI
+- [ ] Actualizar trpc.courses.list para aceptar filtros
+
+### Agregar Filtros en Reportes
+- [ ] Identificar componentes de reportes
+- [ ] Importar DateRangeFilter en cada componente
+- [ ] Integrar filtros temporales
+- [ ] Actualizar procedimientos tRPC de reportes
+
+### Verificación
+- [ ] Probar todos los filtros temporales
+- [ ] Verificar que no hay errores TypeScript
+- [ ] Guardar checkpoint final
