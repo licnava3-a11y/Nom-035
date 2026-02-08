@@ -108,6 +108,7 @@ const hierarchicalMenuItems = [
       { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones del comité" },
       { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos psicosociales" },
+      { label: "Carpeta de Evidencias", path: "/nom035/evidence-folder", description: "Repositorio centralizado de documentación para cumplimiento normativo" },
     ],
   },
   {

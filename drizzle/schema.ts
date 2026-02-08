@@ -1564,3 +1564,39 @@ export const nom035Policies = mysqlTable("nom035_policies", {
 
 export type Nom035Policy = typeof nom035Policies.$inferSelect;
 export type InsertNom035Policy = typeof nom035Policies.$inferInsert;
+
+/**
+ * NOM-035 Evidence Folder table
+ * Centralized repository for all NOM-035 compliance documentation
+ */
+export const nom035EvidenceFolder = mysqlTable("nom035_evidence_folder", {
+  id: int("id").autoincrement().primaryKey(),
+  category: mysqlEnum("category", [
+    "policies",
+    "preventive_actions",
+    "corrective_actions",
+    "organizational_environment",
+    "training_program",
+    "surveys",
+    "cases",
+    "minutes",
+    "certificates",
+    "position_acceptance",
+    "photographic_evidence"
+  ]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  documentType: varchar("document_type", { length: 100 }), // PDF, DOCX, XLSX, JPG, etc.
+  sourceModule: varchar("source_module", { length: 100 }), // Module that generated this evidence
+  sourceId: int("source_id"), // ID of the source record
+  fileUrl: text("file_url").notNull(),
+  fileKey: varchar("file_key", { length: 500 }).notNull(),
+  fileSize: int("file_size"), // File size in bytes
+  generatedDate: date("generated_date").notNull(),
+  uploadedBy: int("uploaded_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Nom035Evidence = typeof nom035EvidenceFolder.$inferSelect;
+export type InsertNom035Evidence = typeof nom035EvidenceFolder.$inferInsert;

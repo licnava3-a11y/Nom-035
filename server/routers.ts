@@ -36,6 +36,7 @@ import { menuCountersRouter } from "./routers/menuCounters";
 import { reportsRouter } from "./routers/reports";
 import { nom035PoliciesRouter } from "./routers/nom035Policies";
 import { trendsRouter } from "./routers/trends";
+import { evidenceFolderRouter } from "./routers/evidenceFolder";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -87,6 +88,7 @@ export const appRouter = router({
   surveyAlerts: surveyAlertsRouter,
   compliance: complianceRouter,
   company: companyRouter,
+  evidenceFolder: evidenceFolderRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

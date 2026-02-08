@@ -66,6 +66,7 @@ import SurveysAdminPanel from "./pages/SurveysAdminPanel";
 import SurveyPeriodsManager from "./pages/SurveyPeriodsManager";
 import Nom035AdminPanel from "./pages/Nom035AdminPanel";
 import Policies from "./pages/nom035/Policies";
+import EvidenceFolder from "./pages/nom035/EvidenceFolder";
 import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
 import CompanySettings from "./pages/company/CompanySettings";
@@ -388,6 +389,11 @@ function Router() {
       <Route path={"/nom035/policies"}>
         <DashboardLayout>
           <Policies />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/nom035/evidence-folder"}>
+        <DashboardLayout>
+          <EvidenceFolder />
         </DashboardLayout>
       </Route>
       <Route path={"/compliance"}>

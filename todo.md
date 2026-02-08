@@ -3576,3 +3576,65 @@
 - [x] Probar gestión de firmas digitales
 - [x] Verificar que no hay errores TypeScript
 - [x] Guardar checkpoint con fusión completa
+
+
+## FASE 132: Carpeta de Evidencias NOM-035
+
+### Backend - Esquema de Base de Datos
+- [x] Crear tabla nom035_evidence_folder en drizzle/schema.ts
+- [x] Campos: id, category, title, description, documentType, sourceModule, sourceId, fileUrl, fileKey, generatedDate, uploadedBy
+- [x] Categorías: policies, preventive_actions, corrective_actions, organizational_environment, training_program, surveys, cases, minutes, certificates, position_acceptance, photographic_evidence
+- [x] Generar migración SQL para tabla de evidencias
+- [x] Aplicar migración a la base de datos
+
+### Backend - Procedimientos tRPC
+- [x] Crear router evidenceFolder.ts
+- [x] Implementar procedimiento list (listar todas las evidencias con filtros)
+- [x] Implementar procedimiento getByCategory (obtener por categoría)
+- [x] Implementar procedimiento getByDateRange (obtener por rango de fechas)
+- [x] Implementar procedimiento addEvidence (agregar evidencia manualmente)
+- [ ] Implementar procedimiento exportAll (exportar carpeta completa en ZIP)
+- [x] Implementar procedimiento getStats (estadísticas por categoría)
+- [x] Registrar router en appRouter
+
+### Backend - Hooks de Consolidación Automática
+- [ ] Crear server/hooks/evidenceHooks.ts
+- [ ] Hook para políticas publicadas (nom035Policies)
+- [ ] Hook para acciones correctivas completadas
+- [ ] Hook para reportes de encuestas generados
+- [ ] Hook para casos cerrados
+- [ ] Hook para minutas firmadas
+- [ ] Hook para certificados emitidos
+- [ ] Hook para documentos de aceptación de cargo
+
+### Frontend - Interfaz de Carpeta de Evidencias
+- [x] Crear client/src/pages/nom035/EvidenceFolder.tsx
+- [x] Implementar navegación por pestañas de categorías
+- [x] Agregar tabla de evidencias con filtros (fecha, tipo, categoría)
+- [x] Implementar buscador de evidencias
+- [ ] Agregar botón de exportación masiva (ZIP)
+- [x] Mostrar estadísticas por categoría (tarjetas de resumen)
+- [x] Implementar vista previa de documentos PDF (abrir en nueva ventana)
+- [ ] Agregar opción de subida manual de evidencias
+
+### Categorías Específicas
+- [ ] Sección "Acciones Preventivas" (medidas de prevención implementadas)
+- [ ] Sección "Entorno Organizacional Favorable" (programas de bienestar)
+- [ ] Sección "Programa de Capacitación" (cursos y talleres)
+- [ ] Sección "Políticas de Prevención"
+- [ ] Sección "Acciones Correctivas"
+- [ ] Sección "Reportes de Encuestas"
+- [ ] Sección "Casos Documentados"
+- [ ] Sección "Minutas del Comité"
+- [ ] Sección "Certificados y Constancias"
+- [ ] Sección "Documentos de Aceptación de Cargo"
+- [ ] Sección "Evidencias Fotográficas y Documentales"
+
+### Integración y Pruebas
+- [x] Agregar ruta /nom035/evidence-folder en App.tsx
+- [x] Agregar opción "Carpeta de Evidencias" en menú de Prevención de Riesgos Psicosociales
+- [ ] Probar consolidación automática al generar documentos (hooks pendientes)
+- [x] Probar filtros y búsqueda
+- [ ] Probar exportación masiva (pendiente)
+- [x] Verificar que no hay errores TypeScript
+- [x] Guardar checkpoint con módulo completo
