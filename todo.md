@@ -5797,3 +5797,49 @@
 **Prioridad**: P0 - Crítico
 **Tiempo Estimado**: 8-10 horas
 
+
+
+---
+
+## 📦 LIBRERÍAS INSTALADAS
+
+- [x] docx (v8.5.0) - Generación de documentos Word (.docx)
+- [x] xlsx (v0.18.5) - Generación y parseo de archivos Excel (.xlsx, .csv)
+- [x] recharts (v2.15.0) - Gráficas interactivas para TrendsCharts.tsx
+
+---
+
+## ⚠️ TAREAS PENDIENTES PRIORITARIAS (CRÍTICAS)
+
+### FASE 173: Exportación Multi-formato (P0 - Crítico)
+- [ ] Crear servicio server/services/docxExportService.ts
+- [ ] Crear servicio server/services/xlsxExportService.ts
+- [ ] Agregar procedimientos exportToDocx y exportToXlsx en router reports
+- [ ] Integrar botones de exportación en componente RegulatoryReports.tsx
+
+### FASE 174: Importación Masiva de Datos (P0 - Crítico)
+- [ ] Crear router server/routers/import.ts
+- [ ] Implementar procedimiento importEmployees (parseo Excel/CSV con xlsx)
+- [ ] Implementar procedimiento importDepartments
+- [ ] Implementar procedimiento importPositions
+- [ ] Crear componente DataImport.tsx con drag-and-drop de archivos
+- [ ] Agregar validación de datos y manejo de errores
+
+### FASE 175: Filtros Temporales Adicionales (P1 - Alto)
+- [ ] Extender selectores en TrendsCharts.tsx para incluir: trimestre, año, semana anterior, mes anterior, año anterior
+- [ ] Modificar router trends para aceptar nuevos tipos de período
+- [ ] Agregar botones de acceso rápido ("Última Semana", "Último Mes", "Último Año")
+
+### FASE 176: Servicio de Reportes PDF del Protocolo (P0 - Crítico)
+- [ ] Crear servicio server/services/workplaceViolencePDFService.ts
+- [ ] Implementar generateReceptionReport (acta de recepción de queja)
+- [ ] Implementar generateInvestigationReport (informe de investigación)
+- [ ] Implementar generateResolutionReport (resolución del caso)
+- [ ] Implementar generateClosureReport (acta de cierre)
+- [ ] Agregar firmas digitales y almacenamiento en S3
+- [ ] Integrar procedimientos en router workplaceViolence
+
+### FASE 177: Configuración SMTP (P1 - Alto)
+- [ ] Usar webdev_request_secrets para solicitar SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+- [ ] Documentar configuración SMTP en manual de instalación
+- [ ] Habilitar envío automático de correos en cuestionarios y alertas
