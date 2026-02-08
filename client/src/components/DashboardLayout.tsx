@@ -27,6 +27,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart } from "lucide-react";
 
@@ -90,7 +91,11 @@ const hierarchicalMenuItems = [
           { label: "Periodos de Aplicación", path: "/surveys/periods" },
         ],
       },
-      { label: "Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)", path: "/company/survey-report" },
+              { 
+                label: "Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)", 
+                path: "/company/survey-report",
+                description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
+              },
       { label: "Casos", path: "/cases" },
       { label: "Buzón", path: "/mailbox" },
       { label: "Comité", path: "/committee" },
@@ -367,7 +372,7 @@ function DashboardLayoutContent({
                       <SidebarMenuButton
                         isActive={isActive || isSubmenuItemActive}
                         onClick={() => hasSubmenu ? toggleSubmenu(itemKey, true) : (item.path && setLocation(item.path))}
-                        tooltip={item.label}
+                        tooltip={(item as any).description || item.label}
                         className={`h-10 transition-all font-normal`}
                       >
                         <item.icon

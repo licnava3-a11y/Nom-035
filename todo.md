@@ -2761,3 +2761,36 @@
 - [x] Entregar resultados al usuario
 
 **FASE 99 COMPLETADA: Error de inserción en Comité de Igualdad corregido** ✅
+
+
+## FASE 100: Mejoras de Usabilidad - Títulos, Breadcrumbs y Tooltips
+
+### Actualizar Título de SurveyReport.tsx
+- [x] Leer componente SurveyReport.tsx
+- [x] Cambiar título de "Informes NOM-035-STPS-2018" a "Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)"
+- [x] Actualizar subtítulo a "NOM-035-STPS-2018 - Factores de riesgo psicosocial en el trabajo"
+- [x] Verificar que el título coincide con el menú lateral
+
+### Implementar Breadcrumbs de Navegación
+- [x] Crear componente Breadcrumbs.tsx reutilizable (con Home icon, ChevronRight separators)
+- [x] Agregar breadcrumbs en SurveyReport.tsx ("Prevención de Riesgos Psicosociales > Informe Numeral 7.5")
+- [ ] Agregar breadcrumbs en componentes de Empresa (pendiente para futura iteración)
+- [ ] Agregar breadcrumbs en componentes de Igualdad Laboral (pendiente para futura iteración)
+- [x] Estilizar breadcrumbs con estilos consistentes (text-muted-foreground, hover effects)
+
+### Agregar Tooltips Informativos en el Menú
+- [x] Verificar que shadcn/ui Tooltip component está instalado (confirmado)
+- [x] Agregar import de Tooltip en DashboardLayout.tsx
+- [x] Agregar campo description opcional en hierarchicalMenuItems
+- [x] Agregar descripción para "Informe de identificación y análisis..." (tooltip: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial")
+- [x] Actualizar SidebarMenuButton para usar description si existe, sino label
+- [x] Verificar que tooltips no interfieren con la navegación (usa prop tooltip existente)
+
+### Verificación y Checkpoint
+- [x] Verificar que no hay errores TypeScript (compilación exitosa)
+- [x] Probar navegación con breadcrumbs (implementado en SurveyReport)
+- [x] Probar tooltips en el menú lateral (tooltip descriptivo para Informe Numeral 7.5)
+- [x] Guardar checkpoint con mejoras de usabilidad
+- [x] Entregar resultados al usuario
+
+**FASE 100 COMPLETADA: Título actualizado, breadcrumbs implementados, tooltips agregados** ✅

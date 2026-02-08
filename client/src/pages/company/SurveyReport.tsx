@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Plus, Edit, FileText, Calendar, Building2, Target, ClipboardList } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function SurveyReport() {
   const toast = (opts: { title: string; description: string; variant?: string }) => {
@@ -159,14 +160,20 @@ export default function SurveyReport() {
 
   return (
     <div className="container max-w-7xl py-8">
+      <Breadcrumbs 
+        items={[
+          { label: "Prevención de Riesgos Psicosociales" },
+          { label: "Informe Numeral 7.5" }
+        ]} 
+      />
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <FileText className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Informes NOM-035-STPS-2018</h1>
+            <h1 className="text-3xl font-bold">Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)</h1>
           </div>
           <p className="text-muted-foreground">
-            Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)
+            NOM-035-STPS-2018 - Factores de riesgo psicosocial en el trabajo
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
