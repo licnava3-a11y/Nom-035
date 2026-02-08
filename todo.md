@@ -8322,3 +8322,85 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - ✅ Página /admin/roles accesible y funcional
 
 **FASE 194 COMPLETADA AL 83% (30/36 tareas críticas)**
+
+
+## ✅ FASE 185: Módulo de Autodiagnóstico NOM-035 COMPLETADA (24/24 tareas)
+
+### Backend (12/12 tareas completadas)
+- [x] Crear tabla autodiagnosticos (id, userId, fecha, porcentajeTotal, status, createdAt)
+- [x] Crear tabla requirements (id, categoria, codigo, descripcion, articuloNOM, orden)
+- [x] Crear tabla evidences (id, autodiagnosticoId, requirementId, cumple, evidenciaUrl, observaciones)
+- [x] Poblar tabla requirements con 45 requisitos en 5 categorías
+- [x] Generar y ejecutar migración SQL
+- [x] Crear procedimiento tRPC autodiagnostico.create
+- [x] Crear procedimiento tRPC autodiagnostico.getAll
+- [x] Crear procedimiento tRPC autodiagnostico.getById
+- [x] Crear procedimiento tRPC autodiagnostico.updateEvidence
+- [x] Crear procedimiento tRPC autodiagnostico.calculate (porcentaje por categoría)
+- [x] Crear procedimiento tRPC autodiagnostico.uploadEvidence (S3)
+- [x] Crear procedimiento tRPC autodiagnostico.getRequirements
+
+### Frontend (12/12 tareas completadas)
+- [x] Crear página /nom035/autodiagnostico con layout de checklist
+- [x] Implementar componente RequirementCard con checkbox y upload
+- [x] Implementar 5 secciones colapsables por categoría (Accordion)
+- [x] Crear componente ProgressBar por categoría
+- [x] Implementar upload de evidencias a S3 con preview
+- [x] Crear dialog de observaciones por requisito
+- [x] Implementar cálculo automático de porcentaje total
+- [x] Crear componente de semáforo de cumplimiento (Rojo<60%, Amarillo 60-85%, Verde>85%)
+- [x] Implementar botón "Guardar Progreso" con autosave cada 2 min
+- [x] Crear vista de historial de autodiagnósticos
+- [x] Implementar exportación a PDF del reporte de autodiagnóstico
+- [x] Agregar ruta /nom035/autodiagnostico en App.tsx
+
+## 📊 FASE 189: Dashboard Interactivo NOM-035 (36 tareas)
+
+### Backend (18 tareas)
+- [ ] Crear procedimiento tRPC dashboard.getGlobalRisk (semáforo global)
+- [ ] Crear procedimiento tRPC dashboard.getDimensionHeatmap (mapa de calor)
+- [ ] Crear procedimiento tRPC dashboard.getTemporalTrends (evolución temporal)
+- [ ] Crear procedimiento tRPC dashboard.getNotifications (alertas automáticas)
+- [ ] Crear procedimiento tRPC dashboard.getCriticalCases (casos críticos)
+- [ ] Crear procedimiento tRPC dashboard.getComplianceMetrics (métricas de cumplimiento)
+- [ ] Implementar WebSocket subscription para updates en tiempo real
+- [ ] Crear helper calculateGlobalRisk() en server/lib/nom035-calculator.ts
+- [ ] Crear helper generateHeatmapData() para dimensiones
+- [ ] Crear helper detectCriticalCases() con umbrales NOM-035
+- [ ] Crear tabla dashboard_notifications (id, tipo, mensaje, prioridad, leido)
+- [ ] Crear procedimiento tRPC dashboard.markNotificationRead
+- [ ] Crear job programado para detectar casos críticos cada hora
+- [ ] Implementar lógica de alertas automáticas (email + notificación)
+- [ ] Crear procedimiento tRPC dashboard.getHistoricalComparison
+- [ ] Crear procedimiento tRPC dashboard.getDepartmentBreakdown
+- [ ] Crear procedimiento tRPC dashboard.getActionPlanStatus
+- [ ] Generar y ejecutar migraciones SQL
+
+### Frontend (18 tareas)
+- [ ] Crear página /dashboard/nom035 con grid layout responsive
+- [ ] Implementar componente RiskSemaphore con animación de pulso
+- [ ] Implementar componente DimensionHeatmap usando Chart.js
+- [ ] Crear componente TemporalTrendsChart con filtros de periodo
+- [ ] Implementar componente NotificationsPanel con badge de contador
+- [ ] Crear componente CriticalCasesTable con ordenamiento
+- [ ] Implementar WebSocket client para updates en tiempo real
+- [ ] Crear componente ComplianceGauge (medidor circular)
+- [ ] Implementar filtros de periodo (Última semana, Último mes, Último año)
+- [ ] Crear componente DepartmentBreakdownChart (gráfico de barras)
+- [ ] Implementar componente ActionPlanProgress (lista de tareas)
+- [ ] Crear dialog de detalle de notificación con botón "Marcar como leída"
+- [ ] Implementar auto-refresh cada 30 segundos
+- [ ] Crear componente HistoricalComparisonChart (líneas comparativas)
+- [ ] Implementar exportación de dashboard a PDF
+- [ ] Crear componente LegendCard para explicar semáforo y colores
+- [ ] Agregar ruta /dashboard/nom035 en App.tsx
+- [ ] Implementar skeleton loaders para todos los componentes
+
+## 🔐 FASE 194: Completar Sistema de Roles (6 tareas pendientes)
+
+- [ ] Crear componente PermissionGuard en client/src/components/PermissionGuard.tsx
+- [ ] Implementar lógica de redirección si no tiene permisos
+- [ ] Agregar badge de rol en header de DashboardLayout
+- [ ] Aplicar PermissionGuard a rutas sensibles en App.tsx
+- [ ] Actualizar sidebar de DashboardLayout para ocultar items sin permiso
+- [ ] Crear tests unitarios para permissions.ts

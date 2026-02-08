@@ -88,6 +88,7 @@ import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 import RolesPage from "./pages/admin/Roles";
+import Autodiagnostico from "./pages/nom035/Autodiagnostico";
 
 function Router() {
   return (
@@ -448,6 +449,11 @@ function Router() {
         <Route path={"/nom035/evidences"}>
         <DashboardLayout>
           <EvidenceFolder />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/nom035/autodiagnostico"}>
+        <DashboardLayout>
+          <Autodiagnostico />
         </DashboardLayout>
       </Route>
       <Route path={"/alerts"}>
