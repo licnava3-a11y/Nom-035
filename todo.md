@@ -7973,3 +7973,156 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 **Dependencias críticas:**
 - FASE 183 (Análisis en 3 Niveles) - Para códigos de dimensiones
 - FASE 178 (Correlaciones de Datos) - Para datos de empresa
+
+
+---
+
+## 👥 FASE 194: Sistema de Roles Específicos NOM-035 y Permisos Granulares
+
+**Prioridad:** P0 - CRÍTICO  
+**Impacto:** Cumplimiento normativo 100%, seguridad de datos, auditoría completa  
+**ROI Estimado:** $150,000 MXN/año (prevención de accesos no autorizados, cumplimiento legal)
+
+### 📋 Hallazgos de Auditoría
+
+**✅ Implementado:**
+- Tabla `users` con campo `role` (enum: admin, instructor, student, committee, committee_member, committee_coordinator)
+- Roles básicos de comité existentes
+
+**❌ Faltante:**
+- Roles específicos NOM-035 (Director, Responsable NOM-035, Supervisor)
+- Sistema de permisos granulares por módulo
+- Middleware de autorización por rol
+- Perfil de prueba con datos de demostración
+
+### 🎯 Tareas Críticas
+
+#### Backend - Roles y Permisos (18 tareas)
+
+- [ ] **Actualizar enum de roles en schema.ts** - Agregar roles: `director`, `responsable_nom035`, `supervisor`, `jefe_area`, `auxiliar_rh`
+- [ ] **Crear tabla `role_permissions`** - Estructura: id, role, module, can_view, can_create, can_edit, can_delete, can_approve
+- [ ] **Crear tabla `user_permissions`** - Permisos específicos por usuario que sobrescriben permisos de rol
+- [ ] **Poblar catálogo de módulos** - 15 módulos: encuestas, casos, comité, capacitación, reportes, empleados, empresa, violencia_laboral, etc.
+- [ ] **Poblar matriz de permisos por rol** - Definir permisos para cada combinación rol×módulo según normativa NOM-035
+- [ ] **Crear middleware `checkPermission(module, action)`** - Verificar permisos antes de ejecutar procedimientos tRPC
+- [ ] **Actualizar procedimiento `protectedProcedure`** - Integrar middleware de permisos
+- [ ] **Crear procedimiento `adminProcedure`** - Solo para rol `admin` y `director`
+- [ ] **Crear procedimiento `responsableNOM035Procedure`** - Para responsable NOM-035 y superiores
+- [ ] **Crear procedimiento `committeeProcedure`** - Para miembros del comité
+- [ ] **Crear router `roles.ts`** - CRUD de roles y permisos
+- [ ] **Crear procedimiento `roles.getAll`** - Retorna lista de roles con descripción
+- [ ] **Crear procedimiento `roles.getPermissions`** - Retorna matriz de permisos por rol
+- [ ] **Crear procedimiento `roles.updatePermissions`** - Actualiza permisos de un rol (solo admin)
+- [ ] **Crear procedimiento `users.assignRole`** - Asigna rol a usuario (solo admin/director)
+- [ ] **Crear procedimiento `users.getPermissions`** - Retorna permisos efectivos del usuario actual
+- [ ] **Actualizar todos los routers** - Aplicar middleware de permisos en procedimientos críticos
+- [ ] **Crear tests de autorización** - Verificar que cada rol solo acceda a lo permitido
+
+#### Frontend - UI de Roles y Permisos (12 tareas)
+
+- [ ] **Crear página `/admin/roles`** - Gestión de roles y permisos (solo admin)
+- [ ] **Crear componente `RolePermissionsMatrix.tsx`** - Tabla interactiva rol×módulo con checkboxes
+- [ ] **Crear componente `UserRoleAssignment.tsx`** - Asignar/cambiar rol de usuario
+- [ ] **Crear hook `usePermissions()`** - Retorna permisos del usuario actual
+- [ ] **Crear hook `useHasPermission(module, action)`** - Verifica si usuario tiene permiso específico
+- [ ] **Actualizar componente `DashboardLayout.tsx`** - Ocultar menús según permisos del usuario
+- [ ] **Crear componente `PermissionGuard.tsx`** - HOC para proteger componentes por permiso
+- [ ] **Actualizar todas las páginas** - Envolver acciones críticas en `PermissionGuard`
+- [ ] **Crear badge de rol en header** - Mostrar rol actual del usuario (ej: "Director", "Responsable NOM-035")
+- [ ] **Crear modal de "Acceso Denegado"** - Mensaje amigable cuando usuario no tiene permisos
+- [ ] **Actualizar página de perfil** - Mostrar rol y permisos asignados al usuario
+- [ ] **Crear tests E2E de permisos** - Verificar que UI respete permisos correctamente
+
+#### Perfiles de Prueba (6 tareas)
+
+- [ ] **Crear script `seed-test-users.ts`** - Genera 6 usuarios de prueba (uno por rol)
+- [ ] **Poblar usuario Director** - Email: director@test.com, Nombre: "Juan Pérez", Rol: director
+- [ ] **Poblar usuario Responsable NOM-035** - Email: responsable@test.com, Nombre: "María García", Rol: responsable_nom035
+- [ ] **Poblar usuario Supervisor** - Email: supervisor@test.com, Nombre: "Carlos López", Rol: supervisor
+- [ ] **Poblar usuario Miembro Comité** - Email: comite@test.com, Nombre: "Ana Martínez", Rol: committee_member
+- [ ] **Poblar usuario Empleado** - Email: empleado@test.com, Nombre: "Luis Rodríguez", Rol: student
+
+### 📊 Matriz de Permisos por Rol (Referencia)
+
+| Módulo | Director | Responsable NOM-035 | Supervisor | Miembro Comité | Empleado |
+|--------|----------|---------------------|------------|----------------|----------|
+| Encuestas | ✅ CRUD + Aprobar | ✅ CRUD + Aprobar | ✅ Ver + Crear | ✅ Ver | ✅ Responder |
+| Casos NOM-035 | ✅ CRUD + Aprobar | ✅ CRUD + Asignar | ✅ Ver + Editar asignados | ✅ Ver + Comentar | ✅ Crear propios |
+| Comité | ✅ CRUD + Aprobar | ✅ CRUD | ✅ Ver | ✅ Ver + Editar | ❌ Sin acceso |
+| Reportes | ✅ Ver todos | ✅ Ver todos | ✅ Ver de su área | ✅ Ver generales | ✅ Ver propios |
+| Empleados | ✅ CRUD | ✅ Ver + Editar | ✅ Ver de su área | ✅ Ver básicos | ✅ Ver propios |
+| Empresa | ✅ CRUD | ✅ Ver + Editar | ❌ Sin acceso | ❌ Sin acceso | ❌ Sin acceso |
+| Capacitación | ✅ CRUD + Aprobar | ✅ CRUD | ✅ Ver + Asignar | ✅ Ver | ✅ Ver asignados |
+| Violencia Laboral | ✅ CRUD + Aprobar | ✅ CRUD + Investigar | ✅ Ver + Reportar | ✅ Ver + Comentar | ✅ Reportar |
+
+**Total: 36 tareas**
+
+---
+
+## 🏢 FASE 195: Módulo Multiempresa
+
+**Prioridad:** P1 - IMPORTANTE  
+**Impacto:** Escalabilidad, gestión centralizada, ROI por cliente  
+**ROI Estimado:** $300,000 MXN/año (gestión de múltiples clientes desde una instancia)
+
+### 📋 Hallazgos de Auditoría
+
+**✅ Implementado:**
+- Tabla `company_general_data` con datos de empresa
+- Tablas relacionadas: `company_legal_representative`, `company_digital_signature`
+
+**❌ Faltante:**
+- Campo `companyId` en todas las tablas principales
+- Middleware de filtrado por empresa
+- UI de selector de empresa
+- Gestión de acceso multi-empresa para consultores
+
+### 🎯 Tareas Críticas
+
+#### Backend - Arquitectura Multiempresa (24 tareas)
+
+- [ ] **Agregar campo `companyId` a tabla `users`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a tabla `employees`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a tabla `survey_responses`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a tabla `nom035_cases`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a tabla `committee_members`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a tabla `training_courses`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a tabla `workplace_violence_reports`** - FK a `company_general_data.id`
+- [ ] **Agregar campo `companyId` a 15 tablas restantes** - Asegurar aislamiento de datos por empresa
+- [ ] **Crear middleware `withCompanyFilter()`** - Filtra automáticamente queries por `companyId` del usuario
+- [ ] **Actualizar contexto tRPC** - Incluir `ctx.user.companyId` en todas las requests
+- [ ] **Crear tabla `user_company_access`** - Acceso multi-empresa para consultores (userId, companyId, role)
+- [ ] **Crear procedimiento `companies.getAll`** - Lista de empresas (solo super_admin)
+- [ ] **Crear procedimiento `companies.switchCompany`** - Cambiar empresa activa (consultores)
+- [ ] **Crear procedimiento `companies.grantAccess`** - Dar acceso a consultor a empresa específica
+- [ ] **Crear procedimiento `companies.revokeAccess`** - Revocar acceso de consultor
+- [ ] **Actualizar todos los routers** - Aplicar `withCompanyFilter()` en queries
+- [ ] **Crear índices compuestos** - (companyId, id) en todas las tablas para performance
+- [ ] **Crear script de migración de datos** - Asignar `companyId` a registros existentes
+- [ ] **Crear tests de aislamiento** - Verificar que empresa A no vea datos de empresa B
+- [ ] **Crear rol `super_admin`** - Acceso a todas las empresas (plataforma SaaS)
+- [ ] **Crear rol `consultor`** - Acceso a múltiples empresas asignadas
+- [ ] **Actualizar procedimiento `auth.me`** - Incluir lista de empresas accesibles
+- [ ] **Crear procedimiento `users.getAccessibleCompanies`** - Retorna empresas del usuario
+- [ ] **Documentar arquitectura multiempresa** - Guía de implementación y mejores prácticas
+
+#### Frontend - UI Multiempresa (12 tareas)
+
+- [ ] **Crear componente `CompanySelector.tsx`** - Dropdown en header para cambiar empresa activa
+- [ ] **Crear página `/admin/companies`** - CRUD de empresas (solo super_admin)
+- [ ] **Crear página `/admin/company-access`** - Gestión de accesos multi-empresa
+- [ ] **Crear componente `CompanyAccessManager.tsx`** - Asignar consultores a empresas
+- [ ] **Actualizar hook `useAuth()`** - Incluir `currentCompanyId` y `accessibleCompanies`
+- [ ] **Crear hook `useSwitchCompany()`** - Cambiar empresa activa y recargar datos
+- [ ] **Actualizar componente `DashboardLayout.tsx`** - Mostrar empresa activa en header
+- [ ] **Crear badge de empresa** - Mostrar nombre de empresa activa (ej: "Empresa Ejemplo S.A.")
+- [ ] **Actualizar todas las queries tRPC** - Filtrar automáticamente por `companyId`
+- [ ] **Crear modal de "Cambiar Empresa"** - Lista de empresas accesibles con búsqueda
+- [ ] **Crear tests E2E multiempresa** - Verificar cambio de empresa y aislamiento de datos
+- [ ] **Documentar flujo de usuario multiempresa** - Guía para consultores y super_admin
+
+**Total: 36 tareas**
+
+---
+
+**TOTAL GENERAL FASE 194 + 195: 72 tareas críticas**
