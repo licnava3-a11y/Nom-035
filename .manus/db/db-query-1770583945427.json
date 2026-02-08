@@ -1,0 +1,40 @@
+{
+  "query": "SHOW CREATE TABLE employees;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SHOW CREATE TABLE employees;",
+  "rows": [
+    {
+      "Table": "employees",
+      "Create Table": "CREATE TABLE `employees` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `firstName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `lastName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `email` varchar(320) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `curp` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `employeeNumber` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `department` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `position` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `hireDate` date DEFAULT NULL,",
+    "  `contractType` enum('permanent','temporary','contract') COLLATE utf8mb4_unicode_ci DEFAULT 'permanent',",
+    "  `isActive` tinyint(1) NOT NULL DEFAULT '1',",
+    "  `terminationDate` date DEFAULT NULL,",
+    "  `userId` int(11) DEFAULT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  `contract1ExpirationDate` date DEFAULT NULL,",
+    "  `contract2ExpirationDate` date DEFAULT NULL,",
+    "  `contract3ExpirationDate` date DEFAULT NULL,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  UNIQUE KEY `employees_email_unique` (`email`),",
+    "  UNIQUE KEY `employees_curp_unique` (`curp`),",
+    "  UNIQUE KEY `employees_employeeNumber_unique` (`employeeNumber`),",
+    "  UNIQUE KEY `employees_userId_unique` (`userId`)",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=180001"
+  ],
+  "stdout": "Table\tCreate Table\nemployees\tCREATE TABLE `employees` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `firstName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `lastName` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `email` varchar(320) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `curp` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `employeeNumber` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `department` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `position` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `hireDate` date DEFAULT NULL,\n  `contractType` enum('permanent','temporary','contract') COLLATE utf8mb4_unicode_ci DEFAULT 'permanent',\n  `isActive` tinyint(1) NOT NULL DEFAULT '1',\n  `terminationDate` date DEFAULT NULL,\n  `userId` int(11) DEFAULT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `contract1ExpirationDate` date DEFAULT NULL,\n  `contract2ExpirationDate` date DEFAULT NULL,\n  `contract3ExpirationDate` date DEFAULT NULL,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  UNIQUE KEY `employees_email_unique` (`email`),\n  UNIQUE KEY `employees_curp_unique` (`curp`),\n  UNIQUE KEY `employees_employeeNumber_unique` (`employeeNumber`),\n  UNIQUE KEY `employees_userId_unique` (`userId`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=180001\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

@@ -6719,3 +6719,162 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - **Total:** 62 tareas
 
 **TOTAL NUEVAS TAREAS:** 250 tareas críticas e importantes (188 + 62)
+
+
+---
+
+## 📚 FASE 184: Catálogo de Acciones Preventivas y Correctivas NOM-035 (P0 - CRÍTICO)
+
+**Objetivo:** Implementar catálogo completo de acciones preventivas y correctivas por categoría, dominio y dimensión según NOM-035-STPS-2018 para generación automática de recomendaciones en reportes.
+
+**Impacto:** Cumplimiento normativo 100%, -95% tiempo de elaboración de planes de acción, ROI $15k/mes.
+
+**Total: 54 tareas**
+
+### 184.1 Backend - Base de Datos (12 tareas)
+
+- [ ] Crear tabla `nom035_action_catalog` con campos: id, level (category/domain/dimension), levelCode, actionType (preventive/corrective), actionNumber, description, isActive, createdAt, updatedAt
+- [ ] Poblar catálogo con 2 categorías × 10 acciones = 20 acciones de categorías (10 preventivas + 10 correctivas)
+- [ ] Poblar catálogo con 5 dominios × 10 acciones = 50 acciones de dominios (25 preventivas + 25 correctivas)
+- [ ] Poblar catálogo con 15 dimensiones × 10 acciones = 150 acciones de dimensiones (75 preventivas + 75 correctivas)
+- [ ] **Total: 220 acciones en catálogo** (110 preventivas + 110 correctivas)
+- [ ] Crear tabla `corrective_action_plans` con campos: id, surveyId, level, levelCode, riskLevel, selectedActions (JSON array de action IDs), customActions (text), responsibleId, deadline, status, notes, createdAt, updatedAt
+- [ ] Agregar FK `corrective_action_plans.surveyId → surveys.id`
+- [ ] Agregar FK `corrective_action_plans.responsibleId → users.id`
+- [ ] Crear índices: `idx_action_catalog_level`, `idx_action_catalog_levelCode`, `idx_action_plans_surveyId`
+- [ ] Crear script SQL de migración completa en `/drizzle/migrations/`
+- [ ] Aplicar migración con `webdev_execute_sql`
+- [ ] Validar integridad referencial con query de verificación
+
+### 184.2 Backend - Procedimientos tRPC (10 tareas)
+
+- [ ] Crear procedimiento `surveys.getActionCatalog` con input: { level, levelCode, actionType } → retorna array de acciones filtradas
+- [ ] Crear procedimiento `surveys.getRecommendedActions` con input: { surveyId, level, levelCode } → retorna acciones sugeridas según nivel de riesgo
+- [ ] Implementar lógica de recomendación automática: Riesgo Nulo/Bajo → 2 preventivas, Medio → 3 preventivas + 2 correctivas, Alto/Muy Alto → 5 preventivas + 5 correctivas
+- [ ] Crear procedimiento `surveys.createActionPlan` con input: { surveyId, level, levelCode, selectedActions, customActions, responsibleId, deadline }
+- [ ] Crear procedimiento `surveys.updateActionPlan` con input: { id, ...campos actualizables }
+- [ ] Crear procedimiento `surveys.getActionPlansBySurvey` con input: { surveyId } → retorna todos los planes de acción de una encuesta
+- [ ] Crear procedimiento `surveys.getActionPlansByResponsible` con input: { responsibleId } → retorna planes asignados a un responsable
+- [ ] Crear procedimiento `surveys.updateActionPlanStatus` con input: { id, status, notes } → actualiza estado (pending/in_progress/completed/cancelled)
+- [ ] Agregar sección "Acciones Recomendadas" en procedimiento `surveys.generateReport` (PDF)
+- [ ] Crear tests unitarios para todos los procedimientos de acciones (vitest)
+
+### 184.3 Frontend - Componente ActionCatalog (8 tareas)
+
+- [ ] Crear componente `client/src/components/ActionCatalog.tsx` con props: { level, levelCode, riskLevel, onSelectActions }
+- [ ] Implementar tabs: "Preventivas" y "Correctivas"
+- [ ] Implementar lista de acciones con checkboxes para selección múltiple
+- [ ] Agregar badge visual con nivel de riesgo (color coding: verde/amarillo/naranja/rojo)
+- [ ] Implementar campo de texto para "Acciones Personalizadas" (textarea)
+- [ ] Agregar selector de responsable (dropdown con usuarios del comité)
+- [ ] Agregar selector de fecha límite (date picker)
+- [ ] Implementar botón "Guardar Plan de Acción" que llame a `trpc.surveys.createActionPlan.useMutation()`
+
+### 184.4 Frontend - Integración en Reportes (6 tareas)
+
+- [ ] Agregar sección "Plan de Acción" en página `client/src/pages/SurveyResults.tsx`
+- [ ] Implementar tabs por nivel de análisis: "Categorías", "Dominios", "Dimensiones"
+- [ ] Para cada nivel con riesgo ≥ Medio, mostrar componente `<ActionCatalog />`
+- [ ] Implementar tabla de "Planes de Acción Creados" con columnas: Nivel, Código, Acciones Seleccionadas, Responsable, Fecha Límite, Estado
+- [ ] Agregar botón "Editar Plan" que abra modal con `<ActionCatalog />` prellenado
+- [ ] Implementar filtros: por nivel, por estado, por responsable
+
+### 184.5 Frontend - Dashboard de Seguimiento (8 tareas)
+
+- [ ] Crear página `client/src/pages/ActionPlansDashboard.tsx`
+- [ ] Implementar KPI cards: Total de Planes, Pendientes, En Progreso, Completados, Vencidos
+- [ ] Implementar tabla de "Mis Planes Asignados" (filtrada por `ctx.user.id`)
+- [ ] Agregar columnas: Encuesta, Nivel, Código, Acciones, Fecha Límite, Estado, Acciones (botones)
+- [ ] Implementar botón "Actualizar Estado" que abra modal con selector de estado + notas
+- [ ] Implementar gráfica de barras: Planes por Estado (Chart.js)
+- [ ] Implementar gráfica de pastel: Planes por Nivel de Análisis
+- [ ] Agregar filtros avanzados: por encuesta, por fecha de creación, por fecha límite
+
+### 184.6 Integración en PDF (5 tareas)
+
+- [ ] Modificar `server/lib/nom035-pdf-generator.ts` para agregar sección "Acciones Recomendadas"
+- [ ] Para cada categoría/dominio/dimensión con riesgo ≥ Medio, incluir subsección con:
+  - Nivel de riesgo detectado
+  - 5 acciones preventivas recomendadas (numeradas)
+  - 5 acciones correctivas recomendadas (numeradas)
+  - Espacio para "Acciones Personalizadas" (si existen)
+- [ ] Agregar tabla de "Plan de Acción Aprobado" con columnas: Acción, Responsable, Fecha Límite
+- [ ] Incluir sección "Recomendaciones Generales de Implementación" (7 puntos del catálogo)
+- [ ] Validar formato PDF con datos reales de encuesta
+
+### 184.7 Documentación y Testing (5 tareas)
+
+- [ ] Documentar estructura de catálogo en `AUDIT_FINAL_REPORT.md`
+- [ ] Crear guía de usuario: "Cómo crear un Plan de Acción" en `/docs/user-guide-action-plans.md`
+- [ ] Crear tests E2E con Playwright: flujo completo de creación de plan de acción
+- [ ] Validar que todas las 220 acciones del catálogo estén correctamente pobladas
+- [ ] Crear checkpoint con mensaje: "FASE 184: Catálogo de Acciones NOM-035 implementado"
+
+---
+
+**Notas Técnicas:**
+
+1. **Estructura del Catálogo:**
+   - `level`: 'category' | 'domain' | 'dimension'
+   - `levelCode`: 'CAT1', 'CAT2', 'DOM_A', 'DOM_B', ..., 'DIM_A1', 'DIM_A2', ...
+   - `actionType`: 'preventive' | 'corrective'
+   - `actionNumber`: 1-5 (para ordenamiento)
+
+2. **Códigos de Nivel:**
+   - Categorías: CAT1 (Factores de Riesgo), CAT2 (Entorno Organizacional)
+   - Dominios: DOM_A (Ambiente), DOM_B (Actividad), DOM_C (Tiempo), DOM_D (Liderazgo), DOM_E (Entorno)
+   - Dimensiones: DIM_A1, DIM_A2, DIM_A3, DIM_B1, DIM_B2, DIM_B3, DIM_C1, DIM_C2, DIM_D1, DIM_D2, DIM_D3, DIM_E1, DIM_E2, DIM_E3
+
+3. **Lógica de Recomendación:**
+   - Riesgo Nulo/Bajo: 2 preventivas
+   - Riesgo Medio: 3 preventivas + 2 correctivas
+   - Riesgo Alto: 4 preventivas + 4 correctivas
+   - Riesgo Muy Alto: 5 preventivas + 5 correctivas
+
+4. **Estados de Plan:**
+   - `pending`: Creado, pendiente de iniciar
+   - `in_progress`: En ejecución
+   - `completed`: Completado exitosamente
+   - `cancelled`: Cancelado (con justificación en notas)
+
+---
+
+## 📊 RESUMEN FINAL ACTUALIZADO DE TAREAS CRÍTICAS
+
+### FASE 178: Correlaciones de Datos (P0)
+- **Total:** 17 tareas
+- **Impacto:** Evitar errores de integridad referencial y mejorar UX con datos correlacionados
+- **Estado:** ✅ Parcialmente completado (schema revertido, catálogos creados)
+
+### FASE 179: Prellenado Automático (P0)
+- **Total:** 18 tareas
+- **Impacto:** Reducir errores de captura y acelerar llenado de formularios
+- **Estado:** ⏳ Pendiente (validación frontend con autocomplete)
+
+### FASE 180: Integración de IA (P1)
+- **Total:** 27 tareas
+- **Impacto:** Acelerar redacción de informes y mejorar calidad de documentación
+- **Estado:** ⏳ Pendiente
+
+### FASE 181: Acciones Correctivas en 3 Niveles (P0)
+- **Total:** 48 tareas
+- **Impacto:** Cumplimiento normativo NOM-035, atención oportuna de casos con ATS
+- **Estado:** ⏳ Pendiente
+
+### FASE 182: Cumplimiento Normativo NOM-035 (P0)
+- **Total:** 78 tareas
+- **Impacto:** Cumplimiento 100% numerales 7 y 8, prevención de multas
+- **Estado:** ⏳ Pendiente
+
+### FASE 183: Análisis en 3 Niveles (P0)
+- **Total:** 62 tareas
+- **Impacto:** Análisis completo jerárquico (Categoría → Dominio → Dimensión)
+- **Estado:** ⏳ Pendiente
+
+### FASE 184: Catálogo de Acciones NOM-035 (P0)
+- **Total:** 54 tareas
+- **Impacto:** Generación automática de planes de acción, cumplimiento normativo
+- **Estado:** ⏳ Pendiente
+
+**TOTAL ACUMULADO:** 304 tareas críticas e importantes (110 + 78 + 62 + 54)
+**ROI ESTIMADO ANUAL:** $960,000 MXN

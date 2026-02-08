@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO company_general_data (\n  razon_social,\n  rfc,\n  direccion_fiscal,\n  giro,\n  actividades_preponderantes,\n  numero_trabajadores,\n  representante_legal,\n  telefono_contacto,\n  email_contacto,\n  pagina_web,\n  notification_email,\n  noreply_email\n) VALUES (\n  'Empresa Ejemplo S.A. de C.V.',\n  'EEJ850101ABC',\n  'Av. Reforma 123, Col. Centro, Ciudad de México, C.P. 06000',\n  'Servicios de Capacitación y Consultoría',\n  'Capacitación en materia de seguridad y salud en el trabajo, consultoría en cumplimiento normativo NOM-035-STPS-2018',\n  150,\n  'Lic. Juan Pérez González',\n  '5555551234',\n  'contacto@empresaejemplo.com.mx',\n  'https://www.empresaejemplo.com.mx',\n  'notificaciones@empresaejemplo.com.mx',\n  'noreply@empresaejemplo.com.mx'\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute INSERT INTO company_general_data (\n  razon_social,\n  rfc,\n  direccion_fiscal,\n  giro,\n  actividades_preponderantes,\n  numero_trabajadores,\n  representante_legal,\n  telefono_contacto,\n  email_contacto,\n  pagina_web,\n  notification_email,\n  noreply_email\n) VALUES (\n  'Empresa Ejemplo S.A. de C.V.',\n  'EEJ850101ABC',\n  'Av. Reforma 123, Col. Centro, Ciudad de México, C.P. 06000',\n  'Servicios de Capacitación y Consultoría',\n  'Capacitación en materia de seguridad y salud en el trabajo, consultoría en cumplimiento normativo NOM-035-STPS-2018',\n  150,\n  'Lic. Juan Pérez González',\n  '5555551234',\n  'contacto@empresaejemplo.com.mx',\n  'https://www.empresaejemplo.com.mx',\n  'notificaciones@empresaejemplo.com.mx',\n  'noreply@empresaejemplo.com.mx'\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 132
+}

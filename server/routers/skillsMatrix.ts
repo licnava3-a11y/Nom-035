@@ -95,8 +95,8 @@ export const skillsMatrixRouter = router({
 
   getMatrix: protectedProcedure
     .input(z.object({
-      departmentId: z.number().optional(),
-      positionId: z.number().optional(),
+      department: z.string().optional(),
+      position: z.string().optional(),
       employeeName: z.string().optional(),
     }))
     .query(async ({ input }) => {
@@ -105,11 +105,11 @@ export const skillsMatrixRouter = router({
       
       // Get all employees with optional filters
       const filters = [];
-      if (input.departmentId) {
-        filters.push(eq(employees.department, input.departmentId.toString()));
+      if (input.department) {
+        filters.push(eq(employees.department, input.department));
       }
-      if (input.positionId) {
-        filters.push(eq(employees.position, input.positionId.toString()));
+      if (input.position) {
+        filters.push(eq(employees.position, input.position));
       }
       if (input.employeeName) {
         filters.push(sql`CONCAT(${employees.firstName}, ' ', ${employees.lastName}) LIKE ${`%${input.employeeName}%`}`);

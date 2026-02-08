@@ -459,6 +459,43 @@ export type CaseAssignment = typeof caseAssignments.$inferSelect;
 export type InsertCaseAssignment = typeof caseAssignments.$inferInsert;
 
 /**
+ * Departments table - Organizational departments catalog
+ * Master catalog of all departments in the organization
+ */
+export const departments = mysqlTable("departments", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  code: varchar("code", { length: 50 }).unique(), // Código del departamento (ej: "RH", "IT", "FIN")
+  managerId: int("managerId"), // Jefe del departamento (self-reference a employees)
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Department = typeof departments.$inferSelect;
+export type InsertDepartment = typeof departments.$inferInsert;
+
+/**
+ * Positions table - Job positions catalog
+ * Master catalog of all job positions in the organization
+ */
+export const positions = mysqlTable("positions", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  code: varchar("code", { length: 50 }).unique(), // Código del puesto (ej: "GER-001", "ANA-002")
+  departmentId: int("departmentId").references(() => departments.id), // Departamento al que pertenece
+  level: mysqlEnum("level", ["executive", "management", "supervisor", "specialist", "entry"]),
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Position = typeof positions.$inferSelect;
+export type InsertPosition = typeof positions.$inferInsert;
+
+/**
  * Employees table - Catalog of workers/employees
  * This is the master catalog for all employees in the organization
  */
