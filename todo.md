@@ -7865,3 +7865,111 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - FASE 183 (Análisis en 3 Niveles) - Para datos de dimensiones y colores
 - FASE 184 (Catálogo de Acciones) - Para complementar banco de recomendaciones
 - FASE 191 (Gestión Avanzada) - Para plan de acción consolidado
+
+
+---
+
+## 🔍 FASE 193: Estructura JSON Estandarizada NOM-035
+
+**Descripción:** Implementación de estructura de datos JSON estandarizada para evaluaciones NOM-035 con información de empresa (id, nombre, trabajadores, giro), evaluación (fecha, periodo, versión NOM), dimensiones Guía II (G2-1 a G2-5) y Guía III (G3-1 a G3-5) con puntuación, color e interpretación según colorimetría oficial.
+
+**Prioridad:** P1 - IMPORTANTE (Estandarización de datos)
+
+**Estado:** PARCIALMENTE IMPLEMENTADO
+
+### ✅ Componentes Implementados (6/10)
+
+1. **✅ Tabla `company_general_data`** - Existe en schema.ts con datos poblados
+2. **✅ Sistema de colorimetría** - Implementado en nom035-calculator.ts con 5 colores (blue/green/yellow/orange/red)
+3. **✅ Cálculo de dimensiones** - Implementado en nom035-calculator.ts con interfaces DimensionScore
+4. **✅ Rangos de calificación** - Tablas oficiales GUIDE_II_FINAL_RANGES y GUIDE_III_FINAL_RANGES
+5. **✅ Procedimientos tRPC** - Router surveys.ts con endpoints de evaluación
+6. **✅ Interfaz SurveyResult** - Estructura con categories, domains, dimensions
+
+### ❌ Componentes Faltantes (4/10)
+
+1. **❌ Campo `id` en company** - Falta identificador único de empresa
+2. **❌ Campos de evaluación** - Faltan fecha, periodo, version_nom en estructura de respuesta
+3. **❌ Nomenclatura de dimensiones** - Usa nombres descriptivos en lugar de códigos (G2-1, G3-1)
+4. **❌ Campo `interpretacion`** - Falta texto descriptivo de interpretación por dimensión
+
+### 📋 Tareas de Implementación (18 tareas)
+
+#### Componente 1: Estandarización de Empresa (4 tareas)
+- [ ] Agregar campo `id` (VARCHAR(20)) a tabla `company_general_data`
+- [ ] Crear procedimiento tRPC `company.getCompanyInfo` que retorne estructura JSON estandarizada
+- [ ] Actualizar procedimiento para incluir campo `giro` (actividad principal)
+- [ ] Crear migración SQL para agregar campo `id` con valor por defecto 'EMP001'
+
+#### Componente 2: Estructura de Evaluación (5 tareas)
+- [ ] Agregar campos `fecha`, `periodo`, `version_nom` a tabla `survey_responses`
+- [ ] Crear interfaz TypeScript `EvaluacionInfo` con 3 campos
+- [ ] Actualizar procedimiento `surveys.submitResponse` para incluir metadata de evaluación
+- [ ] Crear procedimiento tRPC `surveys.getEvaluationMetadata` para consultar metadata
+- [ ] Actualizar componente SurveyResults.tsx para mostrar metadata de evaluación
+
+#### Componente 3: Nomenclatura de Dimensiones (5 tareas)
+- [ ] Crear mapeo de dimensiones descriptivas a códigos (G2-1 a G2-5, G3-1 a G3-5)
+- [ ] Actualizar interfaz `DimensionScore` para incluir campo `codigo` (G2-1, G3-1, etc.)
+- [ ] Modificar función `calculateDimensionScore()` para asignar códigos automáticamente
+- [ ] Crear constante `DIMENSION_CODES` con mapeo completo (15 dimensiones)
+- [ ] Actualizar frontend para mostrar códigos en lugar de nombres descriptivos
+
+#### Componente 4: Campo Interpretación (4 tareas)
+- [ ] Agregar campo `interpretacion` a interfaz `DimensionScore`
+- [ ] Crear función `generarInterpretacion()` que retorne texto según color y puntuación
+- [ ] Implementar textos de interpretación para 5 niveles (Alto riesgo, Riesgo medio-alto, Riesgo medio, Prácticas adecuadas, Prácticas excelentes)
+- [ ] Actualizar procedimiento `surveys.getResults` para incluir interpretación en respuesta JSON
+
+### 📊 Estructura JSON Final Esperada
+
+```json
+{
+  "empresa": {
+    "id": "EMP001",
+    "nombre": "Empresa Ejemplo S.A. de C.V.",
+    "trabajadores": 150,
+    "giro": "Servicios de Capacitación y Consultoría"
+  },
+  "evaluacion": {
+    "fecha": "2026-02-08",
+    "periodo": "Q1-2026",
+    "version_nom": "NOM-035-STPS-2018"
+  },
+  "dimensiones": {
+    "guia_II": {
+      "G2-1": {"puntuacion": 3.2, "color": "ROJO", "interpretacion": "Alto riesgo"},
+      "G2-2": {"puntuacion": 2.8, "color": "NARANJA", "interpretacion": "Riesgo medio-alto"},
+      "G2-3": {"puntuacion": 2.3, "color": "AMARILLO", "interpretacion": "Riesgo medio"},
+      "G2-4": {"puntuacion": 1.8, "color": "VERDE", "interpretacion": "Riesgo bajo"},
+      "G2-5": {"puntuacion": 1.2, "color": "AZUL", "interpretacion": "Nulo o despreciable"}
+    },
+    "guia_III": {
+      "G3-1": {"puntuacion": 1.8, "color": "ROJO", "interpretacion": "Prácticas insuficientes"},
+      "G3-2": {"puntuacion": 2.7, "color": "AMARILLO", "interpretacion": "Prácticas básicas"},
+      "G3-3": {"puntuacion": 3.3, "color": "VERDE", "interpretacion": "Prácticas adecuadas"},
+      "G3-4": {"puntuacion": 3.8, "color": "AZUL", "interpretacion": "Prácticas excelentes"},
+      "G3-5": {"puntuacion": 2.4, "color": "NARANJA", "interpretacion": "Prácticas deficientes"}
+    }
+  }
+}
+```
+
+### 📈 Impacto Esperado
+
+- **Interoperabilidad:** +100% (estructura estandarizada para APIs externas)
+- **Claridad de Datos:** +90% (nomenclatura oficial NOM-035)
+- **Facilidad de Integración:** +95% (JSON compatible con sistemas externos)
+- **ROI:** $50,000 MXN/año (ahorro en tiempo de integración)
+
+### 🔧 Stack Tecnológico
+
+- **Validación:** Zod para validación de estructura JSON
+- **Serialización:** Superjson para manejo de tipos complejos
+- **Documentación:** JSON Schema para especificación de API
+
+**Total de tareas:** 18 tareas (4+5+5+4)
+
+**Dependencias críticas:**
+- FASE 183 (Análisis en 3 Niveles) - Para códigos de dimensiones
+- FASE 178 (Correlaciones de Datos) - Para datos de empresa
