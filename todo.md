@@ -5962,3 +5962,161 @@
 - **Impacto:** Acelerar redacción de informes y mejorar calidad de documentación
 
 **TOTAL NUEVAS TAREAS:** 62 tareas críticas e importantes
+
+
+---
+
+## 📊 FASE 181: Acciones Correctivas en 3 Niveles en Reporte de Cuestionarios (P0 - CRÍTICO)
+
+### Contexto Normativo NOM-035
+La NOM-035-STPS-2018 establece que las acciones correctivas deben implementarse en 3 niveles según el análisis de resultados:
+- **Nivel 1 (Organizacional):** Acciones generales para toda la empresa
+- **Nivel 2 (Grupal/Departamental):** Acciones específicas por departamento o segmento
+- **Nivel 3 (Individual):** Acciones para casos con Acontecimientos Traumáticos Severos (ATS)
+
+### Backend - Estructura de Datos
+
+#### Tabla de Acciones Correctivas por Nivel
+- [ ] Agregar campo `actionLevel` a tabla `corrective_actions` con enum ('organizacional', 'grupal', 'individual')
+- [ ] Agregar campo `targetScope` para definir alcance (null para organizacional, departmentId para grupal, employeeId para individual)
+- [ ] Agregar campo `atsDetected` boolean para marcar casos con Acontecimientos Traumáticos Severos
+- [ ] Agregar campo `sourceGuide` para indicar guía de origen ('guia_i', 'guia_ii', 'guia_iii')
+
+#### Procedimientos Backend
+- [ ] Crear procedimiento `generateOrganizationalActions(surveyPeriodId)` que analice resultados globales y genere acciones nivel 1
+- [ ] Crear procedimiento `generateGroupActions(surveyPeriodId, departmentId?)` que analice resultados por departamento y genere acciones nivel 2
+- [ ] Crear procedimiento `generateIndividualActions(surveyPeriodId)` que detecte casos con ATS y genere acciones nivel 3
+- [ ] Crear procedimiento `getActionsByLevel(surveyPeriodId, level)` que retorne acciones filtradas por nivel
+- [ ] Crear procedimiento `getActionsByDepartment(surveyPeriodId, departmentId)` que retorne acciones nivel 2 de un departamento específico
+- [ ] Crear procedimiento `getATSCases(surveyPeriodId)` que retorne casos con Acontecimientos Traumáticos Severos detectados
+
+### Backend - Lógica de Generación de Acciones
+
+#### Nivel 1: Acciones Organizacionales
+- [ ] Analizar promedio global de riesgo de toda la empresa
+- [ ] Si promedio global es "alto" o "muy alto" → generar acción organizacional de capacitación general
+- [ ] Si >30% de empleados tienen riesgo alto/muy alto → generar acción de revisión de políticas organizacionales
+- [ ] Si Guía I detecta ATS en >10% de empleados → generar acción de implementación de protocolo de atención psicológica
+- [ ] Generar recomendaciones basadas en categorías con mayor riesgo (ambiente, liderazgo, carga de trabajo, etc.)
+
+#### Nivel 2: Acciones Grupales/Departamentales
+- [ ] Analizar promedio de riesgo por departamento
+- [ ] Si un departamento tiene promedio "alto" o "muy alto" → generar acción específica para ese departamento
+- [ ] Si >50% de empleados de un departamento tienen riesgo alto/muy alto → generar acción de intervención grupal
+- [ ] Identificar categorías de riesgo más altas por departamento (ej: Departamento X tiene alto riesgo en "liderazgo")
+- [ ] Generar acciones específicas por categoría (ej: "Capacitación en liderazgo para jefes del Departamento X")
+- [ ] Permitir filtros adicionales: por puesto, por antigüedad, por turno
+
+#### Nivel 3: Acciones Individuales (ATS)
+- [ ] Detectar empleados con ATS en Guía I (respuesta "Sí" en cualquiera de las 4 preguntas)
+- [ ] Para cada caso con ATS → generar acción individual de atención psicológica
+- [ ] Crear caso NOM-035 automático para cada empleado con ATS detectado
+- [ ] Asignar prioridad "crítica" a casos con ATS
+- [ ] Generar notificación al comité de seguridad para atención inmediata
+- [ ] Registrar tipo de ATS detectado (presenciar violencia, sufrir violencia, accidente grave, muerte de compañero)
+
+### Frontend - Visualización de Acciones en 3 Niveles
+
+#### Componente Principal: ActionsByLevel.tsx
+- [ ] Crear componente `ActionsByLevel.tsx` con 3 tabs (Organizacional, Grupal, Individual)
+- [ ] Tab "Organizacional": Mostrar acciones generales con alcance a toda la empresa
+- [ ] Tab "Grupal": Mostrar acciones por departamento con filtros (departamento, puesto, turno)
+- [ ] Tab "Individual": Mostrar casos con ATS con tabla de empleados afectados
+
+#### Tab 1: Acciones Organizacionales
+- [ ] Card de resumen: Total de acciones organizacionales, estado de implementación
+- [ ] Tabla de acciones con columnas: Descripción, Responsable, Fecha límite, Estado, Prioridad
+- [ ] Badge de alcance: "Toda la empresa" con icono de edificio
+- [ ] Botón "Generar Acciones Organizacionales" que invoque procedimiento backend
+- [ ] Indicador de categorías de riesgo más altas a nivel global
+
+#### Tab 2: Acciones Grupales/Departamentales
+- [ ] Filtros: Departamento, Puesto, Turno, Rango de fechas
+- [ ] Card de resumen por departamento: Promedio de riesgo, total de empleados, acciones generadas
+- [ ] Tabla de acciones con columnas: Departamento, Descripción, Responsable, Fecha límite, Estado
+- [ ] Badge de alcance: Nombre del departamento con icono de grupo
+- [ ] Botón "Generar Acciones por Departamento" que invoque procedimiento backend
+- [ ] Gráfica de barras: Distribución de riesgo por departamento
+
+#### Tab 3: Acciones Individuales (ATS)
+- [ ] Tabla de casos con ATS detectados: Empleado (anónimo), Tipo de ATS, Fecha de detección, Estado de atención
+- [ ] Badge "ATS Detectado" con color rojo y icono de alerta
+- [ ] Botón "Ver Detalle" que abra modal con información del caso (sin revelar identidad si es anónimo)
+- [ ] Botón "Generar Acciones Individuales" que cree casos NOM-035 automáticamente
+- [ ] Indicador de total de casos con ATS pendientes de atención
+- [ ] Gráfica de pastel: Distribución de tipos de ATS detectados
+
+### Integración con Reporte PDF
+
+#### Sección de Acciones Correctivas en PDF
+- [ ] Agregar sección "Acciones Correctivas Recomendadas" al reporte PDF consolidado
+- [ ] Subsección "Nivel 1: Acciones Organizacionales" con lista de acciones generales
+- [ ] Subsección "Nivel 2: Acciones Grupales" con tabla de acciones por departamento
+- [ ] Subsección "Nivel 3: Acciones Individuales" con resumen de casos con ATS (sin revelar identidad)
+- [ ] Incluir gráficas de distribución de acciones por nivel
+- [ ] Incluir tabla de priorización de acciones (críticas, altas, medias)
+
+#### Generación Automática de Acciones en PDF
+- [ ] Al generar reporte PDF, invocar procedimientos de generación de acciones automáticamente
+- [ ] Incluir recomendaciones específicas basadas en análisis multinivel
+- [ ] Agregar sección de "Plan de Acción" con cronograma sugerido
+- [ ] Incluir tabla de responsables sugeridos (comité, RH, jefes de departamento)
+
+### Tests Unitarios
+
+- [ ] Test: Detectar ATS en Guía I (respuesta "Sí" en cualquier pregunta)
+- [ ] Test: Generar acciones organizacionales cuando promedio global es alto
+- [ ] Test: Generar acciones grupales cuando un departamento tiene riesgo alto
+- [ ] Test: Generar acciones individuales para cada caso con ATS detectado
+- [ ] Test: Filtrar acciones por nivel (organizacional, grupal, individual)
+- [ ] Test: Filtrar acciones grupales por departamento
+- [ ] Test: Crear caso NOM-035 automático para empleado con ATS
+- [ ] Test: Validar que acciones organizacionales no tengan targetScope
+- [ ] Test: Validar que acciones grupales tengan departmentId en targetScope
+- [ ] Test: Validar que acciones individuales tengan employeeId en targetScope
+
+---
+
+## 📈 RESUMEN DE FASE 181
+
+**Total de tareas:** 48 tareas
+**Prioridad:** P0 - CRÍTICO
+**Impacto:** Cumplimiento normativo NOM-035, atención oportuna de casos con ATS, acciones correctivas estructuradas en 3 niveles
+
+**Distribución de tareas:**
+- Backend - Estructura de datos: 4 tareas
+- Backend - Procedimientos: 6 tareas
+- Backend - Lógica de generación: 15 tareas (5 por nivel)
+- Frontend - Visualización: 13 tareas
+- Integración con PDF: 6 tareas
+- Tests unitarios: 10 tareas
+
+**Beneficios:**
+- ✅ Cumplimiento normativo NOM-035 (acciones en 3 niveles)
+- ✅ Detección automática de casos con ATS
+- ✅ Generación automática de acciones correctivas
+- ✅ Visualización clara de acciones por nivel
+- ✅ Priorización de casos críticos (ATS)
+- ✅ Reportes PDF completos con plan de acción
+
+---
+
+## 📊 RESUMEN ACTUALIZADO DE TAREAS CRÍTICAS
+
+### FASE 178: Correlaciones de Datos (P0)
+- **Total:** 17 tareas
+- **Impacto:** Evitar errores de integridad referencial y mejorar UX con datos correlacionados
+
+### FASE 179: Prellenado Automático (P0)
+- **Total:** 18 tareas
+- **Impacto:** Reducir errores de captura y acelerar llenado de formularios
+
+### FASE 180: Integración de IA (P1)
+- **Total:** 27 tareas
+- **Impacto:** Acelerar redacción de informes y mejorar calidad de documentación
+
+### FASE 181: Acciones Correctivas en 3 Niveles (P0)
+- **Total:** 48 tareas
+- **Impacto:** Cumplimiento normativo NOM-035, atención oportuna de casos con ATS
+
+**TOTAL NUEVAS TAREAS:** 110 tareas críticas e importantes (62 + 48)
