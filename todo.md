@@ -7717,3 +7717,151 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - FASE 181 (Acciones en 3 Niveles) - Para recomendaciones priorizadas
 - FASE 190 (Reportes Automáticos) - Para estructura de datos
 - FASE 189 (Dashboard Interactivo) - Para visualizaciones
+
+
+---
+
+## 🤖 FASE 192: Motor de Recomendaciones Automáticas NOM-035
+
+**Descripción:** Algoritmo inteligente de generación automática de recomendaciones basado en colorimetría NOM-035 con banco de 100+ recomendaciones predefinidas organizadas por dimensión (G2-1 a G3-5) y color (ROJO/NARANJA/AMARILLO/VERDE/AZUL), clasificación por 5 niveles de prioridad, personalización contextual y generación de plan de acción consolidado.
+
+**Prioridad:** P0 - CRÍTICO (Motor central del sistema)
+
+**Estado:** Pendiente de implementación
+
+### 🎯 COMPONENTE 1: Clasificación por Nivel de Prioridad (8 tareas)
+
+- [ ] Crear interfaz TypeScript `NivelPrioridad` con 5 niveles
+- [ ] Implementar nivel URGENTE (color ROJO, tiempo respuesta: 48 horas)
+- [ ] Implementar nivel ALTA (color NARANJA, tiempo respuesta: 1 semana)
+- [ ] Implementar nivel MEDIA (color AMARILLO, tiempo respuesta: 1 mes)
+- [ ] Implementar nivel BAJA (color VERDE, tiempo respuesta: 3 meses)
+- [ ] Implementar nivel EXCELENCIA (color AZUL, tiempo respuesta: Benchmarking)
+- [ ] Crear tabla `priority_levels` con configuración de tiempos de respuesta
+- [ ] Crear procedimiento tRPC `recommendations.getPriorityLevels`
+
+### 📚 COMPONENTE 2: Banco de Recomendaciones (60 tareas)
+
+#### Dimensión G2-1: Violencia Laboral (5 colores × 5 recomendaciones = 25 recs)
+- [ ] Poblar 5 recomendaciones ROJO (investigación inmediata, comité ética, capacitación, sanciones, apoyo psicológico)
+- [ ] Poblar 4 recomendaciones NARANJA (campaña cero tolerancia, buzón anónimo, capacitación mandos, auditoría clima)
+- [ ] Poblar 3 recomendaciones AMARILLO (actualizar políticas, encuesta percepción, capacitación resolución conflictos)
+- [ ] Poblar 3 recomendaciones VERDE (monitoreo indicadores, capacitación anual, reconocimiento áreas libres)
+- [ ] Poblar 3 recomendaciones AZUL (certificación, compartir mejores prácticas, mediación entre pares)
+
+#### Dimensión G2-2: Equilibrio Vida-Trabajo (5 colores × 5 recomendaciones = 25 recs)
+- [ ] Poblar 5 recomendaciones ROJO (auditar cargas, desconexión digital, limitar horas extras, revisar asignación, flexibilidad)
+- [ ] Poblar 4 recomendaciones NARANJA (gestión tiempo, horarios reuniones, capacitación productividad, eliminar redundancias)
+- [ ] Poblar 3 recomendaciones AMARILLO (promover vacaciones, encuesta satisfacción, metas realistas)
+- [ ] Poblar 3 recomendaciones VERDE (mantener programas bienestar, actividades familiares, monitoreo balance)
+- [ ] Poblar 3 recomendaciones AZUL (certificación EFR, teletrabajo estructurado, guardería/apoyos)
+
+#### Dimensión G3-1: Políticas y Procedimientos (5 colores × 5 recomendaciones = 25 recs)
+- [ ] Poblar 5 recomendaciones ROJO (desarrollar política 30 días, designar responsable, crear comité, documentar procedimientos, comunicar)
+- [ ] Poblar 4 recomendaciones NARANJA (actualizar manual, capacitar mandos, control documental, auditoría cumplimiento)
+- [ ] Poblar 3 recomendaciones AMARILLO (revisar periodicidad, digitalizar documentos, versionado documental)
+- [ ] Poblar 3 recomendaciones VERDE (calendario revisiones, capacitar nuevos empleados, auditar periódicamente)
+- [ ] Poblar 3 recomendaciones AZUL (certificar gestión documental, portal digital interactivo, compartir mejores prácticas)
+
+#### Dimensión G3-3: Participación (5 colores × 5 recomendaciones = 25 recs)
+- [ ] Poblar 5 recomendaciones ROJO (comités por área, sistema sugerencias 72h, asambleas mensuales, buzón quejas, representantes turno)
+- [ ] Poblar 4 recomendaciones NARANJA (encuestas trimestrales, grupos focales, capacitar mandos, reuniones periódicas)
+- [ ] Poblar 3 recomendaciones AMARILLO (mejorar canales comunicación, reconocimiento ideas, reuniones retroalimentación)
+- [ ] Poblar 3 recomendaciones VERDE (optimizar sistemas participación, capacitar líderes, evaluar efectividad)
+- [ ] Poblar 3 recomendaciones AZUL (presupuesto participativo, intraemprendimiento, certificación empresa participativa)
+
+#### Dimensiones Restantes (G2-3, G2-4, G2-5, G3-2, G3-4, G3-5)
+- [ ] Crear banco de recomendaciones para G2-3 (Cambios Organizacionales) - 25 recomendaciones
+- [ ] Crear banco de recomendaciones para G2-4 (Diferencias por Jerarquía) - 25 recomendaciones
+- [ ] Crear banco de recomendaciones para G2-5 (Vulnerabilidad por Antigüedad) - 25 recomendaciones
+- [ ] Crear banco de recomendaciones para G3-2 (Capacitación) - 25 recomendaciones
+- [ ] Crear banco de recomendaciones para G3-4 (Medidas Preventivas) - 25 recomendaciones
+- [ ] Crear banco de recomendaciones para G3-5 (Evaluación) - 25 recomendaciones
+
+#### Integración
+- [ ] Crear tabla `recommendations_bank` con 250+ recomendaciones predefinidas
+- [ ] Implementar índices por dimensión y color para búsqueda rápida
+- [ ] Crear procedimiento tRPC `recommendations.getRecommendationsBank`
+
+### 🧠 COMPONENTE 3: Motor de Generación (14 tareas)
+
+- [ ] Implementar función `generarRecomendacionesAutomaticas()` con algoritmo principal
+- [ ] Crear función `determinarPrioridad()` basada en color de dimensión
+- [ ] Implementar función `obtenerRecomendacionesEspecificas()` con consulta a banco
+- [ ] Crear función `personalizarRecomendacion()` con datos de evaluación
+- [ ] Implementar lógica de asignación a listas por prioridad (5 listas)
+- [ ] Crear función `generarPlanAccionConsolidado()` con 5 componentes
+- [ ] Implementar cache de recomendaciones generadas (Redis)
+- [ ] Crear tabla `generated_recommendations` para histórico
+- [ ] Implementar versionado de recomendaciones (v1, v2, v3)
+- [ ] Crear función `compararVersiones()` para análisis de cambios
+- [ ] Implementar alertas automáticas cuando hay recomendaciones URGENTES
+- [ ] Crear componente `RecommendationsEngine.tsx` con visualización de proceso
+- [ ] Implementar export de recomendaciones a JSON/PDF/Excel
+- [ ] Crear procedimiento tRPC `recommendations.generateAutomatic`
+
+### 🎨 COMPONENTE 4: Personalización Contextual (12 tareas)
+
+#### Contexto Organizacional
+- [ ] Implementar ajuste de recomendaciones por tamaño de empresa (<50, 50-250, >250 empleados)
+- [ ] Crear ajuste por industria (manufactura, servicios, comercio, etc.)
+- [ ] Implementar ajuste por región geográfica (urbano/rural)
+- [ ] Crear ajuste por madurez organizacional (startup, consolidada, madura)
+
+#### Contexto de Evaluación
+- [ ] Implementar ajuste por tipo de evaluación (Guía I, II, III)
+- [ ] Crear ajuste por cobertura de evaluación (total/parcial)
+- [ ] Implementar ajuste por periodo de evaluación (trimestral/semestral/anual)
+- [ ] Crear ajuste por histórico de cumplimiento (primera vez/reincidente)
+
+#### Integración
+- [ ] Crear tabla `contextualization_rules` con reglas de ajuste
+- [ ] Implementar motor de reglas con sintaxis if-then-else
+- [ ] Crear componente `ContextualSettings.tsx` para configuración
+- [ ] Crear procedimiento tRPC `recommendations.setContextualRules`
+
+### 📊 COMPONENTE 5: Métricas del Motor (10 tareas)
+
+- [ ] Implementar métrica "Recomendaciones generadas por evaluación" (promedio)
+- [ ] Crear métrica "Tiempo de generación" (milisegundos)
+- [ ] Implementar métrica "Tasa de aceptación de recomendaciones" (%)
+- [ ] Crear métrica "Efectividad de recomendaciones implementadas" (reducción de riesgo)
+- [ ] Implementar métrica "Cobertura del banco de recomendaciones" (dimensiones cubiertas)
+- [ ] Crear dashboard de métricas del motor con gráficas
+- [ ] Implementar alertas cuando tiempo de generación > 5 segundos
+- [ ] Crear tabla `engine_metrics` para histórico de performance
+- [ ] Implementar export de métricas a Excel
+- [ ] Crear procedimiento tRPC `recommendations.getEngineMetrics`
+
+### 🔄 COMPONENTE 6: Aprendizaje Continuo (8 tareas)
+
+- [ ] Implementar sistema de feedback de recomendaciones (útil/no útil)
+- [ ] Crear función de ajuste automático de prioridades según feedback
+- [ ] Implementar análisis de patrones de recomendaciones más efectivas
+- [ ] Crear servicio de actualización automática del banco de recomendaciones
+- [ ] Implementar modelo de machine learning para predicción de efectividad
+- [ ] Crear tabla `recommendation_feedback` para almacenar feedback
+- [ ] Implementar reentrenamiento automático del modelo cada 3 meses
+- [ ] Crear procedimiento tRPC `recommendations.submitFeedback`
+
+### 📈 Impacto Esperado
+
+- **Tiempo de Generación de Recomendaciones:** -99% (automático vs manual)
+- **Cobertura de Dimensiones:** 100% (todas las dimensiones cubiertas)
+- **Precisión de Recomendaciones:** +90% (basadas en mejores prácticas)
+- **ROI:** $500,000 MXN/año (ahorro en consultoría + implementación efectiva)
+
+### 🔧 Stack Tecnológico
+
+- **Motor de Reglas:** json-rules-engine
+- **Cache:** Redis para recomendaciones generadas
+- **Machine Learning:** TensorFlow.js para predicción de efectividad
+- **Export:** PDFKit + ExcelJS
+- **Personalización:** Algoritmos de filtrado colaborativo
+
+**Total de tareas:** 112 tareas (8+60+14+12+10+8)
+
+**Dependencias críticas:**
+- FASE 183 (Análisis en 3 Niveles) - Para datos de dimensiones y colores
+- FASE 184 (Catálogo de Acciones) - Para complementar banco de recomendaciones
+- FASE 191 (Gestión Avanzada) - Para plan de acción consolidado
