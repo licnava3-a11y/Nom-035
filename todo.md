@@ -7037,3 +7037,240 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - **ROI:** $120,000 MXN/año (ahorro en tiempo de coordinadores)
 
 **Total de tareas pendientes:** 7 tareas backend
+
+
+---
+
+## 🔗 FASE 187: Integración con Sistemas Externos (Conectores y Correlaciones)
+
+**Descripción:** Arquitectura de integración con sistemas externos (HR, salud ocupacional, productividad) mediante conectores estandarizados para sincronización bidireccional de datos y generación automática de correlaciones entre factores psicosociales e indicadores organizacionales.
+
+**Prioridad:** P1 - IMPORTANTE (Valor agregado significativo para análisis predictivo)
+
+**Estado:** Pendiente de implementación
+
+### 🏗️ Arquitectura de Conectores (18 tareas)
+
+#### Conector de Recursos Humanos
+- [ ] Crear clase `HRSystemConnector` con métodos de sincronización
+- [ ] Implementar endpoint `/api/integrations/hr/sync-employees` para obtener datos de trabajadores
+- [ ] Implementar endpoint `/api/integrations/hr/sync-org-structure` para estructura organizacional
+- [ ] Implementar endpoint `/api/integrations/hr/sync-training` para datos de capacitación
+- [ ] Crear tabla `integration_logs` para auditoría de sincronizaciones
+- [ ] Implementar autenticación OAuth2 para conectores externos
+
+#### Conector de Salud Ocupacional
+- [ ] Crear clase `HealthSystemConnector` con métodos de sincronización
+- [ ] Implementar endpoint `/api/integrations/health/sync-absenteeism` para datos de ausentismo
+- [ ] Implementar endpoint `/api/integrations/health/sync-incidents` para incidentes de salud
+- [ ] Implementar endpoint `/api/integrations/health/sync-medical-evals` para evaluaciones médicas
+- [ ] Crear tabla `health_integration_data` para almacenar datos sincronizados
+- [ ] Implementar encriptación de datos sensibles de salud (HIPAA compliance)
+
+#### Conector de Productividad
+- [ ] Crear clase `ProductivitySystemConnector` con métodos de sincronización
+- [ ] Implementar endpoint `/api/integrations/productivity/sync-performance` para métricas de desempeño
+- [ ] Implementar endpoint `/api/integrations/productivity/sync-production` para datos de producción
+- [ ] Implementar endpoint `/api/integrations/productivity/sync-quality` para indicadores de calidad
+- [ ] Crear tabla `productivity_integration_data` para almacenar datos sincronizados
+- [ ] Implementar dashboard de monitoreo de integraciones activas
+
+### 📊 Motor de Correlaciones Automáticas (12 tareas)
+
+#### Correlación Ausentismo vs Riesgo Psicosocial
+- [ ] Implementar función `calcularCorrelacionAusentismo()` con algoritmo de Pearson
+- [ ] Crear procedimiento tRPC `integrations.getAbsenteeismCorrelation`
+- [ ] Generar gráfica de dispersión (scatter plot) con línea de tendencia
+- [ ] Implementar alertas automáticas cuando correlación > 0.7 (alta correlación)
+
+#### Correlación Productividad vs Entorno Favorable
+- [ ] Implementar función `calcularCorrelacionProductividad()` con regresión lineal
+- [ ] Crear procedimiento tRPC `integrations.getProductivityCorrelation`
+- [ ] Generar gráfica de barras comparativa por departamento
+- [ ] Calcular ROI de mejoras en entorno laboral
+
+#### Correlación Rotación vs Satisfacción
+- [ ] Implementar función `calcularCorrelacionRotacion()` con análisis de supervivencia
+- [ ] Crear procedimiento tRPC `integrations.getTurnoverCorrelation`
+- [ ] Generar gráfica de línea temporal con eventos críticos
+- [ ] Implementar predicción de riesgo de rotación por empleado
+
+### 🎨 Frontend de Integraciones (8 tareas)
+
+- [ ] Crear página `/integraciones` con lista de conectores disponibles
+- [ ] Implementar componente `IntegrationCard.tsx` con estado de conexión
+- [ ] Crear página `/integraciones/configurar/:tipo` para configuración de conectores
+- [ ] Implementar componente `CorrelationDashboard.tsx` con 3 gráficas principales
+- [ ] Crear componente `SyncHistoryTable.tsx` con logs de sincronizaciones
+- [ ] Implementar botón "Sincronizar Ahora" con loading state
+- [ ] Crear página `/integraciones/correlaciones` con análisis detallado
+- [ ] Implementar export de correlaciones a Excel/PDF
+
+### 🔐 Seguridad y Cumplimiento (6 tareas)
+
+- [ ] Implementar rate limiting en endpoints de integración (100 req/min)
+- [ ] Crear sistema de API keys rotativas para conectores
+- [ ] Implementar logs de auditoría con registro de accesos a datos sensibles
+- [ ] Crear política de retención de datos integrados (90 días)
+- [ ] Implementar validación de integridad de datos sincronizados
+- [ ] Crear documentación de API para desarrolladores externos
+
+### 📈 Impacto Esperado
+
+- **Reducción de Captura Manual:** -95% (sincronización automática)
+- **Precisión de Análisis:** +80% (correlaciones con datos reales)
+- **Tiempo de Generación de Reportes:** -90% (datos pre-sincronizados)
+- **ROI:** $180,000 MXN/año (ahorro en tiempo de análisis + valor predictivo)
+
+### 🔧 Stack Tecnológico Sugerido
+
+- **Autenticación:** OAuth2 + JWT
+- **Encriptación:** AES-256 para datos sensibles
+- **Correlaciones:** Librería `simple-statistics` (JavaScript)
+- **Gráficas:** Recharts o Chart.js
+- **Webhooks:** Para sincronización en tiempo real
+- **Queue:** Bull (Redis) para procesamiento asíncrono de sincronizaciones
+
+**Total de tareas:** 44 tareas (18 conectores + 12 correlaciones + 8 frontend + 6 seguridad)
+
+
+---
+
+## ⚙️ FASE 188: Flujo de Trabajo Automático NOM-035 (Sistema End-to-End)
+
+**Descripción:** Implementación del flujo de trabajo completo automatizado desde captura de datos hasta seguimiento y ajuste dinámico, integrando todos los módulos del sistema en un pipeline de procesamiento continuo con inteligencia artificial.
+
+**Prioridad:** P0 - CRÍTICO (Núcleo del sistema automatizado)
+
+**Estado:** Pendiente de implementación
+
+### 📥 PASO 1: Captura de Datos (8 tareas)
+
+- [ ] Implementar API de captura unificada `/api/workflow/capture`
+- [ ] Crear servicio de integración con encuestas digitales NOM-035
+- [ ] Implementar sincronización automática con sistemas HR externos
+- [ ] Crear servicio de prellenado de datos demográficos desde BD
+- [ ] Implementar validación de integridad de datos en tiempo real
+- [ ] Crear tabla `workflow_data_capture` para auditoría de capturas
+- [ ] Implementar detección de duplicados y conflictos de datos
+- [ ] Crear dashboard de monitoreo de captura en tiempo real
+
+### 🎨 PASO 2: Procesamiento y Colorimetría (12 tareas)
+
+- [ ] Implementar motor de cálculo de dimensiones Guía II (5 dimensiones)
+- [ ] Implementar motor de cálculo de dimensiones Guía III (7 dimensiones)
+- [ ] Crear servicio de aplicación de umbrales de color según NOM-035
+- [ ] Implementar clasificación automática por nivel de riesgo (5 niveles)
+- [ ] Crear tabla `workflow_risk_classification` para histórico de clasificaciones
+- [ ] Implementar algoritmo de detección de ATS (Acontecimientos Traumáticos Severos)
+- [ ] Crear servicio de generación de mapas de calor por departamento
+- [ ] Implementar cálculo de índices compuestos (IRPG, IVE)
+- [ ] Crear procedimiento tRPC `workflow.processColorimetry`
+- [ ] Implementar cache de resultados para optimización de performance
+- [ ] Crear componente `ColorimetryVisualization.tsx` con gauge charts
+- [ ] Implementar export de resultados colorimétricos a PDF
+
+### 💡 PASO 3: Generación de Recomendaciones (10 tareas)
+
+- [ ] Crear base de conocimiento de recomendaciones (tabla `knowledge_base_recommendations`)
+- [ ] Implementar motor de consulta de base de conocimiento con búsqueda semántica
+- [ ] Crear servicio de aplicación de reglas de negocio (if-then-else)
+- [ ] Implementar personalización de recomendaciones por contexto (industria, tamaño, región)
+- [ ] Integrar con catálogo de 220 acciones NOM-035
+- [ ] Crear servicio de generación de recomendaciones con IA (GPT-4)
+- [ ] Implementar filtrado de recomendaciones por viabilidad y costo
+- [ ] Crear tabla `workflow_recommendations` para histórico
+- [ ] Crear procedimiento tRPC `workflow.generateRecommendations`
+- [ ] Implementar componente `RecommendationsList.tsx` con priorización visual
+
+### 🎯 PASO 4: Priorización Automática (8 tareas)
+
+- [ ] Implementar algoritmo de urgencia basado en matriz de Eisenhower
+- [ ] Crear servicio de asignación automática de recursos (personas, presupuesto)
+- [ ] Implementar estimación de tiempos con machine learning
+- [ ] Crear tabla `workflow_prioritization` para histórico de priorizaciones
+- [ ] Implementar cálculo de ROI por acción correctiva
+- [ ] Crear servicio de balanceo de carga entre responsables
+- [ ] Crear procedimiento tRPC `workflow.prioritizeActions`
+- [ ] Implementar componente `PrioritizationMatrix.tsx` con drag-and-drop
+
+### 📋 PASO 5: Generación de Planes (10 tareas)
+
+- [ ] Crear servicio de generación de plan de acción inmediato (primeras 72 horas)
+- [ ] Implementar generación de cronograma de implementación con Gantt
+- [ ] Crear servicio de asignación automática de responsables según competencias
+- [ ] Implementar generación de presupuesto estimado por plan
+- [ ] Crear tabla `workflow_action_plans` para almacenar planes generados
+- [ ] Implementar validación de viabilidad de planes con reglas de negocio
+- [ ] Crear servicio de generación de KPIs por plan
+- [ ] Crear procedimiento tRPC `workflow.generateActionPlan`
+- [ ] Implementar componente `ActionPlanView.tsx` con timeline interactivo
+- [ ] Implementar export de planes a MS Project / Excel
+
+### 📧 PASO 6: Comunicación Automática (12 tareas)
+
+- [ ] Crear servicio de generación de alertas a responsables con plantillas dinámicas
+- [ ] Implementar envío de notificaciones push a trabajadores afectados
+- [ ] Crear servicio de generación de reportes automáticos a autoridades (STPS)
+- [ ] Implementar sistema de escalamiento automático por falta de respuesta
+- [ ] Crear tabla `workflow_communications` para auditoría de comunicaciones
+- [ ] Implementar integración con WhatsApp Business API para notificaciones
+- [ ] Crear servicio de generación de boletines informativos mensuales
+- [ ] Implementar notificaciones por correo con resumen ejecutivo
+- [ ] Crear procedimiento tRPC `workflow.sendCommunications`
+- [ ] Implementar componente `CommunicationCenter.tsx` con historial
+- [ ] Crear plantillas de comunicación personalizables por tipo de alerta
+- [ ] Implementar confirmación de lectura de comunicaciones críticas
+
+### 📊 PASO 7: Seguimiento y Ajuste (14 tareas)
+
+- [ ] Crear dashboard de monitoreo en tiempo real con WebSockets
+- [ ] Implementar servicio de ajuste automático de recomendaciones según avances
+- [ ] Crear servicio de actualización automática de métricas (KPIs)
+- [ ] Implementar algoritmo de detección de desviaciones del plan
+- [ ] Crear tabla `workflow_monitoring` para histórico de seguimiento
+- [ ] Implementar alertas automáticas por incumplimiento de plazos
+- [ ] Crear servicio de generación de reportes de progreso semanales
+- [ ] Implementar análisis predictivo de éxito de acciones con ML
+- [ ] Crear procedimiento tRPC `workflow.monitorProgress`
+- [ ] Implementar componente `MonitoringDashboard.tsx` con gráficas en tiempo real
+- [ ] Crear servicio de cierre automático de acciones completadas
+- [ ] Implementar sistema de lecciones aprendidas (feedback loop)
+- [ ] Crear servicio de re-evaluación automática post-implementación
+- [ ] Implementar export de reportes de seguimiento a PDF/Excel
+
+### 🤖 Inteligencia Artificial y Machine Learning (8 tareas)
+
+- [ ] Entrenar modelo de predicción de riesgo psicosocial con datos históricos
+- [ ] Implementar modelo de recomendación de acciones con collaborative filtering
+- [ ] Crear servicio de detección de patrones anómalos con anomaly detection
+- [ ] Implementar modelo de estimación de tiempos con regresión lineal
+- [ ] Crear servicio de clustering de empleados por perfil de riesgo
+- [ ] Implementar modelo de predicción de rotación con survival analysis
+- [ ] Crear servicio de generación de insights automáticos con NLP
+- [ ] Implementar reentrenamiento automático de modelos cada 3 meses
+
+### 📈 Impacto Esperado
+
+- **Tiempo de Procesamiento:** -98% (automático vs manual)
+- **Precisión de Recomendaciones:** +95% (IA + base de conocimiento)
+- **Cumplimiento de Plazos:** +85% (seguimiento automático)
+- **ROI:** $600,000 MXN/año (ahorro en tiempo + reducción de riesgos)
+
+### 🔧 Stack Tecnológico
+
+- **Backend:** Node.js + tRPC + Drizzle ORM
+- **IA/ML:** TensorFlow.js + OpenAI GPT-4
+- **Tiempo Real:** WebSockets (Socket.io)
+- **Queue:** Bull (Redis) para procesamiento asíncrono
+- **Notificaciones:** Nodemailer + Twilio (WhatsApp)
+- **Visualización:** Recharts + D3.js
+- **Export:** PDFKit + ExcelJS
+
+**Total de tareas:** 82 tareas (8+12+10+8+10+12+14+8)
+
+**Dependencias críticas:**
+- FASE 181 (Acciones en 3 Niveles) - Completada
+- FASE 183 (Análisis en 3 Niveles) - Completada
+- FASE 184 (Catálogo de Acciones) - Completada
+- FASE 187 (Integración Sistemas Externos) - Pendiente

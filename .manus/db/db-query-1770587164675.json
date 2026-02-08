@@ -1,0 +1,21 @@
+{
+  "query": "SELECT * FROM nom035_action_catalog LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT * FROM nom035_action_catalog LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "level": "category",
+      "levelCode": "CAT1",
+      "actionType": "preventive",
+      "actionNumber": "1",
+      "description": "Implementar programas de capacitación continua en manejo de estrés, resiliencia y habilidades socioemocionales para todos los trabajadores.",
+      "isActive": "1",
+      "createdAt": "2026-02-08 21:12:14",
+      "updatedAt": "2026-02-08 21:12:14"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tlevel\tlevelCode\tactionType\tactionNumber\tdescription\tisActive\tcreatedAt\tupdatedAt\n1\tcategory\tCAT1\tpreventive\t1\tImplementar programas de capacitación continua en manejo de estrés, resiliencia y habilidades socioemocionales para todos los trabajadores.\t1\t2026-02-08 21:12:14\t2026-02-08 21:12:14\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}
