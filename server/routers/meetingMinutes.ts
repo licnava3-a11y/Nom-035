@@ -374,25 +374,37 @@ export const meetingMinutesRouter = router({
         .from(meetingAttachments)
         .where(eq(meetingAttachments.meetingMinuteId, input.id));
 
-      // Importar generador PDF
-      const { generateMeetingMinutePDF } = await import('../pdfGenerator');
+      // Obtener nombre del creador
+      const { users } = await import('../../drizzle/schema');
+      const [creator] = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.id, minute.createdBy))
+        .limit(1);
+
+      // Importar generador PDF de minutas
+      const { generateMinutaPDF } = await import('../pdfGenerators/minutas');
 
       // Generar PDF
-      const pdfBuffer = await generateMeetingMinutePDF({
+      const pdfBuffer = await generateMinutaPDF({
+        id: minute.id,
         folio: minute.folio,
         title: minute.title,
         meetingDate: minute.meetingDate,
         meetingType: minute.meetingType,
-        location: minute.location || '',
+        location: minute.location,
         agenda: minute.agenda,
-        agreements: minute.agreements || '',
-        observations: minute.observations || '',
+        agreements: minute.agreements,
+        observations: minute.observations,
+        qrCode: minute.qrCode || '',
+        qrCodeUrl: minute.qrCodeUrl,
+        status: minute.status,
         participants: participants.map(p => ({
           name: p.name,
-          role: p.role || '',
-          curp: p.curp || '',
-          ineNumber: p.ineNumber || '',
-          signature: p.signature || '',
+          curp: p.curp,
+          ineNumber: p.ineNumber,
+          role: p.role,
+          signature: p.signature,
           signedAt: p.signedAt,
         })),
         attachments: attachments.map(a => ({
@@ -400,8 +412,9 @@ export const meetingMinutesRouter = router({
           fileUrl: a.fileUrl,
           fileType: a.fileType,
         })),
-        qrCode: minute.qrCode || '',
+        createdBy: creator?.name || 'Usuario',
         createdAt: minute.createdAt,
+        finalizedAt: minute.finalizedAt,
       });
 
       // Subir PDF a S3

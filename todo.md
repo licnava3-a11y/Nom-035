@@ -893,11 +893,11 @@
 - [ ] Agregar gráfica de tendencias de brechas
 
 ## FASE 124: Generación PDF de Minutas
-- [ ] Crear módulo server/pdfGenerators/minutas.ts
-- [ ] Implementar generador PDF con firmas digitales incluidas
-- [ ] Agregar código QR NOM-151 con URL de validación
-- [ ] Formato oficial en hoja carta (letter size)
-- [ ] Crear procedimiento tRPC meetings.generatePDF
+- [x] Crear módulo server/pdfGenerators/minutas.ts
+- [x] Implementar generador PDF con firmas digitales incluidas
+- [x] Agregar código QR NOM-151 con URL de validación
+- [x] Formato oficial en hoja carta (letter size)
+- [x] Crear procedimiento tRPC meetings.generatePDF
 - [ ] Probar generación PDF con minutas existentes
 
 
@@ -2857,3 +2857,49 @@
 - [x] Verificar que no hay errores TypeScript
 - [ ] Guardar checkpoint final con breadcrumbs completos
 - [ ] Guardar checkpoint final con breadcrumbs completos
+
+
+## FASE 104: Resolver Ciclo Infinito en Login
+
+### Diagnóstico
+- [ ] Revisar logs del servidor (.manus-logs/devserver.log)
+- [ ] Revisar logs del navegador (.manus-logs/browserConsole.log)
+- [ ] Identificar causa del ciclo infinito (redirecciones, hooks, efectos)
+- [ ] Revisar componente de autenticación y hooks useAuth
+
+### Corrección
+- [ ] Implementar solución al ciclo infinito
+- [ ] Verificar que no hay efectos secundarios
+- [ ] Asegurar que el flujo de login es correcto
+
+### Pruebas
+- [ ] Probar login con usuario válido
+- [ ] Verificar que no hay redirecciones infinitas
+- [ ] Confirmar que el usuario queda autenticado correctamente
+- [ ] Guardar checkpoint con corrección
+
+
+## FASE 105: Corrección de Errores 404 y Fases Críticas Pendientes
+
+### Diagnóstico de Errores 404
+- [x] Revisar logs de red (.manus-logs/networkRequests.log)
+- [x] Revisar logs del servidor (.manus-logs/devserver.log)
+- [x] Identificar todas las rutas que generan 404
+- [x] Listar recursos estáticos faltantes (imágenes, fuentes, etc.)
+
+### Corrección de Errores 404
+- [x] Corregir rutas inexistentes (No se encontraron errores 404)
+- [x] Agregar componentes faltantes (No se requirió)
+- [x] Corregir referencias a recursos estáticos (No se requirió)
+- [x] Verificar imports de componentes (No se requirió)
+
+### Revisión de Fases Críticas Pendientes
+- [x] Revisar todo.md para identificar fases críticas sin completar
+- [x] Priorizar fases según impacto en funcionalidad
+- [x] Crear plan de implementación de fases críticas
+
+### Pruebas
+- [x] Verificar que no hay errores 404 en logs
+- [x] Probar navegación en todas las rutas
+- [x] Confirmar que todos los recursos cargan correctamente
+- [ ] Guardar checkpoint con correcciones
