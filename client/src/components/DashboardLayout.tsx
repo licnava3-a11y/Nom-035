@@ -79,36 +79,38 @@ const hierarchicalMenuItems = [
     ],
   },
   {
+    icon: ClipboardCheck,
+    label: "Encuestas NOM-035",
+    description: "Guías de Referencia I, II y III para evaluación de factores de riesgo psicosocial",
+    roles: ["admin", "committee"],
+    submenu: [
+      { label: "Guía I - ATS", path: "/surveys/guide-i", description: "Cuestionario para identificar trabajadores expuestos a acontecimientos traumáticos severos" },
+      { label: "Guía II - Identificación", path: "/surveys/guide-ii", description: "Cuestionario de identificación de factores de riesgo (centros de trabajo con 16-50 trabajadores)" },
+      { label: "Guía III - Evaluación", path: "/surveys/guide-iii", description: "Cuestionario de evaluación del entorno organizacional (centros de trabajo con más de 50 trabajadores)" },
+      { label: "Tamaño de Muestra", path: "/surveys/sample-size", description: "Cálculo del tamaño de muestra para aplicación de encuestas" },
+      { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard", description: "Gestión de tokens de acceso para encuestas" },
+      { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación de encuestas" },
+      { label: "Envío Masivo", path: "/surveys/mass-email", description: "Envío masivo de invitaciones por correo electrónico" },
+      { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo para configuración de encuestas" },
+    ],
+  },
+  {
     icon: ShieldCheck,
     label: "Prevención de Riesgos Psicosociales",
     description: "Cumplimiento NOM-035-STPS-2018: Identificación y prevención de factores de riesgo",
     roles: ["admin", "committee"],
     submenu: [
-      {
-        label: "Encuestas",
-        description: "Guías de Referencia I, II y III NOM-035 para evaluación de factores de riesgo",
-        submenu: [
-          { label: "Guía I - ATS", path: "/surveys/guide-i", description: "Cuestionario para identificar trabajadores expuestos a acontecimientos traumáticos severos" },
-          { label: "Guía II - Identificación", path: "/surveys/guide-ii", description: "Cuestionario de identificación de factores de riesgo (centros de trabajo con 16-50 trabajadores)" },
-          { label: "Guía III - Evaluación", path: "/surveys/guide-iii", description: "Cuestionario de evaluación del entorno organizacional (centros de trabajo con más de 50 trabajadores)" },
-          { label: "Tamaño de Muestra", path: "/surveys/sample-size", description: "Cálculo del tamaño de muestra para aplicación de encuestas" },
-          { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard", description: "Gestión de tokens de acceso para encuestas" },
-          { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación de encuestas" },
-          { label: "Envío Masivo", path: "/surveys/mass-email", description: "Envío masivo de invitaciones por correo electrónico" },
-        ],
+      { 
+        label: "Informe de identificación y análisis (Numeral 7.5)", 
+        path: "/company/survey-report",
+        description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
       },
-              { 
-                label: "Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)", 
-                path: "/company/survey-report",
-                description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
-              },
       { label: "Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial identificados" },
       { label: "Buzón", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
       { label: "Comité", path: "/committee", description: "Comité de seguridad y salud en el trabajo" },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar factores de riesgo identificados" },
       { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones del comité" },
       { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },
-      { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo para configuración de encuestas" },
     ],
   },
   {

@@ -3106,3 +3106,53 @@
 - [ ] Verificar estructura optimizada del menú
 - [ ] Verificar indicadores visuales dinámicos
 - [ ] Guardar checkpoint con rediseño completo
+
+
+## FASE 115: Optimización Final del Menú Lateral
+
+### Reducir Niveles de Anidamiento
+- [x] Analizar estructura actual de "Prevención de Riesgos Psicosociales"
+- [x] Mover submenú "Encuestas" a nivel principal como sección independiente
+- [x] Reorganizar elementos para máximo 2 niveles de profundidad
+- [x] Actualizar hierarchicalMenuItems en DashboardLayout.tsx
+- [x] Verificar accesibilidad WCAG 2.1 AA
+
+### Crear Procedimientos tRPC para Contadores Dinámicos
+- [x] Crear procedimiento menuCounters.getAll
+- [x] Implementar contador de casos abiertos
+- [x] Implementar contador de quejas pendientes en buzón
+- [x] Implementar contador de cursos publicados
+- [x] Implementar alerta de encuestas próximas a vencer
+- [x] Registrar menuCountersRouter en routers.ts
+
+### Implementar Badges y Contadores Visuales
+- [ ] Agregar Badge component a items del menú
+- [ ] Implementar badge de casos abiertos (rojo si > 0)
+- [ ] Implementar badge de quejas pendientes (rojo si > 0)
+- [ ] Implementar badge de acciones correctivas (amarillo si vencidas)
+- [ ] Implementar contador de cursos pendientes
+- [ ] Implementar contador de evaluaciones pendientes
+- [ ] Agregar indicador visual de alertas críticas
+
+### Completar Breadcrumbs en Módulos Restantes
+- [ ] Agregar breadcrumbs en GuideI.tsx
+- [ ] Agregar breadcrumbs en GuideII.tsx
+- [ ] Agregar breadcrumbs en GuideIII.tsx
+- [ ] Agregar breadcrumbs en SampleSize.tsx
+- [ ] Agregar breadcrumbs en TokensDashboard.tsx
+- [ ] Agregar breadcrumbs en SurveyPeriods.tsx
+- [ ] Agregar breadcrumbs en MassSurveyEmail.tsx
+- [ ] Agregar breadcrumbs en CorrectiveActions.tsx
+- [ ] Agregar breadcrumbs en RegulatoryReports.tsx
+- [ ] Agregar breadcrumbs en CompetenciesReports.tsx
+- [ ] Agregar breadcrumbs en Exports.tsx
+- [ ] Agregar breadcrumbs en MeetingMinutes.tsx
+- [ ] Agregar breadcrumbs en ComplianceDashboard.tsx
+- [ ] Agregar breadcrumbs en Nom035AdminPanel.tsx
+
+### Verificación Final
+- [ ] Probar navegación completa del menú lateral
+- [ ] Verificar que todos los contadores se actualizan correctamente
+- [ ] Verificar que todos los breadcrumbs funcionan
+- [ ] Verificar accesibilidad con teclado
+- [ ] Guardar checkpoint con rediseño completo del menú lateral

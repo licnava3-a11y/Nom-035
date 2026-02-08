@@ -32,6 +32,7 @@ import { complianceRouter } from "./routers/compliance";
 import { companyRouter } from "./routers/company";
 import { equalityRouter } from "./routers/equality";
 import { executiveDashboardRouter } from "./routers/executiveDashboard";
+import { menuCountersRouter } from "./routers/menuCounters";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -883,6 +884,7 @@ export const appRouter = router({
 
   // Executive Dashboard (Dashboard Ejecutivo de Empresa)
   executiveDashboard: executiveDashboardRouter,
+  menuCounters: menuCountersRouter,
 });
 
 export type AppRouter = typeof appRouter;
