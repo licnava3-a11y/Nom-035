@@ -7902,22 +7902,22 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Crear migración SQL para agregar campo `id` con valor por defecto 'EMP001'
 
 #### Componente 2: Estructura de Evaluación (5 tareas)
-- [ ] Agregar campos `fecha`, `periodo`, `version_nom` a tabla `survey_responses`
+- [x] Agregar campos `fecha`, `periodo`, `version_nom` a tabla `survey_responses`
 - [ ] Crear interfaz TypeScript `EvaluacionInfo` con 3 campos
 - [ ] Actualizar procedimiento `surveys.submitResponse` para incluir metadata de evaluación
 - [ ] Crear procedimiento tRPC `surveys.getEvaluationMetadata` para consultar metadata
 - [ ] Actualizar componente SurveyResults.tsx para mostrar metadata de evaluación
 
 #### Componente 3: Nomenclatura de Dimensiones (5 tareas)
-- [ ] Crear mapeo de dimensiones descriptivas a códigos (G2-1 a G2-5, G3-1 a G3-5)
-- [ ] Actualizar interfaz `DimensionScore` para incluir campo `codigo` (G2-1, G3-1, etc.)
-- [ ] Modificar función `calculateDimensionScore()` para asignar códigos automáticamente
+- [x] Crear mapeo de dimensiones descriptivas a códigos (G2-1 a G2-5, G3-1 a G3-5)
+- [x] Actualizar interfaz `DimensionScore` para incluir campo `codigo` (G2-1, G3-1, etc.)
+- [x] Modificar función `calculateDimensionScore()` para asignar códigos automáticamente
 - [ ] Crear constante `DIMENSION_CODES` con mapeo completo (15 dimensiones)
 - [ ] Actualizar frontend para mostrar códigos en lugar de nombres descriptivos
 
 #### Componente 4: Campo Interpretación (4 tareas)
-- [ ] Agregar campo `interpretacion` a interfaz `DimensionScore`
-- [ ] Crear función `generarInterpretacion()` que retorne texto según color y puntuación
+- [x] Agregar campo `interpretacion` a interfaz `DimensionScore`
+- [x] Crear función `generarInterpretacion()` que retorne texto según color y puntuación
 - [ ] Implementar textos de interpretación para 5 niveles (Alto riesgo, Riesgo medio-alto, Riesgo medio, Prácticas adecuadas, Prácticas excelentes)
 - [ ] Actualizar procedimiento `surveys.getResults` para incluir interpretación en respuesta JSON
 
