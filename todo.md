@@ -5429,3 +5429,196 @@
 **Checkpoint**: a2105f1a
 **Estado General**: ✅ Sistema 100% Funcional - 0 Errores TypeScript
 
+
+
+---
+
+## 🔍 AUDITORÍA PROFUNDA COMPLETA DEL SISTEMA (Iniciada: 2026-02-08)
+
+### FASE 1: Auditoría Backend (Routers, Schema, Servicios)
+
+#### Routers tRPC
+- [ ] Auditar server/routers.ts (appRouter principal)
+- [ ] Auditar server/routers/auth.ts
+- [ ] Auditar server/routers/company.ts
+- [ ] Auditar server/routers/employees.ts
+- [ ] Auditar server/routers/departments.ts
+- [ ] Auditar server/routers/positions.ts
+- [ ] Auditar server/routers/surveys.ts
+- [ ] Auditar server/routers/surveyResponses.ts
+- [ ] Auditar server/routers/nom035Cases.ts
+- [ ] Auditar server/routers/earlyWarnings.ts
+- [ ] Auditar server/routers/committee.ts
+- [ ] Auditar server/routers/investigations.ts
+- [ ] Auditar server/routers/workplaceViolence.ts
+- [ ] Auditar server/routers/committeeTraining.ts
+- [ ] Verificar tipos de retorno de todos los procedimientos
+- [ ] Verificar validaciones de entrada (z.object)
+- [ ] Verificar manejo de errores (try/catch, TRPCError)
+- [ ] Verificar queries de base de datos (joins, where, select)
+
+#### Schema de Base de Datos
+- [ ] Auditar drizzle/schema.ts completo
+- [ ] Verificar relaciones entre tablas (foreignKey)
+- [ ] Verificar índices de base de datos
+- [ ] Verificar constraints (unique, notNull)
+- [ ] Verificar tipos de datos (text, int, timestamp, enum)
+- [ ] Verificar nombres de campos consistentes
+- [ ] Verificar migraciones aplicadas correctamente
+
+#### Servicios
+- [ ] Auditar server/services/questionnaireEmailService.ts
+- [ ] Auditar server/services/committeeCertificatePDFService.ts
+- [ ] Verificar integración con S3 (storagePut)
+- [ ] Verificar generación de PDFs (PDFKit)
+- [ ] Verificar envío de correos (configuración SMTP)
+
+### FASE 2: Auditoría Frontend (Componentes, Formularios, Desplegables)
+
+#### Componentes Principales
+- [ ] Auditar client/src/App.tsx (rutas completas)
+- [ ] Auditar client/src/components/DashboardLayout.tsx (menú)
+- [ ] Auditar client/src/pages/Home.tsx
+- [ ] Auditar client/src/pages/Dashboard.tsx
+- [ ] Auditar client/src/pages/Company.tsx
+- [ ] Auditar client/src/pages/Employees.tsx
+- [ ] Auditar client/src/pages/Departments.tsx
+- [ ] Auditar client/src/pages/Positions.tsx
+- [ ] Auditar client/src/pages/Surveys.tsx
+- [ ] Auditar client/src/pages/SurveyResponses.tsx
+- [ ] Auditar client/src/pages/Cases.tsx
+- [ ] Auditar client/src/pages/CaseDetail.tsx
+- [ ] Auditar client/src/pages/EarlyWarnings.tsx
+- [ ] Auditar client/src/pages/committee/* (todos los componentes)
+- [ ] Auditar client/src/pages/cases/* (todos los componentes)
+- [ ] Auditar client/src/pages/public/QuestionnairePublic.tsx
+
+#### Formularios y Validaciones
+- [ ] Verificar validaciones de formularios (campos requeridos)
+- [ ] Verificar mensajes de error claros
+- [ ] Verificar prellenado de campos (evitar duplicación de captura)
+- [ ] Verificar correlación de campos (departamento → empleados)
+- [ ] Verificar formato de fechas consistente
+- [ ] Verificar formato de números (CURP, RFC, teléfono)
+
+#### Desplegables (Select Components)
+- [ ] Auditar todos los Select de departamentos
+- [ ] Auditar todos los Select de puestos
+- [ ] Auditar todos los Select de empleados
+- [ ] Auditar todos los Select de estados (status)
+- [ ] Auditar todos los Select de prioridades
+- [ ] Auditar todos los Select de tipos (type)
+- [ ] Verificar que todos los Select tengan opción "Seleccionar..."
+- [ ] Verificar que ningún Select tenga value=""  (vacío)
+- [ ] Verificar que todos los Select carguen datos del backend
+
+#### UX/UI
+- [ ] Verificar eliminación de elementos duplicados (botones, títulos)
+- [ ] Verificar nomenclatura consistente en español
+- [ ] Verificar paleta de colores (negro, verde, azul marino, rojo)
+- [ ] Verificar diseño profesional e institucional
+- [ ] Verificar accesibilidad (contraste, focus visible)
+- [ ] Verificar responsive design (móvil, tablet, desktop)
+
+### FASE 3: Auditoría de Catálogos y Correlaciones
+
+#### Catálogos de Datos
+- [ ] Auditar catálogo de empresas (companies)
+- [ ] Auditar catálogo de empleados (employees)
+- [ ] Auditar catálogo de departamentos (departments)
+- [ ] Auditar catálogo de puestos (positions)
+- [ ] Auditar catálogo de encuestas (surveys)
+- [ ] Auditar catálogo de miembros del comité (committeeMembers)
+- [ ] Auditar catálogo de programas de capacitación (committee_programs)
+- [ ] Verificar que cada catálogo tenga al menos 5 datos de prueba
+
+#### Correlaciones entre Tablas
+- [ ] Verificar correlación employees → departments
+- [ ] Verificar correlación employees → positions
+- [ ] Verificar correlación employees → companies
+- [ ] Verificar correlación surveyResponses → employees
+- [ ] Verificar correlación surveyResponses → surveys
+- [ ] Verificar correlación nom035Cases → employees
+- [ ] Verificar correlación committeeMembers → employees
+- [ ] Verificar correlación committee_sessions → committee_programs
+- [ ] Verificar correlación committee_attendance → committee_sessions
+- [ ] Verificar correlación workplace_violence_cases → employees
+- [ ] Verificar correlación investigation_questionnaires → nom035Cases
+
+### FASE 4: Auditoría de Importación y Exportación
+
+#### Funcionalidades de Importación
+- [ ] Auditar importación de empleados (Excel/CSV)
+- [ ] Auditar importación de departamentos
+- [ ] Auditar importación de puestos
+- [ ] Auditar importación de respuestas de encuestas
+- [ ] Verificar validación de datos importados
+- [ ] Verificar manejo de errores en importación
+- [ ] Verificar plantillas de importación disponibles
+
+#### Funcionalidades de Exportación
+- [ ] Auditar exportación de empleados (Excel)
+- [ ] Auditar exportación de respuestas de encuestas (Excel)
+- [ ] Auditar exportación de casos NOM-035 (Excel/PDF)
+- [ ] Auditar exportación de reportes de alertas tempranas (Excel)
+- [ ] Auditar exportación de reportes de capacitación (Excel/PDF)
+- [ ] Auditar exportación de certificados (PDF)
+- [ ] Verificar formato de archivos exportados
+- [ ] Verificar nombres de archivos exportados (con fecha/hora)
+
+### FASE 5: Corrección de Errores Críticos
+
+#### Errores de Compilación
+- [ ] Corregir todos los errores TypeScript
+- [ ] Corregir todos los warnings de TypeScript
+- [ ] Corregir errores de ESLint
+
+#### Errores de Ejecución
+- [ ] Corregir errores 404 (rutas no encontradas)
+- [ ] Corregir errores 500 (errores de servidor)
+- [ ] Corregir errores de CORS
+- [ ] Corregir errores de autenticación
+- [ ] Corregir errores de base de datos (queries)
+
+#### Errores de Navegación
+- [ ] Corregir enlaces rotos en menú
+- [ ] Corregir redirecciones incorrectas
+- [ ] Corregir breadcrumbs faltantes
+
+#### Optimización de Rendimiento
+- [ ] Optimizar queries de base de datos (añadir índices)
+- [ ] Optimizar carga de componentes (lazy loading)
+- [ ] Optimizar tamaño de bundles (code splitting)
+- [ ] Optimizar imágenes (compresión, formatos modernos)
+
+### FASE 6: Pruebas con Datos Ficticios
+
+#### Datos de Prueba Requeridos
+- [ ] Crear 10+ empresas de prueba
+- [ ] Crear 50+ empleados de prueba
+- [ ] Crear 10+ departamentos de prueba
+- [ ] Crear 20+ puestos de prueba
+- [ ] Crear 5+ encuestas de prueba
+- [ ] Crear 100+ respuestas de encuestas de prueba
+- [ ] Crear 20+ casos NOM-035 de prueba
+- [ ] Crear 10+ miembros del comité de prueba
+- [ ] Crear 5+ programas de capacitación de prueba
+- [ ] Crear 10+ sesiones de capacitación de prueba
+
+#### Pruebas Funcionales
+- [ ] Probar flujo completo de registro de empleado
+- [ ] Probar flujo completo de aplicación de encuesta
+- [ ] Probar flujo completo de creación de caso NOM-035
+- [ ] Probar flujo completo de investigación con cuestionarios
+- [ ] Probar flujo completo de protocolo de violencia laboral
+- [ ] Probar flujo completo de programa de capacitación
+- [ ] Probar flujo completo de generación de certificados
+- [ ] Probar flujo completo de alertas tempranas
+- [ ] Probar flujo completo de exportación de reportes
+
+---
+
+**Estado Actual**: 🔄 Auditoría en Progreso
+**Prioridad**: P0 - Crítico
+**Tiempo Estimado**: 6-8 horas
+
