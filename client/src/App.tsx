@@ -87,6 +87,7 @@ import EarlyWarnings from "./pages/EarlyWarnings";
 import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
+import RolesPage from "./pages/admin/Roles";
 
 function Router() {
   return (
@@ -243,6 +244,11 @@ function Router() {
       <Route path={"/settings"}>
         <DashboardLayout>
           <Settings />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/admin/roles"}>
+        <DashboardLayout>
+          <RolesPage />
         </DashboardLayout>
       </Route>
       <Route path={"/profile"}>

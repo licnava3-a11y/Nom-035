@@ -11,7 +11,21 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["admin", "instructor", "student", "committee", "committee_member", "committee_coordinator"]).default("student").notNull(),
+  role: mysqlEnum("role", [
+    "admin", 
+    "instructor", 
+    "student", 
+    "committee", 
+    "committee_member", 
+    "committee_coordinator",
+    // Roles NOM-035 específicos
+    "director",
+    "responsable_nom035",
+    "supervisor",
+    "jefe_area",
+    "recursos_humanos",
+    "demo"
+  ]).default("student").notNull(),
   
   // Campos NOM-035 STPS 2018 - Guía V
   curp: varchar("curp", { length: 18 }).unique(),
@@ -1833,3 +1847,122 @@ export const committeeTrainingAttendance = mysqlTable("committee_attendance", {
 
 export type CommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferSelect;
 export type InsertCommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferInsert;
+
+
+// ============================================================================
+// SISTEMA DE ROLES Y PERMISOS GRANULARES NOM-035
+// ============================================================================
+
+/**
+ * Role Permissions - Permisos por rol (matriz de permisos)
+ * Define qué puede hacer cada rol en cada módulo del sistema
+ */
+export const rolePermissions = mysqlTable("role_permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  role: mysqlEnum("role", [
+    "admin",
+    "director",
+    "responsable_nom035",
+    "supervisor",
+    "jefe_area",
+    "recursos_humanos",
+    "demo"
+  ]).notNull(),
+  module: mysqlEnum("module", [
+    "employees",    // Gestión de empleados
+    "surveys",      // Encuestas NOM-035
+    "cases",        // Casos de riesgo psicosocial
+    "courses",      // Cursos de capacitación
+    "reports",      // Reportes y análisis
+    "committee",    // Comité de atención
+    "company",      // Datos de la empresa
+    "admin"         // Administración del sistema
+  ]).notNull(),
+  canView: boolean("can_view").default(false).notNull(),
+  canCreate: boolean("can_create").default(false).notNull(),
+  canEdit: boolean("can_edit").default(false).notNull(),
+  canDelete: boolean("can_delete").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RolePermission = typeof rolePermissions.$inferSelect;
+export type InsertRolePermission = typeof rolePermissions.$inferInsert;
+
+/**
+ * User Permissions - Permisos específicos por usuario (override de permisos de rol)
+ * Permite asignar permisos personalizados a usuarios individuales
+ */
+export const userPermissions = mysqlTable("user_permissions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").references(() => users.id).notNull(),
+  module: mysqlEnum("module", [
+    "employees",
+    "surveys",
+    "cases",
+    "courses",
+    "reports",
+    "committee",
+    "company",
+    "admin"
+  ]).notNull(),
+  canView: boolean("can_view").default(false).notNull(),
+  canCreate: boolean("can_create").default(false).notNull(),
+  canEdit: boolean("can_edit").default(false).notNull(),
+  canDelete: boolean("can_delete").default(false).notNull(),
+  grantedBy: int("granted_by").references(() => users.id), // Usuario que otorgó el permiso
+  reason: text("reason"), // Razón del override de permisos
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserPermission = typeof userPermissions.$inferSelect;
+export type InsertUserPermission = typeof userPermissions.$inferInsert;
+
+/**
+ * Role Audit Log - Historial de cambios de roles
+ * Registra todos los cambios de rol para auditoría
+ */
+export const roleAuditLog = mysqlTable("role_audit_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").references(() => users.id).notNull(),
+  oldRole: varchar("old_role", { length: 50 }),
+  newRole: varchar("new_role", { length: 50 }).notNull(),
+  changedBy: int("changed_by").references(() => users.id).notNull(),
+  reason: text("reason"), // Razón del cambio de rol
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type RoleAuditLog = typeof roleAuditLog.$inferSelect;
+export type InsertRoleAuditLog = typeof roleAuditLog.$inferInsert;
+
+// Relations para rolePermissions
+export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => ({
+  // No hay relaciones directas, es una tabla de configuración
+}));
+
+// Relations para userPermissions
+export const userPermissionsRelations = relations(userPermissions, ({ one }) => ({
+  user: one(users, {
+    fields: [userPermissions.userId],
+    references: [users.id],
+  }),
+  grantedByUser: one(users, {
+    fields: [userPermissions.grantedBy],
+    references: [users.id],
+  }),
+}));
+
+// Relations para roleAuditLog
+export const roleAuditLogRelations = relations(roleAuditLog, ({ one }) => ({
+  user: one(users, {
+    fields: [roleAuditLog.userId],
+    references: [users.id],
+  }),
+  changedByUser: one(users, {
+    fields: [roleAuditLog.changedBy],
+    references: [users.id],
+  }),
+}));
