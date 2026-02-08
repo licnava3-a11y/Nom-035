@@ -4,6 +4,7 @@ import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
+import TrendsCharts from '@/components/TrendsCharts';
 import { Link } from 'wouter';
 import { 
   Users, 
@@ -659,6 +660,14 @@ export default function DashboardConsolidated() {
           )}
         </div>
       </div>
+
+      {/* Sección de Tendencias Temporales (solo para admin) */}
+      {user?.role === 'admin' && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Tendencias Temporales</h2>
+          <TrendsCharts />
+        </div>
+      )}
     </div>
   );
 }

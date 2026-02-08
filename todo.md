@@ -3465,3 +3465,29 @@
 - [x] Probar eliminación de política
 - [x] Verificar que no hay errores TypeScript
 - [x] Guardar checkpoint con módulo completo
+
+
+## FASE 128: Gráficas de Tendencias Temporales en Dashboard
+
+### Backend - Procedimientos tRPC
+- [x] Crear procedimiento getTrendsCasosNOM035 (evolución semanal/mensual de casos)
+- [x] Crear procedimiento getTrendsCoberturaEncuestas (evolución de cobertura de encuestas)
+- [x] Crear procedimiento getTrendsCumplimientoNormativo (evolución de cumplimiento)
+- [x] Agregar comparación período actual vs anterior en cada procedimiento
+- [x] Optimizar queries para rendimiento
+
+### Frontend - Visualizaciones Chart.js
+- [x] Crear componente TrendsCharts.tsx para gráficas de tendencias
+- [x] Implementar gráfica de línea para casos NOM-035 (semanal/mensual)
+- [x] Implementar gráfica de área para cobertura de encuestas
+- [x] Implementar gráfica de barras para cumplimiento normativo
+- [x] Agregar selector de período (semanal/mensual)
+- [x] Agregar indicadores de comparación vs período anterior
+- [x] Integrar componente en Dashboard principal
+
+### Optimización y Pruebas
+- [x] Probar con datos reales del sistema
+- [x] Optimizar rendimiento de queries
+- [x] Verificar responsividad de gráficas
+- [x] Agregar estados de carga y error
+- [x] Guardar checkpoint con tendencias temporales
