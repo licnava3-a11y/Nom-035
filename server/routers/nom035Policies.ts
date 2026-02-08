@@ -5,6 +5,7 @@ import { nom035Policies } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateNom035PolicyPDF } from "../pdfGenerators/nom035Policy";
+import { logPolicyEvidence } from "../helpers/evidenceLogger";
 
 export const nom035PoliciesRouter = router({
   /**
@@ -138,7 +139,7 @@ export const nom035PoliciesRouter = router({
    */
   generatePDF: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
@@ -162,6 +163,15 @@ export const nom035PoliciesRouter = router({
         .update(nom035Policies)
         .set({ pdfUrl })
         .where(eq(nom035Policies.id, input.id));
+
+      // Register evidence automatically
+      await logPolicyEvidence(
+        policy[0].id,
+        policy[0].nombre,
+        pdfUrl,
+        `policies/${policy[0].id}.pdf`,
+        ctx.user.id
+      );
 
       return {
         success: true,

@@ -7,6 +7,7 @@ import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
 import { generateConstitutiveActPDF } from "../pdfGenerators/committeeConstitutiveAct";
 import { generateOperatingRulesPDF } from "../pdfGenerators/committeeOperatingRules";
+import { logConstitutiveActEvidence, logOperatingRulesEvidence } from "../helpers/evidenceLogger";
 
 export const committeeDocumentsRouter = router({
   /**
@@ -87,6 +88,9 @@ export const committeeDocumentsRouter = router({
         pdfBuffer,
         "application/pdf"
       );
+
+      // Register evidence automatically
+      await logConstitutiveActEvidence(folio, pdfUrl, pdfKey, ctx.user.id);
 
       return {
         success: true,
@@ -174,6 +178,9 @@ export const committeeDocumentsRouter = router({
         pdfBuffer,
         "application/pdf"
       );
+
+      // Register evidence automatically
+      await logOperatingRulesEvidence(folio, pdfUrl, pdfKey, ctx.user.id);
 
       return {
         success: true,

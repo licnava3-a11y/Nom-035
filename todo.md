@@ -3705,28 +3705,28 @@
 ## FASE 135: Hooks de Consolidación Automática de Evidencias
 
 ### Backend - Hooks de Evidencias
-- [ ] Crear server/hooks/evidenceHooks.ts
-- [ ] Implementar hook para políticas publicadas
-- [ ] Implementar hook para minutas firmadas
-- [ ] Implementar hook para reportes de encuestas
-- [ ] Implementar hook para certificados emitidos
-- [ ] Implementar hook para actas del comité
-- [ ] Implementar hook para aceptaciones de cargo
+- [x] Crear server/helpers/evidenceLogger.ts
+- [x] Implementar hook para políticas publicadas
+- [x] Implementar hook para minutas firmadas
+- [x] Implementar hook para reportes de encuestas
+- [x] Implementar hook para certificados emitidos
+- [x] Implementar hook para actas del comité
+- [x] Implementar hook para aceptaciones de cargo
 
 ### Integración en Módulos Existentes
-- [ ] Integrar hook en nom035Policies.ts (al publicar política)
+- [x] Integrar hook en nom035Policies.ts (al publicar política)
 - [ ] Integrar hook en meetingMinutes.ts (al firmar minuta)
 - [ ] Integrar hook en surveys.ts (al generar reporte)
 - [ ] Integrar hook en certificates.ts (al emitir certificado)
-- [ ] Integrar hook en committeeDocuments.ts (al generar acta)
+- [x] Integrar hook en committeeDocuments.ts (al generar acta)
 - [ ] Integrar hook en committeePositionAcceptance.ts (al generar PDF)
 
 ### Pruebas y Checkpoint
-- [ ] Probar consolidación automática al publicar política
+- [x] Probar consolidación automática al publicar política
 - [ ] Probar consolidación automática al firmar minuta
 - [ ] Probar consolidación automática al generar reporte
-- [ ] Verificar que evidencias aparecen en carpeta
-- [ ] Guardar checkpoint con hooks de consolidación
+- [x] Verificar que evidencias aparecen en carpeta
+- [x] Guardar checkpoint con hooks de consolidación
 
 ## FASE 136: Completar Tab de Datos de Reporte (Numeral 7.5 NOM-035)
 
