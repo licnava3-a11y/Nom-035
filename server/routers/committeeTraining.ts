@@ -3,7 +3,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { committeeTrainingPrograms, committeeTrainingSessions, committeeTrainingAttendance, committeeMembers, employees } from "../../drizzle/schema";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
-// import { storagePut } from "../storage"; // No usado por ahora
+import { generateCommitteeCertificatePDF } from "../services/committeeCertificatePDFService";
 
 export const committeeTrainingRouter = router({
   // Crear programa de capacitación
@@ -237,9 +237,37 @@ export const committeeTrainingRouter = router({
         .from(committeeMembers)
         .where(eq(committeeMembers.id, input.committeeMemberId));
 
-      // TODO: Generar PDF del certificado con los datos
-      // Por ahora, retornamos un placeholder
-      const certificateUrl = `https://placeholder-certificate.com/${input.sessionId}-${input.committeeMemberId}.pdf`;
+      if (!member || !member.employeeId) {
+        throw new Error("Miembro del comité no encontrado o sin empleado asociado");
+      }
+
+      // Obtener datos del empleado
+      const employeeResults = await db
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+        })
+        .from(employees)
+        .where(eq(employees.id, member.employeeId));
+
+      if (employeeResults.length === 0) {
+        throw new Error("Empleado no encontrado");
+      }
+
+      const employee = employeeResults[0];
+
+      const memberName = `${employee.firstName} ${employee.lastName}`;
+
+      // Generar certificado PDF
+      const certificateUrl = await generateCommitteeCertificatePDF({
+        memberName,
+        programTitle: program.title,
+        sessionDate: new Date(session.sessionDate),
+        duration: program.duration,
+        instructorName: program.instructor || 'Instructor no especificado',
+        companyName: 'Plataforma de Capacitación NOM-035',
+      });
 
       // Actualizar registro de asistencia con URL del certificado
       await db

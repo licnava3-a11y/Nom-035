@@ -5195,3 +5195,104 @@
 - **Rutas rotas detectadas**: 4
 - **Rutas corregidas**: 4
 - **Estado**: 0 errores 404
+
+
+---
+
+## FASE 169: Registro de Asistencia Completo con Certificados PDF (P0 - Crítico) - BACKEND COMPLETADO ✅
+
+### Backend - Servicio de Certificados PDF
+- [x] Crear servicio server/services/committeeCertificatePDFService.ts
+- [x] Implementar generación de certificado PDF con nombre del miembro, fecha, tema, horas de capacitación
+- [x] Agregar logo de la empresa y firma del responsable (texto)
+- [x] Implementar almacenamiento de certificados en S3 (storagePut)
+- [x] Campo certificateUrl ya existe en tabla committee_attendance
+
+### Backend - Router committeeTraining
+- [x] Modificar procedimiento generateCertificate para usar servicio PDF real
+- [ ] Implementar procedimiento bulkRecordAttendance para guardar múltiples asistencias (pendiente)
+- [x] Validación de sesión existente ya implementada en recordAttendance
+
+### Frontend - Componente CommitteeTraining
+- [ ] Crear modal de registro de asistencia con lista de miembros del comité
+- [ ] Implementar checkboxes interactivos para marcar asistencia
+- [ ] Agregar botón "Guardar Asistencia" con guardado automático
+- [ ] Implementar botón "Generar Certificados" para miembros que asistieron
+- [ ] Mostrar tabla de asistencia con columnas: Miembro, Asistió, Certificado (link de descarga)
+- [ ] Implementar vista previa de certificados generados (modal con iframe)
+
+### Pruebas
+- [ ] Crear tests unitarios para servicio de certificados PDF
+- [ ] Probar flujo completo de registro de asistencia
+- [ ] Probar generación de certificados PDF
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 170: Servicio de Reportes PDF del Protocolo de Violencia Laboral (P1 - Alto) - EN PROGRESO
+
+### Backend - Servicio de Reportes PDF
+- [ ] Crear servicio server/services/workplaceViolencePDFService.ts
+- [ ] Implementar función generateReceptionReport (acta de recepción de queja)
+- [ ] Implementar función generateInvestigationReport (informe de investigación)
+- [ ] Implementar función generateResolutionReport (resolución del caso)
+- [ ] Implementar función generateClosureReport (acta de cierre)
+- [ ] Integrar firma digital en PDFs (campo de firma con nombre, cargo, fecha)
+- [ ] Implementar almacenamiento de PDFs en S3
+
+### Backend - Router workplaceViolence
+- [ ] Agregar procedimiento generateReceptionReport (caseId) retorna PDF URL
+- [ ] Agregar procedimiento generateInvestigationReport (caseId) retorna PDF URL
+- [ ] Agregar procedimiento generateResolutionReport (caseId) retorna PDF URL
+- [ ] Agregar procedimiento generateClosureReport (caseId) retorna PDF URL
+- [ ] Agregar campo reportUrls (JSON) en tabla workplace_violence_cases para almacenar URLs de reportes
+
+### Frontend - Componente WorkplaceViolenceProtocol
+- [ ] Agregar sección "Reportes" en detalle de caso
+- [ ] Implementar botón "Generar Acta de Recepción"
+- [ ] Implementar botón "Generar Informe de Investigación"
+- [ ] Implementar botón "Generar Resolución"
+- [ ] Implementar botón "Generar Acta de Cierre"
+- [ ] Mostrar tabla de reportes generados (tipo, fecha, generado por, URL)
+- [ ] Implementar vista previa de PDFs (modal con iframe)
+- [ ] Implementar descarga de PDFs
+
+### Pruebas
+- [ ] Crear tests unitarios para servicio de reportes PDF
+- [ ] Probar generación de cada tipo de reporte
+- [ ] Verificar almacenamiento correcto en S3
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 171: Calendario Visual de Capacitaciones (P2 - Medio) - EN PROGRESO
+
+### Backend - Preparación
+- [ ] Modificar procedimiento listSessions para retornar datos en formato compatible con FullCalendar
+- [ ] Agregar procedimiento getSessionsByDateRange para optimizar consultas del calendario
+
+### Frontend - Instalación de Dependencias
+- [ ] Instalar FullCalendar: pnpm add @fullcalendar/react @fullcalendar/core @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction
+- [ ] Instalar tipos de FullCalendar: pnpm add -D @types/fullcalendar
+
+### Frontend - Componente CommitteeTraining
+- [ ] Crear componente CalendarView dentro de CommitteeTraining
+- [ ] Integrar FullCalendar con vistas: mes, semana, día
+- [ ] Implementar filtros por programa y tipo (presencial/en línea)
+- [ ] Implementar eventos del calendario con datos de sesiones
+- [ ] Agregar modal de detalle de sesión al hacer clic en evento
+- [ ] Implementar navegación entre vistas (mes/semana/día)
+- [ ] Agregar botón "Hoy" para volver a fecha actual
+- [ ] Implementar colores diferentes para sesiones presenciales vs en línea
+
+### Integración
+- [ ] Conectar calendario con query de listSessions
+- [ ] Implementar actualización automática del calendario al crear/editar sesiones
+- [ ] Agregar tooltip con información de sesión al pasar mouse sobre evento
+
+### Pruebas
+- [ ] Probar visualización de sesiones en calendario
+- [ ] Probar filtros por programa y tipo
+- [ ] Probar navegación entre vistas
+- [ ] Verificar 0 errores TypeScript
+
