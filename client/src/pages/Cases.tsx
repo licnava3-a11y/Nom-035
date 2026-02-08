@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 import { CaseDialog } from "@/components/CaseDialog";
 import { CaseFollowUpDialog } from "@/components/CaseFollowUpDialog";
 
@@ -25,8 +26,18 @@ export default function Cases() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [followUpDialogOpen, setFollowUpDialogOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
-  const { data: cases, isLoading } = trpc.cases.list.useQuery(undefined, {
+  // Preparar filtros
+  const filters = useMemo(() => {
+    if (!dateRange) return undefined;
+    return {
+      startDate: dateRange.from.toISOString(),
+      endDate: dateRange.to.toISOString(),
+    };
+  }, [dateRange]);
+  
+  const { data: cases, isLoading } = trpc.cases.list.useQuery(filters, {
     enabled: user?.role === "admin" || user?.role === "committee",
   });
 

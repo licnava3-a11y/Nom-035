@@ -9,17 +9,28 @@ import {
   BarChart3,
   PieChart,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 
 export default function CompetenciesDashboard() {
-  const { data: overallStats } = trpc.competenciesStats.getOverallStats.useQuery();
-  const { data: departmentStats } = trpc.competenciesStats.getByDepartment.useQuery();
-  const { data: typeStats } = trpc.competenciesStats.getByType.useQuery();
-  const { data: topGaps } = trpc.competenciesStats.getTopGaps.useQuery({ limit: 10 });
+  const { data: overallStats } = trpc.competenciesStats.getOverallStats.useQuery(dateFilter);
+  const { data: departmentStats } = trpc.competenciesStats.getByDepartment.useQuery(dateFilter);
+  const { data: typeStats } = trpc.competenciesStats.getByType.useQuery(dateFilter);
+  const { data: topGaps } = trpc.competenciesStats.getTopGaps.useQuery({ limit: 10, ...dateFilter });
 
   const [selectedView, setSelectedView] = useState<"department" | "type" | "gaps">(
     "department"
   );
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
+  // Preparar parámetros de filtro temporal
+  const dateFilter = useMemo(() => {
+    if (!dateRange) return undefined;
+    return {
+      startDate: dateRange.from.toISOString(),
+      endDate: dateRange.to.toISOString(),
+    };
+  }, [dateRange]);
 
   const getLevelLabel = (level: number) => {
     if (level >= 3.5) return "Experto";
@@ -45,10 +56,20 @@ export default function CompetenciesDashboard() {
     <div className="container py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Dashboard de Competencias Organizacionales</h1>
-        <p className="text-muted-foreground">
-          Análisis del nivel de competencias por departamento y áreas críticas
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard de Competencias Organizacionales</h1>
+            <p className="text-muted-foreground">
+              Análisis del nivel de competencias por departamento y áreas críticas
+            </p>
+          </div>
+        </div>
+        
+        {/* Filtros Temporales */}
+        <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
+          <span className="text-sm font-medium">Período:</span>
+          <DateRangeFilter value={dateRange} onChange={setDateRange} />
+        </div>
       </div>
 
       {/* Overall Stats */}
