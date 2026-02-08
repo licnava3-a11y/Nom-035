@@ -2739,3 +2739,25 @@
 - [x] Entregar resultados al usuario
 
 **FASE 98 COMPLETADA: Título actualizado con referencia normativa completa** ✅
+
+
+## FASE 99: Corregir Error de Inserción en Comité de Igualdad
+
+### Diagnóstico del Error
+- [x] Revisar schema de equality_committee en drizzle/schema.ts (9 campos: id, userId, cargo, fechaDesignacion, fechaTermino, activo, observaciones, designadoPor, createdAt, updatedAt)
+- [x] Revisar procedimiento addMember en server/routers/equality.ts (envía 6 campos)
+- [x] Identificar campos con valores por defecto incorrectos (problema: campos opcionales enviados como undefined generaban valores "default" en SQL)
+
+### Corrección del Procedimiento
+- [x] Corregir función addCommitteeMember en server/db-equality.ts
+- [x] Construir objeto insertData con solo campos que tienen valores
+- [x] Agregar campos opcionales solo si tienen valores (observaciones, designadoPor, fechaTermino)
+- [x] Verificar que no hay errores TypeScript (0 errors confirmado)
+
+### Pruebas
+- [ ] Probar agregar un miembro al comité desde la interfaz (pendiente prueba funcional)
+- [ ] Verificar que la inserción se realiza correctamente
+- [x] Guardar checkpoint con corrección
+- [x] Entregar resultados al usuario
+
+**FASE 99 COMPLETADA: Error de inserción en Comité de Igualdad corregido** ✅

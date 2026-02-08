@@ -296,7 +296,21 @@ export async function getCommitteeMember(id: number) {
 export async function addCommitteeMember(data: InsertEqualityCommitteeMember) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(equalityCommittee).values(data);
+  
+  // Construir objeto con solo los campos que tienen valores
+  const insertData: any = {
+    userId: data.userId,
+    cargo: data.cargo,
+    fechaDesignacion: data.fechaDesignacion,
+    activo: data.activo ?? true,
+  };
+  
+  // Agregar campos opcionales solo si tienen valores
+  if (data.observaciones) insertData.observaciones = data.observaciones;
+  if (data.designadoPor) insertData.designadoPor = data.designadoPor;
+  if (data.fechaTermino) insertData.fechaTermino = data.fechaTermino;
+  
+  const [result] = await db.insert(equalityCommittee).values(insertData);
   return result.insertId;
 }
 
