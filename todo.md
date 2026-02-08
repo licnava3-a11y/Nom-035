@@ -6120,3 +6120,278 @@ La NOM-035-STPS-2018 establece que las acciones correctivas deben implementarse 
 - **Impacto:** Cumplimiento normativo NOM-035, atención oportuna de casos con ATS
 
 **TOTAL NUEVAS TAREAS:** 110 tareas críticas e importantes (62 + 48)
+
+
+---
+
+## 📋 FASE 182: Cumplimiento de Requisitos Normativos NOM-035 (Numerales 7 y 8) (P0 - CRÍTICO)
+
+### Contexto Normativo
+Revisión exhaustiva de los numerales 7 y 8 de la NOM-035-STPS-2018 para asegurar cumplimiento completo:
+- **Numeral 7:** Identificación y análisis de factores de riesgo psicosocial y evaluación del entorno organizacional
+- **Numeral 8:** Medidas de prevención y acciones de control
+
+### 7.6 - Integración al Diagnóstico de Seguridad y Salud (NOM-030)
+
+#### Estado Actual
+- ❌ NO implementado: Integración con diagnóstico NOM-030-STPS-2009
+
+#### Tareas Requeridas
+- [ ] Crear tabla `nom030_diagnostics` para almacenar diagnósticos de seguridad y salud
+- [ ] Agregar campo `nom030DiagnosticId` en tabla de reportes NOM-035 para vincular ambos diagnósticos
+- [ ] Crear procedimiento `linkToNOM030Diagnostic(nom035ReportId, nom030DiagnosticId)` para integrar diagnósticos
+- [ ] Crear componente frontend para visualizar integración de diagnósticos NOM-030 y NOM-035
+- [ ] Generar sección en PDF que muestre la integración de ambos diagnósticos
+
+### 7.7 - Informe de Resultados (Estructura Completa)
+
+#### Estado Actual
+- ✅ PARCIALMENTE implementado: Generación de reportes PDF
+- ❌ FALTA: Estructura completa según inciso 7.7
+
+#### Elementos Requeridos en el Informe (7.7)
+
+**a) Datos del centro de trabajo:**
+- [ ] Agregar campo `actividadPrincipal` a tabla `company` (actividad principal del centro de trabajo)
+- [ ] Verificar que campos `name`, `address` existan en tabla `company`
+- [ ] Incluir en PDF: Nombre/razón social, domicilio, actividad principal
+
+**b) Objetivo:**
+- [ ] Agregar sección "Objetivo" en reporte PDF con texto predefinido según normativa
+- [ ] Permitir personalización del objetivo por empresa
+
+**c) Principales actividades realizadas:**
+- [ ] Crear tabla `company_activities` para registrar principales actividades del centro de trabajo
+- [ ] Crear procedimiento `listCompanyActivities()` para obtener actividades
+- [ ] Incluir sección "Principales Actividades" en PDF
+
+**d) Método utilizado (7.4):**
+- [ ] Documentar en PDF qué guías se aplicaron (I, II, III)
+- [ ] Incluir justificación del método según número de trabajadores
+- [ ] Agregar referencia a cuestionarios de referencia de la NOM-035
+
+**e) Resultados obtenidos (7.4, inciso d):**
+- ✅ YA IMPLEMENTADO: Distribución de riesgo, promedios, gráficas
+- [ ] Verificar que incluya TODOS los elementos requeridos por 7.4 inciso d
+
+**f) Conclusiones:**
+- [ ] Agregar sección "Conclusiones" en PDF con análisis cualitativo de resultados
+- [ ] Implementar generación automática de conclusiones con IA basada en resultados
+- [ ] Permitir edición manual de conclusiones antes de generar PDF
+
+**g) Recomendaciones y acciones de intervención:**
+- ✅ YA IMPLEMENTADO: Generación de acciones correctivas (FASE 181)
+- [ ] Verificar que recomendaciones estén incluidas en PDF
+- [ ] Agregar sección específica "Recomendaciones" separada de "Acciones Correctivas"
+
+**h) Datos del responsable de la evaluación:**
+- [ ] Crear tabla `evaluation_responsibles` con campos: nombre completo, cédula profesional
+- [ ] Agregar campo `responsibleId` en tabla de reportes para vincular responsable
+- [ ] Incluir en PDF: Nombre completo y número de cédula profesional del responsable
+- [ ] Agregar espacio para firma digital del responsable en PDF
+
+### 7.8 - Disponibilidad para Consulta de Trabajadores
+
+#### Estado Actual
+- ❌ NO implementado: Portal público para consulta de resultados
+
+#### Tareas Requeridas
+- [ ] Crear página pública `/nom035/resultados-publicos` para consulta de trabajadores
+- [ ] Implementar autenticación con CURP para acceso individual a resultados
+- [ ] Mostrar resultados agregados por departamento (sin identificar individuos)
+- [ ] Incluir recomendaciones generales y acciones de prevención
+- [ ] Agregar descarga de informe completo en PDF (versión pública sin datos confidenciales)
+- [ ] Implementar sistema de notificaciones para informar a trabajadores cuando resultados estén disponibles
+
+### 7.9 - Periodicidad de Evaluación (Cada 2 años)
+
+#### Estado Actual
+- ❌ NO implementado: Sistema de recordatorios automáticos
+
+#### Tareas Requeridas
+- [ ] Crear tabla `evaluation_periods` para registrar períodos de evaluación cada 2 años
+- [ ] Implementar procedimiento `checkEvaluationDue()` que detecte si han pasado 2 años desde última evaluación
+- [ ] Crear job automático que ejecute checkEvaluationDue() mensualmente
+- [ ] Generar alerta automática al comité cuando se acerque fecha de nueva evaluación (3 meses antes)
+- [ ] Crear dashboard de "Próximas Evaluaciones" en página principal
+- [ ] Registrar historial de evaluaciones con fechas y responsables
+
+---
+
+## 🛡️ NUMERAL 8: MEDIDAS DE PREVENCIÓN Y ACCIONES DE CONTROL
+
+### 8.1 - Acciones de Prevención Generales
+
+#### Estado Actual
+- ✅ PARCIALMENTE implementado: Algunas acciones en módulo de capacitación
+- ❌ FALTA: Estructura completa de medidas de prevención
+
+#### Tareas Requeridas (8.1)
+
+**a) Acciones para prevención (apoyo social, difusión, capacitación):**
+- [ ] Crear tabla `prevention_actions` con campos: tipo, descripción, responsable, fecha, estado
+- [ ] Implementar procedimiento `createPreventionAction(type, description, responsible)` 
+- [ ] Crear categorías de acciones: apoyo_social, difusion_informacion, capacitacion
+- [ ] Crear componente frontend `PreventionActions.tsx` para gestionar acciones de prevención
+
+**b) Mecanismos seguros para recepción de quejas:**
+- ✅ YA IMPLEMENTADO: Buzón de denuncias (Mailbox)
+- [ ] Verificar que buzón garantice confidencialidad y seguridad
+- [ ] Agregar opción de denuncia completamente anónima (sin correo ni nombre)
+- [ ] Implementar cifrado de datos sensibles en denuncias
+
+**c) Acciones para promover sentido de pertenencia:**
+- [ ] Crear módulo de "Reconocimientos y Logros" para empleados destacados
+- [ ] Implementar sistema de evaluación de desempeño con retroalimentación constructiva
+- [ ] Crear tabla `employee_recognitions` para registrar reconocimientos
+- [ ] Agregar campo `recognitionCount` en tabla `employees` para tracking
+- [ ] Crear componente frontend para visualizar reconocimientos por empleado
+
+### 8.2 - Programas de Prevención Específicos
+
+#### Estado Actual
+- ❌ NO implementado: Programas estructurados por categoría normativa
+
+#### Tareas Requeridas por Categoría
+
+**a) Liderazgo y relaciones en el trabajo:**
+- [ ] Crear programa "Manejo de Conflictos en el Trabajo"
+- [ ] Crear programa "Fomento de la Equidad y el Respeto"
+- [ ] Crear programa "Comunicación Efectiva entre Supervisores y Trabajadores"
+- [ ] Crear programa "Capacitación en Liderazgo Positivo para Directivos"
+- [ ] Implementar procedimiento `createLeadershipProgram(title, description, duration)` 
+
+**b) Cargas de trabajo:**
+- [ ] Crear módulo de "Distribución de Cargas de Trabajo" con visualización por empleado
+- [ ] Implementar alertas cuando un empleado tenga carga de trabajo >120% de capacidad
+- [ ] Crear procedimiento `reviewWorkloadDistribution(departmentId)` para análisis
+- [ ] Agregar campo `workloadPercentage` en tabla `employees` para tracking
+- [ ] Crear componente frontend `WorkloadDistribution.tsx` con gráficas por departamento
+
+**c) Control del trabajo:**
+- [ ] Crear tabla `worker_participation` para registrar participación en toma de decisiones
+- [ ] Implementar sistema de sugerencias de mejora por parte de trabajadores
+- [ ] Crear procedimiento `registerWorkerSuggestion(employeeId, suggestion, area)` 
+- [ ] Agregar módulo de "Reuniones de Mejora Continua" con actas y acuerdos
+
+**d) Apoyo social:**
+- [ ] Crear tabla `social_support_meetings` para reuniones de seguimiento semestrales/anuales
+- [ ] Implementar procedimiento `scheduleSocialSupportMeeting(date, attendees)` 
+- [ ] Crear módulo de "Actividades Culturales y Deportivas" con calendario y registro de asistencia
+- [ ] Agregar campo `socialSupportLevel` en encuestas para medir apoyo percibido
+
+**e) Equilibrio trabajo-familia:**
+- [ ] Crear tabla `flexible_schedules` para registrar horarios flexibles por empleado
+- [ ] Implementar sistema de solicitud de permisos por emergencias familiares
+- [ ] Crear procedimiento `requestFamilyEmergencyLeave(employeeId, reason, date)` 
+- [ ] Agregar módulo de "Actividades de Integración Familiar" con eventos y asistencia
+
+**f) Reconocimiento en el trabajo:**
+- [ ] Crear tabla `performance_recognitions` para reconocimientos de desempeño sobresaliente
+- [ ] Implementar procedimiento `recognizeEmployee(employeeId, achievement, recognitionType)` 
+- [ ] Crear componente frontend `EmployeeRecognitions.tsx` con galería de logros
+- [ ] Agregar sistema de "Empleado del Mes" con votación y difusión
+
+**g) Prevención de violencia laboral:**
+- ✅ YA IMPLEMENTADO: Protocolo de violencia laboral (FASE 162)
+- [ ] Verificar que incluya difusión de información sobre violencia laboral
+- [ ] Agregar módulo de "Capacitación en Prevención de Violencia" para todos los niveles
+- [ ] Crear procedimiento `reportViolenceIncident(type, description, evidence)` 
+
+**h) Información y comunicación:**
+- [ ] Crear tabla `organizational_communications` para registrar comunicados importantes
+- [ ] Implementar sistema de notificaciones push para cambios organizacionales
+- [ ] Crear procedimiento `broadcastOrganizationalChange(title, description, affectedAreas)` 
+- [ ] Agregar módulo de "Canal de Comunicación Directa" entre jefes y trabajadores
+
+**i) Capacitación y adiestramiento:**
+- [ ] Crear tabla `training_needs_detection` para detección de necesidades cada 2 años
+- [ ] Implementar procedimiento `detectTrainingNeeds(year)` que analice brechas de competencias
+- [ ] Crear componente frontend `TrainingNeedsAnalysis.tsx` con reporte de brechas
+- [ ] Agregar campo `lastTrainingNeedsDetection` en tabla `company` para tracking de periodicidad
+
+### 8.3 y 8.4 - Programa de Atención de Factores de Riesgo
+
+#### Estado Actual
+- ❌ NO implementado: Programa estructurado según numeral 8.4
+
+#### Tareas Requeridas (8.4)
+
+**Estructura del Programa:**
+- [ ] Crear tabla `risk_attention_programs` con campos requeridos por 8.4
+- [ ] Campo: `targetAreas` (áreas de trabajo sujetas al programa)
+- [ ] Campo: `targetEmployees` (trabajadores sujetos al programa)
+- [ ] Campo: `actionType` (tipo de acciones y medidas de control)
+- [ ] Campo: `scheduledDates` (fechas programadas para realización)
+- [ ] Campo: `progressControl` (control de avances de implementación)
+- [ ] Campo: `postEvaluation` (evaluación posterior a medidas de control)
+- [ ] Campo: `responsibleId` (responsable de ejecución)
+
+**Procedimientos Backend:**
+- [ ] Crear procedimiento `createRiskAttentionProgram(data)` con validación de campos requeridos
+- [ ] Crear procedimiento `updateProgramProgress(programId, progress)` para tracking
+- [ ] Crear procedimiento `evaluateControlMeasures(programId, results)` para evaluación posterior
+- [ ] Crear procedimiento `listActivePrograms()` para dashboard
+
+**Frontend:**
+- [ ] Crear componente `RiskAttentionPrograms.tsx` con formulario completo según 8.4
+- [ ] Implementar tabla de programas activos con filtros por área y estado
+- [ ] Agregar dashboard de "Avance de Programas" con barras de progreso
+- [ ] Crear modal de "Evaluación Posterior" para registrar resultados de medidas aplicadas
+
+### 8.5 - Acciones en 3 Niveles (Ya documentado en FASE 181)
+
+#### Estado Actual
+- ✅ YA DOCUMENTADO: FASE 181 con acciones en 3 niveles
+- [ ] Verificar que implementación de FASE 181 cumpla exactamente con numeral 8.5
+
+**Validación de Cumplimiento 8.5:**
+- [ ] Nivel 1 (Organizacional): Verificar que acciones actúen sobre política de prevención, organización del trabajo
+- [ ] Nivel 2 (Grupal): Verificar que acciones incluyan sensibilización, manejo de conflictos, trabajo en equipo, liderazgo
+- [ ] Nivel 3 (Individual): Verificar que intervenciones clínicas/terapéuticas sean realizadas por médico/psicólogo/psiquiatra
+
+---
+
+## 📊 RESUMEN DE FASE 182
+
+**Total de tareas:** 78 tareas
+**Prioridad:** P0 - CRÍTICO
+**Impacto:** Cumplimiento normativo completo de NOM-035 (numerales 7 y 8)
+
+**Distribución de tareas:**
+- Numeral 7.6 (Integración NOM-030): 5 tareas
+- Numeral 7.7 (Informe completo): 15 tareas
+- Numeral 7.8 (Consulta trabajadores): 6 tareas
+- Numeral 7.9 (Periodicidad): 6 tareas
+- Numeral 8.1 (Prevención general): 8 tareas
+- Numeral 8.2 (Programas específicos): 30 tareas (9 categorías)
+- Numeral 8.4 (Programa de atención): 8 tareas
+
+**Beneficios:**
+- ✅ Cumplimiento normativo 100% de NOM-035
+- ✅ Estructura completa de informes según normativa
+- ✅ Portal público para consulta de trabajadores
+- ✅ Programas de prevención estructurados por categoría
+- ✅ Sistema de periodicidad automática (cada 2 años)
+- ✅ Integración con diagnóstico NOM-030
+
+---
+
+## 📈 RESUMEN FINAL ACTUALIZADO DE TAREAS CRÍTICAS
+
+### FASE 178: Correlaciones de Datos (P0)
+- **Total:** 17 tareas
+
+### FASE 179: Prellenado Automático (P0)
+- **Total:** 18 tareas
+
+### FASE 180: Integración de IA (P1)
+- **Total:** 27 tareas
+
+### FASE 181: Acciones Correctivas en 3 Niveles (P0)
+- **Total:** 48 tareas
+
+### FASE 182: Cumplimiento Normativo NOM-035 (Numerales 7 y 8) (P0)
+- **Total:** 78 tareas
+
+**TOTAL NUEVAS TAREAS:** 188 tareas críticas e importantes (110 + 78)
