@@ -6395,3 +6395,327 @@ Revisión exhaustiva de los numerales 7 y 8 de la NOM-035-STPS-2018 para asegura
 - **Total:** 78 tareas
 
 **TOTAL NUEVAS TAREAS:** 188 tareas críticas e importantes (110 + 78)
+
+
+---
+
+## 📊 FASE 183: Análisis en 3 Niveles (Categoría → Dominio → Dimensión) para Guía II y Guía III (P0 - CRÍTICO)
+
+### Contexto Técnico
+
+La NOM-035 establece una estructura jerárquica de análisis en 3 niveles:
+- **Nivel 1: Categoría** - Agrupación general de factores de riesgo
+- **Nivel 2: Dominio** - Subdivisión de categorías en áreas específicas
+- **Nivel 3: Dimensión** - Análisis detallado de factores específicos (Guía II: 5 dimensiones, Guía III: dimensiones por dominio)
+
+**Estado Actual:**
+- ✅ Nivel 1 (Categoría): IMPLEMENTADO
+- ✅ Nivel 2 (Dominio): IMPLEMENTADO
+- ❌ Nivel 3 (Dimensión): PARCIALMENTE IMPLEMENTADO (falta Guía II completa)
+
+### Estructura de Dimensiones - Guía II
+
+#### Dimensión G2-1: Violencia Laboral
+
+**Ítems (escala 0-4):**
+- G2-1.1: He sido víctima de actos de violencia laboral (0-4)
+- G2-1.2: He presenciado actos de violencia laboral (0-4)
+- G2-1.3: Existen mecanismos efectivos de reporte (0-4) [INVERTIDO]
+- G2-1.4: La organización toma acciones ante casos (0-4) [INVERTIDO]
+
+**Fórmula de cálculo:**
+```
+Violencia_Laboral = (G2-1.1 + G2-1.2 + (4 - G2-1.3) + (4 - G2-1.4)) / 4
+```
+
+**Ejemplo:**
+Si respuestas: 2, 3, 1, 2
+Cálculo: (2 + 3 + (4-1) + (4-2)) / 4 = (2+3+3+2)/4 = 2.5
+
+#### Dimensión G2-2: Equilibrio Vida-Trabajo
+
+**Ítems:**
+- G2-2.1: Mi trabajo impide responsabilidades familiares (0-4)
+- G2-2.2: Llevo trabajo a casa con frecuencia (0-4)
+- G2-2.3: Puedo desconectarme en descansos (0-4) [INVERTIDO]
+- G2-2.4: La organización respeta mi tiempo fuera (0-4) [INVERTIDO]
+
+**Fórmula:**
+```
+Equilibrio_VT = (G2-2.1 + G2-2.2 + (4 - G2-2.3) + (4 - G2-2.4)) / 4
+```
+
+#### Dimensión G2-3: Cambios Organizacionales
+
+**Ítems:**
+- G2-3.1: Los cambios se comunican con anticipación (0-4) [INVERTIDO]
+- G2-3.2: Se me consulta sobre cambios (0-4) [INVERTIDO]
+- G2-3.3: Cambios sin considerar necesidades (0-4)
+- G2-3.4: Cambios generan incertidumbre (0-4)
+
+**Fórmula:**
+```
+Cambios_Org = ((4 - G2-3.1) + (4 - G2-3.2) + G2-3.3 + G2-3.4) / 4
+```
+
+#### Dimensión G2-4: Diferencias por Jerarquía (Análisis Comparativo)
+
+**Fórmula:**
+```
+Brecha_Liderazgo = |Promedio(Dimensión D1 - Mandos) - Promedio(Dimensión D1 - No Mandos)|
+```
+
+**Interpretación:**
+- < 0.5: Diferencias aceptables
+- 0.5 - 1.0: Diferencias significativas
+- > 1.0: Diferencias críticas
+
+#### Dimensión G2-5: Vulnerabilidad por Antigüedad (Análisis por Grupo)
+
+**Fórmula:**
+```
+Vulnerabilidad_Antigüedad = Σ(Promedio_Grupo_i * Ponderación_i)
+```
+
+**Tabla de ponderación:**
+- Grupo 1 (< 1 año): Ponderación = 0.4
+- Grupo 2 (1-5 años): Ponderación = 0.35
+- Grupo 3 (> 5 años): Ponderación = 0.25
+
+### Escala de Interpretación de Dimensiones
+
+**Valor 0.0 - 1.0: Riesgo BAJO**
+- Condiciones favorables
+- No requiere intervención específica
+- Mantener prácticas actuales
+
+**Valor 1.1 - 2.0: Riesgo MODERADO-BAJO**
+- Condiciones aceptables
+- Implementar acciones preventivas
+- Monitoreo trimestral
+
+**Valor 2.1 - 3.0: Riesgo MODERADO-ALTO**
+- Condiciones desfavorables
+- Requiere intervención específica
+- Plan de acción en 30 días
+
+**Valor 3.1 - 4.0: Riesgo ALTO**
+- Condiciones críticas
+- Intervención inmediata requerida
+- Evaluación en 15 días
+
+### Puntos de Acción
+
+- **Acción inmediata:** ≥ 2.5 en cualquier dimensión
+- **Plan preventivo:** 2.0 - 2.4 en ≥ 2 dimensiones
+- **Evaluación profunda:** Variación > 1.0 entre grupos similares
+
+### Índices Compuestos
+
+#### Índice de Riesgo Psicosocial Global (IRPG)
+
+**Fórmula:**
+```
+IRPG = (0.25 * Prom_Dominios_A_B_C) + 
+       (0.35 * Prom_Dominio_D) + 
+       (0.25 * Prom_Dominio_E) + 
+       (0.15 * Prom_Dimensiones_GuíaII)
+```
+
+#### Índice de Vulnerabilidad Específica (IVE)
+
+**Fórmula:**
+```
+IVE = (Máximo(Dimensiones_GuíaII) * 0.4) + 
+      (CONTAR.SI(Dimensiones_GuíaII, ">=2.5") * 0.3) + 
+      (Porcentaje_Trabajadores_Riesgo * 0.3)
+```
+
+Donde:
+```
+Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trabajadores) * 100
+```
+
+### Backend - Implementación
+
+#### Modificar Tabla de Respuestas
+
+- [ ] Agregar campos `g2_1_1`, `g2_1_2`, `g2_1_3`, `g2_1_4` para Dimensión G2-1 (Violencia Laboral)
+- [ ] Agregar campos `g2_2_1`, `g2_2_2`, `g2_2_3`, `g2_2_4` para Dimensión G2-2 (Equilibrio Vida-Trabajo)
+- [ ] Agregar campos `g2_3_1`, `g2_3_2`, `g2_3_3`, `g2_3_4` para Dimensión G2-3 (Cambios Organizacionales)
+- [ ] Agregar campo `employeeHierarchy` (mando/no_mando) para Dimensión G2-4
+- [ ] Agregar campo `employeeAntiquity` (años de antigüedad) para Dimensión G2-5
+
+#### Crear Funciones de Cálculo en nom035-calculator.ts
+
+- [ ] Implementar función `calculateG2_1_ViolenciaLaboral(answers)` con fórmula específica
+- [ ] Implementar función `calculateG2_2_EquilibrioVidaTrabajo(answers)` con fórmula específica
+- [ ] Implementar función `calculateG2_3_CambiosOrganizacionales(answers)` con fórmula específica
+- [ ] Implementar función `calculateG2_4_DiferenciasPorJerarquia(answersArray, hierarchy)` con análisis comparativo
+- [ ] Implementar función `calculateG2_5_VulnerabilidadAntiguedad(answersArray, antiquity)` con ponderaciones
+- [ ] Implementar función `calculateIRPG(dominios, dimensiones)` para índice global
+- [ ] Implementar función `calculateIVE(dimensiones, totalWorkers, workersAtRisk)` para índice de vulnerabilidad
+
+#### Crear Procedimientos tRPC
+
+- [ ] Crear procedimiento `calculateGuideIIDimensions(responseId)` que calcule las 5 dimensiones
+- [ ] Crear procedimiento `getGuideIIDimensionsByResponse(responseId)` que retorne dimensiones calculadas
+- [ ] Crear procedimiento `getGuideIIDimensionsByDepartment(surveyPeriodId, departmentId)` para análisis grupal
+- [ ] Crear procedimiento `getHierarchyGap(surveyPeriodId)` para calcular brecha de liderazgo (G2-4)
+- [ ] Crear procedimiento `getAntiquityVulnerability(surveyPeriodId)` para calcular vulnerabilidad por antigüedad (G2-5)
+- [ ] Crear procedimiento `calculateIRPG(surveyPeriodId)` para índice global
+- [ ] Crear procedimiento `calculateIVE(surveyPeriodId)` para índice de vulnerabilidad
+
+#### Validación Estadística
+
+- [ ] Implementar cálculo de Alpha de Cronbach para cada dimensión (confiabilidad)
+- [ ] Implementar análisis de correlación entre dimensiones (validez)
+- [ ] Agregar validación: correlación < 0.7 para evitar redundancia
+- [ ] Crear procedimiento `validateDimensionReliability(dimensionId)` que retorne α (alpha)
+
+### Frontend - Visualización de 3 Niveles
+
+#### Componente Principal: ThreeLevelAnalysis.tsx
+
+- [ ] Crear componente `ThreeLevelAnalysis.tsx` con estructura jerárquica
+- [ ] Implementar navegación por niveles: Categoría → Dominio → Dimensión
+- [ ] Agregar breadcrumb para indicar nivel actual (ej: "Categoría A > Dominio D1 > Dimensión G2-1")
+
+#### Nivel 1: Vista de Categorías
+
+- [ ] Card de resumen por categoría con score y nivel de riesgo
+- [ ] Botón "Ver Dominios" que expanda a nivel 2
+- [ ] Gráfica de barras: Distribución de riesgo por categoría
+
+#### Nivel 2: Vista de Dominios
+
+- [ ] Card de resumen por dominio con score y nivel de riesgo
+- [ ] Botón "Ver Dimensiones" que expanda a nivel 3
+- [ ] Gráfica de radar: Comparación de dominios dentro de una categoría
+
+#### Nivel 3: Vista de Dimensiones
+
+- [ ] Card de resumen por dimensión con score y nivel de riesgo
+- [ ] Tabla de ítems individuales con respuestas y puntajes
+- [ ] Gráfica de pastel: Distribución de respuestas por ítem
+- [ ] Badge de "Acción Inmediata" si dimensión ≥ 2.5
+
+#### Visualización de Dimensiones Guía II
+
+- [ ] Tab "G2-1: Violencia Laboral" con 4 ítems y fórmula aplicada
+- [ ] Tab "G2-2: Equilibrio Vida-Trabajo" con 4 ítems y fórmula aplicada
+- [ ] Tab "G2-3: Cambios Organizacionales" con 4 ítems y fórmula aplicada
+- [ ] Tab "G2-4: Diferencias por Jerarquía" con análisis comparativo (mandos vs no mandos)
+- [ ] Tab "G2-5: Vulnerabilidad por Antigüedad" con análisis por grupos (< 1 año, 1-5 años, > 5 años)
+
+#### Visualización de Índices Compuestos
+
+- [ ] Card de "Índice de Riesgo Psicosocial Global (IRPG)" con gauge chart
+- [ ] Card de "Índice de Vulnerabilidad Específica (IVE)" con gauge chart
+- [ ] Tabla de "Trabajadores en Riesgo" con filtros por IRPG ≥ 2.0
+- [ ] Gráfica de línea: Evolución de IRPG e IVE por período
+
+### Integración con Reportes PDF
+
+#### Sección de Análisis en 3 Niveles
+
+- [ ] Agregar sección "Análisis Multinivel" al reporte PDF
+- [ ] Subsección "Nivel 1: Categorías" con tabla de scores
+- [ ] Subsección "Nivel 2: Dominios" con tabla de scores por categoría
+- [ ] Subsección "Nivel 3: Dimensiones" con tabla de scores por dominio
+- [ ] Incluir gráficas de distribución por nivel
+
+#### Sección de Dimensiones Guía II
+
+- [ ] Subsección "Dimensiones Guía II" con tabla de las 5 dimensiones
+- [ ] Incluir fórmulas aplicadas y resultados por dimensión
+- [ ] Agregar interpretación de resultados según escala (0-4)
+- [ ] Incluir recomendaciones específicas por dimensión con riesgo ≥ 2.5
+
+#### Sección de Índices Compuestos
+
+- [ ] Subsección "Índice de Riesgo Psicosocial Global (IRPG)" con valor calculado
+- [ ] Subsección "Índice de Vulnerabilidad Específica (IVE)" con valor calculado
+- [ ] Incluir tabla de "Trabajadores en Riesgo" (IRPG ≥ 2.0)
+- [ ] Agregar gráfica de gauge para IRPG e IVE
+
+### Tests Unitarios
+
+- [ ] Test: Calcular dimensión G2-1 con ítems invertidos correctamente
+- [ ] Test: Calcular dimensión G2-2 con fórmula específica
+- [ ] Test: Calcular dimensión G2-3 con ítems invertidos
+- [ ] Test: Calcular brecha de liderazgo (G2-4) entre mandos y no mandos
+- [ ] Test: Calcular vulnerabilidad por antigüedad (G2-5) con ponderaciones
+- [ ] Test: Calcular IRPG con ponderaciones correctas (0.25, 0.35, 0.25, 0.15)
+- [ ] Test: Calcular IVE con fórmula completa
+- [ ] Test: Validar que dimensión ≥ 2.5 genere alerta de "Acción Inmediata"
+- [ ] Test: Validar Alpha de Cronbach para cada dimensión (α ≥ 0.7)
+- [ ] Test: Validar correlación entre dimensiones (r < 0.7)
+
+### Exportación a Excel
+
+#### Plantilla de Dimensiones Guía II
+
+- [ ] Crear hoja "Dimensiones G2" con columnas: ID Trabajador, G2-1, G2-2, G2-3, G2-4, G2-5
+- [ ] Agregar fórmulas Excel para cálculo automático de dimensiones
+- [ ] Incluir validación de datos (rango 0-4, enteros)
+- [ ] Agregar formato condicional: rojo si ≥ 2.5, amarillo si 2.0-2.4, verde si < 2.0
+
+#### Plantilla de Índices Compuestos
+
+- [ ] Crear hoja "Índices" con columnas: ID Trabajador, IRPG, IVE, Nivel de Riesgo
+- [ ] Agregar fórmulas Excel para cálculo automático de IRPG e IVE
+- [ ] Incluir tabla dinámica de "Trabajadores en Riesgo" (IRPG ≥ 2.0)
+- [ ] Agregar gráficas de distribución de IRPG e IVE
+
+---
+
+## 📈 RESUMEN DE FASE 183
+
+**Total de tareas:** 62 tareas
+**Prioridad:** P0 - CRÍTICO
+**Impacto:** Análisis completo en 3 niveles según NOM-035, cumplimiento normativo 100%
+
+**Distribución de tareas:**
+- Backend - Modificación de tablas: 5 tareas
+- Backend - Funciones de cálculo: 7 tareas
+- Backend - Procedimientos tRPC: 7 tareas
+- Backend - Validación estadística: 4 tareas
+- Frontend - Componente principal: 3 tareas
+- Frontend - Visualización por niveles: 12 tareas
+- Frontend - Índices compuestos: 4 tareas
+- Integración con PDF: 8 tareas
+- Tests unitarios: 10 tareas
+- Exportación a Excel: 8 tareas
+
+**Beneficios:**
+- ✅ Análisis completo en 3 niveles (Categoría → Dominio → Dimensión)
+- ✅ Cálculo automático de 5 dimensiones Guía II con fórmulas específicas
+- ✅ Índices compuestos (IRPG, IVE) para análisis global
+- ✅ Validación estadística (Alpha de Cronbach, correlaciones)
+- ✅ Exportación a Excel con fórmulas automáticas
+- ✅ Reportes PDF con análisis multinivel completo
+
+---
+
+## 📊 RESUMEN FINAL ACTUALIZADO DE TAREAS CRÍTICAS
+
+### FASE 178: Correlaciones de Datos (P0)
+- **Total:** 17 tareas
+
+### FASE 179: Prellenado Automático (P0)
+- **Total:** 18 tareas
+
+### FASE 180: Integración de IA (P1)
+- **Total:** 27 tareas
+
+### FASE 181: Acciones Correctivas en 3 Niveles (P0)
+- **Total:** 48 tareas
+
+### FASE 182: Cumplimiento Normativo NOM-035 (Numerales 7 y 8) (P0)
+- **Total:** 78 tareas
+
+### FASE 183: Análisis en 3 Niveles (Categoría → Dominio → Dimensión) (P0)
+- **Total:** 62 tareas
+
+**TOTAL NUEVAS TAREAS:** 250 tareas críticas e importantes (188 + 62)
