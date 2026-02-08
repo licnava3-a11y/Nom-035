@@ -78,6 +78,7 @@ import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
 import EqualityComplaints from "./pages/equality/Complaints";
 import EqualityCommittee from "./pages/equality/Committee";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
 
 function Router() {
@@ -156,6 +157,11 @@ function Router() {
       <Route path={"/reports"}>
         <DashboardLayout>
           <Reports />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/reports/regulatory"}>
+        <DashboardLayout>
+          <RegulatoryReports />
         </DashboardLayout>
       </Route>
       <Route path={"/competencies-dashboard"}>

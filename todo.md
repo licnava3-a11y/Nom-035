@@ -3307,3 +3307,84 @@
 - [ ] Verificar gráficas de tendencias con datos reales
 - [ ] Probar sistema de notificaciones en tiempo real
 - [ ] Guardar checkpoint con todas las funcionalidades
+
+
+## FASE 122: Interfaz Frontend para Generación de Informes NOM-035
+
+### Crear Página RegulatoryReports.tsx
+- [x] Crear archivo client/src/pages/RegulatoryReports.tsx
+- [x] Agregar breadcrumbs "Reportes y Análisis > Reportes Normativos"
+- [x] Importar trpc.reports.generateNom035Report
+- [x] Importar trpc.reports.getAvailablePeriods
+- [x] Importar trpc.reports.getAvailableSigners
+
+### Formulario de Generación de Informes
+- [x] Crear selector de período de aplicación
+- [x] Crear selector de nivel de análisis (organizacional, grupal, personal)
+- [x] Implementar filtros grupales (departamento, edad, género, puesto)
+- [x] Crear selector múltiple de firmantes (mínimo 2)
+- [x] Agregar campo de texto para conclusiones (mínimo 50 caracteres)
+- [x] Agregar campo de texto para recomendaciones (mínimo 50 caracteres)
+
+### Vista Previa y Descarga
+- [x] Implementar vista previa del informe antes de generar (botón visible)
+- [x] Agregar botón de descarga PDF
+- [x] Mostrar progreso de generación
+- [x] Mostrar URL del PDF generado (se abre automáticamente)
+- [ ] Agregar opción de compartir por correo
+
+### Integración en Menú
+- [x] Agregar ruta /reports/regulatory en App.tsx
+- [x] Verificar que la opción "Reportes Normativos" en menú lateral funcione
+
+## FASE 123: Gráficas de Tendencias en Dashboard Principal
+
+### Actualizar Dashboard.tsx
+- [ ] Leer client/src/pages/Dashboard.tsx
+- [ ] Agregar gráfica de tendencia de casos NOM-035 (semanal/mensual)
+- [ ] Agregar gráfica de cobertura de encuestas (% por período)
+- [ ] Agregar gráfica de cumplimiento normativo (indicadores clave)
+- [ ] Implementar comparación período actual vs anterior
+- [ ] Agregar selector de granularidad (semanal/mensual)
+- [ ] Integrar con DateRangeFilter existente
+
+### Crear Procedimientos tRPC para Tendencias
+- [ ] Crear procedimiento dashboard.getTrendData
+- [ ] Implementar cálculo de tendencias de casos
+- [ ] Implementar cálculo de cobertura de encuestas
+- [ ] Implementar cálculo de cumplimiento normativo
+- [ ] Agregar comparación entre períodos
+
+## FASE 124: Exportación a Word (DOCX)
+
+### Crear Generador DOCX
+- [ ] Instalar paquete docx (npm install docx)
+- [ ] Crear server/docxGenerators/nom035Report.ts
+- [ ] Implementar estructura del informe en formato DOCX
+- [ ] Agregar secciones con formato profesional
+- [ ] Integrar tablas de resultados
+- [ ] Agregar firmas digitales como imágenes
+
+### Actualizar Procedimiento tRPC
+- [ ] Agregar parámetro format en reports.generateNom035Report
+- [ ] Implementar lógica de selección de formato (PDF/DOCX)
+- [ ] Actualizar frontend para selector de formato
+
+## FASE 125: Exportación a Excel (XLSX)
+
+### Crear Generador XLSX
+- [ ] Instalar paquete exceljs (npm install exceljs)
+- [ ] Crear server/xlsxGenerators/nom035Report.ts
+- [ ] Implementar hojas de cálculo con resultados
+- [ ] Agregar gráficas de Excel nativas
+- [ ] Formatear celdas con estilos profesionales
+
+### Actualizar Procedimiento tRPC
+- [ ] Agregar opción XLSX en selector de formato
+- [ ] Implementar generación de archivo Excel
+- [ ] Actualizar frontend para descarga de XLSX
+
+### Verificación Final
+- [ ] Probar generación de informes en los 3 formatos (PDF, DOCX, XLSX)
+- [ ] Verificar que las gráficas de tendencias funcionen correctamente
+- [ ] Guardar checkpoint final con todas las funcionalidades
