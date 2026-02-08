@@ -5622,3 +5622,178 @@
 **Prioridad**: P0 - Crítico
 **Tiempo Estimado**: 6-8 horas
 
+
+
+---
+
+## FASE 172: Gráficas de Tendencias Temporales (P0 - Crítico) - BACKEND COMPLETADO ✅
+
+### Backend - Router trends
+- [x] Crear router server/routers/trends.ts (ya existía)
+- [x] Implementar procedimiento getCasesTrends (evolución semanal/mensual de casos NOM-035)
+- [x] Implementar procedimiento getSurveyCoverageTrends (cobertura de encuestas por período)
+- [x] Implementar procedimiento getComplianceTrends (cumplimiento normativo por período)
+- [x] Procedimiento getComparativePeriods integrado en cada procedimiento
+- [x] Agregar cálculos de variación porcentual (% cambio respecto período anterior)
+- [x] Registrar router en appRouter (ya estaba registrado)
+
+### Frontend - Componente TrendsCharts
+- [ ] Crear componente /client/src/pages/TrendsCharts.tsx
+- [ ] Implementar gráfica de evolución de casos NOM-035 (línea temporal)
+- [ ] Implementar gráfica de cobertura de encuestas (barras comparativas)
+- [ ] Implementar gráfica de cumplimiento normativo (área apilada)
+- [ ] Agregar selectores de período (semana, mes, trimestre, año)
+- [ ] Agregar badges de comparación (% cambio vs período anterior)
+- [ ] Agregar ruta en App.tsx (/trends)
+- [ ] Agregar opción en menú de Reportes y Análisis
+
+### Pruebas
+- [ ] Probar gráficas con datos de diferentes períodos
+- [ ] Verificar cálculos de variación porcentual
+- [ ] Verificar responsive design de gráficas
+
+---
+
+## FASE 173: Exportación Multi-formato de Reportes (P0 - Crítico) - EN PROGRESO
+
+### Backend - Servicios de Exportación
+- [ ] Crear servicio server/services/docxExportService.ts (generación de DOCX)
+- [ ] Crear servicio server/services/xlsxExportService.ts (generación de XLSX)
+- [ ] Implementar función exportNormativeReportDOCX (reporte normativo en Word)
+- [ ] Implementar función exportCaseReportXLSX (reporte de casos en Excel)
+- [ ] Implementar función exportSurveyResultsXLSX (resultados de encuestas en Excel)
+- [ ] Integrar almacenamiento en S3 para archivos generados
+
+### Backend - Router reports
+- [ ] Modificar router server/routers/reports.ts
+- [ ] Agregar procedimiento exportNormativeReport con parámetro format (PDF, DOCX, XLSX)
+- [ ] Agregar procedimiento exportCaseReport con parámetro format
+- [ ] Agregar procedimiento exportSurveyResults con parámetro format
+- [ ] Implementar validación de formato de exportación
+
+### Frontend - Componente Reports
+- [ ] Modificar componente /client/src/pages/Reports.tsx
+- [ ] Agregar selector de formato de exportación (PDF, DOCX, XLSX)
+- [ ] Agregar botón "Exportar" con dropdown de formatos
+- [ ] Implementar descarga automática de archivos exportados
+- [ ] Agregar indicador de progreso durante exportación
+
+### Pruebas
+- [ ] Probar exportación en PDF
+- [ ] Probar exportación en DOCX
+- [ ] Probar exportación en XLSX
+- [ ] Verificar formato y contenido de archivos exportados
+
+---
+
+## FASE 174: Dashboard de Alertas Tempranas (P0 - Crítico) - EN PROGRESO
+
+### Backend - Router earlyWarnings (Extensión)
+- [ ] Modificar router server/routers/earlyWarnings.ts
+- [ ] Implementar procedimiento getAutomaticAlerts (todas las alertas automáticas)
+- [ ] Implementar procedimiento getCasesExpiringSoon (casos próximos a vencer en 7 días)
+- [ ] Implementar procedimiento getPendingSurveys (encuestas pendientes de aplicación)
+- [ ] Implementar procedimiento getCorrectiveActionsWithoutFollowUp (acciones sin seguimiento)
+- [ ] Agregar cálculo de prioridad de alertas (Alta, Media, Baja)
+- [ ] Implementar procedimiento markAlertAsRead (marcar alerta como leída)
+
+### Frontend - Componente EarlyWarningsDashboard
+- [ ] Crear componente /client/src/pages/EarlyWarningsDashboard.tsx
+- [ ] Implementar panel de alertas automáticas con badges de prioridad
+- [ ] Implementar sección de casos próximos a vencer (tabla con countdown)
+- [ ] Implementar sección de encuestas pendientes (tabla con fechas límite)
+- [ ] Implementar sección de acciones correctivas sin seguimiento (tabla con días sin actividad)
+- [ ] Agregar botón "Marcar como leída" en cada alerta
+- [ ] Agregar filtros por prioridad (Alta, Media, Baja)
+- [ ] Agregar ruta en App.tsx (/early-warnings-dashboard)
+- [ ] Agregar opción en menú principal (Dashboard de Alertas)
+
+### Pruebas
+- [ ] Probar detección automática de alertas
+- [ ] Verificar cálculo de prioridades
+- [ ] Probar marcado de alertas como leídas
+- [ ] Verificar actualización en tiempo real
+
+---
+
+## FASE 175: Importación Masiva de Datos (P0 - Crítico) - EN PROGRESO
+
+### Backend - Router import (Extensión)
+- [ ] Modificar router server/routers/import.ts
+- [ ] Implementar procedimiento importEmployees (carga masiva desde Excel/CSV)
+- [ ] Implementar procedimiento importDepartments (carga masiva desde Excel/CSV)
+- [ ] Implementar procedimiento importPositions (carga masiva desde Excel/CSV)
+- [ ] Implementar validación de datos importados (CURP, RFC, correos)
+- [ ] Implementar manejo de errores con reporte detallado
+- [ ] Implementar procedimiento downloadImportTemplate (descargar plantilla Excel)
+
+### Backend - Servicios de Importación
+- [ ] Crear servicio server/services/excelImportService.ts
+- [ ] Implementar función parseEmployeesExcel (parseo de Excel de empleados)
+- [ ] Implementar función parseDepartmentsExcel (parseo de Excel de departamentos)
+- [ ] Implementar función parsePositionsExcel (parseo de Excel de puestos)
+- [ ] Implementar validación de formato de archivo (Excel, CSV)
+- [ ] Implementar validación de columnas requeridas
+
+### Frontend - Componente DataImport
+- [ ] Crear componente /client/src/pages/DataImport.tsx
+- [ ] Implementar formulario de carga de archivo (drag & drop)
+- [ ] Implementar selector de tipo de importación (Empleados, Departamentos, Puestos)
+- [ ] Implementar botón "Descargar Plantilla"
+- [ ] Implementar tabla de vista previa de datos importados
+- [ ] Implementar tabla de errores de validación
+- [ ] Implementar botón "Confirmar Importación"
+- [ ] Agregar ruta en App.tsx (/data-import)
+- [ ] Agregar opción en menú de Administración
+
+### Pruebas
+- [ ] Probar importación de empleados con archivo válido
+- [ ] Probar importación con archivo inválido (errores de validación)
+- [ ] Probar importación de departamentos
+- [ ] Probar importación de puestos
+- [ ] Verificar reporte de errores detallado
+
+---
+
+## FASE 176: Servicio de Reportes PDF del Protocolo (P0 - Crítico) - EN PROGRESO
+
+### Backend - Servicio workplaceViolencePDFService
+- [ ] Crear servicio server/services/workplaceViolencePDFService.ts
+- [ ] Implementar función generateReceptionReport (acta de recepción de queja)
+- [ ] Implementar función generateInvestigationReport (informe de investigación)
+- [ ] Implementar función generateResolutionReport (resolución del caso)
+- [ ] Implementar función generateClosureReport (acta de cierre)
+- [ ] Integrar firmas digitales en PDFs (firma del responsable)
+- [ ] Integrar almacenamiento en S3 para PDFs generados
+
+### Backend - Router workplaceViolence (Extensión)
+- [ ] Modificar router server/routers/workplaceViolence.ts
+- [ ] Implementar procedimiento generateReceptionPDF
+- [ ] Implementar procedimiento generateInvestigationPDF
+- [ ] Implementar procedimiento generateResolutionPDF
+- [ ] Implementar procedimiento generateClosurePDF
+- [ ] Agregar campo reportUrl en tabla workplace_violence_cases
+
+### Frontend - Componente WorkplaceViolenceProtocol (Extensión)
+- [ ] Modificar componente /client/src/pages/cases/WorkplaceViolenceProtocol.tsx
+- [ ] Agregar botón "Generar Acta de Recepción" en detalle de caso
+- [ ] Agregar botón "Generar Informe de Investigación"
+- [ ] Agregar botón "Generar Resolución"
+- [ ] Agregar botón "Generar Acta de Cierre"
+- [ ] Implementar descarga automática de PDFs generados
+- [ ] Agregar sección de "Documentos Generados" con lista de PDFs
+
+### Pruebas
+- [ ] Probar generación de acta de recepción
+- [ ] Probar generación de informe de investigación
+- [ ] Probar generación de resolución
+- [ ] Probar generación de acta de cierre
+- [ ] Verificar formato y contenido de PDFs
+- [ ] Verificar firmas digitales en PDFs
+
+---
+
+**Estado Actual**: 🔄 Implementación en Progreso
+**Prioridad**: P0 - Crítico
+**Tiempo Estimado**: 8-10 horas
+
