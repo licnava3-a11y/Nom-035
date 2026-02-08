@@ -4902,16 +4902,17 @@
 - [x] Aplicar migración con webdev_execute_sql (tablas creadas exitosamente)
 
 ### Backend - Router committeeTraining
-- [ ] Crear router server/routers/committeeTraining.ts
-- [ ] Implementar procedimiento createProgram (título, descripción, tipo, duración, instructor)
-- [ ] Implementar procedimiento listPrograms (con filtros por status, type)
-- [ ] Implementar procedimiento getProgramById
-- [ ] Implementar procedimiento createSession (programId, fecha, hora, ubicación, tipo, enlace)
-- [ ] Implementar procedimiento listSessions (con filtros por programId, date range)
-- [ ] Implementar procedimiento recordAttendance (sessionId, committeeMemberId, attended)
-- [ ] Implementar procedimiento generateCertificate (sessionId, committeeMemberId)
-- [ ] Implementar procedimiento getAttendanceReport (programId o sessionId)
-- [ ] Registrar router en appRouter
+- [x] Crear router server/routers/committeeTraining.ts
+- [x] Implementar procedimiento createProgram (título, descripción, tipo, duración, instructor)
+- [x] Implementar procedimiento listPrograms (con filtros por status, type)
+- [x] Implementar procedimiento getProgramById
+- [x] Implementar procedimiento createSession (programId, fecha, hora, ubicación, tipo, enlace)
+- [x] Implementar procedimiento listSessions (con filtros por programId, date range)
+- [x] Implementar procedimiento recordAttendance (sessionId, committeeMemberId, attended)
+- [x] Implementar procedimiento generateCertificate (sessionId, committeeMemberId) - placeholder
+- [x] Implementar procedimiento getAttendanceReport (programId o sessionId)
+- [x] Implementar procedimiento updateProgramStatus (adicional)
+- [x] Registrar router en appRouter
 
 ### Frontend - Componente CommitteeTraining
 - [ ] Crear componente /client/src/pages/committee/CommitteeTraining.tsx
@@ -5116,5 +5117,68 @@
 - [ ] **Tutorial 6**: Cómo configurar alertas tempranas y filtros avanzados
 - [ ] **Tutorial 7**: Cómo gestionar el expediente digital de un empleado
 - [ ] **Tutorial 8**: Cómo configurar usuarios y permisos del sistema
+
+---
+
+
+---
+
+## FASE 168: Auditoría Completa y Corrección de Errores 404 (P0 - Crítico) - EN PROGRESO
+
+### Revisión de Rutas y Errores 404
+- [ ] Revisar todas las rutas definidas en App.tsx
+- [ ] Verificar que todas las rutas tienen componentes correspondientes
+- [ ] Corregir rutas rotas o mal configuradas
+- [ ] Verificar enlaces en menú de navegación (DashboardLayout.tsx)
+- [ ] Probar todas las rutas manualmente (navegación completa)
+- [ ] Agregar página 404 personalizada para rutas no encontradas
+
+### Auditoría de Código Backend
+- [ ] Revisar todos los routers en server/routers/
+- [ ] Verificar que todos los procedimientos están correctamente tipados
+- [ ] Corregir errores de TypeScript en routers
+- [ ] Verificar correlaciones de datos entre tablas (foreign keys)
+- [ ] Revisar queries SQL para optimización
+- [ ] Verificar manejo de errores en todos los procedimientos
+
+### Auditoría de Código Frontend
+- [ ] Revisar todos los componentes en client/src/pages/
+- [ ] Corregir errores de TypeScript en componentes
+- [ ] Verificar que todos los imports son correctos
+- [ ] Revisar uso de hooks (useEffect, useState, queries tRPC)
+- [ ] Verificar manejo de estados de carga y error
+- [ ] Eliminar código duplicado o no utilizado
+
+### Auditoría de Base de Datos
+- [ ] Verificar integridad referencial (foreign keys)
+- [ ] Revisar índices para optimización de queries
+- [ ] Verificar que todas las tablas tienen campos createdAt/updatedAt
+- [ ] Revisar enums para consistencia
+- [ ] Verificar que no hay tablas huérfanas o sin uso
+
+### Pruebas Funcionales Completas
+- [ ] Probar flujo completo de encuestas NOM-035
+- [ ] Probar flujo completo de gestión de casos
+- [ ] Probar flujo completo de protocolo de violencia laboral
+- [ ] Probar flujo completo de cuestionarios de investigación
+- [ ] Probar flujo completo de comité NOM-035
+- [ ] Probar flujo completo de alertas tempranas con filtros
+- [ ] Probar flujo completo de gestión de empleados
+- [ ] Probar flujo completo de reportes y exportación
+
+### Optimización de Rendimiento
+- [ ] Analizar tamaño de chunks de JavaScript
+- [ ] Implementar code splitting donde sea necesario
+- [ ] Optimizar queries tRPC (evitar N+1)
+- [ ] Implementar paginación en tablas grandes
+- [ ] Optimizar imágenes y assets
+- [ ] Revisar y optimizar re-renders innecesarios
+
+### Corrección de Duplicidades y Correlaciones
+- [ ] Eliminar campos duplicados en formularios
+- [ ] Correlacionar campos prellenados automáticamente
+- [ ] Verificar que no hay títulos duplicados
+- [ ] Revisar y corregir fechas inconsistentes
+- [ ] Verificar que desplegables no tienen opciones duplicadas
 
 ---
