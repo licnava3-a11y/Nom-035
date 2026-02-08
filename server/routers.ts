@@ -45,6 +45,7 @@ import { workplaceViolenceRouter } from "./routers/workplaceViolence";
 import { committeeTrainingRouter } from "./routers/committeeTraining";
 import { rolesRouter } from "./routers/roles";
 import { autodiagnosticoRouter } from "./routers/autodiagnostico";
+import { dashboardNom035Router } from "./routers/dashboardNom035";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -105,6 +106,7 @@ export const appRouter = router({
   committeeTraining: committeeTrainingRouter,
   roles: rolesRouter,
   autodiagnostico: autodiagnosticoRouter,
+  dashboardNom035: dashboardNom035Router,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

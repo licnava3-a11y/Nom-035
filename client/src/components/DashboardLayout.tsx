@@ -97,6 +97,16 @@ const hierarchicalMenuItems = [
     roles: ["admin", "committee"],
     submenu: [
       { 
+        label: "Dashboard Interactivo", 
+        path: "/nom035/dashboard",
+        description: "Monitoreo en tiempo real de riesgos psicosociales con gráficos y alertas"
+      },
+      { 
+        label: "Autodiagnóstico NOM-035", 
+        path: "/nom035/autodiagnostico",
+        description: "Checklist interactivo de 45 requisitos normativos con gestión de evidencias"
+      },
+      { 
         label: "Informe de identificación y análisis (Numeral 7.5)", 
         path: "/reports/regulatory",
         description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
@@ -501,9 +511,16 @@ function DashboardLayoutContent({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      {user?.name || "-"}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium truncate leading-none">
+                        {user?.name || "-"}
+                      </p>
+                      {user?.role && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium uppercase">
+                          {user.role}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground truncate mt-1.5">
                       {user?.email || "-"}
                     </p>

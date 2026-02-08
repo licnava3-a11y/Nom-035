@@ -89,6 +89,7 @@ import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 import RolesPage from "./pages/admin/Roles";
 import Autodiagnostico from "./pages/nom035/Autodiagnostico";
+import DashboardInteractivo from "./pages/nom035/DashboardInteractivo";
 
 function Router() {
   return (
@@ -454,6 +455,11 @@ function Router() {
       <Route path={"/nom035/autodiagnostico"}>
         <DashboardLayout>
           <Autodiagnostico />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/nom035/dashboard"}>
+        <DashboardLayout>
+          <DashboardInteractivo />
         </DashboardLayout>
       </Route>
       <Route path={"/alerts"}>
