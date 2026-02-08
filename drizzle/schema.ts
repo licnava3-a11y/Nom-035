@@ -809,6 +809,8 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium"), // Prioridad de la acción
   status: mysqlEnum("status", ["pendiente", "en_proceso", "completada", "cancelada"]).default("pendiente").notNull(),
   notes: text("notes"),
+  observations: text("observations"), // Observaciones adicionales
+  pdfUrl: varchar("pdfUrl", { length: 500 }), // URL del PDF generado
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

@@ -29,13 +29,9 @@ export default function SurveysDashboard() {
   // Mutation para generar reporte agregado
   const generateAggregatedPDF = (trpc as any).surveys.generateAggregatedPDF.useMutation();
 
-  // Función para descargar PDF desde base64
-  const downloadPDF = (base64: string, filename: string) => {
-    const linkSource = `data:application/pdf;base64,${base64}`;
-    const downloadLink = document.createElement('a');
-    downloadLink.href = linkSource;
-    downloadLink.download = filename;
-    downloadLink.click();
+  // Función para abrir PDF desde URL
+  const openPDF = (url: string) => {
+    window.open(url, '_blank');
   };
 
   // Handler para descargar reporte agregado
@@ -43,8 +39,8 @@ export default function SurveysDashboard() {
     try {
       setIsDownloading(true);
       const result = await generateAggregatedPDF.mutateAsync(1); // TODO: Usar ID de encuesta real
-      downloadPDF(result.pdf, result.filename);
-      toast.success('Reporte descargado exitosamente');
+      openPDF(result.pdfUrl);
+      toast.success('Reporte generado exitosamente');
     } catch (error) {
       toast.error('Error al generar el reporte');
       console.error(error);

@@ -3,6 +3,9 @@ import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
 import * as db from '../db';
 import { sendActionAssignmentNotification, sendActionStatusChangeNotification } from '../lib/corrective-actions-email-service';
+import { storagePut } from '../storage';
+import { logCorrectiveActionEvidence } from '../helpers/evidenceLogger';
+import PDFDocument from 'pdfkit';
 
 export const correctiveActionsRouter = router({
   // Crear nueva acción correctiva
@@ -593,5 +596,136 @@ export const correctiveActionsRouter = router({
         .where(eq(correctiveActions.id, input.id));
 
       return { success: true };
+    }),
+
+  // Generar PDF de acción correctiva
+  generatePDF: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions, users } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+
+      // Obtener acción correctiva
+      const [action] = await dbInstance.select().from(correctiveActions).where(eq(correctiveActions.id, input.id));
+      if (!action) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Acción correctiva no encontrada' });
+      }
+
+      // Obtener usuario responsable si existe
+      let responsibleUser = null;
+      if (action.responsibleUserId) {
+        [responsibleUser] = await dbInstance.select().from(users).where(eq(users.id, action.responsibleUserId));
+      }
+
+      // Generar PDF
+      const doc = new PDFDocument({ size: 'LETTER', margin: 50 });
+      const chunks: Buffer[] = [];
+
+      doc.on('data', (chunk) => chunks.push(chunk));
+      
+      await new Promise<void>((resolve, reject) => {
+        doc.on('end', () => resolve());
+        doc.on('error', reject);
+
+        // Encabezado
+        doc.fontSize(20).font('Helvetica-Bold').text('PLAN DE ACCIÓN CORRECTIVA', { align: 'center' });
+        doc.fontSize(12).font('Helvetica').text('NOM-035-STPS-2018', { align: 'center' });
+        doc.moveDown(2);
+
+        // Información general
+        doc.fontSize(14).font('Helvetica-Bold').text('Información General', { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).font('Helvetica');
+        doc.text(`Folio: AC-${action.id.toString().padStart(6, '0')}`);
+        doc.text(`Fecha de creación: ${action.createdAt ? new Date(action.createdAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}`);
+        doc.text(`Estado: ${action.status?.toUpperCase() || 'PENDIENTE'}`);
+        doc.text(`Nivel de riesgo: ${action.riskLevel?.toUpperCase() || 'NO ESPECIFICADO'}`);
+        if (action.category) doc.text(`Categoría: ${action.category}`);
+        if (action.departamento) doc.text(`Departamento: ${action.departamento}`);
+        doc.moveDown(1.5);
+
+        // Descripción
+        doc.fontSize(14).font('Helvetica-Bold').text('Descripción del Problema', { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).font('Helvetica');
+        doc.text(action.description || 'Sin descripción', { align: 'justify' });
+        doc.moveDown(1.5);
+
+        // Responsable
+        doc.fontSize(14).font('Helvetica-Bold').text('Responsable de la Acción', { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).font('Helvetica');
+        if (responsibleUser) {
+          doc.text(`Nombre: ${responsibleUser.name || 'Sin nombre'}`);
+          doc.text(`Correo: ${responsibleUser.email || 'Sin correo'}`);
+        } else {
+          doc.text('Sin responsable asignado');
+        }
+        doc.moveDown(1.5);
+
+        // Fechas
+        doc.fontSize(14).font('Helvetica-Bold').text('Fechas Importantes', { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).font('Helvetica');
+        if (action.dueDate) {
+          doc.text(`Fecha límite: ${new Date(action.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}`);
+        } else {
+          doc.text('Fecha límite: No establecida');
+        }
+        if (action.completedAt) {
+          doc.text(`Fecha de finalización: ${new Date(action.completedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}`);
+        }
+        doc.moveDown(1.5);
+
+        // Observaciones
+        if (action.observations) {
+          doc.fontSize(14).font('Helvetica-Bold').text('Observaciones', { underline: true });
+          doc.moveDown(0.5);
+          doc.fontSize(11).font('Helvetica');
+          doc.text(action.observations, { align: 'justify' });
+          doc.moveDown(1.5);
+        }
+
+        // Pie de página
+        doc.fontSize(9).font('Helvetica').text(
+          `Documento generado el ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+          50,
+          doc.page.height - 50,
+          { align: 'center' }
+        );
+
+        doc.end();
+      });
+
+      const pdfBuffer = Buffer.concat(chunks);
+
+      // Subir PDF a S3
+      const filename = `accion_correctiva_${action.id}_${Date.now()}.pdf`;
+      const fileKey = `corrective-actions/${action.id}/${filename}`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
+
+      // Actualizar registro con URL del PDF
+      await dbInstance.update(correctiveActions)
+        .set({ pdfUrl })
+        .where(eq(correctiveActions.id, input.id));
+
+      // Registrar evidencia automáticamente
+      const actionTitle = `AC-${action.id.toString().padStart(6, '0')} - ${action.description?.substring(0, 50) || 'Sin descripción'}`;
+      await logCorrectiveActionEvidence(
+        action.id,
+        actionTitle,
+        pdfUrl,
+        fileKey,
+        ctx.user?.id || 1
+      );
+
+      // Retornar URL del PDF
+      return {
+        pdfUrl,
+        filename,
+      };
     }),
 });

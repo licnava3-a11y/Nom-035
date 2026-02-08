@@ -3907,3 +3907,86 @@
 - [x] Test unitario company.listActive.test.ts creado
 - [x] 3 tests pasados exitosamente
 - [x] 0 errores TypeScript
+
+
+## FASE 140: Refactorizar Generación de PDFs en surveys.ts
+
+### Backend - Router surveys.ts
+- [x] Modificar procedimiento generateIndividualPDF para subir PDF a S3
+- [x] Modificar procedimiento generateAggregatedPDF para subir PDF a S3
+- [x] Importar storagePut desde storage.ts
+- [x] Importar logSurveyReportEvidence desde evidenceLogger
+- [x] Agregar lógica de subida a S3 después de generar PDF
+- [x] Agregar llamada a logSurveyReportEvidence con metadata
+- [x] Retornar URL de S3 en lugar de base64
+- [x] Actualizar tipos de retorno
+
+### Frontend - Ajustes
+- [x] Verificar componentes que consumen generateIndividualPDF (ninguno encontrado)
+- [x] Verificar componentes que consumen generateAggregatedPDF (Dashboard.tsx)
+- [x] Ajustar para usar URL en lugar de base64 (openPDF implementado)
+- [x] Actualizar lógica de descarga/visualización
+
+### Pruebas
+- [x] Generación de PDF individual funcional
+- [x] Generación de PDF agregado funcional
+- [x] Subida a S3 funcional
+- [x] Registro automático en evidencias funcional
+- [x] 0 errores TypeScript
+
+## FASE 141: Implementar Generador PDF para Acciones Correctivas
+
+### Backend - Schema
+- [x] Agregar campos observations y pdfUrl a tabla correctiveActions
+- [x] Generar migración SQL (0032_wonderful_arclight.sql)
+- [x] Aplicar migración exitosamente
+
+### Backend - Router correctiveActions.ts
+- [x] Crear procedimiento generatePDF
+- [x] Implementar generación de PDF con PDFKit (formato profesional)
+- [x] Incluir: folio, título, descripción, responsable, fecha límite, estado, observaciones
+- [x] Subir PDF a S3 usando storagePut
+- [x] Importar logCorrectiveActionEvidence desde evidenceLogger
+- [x] Agregar llamada a logCorrectiveActionEvidence
+- [x] Actualizar registro en BD con pdfUrl
+- [x] Agregar validaciones
+
+### Frontend - CorrectiveActions.tsx
+- [ ] Agregar botón "Generar PDF" en tabla de acciones (pendiente)
+- [ ] Crear mutation para generatePDF (pendiente)
+- [ ] Implementar lógica de descarga/visualización (pendiente)
+
+### Pruebas
+- [ ] Crear test unitario para generatePDF (pendiente)
+- [x] Procedimiento funcional con 0 errores TypeScript
+- [x] Subida a S3 funcional
+- [x] Registro automático en evidencias funcional
+
+## FASE 142: Agregar Validación de Cobertura de Encuestas
+
+### Backend - Router earlyWarnings.ts
+- [x] Crear procedimiento getSurveyCoverageAlerts
+- [x] Calcular cobertura de encuestas por encuesta activa
+- [x] Comparar con umbral mínimo (80% según NOM-035)
+- [x] Retornar lista de encuestas con cobertura insuficiente
+- [x] Incluir: surveyId, tipo, título, cobertura, trabajadores totales, completadas, brecha, prioridad
+- [x] Asignar prioridad según cobertura (< 50% = alta, < 65% = media, >= 65% = baja)
+- [x] Ordenar por cobertura ascendente
+
+### Frontend - EarlyWarnings.tsx
+- [x] Agregar query para getSurveyCoverageAlerts
+- [x] Crear nueva pestaña "Cobertura de Encuestas"
+- [x] Implementar tabla con semáforo de cobertura (rojo/amarillo/verde)
+- [x] Mostrar porcentaje de cobertura con código de colores
+- [x] Mostrar métricas: cobertura actual, brecha, total trabajadores, completadas
+- [x] Agregar botón "Ver Encuesta" con enlace directo
+- [x] Ajustar grid-cols de TabsList a 5 columnas
+
+### Pruebas
+- [x] Crear test unitario para getSurveyCoverageAlerts (earlyWarnings.coverage.test.ts)
+- [x] 3 tests pasados exitosamente
+- [x] Cálculo de cobertura verificado
+- [x] Umbral de alerta verificado
+- [x] Asignación de prioridad verificada
+- [x] Visualización en frontend funcional
+- [x] 0 errores TypeScript

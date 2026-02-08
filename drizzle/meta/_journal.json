@@ -225,6 +225,13 @@
       "when": 1770550801013,
       "tag": "0031_strong_cerise",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1770561243547,
+      "tag": "0032_wonderful_arclight",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,7 @@ export default function EarlyWarnings() {
   const { data: casesData, isLoading: casesLoading } = trpc.earlyWarnings.getCasesAboutToExpire.useQuery();
   const { data: surveysData, isLoading: surveysLoading } = trpc.earlyWarnings.getPendingSurveys.useQuery();
   const { data: actionsData, isLoading: actionsLoading } = trpc.earlyWarnings.getActionsWithoutFollowUp.useQuery();
+  const { data: coverageData, isLoading: coverageLoading } = trpc.earlyWarnings.getSurveyCoverageAlerts.useQuery();
 
   const getPriorityBadge = (priority: string, color: string) => {
     const colorClasses = {
@@ -97,11 +98,12 @@ export default function EarlyWarnings() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="summary">Resumen</TabsTrigger>
           <TabsTrigger value="cases">Casos por Vencer ({casesData?.total || 0})</TabsTrigger>
           <TabsTrigger value="surveys">Encuestas Pendientes ({surveysData?.total || 0})</TabsTrigger>
           <TabsTrigger value="actions">Acciones sin Seguimiento ({actionsData?.total || 0})</TabsTrigger>
+          <TabsTrigger value="coverage">Cobertura de Encuestas ({coverageData?.totalAlerts || 0})</TabsTrigger>
         </TabsList>
 
         {/* Summary Tab */}
@@ -360,6 +362,70 @@ export default function EarlyWarnings() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Coverage Tab */}
+        <TabsContent value="coverage" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Cobertura de Encuestas NOM-035</CardTitle>
+              <CardDescription>
+                Encuestas con cobertura menor al 80% requerido por la norma
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {coverageLoading ? (
+                <div className="text-center py-8 text-muted-foreground">Cargando datos de cobertura...</div>
+              ) : !coverageData?.alerts || coverageData.alerts.length === 0 ? (
+                <div className="text-center py-8">
+                  <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
+                  <p className="text-muted-foreground">Todas las encuestas cumplen con el umbral mínimo de cobertura (80%)</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {coverageData.alerts.map((alert: any) => (
+                    <div
+                      key={alert.surveyId}
+                      className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">{alert.surveyTitle}</h3>
+                          {getPriorityBadge(alert.priority, alert.priorityColor)}
+                        </div>
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <p>
+                            <span className="font-medium">Tipo:</span> {alert.surveyType.toUpperCase()}
+                          </p>
+                          <p>
+                            <span className="font-medium">Cobertura actual:</span>{" "}
+                            <span className={alert.coverage < 50 ? "text-red-600 font-semibold" : alert.coverage < 65 ? "text-yellow-600 font-semibold" : "text-green-600 font-semibold"}>
+                              {alert.coverage.toFixed(2)}%
+                            </span>
+                          </p>
+                          <p>
+                            <span className="font-medium">Encuestas completadas:</span> {alert.completedSurveys} de {alert.totalWorkers} trabajadores
+                          </p>
+                          <p>
+                            <span className="font-medium">Brecha:</span>{" "}
+                            <span className="text-red-600 font-semibold">{alert.gap.toFixed(2)}%</span> por debajo del umbral mínimo ({alert.threshold}%)
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <Link href={`/surveys/${alert.surveyId}`}>
+                          <Button variant="outline" size="sm">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Ver Encuesta
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CardContent>

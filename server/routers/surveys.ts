@@ -10,6 +10,8 @@ import * as scoring from "../lib/nom035-scoring";
 import { calculateSampleSize } from "../lib/sample-size-calculator";
 import { sendSurveyTokensNotification } from "../lib/email-sender";
 import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
+import { storagePut } from "../storage";
+import { logSurveyReportEvidence } from "../helpers/evidenceLogger";
 
 // Helper para generar token único
 function generateToken(): string {
@@ -727,10 +729,25 @@ export const surveysRouter = router({
         pdfBuffer = await pdfReports.generateIndividualReport(reportData);
       }
       
-      // Retornar PDF como base64
+      // Subir PDF a S3
+      const filename = `reporte_${survey.type}_${user.id}_${Date.now()}.pdf`;
+      const fileKey = `survey-reports/individual/${response.id}/${filename}`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
+      
+      // Registrar evidencia automáticamente
+      const surveyTitle = `${survey.type.toUpperCase()} - ${user.name || user.email || 'Usuario sin nombre'}`;
+      await logSurveyReportEvidence(
+        survey.id,
+        surveyTitle,
+        pdfUrl,
+        fileKey,
+        ctx.user?.id || 1
+      );
+      
+      // Retornar URL del PDF
       return {
-        pdf: pdfBuffer.toString('base64'),
-        filename: `reporte_${survey.type}_${user.id}_${Date.now()}.pdf`,
+        pdfUrl,
+        filename,
       };
     }),
 
@@ -837,10 +854,25 @@ export const surveysRouter = router({
       const pdfReports = await import('../lib/nom035-pdf-reports');
       const pdfBuffer = await pdfReports.generateAggregatedReport(reportData);
       
-      // Retornar PDF como base64
+      // Subir PDF a S3
+      const filename = `reporte_agregado_${survey.type}_${Date.now()}.pdf`;
+      const fileKey = `survey-reports/aggregated/${survey.id}/${filename}`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
+      
+      // Registrar evidencia automáticamente
+      const surveyTitle = `${survey.type.toUpperCase()} - Reporte Agregado`;
+      await logSurveyReportEvidence(
+        survey.id,
+        surveyTitle,
+        pdfUrl,
+        fileKey,
+        ctx.user?.id || 1
+      );
+      
+      // Retornar URL del PDF
       return {
-        pdf: pdfBuffer.toString('base64'),
-        filename: `reporte_agregado_${survey.type}_${Date.now()}.pdf`,
+        pdfUrl,
+        filename,
       };
     }),
 

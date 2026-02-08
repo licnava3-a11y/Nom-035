@@ -207,4 +207,77 @@ export const earlyWarningsRouter = router({
         totalAlerts: (casesCount?.count || 0) + (surveysCount?.count || 0) + (actionsCount?.count || 0),
       };
     }),
+
+  /**
+   * Get survey coverage alerts
+   * Returns companies with survey coverage below 80% threshold (NOM-035 requirement)
+   */
+  getSurveyCoverageAlerts: protectedProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener todas las encuestas activas
+      const activeSurveys = await db
+        .select({
+          id: surveys.id,
+          type: surveys.type,
+          title: surveys.title,
+        })
+        .from(surveys)
+        .where(eq(surveys.status, 'active'));
+
+      const coverageAlerts = [];
+
+      for (const survey of activeSurveys) {
+        // Contar total de trabajadores
+        const [totalWorkers] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(employees);
+
+        const totalWorkersCount = totalWorkers?.count || 0;
+
+        // Contar respuestas completadas para esta encuesta
+        const [completedResponses] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(surveyResponses)
+          .where(
+            and(
+              eq(surveyResponses.surveyId, survey.id),
+              sql`${surveyResponses.completedAt} IS NOT NULL`
+            )
+          );
+
+        const completedCount = completedResponses?.count || 0;
+
+        // Calcular cobertura
+        const coverage = totalWorkersCount > 0 ? (completedCount / totalWorkersCount) * 100 : 0;
+
+        // Umbral mínimo según NOM-035: 80%
+        const threshold = 80;
+
+        if (coverage < threshold) {
+          coverageAlerts.push({
+            surveyId: survey.id,
+            surveyType: survey.type,
+            surveyTitle: survey.title || `Encuesta ${survey.type.toUpperCase()}`,
+            totalWorkers: totalWorkersCount,
+            completedSurveys: completedCount,
+            coverage: Math.round(coverage * 100) / 100,
+            threshold,
+            gap: Math.round((threshold - coverage) * 100) / 100,
+            priority: coverage < 50 ? "high" : coverage < 65 ? "medium" : "low",
+            priorityColor: coverage < 50 ? "red" : coverage < 65 ? "yellow" : "green",
+          });
+        }
+      }
+
+      // Ordenar por cobertura ascendente (menor cobertura primero)
+      coverageAlerts.sort((a, b) => a.coverage - b.coverage);
+
+      return {
+        alerts: coverageAlerts,
+        totalAlerts: coverageAlerts.length,
+      };
+    }),
 });
