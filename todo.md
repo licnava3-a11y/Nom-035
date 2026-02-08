@@ -6878,3 +6878,162 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 **TOTAL ACUMULADO:** 304 tareas críticas e importantes (110 + 78 + 62 + 54)
 **ROI ESTIMADO ANUAL:** $960,000 MXN
+
+
+---
+
+## 📋 FASE 185: Autodiagnóstico NOM-035 con Checklist y Evidencias Documentales
+
+**Descripción:** Módulo de autodiagnóstico que permite a la empresa evaluar su cumplimiento con todos los requisitos de la NOM-035-STPS-2018, incluyendo carga de evidencias documentales y generación de reportes de cumplimiento.
+
+**Ubicación:** Submenú en "Encuestas NOM-035"
+
+**Prioridad:** P0 - CRÍTICO (Requisito normativo)
+
+### 📊 Base de Datos (4 tareas)
+
+- [ ] Crear tabla `self_assessment_checklist` (id, category, requirement, description, isCompliant, evidence_url, notes, responsible, dueDate, completedAt, createdAt, updatedAt)
+- [ ] Crear tabla `self_assessment_evidence` (id, checklistItemId, fileName, fileUrl, fileType, uploadedBy, uploadedAt)
+- [ ] Crear tabla `self_assessment_reports` (id, assessmentDate, overallCompliance, criticalGaps, recommendations, generatedBy, createdAt)
+- [ ] Poblar tabla `self_assessment_checklist` con 45 requisitos normativos de NOM-035
+
+### 🔧 Backend (8 tareas)
+
+- [ ] Crear procedimiento `selfAssessment.getChecklist` - Retorna lista completa de requisitos con estado de cumplimiento
+- [ ] Crear procedimiento `selfAssessment.updateCompliance` - Actualiza estado de cumplimiento de un requisito
+- [ ] Crear procedimiento `selfAssessment.uploadEvidence` - Sube evidencia documental a S3 y guarda referencia en BD
+- [ ] Crear procedimiento `selfAssessment.deleteEvidence` - Elimina evidencia documental
+- [ ] Crear procedimiento `selfAssessment.getComplianceStats` - Retorna estadísticas de cumplimiento por categoría
+- [ ] Crear procedimiento `selfAssessment.generateReport` - Genera reporte PDF de autodiagnóstico
+- [ ] Crear procedimiento `selfAssessment.getHistory` - Retorna historial de autodiagnósticos realizados
+- [ ] Crear procedimiento `selfAssessment.exportToExcel` - Exporta checklist a Excel
+
+### 🎨 Frontend (12 tareas)
+
+- [ ] Crear página `SelfAssessment.tsx` en `/client/src/pages/nom035/`
+- [ ] Crear componente `ChecklistItem.tsx` - Item individual de checklist con toggle de cumplimiento
+- [ ] Crear componente `EvidenceUpload.tsx` - Componente para subir evidencias documentales
+- [ ] Crear componente `ComplianceGauge.tsx` - Gauge chart de porcentaje de cumplimiento
+- [ ] Crear componente `ComplianceByCategory.tsx` - Gráfica de barras por categoría normativa
+- [ ] Crear componente `CriticalGapsAlert.tsx` - Alerta de requisitos críticos sin cumplir
+- [ ] Implementar filtros por categoría (Política, Identificación, Análisis, Medidas, Difusión)
+- [ ] Implementar búsqueda de requisitos por palabra clave
+- [ ] Implementar vista de "Solo pendientes" para enfocarse en gaps
+- [ ] Implementar modal de detalles de requisito con historial de cambios
+- [ ] Integrar botón "Generar Reporte PDF" con descarga automática
+- [ ] Agregar ruta `/nom035/autodiagnostico` en App.tsx
+
+### 📄 Catálogo de Requisitos Normativos (45 items)
+
+**Categoría: Política de Prevención (5 requisitos)**
+- [ ] 5.1 - Establecer por escrito política de prevención de riesgos psicosociales
+- [ ] 5.2 - Difundir política a todos los trabajadores
+- [ ] 5.3 - Incluir compromiso de prevención de violencia laboral
+- [ ] 5.4 - Incluir compromiso de entorno organizacional favorable
+- [ ] 5.5 - Revisión anual de la política
+
+**Categoría: Medidas de Prevención (8 requisitos)**
+- [ ] 5.6 - Identificar trabajadores expuestos a acontecimientos traumáticos severos
+- [ ] 5.7 - Difundir información sobre factores de riesgo psicosocial
+- [ ] 5.8 - Difundir información sobre entorno organizacional favorable
+- [ ] 5.9 - Realizar exámenes médicos a trabajadores expuestos a violencia laboral
+- [ ] 5.10 - Llevar registros de resultados de identificación y análisis
+- [ ] 5.11 - Informar resultados a trabajadores
+- [ ] 5.12 - Adoptar medidas de control
+- [ ] 5.13 - Practicar exámenes médicos a trabajadores expuestos a factores de riesgo
+
+**Categoría: Identificación y Análisis (10 requisitos)**
+- [ ] 7.1 - Identificar y analizar factores de riesgo psicosocial (centros +15 trabajadores)
+- [ ] 7.2 - Identificar trabajadores expuestos a acontecimientos traumáticos severos
+- [ ] 7.3 - Evaluar entorno organizacional favorable (centros +50 trabajadores)
+- [ ] 7.4 - Aplicar Guía de referencia I (centros 16-50 trabajadores)
+- [ ] 7.5 - Aplicar Guía de referencia II (centros +50 trabajadores)
+- [ ] 7.6 - Aplicar Guía de referencia III para entorno organizacional
+- [ ] 7.7 - Elaborar informe con resultados de identificación y análisis
+- [ ] 7.8 - Poner a disposición de trabajadores resultados de identificación
+- [ ] 7.9 - Realizar identificación y análisis cada 2 años
+- [ ] 7.10 - Conservar registros al menos 5 años
+
+**Categoría: Medidas y Acciones de Control (12 requisitos)**
+- [ ] 8.1 - Establecer acciones de control cuando resultado sea nulo o despreciable
+- [ ] 8.2 - Establecer medidas de prevención cuando resultado sea bajo, medio o alto
+- [ ] 8.3 - Establecer acciones de control cuando resultado sea medio, alto o muy alto
+- [ ] 8.4 - Incluir acciones de sensibilización
+- [ ] 8.5 - Incluir acciones de capacitación
+- [ ] 8.6 - Incluir acciones de redistribución de cargas de trabajo
+- [ ] 8.7 - Incluir acciones de modificación de jornadas
+- [ ] 8.8 - Incluir acciones de mejora de condiciones físicas
+- [ ] 8.9 - Incluir acciones de atención psicológica
+- [ ] 8.10 - Practicar exámenes médicos a trabajadores expuestos
+- [ ] 8.11 - Llevar registros de seguimiento de medidas de control
+- [ ] 8.12 - Evaluar efectividad de medidas de control
+
+**Categoría: Atención de Violencia Laboral (10 requisitos)**
+- [ ] 8.13 - Establecer procedimiento de atención de violencia laboral
+- [ ] 8.14 - Difundir procedimiento a todos los trabajadores
+- [ ] 8.15 - Establecer mecanismos seguros y confidenciales para quejas
+- [ ] 8.16 - Realizar investigaciones de casos de violencia laboral
+- [ ] 8.17 - Informar resultados de investigación a trabajador afectado
+- [ ] 8.18 - Implementar medidas de control para casos confirmados
+- [ ] 8.19 - Llevar registros de casos de violencia laboral
+- [ ] 8.20 - Conservar registros al menos 5 años
+- [ ] 8.21 - Garantizar confidencialidad de información
+- [ ] 8.22 - Prohibir represalias contra denunciantes
+
+### 🎯 Funcionalidades Clave
+
+1. **Dashboard de Cumplimiento:** Gauge chart con porcentaje global, gráfica de barras por categoría, lista de gaps críticos
+2. **Checklist Interactivo:** Toggle de cumplimiento, campo de notas, asignación de responsable, fecha límite
+3. **Gestión de Evidencias:** Upload múltiple de archivos (PDF, Word, Excel, imágenes), preview de documentos, descarga masiva
+4. **Reportes:** PDF con logo de empresa, secciones por categoría, tabla de cumplimiento, recomendaciones automáticas
+5. **Historial:** Tracking de cambios, comparativa entre evaluaciones, tendencias de cumplimiento
+
+### 📈 Impacto Esperado
+
+- **Cumplimiento Normativo:** 100% (elimina riesgo de multas por falta de documentación)
+- **Tiempo de Auditoría:** -85% (toda la evidencia centralizada y accesible)
+- **ROI:** $150,000 MXN/año (ahorro en multas y tiempo de auditoría)
+
+**Total de tareas:** 24 tareas críticas
+
+
+---
+
+## 🔧 FASE 186: Backend de Acciones en 3 Niveles (FASE 181 - Pendiente)
+
+**Descripción:** Implementación completa del backend para generación automática de acciones correctivas en 3 niveles (organizacional, grupal, individual) con detección de ATS.
+
+**Prioridad:** P1 - IMPORTANTE (Complemento de funcionalidad frontend ya implementada)
+
+**Estado:** Frontend completado (ActionsByLevel.tsx), backend pendiente
+
+### 📊 Base de Datos (Completado)
+
+- [x] Agregar campo `actionLevel` ENUM('organizational', 'group', 'individual') a tabla `correctiveActions`
+- [x] Agregar campo `targetScope` VARCHAR(255) a tabla `correctiveActions`
+- [x] Agregar campo `atsDetected` BOOLEAN a tabla `correctiveActions`
+- [x] Crear tabla `nom035_action_catalog` con 70 acciones
+
+### 🔧 Backend (5 tareas pendientes)
+
+- [ ] Actualizar schema Drizzle con campos nuevos de `correctiveActions` (actionLevel, targetScope, atsDetected)
+- [ ] Generar migración SQL con drizzle-kit para sincronizar schema
+- [ ] Crear procedimiento `correctiveActions.generateOrganizationalActions` - Genera acciones nivel 1
+- [ ] Crear procedimiento `correctiveActions.generateGroupActions` - Genera acciones nivel 2
+- [ ] Crear procedimiento `correctiveActions.generateIndividualActions` - Genera acciones nivel 3 con detección ATS
+- [ ] Crear procedimiento `correctiveActions.getActionsByLevel` - Retorna acciones agrupadas por nivel
+- [ ] Crear procedimiento `correctiveActions.detectATS` - Detecta casos con Acontecimientos Traumáticos Severos
+
+### 🎨 Frontend (Completado)
+
+- [x] Crear componente `ActionsByLevel.tsx` con 3 tabs
+- [x] Integrar ActionsByLevel en `SurveyResults.tsx`
+- [x] Implementar detección visual de casos ATS con badges rojos
+
+### 📈 Impacto Esperado
+
+- **Cumplimiento Normativo:** 100% (numeral 8 NOM-035)
+- **Tiempo de Generación de Acciones:** -97% (automático vs manual)
+- **ROI:** $120,000 MXN/año (ahorro en tiempo de coordinadores)
+
+**Total de tareas pendientes:** 7 tareas backend

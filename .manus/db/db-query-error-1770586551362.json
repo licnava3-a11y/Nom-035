@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE corrective_actions \nADD COLUMN action_level ENUM('organizational', 'group', 'individual') DEFAULT NULL,\nADD COLUMN target_scope VARCHAR(255) DEFAULT NULL,\nADD COLUMN ats_detected BOOLEAN DEFAULT FALSE;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute ALTER TABLE corrective_actions \nADD COLUMN action_level ENUM('organizational', 'group', 'individual') DEFAULT NULL,\nADD COLUMN target_scope VARCHAR(255) DEFAULT NULL,\nADD COLUMN ats_detected BOOLEAN DEFAULT FALSE;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table '32dy4ksxngo2w8qlnkhr6h.corrective_actions' doesn't exist"
+  ]
+}
