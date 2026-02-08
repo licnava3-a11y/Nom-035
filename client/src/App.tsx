@@ -83,6 +83,7 @@ import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
 import EarlyWarnings from "./pages/EarlyWarnings";
 import Investigations from "./pages/cases/Investigations";
+import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 
 function Router() {
   return (
@@ -375,6 +376,10 @@ function Router() {
       {/* Ruta pública para responder encuestas sin autenticación */}
       <Route path={"/survey/public/:token"}>
         <PublicSurvey />
+      </Route>
+      {/* Ruta pública para responder cuestionarios de investigación (mobbing/burnout) */}
+      <Route path={"/questionnaire/:token"}>
+        <QuestionnairePublic />
       </Route>
       <Route path={"/surveys/action-plan/:surveyId"}>
         <DashboardLayout>

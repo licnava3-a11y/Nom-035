@@ -4757,3 +4757,109 @@
 - [ ] Archivo de subtítulos SRT
 - [ ] Miniaturas personalizadas para cada video
 - [ ] Documento con enlaces a todos los videos
+
+
+## FASE 161: Página Pública de Cuestionarios (P1 - Alto) - COMPLETADA ✅
+
+### Backend - Router investigations
+- [x] Crear procedimiento público validateTokenAndCurp para validar token + CURP
+- [x] Modificar procedimiento getByToken para ser público (sin autenticación OAuth)
+- [x] Crear procedimiento público submitResponses para guardar respuestas
+- [x] Implementar cálculo automático de puntaje y nivel de riesgo
+- [x] Agregar campo curp a tabla investigation_questionnaires (ya existía en employees)
+
+### Frontend - Página Pública
+- [x] Crear componente /client/src/pages/public/QuestionnairePublic.tsx
+- [x] Implementar pantalla de autenticación con token + CURP
+- [x] Validar CURP contra base de datos de empleados
+- [x] Crear formulario de cuestionario de mobbing (36 preguntas, escala 1-5)
+- [x] Crear formulario de cuestionario de burnout (22 preguntas, escala 1-7)
+- [x] Implementar guardado de respuestas sin necesidad de login OAuth
+- [x] Mostrar mensaje de confirmación al completar
+- [x] Agregar ruta pública en App.tsx (/questionnaire/:token)
+- [x] Implementar manejo de errores (token inválido, CURP no encontrado)
+
+### Pruebas
+- [ ] Probar acceso con token válido + CURP correcto
+- [ ] Probar acceso con token válido + CURP incorrecto
+- [ ] Probar acceso con token expirado
+- [ ] Probar acceso con CURP no registrado en sistema
+- [ ] Verificar guardado de respuestas con CURP asociado
+- [ ] Verificar cálculo de puntaje y nivel de riesgo
+
+---
+
+## FASE 162: Protocolo de Violencia Laboral (P0 - Crítico) - BACKEND COMPLETADO ✅
+
+### Investigación y Documentación
+- [x] Investigar protocolo de violencia laboral según NOM-035-STPS-2018
+- [x] Documentar fases del protocolo: recepción, evaluación inicial, medidas cautelares, investigación, resolución, seguimiento, cerrado
+- [x] Identificar formatos y documentos requeridos
+
+### Backend - Schema y Migraciones
+- [x] Crear tabla workplace_violence_cases en schema (19 campos)
+- [x] Crear tabla protocol_steps para seguimiento de fases (9 campos)
+- [x] Generar migración SQL con drizzle-kit (0035_public_invaders.sql)
+- [x] Aplicar migración con webdev_execute_sql
+
+### Backend - Router workplaceViolence
+- [x] Crear router server/routers/workplaceViolence.ts
+- [x] Implementar procedimiento createCase (con generación automática de folio VL-YYYY-NNNN)
+- [x] Implementar procedimiento updateProtocolStep
+- [x] Implementar procedimiento listCases (con filtros por status, priority, phase)
+- [x] Implementar procedimiento getCaseById
+- [x] Implementar procedimiento getProtocolHistory
+- [x] Implementar procedimiento closeCase
+- [x] Implementar procedimiento assignResponsible
+- [x] Registrar router en appRouter
+
+### Frontend - Componente
+- [ ] Crear componente /client/src/pages/cases/WorkplaceViolenceProtocol.tsx
+- [ ] Implementar formulario de recepción de queja
+- [ ] Implementar tabla de casos en proceso
+- [ ] Implementar seguimiento de fases del protocolo
+- [ ] Agregar generación de reportes y documentos
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar opción en menú de Casos (DashboardLayout)
+
+### Pruebas
+- [ ] Crear tests unitarios para router workplaceViolence
+- [ ] Probar flujo completo del protocolo
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 163: Filtros Avanzados en Alertas Tempranas (P2 - Medio) - EN PROGRESO
+
+### Backend - Router earlyWarnings
+- [ ] Modificar procedimiento getCasesAboutToExpire para aceptar filtros
+- [ ] Modificar procedimiento getPendingSurveys para aceptar filtros
+- [ ] Modificar procedimiento getActionsWithoutFollowUp para aceptar filtros
+- [ ] Modificar procedimiento getSurveyCoverageAlerts para aceptar filtros
+- [ ] Agregar validaciones de filtros opcionales
+
+### Frontend - Componente EarlyWarnings
+- [ ] Agregar sección de filtros en header del dashboard
+- [ ] Implementar selector de departamento (dropdown)
+- [ ] Implementar selector de nivel de prioridad (Alta, Media, Baja, Todas)
+- [ ] Implementar selector de rango de fechas (DateRangePicker)
+- [ ] Agregar botón "Aplicar Filtros"
+- [ ] Agregar botón "Limpiar Filtros"
+- [ ] Conectar filtros con queries tRPC
+- [ ] Mantener estado de filtros en URL params
+
+### Pruebas
+- [ ] Probar filtrado por departamento
+- [ ] Probar filtrado por prioridad
+- [ ] Probar filtrado por rango de fechas
+- [ ] Probar combinación de filtros
+- [ ] Verificar 0 errores TypeScript
+
+
+### Integración con Bitácora de Casos
+- [x] Modificar CaseDetail.tsx para mostrar cuestionarios aplicados
+- [x] Agregar sección "Cuestionarios de Investigación" en pestaña de seguimiento
+- [x] Mostrar tabla con cuestionarios enviados/completados
+- [x] Mostrar resultados (puntaje y nivel de riesgo) de cuestionarios completados
+- [x] Agregar enlace para ver resultados detallados (pendiente)
+- [x] Implementar badges de estado (enviado, completado, expirado)

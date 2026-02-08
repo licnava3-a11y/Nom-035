@@ -1684,3 +1684,62 @@ export const investigationQuestionnaires = mysqlTable("investigation_questionnai
 
 export type InvestigationQuestionnaire = typeof investigationQuestionnaires.$inferSelect;
 export type InsertInvestigationQuestionnaire = typeof investigationQuestionnaires.$inferInsert;
+
+
+// Workplace Violence Protocol - Protocolo de Violencia Laboral
+export const workplaceViolenceCases = mysqlTable("workplace_violence_cases", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(), // Folio único del caso
+  complainantId: int("complainant_id").references(() => employees.id), // Denunciante (puede ser anónimo)
+  complainantName: varchar("complainant_name", { length: 255 }), // Nombre si es anónimo
+  accusedId: int("accused_id").references(() => employees.id).notNull(), // Persona acusada
+  complaintDate: date("complaint_date").notNull(), // Fecha de recepción de la queja
+  incidentDate: date("incident_date"), // Fecha del incidente
+  description: text("description").notNull(), // Descripción detallada de los hechos
+  evidenceFiles: json("evidence_files").$type<string[]>(), // URLs de archivos de evidencia
+  witnesses: json("witnesses").$type<Array<{ name: string; contact: string }>>(), // Testigos
+  currentPhase: mysqlEnum("current_phase", [
+    "recepcion", // Recepción de la queja
+    "evaluacion_inicial", // Evaluación inicial
+    "medidas_cautelares", // Medidas cautelares
+    "investigacion", // Investigación formal
+    "resolucion", // Resolución y dictamen
+    "seguimiento", // Seguimiento post-resolución
+    "cerrado" // Caso cerrado
+  ]).default("recepcion").notNull(),
+  priority: mysqlEnum("priority", ["baja", "media", "alta", "critica"]).default("media").notNull(),
+  status: mysqlEnum("status", ["activo", "suspendido", "cerrado"]).default("activo").notNull(),
+  resolution: text("resolution"), // Resolución final del caso
+  resolutionDate: date("resolution_date"), // Fecha de resolución
+  assignedToId: int("assigned_to_id").references(() => users.id), // Responsable asignado
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WorkplaceViolenceCase = typeof workplaceViolenceCases.$inferSelect;
+export type InsertWorkplaceViolenceCase = typeof workplaceViolenceCases.$inferInsert;
+
+// Protocol Steps - Seguimiento de fases del protocolo
+export const protocolSteps = mysqlTable("protocol_steps", {
+  id: int("id").autoincrement().primaryKey(),
+  caseId: int("case_id").references(() => workplaceViolenceCases.id).notNull(),
+  phase: mysqlEnum("phase", [
+    "recepcion",
+    "evaluacion_inicial",
+    "medidas_cautelares",
+    "investigacion",
+    "resolucion",
+    "seguimiento",
+    "cerrado"
+  ]).notNull(),
+  action: text("action").notNull(), // Acción realizada en esta fase
+  responsibleId: int("responsible_id").references(() => users.id).notNull(), // Responsable de la acción
+  actionDate: timestamp("action_date").defaultNow().notNull(), // Fecha de la acción
+  notes: text("notes"), // Notas adicionales
+  attachments: json("attachments").$type<string[]>(), // Archivos adjuntos (URLs)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ProtocolStep = typeof protocolSteps.$inferSelect;
+export type InsertProtocolStep = typeof protocolSteps.$inferInsert;

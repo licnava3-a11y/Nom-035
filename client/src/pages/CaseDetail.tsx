@@ -26,6 +26,9 @@ export default function CaseDetail() {
   // Obtener seguimientos del caso
   const { data: followUps, isLoading: followUpsLoading, refetch: refetchFollowUps } = trpc.cases.getFollowUps.useQuery({ caseId });
 
+  // Obtener cuestionarios de investigación del caso
+  const { data: questionnaires, isLoading: questionnairesLoading } = trpc.investigations.listByCaseId.useQuery({ caseId });
+
   // Mutation para agregar seguimiento
   const addFollowUpMutation = trpc.cases.addFollowUp.useMutation({
     onSuccess: () => {
@@ -236,6 +239,82 @@ export default function CaseDetail() {
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-8">No hay seguimientos registrados</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Cuestionarios de Investigación */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Cuestionarios de Investigación
+              </CardTitle>
+              <CardDescription>
+                Cuestionarios de mobbing y burnout enviados al empleado afectado
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {questionnairesLoading ? (
+                <p className="text-center text-muted-foreground py-4">Cargando cuestionarios...</p>
+              ) : questionnaires && questionnaires.length > 0 ? (
+                <div className="space-y-4">
+                  {questionnaires.map((q) => (
+                    <div key={q.id} className="border rounded-lg p-4 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant={q.status === "completed" ? "default" : q.status === "expired" ? "destructive" : "secondary"}>
+                              {q.status === "sent" && "Enviado"}
+                              {q.status === "completed" && "Completado"}
+                              {q.status === "expired" && "Expirado"}
+                            </Badge>
+                            <Badge variant="outline">
+                              {q.questionnaireType === "mobbing" ? "Mobbing" : "Burnout"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm font-medium">
+                            {q.employeeName} {q.employeeLastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {q.employeeEmail}
+                          </p>
+                        </div>
+                        <div className="text-right text-sm text-muted-foreground">
+                          <p>Enviado: {new Date(q.sentAt).toLocaleDateString()}</p>
+                          {q.completedAt && (
+                            <p>Completado: {new Date(q.completedAt).toLocaleDateString()}</p>
+                          )}
+                          <p>Expira: {new Date(q.expiresAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      {q.status === "completed" && q.score && q.riskLevel && (
+                        <div className="bg-muted p-3 rounded-md mt-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Resultados:</span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm">Puntaje: <strong>{q.score}</strong></span>
+                              <Badge
+                                variant={
+                                  q.riskLevel === "bajo" ? "secondary" :
+                                  q.riskLevel === "medio" ? "default" :
+                                  q.riskLevel === "alto" ? "destructive" :
+                                  "destructive"
+                                }
+                              >
+                                Riesgo: {q.riskLevel.charAt(0).toUpperCase() + q.riskLevel.slice(1)}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  No se han enviado cuestionarios de investigación para este caso
+                </p>
               )}
             </CardContent>
           </Card>

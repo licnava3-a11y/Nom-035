@@ -1,4 +1,4 @@
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { investigationQuestionnaires, nom035Cases, employees } from "../../drizzle/schema";
@@ -200,6 +200,145 @@ export const investigationsRouter = router({
         .orderBy(desc(investigationQuestionnaires.createdAt));
 
       return questionnaires;
+    }),
+
+  // [PÚBLICO] Validar token + CURP para acceso sin login
+  validateTokenAndCurp: publicProcedure
+    .input(
+      z.object({
+        token: z.string(),
+        curp: z.string().length(18),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Buscar cuestionario por token
+      const [questionnaire] = await db
+        .select({
+          id: investigationQuestionnaires.id,
+          questionnaireType: investigationQuestionnaires.questionnaireType,
+          status: investigationQuestionnaires.status,
+          expiresAt: investigationQuestionnaires.expiresAt,
+          responses: investigationQuestionnaires.responses,
+          score: investigationQuestionnaires.score,
+          riskLevel: investigationQuestionnaires.riskLevel,
+          employeeId: investigationQuestionnaires.employeeId,
+        })
+        .from(investigationQuestionnaires)
+        .where(eq(investigationQuestionnaires.accessToken, input.token))
+        .limit(1);
+
+      if (!questionnaire) {
+        throw new Error("Cuestionario no encontrado o token inválido");
+      }
+
+      // Verificar si el token ha expirado
+      if (new Date() > new Date(questionnaire.expiresAt)) {
+        throw new Error("El enlace ha expirado");
+      }
+
+      // Validar CURP contra empleado asociado al cuestionario
+      const [employee] = await db
+        .select({
+          id: employees.id,
+          curp: employees.curp,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+        })
+        .from(employees)
+        .where(eq(employees.id, questionnaire.employeeId))
+        .limit(1);
+
+      if (!employee || !employee.curp) {
+        throw new Error("Empleado no encontrado o sin CURP registrado");
+      }
+
+      // Comparar CURP (sin importar mayúsculas/minúsculas)
+      if (employee.curp.toUpperCase() !== input.curp.toUpperCase()) {
+        throw new Error("CURP incorrecto. Verifica tu información.");
+      }
+
+      return {
+        valid: true,
+        questionnaireId: questionnaire.id,
+        questionnaireType: questionnaire.questionnaireType,
+        status: questionnaire.status,
+        employeeName: `${employee.firstName} ${employee.lastName}`,
+      };
+    }),
+
+  // [PÚBLICO] Guardar respuestas del cuestionario sin autenticación OAuth
+  submitPublicResponses: publicProcedure
+    .input(
+      z.object({
+        token: z.string(),
+        curp: z.string().length(18),
+        responses: z.record(z.string(), z.any()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Verificar que el cuestionario existe y no ha expirado
+      const [questionnaire] = await db
+        .select()
+        .from(investigationQuestionnaires)
+        .where(eq(investigationQuestionnaires.accessToken, input.token))
+        .limit(1);
+
+      if (!questionnaire) {
+        throw new Error("Cuestionario no encontrado");
+      }
+
+      if (new Date() > new Date(questionnaire.expiresAt)) {
+        throw new Error("El enlace ha expirado");
+      }
+
+      if (questionnaire.status === "completed") {
+        throw new Error("Este cuestionario ya ha sido completado");
+      }
+
+      // Validar CURP contra empleado asociado
+      const [employee] = await db
+        .select({ curp: employees.curp })
+        .from(employees)
+        .where(eq(employees.id, questionnaire.employeeId))
+        .limit(1);
+
+      if (!employee || !employee.curp) {
+        throw new Error("Empleado no encontrado o sin CURP registrado");
+      }
+
+      if (employee.curp.toUpperCase() !== input.curp.toUpperCase()) {
+        throw new Error("CURP incorrecto. No puedes enviar este cuestionario.");
+      }
+
+      // Calcular puntaje y nivel de riesgo según tipo de cuestionario
+      const { score, riskLevel } = calculateScoreAndRisk(
+        input.responses,
+        questionnaire.questionnaireType
+      );
+
+      // Actualizar cuestionario
+      await db
+        .update(investigationQuestionnaires)
+        .set({
+          responses: input.responses,
+          score: score.toString(),
+          riskLevel,
+          status: "completed",
+          completedAt: new Date(),
+        })
+        .where(eq(investigationQuestionnaires.id, questionnaire.id));
+
+      return {
+        success: true,
+        score,
+        riskLevel,
+      };
     }),
 
   // Obtener resultados detallados de un cuestionario
