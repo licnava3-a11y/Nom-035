@@ -3207,3 +3207,103 @@
 - [ ] Verificar que todos los breadcrumbs funcionan correctamente
 - [ ] Verificar que las gráficas se actualizan con filtros
 - [ ] Guardar checkpoint final con todas las mejoras
+
+
+## FASE 119: Generador PDF de Informe Numeral 7.5 NOM-035
+
+### Crear Módulo de Generación de Informe
+- [x] Crear server/pdfGenerators/nom035Report.ts
+- [x] Implementar estructura del informe según Numeral 7.5
+- [x] Agregar sección: Datos generales del centro de trabajo
+- [x] Agregar sección: Resultados de identificación y análisis de factores de riesgo
+- [x] Agregar sección: Medidas de control y prevención
+- [x] Agregar sección: Conclusiones y recomendaciones
+- [x] Integrar firmas digitales de responsables
+- [x] Agregar código QR NOM-151 para validación
+- [x] Implementar foliado automático
+
+### Crear Procedimiento tRPC
+- [x] Crear procedimiento reports.generateNom035Report
+- [x] Crear procedimiento reports.getAvailablePeriods
+- [x] Crear procedimiento reports.getAvailableSigners
+- [x] Registrar reportsRouter en routers.ts
+- [x] Validar datos requeridos para el informe
+- [x] Generar PDF y subir a S3
+- [x] Retornar URL del PDF generado
+
+### Crear Interfaz Frontend
+- [ ] Crear página RegulatoryReports.tsx
+- [ ] Agregar formulario de selección de período
+- [ ] Agregar selector de firmantes autorizados
+- [ ] Implementar vista previa del informe
+- [ ] Agregar botón de descarga/exportación
+
+## FASE 120: Exportación a Word y Excel de Reportes Normativos
+
+### Implementar Exportación a Word
+- [ ] Instalar librería docx para generación de Word
+- [ ] Crear generador Word de Informe NOM-035
+- [ ] Mantener formato profesional y estructura normativa
+- [ ] Agregar procedimiento reports.generateNom035ReportWord
+
+### Implementar Exportación a Excel
+- [ ] Crear generador Excel con datos tabulados
+- [ ] Incluir hojas: Resumen, Factores de Riesgo, Medidas de Control
+- [ ] Agregar gráficas automáticas en Excel
+- [ ] Agregar procedimiento reports.generateNom035ReportExcel
+
+### Integrar en Frontend
+- [ ] Agregar selector de formato (PDF/Word/Excel)
+- [ ] Implementar descarga según formato seleccionado
+- [ ] Agregar indicador de progreso durante generación
+
+## FASE 121: Gráficas de Tendencias en Dashboard Principal
+
+### Implementar Gráficas de Tendencias
+- [ ] Agregar gráfica de tendencia semanal de casos NOM-035 (Line chart)
+- [ ] Agregar gráfica de tendencia mensual de cobertura de encuestas (Bar chart)
+- [ ] Agregar gráfica de cumplimiento normativo por período (Line chart)
+- [ ] Implementar comparación período actual vs anterior
+- [ ] Agregar filtros temporales (semana, mes, trimestre, año)
+- [ ] Integrar con DateRangeFilter para personalización
+
+### Crear Procedimientos tRPC
+- [ ] Crear procedimiento dashboard.getCasesTrend
+- [ ] Crear procedimiento dashboard.getSurveyCoverageTrend
+- [ ] Crear procedimiento dashboard.getComplianceTrend
+- [ ] Implementar agregación de datos por período
+
+### Actualizar Dashboard.tsx
+- [ ] Importar Chart.js y configurar
+- [ ] Agregar sección de gráficas de tendencias
+- [ ] Implementar responsive design para gráficas
+- [ ] Agregar tooltips informativos en gráficas
+
+## FASE 122: Sistema de Notificaciones Push en Tiempo Real
+
+### Implementar Backend de Notificaciones
+- [ ] Crear tabla notifications en schema.ts
+- [ ] Crear procedimiento notifications.getUnread
+- [ ] Crear procedimiento notifications.markAsRead
+- [ ] Crear procedimiento notifications.create
+- [ ] Implementar lógica de generación automática de notificaciones
+
+### Implementar Triggers de Notificaciones
+- [ ] Notificación al crear caso crítico (nivel alto)
+- [ ] Notificación al vencer encuesta (7 días antes)
+- [ ] Notificación al vencer acción correctiva
+- [ ] Notificación al recibir queja en buzón
+- [ ] Notificación al completar evaluación de competencias
+
+### Crear Componente Frontend
+- [ ] Crear componente NotificationCenter
+- [ ] Agregar badge de notificaciones no leídas en header
+- [ ] Implementar dropdown de notificaciones
+- [ ] Agregar sonido/vibración para notificaciones críticas
+- [ ] Implementar marcado como leída al hacer clic
+
+### Verificación Final
+- [ ] Probar generación de reportes PDF/Word/Excel
+- [ ] Verificar gráficas de tendencias con datos reales
+- [ ] Probar sistema de notificaciones en tiempo real
+- [ ] Guardar checkpoint con todas las funcionalidades

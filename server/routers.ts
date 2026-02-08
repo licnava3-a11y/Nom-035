@@ -33,6 +33,7 @@ import { companyRouter } from "./routers/company";
 import { equalityRouter } from "./routers/equality";
 import { executiveDashboardRouter } from "./routers/executiveDashboard";
 import { menuCountersRouter } from "./routers/menuCounters";
+import { reportsRouter } from "./routers/reports";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -882,9 +883,10 @@ export const appRouter = router({
   // Equality and Non-Discrimination NMX-025 (Igualdad Laboral y No Discriminación)
   equality: equalityRouter,
 
-  // Executive Dashboard (Dashboard Ejecutivo de Empresa)
+  // Executive Dashboard
   executiveDashboard: executiveDashboardRouter,
   menuCounters: menuCountersRouter,
+  reports: reportsRouter,
 });
 
 export type AppRouter = typeof appRouter;
