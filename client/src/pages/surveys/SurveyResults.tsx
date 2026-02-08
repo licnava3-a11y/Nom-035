@@ -4,6 +4,7 @@ import { trpc } from '@/lib/trpc';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, AlertTriangle, XCircle, FileText, ArrowLeft, Download } from 'lucide-react';
+import { ActionsByLevel } from '@/components/ActionsByLevel';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -360,6 +361,20 @@ export default function SurveyResults() {
             ))}
           </div>
         </Card>
+      )}
+
+      {/* Acciones Correctivas en 3 Niveles */}
+      {results && responseId && (
+        <ActionsByLevel
+          surveyId={responseId}
+          organizationalRisk={results.finalRisk?.toLowerCase().replace(' ', '_') as any}
+          groupRisks={Object.entries(results.departmentScores || {}).map(([dept, score]: [string, any]) => ({
+            department: dept,
+            riskLevel: (typeof score === 'string' ? score : 'medio').toLowerCase().replace(' ', '_') as any,
+            categories: results.categoryScores ? Object.keys(results.categoryScores) : [],
+          }))}
+          individualRisks={[]}
+        />
       )}
 
       {/* Información Adicional */}

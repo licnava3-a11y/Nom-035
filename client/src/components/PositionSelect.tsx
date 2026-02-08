@@ -14,6 +14,7 @@ interface PositionSelectProps {
   label?: string;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   error?: string;
 }
 
@@ -24,6 +25,7 @@ export function PositionSelect({
   label = "Puesto",
   placeholder = "Selecciona un puesto",
   required = false,
+  disabled = false,
   error,
 }: PositionSelectProps) {
   const [open, setOpen] = useState(false);
@@ -58,7 +60,7 @@ export function PositionSelect({
               !value && "text-muted-foreground",
               error && "border-destructive"
             )}
-            disabled={!department}
+            disabled={disabled || !department}
           >
             {value || placeholder}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
