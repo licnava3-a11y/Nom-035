@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Upload, Image as ImageIcon } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function Logo() {
   const toast = (opts: { title: string; description: string; variant?: string }) => {
@@ -91,7 +92,12 @@ export default function Logo() {
 
   return (
     <div className="container max-w-4xl py-8">
-      <div className="mb-6">
+      <Breadcrumbs items={[
+        { label: "Empresa", path: "/company/general" },
+        { label: "Logo" }
+      ]} />
+      
+      <div className="mb-6 mt-4">
         <div className="flex items-center gap-3 mb-2">
           <ImageIcon className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">Logo de la Empresa</h1>

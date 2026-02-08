@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Plus, Edit, Trash2, UserCheck, FileText } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function LegalRepresentative() {
   const toast = (opts: { title: string; description: string; variant?: string }) => {
@@ -147,7 +148,12 @@ export default function LegalRepresentative() {
 
   return (
     <div className="container max-w-6xl py-8">
-      <div className="flex items-center justify-between mb-6">
+      <Breadcrumbs items={[
+        { label: "Empresa", path: "/company/general" },
+        { label: "Representante Legal" }
+      ]} />
+      
+      <div className="flex items-center justify-between mb-6 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <UserCheck className="h-8 w-8 text-primary" />

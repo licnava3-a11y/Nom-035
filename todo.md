@@ -2794,3 +2794,66 @@
 - [x] Entregar resultados al usuario
 
 **FASE 100 COMPLETADA: Título actualizado, breadcrumbs implementados, tooltips agregados** ✅
+
+
+## FASE 101: Expansión de Tooltips Informativos a Todas las Secciones del Menú
+
+### Agregar Tooltips a Secciones Principales
+- [x] Agregar tooltip para "Empresa" (descripción: "Datos generales de la empresa según NOM-035 Capítulo 5")
+- [x] Agregar tooltip para "Gestión de Talento" (descripción: "Administración de empleados, puestos, departamentos y estructura organizacional")
+- [x] Agregar tooltip para "Capacitación y Desarrollo" (descripción: "Gestión de cursos, instructores y programas de capacitación")
+- [x] Agregar tooltip para "Prevención de Riesgos Psicosociales" (descripción: "Cumplimiento NOM-035-STPS-2018: Identificación y prevención de factores de riesgo")
+- [x] Agregar tooltip para "Igualdad Laboral y No Discriminación" (descripción: "Cumplimiento NMX-025-SCFI-2015: Igualdad laboral y no discriminación")
+- [x] Agregar tooltip para "Reportes y Análisis" (descripción: "Dashboards, reportes normativos y exportaciones")
+
+### Agregar Tooltips a Submenús de Empresa
+- [x] "Datos Generales" → "Razón social, RFC, dirección fiscal y actividades preponderantes"
+- [x] "Logo" → "Logotipo de la empresa para documentos y reportes oficiales"
+- [x] "Representante Legal" → "Datos del representante legal con acta constitutiva y poder notarial"
+- [x] "Firma Digital" → "Catálogo de firmantes autorizados con certificados digitales"
+
+### Agregar Tooltips a Submenús de Prevención NOM-035
+- [x] "Encuestas" → "Guías de Referencia I, II y III NOM-035 para evaluación de factores de riesgo"
+- [x] "Casos" → "Seguimiento de casos de riesgo psicosocial identificados"
+- [x] "Buzón" → "Buzón de quejas y denuncias anónimas"
+- [x] "Comité" → "Comité de seguridad y salud en el trabajo"
+- [x] "Acciones Correctivas" → "Plan de acciones para mitigar factores de riesgo identificados"
+
+### Agregar Tooltips a Submenús de Igualdad NMX-025
+- [x] "Política de Igualdad" → "Política institucional de igualdad laboral y no discriminación (Requisito 4.1.1)"
+- [x] "Indicadores de Brecha Salarial" → "Análisis de brecha salarial por género y puesto (Requisito 4.2.1)"
+- [x] "Acciones Afirmativas" → "Programas y acciones para promover la igualdad (Requisito 4.3.1)"
+- [x] "Quejas y Denuncias" → "Sistema de atención a quejas por discriminación (Requisito 4.3.2)"
+- [x] "Comité de Igualdad" → "Comité responsable de la implementación de la política (Requisito 4.4.1)"
+
+### Verificación
+- [x] Verificar que todos los tooltips se muestran correctamente
+- [x] Verificar que no hay errores TypeScript
+- [ ] Guardar checkpoint con tooltips expandidos
+
+## FASE 102: Agregar Breadcrumbs a Componentes de Empresa
+
+### Componentes de Empresa
+- [x] Agregar breadcrumbs en GeneralData.tsx ("Empresa > Datos Generales")
+- [x] Agregar breadcrumbs en Logo.tsx ("Empresa > Logo")
+- [x] Agregar breadcrumbs en LegalRepresentative.tsx ("Empresa > Representante Legal")
+- [x] Agregar breadcrumbs en DigitalSignature.tsx ("Empresa > Firma Digital")
+
+### Verificación
+- [x] Probar navegación con breadcrumbs en todos los componentes
+- [x] Verificar que no hay errores TypeScript
+
+## FASE 103: Agregar Breadcrumbs a Componentes de Igualdad Laboral
+
+### Componentes de Igualdad Laboral
+- [x] Agregar breadcrumbs en Policy.tsx ("Igualdad Laboral > Política de Igualdad")
+- [x] Agregar breadcrumbs en SalaryGap.tsx ("Igualdad Laboral > Indicadores de Brecha Salarial")
+- [x] Agregar breadcrumbs en AffirmativeActions.tsx ("Igualdad Laboral > Acciones Afirmativas")
+- [x] Agregar breadcrumbs en Complaints.tsx ("Igualdad Laboral > Quejas y Denuncias")
+- [x] Agregar breadcrumbs en Committee.tsx ("Igualdad Laboral > Comité de Igualdad")
+
+### Verificación
+- [x] Probar navegación con breadcrumbs en todos los componentes
+- [x] Verificar que no hay errores TypeScript
+- [ ] Guardar checkpoint final con breadcrumbs completos
+- [ ] Guardar checkpoint final con breadcrumbs completos

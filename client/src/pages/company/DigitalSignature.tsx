@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Trash2, PenTool, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function DigitalSignature() {
   const toast = (opts: { title: string; description: string; variant?: string }) => {
@@ -194,7 +195,12 @@ export default function DigitalSignature() {
 
   return (
     <div className="container max-w-6xl py-8">
-      <div className="flex items-center justify-between mb-6">
+      <Breadcrumbs items={[
+        { label: "Empresa", path: "/company/general" },
+        { label: "Firma Digital" }
+      ]} />
+      
+      <div className="flex items-center justify-between mb-6 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <PenTool className="h-8 w-8 text-primary" />

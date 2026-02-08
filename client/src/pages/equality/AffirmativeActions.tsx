@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, CheckCircle, Clock, XCircle, Target } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 type ActionFormData = {
   titulo: string;
@@ -151,7 +152,12 @@ export default function AffirmativeActions() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <Breadcrumbs items={[
+        { label: "Igualdad Laboral y No Discriminación", path: "/equality/policy" },
+        { label: "Acciones Afirmativas" }
+      ]} />
+      
+      <div className="flex items-center justify-between mt-4">
         <div>
           <h1 className="text-3xl font-bold">Acciones Afirmativas</h1>
           <p className="text-muted-foreground">NMX-025-SCFI-2015 - Requisito 4.3.1</p>

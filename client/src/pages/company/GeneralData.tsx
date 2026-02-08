@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Save, Building2 } from "lucide-react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export default function GeneralData() {
   const toast = (opts: { title: string; description: string; variant?: string }) => {
@@ -84,7 +85,12 @@ export default function GeneralData() {
 
   return (
     <div className="container max-w-4xl py-8">
-      <div className="mb-6">
+      <Breadcrumbs items={[
+        { label: "Empresa", path: "/company/general" },
+        { label: "Datos Generales" }
+      ]} />
+      
+      <div className="mb-6 mt-4">
         <div className="flex items-center gap-3 mb-2">
           <Building2 className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold">Datos Generales de la Empresa</h1>

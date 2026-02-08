@@ -42,53 +42,58 @@ const hierarchicalMenuItems = [
   {
     icon: Building2,
     label: "Empresa",
+    description: "Datos generales de la empresa según NOM-035 Capítulo 5",
     roles: ["admin"],
     submenu: [
-      { label: "Datos Generales", path: "/company/general" },
-      { label: "Datos del Reporte de la Encuesta", path: "/company/survey-report" },
-      { label: "Logo", path: "/company/logo" },
-      { label: "Representante Legal", path: "/company/legal-representative" },
-      { label: "Firma Digital", path: "/company/digital-signature" },
+      { label: "Datos Generales", path: "/company/general", description: "Razón social, RFC, dirección fiscal y actividades preponderantes" },
+      { label: "Datos del Reporte de la Encuesta", path: "/company/survey-report", description: "Datos del centro de trabajo para informes NOM-035" },
+      { label: "Logo", path: "/company/logo", description: "Logotipo de la empresa para documentos y reportes oficiales" },
+      { label: "Representante Legal", path: "/company/legal-representative", description: "Datos del representante legal con acta constitutiva y poder notarial" },
+      { label: "Firma Digital", path: "/company/digital-signature", description: "Catálogo de firmantes autorizados con certificados digitales" },
     ],
   },
   {
     icon: Users,
     label: "Gestión de Talento",
+    description: "Administración de empleados, puestos, departamentos y estructura organizacional",
     roles: ["admin"],
     submenu: [
-      { label: "Trabajadores", path: "/employees" },
-      { label: "Puestos", path: "/job-positions" },
-      { label: "Competencias", path: "/competencies-dashboard" },
-      { label: "Matriz de Habilidades", path: "/skills-matrix" },
-      { label: "Evaluación de Competencias", path: "/competency-evaluation" },
-      { label: "DNC Consolidada", path: "/dnc-dashboard" },
-      { label: "Catálogo de Competencias", path: "/competencies-manager" },
+      { label: "Trabajadores", path: "/employees", description: "Catálogo de trabajadores y expedientes digitales" },
+      { label: "Puestos", path: "/job-positions", description: "Catálogo de puestos y descripciones de trabajo" },
+      { label: "Competencias", path: "/competencies-dashboard", description: "Dashboard de competencias por trabajador y departamento" },
+      { label: "Matriz de Habilidades", path: "/skills-matrix", description: "Matriz de habilidades y competencias del personal" },
+      { label: "Evaluación de Competencias", path: "/competency-evaluation", description: "Evaluación de competencias y desempeño" },
+      { label: "DNC Consolidada", path: "/dnc-dashboard", description: "Detección de Necesidades de Capacitación consolidada" },
+      { label: "Catálogo de Competencias", path: "/competencies-manager", description: "Administración del catálogo de competencias organizacionales" },
     ],
   },
   {
     icon: GraduationCap,
     label: "Capacitación y Desarrollo",
+    description: "Gestión de cursos, instructores y programas de capacitación",
     roles: ["admin", "instructor", "student"],
     submenu: [
-      { label: "Cursos", path: "/courses" },
-      { label: "Evaluaciones", path: "/evaluations" },
-      { label: "Recursos", path: "/resources" },
+      { label: "Cursos", path: "/courses", description: "Catálogo de cursos y programas de capacitación" },
+      { label: "Evaluaciones", path: "/evaluations", description: "Evaluaciones de aprendizaje y certificaciones" },
+      { label: "Recursos", path: "/resources", description: "Material didáctico y recursos de capacitación" },
     ],
   },
   {
     icon: ShieldCheck,
     label: "Prevención de Riesgos Psicosociales",
+    description: "Cumplimiento NOM-035-STPS-2018: Identificación y prevención de factores de riesgo",
     roles: ["admin", "committee"],
     submenu: [
       {
         label: "Encuestas",
+        description: "Guías de Referencia I, II y III NOM-035 para evaluación de factores de riesgo",
         submenu: [
-          { label: "Guía I - ATS", path: "/surveys/guide-i" },
-          { label: "Guía II - Identificación", path: "/surveys/guide-ii" },
-          { label: "Guía III - Evaluación", path: "/surveys/guide-iii" },
-          { label: "Tamaño de Muestra", path: "/surveys/sample-size" },
-          { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard" },
-          { label: "Periodos de Aplicación", path: "/surveys/periods" },
+          { label: "Guía I - ATS", path: "/surveys/guide-i", description: "Cuestionario para identificar trabajadores expuestos a acontecimientos traumáticos severos" },
+          { label: "Guía II - Identificación", path: "/surveys/guide-ii", description: "Cuestionario de identificación de factores de riesgo (centros de trabajo con 16-50 trabajadores)" },
+          { label: "Guía III - Evaluación", path: "/surveys/guide-iii", description: "Cuestionario de evaluación del entorno organizacional (centros de trabajo con más de 50 trabajadores)" },
+          { label: "Tamaño de Muestra", path: "/surveys/sample-size", description: "Cálculo del tamaño de muestra para aplicación de encuestas" },
+          { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard", description: "Gestión de tokens de acceso para encuestas" },
+          { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación de encuestas" },
         ],
       },
               { 
@@ -96,45 +101,48 @@ const hierarchicalMenuItems = [
                 path: "/company/survey-report",
                 description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
               },
-      { label: "Casos", path: "/cases" },
-      { label: "Buzón", path: "/mailbox" },
-      { label: "Comité", path: "/committee" },
-      { label: "Acciones Correctivas", path: "/surveys/corrective-actions" },
-      { label: "Minutas de Reunión", path: "/meeting-minutes" },
-      { label: "Cumplimiento NOM-035", path: "/compliance" },
-      { label: "Panel de Administración", path: "/surveys/nom035-admin" },
+      { label: "Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial identificados" },
+      { label: "Buzón", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
+      { label: "Comité", path: "/committee", description: "Comité de seguridad y salud en el trabajo" },
+      { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar factores de riesgo identificados" },
+      { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones del comité" },
+      { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },
+      { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo para configuración de encuestas" },
     ],
   },
   {
     icon: Scale,
     label: "Igualdad Laboral y No Discriminación",
+    description: "Cumplimiento NMX-025-SCFI-2015: Igualdad laboral y no discriminación",
     roles: ["admin"],
     submenu: [
-      { label: "Política de Igualdad", path: "/equality/policy" },
-      { label: "Indicadores de Brecha Salarial", path: "/equality/salary-gap" },
-      { label: "Acciones Afirmativas", path: "/equality/affirmative-actions" },
-      { label: "Quejas y Denuncias", path: "/equality/complaints" },
-      { label: "Comité de Igualdad", path: "/equality/committee" },
+      { label: "Política de Igualdad", path: "/equality/policy", description: "Política institucional de igualdad laboral y no discriminación (Requisito 4.1.1)" },
+      { label: "Indicadores de Brecha Salarial", path: "/equality/salary-gap", description: "Análisis de brecha salarial por género y puesto (Requisito 4.2.1)" },
+      { label: "Acciones Afirmativas", path: "/equality/affirmative-actions", description: "Programas y acciones para promover la igualdad (Requisito 4.3.1)" },
+      { label: "Quejas y Denuncias", path: "/equality/complaints", description: "Sistema de atención a quejas por discriminación (Requisito 4.3.2)" },
+      { label: "Comité de Igualdad", path: "/equality/committee", description: "Comité responsable de la implementación de la política (Requisito 4.4.1)" },
     ],
   },
   {
     icon: PieChart,
     label: "Reportes y Análisis",
+    description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
-      { label: "Dashboard Ejecutivo", path: "/reports/executive" },
-      { label: "Reportes Normativos", path: "/reports/regulatory" },
-      { label: "Análisis de Competencias", path: "/reports/competencies" },
-      { label: "Exportaciones", path: "/reports/exports" },
+      { label: "Dashboard Ejecutivo", path: "/reports/executive", description: "Dashboard ejecutivo con métricas clave de la organización" },
+      { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
+      { label: "Análisis de Competencias", path: "/reports/competencies", description: "Análisis de brechas de competencias y DNC" },
+      { label: "Exportaciones", path: "/reports/exports", description: "Exportación de datos en Excel, Word y PDF" },
     ],
   },
   {
     icon: Settings,
     label: "Administración",
+    description: "Configuración del sistema y gestión de usuarios",
     roles: ["admin"],
     submenu: [
-      { label: "Usuarios", path: "/users" },
-      { label: "Configuración", path: "/settings" },
+      { label: "Usuarios", path: "/users", description: "Gestión de usuarios y permisos de acceso" },
+      { label: "Configuración", path: "/settings", description: "Configuración general del sistema y parámetros SMTP" },
     ],
   },
 ];
@@ -401,7 +409,7 @@ function DashboardLayoutContent({
                                 <SidebarMenuButton
                                   isActive={isSubActive || isNestedSubmenuItemActive}
                                   onClick={() => hasNestedSubmenu ? toggleSubmenu(subItemKey) : (subItem.path && setLocation(subItem.path))}
-                                  tooltip={subItem.label}
+                                  tooltip={subItem.description || subItem.label}
                                   className="h-9 text-sm font-normal"
                                 >
                                   <span>{subItem.label}</span>
@@ -422,7 +430,7 @@ function DashboardLayoutContent({
                                         <SidebarMenuButton
                                           isActive={isNestedActive}
                                           onClick={() => nestedItem.path && setLocation(nestedItem.path)}
-                                          tooltip={nestedItem.label}
+                                          tooltip={nestedItem.description || nestedItem.label}
                                           className="h-8 text-xs font-normal"
                                         >
                                           <span>{nestedItem.label}</span>
