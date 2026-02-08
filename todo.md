@@ -5843,3 +5843,122 @@
 - [ ] Usar webdev_request_secrets para solicitar SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
 - [ ] Documentar configuración SMTP en manual de instalación
 - [ ] Habilitar envío automático de correos en cuestionarios y alertas
+
+
+---
+
+## 🔗 FASE 178: Correlaciones de Datos (P0 - Crítico)
+
+### Auditoría de Correlaciones Faltantes
+- [ ] Auditar correlación entre employees y departments (verificar que todos los empleados tengan departamento válido)
+- [ ] Auditar correlación entre employees y positions (verificar que todos los empleados tengan puesto válido)
+- [ ] Auditar correlación entre nom035_cases y employees (verificar que todos los casos tengan empleado válido)
+- [ ] Auditar correlación entre committee_members y employees (verificar que todos los miembros tengan empleado válido)
+- [ ] Auditar correlación entre survey_responses y employees (verificar que todas las respuestas tengan empleado válido)
+- [ ] Auditar correlación entre corrective_actions y employees (verificar que todas las acciones tengan responsable válido)
+- [ ] Auditar correlación entre workplace_violence_cases y employees (verificar que todos los casos tengan acusado/denunciante válido)
+- [ ] Auditar correlación entre committee_programs y committee_sessions (verificar que todas las sesiones tengan programa válido)
+- [ ] Auditar correlación entre investigation_questionnaires y nom035_cases (verificar que todos los cuestionarios tengan caso válido)
+
+### Implementación de Correlaciones
+- [ ] Agregar foreign keys faltantes en schema.ts con onDelete: 'cascade' o 'set null' según corresponda
+- [ ] Crear índices en campos de correlación para mejorar performance de queries
+- [ ] Implementar validaciones en routers para verificar existencia de registros relacionados antes de insertar
+- [ ] Agregar mensajes de error descriptivos cuando falle una correlación (ej: "El departamento seleccionado no existe")
+
+### Correlaciones en Frontend
+- [ ] Implementar selects dependientes (ej: al seleccionar departamento, filtrar puestos por departamento)
+- [ ] Agregar validación de correlaciones en formularios antes de enviar al backend
+- [ ] Mostrar datos correlacionados en tablas (ej: mostrar nombre de departamento en lugar de solo ID)
+- [ ] Implementar breadcrumbs para mostrar jerarquía de correlaciones (ej: Empresa > Departamento > Puesto > Empleado)
+
+---
+
+## 📝 FASE 179: Prellenado Automático de Campos (P0 - Crítico)
+
+### Catálogos Existentes
+- [ ] Auditar catálogo de departments (verificar que esté poblado)
+- [ ] Auditar catálogo de positions (verificar que esté poblado)
+- [ ] Auditar catálogo de employees (verificar datos completos: nombre, CURP, departamento, puesto)
+- [ ] Auditar catálogo de committee_members (verificar que estén activos)
+- [ ] Auditar catálogo de nom035_survey_guides (verificar guías I, II, III)
+- [ ] Auditar catálogo de company (verificar datos de empresa: nombre, RFC, domicilio)
+
+### Implementación de Prellenado
+- [ ] Implementar prellenado de departamento al seleccionar empleado en formularios
+- [ ] Implementar prellenado de puesto al seleccionar empleado en formularios
+- [ ] Implementar prellenado de datos de empresa en reportes (nombre, RFC, domicilio)
+- [ ] Implementar prellenado de datos de empleado en casos NOM-035 (nombre, CURP, departamento, puesto)
+- [ ] Implementar prellenado de datos de miembro del comité al asignar responsable
+- [ ] Implementar prellenado de fecha actual en formularios de casos y acciones correctivas
+- [ ] Implementar prellenado de folio automático en casos de violencia laboral (VL-YYYY-NNNN)
+- [ ] Implementar prellenado de folio automático en casos NOM-035 (CASO-YYYY-NNNN)
+
+### Prellenado en Frontend
+- [ ] Crear hook useEmployeeData(employeeId) que retorne datos completos del empleado para prellenado
+- [ ] Crear hook useCompanyData() que retorne datos de empresa para prellenado de reportes
+- [ ] Implementar autocomplete en campos de búsqueda de empleados (por nombre, CURP, número de empleado)
+- [ ] Implementar prellenado de campos al seleccionar empleado en dropdown (nombre, departamento, puesto)
+- [ ] Agregar indicador visual de campos prellenados (ej: icono de "auto-completado")
+- [ ] Permitir edición de campos prellenados con confirmación (ej: "¿Desea modificar el departamento prellenado?")
+
+---
+
+## 🤖 FASE 180: Integración de IA para Redacción de Informes (P1 - Alto)
+
+### Análisis de Informes a Generar
+- [ ] Identificar informes que requieren redacción (actas de comité, informes de investigación, resoluciones de casos)
+- [ ] Documentar estructura de cada tipo de informe (secciones, campos requeridos, formato)
+- [ ] Crear plantillas base para cada tipo de informe con placeholders
+
+### Backend - Servicio de IA
+- [ ] Verificar que invokeLLM esté disponible en server/_core/llm.ts
+- [ ] Crear servicio server/services/aiReportService.ts para generación de informes con IA
+- [ ] Implementar función generateMeetingMinutes(data) que use IA para redactar minuta de reunión
+- [ ] Implementar función generateInvestigationReport(caseData) que use IA para redactar informe de investigación
+- [ ] Implementar función generateResolutionReport(caseData) que use IA para redactar resolución de caso
+- [ ] Implementar función generateCorrectiveActionReport(actionData) que use IA para redactar reporte de acción correctiva
+- [ ] Implementar función improveSummary(text) que use IA para mejorar redacción de resúmenes
+- [ ] Agregar validación de longitud de texto generado (máximo 2000 palabras)
+- [ ] Agregar manejo de errores cuando IA no esté disponible (fallback a plantilla estática)
+
+### Backend - Integración en Routers
+- [ ] Agregar procedimiento generateMeetingMinutesWithAI en router meetingMinutes
+- [ ] Agregar procedimiento generateInvestigationReportWithAI en router investigations
+- [ ] Agregar procedimiento generateResolutionReportWithAI en router workplaceViolence
+- [ ] Agregar procedimiento improveSummaryWithAI en router cases (para mejorar descripciones de casos)
+
+### Frontend - Componentes de IA
+- [ ] Crear componente AIAssistant.tsx con botón "Generar con IA" y textarea editable
+- [ ] Implementar botón "Generar Minuta con IA" en MeetingMinutes.tsx
+- [ ] Implementar botón "Generar Informe con IA" en Investigations.tsx
+- [ ] Implementar botón "Generar Resolución con IA" en WorkplaceViolenceProtocol.tsx
+- [ ] Implementar botón "Mejorar Redacción" en formularios de casos y acciones correctivas
+- [ ] Agregar indicador de carga mientras IA genera texto (spinner + mensaje "Generando con IA...")
+- [ ] Permitir edición del texto generado por IA antes de guardar
+- [ ] Agregar botón "Regenerar" para solicitar nueva versión del texto
+- [ ] Implementar preview del texto generado en modal antes de aplicar
+
+### UX de IA
+- [ ] Agregar tooltip explicativo: "La IA generará un borrador basado en los datos del caso. Puedes editarlo antes de guardar."
+- [ ] Mostrar badge "Generado con IA" en textos generados automáticamente
+- [ ] Implementar historial de versiones de textos generados (original, versión IA, versión editada)
+- [ ] Agregar opción "Usar plantilla estándar" como alternativa a IA
+
+---
+
+## 📊 RESUMEN DE NUEVAS TAREAS CRÍTICAS
+
+### FASE 178: Correlaciones de Datos (P0)
+- **Total:** 17 tareas
+- **Impacto:** Evitar errores de integridad referencial y mejorar UX con datos correlacionados
+
+### FASE 179: Prellenado Automático (P0)
+- **Total:** 18 tareas
+- **Impacto:** Reducir errores de captura y acelerar llenado de formularios
+
+### FASE 180: Integración de IA (P1)
+- **Total:** 27 tareas
+- **Impacto:** Acelerar redacción de informes y mejorar calidad de documentación
+
+**TOTAL NUEVAS TAREAS:** 62 tareas críticas e importantes
