@@ -1,54 +1,172 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
-import { BookOpen, ClipboardCheck, AlertCircle, FileText, TrendingUp, Users, Award, Target, ArrowRight } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import { useState, useMemo } from 'react';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { trpc } from '@/lib/trpc';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
+import { Link } from 'wouter';
+import { 
+  Users, 
+  FileSignature, 
+  Shield, 
+  AlertCircle, 
+  CheckCircle,
+  TrendingUp,
+  BarChart3,
+  BookOpen,
+  ClipboardCheck,
+  FileText,
+  Award,
+  Target,
+  ArrowRight
+} from 'lucide-react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+} from 'chart.js';
+import { Bar, Pie, Line } from 'react-chartjs-2';
 
-export default function Dashboard() {
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement
+);
+
+export default function DashboardConsolidated() {
   const { user } = useAuth();
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
+
+  const filters = useMemo(() => {
+    if (!dateRange) return undefined;
+    return {
+      startDate: dateRange.from.toISOString(),
+      endDate: dateRange.to.toISOString(),
+    };
+  }, [dateRange]);
+
+  // Métricas ejecutivas (solo para admin)
+  const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery(filters, {
+    enabled: user?.role === 'admin',
+  });
+
+  // Métricas por rol
   const { data: courses, isLoading: coursesLoading } = trpc.courses.list.useQuery();
   const { data: progress, isLoading: progressLoading } = trpc.progress.my.useQuery();
   const { data: cases, isLoading: casesLoading } = trpc.cases.list.useQuery(undefined, {
-    enabled: user?.role === "admin" || user?.role === "committee",
+    enabled: user?.role === 'admin' || user?.role === 'committee',
   });
 
-  // Get top 3 critical competency gaps for admin
+  // Brechas críticas de competencias (solo para admin)
   const { data: criticalGaps, isLoading: gapsLoading } = trpc.trainingNeeds.getCriticalGaps.useQuery(
     undefined,
-    { enabled: user?.role === "admin" }
+    { enabled: user?.role === 'admin' }
   );
 
   const getRoleLabel = (role: string) => {
     const labels: Record<string, string> = {
-      admin: "Administrador",
-      instructor: "Instructor",
-      student: "Estudiante",
-      committee: "Comité de Atención",
+      admin: 'Administrador',
+      instructor: 'Instructor',
+      student: 'Estudiante',
+      committee: 'Comité de Atención',
     };
     return labels[role] || role;
   };
 
-  const completedCourses = progress?.filter((p) => p.status === "completed").length || 0;
-  const inProgressCourses = progress?.filter((p) => p.status === "in_progress").length || 0;
-  const openCases = cases?.filter((c) => c.status === "open").length || 0;
-  const investigatingCases = cases?.filter((c) => c.status === "investigating").length || 0;
+  const completedCourses = progress?.filter((p) => p.status === 'completed').length || 0;
+  const inProgressCourses = progress?.filter((p) => p.status === 'in_progress').length || 0;
+  const openCases = cases?.filter((c) => c.status === 'open').length || 0;
+  const investigatingCases = cases?.filter((c) => c.status === 'investigating').length || 0;
+
+  // Preparar datos para gráficas (solo para admin)
+  const departmentChartData = metrics ? {
+    labels: metrics.employeesAndStructure.departmentDistribution.map(d => d.department),
+    datasets: [
+      {
+        label: 'Empleados por Departamento',
+        data: metrics.employeesAndStructure.departmentDistribution.map(d => d.count),
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
+          'rgba(139, 92, 246, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
+        ],
+      },
+    ],
+  } : null;
+
+  const riskTrendChartData = metrics ? {
+    labels: metrics.nom035Compliance.riskTrend.map(r => r.surveyTitle),
+    datasets: [
+      {
+        label: 'Puntuación Promedio de Riesgo',
+        data: metrics.nom035Compliance.riskTrend.map(r => r.avgScore),
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+        tension: 0.4,
+      },
+    ],
+  } : null;
+
+  const genderChartData = metrics ? {
+    labels: metrics.nmx025Equality.genderDistribution.map(g => g.sexo),
+    datasets: [
+      {
+        label: 'Distribución de Género',
+        data: metrics.nmx025Equality.genderDistribution.map(g => g.count),
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
+          'rgba(156, 163, 175, 0.8)',
+        ],
+      },
+    ],
+  } : null;
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Bienvenido, {user?.name || "Usuario"}
+          Bienvenido, {user?.name || 'Usuario'}
         </h1>
         <p className="text-muted-foreground mt-2">
-          {getRoleLabel(user?.role || "student")} - Plataforma de Capacitación NOM-035 STPS 2018
+          {getRoleLabel(user?.role || 'student')} - Plataforma de Capacitación NOM-035 STPS 2018
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Filtros temporales (solo para admin) */}
+      {user?.role === 'admin' && (
+        <div className="bg-muted/30 p-4 rounded-lg border">
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0">
+              <p className="text-sm font-medium">Filtrar por período:</p>
+            </div>
+            <div className="flex-1">
+              <DateRangeFilter value={dateRange} onChange={setDateRange} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stats Cards por Rol */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {user?.role === "student" && (
+        {user?.role === 'student' && (
           <>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -78,7 +196,7 @@ export default function Dashboard() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{coursesLoading ? "..." : courses?.length || 0}</div>
+                <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">Total de cursos</p>
               </CardContent>
             </Card>
@@ -96,7 +214,7 @@ export default function Dashboard() {
           </>
         )}
 
-        {(user?.role === "admin" || user?.role === "committee") && (
+        {(user?.role === 'admin' || user?.role === 'committee') && (
           <>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -126,7 +244,7 @@ export default function Dashboard() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{casesLoading ? "..." : cases?.length || 0}</div>
+                <div className="text-2xl font-bold">{casesLoading ? '...' : cases?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">Todos los registros</p>
               </CardContent>
             </Card>
@@ -137,14 +255,14 @@ export default function Dashboard() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{coursesLoading ? "..." : courses?.length || 0}</div>
+                <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">Programas activos</p>
               </CardContent>
             </Card>
           </>
         )}
 
-        {user?.role === "instructor" && (
+        {user?.role === 'instructor' && (
           <>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -152,7 +270,7 @@ export default function Dashboard() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{coursesLoading ? "..." : courses?.length || 0}</div>
+                <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
                 <p className="text-xs text-muted-foreground">Total de cursos</p>
               </CardContent>
             </Card>
@@ -193,8 +311,130 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Métricas Ejecutivas (solo para admin) */}
+      {user?.role === 'admin' && metrics && (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Empleados</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics.employeesAndStructure.totalEmployees}</div>
+                <p className="text-xs text-muted-foreground">Plantilla laboral</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Representantes Legales</CardTitle>
+                <FileSignature className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics.employeesAndStructure.activeLegalReps}</div>
+                <p className="text-xs text-muted-foreground">Activos</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Firmantes Autorizados</CardTitle>
+                <Shield className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics.employeesAndStructure.authorizedSigners}</div>
+                <p className="text-xs text-muted-foreground">Certificados digitales</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Cobertura Encuestas</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics.nom035Compliance.surveyCoverage}%</div>
+                <p className="text-xs text-muted-foreground">Cumplimiento NOM-035</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Gráficas */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {departmentChartData && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Distribución por Departamento</CardTitle>
+                  <CardDescription>Empleados por área organizacional</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <Bar 
+                      data={departmentChartData} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: { display: false },
+                        },
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {genderChartData && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Distribución de Género</CardTitle>
+                  <CardDescription>Cumplimiento NMX-025-SCFI-2015</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <Pie 
+                      data={genderChartData} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {riskTrendChartData && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Tendencia de Factores de Riesgo Psicosocial</CardTitle>
+                <CardDescription>Evolución de puntuaciones NOM-035-STPS-2018</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <Line 
+                    data={riskTrendChartData} 
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                        },
+                      },
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
       {/* Critical Competency Gaps Widget - Admin Only */}
-      {user?.role === "admin" && (
+      {user?.role === 'admin' && (
         <Card className="border-orange-200 bg-orange-50/50">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -262,7 +502,7 @@ export default function Dashboard() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight mb-4">Accesos Rápidos</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {user?.role === "student" && (
+          {user?.role === 'student' && (
             <>
               <Link href="/courses">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -305,7 +545,7 @@ export default function Dashboard() {
                       </div>
                       <div>
                         <CardTitle>Recursos</CardTitle>
-                        <CardDescription>Descarga manuales y protocolos</CardDescription>
+                        <CardDescription>Manuales y protocolos NOM-035</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -314,7 +554,7 @@ export default function Dashboard() {
             </>
           )}
 
-          {(user?.role === "admin" || user?.role === "committee") && (
+          {(user?.role === 'admin' || user?.role === 'committee') && (
             <>
               <Link href="/cases">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -324,31 +564,31 @@ export default function Dashboard() {
                         <AlertCircle className="h-6 w-6 text-destructive" />
                       </div>
                       <div>
-                        <CardTitle>Gestión de Casos</CardTitle>
-                        <CardDescription>Atención de casos psicosociales</CardDescription>
+                        <CardTitle>Gestionar Casos</CardTitle>
+                        <CardDescription>Seguimiento de casos NOM-035</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
-              <Link href="/committee">
+              <Link href="/surveys">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <Users className="h-6 w-6 text-primary" />
+                        <ClipboardCheck className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Comité de Atención</CardTitle>
-                        <CardDescription>Administrar miembros del comité</CardDescription>
+                        <CardTitle>Encuestas NOM-035</CardTitle>
+                        <CardDescription>Guías I, II y III</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
-              <Link href="/documents">
+              <Link href="/reports/regulatory">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>
                     <div className="flex items-center gap-3">
@@ -356,40 +596,8 @@ export default function Dashboard() {
                         <FileText className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Ver Documentos</CardTitle>
-                        <CardDescription>Formatos legales y actas del comité</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-
-              <Link href="/cases/assign">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <Users className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle>Asignar Comité</CardTitle>
-                        <CardDescription>Asignar casos a miembros del comité</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-
-              <Link href="/reports">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <TrendingUp className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle>Reportes</CardTitle>
-                        <CardDescription>Métricas y estadísticas del sistema</CardDescription>
+                        <CardTitle>Reportes Normativos</CardTitle>
+                        <CardDescription>Informe Numeral 7.5 NOM-035</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -398,7 +606,7 @@ export default function Dashboard() {
             </>
           )}
 
-          {user?.role === "instructor" && (
+          {user?.role === 'instructor' && (
             <>
               <Link href="/courses">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -408,40 +616,40 @@ export default function Dashboard() {
                         <BookOpen className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Gestionar Cursos</CardTitle>
-                        <CardDescription>Crear y editar programas de capacitación</CardDescription>
+                        <CardTitle>Mis Cursos</CardTitle>
+                        <CardDescription>Administra tus programas</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
-              <Link href="/job-positions">
+              <Link href="/evaluations">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <Users className="h-6 w-6 text-primary" />
+                        <ClipboardCheck className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Análisis de Puestos</CardTitle>
-                        <CardDescription>Evaluar riesgos psicosociales</CardDescription>
+                        <CardTitle>Evaluaciones</CardTitle>
+                        <CardDescription>Revisa y califica exámenes</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                 </Card>
               </Link>
 
-              <Link href="/reports">
+              <Link href="/resources">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <TrendingUp className="h-6 w-6 text-primary" />
+                        <FileText className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <CardTitle>Reportes</CardTitle>
-                        <CardDescription>Seguimiento y estadísticas</CardDescription>
+                        <CardTitle>Recursos</CardTitle>
+                        <CardDescription>Materiales de apoyo</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -451,31 +659,6 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-
-      {/* Information Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Acerca de la NOM-035-STPS-2018</CardTitle>
-          <CardDescription>
-            Factores de riesgo psicosocial en el trabajo - Identificación, análisis y prevención
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            La Norma Oficial Mexicana NOM-035-STPS-2018 establece los elementos para identificar, analizar y
-            prevenir los factores de riesgo psicosocial, así como para promover un entorno organizacional favorable
-            en los centros de trabajo.
-          </p>
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link href="/resources">Ver Recursos</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/courses">Comenzar Capacitación</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

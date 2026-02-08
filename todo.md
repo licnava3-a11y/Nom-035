@@ -3388,3 +3388,32 @@
 - [ ] Probar generación de informes en los 3 formatos (PDF, DOCX, XLSX)
 - [ ] Verificar que las gráficas de tendencias funcionen correctamente
 - [ ] Guardar checkpoint final con todas las funcionalidades
+
+
+## FASE 126: Migración de Dashboard Principal a Dashboard Ejecutivo
+
+### Análisis y Planificación
+- [x] Leer Dashboard.tsx para identificar contenido actual
+- [x] Leer ExecutiveDashboard.tsx para identificar métricas y gráficas
+- [x] Planificar estructura consolidada del dashboard fusionado
+
+### Migración de Contenido
+- [x] Migrar métricas por rol (student, admin, instructor) a ExecutiveDashboard
+- [x] Migrar widget de "Brechas Críticas de Competencias" a ExecutiveDashboard
+- [x] Migrar sección de "Accesos Rápidos" a ExecutiveDashboard
+- [x] Mantener filtros temporales y gráficas de Chart.js existentes
+- [x] Mantener métricas ejecutivas (empleados, representantes, firmantes)
+- [x] Mantener gráficas de distribución por departamento
+- [x] Mantener gráficas de casos NOM-035
+- [x] Mantener gráficas de distribución de género NMX-025
+
+### Actualización de Rutas y Menú
+- [x] Actualizar ruta principal "/" para usar ExecutiveDashboard
+- [x] Eliminar opción "Dashboard Ejecutivo" del menú lateral (ya no es necesaria)
+- [x] Eliminar archivo Dashboard.tsx original
+- [x] Renombrar ExecutiveDashboard.tsx a Dashboard.tsx
+
+### Verificación
+- [x] Probar que el dashboard consolidado muestra todas las métricas
+- [x] Verificar que no hay errores TypeScript
+- [x] Guardar checkpoint con dashboard fusionado

@@ -77,7 +77,7 @@ import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
 import EqualityComplaints from "./pages/equality/Complaints";
 import EqualityCommittee from "./pages/equality/Committee";
-import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+
 import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
 
@@ -87,11 +87,6 @@ function Router() {
       <Route path={"/"}>
         <DashboardLayout>
           <Dashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/executive-dashboard"}>
-        <DashboardLayout>
-          <ExecutiveDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/courses"}>

@@ -134,8 +134,7 @@ const hierarchicalMenuItems = [
     description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
-      { label: "Dashboard Ejecutivo", path: "/executive-dashboard", description: "Métricas consolidadas de empleados, NOM-035 y NMX-025 con gráficas interactivas" },
-      { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
+{ label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
       { label: "Análisis de Competencias", path: "/reports/competencies", description: "Análisis de brechas de competencias y DNC" },
       { label: "Exportaciones", path: "/reports/exports", description: "Exportación de datos en Excel, Word y PDF" },
     ],
