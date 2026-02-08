@@ -4570,16 +4570,37 @@
 ### FASE 158: Manual de Instalación del Software (P2 - Medio)
 
 #### Manual de Instalación para Servidor Linux (Ubuntu/Debian)
-- [ ] Documentar requisitos del sistema (RAM, CPU, disco, SO)
-- [ ] Documentar instalación de dependencias (Node.js, MySQL, Nginx)
-- [ ] Documentar configuración de base de datos (crear usuario, base de datos, permisos)
+
+**Opción 1: Servidor Linux con Nginx + Node.js + MySQL**
+- [ ] Documentar requisitos del sistema (RAM 4GB+, CPU 2 cores+, disco 20GB+, Ubuntu 20.04+/Debian 11+)
+- [ ] Documentar instalación de dependencias (Node.js 18+, MySQL 8.0+, Nginx 1.18+)
+- [ ] Documentar configuración de base de datos MySQL (crear usuario, base de datos, permisos)
 - [ ] Documentar configuración de variables de entorno (.env)
-- [ ] Documentar instalación de la aplicación (clonar repositorio, instalar dependencias)
+- [ ] Documentar instalación de la aplicación (clonar repositorio, pnpm install)
 - [ ] Documentar configuración de Nginx como proxy reverso
-- [ ] Documentar configuración de SSL/TLS con Let's Encrypt
-- [ ] Documentar configuración de firewall (puertos 80, 443, 3000)
+- [ ] Documentar configuración de SSL/TLS con Let's Encrypt (certbot)
+- [ ] Documentar configuración de dominio personalizado (DNS A/AAAA records)
+- [ ] Documentar configuración de firewall (ufw: puertos 80, 443, 3000)
 - [ ] Documentar proceso de inicio automático con systemd
-- [ ] Documentar respaldos y restauración de base de datos
+- [ ] Documentar respaldos y restauración de base de datos (mysqldump, cron)
+
+**Opción 2: Servidor Linux con Apache + PHP + MariaDB**
+- [ ] Documentar requisitos del sistema (RAM 4GB+, CPU 2 cores+, disco 20GB+, Ubuntu 20.04+/Debian 11+)
+- [ ] Documentar instalación de Apache 2.4+ (apt install apache2)
+- [ ] Documentar instalación de PHP 8.0+ y extensiones (php-fpm, php-mysql, php-curl, php-zip, php-xml)
+- [ ] Documentar instalación de MariaDB 10.5+ (apt install mariadb-server)
+- [ ] Documentar configuración de base de datos MariaDB (mysql_secure_installation, crear usuario y base de datos)
+- [ ] Documentar configuración de Apache VirtualHost para la aplicación
+- [ ] Documentar habilitación de módulos Apache (mod_rewrite, mod_ssl, mod_proxy, mod_headers)
+- [ ] Documentar configuración de PHP-FPM con Apache (ProxyPassMatch)
+- [ ] Documentar configuración de variables de entorno (.env o php.ini)
+- [ ] Documentar instalación de certificado SSL/TLS con Let's Encrypt (certbot --apache)
+- [ ] Documentar configuración de dominio personalizado (DNS A/AAAA records, ServerName en VirtualHost)
+- [ ] Documentar configuración de firewall (ufw: puertos 80, 443)
+- [ ] Documentar habilitación de HTTPS forzado (Redirect permanent / https://)
+- [ ] Documentar optimización de Apache (KeepAlive, MaxClients, prefork/worker/event MPM)
+- [ ] Documentar respaldos automáticos de MariaDB (mysqldump, cron jobs)
+- [ ] Documentar monitoreo de logs (access.log, error.log, php-fpm.log)
 
 #### Manual de Instalación para Servidor Windows Server
 - [ ] Documentar requisitos del sistema (RAM, CPU, disco, versión de Windows Server)
