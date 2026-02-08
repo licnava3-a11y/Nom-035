@@ -1544,3 +1544,23 @@ export const equalityCommittee = mysqlTable("equality_committee", {
 
 export type EqualityCommitteeMember = typeof equalityCommittee.$inferSelect;
 export type InsertEqualityCommitteeMember = typeof equalityCommittee.$inferInsert;
+
+/**
+ * NOM-035 Policies table
+ * Stores organizational policies for psychosocial risk prevention
+ */
+export const nom035Policies = mysqlTable("nom035_policies", {
+  id: int("id").autoincrement().primaryKey(),
+  nombre: varchar("nombre", { length: 255 }).notNull(),
+  descripcion: text("descripcion").notNull(),
+  fechaPublicacion: date("fecha_publicacion").notNull(),
+  representanteLegalId: int("representante_legal_id").references(() => companyLegalRepresentative.id),
+  pdfUrl: text("pdf_url"),
+  activo: boolean("activo").default(true).notNull(),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Nom035Policy = typeof nom035Policies.$inferSelect;
+export type InsertNom035Policy = typeof nom035Policies.$inferInsert;

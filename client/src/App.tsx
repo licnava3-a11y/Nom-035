@@ -65,6 +65,7 @@ import TokensDashboard from "./pages/surveys/TokensDashboard";
 import SurveysAdminPanel from "./pages/SurveysAdminPanel";
 import SurveyPeriodsManager from "./pages/SurveyPeriodsManager";
 import Nom035AdminPanel from "./pages/Nom035AdminPanel";
+import Policies from "./pages/nom035/Policies";
 import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
 import CompanyGeneralData from "./pages/company/GeneralData";
@@ -386,6 +387,11 @@ function Router() {
       <Route path={"/surveys/nom035-admin"}>
         <DashboardLayout>
           <Nom035AdminPanel />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/nom035/policies"}>
+        <DashboardLayout>
+          <Policies />
         </DashboardLayout>
       </Route>
       <Route path={"/compliance"}>

@@ -3417,3 +3417,51 @@
 - [x] Probar que el dashboard consolidado muestra todas las métricas
 - [x] Verificar que no hay errores TypeScript
 - [x] Guardar checkpoint con dashboard fusionado
+
+
+## FASE 127: Módulo de Políticas NOM-035
+
+### Backend - Esquema de Base de Datos
+- [x] Crear tabla nom035_policies en drizzle/schema.ts
+- [x] Generar migración SQL para tabla de políticas
+- [x] Aplicar migración a la base de datos
+
+### Backend - Procedimientos tRPC
+- [x] Crear router nom035Policies.ts
+- [x] Implementar procedimiento list (listar todas las políticas)
+- [x] Implementar procedimiento getById (obtener política por ID)
+- [x] Implementar procedimiento create (crear nueva política)
+- [x] Implementar procedimiento update (actualizar política existente)
+- [x] Implementar procedimiento delete (eliminar política)
+- [x] Implementar procedimiento generatePDF (generar PDF de política)
+- [x] Registrar router en appRouter
+
+### Backend - Generador PDF
+- [x] Crear server/pdfGenerators/nom035Policy.ts
+- [x] Implementar encabezado con logotipo de empresa (superior izquierda)
+- [x] Agregar título de la política
+- [x] Incluir fecha de publicación
+- [x] Agregar descripción de la política con formato profesional
+- [x] Incluir firma digital del representante legal
+- [x] Agregar código QR NOM-151 para validación
+- [x] Implementar pie de página con folio y numeración
+
+### Frontend - Interfaz de Gestión
+- [x] Crear client/src/pages/nom035/Policies.tsx
+- [x] Implementar tabla de políticas existentes
+- [x] Crear formulario de creación/edición de políticas
+- [x] Agregar validaciones de formulario
+- [x] Implementar botón de generación de PDF
+- [x] Agregar diálogo de confirmación para eliminar
+- [x] Implementar breadcrumbs de navegación
+
+### Integración y Pruebas
+- [x] Agregar ruta /nom035/policies en App.tsx
+- [x] Agregar opción "Políticas" en menú de Prevención de Riesgos Psicosociales
+- [x] Agregar tooltip descriptivo en menú lateral
+- [x] Probar creación de política
+- [x] Probar edición de política
+- [x] Probar generación de PDF
+- [x] Probar eliminación de política
+- [x] Verificar que no hay errores TypeScript
+- [x] Guardar checkpoint con módulo completo

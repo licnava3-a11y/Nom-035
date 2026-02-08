@@ -34,6 +34,7 @@ import { equalityRouter } from "./routers/equality";
 import { executiveDashboardRouter } from "./routers/executiveDashboard";
 import { menuCountersRouter } from "./routers/menuCounters";
 import { reportsRouter } from "./routers/reports";
+import { nom035PoliciesRouter } from "./routers/nom035Policies";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -77,6 +78,7 @@ export const appRouter = router({
   surveyDistribution: surveyDistributionRouter,
   surveyPeriods: surveyPeriodsRouter,
   nom035Admin: nom035AdminRouter,
+  nom035Policies: nom035PoliciesRouter,
   surveyTokensAdvanced: surveyTokensAdvancedRouter,
   trainingNeeds: trainingNeedsRouter,
   organizationalCompetencies: organizationalCompetenciesRouter,
