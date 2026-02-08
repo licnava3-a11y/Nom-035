@@ -4262,3 +4262,103 @@
 - [ ] Probar creación de necesidades de capacitación
 - [ ] Verificar 0 errores TypeScript
 - [ ] Verificar todos los tests pasados
+
+
+## FASE 152: Cuestionarios de Mobbing y Burnout en Investigación de Casos (P1 - Alto)
+
+### Backend - Schema y Tablas
+- [ ] Crear tabla investigation_questionnaires para almacenar respuestas
+- [ ] Definir campos: caseId, questionnaireType (mobbing/burnout), responses (JSON), score, riskLevel
+- [ ] Generar migración SQL
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Backend - Router investigations.ts
+- [ ] Crear router investigations.ts
+- [ ] Implementar procedimiento sendQuestionnaire (enviar por correo)
+- [ ] Implementar procedimiento submitResponses (guardar respuestas)
+- [ ] Implementar procedimiento calculateScore (calcular puntaje y nivel de riesgo)
+- [ ] Implementar procedimiento getResults (obtener resultados)
+- [ ] Agregar validaciones de respuestas completas
+
+### Backend - Servicio de Correos
+- [ ] Crear servicio investigation-email-service.ts
+- [ ] Implementar plantilla HTML para cuestionario de mobbing
+- [ ] Implementar plantilla HTML para cuestionario de burnout
+- [ ] Incluir enlace único de acceso al cuestionario en línea
+- [ ] Agregar instrucciones de llenado
+
+### Frontend - Menú de Casos
+- [ ] Modificar DashboardLayout.tsx para agregar submenú en Casos
+- [ ] Crear submenú "Investigación" con opciones:
+  * Cuestionario de Mobbing
+  * Cuestionario de Burnout
+  * Historial de Investigaciones
+
+### Frontend - Página de Cuestionarios
+- [ ] Crear componente InvestigationQuestionnaires.tsx
+- [ ] Implementar formulario de envío de cuestionario por correo
+- [ ] Agregar selector de caso asociado
+- [ ] Agregar selector de tipo de cuestionario (mobbing/burnout)
+- [ ] Implementar tabla de cuestionarios enviados/completados
+- [ ] Mostrar estado: enviado, completado, pendiente
+
+### Frontend - Página de Cuestionario en Línea
+- [ ] Crear componente OnlineQuestionnaire.tsx (acceso público con token)
+- [ ] Implementar formulario de cuestionario de mobbing (preguntas según literatura)
+- [ ] Implementar formulario de cuestionario de burnout (Maslach Burnout Inventory)
+- [ ] Agregar validaciones de respuestas completas
+- [ ] Mostrar mensaje de confirmación al completar
+- [ ] Agregar ruta pública en App.tsx
+
+### Frontend - Página de Resultados
+- [ ] Crear componente InvestigationResults.tsx
+- [ ] Mostrar puntaje calculado
+- [ ] Mostrar nivel de riesgo (bajo, medio, alto, muy alto)
+- [ ] Implementar gráficas de resultados por dimensión
+- [ ] Agregar sección de recomendaciones según nivel de riesgo
+- [ ] Permitir descargar PDF de resultados
+
+### Integración con Casos
+- [ ] Agregar botón "Enviar Cuestionario" en CaseDetail.tsx
+- [ ] Mostrar resultados de cuestionarios en pestaña de investigación
+- [ ] Vincular resultados con seguimiento del caso
+
+### Pruebas
+- [ ] Probar envío de cuestionario por correo
+- [ ] Verificar acceso en línea con token
+- [ ] Probar llenado y guardado de respuestas
+- [ ] Verificar cálculo de puntaje y nivel de riesgo
+- [ ] Probar visualización de resultados
+- [ ] Verificar integración con casos
+- [ ] Validar 0 errores TypeScript
+
+**PRIORIDAD: P1 (Alto) - Mejora significativa de funcionalidad de investigación de casos**
+
+
+## FASE 151: Agregar Filtros Avanzados en Alertas Tempranas (P2 - Medio)
+
+### Backend - Router earlyWarnings.ts
+- [ ] Modificar procedimiento getCasesAboutToExpire para aceptar filtros (departmentId, priorityLevel, startDate, endDate)
+- [ ] Modificar procedimiento getPendingSurveys para aceptar filtros
+- [ ] Modificar procedimiento getActionsWithoutFollowUp para aceptar filtros
+- [ ] Modificar procedimiento getSurveyCoverageAlerts para aceptar filtros
+- [ ] Agregar validaciones de filtros opcionales
+
+### Frontend - EarlyWarnings.tsx
+- [ ] Agregar sección de filtros en header del dashboard
+- [ ] Implementar selector de departamento (dropdown con lista de departamentos)
+- [ ] Implementar selector de nivel de prioridad (Alta, Media, Baja, Todas)
+- [ ] Implementar selector de rango de fechas (DateRangePicker)
+- [ ] Agregar botón "Aplicar Filtros"
+- [ ] Agregar botón "Limpiar Filtros"
+- [ ] Conectar filtros con queries tRPC
+- [ ] Mantener estado de filtros en URL params para compartir enlaces
+
+### Pruebas
+- [ ] Probar filtrado por departamento
+- [ ] Probar filtrado por prioridad
+- [ ] Probar filtrado por rango de fechas
+- [ ] Probar combinación de filtros
+- [ ] Verificar 0 errores TypeScript
+
+**PRIORIDAD: P2 (Medio) - Mejora de UX para análisis específicos**
