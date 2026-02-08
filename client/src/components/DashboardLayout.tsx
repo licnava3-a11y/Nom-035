@@ -28,6 +28,8 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { MenuBadge } from "./MenuBadge";
+import { trpc } from "@/lib/trpc";
 
 import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart } from "lucide-react";
 
@@ -229,6 +231,11 @@ function DashboardLayoutContent({
 }: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
+  
+  // Obtener contadores dinámicos para badges
+  const { data: counters } = trpc.menuCounters.getAll.useQuery(undefined, {
+    refetchInterval: 60000, // Actualizar cada minuto
+  });
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
@@ -390,6 +397,16 @@ function DashboardLayoutContent({
                           className={`h-4 w-4 ${isActive || isSubmenuItemActive ? "text-primary" : ""}`}
                         />
                         <span>{item.label}</span>
+                        {/* Badges dinámicos */}
+                        {item.label === "Prevención de Riesgos Psicosociales" && counters?.cases && (
+                          <MenuBadge count={counters.cases.open + counters.cases.investigating} variant="danger" />
+                        )}
+                        {item.label === "Encuestas NOM-035" && counters?.surveys && (
+                          <MenuBadge count={counters.surveys.expiringSoon} variant="warning" />
+                        )}
+                        {item.label === "Capacitación y Desarrollo" && counters?.courses && (
+                          <MenuBadge count={counters.courses.published} variant="info" />
+                        )}
                         {hasSubmenu && (
                           <div className="ml-auto">
                             {isSubmenuOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -416,6 +433,13 @@ function DashboardLayoutContent({
                                   className="h-9 text-sm font-normal"
                                 >
                                   <span>{subItem.label}</span>
+                                  {/* Badges en submenús */}
+                                  {subItem.label === "Casos" && counters?.cases && (
+                                    <MenuBadge count={counters.cases.open} variant="danger" />
+                                  )}
+                                  {subItem.label === "Buzón" && counters?.mailbox && (
+                                    <MenuBadge count={counters.mailbox.pending} variant="danger" />
+                                  )}
                                   {hasNestedSubmenu && (
                                     <div className="ml-auto">
                                       {isNestedSubmenuOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}

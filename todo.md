@@ -3156,3 +3156,54 @@
 - [ ] Verificar que todos los breadcrumbs funcionan
 - [ ] Verificar accesibilidad con teclado
 - [ ] Guardar checkpoint con rediseño completo del menú lateral
+
+
+## FASE 116: Implementar Badges Visuales en Menú Lateral
+
+###### Integrar Contadores Dinámicos
+- [x] Importar trpc.menuCounters.getAll en DashboardLayout.tsx
+- [x] Crear componente Badge reutilizable para indicadores
+- [x] Agregar badge rojo en "Casos" (si casos abiertos > 0)
+- [x] Agregar badge rojo en "Buzón" (si quejas pendientes > 0)
+- [x] Agregar badge amarillo en "Encuestas NOM-035" (si encuestas próximas a vencer > 0)
+- [x] Agregar badge azul en "Capacitación y Desarrollo" (cursos publicados)
+- [x] Probar badges dinámicos con datos realesles
+
+## FASE 117: Completar Breadcrumbs en 14 Módulos Restantes
+
+### Encuestas NOM-035 (7 componentes)
+- [x] Agregar breadcrumbs en GuideI.tsx ("Encuestas NOM-035 > Guía I - ATS")
+- [x] Agregar breadcrumbs en GuideII.tsx ("Encuestas NOM-035 > Guía II - Factores de Riesgo")
+- [x] Agregar breadcrumbs en GuideIII.tsx ("Encuestas NOM-035 > Guía III - Entorno Organizacional")
+- [x] Agregar breadcrumbs en SampleSize.tsx ("Encuestas NOM-035 > Tamaño de Muestra")
+- [x] Agregar breadcrumbs en TokensDashboard.tsx ("Encuestas NOM-035 > Tokens de Acceso")
+- [ ] Agregar breadcrumbs en SurveyPeriods.tsx ("Encuestas NOM-035 > Periodos de Aplicación") - Componente no encontrado
+- [x] Agregar breadcrumbs en MassSurveyEmail.tsx ("Encuestas NOM-035 > Envío Masivo")
+
+### Prevención de Riesgos (4 componentes)
+- [x] Agregar breadcrumbs en CorrectiveActions.tsx ("Prevención de Riesgos > Acciones Correctivas")
+- [x] Agregar breadcrumbs en MeetingMinutes.tsx ("Prevención de Riesgos > Minutas de Reunión")
+- [x] Agregar breadcrumbs en ComplianceDashboard.tsx ("Prevención de Riesgos > Cumplimiento")
+- [x] Agregar breadcrumbs en Nom035AdminPanel.tsx ("Prevención de Riesgos > Panel Administrativo")
+
+### Reportes (3 componentes)
+- [ ] Agregar breadcrumbs en RegulatoryReports.tsx ("Reportes y Análisis > Reportes Normativos") - Componente no encontrado
+- [ ] Agregar breadcrumbs en CompetenciesReports.tsx ("Reportes y Análisis > Análisis de Competencias") - Componente no encontrado
+- [ ] Agregar breadcrumbs en Exports.tsx ("Reportes y Análisis > Exportaciones") - Componente no encontrado
+
+## FASE 118: Gráficas de Tendencias en Dashboard Principal
+
+### Implementar Gráficas de Tendencias
+- [ ] Agregar gráfica de tendencia semanal de casos NOM-035 (Line chart)
+- [ ] Agregar gráfica de tendencia mensual de cobertura de encuestas (Bar chart)
+- [ ] Agregar gráfica de cumplimiento normativo por periodo (Line chart)
+- [ ] Implementar comparación período actual vs anterior
+- [ ] Agregar filtros temporales (semana, mes, trimestre, año)
+- [ ] Integrar con DateRangeFilter para personalización
+- [ ] Probar gráficas con datos reales
+
+### Verificación Final
+- [ ] Verificar que todos los badges se muestran correctamente
+- [ ] Verificar que todos los breadcrumbs funcionan correctamente
+- [ ] Verificar que las gráficas se actualizan con filtros
+- [ ] Guardar checkpoint final con todas las mejoras
