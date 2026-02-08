@@ -7417,3 +7417,303 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - FASE 183 (Análisis en 3 Niveles) - Para datos de dimensiones
 - FASE 181 (Acciones en 3 Niveles) - Para lista de acciones
 - FASE 188 (Flujo de Trabajo Automático) - Para notificaciones
+
+
+---
+
+## 📄 FASE 190: Generación de Reportes Automáticos NOM-035 (JSON/PDF/Excel)
+
+**Descripción:** Sistema de generación automática de reportes ejecutivos NOM-035 con estructura JSON estandarizada que incluye cabecera, resumen colorimétrico, recomendaciones priorizadas, plan de acción detallado (corto/mediano/largo plazo) y alertas automáticas con destinatarios específicos.
+
+**Prioridad:** P0 - CRÍTICO (Entregable normativo obligatorio)
+
+**Estado:** Pendiente de implementación
+
+### 📋 COMPONENTE 1: Cabecera del Reporte (6 tareas)
+
+- [ ] Crear interfaz TypeScript `ReporteAutomaticoNOM035` con estructura completa
+- [ ] Implementar función `generarCabecera()` con datos de empresa
+- [ ] Crear servicio de obtención de periodo evaluado (Q1/Q2/Q3/Q4 o personalizado)
+- [ ] Implementar versionado automático del sistema (v2.1, v2.2, etc.)
+- [ ] Crear tabla `report_generations` para auditoría de reportes generados
+- [ ] Crear procedimiento tRPC `reports.generateHeader`
+
+### 🎨 COMPONENTE 2: Resumen Colorimétrico (10 tareas)
+
+- [ ] Implementar función `calcularDistribucionColores()` con conteo por color
+- [ ] Crear función `calcularNivelRiesgoGlobal()` con algoritmo de ponderación
+- [ ] Implementar función `determinarColorGlobal()` según NOM-035
+- [ ] Crear componente `ColorimetricSummary.tsx` con gráfica de pastel
+- [ ] Implementar visualización de distribución con badges de colores
+- [ ] Crear tabla `colorimetric_summaries` para histórico
+- [ ] Implementar comparativa con periodo anterior (delta de cambio)
+- [ ] Crear alertas automáticas cuando color global es ROJO/NARANJA
+- [ ] Implementar export de resumen colorimétrico a imagen PNG
+- [ ] Crear procedimiento tRPC `reports.getColorimetricSummary`
+
+### 🎯 COMPONENTE 3: Recomendaciones Priorizadas (14 tareas)
+
+#### Estructura de Recomendación
+- [ ] Crear interfaz `RecomendacionPriorizada` con 8 campos obligatorios
+- [ ] Implementar generación automática de ID único (REC-001, REC-002, etc.)
+- [ ] Crear función `asignarPrioridad()` basada en color y urgencia
+- [ ] Implementar cálculo de tiempo estimado con machine learning
+
+#### Métricas de Éxito
+- [ ] Crear interfaz `MetricaExito` con indicador/meta/actual
+- [ ] Implementar función `definirMetricas()` por tipo de recomendación
+- [ ] Crear servicio de tracking de avance de métricas
+- [ ] Implementar alertas cuando actual < 50% de meta
+
+#### Recursos Necesarios
+- [ ] Implementar función `estimarRecursos()` (presupuesto/personal/tiempo)
+- [ ] Crear catálogo de costos estándar por tipo de acción
+- [ ] Implementar asignación automática de responsables según organigrama
+- [ ] Crear tabla `recommendation_resources` para histórico
+
+#### Integración
+- [ ] Crear componente `PrioritizedRecommendations.tsx` con tabla interactiva
+- [ ] Crear procedimiento tRPC `reports.getPrioritizedRecommendations`
+
+### 📅 COMPONENTE 4: Plan de Acción Detallado (12 tareas)
+
+#### Corto Plazo (30 días)
+- [ ] Implementar función `generarPlanCortoP lazo()` con acciones urgentes
+- [ ] Crear algoritmo de priorización por impacto/urgencia
+- [ ] Implementar cálculo automático de presupuesto agregado
+- [ ] Crear KPIs específicos para corto plazo
+
+#### Mediano Plazo (90 días)
+- [ ] Implementar función `generarPlanMedianoP lazo()` con acciones importantes
+- [ ] Crear cronograma de Gantt automático
+- [ ] Implementar asignación de recursos disponibles
+- [ ] Crear KPIs específicos para mediano plazo
+
+#### Largo Plazo (1 año)
+- [ ] Implementar función `generarPlanLargoP lazo()` con objetivos estratégicos
+- [ ] Crear roadmap visual con milestones
+- [ ] Implementar cálculo de ROI esperado
+- [ ] Crear KPIs específicos para largo plazo
+
+### 🚨 COMPONENTE 5: Alertas Automáticas (10 tareas)
+
+#### Tipos de Alertas
+- [ ] Implementar función `generarAlertasCriticas()` para dimensiones ROJO
+- [ ] Crear función `generarAlertasAdvertencia()` para dimensiones NARANJA
+- [ ] Implementar función `generarAlertasInformativas()` para mejoras
+- [ ] Crear tabla `automatic_alerts` para histórico de alertas
+
+#### Destinatarios y Acciones
+- [ ] Implementar motor de reglas para asignación de destinatarios
+- [ ] Crear catálogo de acciones recomendadas por tipo de alerta
+- [ ] Implementar envío automático de correos con plantillas dinámicas
+- [ ] Crear sistema de escalamiento por falta de respuesta (24h/48h/72h)
+
+#### Integración
+- [ ] Crear componente `AutomaticAlerts.tsx` con lista de alertas activas
+- [ ] Crear procedimiento tRPC `reports.getAutomaticAlerts`
+
+### 📊 COMPONENTE 6: Generación de Formatos (12 tareas)
+
+#### Formato JSON
+- [ ] Implementar función `exportarJSON()` con estructura estandarizada
+- [ ] Crear validación de schema JSON con JSON Schema
+- [ ] Implementar compresión gzip para archivos grandes
+- [ ] Crear endpoint `/api/reports/:id/json` para descarga
+
+#### Formato PDF
+- [ ] Implementar función `exportarPDF()` con PDFKit
+- [ ] Crear plantilla PDF profesional con logo y colores corporativos
+- [ ] Implementar generación de gráficas embebidas (Chart.js → Canvas → PDF)
+- [ ] Crear tabla de contenidos automática con hipervínculos
+
+#### Formato Excel
+- [ ] Implementar función `exportarExcel()` con ExcelJS
+- [ ] Crear múltiples hojas (Resumen, Recomendaciones, Plan de Acción, Alertas)
+- [ ] Implementar formato condicional por colores NOM-035
+- [ ] Crear fórmulas automáticas para cálculos dinámicos
+
+### 🔄 COMPONENTE 7: Programación y Distribución (8 tareas)
+
+- [ ] Implementar scheduler de generación automática (diaria/semanal/mensual)
+- [ ] Crear función `distribuirReporte()` con lista de destinatarios
+- [ ] Implementar envío por correo con adjuntos (PDF + Excel)
+- [ ] Crear portal de descarga de reportes históricos
+- [ ] Implementar versionado de reportes (v1, v2, v3, etc.)
+- [ ] Crear tabla `report_distributions` para auditoría de envíos
+- [ ] Implementar confirmación de lectura de reportes críticos
+- [ ] Crear procedimiento tRPC `reports.scheduleGeneration`
+
+### 📈 Impacto Esperado
+
+- **Tiempo de Generación de Reportes:** -98% (automático vs manual)
+- **Precisión de Datos:** +100% (sin errores humanos)
+- **Cumplimiento Normativo:** 100% (estructura estandarizada)
+- **ROI:** $300,000 MXN/año (ahorro en tiempo + reducción de multas)
+
+### 🔧 Stack Tecnológico
+
+- **Generación PDF:** PDFKit + html2canvas
+- **Generación Excel:** ExcelJS
+- **Validación JSON:** Ajv (JSON Schema validator)
+- **Scheduler:** node-cron
+- **Email:** Nodemailer con plantillas Handlebars
+- **Compresión:** zlib (gzip)
+
+**Total de tareas:** 72 tareas (6+10+14+12+10+12+8)
+
+**Dependencias críticas:**
+- FASE 183 (Análisis en 3 Niveles) - Para datos de dimensiones
+- FASE 181 (Acciones en 3 Niveles) - Para recomendaciones
+- FASE 189 (Dashboard Interactivo) - Para resumen colorimétrico
+
+
+---
+
+## 📊 FASE 191: Gestión Avanzada de Recomendaciones NOM-035
+
+**Descripción:** Sistema de gestión integral de recomendaciones con generación automática de resumen ejecutivo, cronograma de implementación, asignación de responsables mediante matriz de responsabilidad, definición de métricas de seguimiento (proceso/resultado/impacto) y estimación de recursos (humanos/financieros/materiales).
+
+**Prioridad:** P0 - CRÍTICO (Gestión operativa de cumplimiento)
+
+**Estado:** Pendiente de implementación
+
+### 📋 COMPONENTE 1: Resumen Ejecutivo (10 tareas)
+
+- [ ] Implementar función `generarResumenEjecutivo()` con estructura estandarizada
+- [ ] Crear servicio de conteo de recomendaciones por prioridad (urgente/alta/media/baja)
+- [ ] Implementar función `identificarAreasCriticas()` con análisis de concentración de riesgos
+- [ ] Crear función `calcularReduccionEsperada()` con modelo predictivo
+- [ ] Implementar función `calcularMejoraEsperada()` con benchmarking sectorial
+- [ ] Crear función `calcularPorcentajeCumplimiento()` con checklist normativo
+- [ ] Implementar componente `ExecutiveSummary.tsx` con diseño ejecutivo
+- [ ] Crear tabla `executive_summaries` para histórico
+- [ ] Implementar export de resumen ejecutivo a PDF (1 página)
+- [ ] Crear procedimiento tRPC `recommendations.getExecutiveSummary`
+
+### 📅 COMPONENTE 2: Cronograma de Implementación (12 tareas)
+
+#### Semana 1 (Acciones Urgentes)
+- [ ] Implementar función `generarCronogramaSemana1()` con recomendaciones ROJO
+- [ ] Crear asignación automática al Comité NOM-035
+- [ ] Implementar generación de entregables específicos (investigaciones, políticas)
+- [ ] Crear alertas diarias de seguimiento
+
+#### Mes 1 (Acciones Alta Prioridad)
+- [ ] Implementar función `generarCronogramaMes1()` con recomendaciones NARANJA
+- [ ] Crear asignación automática a departamentos involucrados
+- [ ] Implementar generación de entregables (capacitaciones, programas)
+- [ ] Crear alertas semanales de seguimiento
+
+#### Trimestre 1 (Acciones Media Prioridad)
+- [ ] Implementar función `generarCronogramaTrimestre1()` con recomendaciones AMARILLO
+- [ ] Crear asignación automática a Alta Dirección
+- [ ] Implementar generación de entregables (certificaciones, mejoras estructurales)
+- [ ] Crear componente `ImplementationTimeline.tsx` con Gantt interactivo
+
+### 👥 COMPONENTE 3: Matriz de Responsabilidad (14 tareas)
+
+#### Matriz por Dimensión
+- [ ] Crear tabla `responsibility_matrix` con 8 dimensiones (G2-1 a G2-5, G3-1 a G3-5)
+- [ ] Implementar función `asignarResponsables()` con matriz predefinida
+- [ ] Crear campo `primary` (responsable principal) y `secondary` (respaldo)
+- [ ] Implementar validación de existencia de responsables en organigrama
+
+#### Responsables por Dimensión
+- [ ] Configurar G2-1 (Violencia Laboral) → RH + Seguridad Industrial
+- [ ] Configurar G2-2 (Equilibrio Vida-Trabajo) → Jefes Depto + RH
+- [ ] Configurar G2-3 (Cambios Organizacionales) → Alta Dirección + Comunicación
+- [ ] Configurar G3-1 (Políticas) → Calidad/Normatividad + RH
+- [ ] Configurar G3-2 (Capacitación) → Capacitación + Jefes Inmediatos
+- [ ] Configurar G3-3 (Participación) → Comité Trabajadores + RH
+- [ ] Configurar G3-4 (Medidas Preventivas) → RH + Jefes Depto
+- [ ] Configurar G3-5 (Evaluación) → Desarrollo Organizacional + RH
+
+#### Integración
+- [ ] Crear componente `ResponsibilityMatrix.tsx` con tabla RACI
+- [ ] Crear procedimiento tRPC `recommendations.assignResponsibles`
+
+### 📈 COMPONENTE 4: Métricas de Seguimiento (16 tareas)
+
+#### Indicadores de Proceso
+- [ ] Implementar métrica "% Recomendaciones implementadas" (meta: 100%, frecuencia: semanal)
+- [ ] Crear métrica "Tiempo promedio de implementación" (meta: <15 días, frecuencia: mensual)
+- [ ] Implementar métrica "Participación en capacitaciones" (meta: >90%, frecuencia: por evento)
+- [ ] Crear dashboard de indicadores de proceso con gráficas de barras
+
+#### Indicadores de Resultado
+- [ ] Implementar métrica "Reducción puntuación dimensiones ROJO" (meta: -30%, frecuencia: trimestral)
+- [ ] Crear métrica "Mejora índice IEOF" (meta: +0.5 puntos, frecuencia: semestral)
+- [ ] Implementar métrica "Satisfacción trabajadores" (meta: >4.0, frecuencia: anual)
+- [ ] Crear dashboard de indicadores de resultado con gráficas de línea
+
+#### Indicadores de Impacto
+- [ ] Implementar métrica "Reducción ausentismo" (meta: -15%, frecuencia: anual)
+- [ ] Crear métrica "Mejora productividad" (meta: +10%, frecuencia: anual)
+- [ ] Implementar métrica "Retención talento" (meta: +20%, frecuencia: anual)
+- [ ] Crear dashboard de indicadores de impacto con gráficas de área
+
+#### Integración
+- [ ] Crear tabla `tracking_metrics` para almacenar valores históricos
+- [ ] Implementar alertas cuando métrica < 80% de meta
+- [ ] Crear componente `MetricsDashboard.tsx` con 3 tabs (proceso/resultado/impacto)
+- [ ] Crear procedimiento tRPC `recommendations.getTrackingMetrics`
+
+### 💰 COMPONENTE 5: Estimación de Recursos (18 tareas)
+
+#### Recursos Humanos
+- [ ] Implementar función `calcularHorasTotales()` con suma de tiempos estimados
+- [ ] Crear función `identificarPerfilesNecesarios()` con análisis de competencias
+- [ ] Implementar función `identificarNecesidadesCapacitacion()` con gap analysis
+- [ ] Crear tabla `human_resources_estimates` para histórico
+- [ ] Implementar componente `HumanResourcesEstimate.tsx` con tabla de perfiles
+- [ ] Crear alertas cuando horas totales > capacidad disponible
+
+#### Recursos Financieros
+- [ ] Implementar función `calcularCostoDirecto()` con catálogo de costos estándar
+- [ ] Crear función `calcularCostoIndirecto()` con overhead (20% del directo)
+- [ ] Implementar función `calcularROIEsperado()` con modelo de ahorro de costos
+- [ ] Crear tabla `financial_resources_estimates` para histórico
+- [ ] Implementar componente `FinancialResourcesEstimate.tsx` con gráfica de pastel
+- [ ] Crear alertas cuando inversión > presupuesto disponible
+
+#### Recursos Materiales
+- [ ] Implementar función `identificarEquipamientoNecesario()` con catálogo de equipos
+- [ ] Crear función `identificarSolucionesTecnologicas()` con análisis de herramientas
+- [ ] Implementar función `identificarMejorasInfraestructura()` con inspección de instalaciones
+- [ ] Crear tabla `material_resources_estimates` para histórico
+- [ ] Implementar componente `MaterialResourcesEstimate.tsx` con lista categorizada
+- [ ] Crear procedimiento tRPC `recommendations.estimateResources`
+
+### 📊 Reportes y Visualizaciones (8 tareas)
+
+- [ ] Crear página `/recomendaciones/gestion-avanzada` con 5 secciones
+- [ ] Implementar export completo a PDF (resumen + cronograma + matriz + métricas + recursos)
+- [ ] Crear export a Excel con múltiples hojas
+- [ ] Implementar comparativa histórica de métricas (mes actual vs anterior)
+- [ ] Crear componente `AdvancedManagementDashboard.tsx` con navegación por tabs
+- [ ] Implementar filtros por periodo/departamento/responsable
+- [ ] Crear sistema de favoritos para métricas más consultadas
+- [ ] Implementar notificaciones push cuando se actualiza el resumen ejecutivo
+
+### 📈 Impacto Esperado
+
+- **Tiempo de Planificación:** -90% (automático vs manual)
+- **Claridad de Responsabilidades:** +100% (matriz RACI)
+- **Seguimiento de Avances:** +95% (métricas en tiempo real)
+- **ROI:** $400,000 MXN/año (ahorro en tiempo + optimización de recursos)
+
+### 🔧 Stack Tecnológico
+
+- **Cronograma:** Gantt-chart-react o DHTMLX Gantt
+- **Métricas:** Recharts + D3.js
+- **Estimación:** Algoritmos de machine learning (regresión lineal)
+- **Export:** PDFKit + ExcelJS
+- **Notificaciones:** WebSockets (Socket.io)
+
+**Total de tareas:** 78 tareas (10+12+14+16+18+8)
+
+**Dependencias críticas:**
+- FASE 181 (Acciones en 3 Niveles) - Para recomendaciones priorizadas
+- FASE 190 (Reportes Automáticos) - Para estructura de datos
+- FASE 189 (Dashboard Interactivo) - Para visualizaciones
