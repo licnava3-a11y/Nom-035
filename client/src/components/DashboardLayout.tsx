@@ -101,7 +101,14 @@ const hierarchicalMenuItems = [
         path: "/company/survey-report",
         description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
       },
-      { label: "Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial identificados" },
+      { 
+        label: "Casos", 
+        description: "Seguimiento de casos de riesgo psicosocial identificados",
+        submenu: [
+          { label: "Gestión de Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial identificados" },
+          { label: "Investigación", path: "/cases/investigations", description: "Cuestionarios de mobbing y burnout para investigación de casos" },
+        ]
+      },
       { label: "Buzón", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
       { 
         label: "Comité", 

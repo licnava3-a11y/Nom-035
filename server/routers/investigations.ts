@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { investigationQuestionnaires, nom035Cases, employees } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { randomBytes } from "crypto";
+import { sendQuestionnaireEmail } from "../services/questionnaireEmailService";
 
 export const investigationsRouter = router({
   // Crear y enviar cuestionario de investigación
@@ -38,8 +39,35 @@ export const investigationsRouter = router({
 
       // Si se solicita envío por correo, enviar correo
       if (input.sendByEmail) {
-        // TODO: Implementar envío de correo con enlace al cuestionario
-        // await sendQuestionnaireEmail(employeeEmail, accessToken, questionnaireType);
+        // Obtener datos del empleado y caso para el correo
+        const [employeeData] = await db
+          .select({
+            firstName: employees.firstName,
+            lastName: employees.lastName,
+            email: employees.email,
+          })
+          .from(employees)
+          .where(eq(employees.id, input.employeeId))
+          .limit(1);
+
+        const [caseData] = await db
+          .select({
+            folio: nom035Cases.folio,
+          })
+          .from(nom035Cases)
+          .where(eq(nom035Cases.id, input.caseId))
+          .limit(1);
+
+        if (employeeData?.email && caseData?.folio) {
+          await sendQuestionnaireEmail({
+            employeeName: `${employeeData.firstName} ${employeeData.lastName}`,
+            employeeEmail: employeeData.email,
+            questionnaireType: input.questionnaireType,
+            accessToken,
+            expiresAt,
+            caseFollio: caseData.folio,
+          });
+        }
       }
 
       return {

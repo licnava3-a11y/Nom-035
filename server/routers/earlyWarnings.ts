@@ -23,6 +23,7 @@ export const earlyWarningsRouter = router({
         .select({
           id: nom035Cases.id,
           folio: nom035Cases.folio,
+          employeeId: nom035Cases.employeeId,
           employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           department: employees.department,
           riskLevel: nom035Cases.riskLevel,

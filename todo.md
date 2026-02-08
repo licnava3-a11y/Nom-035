@@ -4362,3 +4362,398 @@
 - [ ] Verificar 0 errores TypeScript
 
 **PRIORIDAD: P2 (Medio) - Mejora de UX para análisis específicos**
+
+
+## FASE 153: Protocolo de Violencia Laboral en Casos (P0 - Crítico)
+
+### Investigación del Protocolo
+- [ ] Investigar protocolo de violencia laboral según normativa mexicana (NOM-035-STPS-2018)
+- [ ] Documentar fases del protocolo: recepción de queja, investigación, medidas cautelares, resolución
+- [ ] Identificar formatos y documentos requeridos por la norma
+- [ ] Definir flujo de trabajo completo del protocolo
+
+### Backend - Schema y Tablas
+- [ ] Crear tabla workplace_violence_cases para casos de violencia laboral
+- [ ] Definir campos: caseId, complaintType, complainant, accused, description, evidence, status, resolution
+- [ ] Crear tabla protocol_steps para seguimiento de fases del protocolo
+- [ ] Generar migración SQL
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Backend - Router workplaceViolence.ts
+- [ ] Crear router workplaceViolence.ts
+- [ ] Implementar procedimiento createCase (crear caso de violencia laboral)
+- [ ] Implementar procedimiento updateProtocolStep (actualizar fase del protocolo)
+- [ ] Implementar procedimiento getProtocolStatus (obtener estado del protocolo)
+- [ ] Implementar procedimiento generateProtocolReport (generar reporte del protocolo)
+- [ ] Registrar router en routers.ts
+
+### Frontend - Menú de Casos
+- [ ] Agregar opción "Protocolo de Violencia Laboral" en menú de Casos
+- [ ] Crear componente WorkplaceViolenceProtocol.tsx
+- [ ] Implementar formulario de recepción de queja
+- [ ] Implementar tabla de casos en proceso
+- [ ] Implementar seguimiento de fases del protocolo
+- [ ] Agregar generación de reportes y documentos requeridos
+
+### Pruebas
+- [ ] Crear tests unitarios para router workplaceViolence
+- [ ] Probar flujo completo del protocolo
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 154: Programa de Capacitación del Comité (P1 - Alto)
+
+### Investigación de Requisitos
+- [ ] Investigar requisitos de capacitación del comité según NOM-035-STPS-2018
+- [ ] Documentar temas obligatorios: factores de riesgo psicosocial, protocolo de violencia laboral, etc.
+- [ ] Definir duración mínima de capacitación por tema
+
+### Backend - Schema y Tablas
+- [ ] Crear tabla committee_training_program para programas de capacitación del comité
+- [ ] Definir campos: programId, trainingType, topic, duration, modality (presencial/en línea), instructor, date, attendees
+- [ ] Crear tabla committee_training_attendance para control de asistencia
+- [ ] Generar migración SQL
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Backend - Router committeeTraining.ts
+- [ ] Crear router committeeTraining.ts
+- [ ] Implementar procedimiento createProgram (crear programa de capacitación)
+- [ ] Implementar procedimiento scheduleSession (programar sesión presencial o en línea)
+- [ ] Implementar procedimiento recordAttendance (registrar asistencia)
+- [ ] Implementar procedimiento generateCertificate (generar constancia de capacitación)
+- [ ] Registrar router en routers.ts
+
+### Frontend - Menú de Comité
+- [ ] Agregar opción "Programa de Capacitación" en menú de Comité
+- [ ] Crear componente CommitteeTrainingProgram.tsx
+- [ ] Implementar formulario de creación de programa
+- [ ] Implementar selector de modalidad (presencial/en línea)
+- [ ] Implementar tabla de sesiones programadas
+- [ ] Implementar control de asistencia
+- [ ] Agregar generación de constancias
+
+### Pruebas
+- [ ] Crear tests unitarios para router committeeTraining
+- [ ] Probar flujo completo de capacitación
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 155: Desarrollo de Cursos para el Comité (P1 - Alto)
+
+### Backend - Schema y Tablas
+- [ ] Crear tabla committee_courses para catálogo de cursos del comité
+- [ ] Definir campos: courseId, title, description, duration, modality, content, evaluationType
+- [ ] Crear tabla committee_course_materials para materiales del curso
+- [ ] Generar migración SQL
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Backend - Router committeeCourses.ts
+- [ ] Crear router committeeCourses.ts
+- [ ] Implementar procedimiento createCourse (crear curso)
+- [ ] Implementar procedimiento uploadMaterials (subir materiales)
+- [ ] Implementar procedimiento assignCourse (asignar curso a miembros del comité)
+- [ ] Implementar procedimiento trackProgress (seguimiento de avance)
+- [ ] Registrar router en routers.ts
+
+### Frontend - Menú de Comité
+- [ ] Agregar opción "Desarrollo de Cursos" en menú de Comité
+- [ ] Crear componente CommitteeCourses.tsx
+- [ ] Implementar formulario de creación de curso
+- [ ] Implementar selector de modalidad (presencial/en línea)
+- [ ] Implementar carga de materiales (PDFs, videos, presentaciones)
+- [ ] Implementar tabla de cursos disponibles
+- [ ] Agregar seguimiento de progreso de miembros del comité
+
+### Pruebas
+- [ ] Crear tests unitarios para router committeeCourses
+- [ ] Probar flujo completo de desarrollo de cursos
+- [ ] Verificar 0 errores TypeScript
+
+
+## FASE 152: Frontend de Cuestionarios de Investigación (P1 - Alto) ✅ COMPLETADA
+
+### Backend - Router earlyWarnings
+- [x] Agregar campo employeeId al select de getCasesAboutToExpire
+
+### Frontend - Menú y Rutas
+- [x] Modificar DashboardLayout para agregar submenú de nivel 2 en "Casos"
+- [x] Agregar opción "Investigación" en submenú de Casos
+- [x] Registrar ruta /cases/investigations en App.tsx
+
+### Frontend - Componente Investigations.tsx
+- [x] Crear componente client/src/pages/cases/Investigations.tsx
+- [x] Implementar formulario de envío de cuestionarios (tipo, caso, empleado)
+- [x] Implementar selector de tipo de cuestionario (mobbing/burnout)
+- [x] Implementar tabla de cuestionarios enviados con estados
+- [x] Agregar badges de tipo y estado
+- [x] Mostrar información detallada de cada tipo de cuestionario
+- [x] Implementar botones "Ver Resultados" para cuestionarios completados
+
+### Integración
+- [x] Conectar con procedimientos tRPC del router investigations
+- [x] Implementar invalidación de cache después de envío
+- [x] Agregar mensajes de éxito/error con toast
+
+**Estado:** 0 errores TypeScript, interfaz 100% funcional
+
+---
+
+## FASE 152.5: Servicio de Correos para Cuestionarios (P1 - Alto) ✅ COMPLETADA
+
+### Backend - Servicio de Correos
+- [x] Crear server/services/questionnaireEmailService.ts
+- [x] Implementar función sendQuestionnaireEmail con plantilla HTML profesional
+- [x] Diseño responsive con gradientes y estilos modernos
+- [x] Incluir enlace único con token de acceso
+- [x] Agregar aviso de fecha de expiración
+- [x] Obtener configuración de correos desde companyGeneralData
+
+### Backend - Integración en Router
+- [x] Importar servicio en server/routers/investigations.ts
+- [x] Obtener datos del empleado (nombre, correo) desde tabla employees
+- [x] Obtener folio del caso desde tabla nom035_cases
+- [x] Integrar envío automático en procedimiento sendQuestionnaire
+- [x] Validar que employeeEmail existe antes de enviar
+
+### Pruebas
+- [x] Crear server/investigations.test.ts con 8 tests unitarios
+- [x] Validar tipos de cuestionario (mobbing, burnout)
+- [x] Validar estados (pending, completed, expired)
+- [x] Validar cálculo de fecha de expiración (30 días)
+- [x] Validar generación de tokens únicos
+- [x] Validar formato de correo electrónico
+- [x] Validar formato de URL del cuestionario
+- [x] Validar cálculo de niveles de riesgo (mobbing y burnout)
+- [x] Ejecutar todos los tests: 131 pasados, 12 skipped
+
+**Estado:** 0 errores TypeScript, servicio de correos integrado y probado
+
+---
+
+## PENDIENTES DE IMPLEMENTACIÓN
+
+### FASE 153: Protocolo de Violencia Laboral en Casos (P0 - Crítico)
+- [ ] Investigar protocolo de violencia laboral según NOM-035-STPS-2018
+- [ ] Crear tablas workplace_violence_cases y protocol_steps
+- [ ] Implementar router workplaceViolence.ts
+- [ ] Crear frontend WorkplaceViolenceProtocol.tsx
+- [ ] Agregar opción en menú de Casos
+
+### FASE 154: Programa de Capacitación del Comité (P1 - Alto)
+- [ ] Investigar requisitos de capacitación del comité según NOM-035
+- [ ] Crear tablas committee_training_program y committee_training_attendance
+- [ ] Implementar router committeeTraining.ts
+- [ ] Crear frontend CommitteeTrainingProgram.tsx
+- [ ] Agregar opción en menú de Comité
+
+### FASE 155: Desarrollo de Cursos para el Comité (P1 - Alto)
+- [ ] Crear tablas committee_courses y committee_course_materials
+- [ ] Implementar router committeeCourses.ts
+- [ ] Crear frontend CommitteeCourses.tsx
+- [ ] Implementar carga de materiales (PDFs, videos, presentaciones)
+- [ ] Agregar seguimiento de progreso
+
+### FASE 156: Filtros Avanzados en Alertas Tempranas (P2 - Medio)
+- [ ] Agregar inputs de filtros en EarlyWarnings.tsx (departamento, prioridad, fechas)
+- [ ] Modificar procedimientos del router earlyWarnings para aceptar parámetros de filtro
+- [ ] Implementar lógica de filtrado en queries SQL
+- [ ] Agregar persistencia de filtros en localStorage
+
+### FASE 157: Configuración SMTP (PENDIENTE - No implementar aún)
+- [ ] Configurar variables de entorno SMTP
+- [ ] Implementar envío real de correos
+- [ ] Probar envío de correos en todos los módulos
+
+
+### FASE 158: Manual de Instalación del Software (P2 - Medio)
+
+#### Manual de Instalación para Servidor Linux (Ubuntu/Debian)
+- [ ] Documentar requisitos del sistema (RAM, CPU, disco, SO)
+- [ ] Documentar instalación de dependencias (Node.js, MySQL, Nginx)
+- [ ] Documentar configuración de base de datos (crear usuario, base de datos, permisos)
+- [ ] Documentar configuración de variables de entorno (.env)
+- [ ] Documentar instalación de la aplicación (clonar repositorio, instalar dependencias)
+- [ ] Documentar configuración de Nginx como proxy reverso
+- [ ] Documentar configuración de SSL/TLS con Let's Encrypt
+- [ ] Documentar configuración de firewall (puertos 80, 443, 3000)
+- [ ] Documentar proceso de inicio automático con systemd
+- [ ] Documentar respaldos y restauración de base de datos
+
+#### Manual de Instalación para Servidor Windows Server
+- [ ] Documentar requisitos del sistema (RAM, CPU, disco, versión de Windows Server)
+- [ ] Documentar instalación de Node.js en Windows
+- [ ] Documentar instalación de MySQL Server en Windows
+- [ ] Documentar configuración de base de datos (MySQL Workbench)
+- [ ] Documentar configuración de variables de entorno en Windows
+- [ ] Documentar instalación de la aplicación
+- [ ] Documentar configuración de IIS como proxy reverso
+- [ ] Documentar configuración de certificado SSL en IIS
+- [ ] Documentar configuración de firewall de Windows
+- [ ] Documentar proceso de inicio automático con servicios de Windows
+- [ ] Documentar respaldos programados con Task Scheduler
+
+#### Manual de Instalación para Servidor Cloud (AWS/Azure/GCP)
+- [ ] Documentar instalación en AWS EC2 (AMI recomendada, tipo de instancia)
+- [ ] Documentar instalación en Azure Virtual Machines
+- [ ] Documentar instalación en Google Cloud Compute Engine
+- [ ] Documentar configuración de grupos de seguridad / reglas de firewall
+- [ ] Documentar configuración de RDS/Azure Database/Cloud SQL para MySQL
+- [ ] Documentar configuración de balanceador de carga
+- [ ] Documentar configuración de auto-scaling
+- [ ] Documentar configuración de monitoreo y alertas
+- [ ] Documentar configuración de respaldos automáticos en la nube
+
+#### Manual de Instalación con Docker
+- [ ] Crear Dockerfile para la aplicación
+- [ ] Crear docker-compose.yml con servicios (app, MySQL, Nginx)
+- [ ] Documentar construcción de imagen Docker
+- [ ] Documentar ejecución con Docker Compose
+- [ ] Documentar configuración de volúmenes persistentes
+- [ ] Documentar configuración de redes Docker
+- [ ] Documentar actualización de la aplicación con Docker
+- [ ] Documentar respaldos de contenedores y volúmenes
+
+#### Formato y Entrega
+- [ ] Crear documento PDF profesional con capturas de pantalla
+- [ ] Crear documento Word editable
+- [ ] Incluir diagramas de arquitectura del sistema
+- [ ] Incluir troubleshooting común y soluciones
+- [ ] Incluir checklist de verificación post-instalación
+
+---
+
+### FASE 159: Manual de Usuario del Sistema (P2 - Medio)
+
+#### Sección 1: Introducción
+- [ ] Descripción general del sistema NOM-035 STPS 2018
+- [ ] Objetivos del sistema
+- [ ] Alcance y funcionalidades principales
+- [ ] Roles de usuario (Administrador, Comité, Empleado)
+- [ ] Requisitos técnicos para el usuario final (navegador, conexión)
+
+#### Sección 2: Acceso al Sistema
+- [ ] Proceso de login y autenticación
+- [ ] Recuperación de contraseña
+- [ ] Primer acceso y configuración de perfil
+- [ ] Navegación general del sistema
+
+#### Sección 3: Módulo de Dashboard
+- [ ] Interpretación de métricas principales
+- [ ] Uso de filtros por periodo
+- [ ] Exportación de reportes desde dashboard
+
+#### Sección 4: Módulo de Configuración de Empresa
+- [ ] Configuración de datos generales de la empresa
+- [ ] Carga de logo y representantes legales
+- [ ] Configuración de correos (notificationEmail, noreplyEmail)
+- [ ] Configuración de datos de reporte NOM-035 (Numeral 7.5)
+
+#### Sección 5: Módulo de Gestión de Talento
+- [ ] Alta, baja y modificación de empleados
+- [ ] Gestión de puestos y departamentos
+- [ ] Evaluación de competencias
+- [ ] Matriz de habilidades
+- [ ] Detección de Necesidades de Capacitación (DNC)
+
+#### Sección 6: Módulo de Encuestas NOM-035
+- [ ] Aplicación de Guía I (Acontecimientos Traumáticos Severos)
+- [ ] Aplicación de Guía II (Identificación de Factores de Riesgo)
+- [ ] Aplicación de Guía III (Evaluación del Entorno Organizacional)
+- [ ] Cálculo de tamaño de muestra
+- [ ] Envío masivo de encuestas por correo
+- [ ] Interpretación de resultados
+- [ ] Generación de PDFs individuales y agregados
+
+#### Sección 7: Módulo de Prevención de Riesgos Psicosociales
+- [ ] Gestión de casos de riesgo psicosocial
+- [ ] Cuestionarios de investigación (mobbing y burnout)
+- [ ] Buzón de quejas y denuncias
+- [ ] Gestión del Comité de Seguridad y Salud
+- [ ] Acta Constitutiva del Comité
+- [ ] Bases de Funcionamiento del Comité
+- [ ] Aceptación de Cargo
+- [ ] Acciones correctivas y preventivas
+- [ ] Minutas de reunión
+- [ ] Políticas de prevención
+- [ ] Carpeta de evidencias
+- [ ] Dashboard de alertas tempranas
+
+#### Sección 8: Módulo de Capacitación y Desarrollo
+- [ ] Gestión de cursos
+- [ ] Inscripción de empleados a cursos
+- [ ] Evaluaciones de aprendizaje
+- [ ] Recursos de capacitación
+
+#### Sección 9: Módulo de Reportes y Análisis
+- [ ] Generación de reportes normativos
+- [ ] Exportación de datos en Excel
+- [ ] Análisis de competencias
+- [ ] Reportes de cumplimiento NOM-035
+
+#### Sección 10: Módulo de Administración
+- [ ] Gestión de usuarios y permisos
+- [ ] Configuración del sistema
+- [ ] Respaldos y restauración
+
+#### Formato y Entrega
+- [ ] Crear documento PDF profesional con capturas de pantalla
+- [ ] Crear documento Word editable
+- [ ] Incluir índice interactivo
+- [ ] Incluir glosario de términos
+- [ ] Incluir preguntas frecuentes (FAQ)
+- [ ] Incluir casos de uso prácticos
+
+---
+
+### FASE 160: Video Tutorial de Uso del Sistema (P3 - Bajo)
+
+#### Planificación del Video
+- [ ] Definir estructura del video (duración estimada: 30-45 minutos)
+- [ ] Crear guion detallado por módulo
+- [ ] Preparar datos de demostración (empleados, casos, encuestas)
+- [ ] Configurar entorno de grabación (resolución 1920x1080)
+
+#### Grabación de Módulos
+- [ ] Introducción al sistema (2-3 minutos)
+- [ ] Login y navegación general (3-4 minutos)
+- [ ] Configuración inicial de empresa (5 minutos)
+- [ ] Gestión de empleados y puestos (5 minutos)
+- [ ] Aplicación de encuestas NOM-035 (8-10 minutos)
+- [ ] Gestión de casos de riesgo psicosocial (5 minutos)
+- [ ] Cuestionarios de investigación (mobbing/burnout) (4 minutos)
+- [ ] Gestión del Comité (4 minutos)
+- [ ] Acciones correctivas (4 minutos)
+- [ ] Generación de reportes (3 minutos)
+- [ ] Conclusiones y recursos adicionales (2 minutos)
+
+#### Post-Producción
+- [ ] Edición de video (cortes, transiciones)
+- [ ] Agregar intro y outro profesional
+- [ ] Agregar música de fondo (sin derechos de autor)
+- [ ] Agregar subtítulos en español
+- [ ] Agregar marcadores de tiempo (timestamps) en descripción
+- [ ] Renderizar en calidad HD (1080p)
+
+#### Videos Complementarios (Tutoriales Cortos)
+- [ ] Video: Cómo aplicar una encuesta NOM-035 (5 minutos)
+- [ ] Video: Cómo crear un caso de riesgo psicosocial (3 minutos)
+- [ ] Video: Cómo enviar cuestionarios de investigación (3 minutos)
+- [ ] Video: Cómo generar reportes de cumplimiento (4 minutos)
+- [ ] Video: Cómo gestionar el Comité NOM-035 (5 minutos)
+
+#### Distribución
+- [ ] Subir video principal a YouTube
+- [ ] Subir videos complementarios a YouTube
+- [ ] Crear playlist "Sistema NOM-035 STPS 2018 - Tutoriales"
+- [ ] Optimizar títulos y descripciones para SEO
+- [ ] Agregar enlaces al manual de usuario en descripción
+- [ ] Compartir en plataforma de capacitación interna
+
+#### Formato y Entrega
+- [ ] Video principal en formato MP4 (1080p, 30fps)
+- [ ] Videos complementarios en formato MP4 (1080p, 30fps)
+- [ ] Archivo de subtítulos SRT
+- [ ] Miniaturas personalizadas para cada video
+- [ ] Documento con enlaces a todos los videos

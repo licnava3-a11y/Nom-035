@@ -82,6 +82,7 @@ import EqualityCommittee from "./pages/equality/Committee";
 import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
 import EarlyWarnings from "./pages/EarlyWarnings";
+import Investigations from "./pages/cases/Investigations";
 
 function Router() {
   return (
@@ -114,6 +115,11 @@ function Router() {
       <Route path={"/evaluations/:id/take"}>
         <DashboardLayout>
           <TakeEvaluation />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/cases/investigations"}>
+        <DashboardLayout>
+          <Investigations />
         </DashboardLayout>
       </Route>
       <Route path={"/cases/:id"}>
