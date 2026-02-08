@@ -4164,3 +4164,101 @@
 - [ ] Probar filtro por fechas
 - [ ] Probar combinación de filtros
 - [ ] Verificar 0 errores TypeScript
+
+
+## FASE 149: Agregar Campos de Correo en Configuración de Empresa (P0 - Crítico)
+
+### Backend - Schema
+- [x] Agregar campo notificationEmail (correo para recepción de actualizaciones del sistema)
+- [x] Agregar campo noreplyEmail (correo no-reply para envío de encuestas)
+- [x] Generar migración SQL (0033_loving_boomer.sql)
+- [x] Aplicar migración con webdev_execute_sql
+
+### Backend - Router company.ts
+- [x] Actualizar procedimiento generalData.update para incluir nuevos campos
+- [x] Agregar validación de formato de correo electrónico (z.string().email())
+
+### Frontend - CompanySettings.tsx
+- [x] Agregar campo "Correo de Notificaciones" en pestaña General
+- [x] Agregar campo "Correo No-Reply para Encuestas" en pestaña General
+- [x] Agregar validación de formato de correo (type="email")
+- [x] Agregar tooltips explicativos
+
+### Pruebas
+- [x] 0 errores TypeScript
+- [x] Campos funcionales en formulario
+- [x] Validaciones implementadas
+
+## FASE 150: Implementar Exportación a Excel de Encuestas (P1 - Alto)
+
+### Backend - Instalación de Dependencias
+- [ ] Instalar ExcelJS: `pnpm add exceljs`
+- [ ] Instalar tipos: `pnpm add -D @types/exceljs`
+
+### Backend - Router surveys.ts
+- [ ] Crear procedimiento exportToExcel
+- [ ] Implementar generación de Excel con ExcelJS
+- [ ] Incluir hoja de resumen con estadísticas
+- [ ] Incluir hoja de respuestas detalladas
+- [ ] Agregar gráficas con datos
+- [ ] Subir Excel a S3
+- [ ] Retornar URL de descarga
+
+### Frontend - Dashboard.tsx (Encuestas)
+- [ ] Agregar botón "Exportar a Excel" en header
+- [ ] Crear mutation para exportToExcel
+- [ ] Implementar descarga automática
+- [ ] Agregar estados de carga
+- [ ] Mostrar toast de éxito/error
+
+### Pruebas
+- [ ] Probar exportación con datos reales
+- [ ] Verificar formato de Excel
+- [ ] Verificar gráficas
+- [ ] Verificar 0 errores TypeScript
+
+## FASE 151: Agregar Filtros Avanzados en Alertas Tempranas (P2 - Medio)
+
+### Backend - Router earlyWarnings.ts
+- [ ] Actualizar procedimientos para aceptar filtros opcionales
+- [ ] Agregar filtro por departamento
+- [ ] Agregar filtro por nivel de prioridad
+- [ ] Agregar filtro por rango de fechas
+
+### Frontend - EarlyWarnings.tsx
+- [ ] Agregar sección de filtros en header
+- [ ] Implementar Select de departamento
+- [ ] Implementar Select de prioridad
+- [ ] Implementar DateRangePicker
+- [ ] Agregar botón "Aplicar Filtros"
+- [ ] Agregar botón "Limpiar Filtros"
+- [ ] Actualizar queries con filtros
+
+### Pruebas
+- [ ] Probar cada filtro individualmente
+- [ ] Probar combinación de filtros
+- [ ] Verificar 0 errores TypeScript
+
+## FASE 152: Refactorizar Schema de trainingNeeds (P2 - Medio)
+
+### Análisis de Schema Actual
+- [ ] Revisar campos requeridos vs opcionales
+- [ ] Identificar dependencias complejas
+- [ ] Proponer simplificación de campos
+
+### Backend - Schema
+- [ ] Hacer campos opcionales: gap, currentLevel, requiredLevel
+- [ ] Agregar valores por defecto donde sea posible
+- [ ] Generar migración SQL
+- [ ] Aplicar migración con webdev_execute_sql
+
+### Backend - Tests
+- [ ] Habilitar suite de trainingNeeds.test.ts
+- [ ] Ajustar tests según nuevo schema
+- [ ] Ejecutar suite completa
+- [ ] Verificar 100% de tests pasados
+
+### Pruebas
+- [ ] Probar creación de necesidades de capacitación
+- [ ] Verificar 0 errores TypeScript
+- [ ] Verificar todos los tests pasados

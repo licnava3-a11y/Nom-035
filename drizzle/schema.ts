@@ -1258,6 +1258,8 @@ export const companyGeneralData = mysqlTable("company_general_data", {
   telefonoContacto: varchar("telefono_contacto", { length: 15 }),
   emailContacto: varchar("email_contacto", { length: 320 }),
   paginaWeb: varchar("pagina_web", { length: 255 }),
+  notificationEmail: varchar("notification_email", { length: 320 }),
+  noreplyEmail: varchar("noreply_email", { length: 320 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });

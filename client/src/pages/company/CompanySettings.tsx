@@ -94,6 +94,8 @@ function GeneralDataTab() {
     telefonoContacto: "",
     emailContacto: "",
     paginaWeb: "",
+    notificationEmail: "",
+    noreplyEmail: "",
   });
 
   useEffect(() => {
@@ -109,6 +111,8 @@ function GeneralDataTab() {
         telefonoContacto: companyData.telefonoContacto || "",
         emailContacto: companyData.emailContacto || "",
         paginaWeb: companyData.paginaWeb || "",
+        notificationEmail: companyData.notificationEmail || "",
+        noreplyEmail: companyData.noreplyEmail || "",
       });
     }
   }, [companyData]);
@@ -128,6 +132,8 @@ function GeneralDataTab() {
         telefonoContacto: formData.telefonoContacto || undefined,
         emailContacto: formData.emailContacto || undefined,
         paginaWeb: formData.paginaWeb || undefined,
+        notificationEmail: formData.notificationEmail || undefined,
+        noreplyEmail: formData.noreplyEmail || undefined,
       });
 
       toast({
@@ -270,6 +276,34 @@ function GeneralDataTab() {
                 onChange={(e) => setFormData({ ...formData, paginaWeb: e.target.value })}
                 placeholder="https://www.empresa.com"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notificationEmail">Correo de Notificaciones</Label>
+              <Input
+                id="notificationEmail"
+                type="email"
+                value={formData.notificationEmail}
+                onChange={(e) => setFormData({ ...formData, notificationEmail: e.target.value })}
+                placeholder="notificaciones@empresa.com"
+              />
+              <p className="text-sm text-muted-foreground">
+                Correo para recibir actualizaciones y alertas del sistema
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="noreplyEmail">Correo No-Reply para Encuestas</Label>
+              <Input
+                id="noreplyEmail"
+                type="email"
+                value={formData.noreplyEmail}
+                onChange={(e) => setFormData({ ...formData, noreplyEmail: e.target.value })}
+                placeholder="noreply@empresa.com"
+              />
+              <p className="text-sm text-muted-foreground">
+                Correo remitente para envío automático de encuestas NOM-035
+              </p>
             </div>
           </div>
 

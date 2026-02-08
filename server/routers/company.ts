@@ -32,6 +32,8 @@ export const companyRouter = router({
           telefonoContacto: z.string().optional(),
           emailContacto: z.string().email("Email inválido").optional(),
           paginaWeb: z.string().url("URL inválida").optional().or(z.literal("")),
+          notificationEmail: z.string().email("Email de notificaciones inválido").optional().or(z.literal("")),
+          noreplyEmail: z.string().email("Email no-reply inválido").optional().or(z.literal("")),
         })
       )
       .mutation(async ({ input, ctx }) => {
