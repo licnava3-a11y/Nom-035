@@ -109,6 +109,7 @@ const hierarchicalMenuItems = [
         submenu: [
           { label: "Miembros del Comité", path: "/committee", description: "Gestión de miembros del comité NOM-035" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento formal de constitución del comité" },
+          { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },
         ]
       },

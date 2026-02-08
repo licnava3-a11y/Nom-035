@@ -3677,30 +3677,30 @@
 ## FASE 134: Bases de Funcionamiento del Comité
 
 ### Backend - Generador PDF
-- [ ] Crear server/pdfGenerators/committeeOperatingRules.ts
-- [ ] Implementar encabezado con logo de empresa
-- [ ] Agregar título "BASES DE FUNCIONAMIENTO DEL COMITÉ"
-- [ ] Incluir capítulos: Disposiciones Generales, Integración, Funciones, Reuniones, Atribuciones
-- [ ] Agregar sección de firmas
-- [ ] Incluir código QR NOM-151
-- [ ] Implementar pie de página con folio
+- [x] Crear server/pdfGenerators/committeeOperatingRules.ts
+- [x] Implementar encabezado con logo de empresa
+- [x] Agregar título "BASES DE FUNCIONAMIENTO DEL COMITÉ"
+- [x] Incluir capítulos: Disposiciones Generales, Integración, Funciones, Reuniones, Atribuciones
+- [x] Agregar sección de firmas
+- [x] Incluir código QR NOM-151
+- [x] Implementar pie de página con folio
 
 ### Backend - Procedimientos tRPC
-- [ ] Implementar procedimiento generateOperatingRules en committeeDocuments.ts
+- [x] Implementar procedimiento generateOperatingRules en committeeDocuments.ts
 - [ ] Implementar procedimiento saveOperatingRules
 - [ ] Implementar procedimiento getOperatingRules
 
 ### Frontend - Interfaz
-- [ ] Crear client/src/pages/committee/OperatingRules.tsx
-- [ ] Implementar editor de bases de funcionamiento
-- [ ] Agregar botón de generación de PDF
-- [ ] Agregar ruta en App.tsx
-- [ ] Agregar opción en submenú de Comité
+- [x] Crear client/src/pages/committee/OperatingRules.tsx
+- [x] Implementar editor de bases de funcionamiento
+- [x] Agregar botón de generación de PDF
+- [x] Agregar ruta en App.tsx
+- [x] Agregar opción en submenú de Comité
 
 ### Pruebas y Checkpoint
-- [ ] Probar generación de bases de funcionamiento
-- [ ] Verificar que no hay errores TypeScript
-- [ ] Guardar checkpoint con bases de funcionamiento
+- [x] Probar generación de bases de funcionamiento
+- [x] Verificar que no hay errores TypeScript
+- [x] Guardar checkpoint con bases de funcionamiento
 
 ## FASE 135: Hooks de Consolidación Automática de Evidencias
 
