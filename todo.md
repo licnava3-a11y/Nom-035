@@ -3638,3 +3638,155 @@
 - [ ] Probar exportación masiva (pendiente)
 - [x] Verificar que no hay errores TypeScript
 - [x] Guardar checkpoint con módulo completo
+
+
+## FASE 133: Acta Constitutiva del Comité NOM-035
+
+### Backend - Generador PDF
+- [x] Crear server/pdfGenerators/committeeConstitutiveAct.ts
+- [x] Implementar encabezado con logo de empresa
+- [x] Agregar título "ACTA CONSTITUTIVA DEL COMITÉ DE SEGURIDAD Y SALUD EN EL TRABAJO"
+- [x] Incluir datos de la empresa (razón social, RFC, domicilio)
+- [x] Agregar fecha y lugar de constitución
+- [x] Listar miembros del comité con cargos
+- [x] Incluir objetivos y alcance del comité
+- [x] Agregar sección de firmas de todos los miembros
+- [x] Incluir código QR NOM-151 para validación
+- [x] Implementar pie de página con folio
+
+### Backend - Procedimientos tRPC
+- [x] Crear router committeeDocuments.ts
+- [x] Implementar procedimiento generateConstitutiveAct
+- [ ] Implementar procedimiento saveConstitutiveAct
+- [ ] Implementar procedimiento getConstitutiveAct
+- [x] Registrar router en appRouter
+
+### Frontend - Interfaz
+- [x] Crear client/src/pages/committee/ConstitutiveAct.tsx
+- [x] Implementar formulario de datos de constitución
+- [x] Agregar selector de miembros fundadores
+- [x] Implementar botón de generación de PDF
+- [x] Agregar ruta en App.tsx
+- [x] Agregar opción en submenú de Comité
+
+### Pruebas y Checkpoint
+- [x] Probar generación de acta constitutiva
+- [x] Verificar que no hay errores TypeScript
+- [x] Guardar checkpoint con acta constitutiva
+
+## FASE 134: Bases de Funcionamiento del Comité
+
+### Backend - Generador PDF
+- [ ] Crear server/pdfGenerators/committeeOperatingRules.ts
+- [ ] Implementar encabezado con logo de empresa
+- [ ] Agregar título "BASES DE FUNCIONAMIENTO DEL COMITÉ"
+- [ ] Incluir capítulos: Disposiciones Generales, Integración, Funciones, Reuniones, Atribuciones
+- [ ] Agregar sección de firmas
+- [ ] Incluir código QR NOM-151
+- [ ] Implementar pie de página con folio
+
+### Backend - Procedimientos tRPC
+- [ ] Implementar procedimiento generateOperatingRules en committeeDocuments.ts
+- [ ] Implementar procedimiento saveOperatingRules
+- [ ] Implementar procedimiento getOperatingRules
+
+### Frontend - Interfaz
+- [ ] Crear client/src/pages/committee/OperatingRules.tsx
+- [ ] Implementar editor de bases de funcionamiento
+- [ ] Agregar botón de generación de PDF
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar opción en submenú de Comité
+
+### Pruebas y Checkpoint
+- [ ] Probar generación de bases de funcionamiento
+- [ ] Verificar que no hay errores TypeScript
+- [ ] Guardar checkpoint con bases de funcionamiento
+
+## FASE 135: Hooks de Consolidación Automática de Evidencias
+
+### Backend - Hooks de Evidencias
+- [ ] Crear server/hooks/evidenceHooks.ts
+- [ ] Implementar hook para políticas publicadas
+- [ ] Implementar hook para minutas firmadas
+- [ ] Implementar hook para reportes de encuestas
+- [ ] Implementar hook para certificados emitidos
+- [ ] Implementar hook para actas del comité
+- [ ] Implementar hook para aceptaciones de cargo
+
+### Integración en Módulos Existentes
+- [ ] Integrar hook en nom035Policies.ts (al publicar política)
+- [ ] Integrar hook en meetingMinutes.ts (al firmar minuta)
+- [ ] Integrar hook en surveys.ts (al generar reporte)
+- [ ] Integrar hook en certificates.ts (al emitir certificado)
+- [ ] Integrar hook en committeeDocuments.ts (al generar acta)
+- [ ] Integrar hook en committeePositionAcceptance.ts (al generar PDF)
+
+### Pruebas y Checkpoint
+- [ ] Probar consolidación automática al publicar política
+- [ ] Probar consolidación automática al firmar minuta
+- [ ] Probar consolidación automática al generar reporte
+- [ ] Verificar que evidencias aparecen en carpeta
+- [ ] Guardar checkpoint con hooks de consolidación
+
+## FASE 136: Completar Tab de Datos de Reporte (Numeral 7.5 NOM-035)
+
+### Backend - Esquema de Base de Datos
+- [ ] Revisar tabla company_survey_report
+- [ ] Verificar que incluye todos los campos del Numeral 7.5
+- [ ] Agregar campos faltantes si es necesario
+
+### Backend - Procedimientos tRPC
+- [ ] Implementar procedimiento updateSurveyReport en company.ts
+- [ ] Implementar procedimiento getSurveyReport
+
+### Frontend - Formulario Completo
+- [ ] Actualizar SurveyReportTab en CompanySettings.tsx
+- [ ] Implementar todos los campos del Numeral 7.5
+- [ ] Agregar validaciones de formulario
+- [ ] Implementar guardado de datos
+- [ ] Agregar estados de carga
+
+### Pruebas y Checkpoint
+- [ ] Probar guardado de datos de reporte
+- [ ] Verificar que todos los campos se guardan correctamente
+- [ ] Guardar checkpoint con formulario completo
+
+## FASE 137: Dashboard de Alertas Tempranas
+
+### Backend - Procedimientos tRPC
+- [ ] Crear router earlyWarnings.ts
+- [ ] Implementar procedimiento getCasesAboutToExpire (casos próximos a vencer)
+- [ ] Implementar procedimiento getPendingSurveys (encuestas pendientes por departamento)
+- [ ] Implementar procedimiento getCorrectiveActionsWithoutFollowup (acciones sin seguimiento)
+- [ ] Implementar procedimiento getAlertsSummary (resumen de alertas)
+- [ ] Registrar router en appRouter
+
+### Frontend - Dashboard de Alertas
+- [ ] Crear client/src/pages/EarlyWarnings.tsx
+- [ ] Implementar tarjetas de resumen de alertas
+- [ ] Crear tabla de casos próximos a vencer con contador de días
+- [ ] Crear tabla de encuestas pendientes por departamento
+- [ ] Crear tabla de acciones correctivas sin seguimiento
+- [ ] Implementar semáforo de prioridad (verde, amarillo, rojo)
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar opción en menú principal
+
+### Pruebas y Checkpoint
+- [ ] Probar dashboard de alertas tempranas
+- [ ] Verificar contadores de días restantes
+- [ ] Verificar semáforo de prioridad
+- [ ] Guardar checkpoint con dashboard de alertas
+
+## FASE 138: Pruebas Finales y Entrega Completa
+
+### Auditoría Final
+- [ ] Verificar que no hay errores TypeScript
+- [ ] Revisar correlación de información entre módulos
+- [ ] Probar todas las funcionalidades implementadas
+- [ ] Verificar que todos los PDFs se generan correctamente
+- [ ] Revisar que todos los hooks de consolidación funcionan
+
+### Checkpoint Final
+- [ ] Guardar checkpoint final con todas las fases completadas
+- [ ] Documentar funcionalidades implementadas
+- [ ] Entregar resultados al usuario
