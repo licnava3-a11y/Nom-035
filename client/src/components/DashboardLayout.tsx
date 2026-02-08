@@ -149,6 +149,7 @@ const hierarchicalMenuItems = [
     description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
+      { label: "Gráficas de Tendencias", path: "/trends", description: "Evolución temporal de casos, cobertura de encuestas y cumplimiento normativo" },
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
     ],
   },

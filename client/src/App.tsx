@@ -20,6 +20,7 @@ import PositionAcceptance from './pages/committee/PositionAcceptance';
 import ConstitutiveAct from './pages/committee/ConstitutiveAct';
 import OperatingRules from './pages/committee/OperatingRules';
 import CommitteeTraining from './pages/committee/CommitteeTraining';
+import TrendsCharts from './pages/TrendsCharts';
 import SignatureTest from './pages/SignatureTest';
 import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
@@ -227,6 +228,11 @@ function Router() {
       <Route path={"/meeting-minutes/new"}>
         <DashboardLayout>
           <MeetingMinuteForm />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/trends"}>
+        <DashboardLayout>
+          <TrendsCharts />
         </DashboardLayout>
       </Route>
       <Route path={"/users"}>

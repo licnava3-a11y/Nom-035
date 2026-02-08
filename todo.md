@@ -5638,14 +5638,14 @@
 - [x] Registrar router en appRouter (ya estaba registrado)
 
 ### Frontend - Componente TrendsCharts
-- [ ] Crear componente /client/src/pages/TrendsCharts.tsx
-- [ ] Implementar gráfica de evolución de casos NOM-035 (línea temporal)
-- [ ] Implementar gráfica de cobertura de encuestas (barras comparativas)
-- [ ] Implementar gráfica de cumplimiento normativo (área apilada)
-- [ ] Agregar selectores de período (semana, mes, trimestre, año)
-- [ ] Agregar badges de comparación (% cambio vs período anterior)
-- [ ] Agregar ruta en App.tsx (/trends)
-- [ ] Agregar opción en menú de Reportes y Análisis
+- [x] Crear componente /client/src/pages/TrendsCharts.tsx
+- [x] Implementar gráfica de evolución de casos NOM-035 (línea temporal con LineChart de Recharts)
+- [x] Implementar gráfica de cobertura de encuestas (barras comparativas con BarChart de Recharts)
+- [x] Implementar gráfica de cumplimiento normativo (área apilada con AreaChart de Recharts)
+- [x] Agregar selectores de período (semanal, mensual) con fechas de inicio y fin
+- [x] Agregar badges de comparación (% cambio vs período anterior con iconos TrendingUp/Down)
+- [x] Agregar ruta en App.tsx (/trends)
+- [x] Agregar opción en menú de Reportes y Análisis
 
 ### Pruebas
 - [ ] Probar gráficas con datos de diferentes períodos
