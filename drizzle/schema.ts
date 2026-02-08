@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date, bigint } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date, bigint, json } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -1661,3 +1661,26 @@ export const nom035Cases = mysqlTable("nom035_cases", {
 
 export type Nom035Case = typeof nom035Cases.$inferSelect;
 export type InsertNom035Case = typeof nom035Cases.$inferInsert;
+
+
+// Investigation Questionnaires (Mobbing & Burnout)
+export const investigationQuestionnaires = mysqlTable("investigation_questionnaires", {
+  id: int("id").autoincrement().primaryKey(),
+  caseId: int("case_id").references(() => nom035Cases.id).notNull(),
+  questionnaireType: mysqlEnum("questionnaire_type", ["mobbing", "burnout"]).notNull(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  accessToken: varchar("access_token", { length: 255 }).notNull().unique(), // Token único para acceso en línea
+  responses: json("responses").$type<Record<string, any>>(), // Respuestas en formato JSON
+  score: decimal("score", { precision: 5, scale: 2 }), // Puntaje calculado
+  riskLevel: mysqlEnum("risk_level", ["bajo", "medio", "alto", "muy_alto"]), // Nivel de riesgo calculado
+  status: mysqlEnum("status", ["sent", "completed", "expired"]).default("sent").notNull(),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  expiresAt: timestamp("expires_at").notNull(), // Fecha de expiración del token (30 días)
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InvestigationQuestionnaire = typeof investigationQuestionnaires.$inferSelect;
+export type InsertInvestigationQuestionnaire = typeof investigationQuestionnaires.$inferInsert;
