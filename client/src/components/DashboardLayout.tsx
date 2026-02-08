@@ -107,6 +107,7 @@ const hierarchicalMenuItems = [
         submenu: [
           { label: "Gestión de Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial identificados" },
           { label: "Investigación", path: "/cases/investigations", description: "Cuestionarios de mobbing y burnout para investigación de casos" },
+          { label: "Protocolo de Violencia Laboral", path: "/cases/workplace-violence", description: "Gestión de casos de violencia laboral según NOM-035" },
         ]
       },
       { label: "Buzón", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },

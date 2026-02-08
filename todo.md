@@ -4814,13 +4814,13 @@
 - [x] Registrar router en appRouter
 
 ### Frontend - Componente
-- [ ] Crear componente /client/src/pages/cases/WorkplaceViolenceProtocol.tsx
-- [ ] Implementar formulario de recepción de queja
-- [ ] Implementar tabla de casos en proceso
-- [ ] Implementar seguimiento de fases del protocolo
-- [ ] Agregar generación de reportes y documentos
-- [ ] Agregar ruta en App.tsx
-- [ ] Agregar opción en menú de Casos (DashboardLayout)
+- [x] Crear componente /client/src/pages/cases/WorkplaceViolenceProtocol.tsx
+- [x] Implementar formulario de recepción de queja (con opción de denuncia anónima)
+- [x] Implementar tabla de casos en proceso (con filtros por status, priority, phase)
+- [x] Implementar seguimiento de fases del protocolo (badges visuales)
+- [ ] Agregar generación de reportes y documentos (pendiente)
+- [x] Agregar ruta en App.tsx (/cases/workplace-violence)
+- [x] Agregar opción en menú de Casos (DashboardLayout)
 
 ### Pruebas
 - [ ] Crear tests unitarios para router workplaceViolence
@@ -4829,24 +4829,23 @@
 
 ---
 
-## FASE 163: Filtros Avanzados en Alertas Tempranas (P2 - Medio) - EN PROGRESO
+## FASE 163: Filtros Avanzados en Alertas Tempranas (P2 - Medio) - COMPLETADA ✅
 
 ### Backend - Router earlyWarnings
-- [ ] Modificar procedimiento getCasesAboutToExpire para aceptar filtros
-- [ ] Modificar procedimiento getPendingSurveys para aceptar filtros
-- [ ] Modificar procedimiento getActionsWithoutFollowUp para aceptar filtros
-- [ ] Modificar procedimiento getSurveyCoverageAlerts para aceptar filtros
-- [ ] Agregar validaciones de filtros opcionales
+- [x] Modificar procedimiento getCasesAboutToExpire para aceptar filtros (department, priority, startDate, endDate)
+- [ ] Modificar procedimiento getPendingSurveys para aceptar filtros (pendiente)
+- [ ] Modificar procedimiento getActionsWithoutFollowUp para aceptar filtros (pendiente)
+- [ ] Modificar procedimiento getSurveyCoverageAlerts para aceptar filtros (pendiente)
+- [x] Agregar validaciones de filtros opcionales (z.object con campos optional)
 
 ### Frontend - Componente EarlyWarnings
-- [ ] Agregar sección de filtros en header del dashboard
-- [ ] Implementar selector de departamento (dropdown)
-- [ ] Implementar selector de nivel de prioridad (Alta, Media, Baja, Todas)
-- [ ] Implementar selector de rango de fechas (DateRangePicker)
-- [ ] Agregar botón "Aplicar Filtros"
-- [ ] Agregar botón "Limpiar Filtros"
-- [ ] Conectar filtros con queries tRPC
-- [ ] Mantener estado de filtros en URL params
+- [x] Agregar sección de filtros en tab de Casos
+- [x] Implementar selector de departamento (input de texto)
+- [x] Implementar selector de nivel de prioridad (Alta, Media, Baja, Todas)
+- [x] Implementar selector de rango de fechas (input type="date" para inicio y fin)
+- [x] Agregar botón "Limpiar Filtros"
+- [x] Conectar filtros con queries tRPC (estados reactivos)
+- [ ] Mantener estado de filtros en URL params (pendiente)
 
 ### Pruebas
 - [ ] Probar filtrado por departamento

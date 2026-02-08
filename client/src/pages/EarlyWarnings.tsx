@@ -9,10 +9,21 @@ import { Link } from "wouter";
 
 export default function EarlyWarnings() {
   const [activeTab, setActiveTab] = useState("summary");
+  
+  // Filter states
+  const [department, setDepartment] = useState<string | undefined>(undefined);
+  const [priority, setPriority] = useState<"high" | "medium" | "low" | "all">("all");
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
 
   // Fetch data
   const { data: summary, isLoading: summaryLoading } = trpc.earlyWarnings.getSummary.useQuery();
-  const { data: casesData, isLoading: casesLoading } = trpc.earlyWarnings.getCasesAboutToExpire.useQuery();
+  const { data: casesData, isLoading: casesLoading } = trpc.earlyWarnings.getCasesAboutToExpire.useQuery({
+    department,
+    priority,
+    startDate,
+    endDate,
+  });
   const { data: surveysData, isLoading: surveysLoading } = trpc.earlyWarnings.getPendingSurveys.useQuery();
   const { data: actionsData, isLoading: actionsLoading } = trpc.earlyWarnings.getActionsWithoutFollowUp.useQuery();
   const { data: coverageData, isLoading: coverageLoading } = trpc.earlyWarnings.getSurveyCoverageAlerts.useQuery();
@@ -191,10 +202,76 @@ export default function EarlyWarnings() {
 
         {/* Cases Tab */}
         <TabsContent value="cases" className="space-y-4">
+          {/* Filtros Avanzados */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Filtros Avanzados</CardTitle>
+              <CardDescription>Filtre los casos por departamento, prioridad y rango de fechas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Departamento</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Recursos Humanos"
+                    value={department || ""}
+                    onChange={(e) => setDepartment(e.target.value || undefined)}
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Prioridad</label>
+                  <select
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value as any)}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="all">Todas</option>
+                    <option value="high">Alta (≤7 días)</option>
+                    <option value="medium">Media (8-15 días)</option>
+                    <option value="low">Baja (16-30 días)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Fecha Inicio</label>
+                  <input
+                    type="date"
+                    value={startDate || ""}
+                    onChange={(e) => setStartDate(e.target.value || undefined)}
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Fecha Fin</label>
+                  <input
+                    type="date"
+                    value={endDate || ""}
+                    onChange={(e) => setEndDate(e.target.value || undefined)}
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDepartment(undefined);
+                    setPriority("all");
+                    setStartDate(undefined);
+                    setEndDate(undefined);
+                  }}
+                >
+                  Limpiar Filtros
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          
           <Card>
             <CardHeader>
               <CardTitle>Casos Próximos a Vencer</CardTitle>
-              <CardDescription>Casos con menos de 30 días para la fecha límite</CardDescription>
+              <CardDescription>Casos con menos de 30 días para la fecha límite ({casesData?.total || 0} resultados)</CardDescription>
             </CardHeader>
             <CardContent>
               {casesLoading ? (

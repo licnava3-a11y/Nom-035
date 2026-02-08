@@ -11,7 +11,15 @@ export const earlyWarningsRouter = router({
    * Returns cases with less than 30 days to deadline
    */
   getCasesAboutToExpire: protectedProcedure
-    .query(async () => {
+    .input(
+      z.object({
+        department: z.string().optional(),
+        priority: z.enum(["high", "medium", "low", "all"]).default("all"),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -38,13 +46,25 @@ export const earlyWarningsRouter = router({
         .where(
           and(
             lte(nom035Cases.deadline, thirtyDaysFromNow),
-            sql`${nom035Cases.status} != 'closed'`
+            sql`${nom035Cases.status} != 'closed'`,
+            input?.department ? eq(employees.department, input.department) : undefined,
+            input?.startDate ? gte(nom035Cases.deadline, new Date(input.startDate)) : undefined,
+            input?.endDate ? lte(nom035Cases.deadline, new Date(input.endDate)) : undefined
           )
         )
         .orderBy(nom035Cases.deadline);
 
+      // Filter by priority after query (since priority is calculated)
+      let filteredCases = cases;
+      if (input?.priority && input.priority !== "all") {
+        filteredCases = cases.filter((c) => {
+          const priority = c.daysRemaining <= 7 ? "high" : c.daysRemaining <= 15 ? "medium" : "low";
+          return priority === input.priority;
+        });
+      }
+
       return {
-        cases: cases.map((c) => ({
+        cases: filteredCases.map((c) => ({
           ...c,
           priority: c.daysRemaining <= 7 ? "high" : c.daysRemaining <= 15 ? "medium" : "low",
           priorityColor: c.daysRemaining <= 7 ? "red" : c.daysRemaining <= 15 ? "yellow" : "green",

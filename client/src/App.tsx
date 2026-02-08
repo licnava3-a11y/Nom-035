@@ -83,6 +83,7 @@ import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
 import EarlyWarnings from "./pages/EarlyWarnings";
 import Investigations from "./pages/cases/Investigations";
+import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 
 function Router() {
@@ -121,6 +122,11 @@ function Router() {
       <Route path={"/cases/investigations"}>
         <DashboardLayout>
           <Investigations />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/cases/workplace-violence"}>
+        <DashboardLayout>
+          <WorkplaceViolenceProtocol />
         </DashboardLayout>
       </Route>
       <Route path={"/cases/:id"}>
