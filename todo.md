@@ -7274,3 +7274,146 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - FASE 183 (Análisis en 3 Niveles) - Completada
 - FASE 184 (Catálogo de Acciones) - Completada
 - FASE 187 (Integración Sistemas Externos) - Pendiente
+
+
+---
+
+## 📊 FASE 189: Dashboard Interactivo NOM-035 (Visualización en Tiempo Real)
+
+**Descripción:** Implementación de dashboard ejecutivo interactivo con 6 componentes principales: semáforo de riesgo global, mapa de calor por dimensión, gráficos de evolución temporal, lista de acciones pendientes, indicadores de cumplimiento y notificaciones automáticas en tiempo real.
+
+**Prioridad:** P0 - CRÍTICO (Interfaz principal para toma de decisiones)
+
+**Estado:** Pendiente de implementación
+
+### 🚦 COMPONENTE 1: Semáforo de Riesgo Global (8 tareas)
+
+- [ ] Implementar función `calcularColorGlobal()` con algoritmo de ponderación
+- [ ] Crear función `calcularIndicadorGlobal()` con escala 0-100
+- [ ] Implementar función `calcularTendencia()` con análisis de series temporales
+- [ ] Crear componente `TrafficLightIndicator.tsx` con animación de pulso
+- [ ] Implementar actualización en tiempo real con WebSockets
+- [ ] Crear tabla `global_risk_history` para histórico de cambios
+- [ ] Implementar alertas automáticas cuando color cambia a rojo/naranja
+- [ ] Crear procedimiento tRPC `dashboard.getGlobalRiskIndicator`
+
+### 🗺️ COMPONENTE 2: Mapa de Calor por Dimensión (10 tareas)
+
+- [ ] Implementar función `crearMapaCalor()` con matriz de riesgo
+- [ ] Crear componente `HeatMapVisualization.tsx` con D3.js
+- [ ] Implementar colorimetría según NOM-035 (5 colores)
+- [ ] Crear tooltip interactivo con detalles por celda
+- [ ] Implementar zoom y pan para exploración detallada
+- [ ] Crear filtros por departamento/área/puesto
+- [ ] Implementar export de mapa de calor a PNG/PDF
+- [ ] Crear animación de transición entre periodos
+- [ ] Implementar comparativa lado a lado (antes/después)
+- [ ] Crear procedimiento tRPC `dashboard.getHeatMapData`
+
+### 📈 COMPONENTE 3: Gráficos de Evolución (12 tareas)
+
+#### Evolución Temporal
+- [ ] Implementar función `crearGraficoEvolucion()` con Chart.js
+- [ ] Crear componente `TemporalEvolutionChart.tsx` con líneas de tendencia
+- [ ] Implementar selector de rango de fechas (día/semana/mes/año)
+- [ ] Crear marcadores de eventos críticos en timeline
+
+#### Comparativa por Áreas
+- [ ] Implementar función `crearGraficoComparativo()` con barras agrupadas
+- [ ] Crear componente `ComparativeChart.tsx` con ordenamiento dinámico
+- [ ] Implementar drill-down por departamento → puesto
+- [ ] Crear export de datos a Excel
+
+#### Distribución de Colores
+- [ ] Implementar función `crearGraficoDistribucion()` con gráfica de pastel
+- [ ] Crear componente `ColorDistributionChart.tsx` con porcentajes
+- [ ] Implementar animación de carga progresiva
+- [ ] Crear procedimiento tRPC `dashboard.getEvolutionCharts`
+
+### ✅ COMPONENTE 4: Lista de Acciones Pendientes (8 tareas)
+
+- [ ] Implementar función `filtrarAccionesPendientes()` con priorización
+- [ ] Crear componente `PendingActionsList.tsx` con tabla interactiva
+- [ ] Implementar ordenamiento por urgencia/responsable/fecha
+- [ ] Crear badges visuales por estado (pendiente/en progreso/completada)
+- [ ] Implementar filtros avanzados (departamento/tipo/prioridad)
+- [ ] Crear modal de detalle de acción con timeline
+- [ ] Implementar botón "Marcar como Completada" con confirmación
+- [ ] Crear procedimiento tRPC `dashboard.getPendingActions`
+
+### 📊 COMPONENTE 5: Indicadores de Cumplimiento (10 tareas)
+
+#### Cumplimiento NOM-035
+- [ ] Implementar función `calcularPorcentajeCumplimiento()` con checklist normativo
+- [ ] Crear componente `ComplianceGauge.tsx` con gauge chart
+- [ ] Implementar desglose por numeral (5, 7, 8)
+- [ ] Crear alertas por incumplimiento crítico
+
+#### Implementación de Acciones
+- [ ] Implementar función `calcularPorcentajeImplementacion()` con KPIs
+- [ ] Crear componente `ImplementationProgress.tsx` con barra de progreso
+- [ ] Implementar comparativa vs meta establecida
+- [ ] Crear gráfica de velocidad de implementación
+
+#### Satisfacción de Trabajadores
+- [ ] Implementar función `obtenerSatisfaccion()` con encuestas pulse
+- [ ] Crear componente `SatisfactionTrend.tsx` con línea de tendencia
+- [ ] Crear procedimiento tRPC `dashboard.getComplianceIndicators`
+
+### 🔔 COMPONENTE 6: Notificaciones Automáticas (12 tareas)
+
+- [ ] Implementar función `generarNotificaciones()` con motor de reglas
+- [ ] Crear componente `NotificationCenter.tsx` con dropdown
+- [ ] Implementar tipos de notificación (info/warning/error/success)
+- [ ] Crear tabla `dashboard_notifications` para persistencia
+- [ ] Implementar notificaciones push con Service Workers
+- [ ] Crear sistema de priorización de notificaciones (urgente/normal/baja)
+- [ ] Implementar agrupación de notificaciones similares
+- [ ] Crear botón "Marcar todas como leídas"
+- [ ] Implementar sonido de alerta para notificaciones críticas
+- [ ] Crear configuración de preferencias de notificaciones por usuario
+- [ ] Implementar envío de notificaciones por correo (resumen diario)
+- [ ] Crear procedimiento tRPC `dashboard.getNotifications`
+
+### 🎨 Diseño y UX (8 tareas)
+
+- [ ] Crear layout responsivo con grid system (desktop/tablet/mobile)
+- [ ] Implementar tema oscuro/claro con toggle
+- [ ] Crear animaciones de transición suaves (fade/slide)
+- [ ] Implementar skeleton loaders para carga de datos
+- [ ] Crear tour guiado interactivo para nuevos usuarios
+- [ ] Implementar atajos de teclado para navegación rápida
+- [ ] Crear modo de presentación (fullscreen sin distracciones)
+- [ ] Implementar export de dashboard completo a PDF
+
+### ⚡ Performance y Optimización (6 tareas)
+
+- [ ] Implementar lazy loading de componentes pesados
+- [ ] Crear sistema de cache con Redis para datos de dashboard
+- [ ] Implementar paginación virtual para listas largas
+- [ ] Optimizar queries con índices en BD
+- [ ] Implementar debouncing en filtros y búsquedas
+- [ ] Crear service worker para funcionamiento offline
+
+### 📈 Impacto Esperado
+
+- **Tiempo de Análisis:** -95% (dashboard vs reportes manuales)
+- **Toma de Decisiones:** +80% más rápida (visualización inmediata)
+- **Engagement de Usuarios:** +90% (interfaz intuitiva)
+- **ROI:** $240,000 MXN/año (ahorro en tiempo de análisis + mejores decisiones)
+
+### 🔧 Stack Tecnológico
+
+- **Visualización:** Recharts + D3.js + Chart.js
+- **Tiempo Real:** WebSockets (Socket.io)
+- **Estado:** Zustand + React Query
+- **Animaciones:** Framer Motion
+- **Export:** html2canvas + jsPDF
+- **Notificaciones:** React Toastify + Service Workers
+
+**Total de tareas:** 74 tareas (8+10+12+8+10+12+8+6)
+
+**Dependencias críticas:**
+- FASE 183 (Análisis en 3 Niveles) - Para datos de dimensiones
+- FASE 181 (Acciones en 3 Niveles) - Para lista de acciones
+- FASE 188 (Flujo de Trabajo Automático) - Para notificaciones
