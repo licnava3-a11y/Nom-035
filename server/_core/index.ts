@@ -10,6 +10,7 @@ import { serveStatic, setupVite } from "./vite";
 import uploadRouter from "../upload";
 import exportRouter from "../exportRouter";
 import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
+import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -67,8 +68,9 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
     
-    // Iniciar job de alertas automáticas
+    // Iniciar jobs de alertas automáticas
     startSurveyAlertsJob();
+    startCoverageAlertsJob();
   });
 }
 

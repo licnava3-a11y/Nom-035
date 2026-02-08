@@ -98,6 +98,7 @@ export const correctiveActionsRouter = router({
           responsibleUserId: correctiveActions.responsibleUserId,
           responsibleUserName: users.name,
           responsibleUserEmail: users.email,
+          pdfUrl: correctiveActions.pdfUrl,
         })
         .from(correctiveActions)
         .leftJoin(users, eq(correctiveActions.responsibleUserId, users.id))

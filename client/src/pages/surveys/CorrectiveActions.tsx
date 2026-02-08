@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Calendar, CheckCircle2, Clock, AlertCircle, TrendingUp, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, CheckCircle2, Clock, AlertCircle, TrendingUp, Edit, Trash2, ChevronLeft, ChevronRight, FileText, Download } from "lucide-react";
 
 type RiskLevel = "nulo" | "bajo" | "medio" | "alto" | "muy_alto";
 type ActionStatus = "pendiente" | "en_proceso" | "completada" | "cancelada";
@@ -87,6 +87,17 @@ export default function CorrectiveActions() {
     },
     onError: (error: any) => {
       toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const generatePDF = trpc.correctiveActions.generatePDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("¡PDF generado exitosamente!");
+      window.open(data.pdfUrl, "_blank");
+      refetchActions();
+    },
+    onError: (error) => {
+      toast.error(`Error al generar PDF: ${error.message}`);
     },
   });
 
@@ -414,6 +425,7 @@ export default function CorrectiveActions() {
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Departamento</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Estado</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Fecha Límite</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">PDF</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Acciones</th>
                     </tr>
                   </thead>
@@ -435,6 +447,30 @@ export default function CorrectiveActions() {
                         </td>
                         <td className="px-4 py-3 text-sm">
                           {action.dueDate ? new Date(action.dueDate).toLocaleDateString("es-MX") : "Sin fecha"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {action.pdfUrl ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => action.pdfUrl && window.open(action.pdfUrl, "_blank")}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <Download className="h-4 w-4 mr-1" />
+                              Ver PDF
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => generatePDF.mutate({ id: action.id })}
+                              disabled={generatePDF.isPending}
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              <FileText className="h-4 w-4 mr-1" />
+                              {generatePDF.isPending ? "Generando..." : "Generar PDF"}
+                            </Button>
+                          )}
                         </td>
                         <td className="px-4 py-3 flex gap-2">
                           <Button

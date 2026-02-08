@@ -3990,3 +3990,104 @@
 - [x] Asignación de prioridad verificada
 - [x] Visualización en frontend funcional
 - [x] 0 errores TypeScript
+
+
+## FASE 143: Botón "Generar PDF" en Frontend de Acciones Correctivas
+
+### Frontend - CorrectiveActions.tsx
+- [x] Agregar columna "PDF" en tabla de acciones
+- [x] Implementar botón "Generar PDF" con icono FileText
+- [x] Crear mutation para trpc.correctiveActions.generatePDF
+- [x] Implementar lógica de descarga/visualización (abrir en nueva pestaña)
+- [x] Agregar estados de carga durante generación (isPending)
+- [x] Mostrar enlace "Ver PDF" con icono Download si pdfUrl ya existe
+- [x] Agregar manejo de errores con toast
+
+### Backend - correctiveActions.ts
+- [x] Agregar pdfUrl al select de procedimiento getAll
+
+### Pruebas
+- [x] Generación de PDF funcional desde tabla
+- [x] Apertura de PDF en nueva pestaña funcional
+- [x] Botón "Ver PDF" funcional para acciones con PDF existente
+- [x] Estados de carga implementados correctamente
+- [x] 0 errores TypeScript
+
+
+## FASE 144: Sistema de Recordatorios Automáticos de Cobertura
+
+### Backend - Servicio de Correos
+- [x] Crear servicio survey-coverage-email-service.ts
+- [x] Implementar plantilla HTML profesional de alerta de cobertura insuficiente
+- [x] Incluir: tabla de encuestas, porcentajes, brechas, prioridades, enlaces directos
+- [x] Integrar con sistema de correos existente (email-sender.ts)
+- [x] Diseño responsive con gradientes y badges de prioridad
+
+### Backend - Job Programado
+- [x] Crear archivo server/jobs/survey-coverage-alerts-job.ts
+- [x] Implementar función runCoverageAlertsCheck
+- [x] Consultar encuestas con cobertura < 80% usando earlyWarnings.getSurveyCoverageAlerts
+- [x] Enviar correo al coordinador con resumen completo
+- [x] Registrar envío en logs con detalles
+- [x] Programar ejecución semanal (lunes 8:00 AM)
+- [x] Integrar job en server/_core/index.ts para inicio automático
+
+### Pruebas
+- [x] Job programado funcional con 0 errores TypeScript
+- [x] Plantilla HTML profesional con diseño completo
+- [x] Logs de ejecución implementados
+- [x] Cálculo de próximo lunes 8:00 AM correcto
+
+
+## FASE 145: Dashboard de Métricas de Evidencias NOM-035
+
+### Backend - Router evidences.ts
+- [ ] Crear router evidences en server/routers/evidences.ts
+- [ ] Implementar procedimiento getStatistics
+- [ ] Calcular: total documentos, por categoría, documentos recientes (30 días)
+- [ ] Implementar procedimiento getRecentDocuments
+- [ ] Implementar procedimiento getMissingDocuments (alertas)
+- [ ] Registrar router en appRouter
+
+### Frontend - EvidenceDashboard.tsx
+- [ ] Crear /client/src/pages/prevention/EvidenceDashboard.tsx
+- [ ] Implementar tarjetas de resumen por categoría
+- [ ] Agregar gráfica de distribución por categoría (Chart.js)
+- [ ] Implementar tabla de documentos recientes
+- [ ] Agregar sección de alertas de documentos faltantes
+- [ ] Implementar filtros por categoría y periodo
+- [ ] Agregar ruta en App.tsx
+
+### Pruebas
+- [ ] Probar cálculo de estadísticas
+- [ ] Verificar gráficas
+- [ ] Probar filtros
+- [ ] Verificar navegación desde menú
+- [ ] Verificar 0 errores TypeScript
+
+
+## TAREAS PENDIENTES DE AUDITORÍA (BAJO IMPACTO)
+
+### Optimizaciones de UI/UX
+- [ ] Agregar paginación en tabla de Acciones Correctivas
+- [ ] Implementar filtro por nivel de riesgo en Acciones Correctivas
+- [ ] Agregar gráfica de distribución por estado en Acciones Correctivas
+- [ ] Implementar gráfica de cumplimiento por departamento en Acciones Correctivas
+- [ ] Mostrar próximas acciones a vencer en dashboard de Acciones Correctivas
+
+### Funcionalidades Pendientes de Módulos Existentes
+- [ ] Implementar modal de edición de acciones correctivas
+- [ ] Agregar botón de eliminar acción correctiva con confirmación
+- [ ] Agregar enlace en menú de Encuestas NOM-035 para Acciones Correctivas
+- [ ] Implementar exportación a Excel de resultados agregados de encuestas
+- [ ] Crear vista de comparación entre periodos en panel de encuestas
+
+### Tests Unitarios Pendientes
+- [ ] Crear test para correctiveActions.generatePDF
+- [ ] Crear tests para router evidences (cuando se implemente)
+- [ ] Crear tests para job de cobertura (cuando se implemente)
+
+### Documentación
+- [ ] Actualizar manual de usuario con nuevas funcionalidades
+- [ ] Documentar procedimientos de generación de PDFs
+- [ ] Documentar sistema de evidencias automáticas
