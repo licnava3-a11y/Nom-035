@@ -2727,3 +2727,15 @@
 - [x] Entregar resultados al usuario
 
 **FASE 97 COMPLETADA: Campo titulo agregado al formulario de Acciones Afirmativas** ✅
+
+
+## FASE 98: Actualizar Título de Informe de Resultados en Menú Lateral
+
+### Actualización del Menú
+- [x] Leer DashboardLayout.tsx para encontrar "Informe de Resultados" (línea 93)
+- [x] Cambiar título a "Informe de identificación y análisis de factores de riesgo psicosocial (Numeral 7.5)"
+- [x] Verificar que no hay errores TypeScript (0 errors)
+- [x] Guardar checkpoint con título actualizado
+- [x] Entregar resultados al usuario
+
+**FASE 98 COMPLETADA: Título actualizado con referencia normativa completa** ✅
