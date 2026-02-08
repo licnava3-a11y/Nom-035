@@ -253,6 +253,13 @@
       "when": 1770567532844,
       "tag": "0035_public_invaders",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1770568756087,
+      "tag": "0036_luxuriant_guardsmen",
+      "breakpoints": true
     }
   ]
 }

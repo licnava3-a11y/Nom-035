@@ -1743,3 +1743,52 @@ export const protocolSteps = mysqlTable("protocol_steps", {
 
 export type ProtocolStep = typeof protocolSteps.$inferSelect;
 export type InsertProtocolStep = typeof protocolSteps.$inferInsert;
+
+// Committee Training Programs - Programas de capacitación del comité
+export const committeeTrainingPrograms = mysqlTable("committee_programs", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(), // Título del programa
+  description: text("description"), // Descripción del programa
+  type: mysqlEnum("type", ["protocolo_violencia", "factores_riesgo", "medidas_prevencion", "otro"]).notNull(), // Tipo de capacitación
+  duration: int("duration").notNull(), // Duración en horas
+  instructor: varchar("instructor", { length: 255 }), // Nombre del instructor
+  status: mysqlEnum("status", ["activo", "completado", "cancelado"]).default("activo").notNull(),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CommitteeTrainingProgram = typeof committeeTrainingPrograms.$inferSelect;
+export type InsertCommitteeTrainingProgram = typeof committeeTrainingPrograms.$inferInsert;
+
+// Committee Training Sessions - Sesiones de capacitación del comité
+export const committeeTrainingSessions = mysqlTable("committee_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  programId: int("program_id").references(() => committeeTrainingPrograms.id).notNull(),
+  sessionDate: date("session_date").notNull(), // Fecha de la sesión
+  sessionTime: varchar("session_time", { length: 10 }).notNull(), // Hora de la sesión (HH:MM)
+  location: varchar("location", { length: 255 }), // Ubicación física
+  type: mysqlEnum("type", ["presencial", "en_linea"]).notNull(), // Tipo de sesión
+  meetingLink: varchar("meeting_link", { length: 500 }), // Enlace de reunión virtual (Zoom, Meet, etc.)
+  status: mysqlEnum("status", ["programada", "en_curso", "completada", "cancelada"]).default("programada").notNull(),
+  attendanceCount: int("attendance_count").default(0), // Contador de asistentes
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CommitteeTrainingSession = typeof committeeTrainingSessions.$inferSelect;
+export type InsertCommitteeTrainingSession = typeof committeeTrainingSessions.$inferInsert;
+
+// Committee Training Attendance - Asistencia a sesiones de capacitación
+export const committeeTrainingAttendance = mysqlTable("committee_attendance", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("session_id").references(() => committeeTrainingSessions.id).notNull(),
+  committeeMemberId: int("committee_member_id").references(() => committeeMembers.id).notNull(),
+  attended: boolean("attended").default(false).notNull(), // ¿Asistió?
+  attendedAt: timestamp("attended_at"), // Fecha/hora de registro de asistencia
+  certificateUrl: varchar("certificate_url", { length: 500 }), // URL del certificado generado
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferSelect;
+export type InsertCommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferInsert;

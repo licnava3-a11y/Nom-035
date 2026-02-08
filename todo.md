@@ -4883,3 +4883,238 @@
 - [x] Mostrar resultados (puntaje y nivel de riesgo) de cuestionarios completados
 - [x] Agregar enlace para ver resultados detallados (pendiente)
 - [x] Implementar badges de estado (enviado, completado, expirado)
+
+
+---
+
+## FASE 164: Programa de Capacitación del Comité (P0 - Crítico) - BACKEND COMPLETADO ✅
+
+### Investigación y Documentación
+- [x] Investigar requisitos de capacitación del comité según NOM-035-STPS-2018
+- [x] Documentar temas obligatorios: protocolo de violencia laboral, identificación de factores de riesgo, medidas de prevención, otro
+- [x] Identificar formatos y documentos requeridos (listas de asistencia, constancias, evaluaciones)
+
+### Backend - Schema y Migraciones
+- [x] Crear tabla committee_programs en schema (10 campos con tipos enum)
+- [x] Crear tabla committee_sessions en schema (11 campos con tipo presencial/en línea)
+- [x] Crear tabla committee_attendance en schema (7 campos con certificateUrl)
+- [x] Generar migración SQL con drizzle-kit (nombres cortos para evitar error de constraint)
+- [x] Aplicar migración con webdev_execute_sql (tablas creadas exitosamente)
+
+### Backend - Router committeeTraining
+- [ ] Crear router server/routers/committeeTraining.ts
+- [ ] Implementar procedimiento createProgram (título, descripción, tipo, duración, instructor)
+- [ ] Implementar procedimiento listPrograms (con filtros por status, type)
+- [ ] Implementar procedimiento getProgramById
+- [ ] Implementar procedimiento createSession (programId, fecha, hora, ubicación, tipo, enlace)
+- [ ] Implementar procedimiento listSessions (con filtros por programId, date range)
+- [ ] Implementar procedimiento recordAttendance (sessionId, committeeMemberId, attended)
+- [ ] Implementar procedimiento generateCertificate (sessionId, committeeMemberId)
+- [ ] Implementar procedimiento getAttendanceReport (programId o sessionId)
+- [ ] Registrar router en appRouter
+
+### Frontend - Componente CommitteeTraining
+- [ ] Crear componente /client/src/pages/committee/CommitteeTraining.tsx
+- [ ] Implementar formulario de creación de programa (título, descripción, tipo, duración, instructor)
+- [ ] Implementar tabla de programas activos con filtros (status, tipo)
+- [ ] Implementar formulario de programación de sesión (fecha, hora, ubicación, tipo, enlace Zoom/Meet)
+- [ ] Implementar calendario de sesiones programadas (integración con FullCalendar o similar)
+- [ ] Implementar registro de asistencia (lista de miembros del comité con checkboxes)
+- [ ] Implementar generación de constancias/certificados (PDF con nombre, fecha, tema, horas)
+- [ ] Implementar reporte de asistencia (tabla con estadísticas por miembro)
+- [ ] Agregar ruta en App.tsx (/committee/training)
+- [ ] Agregar opción en menú de Comité (DashboardLayout)
+
+### Integración con Protocolo de Violencia Laboral
+- [ ] Agregar campo trainingCompleted en tabla workplace_violence_cases
+- [ ] Modificar router workplaceViolence para validar capacitación del comité
+- [ ] Mostrar alerta si el comité no ha recibido capacitación en protocolo de violencia laboral
+
+### Pruebas
+- [ ] Crear tests unitarios para router committeeTraining
+- [ ] Probar flujo completo de creación de programa y sesiones
+- [ ] Probar registro de asistencia y generación de certificados
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 165: Reportes del Protocolo de Violencia Laboral (P1 - Alto) - EN PROGRESO
+
+### Backend - Generación de PDFs
+- [ ] Crear servicio server/services/workplaceViolencePDFService.ts
+- [ ] Implementar generación de Acta de Recepción de Queja (PDF con datos del caso, fecha, hora, quejoso, acusado, descripción)
+- [ ] Implementar generación de Informe de Investigación (PDF con antecedentes, evidencias, testimonios, conclusiones)
+- [ ] Implementar generación de Resolución (PDF con dictamen, medidas correctivas, sanciones, fecha de resolución)
+- [ ] Implementar generación de Acta de Cierre (PDF con resumen del caso, medidas implementadas, fecha de cierre)
+- [ ] Integrar firma digital en PDFs (campo de firma con nombre, cargo, fecha)
+
+### Backend - Router workplaceViolence
+- [ ] Agregar procedimiento generateReceptionReport (caseId) → retorna PDF URL
+- [ ] Agregar procedimiento generateInvestigationReport (caseId) → retorna PDF URL
+- [ ] Agregar procedimiento generateResolutionReport (caseId) → retorna PDF URL
+- [ ] Agregar procedimiento generateClosureReport (caseId) → retorna PDF URL
+- [ ] Implementar almacenamiento de PDFs en S3 (storagePut)
+- [ ] Agregar campo reportUrls (JSON) en tabla workplace_violence_cases
+
+### Frontend - Componente WorkplaceViolenceProtocol
+- [ ] Agregar botón "Generar Acta de Recepción" en detalle de caso
+- [ ] Agregar botón "Generar Informe de Investigación" en detalle de caso
+- [ ] Agregar botón "Generar Resolución" en detalle de caso
+- [ ] Agregar botón "Generar Acta de Cierre" en detalle de caso
+- [ ] Implementar vista previa de PDFs generados (modal con iframe)
+- [ ] Implementar descarga de PDFs generados
+- [ ] Mostrar historial de reportes generados (tabla con tipo, fecha, generado por, URL)
+
+### Integración con Firmas Digitales
+- [ ] Investigar integración con servicio de firma digital (DocuSign, Adobe Sign, o similar)
+- [ ] Implementar flujo de solicitud de firma (enviar PDF por correo con enlace de firma)
+- [ ] Implementar callback de confirmación de firma (webhook)
+- [ ] Actualizar status del caso al recibir firma (de "pendiente_firma" a "firmado")
+
+### Pruebas
+- [ ] Crear tests unitarios para workplaceViolencePDFService
+- [ ] Probar generación de todos los tipos de reportes
+- [ ] Verificar almacenamiento en S3 y URLs accesibles
+- [ ] Verificar 0 errores TypeScript
+
+---
+
+## FASE 166: Manuales de Instalación Completos (P2 - Medio) - EN PROGRESO
+
+### Manual de Instalación para Servidor Windows Server
+- [ ] Documentar requisitos del sistema (RAM 4GB+, CPU 2 cores+, disco 20GB+, Windows Server 2019+)
+- [ ] Documentar instalación de Node.js 18+ en Windows (descarga desde nodejs.org, instalador MSI)
+- [ ] Documentar instalación de MySQL Server 8.0+ en Windows (MySQL Installer, configuración de root password)
+- [ ] Documentar configuración de base de datos con MySQL Workbench (crear usuario, base de datos, permisos)
+- [ ] Documentar configuración de variables de entorno en Windows (Panel de Control → Sistema → Variables de entorno)
+- [ ] Documentar instalación de la aplicación (clonar repositorio con Git, pnpm install)
+- [ ] Documentar configuración de IIS como proxy reverso (URL Rewrite, Application Request Routing)
+- [ ] Documentar instalación de certificado SSL/TLS (IIS Manager, importar certificado .pfx)
+- [ ] Documentar configuración de dominio personalizado (DNS A records, bindings en IIS)
+- [ ] Documentar configuración de firewall de Windows (puertos 80, 443, 3000)
+- [ ] Documentar proceso de inicio automático con Windows Service (node-windows, pm2-windows-service)
+- [ ] Documentar respaldos automáticos de MySQL (MySQL Workbench, tareas programadas)
+
+### Manual de Instalación para Cloud (AWS/Azure/GCP)
+
+**Opción 1: AWS (Amazon Web Services)**
+- [ ] Documentar creación de cuenta AWS y configuración de IAM
+- [ ] Documentar lanzamiento de instancia EC2 (Ubuntu 20.04 LTS, t3.medium, 20GB EBS)
+- [ ] Documentar configuración de Security Groups (puertos 22, 80, 443, 3000)
+- [ ] Documentar conexión SSH a instancia EC2 (PuTTY en Windows, ssh en Linux/Mac)
+- [ ] Documentar instalación de dependencias en EC2 (Node.js, MySQL, Nginx)
+- [ ] Documentar creación de base de datos RDS MySQL (db.t3.micro, Multi-AZ, automated backups)
+- [ ] Documentar configuración de Elastic IP (IP estática para la instancia)
+- [ ] Documentar configuración de Route 53 (DNS, crear hosted zone, A record)
+- [ ] Documentar instalación de certificado SSL/TLS con AWS Certificate Manager (ACM)
+- [ ] Documentar configuración de Application Load Balancer (ALB) con HTTPS
+- [ ] Documentar configuración de Auto Scaling Group (escalado automático)
+- [ ] Documentar configuración de CloudWatch (monitoreo, alarmas, logs)
+- [ ] Documentar respaldos automáticos (RDS snapshots, S3 backups)
+
+**Opción 2: Azure (Microsoft Azure)**
+- [ ] Documentar creación de cuenta Azure y configuración de suscripción
+- [ ] Documentar creación de máquina virtual (Ubuntu 20.04 LTS, Standard_B2s, 20GB SSD)
+- [ ] Documentar configuración de Network Security Group (puertos 22, 80, 443, 3000)
+- [ ] Documentar conexión SSH a VM (Azure Cloud Shell, ssh)
+- [ ] Documentar instalación de dependencias en VM (Node.js, MySQL, Nginx)
+- [ ] Documentar creación de Azure Database for MySQL (Basic tier, automated backups)
+- [ ] Documentar configuración de IP pública estática
+- [ ] Documentar configuración de Azure DNS (crear zona DNS, A record)
+- [ ] Documentar instalación de certificado SSL/TLS con Azure App Service Certificate
+- [ ] Documentar configuración de Application Gateway con HTTPS
+- [ ] Documentar configuración de Azure Monitor (métricas, alertas, logs)
+- [ ] Documentar respaldos automáticos (Azure Backup, snapshots)
+
+**Opción 3: GCP (Google Cloud Platform)**
+- [ ] Documentar creación de cuenta GCP y configuración de proyecto
+- [ ] Documentar creación de instancia Compute Engine (Ubuntu 20.04 LTS, e2-medium, 20GB SSD)
+- [ ] Documentar configuración de reglas de firewall (puertos 22, 80, 443, 3000)
+- [ ] Documentar conexión SSH a instancia (gcloud ssh, Cloud Shell)
+- [ ] Documentar instalación de dependencias en instancia (Node.js, MySQL, Nginx)
+- [ ] Documentar creación de Cloud SQL MySQL (db-f1-micro, automated backups)
+- [ ] Documentar configuración de IP estática externa
+- [ ] Documentar configuración de Cloud DNS (crear zona DNS, A record)
+- [ ] Documentar instalación de certificado SSL/TLS con Google-managed SSL certificates
+- [ ] Documentar configuración de Cloud Load Balancing con HTTPS
+- [ ] Documentar configuración de Cloud Monitoring (métricas, alertas, logs)
+- [ ] Documentar respaldos automáticos (Cloud SQL backups, snapshots)
+
+### Manual de Instalación para Docker
+
+**Opción 1: Docker Compose (Desarrollo y Producción)**
+- [ ] Documentar instalación de Docker Engine (Ubuntu: apt install docker.io, Windows: Docker Desktop)
+- [ ] Documentar instalación de Docker Compose (curl, chmod +x, mv a /usr/local/bin)
+- [ ] Documentar creación de Dockerfile para la aplicación (FROM node:18, WORKDIR, COPY, RUN pnpm install, EXPOSE 3000, CMD)
+- [ ] Documentar creación de docker-compose.yml (servicios: app, database, nginx)
+- [ ] Documentar configuración de servicio app (build, ports, environment, depends_on, volumes)
+- [ ] Documentar configuración de servicio database (image: mysql:8.0, environment, volumes, ports)
+- [ ] Documentar configuración de servicio nginx (image: nginx:alpine, ports, volumes, depends_on)
+- [ ] Documentar creación de archivo nginx.conf (proxy_pass, SSL, dominio personalizado)
+- [ ] Documentar configuración de variables de entorno (.env file)
+- [ ] Documentar configuración de volúmenes persistentes (database data, uploads, logs)
+- [ ] Documentar comandos de despliegue (docker-compose up -d, docker-compose logs, docker-compose down)
+- [ ] Documentar instalación de certificado SSL/TLS con Let's Encrypt (certbot en contenedor)
+- [ ] Documentar configuración de dominio personalizado (DNS A record, nginx server_name)
+- [ ] Documentar respaldos automáticos (docker exec mysqldump, cron)
+- [ ] Documentar actualización de la aplicación (git pull, docker-compose build, docker-compose up -d)
+
+**Opción 2: Docker Swarm (Producción con Alta Disponibilidad)**
+- [ ] Documentar inicialización de Docker Swarm (docker swarm init)
+- [ ] Documentar creación de docker-compose.yml para Swarm (deploy, replicas, update_config)
+- [ ] Documentar despliegue de stack (docker stack deploy -c docker-compose.yml nom035)
+- [ ] Documentar configuración de secrets (docker secret create)
+- [ ] Documentar configuración de configs (docker config create)
+- [ ] Documentar escalado de servicios (docker service scale)
+- [ ] Documentar actualización de servicios (docker service update)
+- [ ] Documentar monitoreo de servicios (docker service ls, docker service logs)
+
+---
+
+## FASE 167: Manual de Usuario y Video Tutorial (P2 - Medio) - EN PROGRESO
+
+### Manual de Usuario Completo
+- [ ] **Introducción**: Descripción general del sistema, objetivos, alcance, usuarios objetivo
+- [ ] **Requisitos del Sistema**: Navegadores compatibles, resolución de pantalla, conexión a internet
+- [ ] **Acceso al Sistema**: URL de acceso, proceso de login, recuperación de contraseña
+- [ ] **Panel Principal (Dashboard)**: Descripción de widgets, métricas clave, navegación
+- [ ] **Gestión de Empleados**: Alta, baja, modificación, búsqueda, importación masiva, expediente digital
+- [ ] **Encuestas NOM-035**: Aplicación de Guía I, II, III, envío masivo, seguimiento de respuestas, generación de reportes
+- [ ] **Gestión de Casos**: Creación de casos, asignación, seguimiento, bitácora, cierre
+- [ ] **Protocolo de Violencia Laboral**: Recepción de quejas, investigación, medidas cautelares, resolución, reportes
+- [ ] **Comité NOM-035**: Gestión de miembros, acta constitutiva, bases de funcionamiento, programa de capacitación
+- [ ] **Programa de Capacitación del Comité**: Creación de programas, programación de sesiones, registro de asistencia, certificados
+- [ ] **Alertas Tempranas**: Dashboard de alertas, filtros avanzados, casos por vencer, encuestas pendientes
+- [ ] **Reportes y Análisis**: Generación de reportes, exportación a PDF/Excel, gráficas de cumplimiento
+- [ ] **Administración**: Configuración de empresa, usuarios, roles, permisos, notificaciones
+- [ ] **Preguntas Frecuentes (FAQ)**: Respuestas a dudas comunes
+- [ ] **Soporte Técnico**: Información de contacto, horarios de atención
+
+### Video Tutorial del Sistema
+- [ ] **Guion del Video**: Escribir guion completo con narración, escenas, duración estimada (15-20 minutos)
+- [ ] **Escena 1: Introducción** (1 min): Presentación del sistema, objetivos, beneficios
+- [ ] **Escena 2: Acceso y Navegación** (2 min): Login, dashboard, menú lateral, navegación básica
+- [ ] **Escena 3: Gestión de Empleados** (3 min): Alta de empleado, búsqueda, edición, expediente digital
+- [ ] **Escena 4: Encuestas NOM-035** (4 min): Aplicación de Guía III, envío masivo, seguimiento, reportes
+- [ ] **Escena 5: Gestión de Casos** (3 min): Creación de caso, asignación, seguimiento, bitácora
+- [ ] **Escena 6: Protocolo de Violencia Laboral** (3 min): Recepción de queja, investigación, reportes
+- [ ] **Escena 7: Comité y Capacitación** (2 min): Gestión de miembros, programa de capacitación, certificados
+- [ ] **Escena 8: Alertas y Reportes** (2 min): Dashboard de alertas, filtros, generación de reportes
+- [ ] **Escena 9: Cierre** (1 min): Resumen, información de soporte, agradecimiento
+- [ ] **Grabación de Pantalla**: Usar OBS Studio, Camtasia o similar para grabar navegación
+- [ ] **Edición de Video**: Cortar, agregar transiciones, música de fondo, subtítulos
+- [ ] **Narración**: Grabar voz en off con micrófono de calidad
+- [ ] **Exportación**: Exportar en formato MP4, 1080p, 30fps
+- [ ] **Publicación**: Subir a YouTube, Vimeo o plataforma interna
+
+### Videos Tutoriales Complementarios (Cortos, 3-5 min cada uno)
+- [ ] **Tutorial 1**: Cómo aplicar una encuesta NOM-035 (Guía III)
+- [ ] **Tutorial 2**: Cómo crear y gestionar un caso de riesgo psicosocial
+- [ ] **Tutorial 3**: Cómo recibir y procesar una queja de violencia laboral
+- [ ] **Tutorial 4**: Cómo programar una sesión de capacitación del comité
+- [ ] **Tutorial 5**: Cómo generar reportes de cumplimiento NOM-035
+- [ ] **Tutorial 6**: Cómo configurar alertas tempranas y filtros avanzados
+- [ ] **Tutorial 7**: Cómo gestionar el expediente digital de un empleado
+- [ ] **Tutorial 8**: Cómo configurar usuarios y permisos del sistema
+
+---
