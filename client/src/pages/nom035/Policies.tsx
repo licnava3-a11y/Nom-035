@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Download, Edit, Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileText, Plus, Download, Edit, Trash2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -30,6 +31,7 @@ export default function Policies() {
 
   // Queries
   const { data: policies, isLoading } = trpc.nom035Policies.list.useQuery();
+  const { data: activeRepresentatives, isLoading: isLoadingReps } = trpc.company.legalRepresentative.listActive.useQuery();
 
   // Mutations
   const createMutation = trpc.nom035Policies.create.useMutation({
@@ -173,6 +175,35 @@ export default function Policies() {
                   value={formData.fechaPublicacion}
                   onChange={(e) => setFormData({ ...formData, fechaPublicacion: e.target.value })}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="representante">Representante Legal</Label>
+                {isLoadingReps ? (
+                  <div className="text-sm text-muted-foreground">Cargando representantes...</div>
+                ) : !activeRepresentatives || activeRepresentatives.length === 0 ? (
+                  <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-md">
+                    <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      No hay representantes legales activos con firma digital. Por favor, registre uno en la sección de Empresa.
+                    </p>
+                  </div>
+                ) : (
+                  <Select
+                    value={formData.representanteLegalId?.toString()}
+                    onValueChange={(value) => setFormData({ ...formData, representanteLegalId: parseInt(value) })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione un representante legal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeRepresentatives.map((rep: any) => (
+                        <SelectItem key={rep.id} value={rep.id.toString()}>
+                          {rep.nombre} - {rep.cargo}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
             <DialogFooter>

@@ -5,6 +5,7 @@ import { meetingMinutes, meetingParticipants, meetingAttachments, employees } fr
 import { eq, desc, and, like, gte, lte } from "drizzle-orm";
 import { storagePut } from "../storage";
 import QRCode from "qrcode";
+import { logMinuteEvidence } from "../helpers/evidenceLogger";
 
 // Función para generar folio automático
 async function generateFolio(prefix: string = "MIN"): Promise<string> {
@@ -426,6 +427,15 @@ export const meetingMinutesRouter = router({
         .update(meetingMinutes)
         .set({ updatedAt: new Date() })
         .where(eq(meetingMinutes.id, input.id));
+
+      // Registrar evidencia automáticamente en carpeta de evidencias
+      await logMinuteEvidence(
+        minute.id,
+        minute.title,
+        pdfUrl,
+        fileName,
+        minute.createdBy
+      );
 
       return { pdfUrl };
     }),

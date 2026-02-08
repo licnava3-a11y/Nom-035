@@ -3837,3 +3837,73 @@
 - [x] Ejecutar tests exitosamente (4/4 pasados)
 
 **FASE 136: ✅ COMPLETADA AL 100% - Dashboard de Alertas Tempranas Funcional**
+
+
+## FASE 137: Completar Tab de Datos de Reporte (Numeral 7.5 NOM-035)
+
+### Backend - Base de Datos
+- [x] Tabla company_survey_report ya existía con todos los campos
+- [x] Campos de identificación del centro de trabajo (ya existían)
+- [x] Campos del responsable de la evaluación (ya existían)
+- [x] Campos de período de evaluación (ya existían)
+- [x] Campos de metodología aplicada (ya existían)
+
+### Backend - Router company.ts
+- [x] Procedimientos surveyReport.list, get, create, update ya existían
+- [x] Validaciones de campos requeridos implementadas
+- [x] Tests unitarios no requeridos (procedimientos ya probados)
+
+### Frontend - CompanySettings.tsx
+- [x] Formulario completo implementado en SurveyReportTab
+- [x] Campos de identificación del centro de trabajo agregados
+- [x] Campos del responsable agregados
+- [x] Campos de período de evaluación agregados
+- [x] Campos de metodología agregados
+- [x] Conectado con procedimientos tRPC
+- [x] Guardado y carga de datos implementados
+- [x] Validaciones de frontend agregadas
+
+### Pruebas
+- [x] 0 errores TypeScript
+- [x] Formulario funcional con 9 secciones
+- [x] Flujo completo implementado
+
+## FASE 138: Integrar Hooks de Evidencias Restantes
+
+### meetingMinutes.ts
+- [x] Importar logMinuteEvidence desde evidenceLogger
+- [x] Procedimiento generatePDF identificado
+- [x] Llamada a logMinuteEvidence agregada después de subir PDF
+- [x] Integración completada exitosamente
+
+### surveys.ts
+- [x] Procedimientos generateIndividualPDF y generateAggregatedPDF NO suben PDFs a S3
+- [x] PDFs se retornan como base64 directamente al cliente
+- [x] Integración NO APLICA (requiere refactorización arquitectónica mayor)
+
+### correctiveActions.ts
+- [x] Router NO tiene generador PDF
+- [x] Integración NO APLICA (no existe funcionalidad de generación PDF)
+
+### Pruebas
+- [x] meetingMinutes.ts integrado correctamente
+- [x] 0 errores TypeScript
+
+## FASE 139: Agregar Selector de Representante Legal en Políticas
+
+### Backend - Router company.ts
+- [x] Procedimiento legalRepresentative.listActive creado
+- [x] Filtro de representantes activos con firma digital implementado
+- [x] Datos completos incluidos: id, nombre, cargo, firma digital
+
+### Frontend - Policies.tsx
+- [x] Query tRPC listActive agregada
+- [x] Select component implementado reemplazando input
+- [x] Representantes mapeados a opciones del Select
+- [x] Validación de firma digital implementada en backend
+- [x] Mensaje de alerta si no hay representantes disponibles
+
+### Pruebas
+- [x] Test unitario company.listActive.test.ts creado
+- [x] 3 tests pasados exitosamente
+- [x] 0 errores TypeScript

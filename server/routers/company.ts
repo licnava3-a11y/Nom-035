@@ -118,6 +118,12 @@ export const companyRouter = router({
       return await companyDb.getAllLegalRepresentatives();
     }),
 
+    listActive: protectedProcedure.query(async () => {
+      const allReps = await companyDb.getAllLegalRepresentatives();
+      // Filtrar solo representantes activos con firma digital
+      return allReps.filter(rep => rep.activo && rep.firmaUrl);
+    }),
+
     get: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {

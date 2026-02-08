@@ -1144,20 +1144,445 @@ function SurveyReportTab() {
     alert(`${opts.title}: ${opts.description}`);
   };
 
+  const { data: reportData, isLoading } = trpc.company.surveyReport.list.useQuery();
+  const createMutation = trpc.company.surveyReport.create.useMutation();
+  const updateMutation = trpc.company.surveyReport.update.useMutation();
+
+  // Obtener el reporte más reciente o crear uno nuevo
+  const latestReport = reportData && reportData.length > 0 ? reportData[0] : null;
+
+  const [formData, setFormData] = useState({
+    // Datos básicos
+    periodoAplicacion: "",
+    fechaInicio: "",
+    fechaFin: "",
+    guiaAplicada: "guia-i" as "guia-i" | "guia-ii" | "guia-iii",
+    tamañoMuestra: "",
+    numeroTrabajadoresTotal: "",
+    numeroTrabajadoresEncuestados: "",
+    metodologiaAplicacion: "",
+    // a) Datos del centro de trabajo
+    nombreCentroTrabajo: "",
+    domicilioCentroTrabajo: "",
+    actividadPrincipal: "",
+    // b) Objetivo
+    objetivoInforme: "",
+    // c) Principales actividades realizadas
+    actividadesRealizadas: "",
+    // d) Método utilizado
+    metodoUtilizado: "",
+    // e) Resultados obtenidos
+    resultadosObtenidos: "",
+    nivelRiesgoGeneral: "bajo" as "bajo" | "medio" | "alto" | "muy_alto",
+    // f) Conclusiones
+    conclusiones: "",
+    // g) Recomendaciones y acciones de intervención
+    recomendaciones: "",
+    accionesIntervencion: "",
+    // h) Datos del responsable de la evaluación
+    nombreResponsableEvaluacion: "",
+    cedulaProfesional: "",
+    responsableAplicacion: "",
+    observaciones: "",
+  });
+
+  useEffect(() => {
+    if (latestReport) {
+      setFormData({
+        periodoAplicacion: latestReport.periodoAplicacion || "",
+        fechaInicio: latestReport.fechaInicio ? new Date(latestReport.fechaInicio).toISOString().split('T')[0] : "",
+        fechaFin: latestReport.fechaFin ? new Date(latestReport.fechaFin).toISOString().split('T')[0] : "",
+        guiaAplicada: latestReport.guiaAplicada || "guia-i",
+        tamañoMuestra: latestReport.tamañoMuestra?.toString() || "",
+        numeroTrabajadoresTotal: latestReport.numeroTrabajadoresTotal?.toString() || "",
+        numeroTrabajadoresEncuestados: latestReport.numeroTrabajadoresEncuestados?.toString() || "",
+        metodologiaAplicacion: latestReport.metodologiaAplicacion || "",
+        nombreCentroTrabajo: latestReport.nombreCentroTrabajo || "",
+        domicilioCentroTrabajo: latestReport.domicilioCentroTrabajo || "",
+        actividadPrincipal: latestReport.actividadPrincipal || "",
+        objetivoInforme: latestReport.objetivoInforme || "",
+        actividadesRealizadas: latestReport.actividadesRealizadas || "",
+        metodoUtilizado: latestReport.metodoUtilizado || "",
+        resultadosObtenidos: latestReport.resultadosObtenidos || "",
+        nivelRiesgoGeneral: latestReport.nivelRiesgoGeneral || "bajo",
+        conclusiones: latestReport.conclusiones || "",
+        recomendaciones: latestReport.recomendaciones || "",
+        accionesIntervencion: latestReport.accionesIntervencion || "",
+        nombreResponsableEvaluacion: latestReport.nombreResponsableEvaluacion || "",
+        cedulaProfesional: latestReport.cedulaProfesional || "",
+        responsableAplicacion: latestReport.responsableAplicacion || "",
+        observaciones: latestReport.observaciones || "",
+      });
+    }
+  }, [latestReport]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const payload = {
+        periodoAplicacion: formData.periodoAplicacion,
+        fechaInicio: formData.fechaInicio,
+        fechaFin: formData.fechaFin,
+        guiaAplicada: formData.guiaAplicada,
+        tamañoMuestra: formData.tamañoMuestra ? parseInt(formData.tamañoMuestra) : 0,
+        numeroTrabajadoresTotal: formData.numeroTrabajadoresTotal ? parseInt(formData.numeroTrabajadoresTotal) : 0,
+        numeroTrabajadoresEncuestados: formData.numeroTrabajadoresEncuestados ? parseInt(formData.numeroTrabajadoresEncuestados) : 0,
+        metodologiaAplicacion: formData.metodologiaAplicacion || undefined,
+        nombreCentroTrabajo: formData.nombreCentroTrabajo || undefined,
+        domicilioCentroTrabajo: formData.domicilioCentroTrabajo || undefined,
+        actividadPrincipal: formData.actividadPrincipal || undefined,
+        objetivoInforme: formData.objetivoInforme || undefined,
+        actividadesRealizadas: formData.actividadesRealizadas || undefined,
+        metodoUtilizado: formData.metodoUtilizado || undefined,
+        resultadosObtenidos: formData.resultadosObtenidos || undefined,
+        nivelRiesgoGeneral: formData.nivelRiesgoGeneral,
+        conclusiones: formData.conclusiones || undefined,
+        recomendaciones: formData.recomendaciones || undefined,
+        accionesIntervencion: formData.accionesIntervencion || undefined,
+        nombreResponsableEvaluacion: formData.nombreResponsableEvaluacion || undefined,
+        cedulaProfesional: formData.cedulaProfesional || undefined,
+        responsableAplicacion: formData.responsableAplicacion || undefined,
+        observaciones: formData.observaciones || undefined,
+      };
+
+      if (latestReport) {
+        await updateMutation.mutateAsync({ id: latestReport.id, ...payload });
+      } else {
+        await createMutation.mutateAsync(payload);
+      }
+
+      toast({
+        title: "Datos guardados",
+        description: "Los datos del reporte se han guardado correctamente",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "No se pudieron guardar los datos",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Datos del Reporte de Encuesta</CardTitle>
+        <CardTitle>Datos del Reporte de Encuesta NOM-035</CardTitle>
         <CardDescription>
-          Configuración de información para reportes NOM-035 (Numeral 7.5)
+          Información requerida para el informe del Numeral 7.5 NOM-035-STPS-2018
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="text-center py-12 text-muted-foreground">
-          <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Funcionalidad en desarrollo</p>
-          <p className="text-sm">Esta sección estará disponible próximamente</p>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* SECCIÓN 1: DATOS BÁSICOS */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">Datos Básicos de la Evaluación</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="periodoAplicacion">Período de Aplicación *</Label>
+                <Input
+                  id="periodoAplicacion"
+                  value={formData.periodoAplicacion}
+                  onChange={(e) => setFormData({ ...formData, periodoAplicacion: e.target.value })}
+                  placeholder="Ej: 2024-Q1"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="guiaAplicada">Guía Aplicada *</Label>
+                <Select
+                  value={formData.guiaAplicada}
+                  onValueChange={(value: "guia-i" | "guia-ii" | "guia-iii") => setFormData({ ...formData, guiaAplicada: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="guia-i">Guía I - Acontecimientos Traumáticos</SelectItem>
+                    <SelectItem value="guia-ii">Guía II - Factores de Riesgo</SelectItem>
+                    <SelectItem value="guia-iii">Guía III - Entorno Organizacional</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fechaInicio">Fecha de Inicio *</Label>
+                <Input
+                  id="fechaInicio"
+                  type="date"
+                  value={formData.fechaInicio}
+                  onChange={(e) => setFormData({ ...formData, fechaInicio: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fechaFin">Fecha de Fin *</Label>
+                <Input
+                  id="fechaFin"
+                  type="date"
+                  value={formData.fechaFin}
+                  onChange={(e) => setFormData({ ...formData, fechaFin: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="numeroTrabajadoresTotal">Número Total de Trabajadores *</Label>
+                <Input
+                  id="numeroTrabajadoresTotal"
+                  type="number"
+                  value={formData.numeroTrabajadoresTotal}
+                  onChange={(e) => setFormData({ ...formData, numeroTrabajadoresTotal: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="numeroTrabajadoresEncuestados">Número de Trabajadores Evaluados *</Label>
+                <Input
+                  id="numeroTrabajadoresEncuestados"
+                  type="number"
+                  value={formData.numeroTrabajadoresEncuestados}
+                  onChange={(e) => setFormData({ ...formData, numeroTrabajadoresEncuestados: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN 2: DATOS DEL CENTRO DE TRABAJO */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">a) Identificación del Centro de Trabajo</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nombreCentroTrabajo">Nombre, Denominación o Razón Social</Label>
+                <Input
+                  id="nombreCentroTrabajo"
+                  value={formData.nombreCentroTrabajo}
+                  onChange={(e) => setFormData({ ...formData, nombreCentroTrabajo: e.target.value })}
+                  placeholder="Nombre completo de la empresa"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="domicilioCentroTrabajo">Domicilio Completo</Label>
+                <Textarea
+                  id="domicilioCentroTrabajo"
+                  value={formData.domicilioCentroTrabajo}
+                  onChange={(e) => setFormData({ ...formData, domicilioCentroTrabajo: e.target.value })}
+                  placeholder="Calle, número, colonia, código postal, municipio/delegación, entidad federativa"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="actividadPrincipal">Actividad Económica Principal</Label>
+                <Textarea
+                  id="actividadPrincipal"
+                  value={formData.actividadPrincipal}
+                  onChange={(e) => setFormData({ ...formData, actividadPrincipal: e.target.value })}
+                  placeholder="Descripción de la actividad económica principal del centro de trabajo"
+                  rows={2}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN 3: OBJETIVO */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">b) Objetivo del Informe</h3>
+            <div className="space-y-2">
+              <Label htmlFor="objetivoInforme">Objetivo</Label>
+              <Textarea
+                id="objetivoInforme"
+                value={formData.objetivoInforme}
+                onChange={(e) => setFormData({ ...formData, objetivoInforme: e.target.value })}
+                placeholder="Objetivo de la evaluación de riesgos psicosociales"
+                rows={3}
+              />
+            </div>
+          </div>
+
+          {/* SECCIÓN 4: ACTIVIDADES REALIZADAS */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">c) Principales Actividades Realizadas</h3>
+            <div className="space-y-2">
+              <Label htmlFor="actividadesRealizadas">Actividades</Label>
+              <Textarea
+                id="actividadesRealizadas"
+                value={formData.actividadesRealizadas}
+                onChange={(e) => setFormData({ ...formData, actividadesRealizadas: e.target.value })}
+                placeholder="Descripción de las principales actividades realizadas durante la evaluación"
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* SECCIÓN 5: MÉTODO UTILIZADO */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">d) Método Utilizado</h3>
+            <div className="space-y-2">
+              <Label htmlFor="metodoUtilizado">Método</Label>
+              <Textarea
+                id="metodoUtilizado"
+                value={formData.metodoUtilizado}
+                onChange={(e) => setFormData({ ...formData, metodoUtilizado: e.target.value })}
+                placeholder="Descripción del método utilizado para la identificación y análisis de factores de riesgo psicosocial"
+                rows={4}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="metodologiaAplicacion">Metodología de Aplicación</Label>
+              <Textarea
+                id="metodologiaAplicacion"
+                value={formData.metodologiaAplicacion}
+                onChange={(e) => setFormData({ ...formData, metodologiaAplicacion: e.target.value })}
+                placeholder="Ej: Aplicación en línea, presencial, mixta"
+                rows={2}
+              />
+            </div>
+          </div>
+
+          {/* SECCIÓN 6: RESULTADOS OBTENIDOS */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">e) Resultados Obtenidos</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="resultadosObtenidos">Resultados</Label>
+                <Textarea
+                  id="resultadosObtenidos"
+                  value={formData.resultadosObtenidos}
+                  onChange={(e) => setFormData({ ...formData, resultadosObtenidos: e.target.value })}
+                  placeholder="Descripción detallada de los resultados obtenidos en la evaluación"
+                  rows={5}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nivelRiesgoGeneral">Nivel de Riesgo General</Label>
+                <Select
+                  value={formData.nivelRiesgoGeneral}
+                  onValueChange={(value: "bajo" | "medio" | "alto" | "muy_alto") => setFormData({ ...formData, nivelRiesgoGeneral: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bajo">Bajo / Nulo</SelectItem>
+                    <SelectItem value="medio">Medio</SelectItem>
+                    <SelectItem value="alto">Alto</SelectItem>
+                    <SelectItem value="muy_alto">Muy Alto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN 7: CONCLUSIONES */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">f) Conclusiones</h3>
+            <div className="space-y-2">
+              <Label htmlFor="conclusiones">Conclusiones</Label>
+              <Textarea
+                id="conclusiones"
+                value={formData.conclusiones}
+                onChange={(e) => setFormData({ ...formData, conclusiones: e.target.value })}
+                placeholder="Conclusiones derivadas de la evaluación"
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* SECCIÓN 8: RECOMENDACIONES */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">g) Recomendaciones y Acciones de Intervención</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="recomendaciones">Recomendaciones</Label>
+                <Textarea
+                  id="recomendaciones"
+                  value={formData.recomendaciones}
+                  onChange={(e) => setFormData({ ...formData, recomendaciones: e.target.value })}
+                  placeholder="Recomendaciones para la prevención y control de factores de riesgo"
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="accionesIntervencion">Acciones de Intervención</Label>
+                <Textarea
+                  id="accionesIntervencion"
+                  value={formData.accionesIntervencion}
+                  onChange={(e) => setFormData({ ...formData, accionesIntervencion: e.target.value })}
+                  placeholder="Acciones específicas de intervención a implementar"
+                  rows={4}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN 9: DATOS DEL RESPONSABLE */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">h) Datos del Responsable de la Evaluación</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nombreResponsableEvaluacion">Nombre Completo</Label>
+                <Input
+                  id="nombreResponsableEvaluacion"
+                  value={formData.nombreResponsableEvaluacion}
+                  onChange={(e) => setFormData({ ...formData, nombreResponsableEvaluacion: e.target.value })}
+                  placeholder="Nombre completo del responsable"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cedulaProfesional">Cédula Profesional</Label>
+                <Input
+                  id="cedulaProfesional"
+                  value={formData.cedulaProfesional}
+                  onChange={(e) => setFormData({ ...formData, cedulaProfesional: e.target.value })}
+                  placeholder="Número de cédula profesional (si aplica)"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN 10: OBSERVACIONES */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold border-b pb-2">Observaciones Adicionales</h3>
+            <div className="space-y-2">
+              <Label htmlFor="observaciones">Observaciones</Label>
+              <Textarea
+                id="observaciones"
+                value={formData.observaciones}
+                onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
+                placeholder="Observaciones adicionales sobre la evaluación"
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4 border-t">
+            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              {(createMutation.isPending || updateMutation.isPending) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              <Save className="mr-2 h-4 w-4" />
+              {latestReport ? "Actualizar Datos" : "Guardar Datos"}
+            </Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   );
