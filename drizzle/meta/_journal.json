@@ -211,6 +211,20 @@
       "when": 1770520907204,
       "tag": "0029_new_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1770550725109,
+      "tag": "0030_fluffy_stryfe",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1770550801013,
+      "tag": "0031_strong_cerise",
+      "breakpoints": true
     }
   ]
 }

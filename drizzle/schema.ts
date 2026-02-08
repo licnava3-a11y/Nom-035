@@ -642,6 +642,9 @@ export const surveys = mysqlTable('surveys', {
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   status: mysqlEnum('status', ['active', 'inactive', 'archived']).default('active').notNull(),
+  startDate: date('start_date'), // Fecha de inicio de aplicación
+  endDate: date('end_date'), // Fecha límite de aplicación
+  targetDepartmentId: int('target_department_id'), // Departamento objetivo (null = todos)
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
 });
@@ -798,10 +801,12 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   surveyResponseId: int("surveyResponseId"),
   riskLevel: mysqlEnum("riskLevel", ["nulo", "bajo", "medio", "alto", "muy_alto"]).notNull(),
   category: varchar("category", { length: 255 }),
+  title: varchar("title", { length: 255 }), // Título de la acción
   description: text("description").notNull(),
   responsibleUserId: int("responsibleUserId"),
   departamento: varchar("departamento", { length: 255 }),
   dueDate: date("dueDate"),
+  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium"), // Prioridad de la acción
   status: mysqlEnum("status", ["pendiente", "en_proceso", "completada", "cancelada"]).default("pendiente").notNull(),
   notes: text("notes"),
   completedAt: timestamp("completedAt"),
@@ -1624,3 +1629,31 @@ export const committeePositionAcceptances = mysqlTable("committee_position_accep
 
 export type CommitteePositionAcceptance = typeof committeePositionAcceptances.$inferSelect;
 export type InsertCommitteePositionAcceptance = typeof committeePositionAcceptances.$inferInsert;
+
+/**
+ * NOM-035 Cases table
+ * Stores individual cases of psychosocial risk identified through surveys
+ */
+export const nom035Cases = mysqlTable("nom035_cases", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  surveyResponseId: int("survey_response_id"),
+  riskLevel: mysqlEnum("risk_level", ["nulo", "bajo", "medio", "alto", "muy_alto"]).notNull(),
+  riskCategory: varchar("risk_category", { length: 255 }), // Category of psychosocial risk
+  description: text("description").notNull(),
+  identifiedDate: date("identified_date").notNull(),
+  deadline: date("deadline").notNull(), // Fecha límite para atención
+  status: mysqlEnum("status", ["open", "in_progress", "closed"]).default("open").notNull(),
+  assignedTo: int("assigned_to").references(() => users.id), // Responsible for follow-up
+  interventionPlan: text("intervention_plan"), // Plan de intervención
+  followUpNotes: text("follow_up_notes"), // Notas de seguimiento
+  closedAt: timestamp("closed_at"),
+  closedBy: int("closed_by").references(() => users.id),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Nom035Case = typeof nom035Cases.$inferSelect;
+export type InsertNom035Case = typeof nom035Cases.$inferInsert;
