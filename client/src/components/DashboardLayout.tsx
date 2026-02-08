@@ -103,7 +103,14 @@ const hierarchicalMenuItems = [
       },
       { label: "Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial identificados" },
       { label: "Buzón", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
-      { label: "Comité", path: "/committee", description: "Comité de seguridad y salud en el trabajo" },
+      { 
+        label: "Comité", 
+        description: "Comité de seguridad y salud en el trabajo",
+        submenu: [
+          { label: "Miembros del Comité", path: "/committee", description: "Gestión de miembros del comité NOM-035" },
+          { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },
+        ]
+      },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar factores de riesgo identificados" },
       { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones del comité" },
       { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },

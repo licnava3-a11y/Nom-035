@@ -1600,3 +1600,27 @@ export const nom035EvidenceFolder = mysqlTable("nom035_evidence_folder", {
 
 export type Nom035Evidence = typeof nom035EvidenceFolder.$inferSelect;
 export type InsertNom035Evidence = typeof nom035EvidenceFolder.$inferInsert;
+
+/**
+ * Committee Position Acceptances table
+ * Stores formal acceptance documents for committee members with INE photo and signature
+ */
+export const committeePositionAcceptances = mysqlTable("committee_position_acceptances", {
+  id: int("id").autoincrement().primaryKey(),
+  committeeMemberId: int("committee_member_id").references(() => committeeMembers.id).notNull(),
+  positionType: mysqlEnum("position_type", ["president", "secretary", "vocal", "alternate", "advisor"]).notNull(),
+  inePhotoUrl: text("ine_photo_url"),
+  inePhotoKey: varchar("ine_photo_key", { length: 500 }),
+  acceptanceDate: date("acceptance_date").notNull(),
+  signatureUrl: text("signature_url"),
+  signatureKey: varchar("signature_key", { length: 500 }),
+  pdfUrl: text("pdf_url"),
+  pdfKey: varchar("pdf_key", { length: 500 }),
+  responsibilities: text("responsibilities"),
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CommitteePositionAcceptance = typeof committeePositionAcceptances.$inferSelect;
+export type InsertCommitteePositionAcceptance = typeof committeePositionAcceptances.$inferInsert;
