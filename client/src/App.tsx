@@ -68,11 +68,7 @@ import Nom035AdminPanel from "./pages/Nom035AdminPanel";
 import Policies from "./pages/nom035/Policies";
 import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
-import CompanyGeneralData from "./pages/company/GeneralData";
-import CompanyLogo from "./pages/company/Logo";
-import CompanyLegalRepresentative from "./pages/company/LegalRepresentative";
-import CompanyDigitalSignature from "./pages/company/DigitalSignature";
-import CompanySurveyReport from "./pages/company/SurveyReport";
+import CompanySettings from "./pages/company/CompanySettings";
 import EqualityPolicy from "./pages/equality/Policy";
 import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
@@ -407,30 +403,10 @@ function Router() {
       {/* Ruta pública de aplicación de encuestas */}
       <Route path="/survey/apply" component={SurveyApply} />
       
-      {/* Rutas de Empresa */}
-      <Route path={"/company/general-data"}>
+      {/* Ruta de Empresa (Consolidada) */}
+      <Route path={"/company"}>
         <DashboardLayout>
-          <CompanyGeneralData />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/company/logo"}>
-        <DashboardLayout>
-          <CompanyLogo />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/company/legal-representative"}>
-        <DashboardLayout>
-          <CompanyLegalRepresentative />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/company/digital-signature"}>
-        <DashboardLayout>
-          <CompanyDigitalSignature />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/company/survey-report"}>
-        <DashboardLayout>
-          <CompanySurveyReport />
+          <CompanySettings />
         </DashboardLayout>
       </Route>
 

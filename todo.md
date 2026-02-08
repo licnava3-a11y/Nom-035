@@ -3491,3 +3491,88 @@
 - [x] Verificar responsividad de gráficas
 - [x] Agregar estados de carga y error
 - [x] Guardar checkpoint con tendencias temporales
+
+
+## FASE 129: Exportación Multi-formato de Reportes (DOCX y XLSX)
+
+### Instalación de Dependencias
+- [ ] Instalar docx (generación de documentos Word)
+- [ ] Instalar exceljs (generación de hojas de cálculo Excel)
+- [ ] Verificar compatibilidad con sistema actual
+
+### Backend - Generadores DOCX
+- [ ] Crear server/reportGenerators/nom035ReportDocx.ts
+- [ ] Implementar generación de encabezado con logotipo
+- [ ] Agregar tablas de datos con formato profesional
+- [ ] Incluir secciones de análisis y conclusiones
+- [ ] Agregar pie de página con folio y fecha
+- [ ] Subir documento a S3 y retornar URL
+
+### Backend - Generadores XLSX
+- [ ] Crear server/reportGenerators/nom035ReportXlsx.ts
+- [ ] Implementar hoja de resumen ejecutivo
+- [ ] Crear hoja de datos de casos NOM-035
+- [ ] Crear hoja de cobertura de encuestas
+- [ ] Agregar hoja de cumplimiento normativo
+- [ ] Aplicar formato profesional (colores, bordes, anchos)
+- [ ] Subir archivo a S3 y retornar URL
+
+### Backend - Extensión de Procedimientos tRPC
+- [ ] Extender procedimiento generateReport para soportar formato DOCX
+- [ ] Extender procedimiento generateReport para soportar formato XLSX
+- [ ] Agregar validación de formato de salida
+- [ ] Mantener compatibilidad con PDF existente
+
+### Frontend - Selector de Formato
+- [ ] Agregar dropdown de selección de formato (PDF/DOCX/XLSX)
+- [ ] Actualizar botón de generación para pasar formato seleccionado
+- [ ] Mostrar indicador de formato en descarga
+- [ ] Agregar tooltips explicativos para cada formato
+
+### Pruebas y Optimización
+- [ ] Probar generación de reporte DOCX
+- [ ] Probar generación de reporte XLSX
+- [ ] Verificar que PDF sigue funcionando
+- [ ] Optimizar tamaño de archivos generados
+- [ ] Guardar checkpoint con exportación multi-formato
+
+
+## FASE 130: Fusión de Submenús de Empresa en Datos Generales
+
+### Análisis de Componentes Existentes
+- [x] Leer CompanyInfo.tsx (Datos Generales)
+- [x] Leer SurveyReportData.tsx (Datos del Reporte de la Encuesta)
+- [x] Leer CompanyLogo.tsx (Logo)
+- [x] Leer LegalRepresentatives.tsx (Representante Legal)
+- [x] Leer DigitalSignatures.tsx (Firma Digital)
+
+### Creación de Página Consolidada
+- [x] Crear CompanySettings.tsx con todas las secciones fusionadas
+- [x] Sección 1: Datos Generales de la Empresa (nombre, RFC, dirección, etc.)
+- [x] Sección 2: Logo de la Empresa (subida y visualización)
+- [x] Sección 3: Representantes Legales (tabla y gestión)
+- [x] Sección 4: Firmas Digitales (tabla y gestión)
+- [x] Sección 5: Datos del Reporte de Encuesta (configuración)
+- [x] Implementar navegación por pestañas o acordeón
+- [x] Agregar breadcrumbs de navegación
+
+### Actualización de Rutas y Menú
+- [x] Actualizar App.tsx con ruta única /company
+- [x] Actualizar DashboardLayout.tsx eliminando submenús
+- [x] Cambiar menú "Empresa" a enlace directo sin submenús
+- [x] Eliminar rutas antiguas de submenús
+
+### Limpieza de Archivos
+- [x] Eliminar GeneralData.tsx
+- [x] Eliminar SurveyReport.tsx
+- [x] Eliminar Logo.tsx
+- [x] Eliminar LegalRepresentative.tsx
+- [x] Eliminar DigitalSignature.tsx
+
+### Pruebas y Verificación
+- [x] Probar carga de datos generales
+- [x] Probar subida de logo
+- [x] Probar gestión de representantes legales
+- [x] Probar gestión de firmas digitales
+- [x] Verificar que no hay errores TypeScript
+- [x] Guardar checkpoint con fusión completa

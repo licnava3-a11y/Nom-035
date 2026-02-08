@@ -44,15 +44,9 @@ const hierarchicalMenuItems = [
   {
     icon: Building2,
     label: "Empresa",
-    description: "Datos generales de la empresa según NOM-035 Capítulo 5",
+    path: "/company",
+    description: "Configuración general de la empresa: datos, logo, representantes legales y firmas digitales",
     roles: ["admin"],
-    submenu: [
-      { label: "Datos Generales", path: "/company/general", description: "Razón social, RFC, dirección fiscal y actividades preponderantes" },
-      { label: "Datos del Reporte de la Encuesta", path: "/company/survey-report", description: "Datos del centro de trabajo para informes NOM-035" },
-      { label: "Logo", path: "/company/logo", description: "Logotipo de la empresa para documentos y reportes oficiales" },
-      { label: "Representante Legal", path: "/company/legal-representative", description: "Datos del representante legal con acta constitutiva y poder notarial" },
-      { label: "Firma Digital", path: "/company/digital-signature", description: "Catálogo de firmantes autorizados con certificados digitales" },
-    ],
   },
   {
     icon: Users,
