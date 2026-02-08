@@ -2710,3 +2710,20 @@
 - [x] Entregar resultados al usuario
 
 **FASE 96 COMPLETADA: 6 errores TypeScript corregidos exitosamente** ✅
+
+
+## FASE 97: Agregar Campo Titulo en Formulario de Acciones Afirmativas
+
+### Actualización del Formulario
+- [x] Leer componente AffirmativeActions.tsx
+- [x] Agregar campo Input para 'titulo' antes del campo 'tipo' (con placeholder descriptivo)
+- [x] formData ya incluía titulo vacío desde FASE 96
+- [x] Verificar que el campo se envía correctamente en create/update mutations (ya estaba en ActionFormData)
+- [x] Campo titulo ahora visible en formulario HTML
+
+### Verificación
+- [x] Verificar que no hay errores TypeScript (0 errors confirmado)
+- [x] Guardar checkpoint con campo titulo agregado
+- [x] Entregar resultados al usuario
+
+**FASE 97 COMPLETADA: Campo titulo agregado al formulario de Acciones Afirmativas** ✅
