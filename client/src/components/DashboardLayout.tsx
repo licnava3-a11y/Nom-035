@@ -118,6 +118,7 @@ const hierarchicalMenuItems = [
       { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos psicosociales" },
       { label: "Carpeta de Evidencias", path: "/nom035/evidence-folder", description: "Repositorio centralizado de documentación para cumplimiento normativo" },
+      { label: "Alertas Tempranas", path: "/alerts", description: "Dashboard de alertas: casos próximos a vencer, encuestas pendientes y acciones sin seguimiento" },
     ],
   },
   {

@@ -3790,3 +3790,50 @@
 - [ ] Guardar checkpoint final con todas las fases completadas
 - [ ] Documentar funcionalidades implementadas
 - [ ] Entregar resultados al usuario
+
+
+## FASE 136: Dashboard de Alertas Tempranas
+
+### Backend - Base de Datos
+- [x] Crear tabla nom035_cases con 18 campos (folio, employeeId, riskLevel, deadline, status, etc.)
+- [x] Agregar campos a surveys (startDate, endDate, targetDepartmentId)
+- [x] Agregar campos a correctiveActions (title, priority)
+- [x] Aplicar migraciones SQL exitosamente
+
+### Backend - Router earlyWarnings
+- [x] Crear router earlyWarnings.ts con 4 procedimientos tRPC
+- [x] Implementar getCasesAboutToExpire (casos con menos de 30 días para vencer)
+- [x] Implementar getPendingSurveys (encuestas activas con fecha límite vencida)
+- [x] Implementar getActionsWithoutFollowUp (acciones sin actualización en 30+ días)
+- [x] Implementar getSummary (resumen consolidado de todas las alertas)
+- [x] Calcular prioridad automática (high/medium/low) según días restantes
+- [x] Asignar color de semáforo (red/yellow/green) según prioridad
+- [x] Corregir ORDER BY con alias en queries SQL
+
+### Frontend - Interfaz de Alertas
+- [x] Crear componente EarlyWarnings.tsx
+- [x] Implementar 4 tarjetas de resumen (Total, Casos, Encuestas, Acciones)
+- [x] Crear sistema de pestañas (Resumen, Casos, Encuestas, Acciones)
+- [x] Implementar tarjetas de distribución por prioridad en pestaña Resumen
+- [x] Crear tabla de casos próximos a vencer con semáforo de prioridad
+- [x] Crear tabla de encuestas pendientes con tasa de completado
+- [x] Crear tabla de acciones sin seguimiento con días sin actualización
+- [x] Agregar badges de prioridad con colores (rojo/amarillo/verde)
+- [x] Implementar estados vacíos con ícono CheckCircle2
+- [x] Agregar botones "Ver Detalle" con enlaces a módulos correspondientes
+
+### Integración
+- [x] Agregar import de EarlyWarnings en App.tsx
+- [x] Registrar ruta /alerts en App.tsx
+- [x] Agregar opción "Alertas Tempranas" en menú de Prevención de Riesgos
+- [x] Agregar tooltip descriptivo en menú lateral
+
+### Pruebas
+- [x] Crear test unitario earlyWarnings.test.ts con 4 tests
+- [x] Probar procedimiento getSummary
+- [x] Probar procedimiento getCasesAboutToExpire
+- [x] Probar procedimiento getPendingSurveys
+- [x] Probar procedimiento getActionsWithoutFollowUp
+- [x] Ejecutar tests exitosamente (4/4 pasados)
+
+**FASE 136: ✅ COMPLETADA AL 100% - Dashboard de Alertas Tempranas Funcional**

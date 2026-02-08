@@ -81,6 +81,7 @@ import EqualityCommittee from "./pages/equality/Committee";
 
 import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
+import EarlyWarnings from "./pages/EarlyWarnings";
 
 function Router() {
   return (
@@ -409,9 +410,14 @@ function Router() {
           <Policies />
         </DashboardLayout>
       </Route>
-      <Route path={"/nom035/evidence-folder"}>
+        <Route path={"/nom035/evidences"}>
         <DashboardLayout>
           <EvidenceFolder />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/alerts"}>
+        <DashboardLayout>
+          <EarlyWarnings />
         </DashboardLayout>
       </Route>
       <Route path={"/compliance"}>

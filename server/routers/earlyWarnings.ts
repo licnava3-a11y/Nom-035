@@ -89,8 +89,8 @@ export const earlyWarningsRouter = router({
             sql`${surveys.endDate} IS NOT NULL AND ${surveys.endDate} < CURDATE()`
           )
         )
-        .groupBy(surveys.id, departments.name)
-        .orderBy(sql`daysOverdue DESC`);
+        .groupBy(surveys.id)
+        .orderBy(sql`CASE WHEN ${surveys.endDate} IS NOT NULL THEN DATEDIFF(CURDATE(), ${surveys.endDate}) ELSE 0 END DESC`);
 
       return {
         surveys: surveysData.map((s) => ({
@@ -141,7 +141,7 @@ export const earlyWarningsRouter = router({
             sql`${correctiveActions.status} != 'completada'`
           )
         )
-        .orderBy(sql`daysSinceUpdate DESC`);
+        .orderBy(sql`DATEDIFF(CURDATE(), ${correctiveActions.updatedAt}) DESC`);
 
       return {
         actions: actions.map((a) => ({
