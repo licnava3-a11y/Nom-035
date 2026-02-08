@@ -187,6 +187,30 @@ export default function SurveyResults() {
         </Button>
       </div>
 
+      {/* Metadata de Evaluación NOM-035 */}
+      {data.evaluacion && (
+        <Card className="p-6 bg-blue-50 border-blue-200">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Información de Evaluación
+          </h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Fecha de Evaluación</p>
+              <p className="font-semibold">{data.evaluacion.fecha || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Periodo</p>
+              <p className="font-semibold">{data.evaluacion.periodo || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Versión Normativa</p>
+              <p className="font-semibold">{data.evaluacion.version_nom || 'NOM-035-STPS-2018'}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Nivel de Riesgo Principal */}
       <Card className={`p-8 ${riskConfig.bg} ${riskConfig.border} border-2`}>
         <div className="flex items-center gap-4">
@@ -339,6 +363,59 @@ export default function SurveyResults() {
             </div>
           </Card>
         </div>
+      )}
+
+      {/* Dimensiones NOM-035 con Códigos Oficiales */}
+      {results.dimensions && results.dimensions.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Dimensiones NOM-035 (Análisis Detallado)
+          </h3>
+          <div className="space-y-4">
+            {results.dimensions.map((dimension: any, index: number) => {
+              const dimRiskLevel: RiskLevel = dimension.riskLevel || 'Medio';
+              const dimRiskConfig = RISK_COLORS[dimRiskLevel];
+              const DimIcon = dimRiskConfig.icon;
+              
+              return (
+                <div key={index} className={`p-4 rounded-lg border-2 ${dimRiskConfig.bg} ${dimRiskConfig.border}`}>
+                  <div className="flex items-start gap-4">
+                    <div className={`p-2 rounded-full ${dimRiskConfig.bg}`}>
+                      <DimIcon className={`h-5 w-5 ${dimRiskConfig.text}`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <span className="text-xs font-mono bg-black/10 px-2 py-1 rounded">
+                            {dimension.codigo || 'N/A'}
+                          </span>
+                          <h4 className="font-semibold mt-1">{dimension.dimension}</h4>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Puntaje</p>
+                          <p className={`text-2xl font-bold ${dimRiskConfig.text}`}>
+                            {dimension.score?.toFixed(1) || 0}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <p className={`text-sm font-medium ${dimRiskConfig.text}`}>
+                          Nivel: {dimRiskLevel}
+                        </p>
+                        {dimension.interpretacion && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {dimension.interpretacion}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
       )}
 
       {/* Recomendaciones */}

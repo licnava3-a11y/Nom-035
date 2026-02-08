@@ -285,6 +285,12 @@ export const surveysRouter = router({
       })),
       responseToken: z.string().optional(), // Token opcional para validar
       curp: z.string().optional(), // Para trabajadores no registrados
+      // Metadata de evaluación NOM-035
+      evaluacion: z.object({
+        fecha: z.string(), // ISO 8601: "2024-01-15"
+        periodo: z.string(), // "Q1-2024"
+        version_nom: z.string().default("NOM-035-STPS-2018"),
+      }).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -307,14 +313,19 @@ export const surveysRouter = router({
       // Generar token único para esta respuesta
       const responseToken = input.responseToken || generateToken();
       
-      // Crear respuesta
+      // Crear respuesta con metadata de evaluación
+      const now = new Date();
       await db.insert(surveyResponses).values({
         surveyId: input.surveyId,
         userId: ctx.user.id,
         curp: input.curp || null,
         token: responseToken,
-        completedAt: new Date(),
-        startedAt: new Date(),
+        completedAt: now,
+        startedAt: now,
+        // Campos de evaluación NOM-035
+        fecha: input.evaluacion?.fecha || now.toISOString().split('T')[0],
+        periodo: input.evaluacion?.periodo || `Q${Math.ceil((now.getMonth() + 1) / 3)}-${now.getFullYear()}`,
+        version_nom: input.evaluacion?.version_nom || "NOM-035-STPS-2018",
       });
       
       // Obtener el ID de la respuesta recién creada
@@ -1319,11 +1330,43 @@ export const surveysRouter = router({
         }
       }
       
+      // Agregar metadata de evaluación y códigos de dimensiones
       return {
         response,
         survey,
         results,
+        evaluacion: {
+          fecha: response.fecha || null,
+          periodo: response.periodo || null,
+          version_nom: response.version_nom || "NOM-035-STPS-2018",
+        },
       };
+    }),
+
+  // Obtener metadata de evaluación NOM-035
+  getEvaluationMetadata: protectedProcedure
+    .input(z.object({
+      responseId: z.number(),
+    }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const [response] = await db
+        .select({
+          fecha: surveyResponses.fecha,
+          periodo: surveyResponses.periodo,
+          version_nom: surveyResponses.version_nom,
+        })
+        .from(surveyResponses)
+        .where(eq(surveyResponses.id, input.responseId))
+        .limit(1);
+      
+      if (!response) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta no encontrada" });
+      }
+      
+      return response;
     }),
 
   // Obtener log de notificaciones

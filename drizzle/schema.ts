@@ -714,6 +714,10 @@ export const surveyResponses = mysqlTable('survey_responses', {
   ipAddress: varchar('ip_address', { length: 45 }),
   deviceInfo: text('device_info'),
   results: text('results'), // Resultados calculados en JSON
+  // Campos de metadata de evaluación NOM-035
+  fecha: varchar('fecha', { length: 10 }), // Fecha de evaluación (ISO 8601: "2024-01-15")
+  periodo: varchar('periodo', { length: 20 }), // Periodo de evaluación ("Q1-2024")
+  version_nom: varchar('version_nom', { length: 50 }).default('NOM-035-STPS-2018'), // Versión de la norma
 });
 
 // Respuestas individuales a preguntas
