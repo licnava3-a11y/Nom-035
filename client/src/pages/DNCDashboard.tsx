@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Download, Filter, TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 type Priority = "baja" | "media" | "alta" | "critica";
 type Status = "pendiente" | "en_proceso" | "completada" | "cancelada";
@@ -156,6 +157,16 @@ export default function DNCDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
+      <Breadcrumb items={[
+        {
+                label: "Gestión de Talento",
+                href: "/"
+        },
+        {
+                label: "DNC Consolidada"
+        }
+]} />
+
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );

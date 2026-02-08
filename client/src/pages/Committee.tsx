@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users, Mail, Phone, Shield, Plus, Edit, Eye } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Committee() {
   const { user } = useAuth();
@@ -25,6 +26,16 @@ export default function Committee() {
   if (isLoading) {
     return (
       <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Prevención de Riesgos Psicosociales",
+                href: "/"
+        },
+        {
+                label: "Comité"
+        }
+]} />
+
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Comité de Atención</h1>

@@ -19,6 +19,7 @@ import { es } from "date-fns/locale";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 import { CaseDialog } from "@/components/CaseDialog";
 import { CaseFollowUpDialog } from "@/components/CaseFollowUpDialog";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Cases() {
   const { user } = useAuth();
@@ -105,6 +106,16 @@ export default function Cases() {
   if (user?.role !== "admin" && user?.role !== "committee") {
     return (
       <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Prevención de Riesgos Psicosociales",
+                href: "/"
+        },
+        {
+                label: "Casos"
+        }
+]} />
+
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />

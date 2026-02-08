@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Users as UsersIcon, Search, Plus, Shield, BookOpen, AlertCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Users() {
   const { user } = useAuth();
@@ -91,6 +92,16 @@ export default function Users() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Administración",
+                href: "/"
+        },
+        {
+                label: "Usuarios"
+        }
+]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -3029,3 +3029,80 @@
 - [ ] Probar todos los filtros temporales
 - [ ] Verificar que no hay errores TypeScript
 - [ ] Guardar checkpoint final
+
+
+## FASE 112: Completar Breadcrumbs en Todos los Módulos
+
+### Gestión de Talento (7 componentes)
+- [x] Agregar breadcrumbs en Employees.tsx ("Gestión de Talento > Trabajadores")
+- [x] Agregar breadcrumbs en JobPositions.tsx ("Gestión de Talento > Puestos")
+- [x] Agregar breadcrumbs en CompetenciesDashboard.tsx ("Gestión de Talento > Competencias")
+- [x] Agregar breadcrumbs en SkillsMatrix.tsx ("Gestión de Talento > Matriz de Habilidades")
+- [x] Agregar breadcrumbs en EmployeeCompetencyEvaluation.tsx ("Gestión de Talento > Evaluación de Competencias")
+- [x] Agregar breadcrumbs en DNCDashboard.tsx ("Gestión de Talento > DNC Consolidada")
+- [x] Agregar breadcrumbs en OrganizationalCompetenciesManager.tsx ("Gestión de Talento > Catálogo de Competencias")
+
+### Capacitación y Desarrollo (3 componentes)
+- [x] Agregar breadcrumbs en Courses.tsx ("Capacitación y Desarrollo > Cursos")
+- [x] Agregar breadcrumbs en Evaluations.tsx ("Capacitación y Desarrollo > Evaluaciones")
+- [x] Agregar breadcrumbs en Resources.tsx ("Capacitación y Desarrollo > Recursos")
+
+### Prevención de Riesgos Psicosociales (11 componentes)
+- [ ] Agregar breadcrumbs en GuideI.tsx ("Prevención de Riesgos > Encuestas > Guía I - ATS")
+- [ ] Agregar breadcrumbs en GuideII.tsx ("Prevención de Riesgos > Encuestas > Guía II")
+- [ ] Agregar breadcrumbs en GuideIII.tsx ("Prevención de Riesgos > Encuestas > Guía III")
+- [ ] Agregar breadcrumbs en SampleSize.tsx ("Prevención de Riesgos > Encuestas > Tamaño de Muestra")
+- [ ] Agregar breadcrumbs en TokensDashboard.tsx ("Prevención de Riesgos > Encuestas > Dashboard Tokens")
+- [ ] Agregar breadcrumbs en SurveyPeriods.tsx ("Prevención de Riesgos > Encuestas > Periodos de Aplicación")
+- [ ] Agregar breadcrumbs en MassSurveyEmail.tsx ("Prevención de Riesgos > Encuestas > Envío Masivo")
+- [x] Agregar breadcrumbs en Cases.tsx ("Prevención de Riesgos > Casos")
+- [x] Agregar breadcrumbs en Mailbox.tsx ("Prevención de Riesgos > Buzón")
+- [x] Agregar breadcrumbs en Committee.tsx ("Prevención de Riesgos > Comité")
+- [ ] Agregar breadcrumbs en CorrectiveActions.tsx ("Prevención de Riesgos > Acciones Correctivas")
+
+### Reportes y Análisis (4 componentes)
+- [ ] Agregar breadcrumbs en RegulatoryReports.tsx ("Reportes y Análisis > Reportes Normativos")
+- [ ] Agregar breadcrumbs en CompetenciesReports.tsx ("Reportes y Análisis > Análisis de Competencias")
+- [ ] Agregar breadcrumbs en Exports.tsx ("Reportes y Análisis > Exportaciones")
+
+### Administración (2 componentes)
+- [x] Agregar breadcrumbs en Users.tsx ("Administración > Usuarios")
+- [x] Agregar breadcrumbs en Settings.tsx ("Administración > Configuración")
+
+## FASE 113: Optimizar Estructura del Menú Lateral
+
+### Reducir Niveles de Anidamiento
+- [ ] Analizar estructura actual de "Prevención de Riesgos Psicosociales"
+- [ ] Mover submenú "Encuestas" a nivel principal como "Encuestas NOM-035"
+- [ ] Reorganizar elementos para máximo 2 niveles de profundidad
+- [ ] Actualizar hierarchicalMenuItems en DashboardLayout.tsx
+- [ ] Actualizar todas las rutas afectadas
+
+### Mejorar Accesibilidad
+- [ ] Asegurar que todos los elementos sean accesibles con teclado
+- [ ] Agregar indicadores visuales de nivel de anidamiento
+- [ ] Verificar contraste de colores para WCAG 2.1 AA
+
+## FASE 114: Agregar Indicadores Visuales Dinámicos
+
+### Badges de Notificaciones
+- [ ] Crear procedimiento tRPC para obtener contadores de notificaciones
+- [ ] Implementar badge de casos abiertos en "Prevención de Riesgos > Casos"
+- [ ] Implementar badge de quejas pendientes en "Prevención de Riesgos > Buzón"
+- [ ] Implementar badge de acciones correctivas pendientes
+
+### Contadores de Tareas Pendientes
+- [ ] Agregar contador de cursos pendientes en "Capacitación y Desarrollo"
+- [ ] Agregar contador de evaluaciones pendientes
+- [ ] Agregar contador de documentos por revisar
+
+### Alertas de Vencimiento
+- [ ] Implementar alerta de encuestas próximas a vencer
+- [ ] Implementar alerta de acciones correctivas vencidas
+- [ ] Agregar indicador visual (color rojo) para alertas críticas
+
+### Verificación
+- [ ] Probar todos los breadcrumbs en navegación
+- [ ] Verificar estructura optimizada del menú
+- [ ] Verificar indicadores visuales dinámicos
+- [ ] Guardar checkpoint con rediseño completo

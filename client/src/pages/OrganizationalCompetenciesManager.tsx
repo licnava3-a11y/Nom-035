@@ -23,6 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 type CompetencyCategory = "soft_skill" | "organizational" | "leadership" | "technical_transversal";
 type CompetencyLevel = "basico" | "intermedio" | "avanzado" | "experto";
@@ -190,6 +191,16 @@ export default function OrganizationalCompetenciesManager() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Gestión de Talento",
+                href: "/"
+        },
+        {
+                label: "Catálogo de Competencias"
+        }
+]} />
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

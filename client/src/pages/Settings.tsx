@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Save, Mail } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Settings() {
   const [hrEmail, setHrEmail] = useState("");
@@ -56,6 +57,16 @@ export default function Settings() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 max-w-4xl">
+      <Breadcrumb items={[
+        {
+                label: "Administración",
+                href: "/"
+        },
+        {
+                label: "Configuración"
+        }
+]} />
+
         <h1 className="text-3xl font-bold mb-6">Configuración del Sistema</h1>
         <Card>
           <CardContent className="py-12">

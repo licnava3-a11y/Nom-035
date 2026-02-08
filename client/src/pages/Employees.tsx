@@ -84,7 +84,10 @@ export default function Employees() {
 
   return (
     <div className="container mx-auto py-8">
-      <Breadcrumb items={[{ label: "Trabajadores" }]} />
+      <Breadcrumb items={[
+        { label: "Gestión de Talento", href: "/" },
+        { label: "Trabajadores" }
+      ]} />
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Catálogo de Trabajadores</h1>

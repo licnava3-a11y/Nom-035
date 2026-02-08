@@ -7,6 +7,7 @@ import { Link } from "wouter";
 import { BookOpen, Clock, Play, Plus, Edit } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { CourseDialog } from "@/components/CourseDialog";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Courses() {
   const { user } = useAuth();
@@ -55,6 +56,16 @@ export default function Courses() {
   if (isLoading) {
     return (
       <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Capacitación y Desarrollo",
+                href: "/"
+        },
+        {
+                label: "Cursos"
+        }
+]} />
+
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Cursos</h1>

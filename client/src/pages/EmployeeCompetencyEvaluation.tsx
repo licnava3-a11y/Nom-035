@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Save, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 type CompetencyLevel = "basico" | "intermedio" | "avanzado" | "experto";
 
@@ -160,6 +161,16 @@ export default function EmployeeCompetencyEvaluation() {
   if (loadingEmployees || loadingCompetencies) {
     return (
       <div className="flex items-center justify-center h-64">
+      <Breadcrumb items={[
+        {
+                label: "Gestión de Talento",
+                href: "/"
+        },
+        {
+                label: "Evaluación de Competencias"
+        }
+]} />
+
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );

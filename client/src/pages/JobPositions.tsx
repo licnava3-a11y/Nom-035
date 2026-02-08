@@ -7,6 +7,7 @@ import { Briefcase, AlertTriangle, TrendingUp, Plus, FileText } from "lucide-rea
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function JobPositions() {
   const { user } = useAuth();
@@ -101,6 +102,16 @@ export default function JobPositions() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Gestión de Talento",
+                href: "/"
+        },
+        {
+                label: "Puestos"
+        }
+]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

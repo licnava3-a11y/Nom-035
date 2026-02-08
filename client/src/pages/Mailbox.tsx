@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Loader2, Search, Filter, Eye, FileText, MessageSquare, ThumbsUp, GraduationCap } from "lucide-react";
 import { Link } from "wouter";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Mailbox() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,6 +82,16 @@ export default function Mailbox() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
+      <Breadcrumb items={[
+        {
+                label: "Prevención de Riesgos Psicosociales",
+                href: "/"
+        },
+        {
+                label: "Buzón"
+        }
+]} />
+
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

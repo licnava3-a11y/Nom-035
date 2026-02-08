@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardCheck, Clock, CheckCircle2, Play, FileQuestion } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Evaluations() {
   const { user } = useAuth();
@@ -14,6 +15,16 @@ export default function Evaluations() {
   if (isLoading) {
     return (
       <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Capacitación y Desarrollo",
+                href: "/"
+        },
+        {
+                label: "Evaluaciones"
+        }
+]} />
+
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Evaluaciones</h1>
           <p className="text-muted-foreground mt-2">Cargando evaluaciones...</p>

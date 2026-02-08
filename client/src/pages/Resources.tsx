@@ -7,6 +7,7 @@ import { FileText, Download, Plus, Search, Edit } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { ResourceDialog } from "@/components/ResourceDialog";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Resources() {
   const { user } = useAuth();
@@ -65,6 +66,16 @@ export default function Resources() {
   if (isLoading) {
     return (
       <div className="space-y-6">
+      <Breadcrumb items={[
+        {
+                label: "Capacitación y Desarrollo",
+                href: "/"
+        },
+        {
+                label: "Recursos"
+        }
+]} />
+
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Recursos</h1>

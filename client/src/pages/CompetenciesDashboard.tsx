@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function CompetenciesDashboard() {
   const [selectedView, setSelectedView] = useState<"department" | "type" | "gaps">(
@@ -54,6 +55,16 @@ export default function CompetenciesDashboard() {
 
   return (
     <div className="container py-8">
+      <Breadcrumb items={[
+        {
+                label: "Gestión de Talento",
+                href: "/"
+        },
+        {
+                label: "Competencias"
+        }
+]} />
+
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">

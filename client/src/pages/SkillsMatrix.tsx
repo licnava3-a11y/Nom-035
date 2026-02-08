@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Download, Upload, Filter, TrendingUp, AlertCircle } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   Dialog,
   DialogContent,
@@ -204,6 +205,16 @@ export default function SkillsMatrix() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
+      <Breadcrumb items={[
+        {
+                label: "Gestión de Talento",
+                href: "/"
+        },
+        {
+                label: "Matriz de Habilidades"
+        }
+]} />
+
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
