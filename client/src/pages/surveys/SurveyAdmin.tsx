@@ -52,6 +52,7 @@ const RISK_LEVEL_LABELS = {
 };
 
 export default function SurveyAdmin() {
+  const utils = trpc.useContext();
   const [selectedSurvey, setSelectedSurvey] = useState<number>(1);
   const [department, setDepartment] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
@@ -155,8 +156,13 @@ export default function SurveyAdmin() {
   }, [comparison]);
 
   const handleExportExcel = async () => {
+    if (!selectedSurvey) {
+      alert('Por favor selecciona una encuesta primero');
+      return;
+    }
+
     try {
-      const data = await (trpc as any).surveys.exportToExcel.query({
+      const data = await utils.surveys.exportToExcel.fetch({
         surveyId: selectedSurvey,
         department: department || undefined,
         startDate: startDate || undefined,

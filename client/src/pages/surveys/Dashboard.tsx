@@ -126,10 +126,12 @@ export default function SurveysDashboard() {
             Identificación y análisis de los factores de riesgo psicosocial en el trabajo
           </p>
         </div>
-        <Button onClick={() => setLocation("/surveys/send")} size="lg">
-          <Mail className="h-4 w-4 mr-2" />
-          Envío Masivo
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setLocation("/surveys/send")} size="lg">
+            <Mail className="h-4 w-4 mr-2" />
+            Envío Masivo
+          </Button>
+        </div>
       </div>
 
       {/* Alert de información */}
