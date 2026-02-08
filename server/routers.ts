@@ -31,6 +31,7 @@ import { surveyAlertsRouter } from "./routers/surveyAlerts";
 import { complianceRouter } from "./routers/compliance";
 import { companyRouter } from "./routers/company";
 import { equalityRouter } from "./routers/equality";
+import { executiveDashboardRouter } from "./routers/executiveDashboard";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -244,9 +245,15 @@ export const appRouter = router({
 
   // Cases management
   cases: router({
-    list: committeeProcedure.query(async () => {
-      return await db.getAllCases();
-    }),
+    list: committeeProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        // TODO: Implementar filtros de fecha en getAllCases
+        return await db.getAllCases();
+      }),
     getById: committeeProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
@@ -873,6 +880,9 @@ export const appRouter = router({
 
   // Equality and Non-Discrimination NMX-025 (Igualdad Laboral y No Discriminación)
   equality: equalityRouter,
+
+  // Executive Dashboard (Dashboard Ejecutivo de Empresa)
+  executiveDashboard: executiveDashboardRouter,
 });
 
 export type AppRouter = typeof appRouter;

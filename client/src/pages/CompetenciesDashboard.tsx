@@ -13,11 +13,6 @@ import { useState, useMemo } from "react";
 import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 
 export default function CompetenciesDashboard() {
-  const { data: overallStats } = trpc.competenciesStats.getOverallStats.useQuery(dateFilter);
-  const { data: departmentStats } = trpc.competenciesStats.getByDepartment.useQuery(dateFilter);
-  const { data: typeStats } = trpc.competenciesStats.getByType.useQuery(dateFilter);
-  const { data: topGaps } = trpc.competenciesStats.getTopGaps.useQuery({ limit: 10, ...dateFilter });
-
   const [selectedView, setSelectedView] = useState<"department" | "type" | "gaps">(
     "department"
   );
@@ -31,6 +26,11 @@ export default function CompetenciesDashboard() {
       endDate: dateRange.to.toISOString(),
     };
   }, [dateRange]);
+
+  const { data: overallStats } = trpc.competenciesStats.getOverallStats.useQuery(dateFilter);
+  const { data: departmentStats } = trpc.competenciesStats.getByDepartment.useQuery(dateFilter);
+  const { data: typeStats } = trpc.competenciesStats.getByType.useQuery(dateFilter);
+  const { data: topGaps } = trpc.competenciesStats.getTopGaps.useQuery({ limit: 10, ...dateFilter });
 
   const getLevelLabel = (level: number) => {
     if (level >= 3.5) return "Experto";

@@ -2,14 +2,19 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { employees, employeeCompetencies, jobProfiles, jobPositions } from "../../drizzle/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, gte, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const competenciesStatsRouter = router({
   /**
    * Get competencies statistics by department
    */
-  getByDepartment: protectedProcedure.query(async ({ ctx }) => {
+  getByDepartment: protectedProcedure
+    .input(z.object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) {
       throw new TRPCError({
@@ -118,7 +123,12 @@ export const competenciesStatsRouter = router({
   /**
    * Get competencies statistics by type
    */
-  getByType: protectedProcedure.query(async ({ ctx }) => {
+  getByType: protectedProcedure
+    .input(z.object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) {
       throw new TRPCError({
@@ -173,7 +183,11 @@ export const competenciesStatsRouter = router({
    * Get top competencies gaps across organization
    */
   getTopGaps: protectedProcedure
-    .input(z.object({ limit: z.number().default(10) }))
+    .input(z.object({ 
+      limit: z.number().default(10),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
     .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) {
@@ -270,7 +284,12 @@ export const competenciesStatsRouter = router({
   /**
    * Get overall organization statistics
    */
-  getOverallStats: protectedProcedure.query(async ({ ctx }) => {
+  getOverallStats: protectedProcedure
+    .input(z.object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) {
       throw new TRPCError({

@@ -2239,4 +2239,206 @@ export const surveysRouter = router({
       };
     }),
 
+  // Envío masivo de encuestas por correo electrónico
+  sendMassEmail: protectedProcedure
+    .input(z.object({
+      surveyId: z.number(),
+      recipientType: z.enum(['all', 'department', 'position']),
+      departmentId: z.number().optional(),
+      positionId: z.number().optional(),
+      customMessage: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener información de la encuesta
+      const [survey] = await db
+        .select()
+        .from(surveys)
+        .where(eq(surveys.id, input.surveyId));
+
+      if (!survey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
+      }
+
+      // Determinar destinatarios según tipo
+      let recipients: Array<{ id: number; name: string | null; email: string | null }> = [];
+      
+      if (input.recipientType === 'all') {
+        recipients = await db
+          .select({
+            id: users.id,
+            name: users.name,
+            email: users.email,
+          })
+          .from(users);
+      } else if (input.recipientType === 'department' && input.departmentId) {
+        // Por ahora enviar a todos (TODO: implementar filtro por departamento cuando exista tabla)
+        recipients = await db
+          .select({
+            id: users.id,
+            name: users.name,
+            email: users.email,
+          })
+          .from(users);
+      } else if (input.recipientType === 'position' && input.positionId) {
+        // Buscar por puesto usando jobPositions
+        const { jobPositions } = await import('../../drizzle/schema');
+        const [position] = await db
+          .select()
+          .from(jobPositions)
+          .where(eq(jobPositions.id, input.positionId));
+        
+        if (position) {
+          recipients = await db
+            .select({
+              id: users.id,
+              name: users.name,
+              email: users.email,
+            })
+            .from(users)
+            .where(eq(users.puesto, position.positionName));
+        }
+      }
+
+      // Filtrar usuarios sin email
+      const validRecipients = recipients.filter(r => r.email && r.email.includes('@'));
+
+      if (validRecipients.length === 0) {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST", 
+          message: "No se encontraron destinatarios válidos con correo electrónico" 
+        });
+      }
+
+      // Obtener o crear periodo activo
+      const { surveyPeriods } = await import('../../drizzle/schema');
+      const [activePeriod] = await db
+        .select()
+        .from(surveyPeriods)
+        .where(eq(surveyPeriods.status, 'active'))
+        .limit(1);
+
+      if (!activePeriod) {
+        throw new TRPCError({ 
+          code: "BAD_REQUEST", 
+          message: "No hay un período activo. Crea un período antes de enviar encuestas." 
+        });
+      }
+
+      // Generar tokens para cada destinatario
+      const tokensToInsert = validRecipients.map(recipient => ({
+        periodId: activePeriod.id,
+        userId: recipient.id,
+        surveyId: input.surveyId,
+        token: generateToken(),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
+        sentVia: 'email' as const,
+      }));
+
+      await db.insert(surveyTokens).values(tokensToInsert);
+
+      // Enviar correos
+      const { sendEmail } = await import('../lib/email-sender');
+      let sent = 0;
+      let failed = 0;
+
+      for (const recipient of validRecipients) {
+        const token = tokensToInsert.find(t => t.userId === recipient.id)?.token;
+        if (!token) continue;
+
+        const surveyUrl = `${process.env.VITE_OAUTH_PORTAL_URL || 'http://localhost:3000'}/survey/${token}`;
+        
+        const html = `
+          <h2>Invitación a Encuesta NOM-035</h2>
+          <p>Estimado/a <strong>${recipient.name}</strong>,</p>
+          <p>Has sido invitado/a a participar en la siguiente encuesta:</p>
+          <h3>${survey.title}</h3>
+          <p>${survey.description || ''}</p>
+          ${input.customMessage ? `<p><em>${input.customMessage}</em></p>` : ''}
+          <p>Por favor, accede a la encuesta mediante el siguiente enlace:</p>
+          <p><a href="${surveyUrl}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Acceder a la Encuesta</a></p>
+          <p>Este enlace es único y personal. Tiene una validez de 30 días.</p>
+          <p>Gracias por tu participación.</p>
+        `;
+
+        const success = await sendEmail({
+          to: recipient.email!,
+          subject: `Invitación a Encuesta: ${survey.title}`,
+          html,
+        });
+
+        if (success) {
+          sent++;
+        } else {
+          failed++;
+        }
+      }
+
+      return {
+        success: true,
+        totalRecipients: validRecipients.length,
+        sent,
+        failed,
+        surveyTitle: survey.title,
+      };
+    }),
+
+  // Obtener guías recomendadas según cantidad de trabajadores
+  getRecommendedGuides: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();  
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+    // Contar trabajadores
+    const [result] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(users);
+    
+    const totalWorkers = Number(result?.count || 0);
+
+    // Determinar guías según NOM-035-STPS-2018
+    const guides = [];
+    
+    // Guía I (ATS) - Obligatoria para todos
+    guides.push({
+      id: 'guia_i',
+      name: 'Guía de Referencia I',
+      description: 'Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos',
+      required: true,
+      workerRange: 'Todos los centros de trabajo',
+      questionCount: 4,
+    });
+
+    // Guía II - Para 16-50 trabajadores
+    if (totalWorkers >= 16) {
+      guides.push({
+        id: 'guia_ii',
+        name: 'Guía de Referencia II',
+        description: 'Cuestionario para identificar factores de riesgo psicosocial en los centros de trabajo',
+        required: totalWorkers >= 16 && totalWorkers <= 50,
+        workerRange: '16 a 50 trabajadores',
+        questionCount: 46,
+      });
+    }
+
+    // Guía III - Para 51+ trabajadores
+    if (totalWorkers > 50) {
+      guides.push({
+        id: 'guia_iii',
+        name: 'Guía de Referencia III',
+        description: 'Cuestionario para identificar y analizar factores de riesgo psicosocial y evaluar el entorno organizacional',
+        required: true,
+        workerRange: 'Más de 50 trabajadores',
+        questionCount: 72,
+      });
+    }
+
+    return {
+      totalWorkers,
+      recommendedGuides: guides,
+      complianceLevel: totalWorkers <= 15 ? 'basic' : totalWorkers <= 50 ? 'intermediate' : 'complete',
+    };
+  }),
+
 });

@@ -2903,3 +2903,77 @@
 - [x] Probar navegación en todas las rutas
 - [x] Confirmar que todos los recursos cargan correctamente
 - [ ] Guardar checkpoint con correcciones
+
+
+## FASE 106: Completar Filtros Temporales en Todos los Módulos
+
+### Frontend - Agregar Filtros en Courses
+- [ ] Importar DateRangeFilter en Courses.tsx
+- [ ] Agregar estado dateRange y useMemo para filtros
+- [ ] Integrar filtros en la UI de Courses
+- [ ] Pasar filtros a trpc.courses.list.useQuery
+
+### Frontend - Agregar Filtros en Reportes
+- [ ] Importar DateRangeFilter en componentes de reportes
+- [ ] Agregar filtros temporales en ReportsDashboard
+- [ ] Integrar filtros en reportes de NOM-035
+- [ ] Integrar filtros en reportes de NMX-025
+
+### Backend - Actualizar Procedimientos tRPC
+- [x] Actualizar competenciesStats.getOverallStats para aceptar filtros de fecha
+- [x] Actualizar competenciesStats.getByDepartment para aceptar filtros de fecha
+- [x] Actualizar competenciesStats.getByType para aceptar filtros de fecha
+- [x] Actualizar competenciesStats.getTopGaps para aceptar filtros de fecha
+- [x] Actualizar cases.list para aceptar filtros de fecha
+- [ ] Actualizar courses.list para aceptar filtros de fecha
+- [ ] Probar todos los filtros temporales en frontend y backend
+
+## FASE 107: Sistema de Envío de Encuestas NOM-035
+
+### Lógica de Selección Automática de Guías
+- [x] Crear procedimiento tRPC surveys.getRecommendedGuides
+- [x] Implementar lógica: 1-15 trabajadores → Guía I
+- [x] Implementar lógica: 16-50 trabajadores → Guías I y II
+- [x] Implementar lógica: 50+ trabajadores → Guías I, II y III
+- [x] Agregar validación de cantidad de trabajadores activos
+
+### Sistema de Envío Masivo por Correo
+- [x] Crear procedimiento tRPC surveys.sendMassEmail
+- [x] Implementar selección de destinatarios (todos, por departamento, por puesto)
+- [x] Crear plantilla de correo HTML para invitación a encuesta
+- [x] Integrar con sistema SMTP existente
+- [x] Agregar tracking de envíos (enviados, pendientes, fallidos)
+- [ ] Crear UI para envío masivo en frontend
+- [ ] Agregar confirmación antes de envío masivo
+
+## FASE 108: Dashboard Ejecutivo de Empresa
+
+### Métricas de Empleados y Estructura
+- [x] Crear procedimiento tRPC executiveDashboard.getMetrics
+- [x] Implementar métrica: Total de empleados
+- [x] Implementar métrica: Representantes legales activos
+- [x] Implementar métrica: Firmantes autorizados
+- [x] Implementar métrica: Distribución por departamento
+
+### Métricas de Cumplimiento NOM-035
+- [x] Implementar métrica: Casos abiertos vs cerrados
+- [x] Implementar métrica: Cobertura de encuestas (%)
+- [x] Implementar métrica: Tendencia de factores de riesgo
+
+### Métricas de Igualdad Laboral NMX-025
+- [x] Implementar métrica: Distribución de género (sexo)
+- [x] Implementar métrica: Quejas de discriminación (total)
+- [ ] Implementar métrica: Indicadores de brecha salarial (requiere datos salariales)
+
+### Frontend del Dashboard Ejecutivo
+- [ ] Crear página ExecutiveDashboard.tsx
+- [ ] Agregar filtros temporales con DateRangeFilter
+- [ ] Crear cards de métricas clave
+- [ ] Agregar gráficas de tendencias (Chart.js)
+- [ ] Agregar comparación período actual vs anterior
+- [ ] Integrar con menú lateral en DashboardLayout
+
+### Verificación
+- [ ] Probar todas las métricas con datos reales
+- [ ] Verificar que los filtros temporales funcionen correctamente
+- [ ] Guardar checkpoint con todas las funcionalidades completadas
