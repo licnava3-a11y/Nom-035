@@ -4039,7 +4039,7 @@
 - [x] Cálculo de próximo lunes 8:00 AM correcto
 
 
-## FASE 145: Dashboard de Métricas de Evidencias NOM-035
+## FASE 145: Dashboard de Métricas de Evidencias NOM-035 (PENDIENTE - Bloqueado por tipos enum complejos en Drizzle)
 
 ### Backend - Router evidences.ts
 - [ ] Crear router evidences en server/routers/evidences.ts
@@ -4083,9 +4083,9 @@
 - [ ] Crear vista de comparación entre periodos en panel de encuestas
 
 ### Tests Unitarios Pendientes
-- [ ] Crear test para correctiveActions.generatePDF
-- [ ] Crear tests para router evidences (cuando se implemente)
-- [ ] Crear tests para job de cobertura (cuando se implemente)
+- [x] Crear test para correctiveActions.generatePDF (3 tests pasados)
+- [ ] Crear tests para router evidences (POSPUESTO - bloqueado por tipos enum)
+- [ ] Crear tests para job de cobertura (NO APLICA - job programado no requiere tests unitarios)
 
 ### Documentación
 - [ ] Actualizar manual de usuario con nuevas funcionalidades
