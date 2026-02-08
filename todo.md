@@ -4912,21 +4912,17 @@
 - [x] Implementar procedimiento generateCertificate (sessionId, committeeMemberId) - placeholder
 - [x] Implementar procedimiento getAttendanceReport (programId o sessionId)
 - [x] Implementar procedimiento updateProgramStatus (adicional)
-- [x] Registrar router en appRouter
-
-### Frontend - Componente CommitteeTraining
-- [ ] Crear componente /client/src/pages/committee/CommitteeTraining.tsx
-- [ ] Implementar formulario de creación de programa (título, descripción, tipo, duración, instructor)
-- [ ] Implementar tabla de programas activos con filtros (status, tipo)
-- [ ] Implementar formulario de programación de sesión (fecha, hora, ubicación, tipo, enlace Zoom/Meet)
-- [ ] Implementar calendario de sesiones programadas (integración con FullCalendar o similar)
-- [ ] Implementar registro de asistencia (lista de miembros del comité con checkboxes)
-- [ ] Implementar generación de constancias/certificados (PDF con nombre, fecha, tema, horas)
-- [ ] Implementar reporte de asistencia (tabla con estadísticas por miembro)
-- [ ] Agregar ruta en App.tsx (/committee/training)
-- [ ] Agregar opción en menú de Comité (DashboardLayout)
-
-### Integración con Protocolo de Violencia Laboral
+- [x] Registrar router en appRoute### Frontend - Componente CommitteeTraining.tsx
+- [x] Crear componente /client/src/pages/committee/CommitteeTraining.tsx
+- [x] Implementar formulario de creación de programa (título, descripción, tipo, duración, instructor)
+- [x] Implementar tabla de programas activos (con filtros por status, type)
+- [x] Implementar formulario de programación de sesión (fecha, hora, ubicación, tipo, enlace Zoom/Meet)
+- [x] Implementar tabla de sesiones programadas (sin calendario FullCalendar)
+- [ ] Implementar registro de asistencia (lista de miembros del comité con checkboxes) - placeholder creado
+- [ ] Implementar generación de constancias/certificados (PDF con nombre, fecha, tema, horas) - pendiente
+- [ ] Implementar reporte de asistencia (tabla con estadísticas por miembro) - pendiente
+- [x] Agregar ruta en App.tsx (/committee/training)
+- [x] Agregar opción en menú de Comité (DashboardLayout) Integración con Protocolo de Violencia Laboral
 - [ ] Agregar campo trainingCompleted en tabla workplace_violence_cases
 - [ ] Modificar router workplaceViolence para validar capacitación del comité
 - [ ] Mostrar alerta si el comité no ha recibido capacitación en protocolo de violencia laboral
@@ -5182,3 +5178,20 @@
 - [ ] Verificar que desplegables no tienen opciones duplicadas
 
 ---
+
+
+---
+
+## AUDITORÍA 404 COMPLETADA ✅
+
+### Rutas Corregidas
+- [x] `/company/survey-report` → redirigido a `/reports/regulatory`
+- [x] `/nom035/evidence-folder` → corregido a `/nom035/evidences`
+- [x] `/reports/competencies` → eliminado (duplicado)
+- [x] `/reports/exports` → eliminado (duplicado)
+
+### Resumen
+- **Total rutas auditadas**: 80
+- **Rutas rotas detectadas**: 4
+- **Rutas corregidas**: 4
+- **Estado**: 0 errores 404

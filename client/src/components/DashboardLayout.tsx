@@ -98,7 +98,7 @@ const hierarchicalMenuItems = [
     submenu: [
       { 
         label: "Informe de identificación y análisis (Numeral 7.5)", 
-        path: "/company/survey-report",
+        path: "/reports/regulatory",
         description: "Informe según Numeral 7.5 NOM-035: Resultados de identificación de factores de riesgo psicosocial"
       },
       { 
@@ -116,6 +116,7 @@ const hierarchicalMenuItems = [
         description: "Comité de seguridad y salud en el trabajo",
         submenu: [
           { label: "Miembros del Comité", path: "/committee", description: "Gestión de miembros del comité NOM-035" },
+          { label: "Programa de Capacitación", path: "/committee/training", description: "Gestión de programas de capacitación del comité (presencial y en línea)" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento formal de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },
@@ -125,7 +126,7 @@ const hierarchicalMenuItems = [
       { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones del comité" },
       { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos psicosociales" },
-      { label: "Carpeta de Evidencias", path: "/nom035/evidence-folder", description: "Repositorio centralizado de documentación para cumplimiento normativo" },
+      { label: "Carpeta de Evidencias", path: "/nom035/evidences", description: "Repositorio centralizado de documentación para cumplimiento normativo" },
       { label: "Alertas Tempranas", path: "/alerts", description: "Dashboard de alertas: casos próximos a vencer, encuestas pendientes y acciones sin seguimiento" },
     ],
   },
@@ -148,9 +149,7 @@ const hierarchicalMenuItems = [
     description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
-{ label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
-      { label: "Análisis de Competencias", path: "/reports/competencies", description: "Análisis de brechas de competencias y DNC" },
-      { label: "Exportaciones", path: "/reports/exports", description: "Exportación de datos en Excel, Word y PDF" },
+      { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
     ],
   },
   {

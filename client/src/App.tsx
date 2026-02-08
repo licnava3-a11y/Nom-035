@@ -19,6 +19,7 @@ import CommitteeMemberNew from './pages/CommitteeMemberNew';
 import PositionAcceptance from './pages/committee/PositionAcceptance';
 import ConstitutiveAct from './pages/committee/ConstitutiveAct';
 import OperatingRules from './pages/committee/OperatingRules';
+import CommitteeTraining from './pages/committee/CommitteeTraining';
 import SignatureTest from './pages/SignatureTest';
 import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
@@ -167,6 +168,11 @@ function Router() {
       <Route path="/committee/operating-rules">
         <DashboardLayout>
           <OperatingRules />
+        </DashboardLayout>
+      </Route>
+      <Route path="/committee/training">
+        <DashboardLayout>
+          <CommitteeTraining />
         </DashboardLayout>
       </Route>
       <Route path={"/signature-test"}>
