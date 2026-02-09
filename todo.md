@@ -8743,3 +8743,12 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Mostrar logo en encabezado de reportes, certificados, actas y políticas
 
 **TOTAL: 74 tareas pendientes**
+
+
+## ✅ IMPLEMENTACIÓN PARCIAL: Exportación PDF y Datos de Prueba (1/2 tareas)
+
+- [ ] Agregar botón "Exportar PDF" en `/nom035/autodiagnostico` que use PDFDownloadLink de @react-pdf/renderer (pendiente)
+- [x] Componente AutodiagnosticoPDFDocument.tsx creado con @react-pdf/renderer
+- [x] Procedimiento tRPC autodiagnostico.getPDFData implementado
+- [x] 17 empleados poblados en base de datos
+- [ ] Poblar 10 casos NOM-035 y 5 autodiagnósticos con evidencias (pendiente por errores de foreign key)

@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, firstName, lastName, department FROM employees ORDER BY id DESC LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, firstName, lastName, department FROM employees ORDER BY id DESC LIMIT 15;",
+  "rows": [
+    {
+      "id": "180015",
+      "firstName": "Daniela",
+      "lastName": "Ortiz Silva",
+      "department": "Calidad"
+    },
+    {
+      "id": "180014",
+      "firstName": "Jorge Luis",
+      "lastName": "Mendoza",
+      "department": "Tecnología"
+    },
+    {
+      "id": "180013",
+      "firstName": "Patricia",
+      "lastName": "Vargas Luna",
+      "department": "Administración"
+    },
+    {
+      "id": "180012",
+      "firstName": "Fernando",
+      "lastName": "Castro Pérez",
+      "department": "Ventas"
+    },
+    {
+      "id": "180011",
+      "firstName": "Gabriela",
+      "lastName": "Morales Ruiz",
+      "department": "Recursos Humanos"
+    },
+    {
+      "id": "180010",
+      "firstName": "Miguel Ángel",
+      "lastName": "Torres",
+      "department": "Logística"
+    },
+    {
+      "id": "180009",
+      "firstName": "Sofía",
+      "lastName": "López Flores",
+      "department": "Marketing"
+    },
+    {
+      "id": "180008",
+      "firstName": "Pedro",
+      "lastName": "Ramírez García",
+      "department": "Mantenimiento"
+    },
+    {
+      "id": "180007",
+      "firstName": "Laura",
+      "lastName": "Jiménez Cruz",
+      "department": "Calidad"
+    },
+    {
+      "id": "180006",
+      "firstName": "Roberto",
+      "lastName": "Díaz Morales",
+      "department": "Producción"
+    },
+    {
+      "id": "180005",
+      "firstName": "Carmen",
+      "lastName": "Sánchez Torres",
+      "department": "Administración"
+    },
+    {
+      "id": "180004",
+      "firstName": "Luis Fernando",
+      "lastName": "Hernández",
+      "department": "Tecnología"
+    },
+    {
+      "id": "180003",
+      "firstName": "Ana Patricia",
+      "lastName": "Rodríguez",
+      "department": "Ventas"
+    },
+    {
+      "id": "180002",
+      "firstName": "Juan Carlos",
+      "lastName": "Martínez",
+      "department": "Operaciones"
+    },
+    {
+      "id": "180001",
+      "firstName": "María",
+      "lastName": "González López",
+      "department": "Recursos Humanos"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\tdepartment\n180015\tDaniela\tOrtiz Silva\tCalidad\n180014\tJorge Luis\tMendoza\tTecnología\n180013\tPatricia\tVargas Luna\tAdministración\n180012\tFernando\tCastro Pérez\tVentas\n180011\tGabriela\tMorales Ruiz\tRecursos Humanos\n180010\tMiguel Ángel\tTorres\tLogística\n180009\tSofía\tLópez Flores\tMarketing\n180008\tPedro\tRamírez García\tMantenimiento\n180007\tLaura\tJiménez Cruz\tCalidad\n180006\tRoberto\tDíaz Morales\tProducción\n180005\tCarmen\tSánchez Torres\tAdministración\n180004\tLuis Fernando\tHernández\tTecnología\n180003\tAna Patricia\tRodríguez\tVentas\n180002\tJuan Carlos\tMartínez\tOperaciones\n180001\tMaría\tGonzález López\tRecursos Humanos\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}
