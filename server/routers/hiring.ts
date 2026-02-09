@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, users } from "../../drizzle/schema";
+import { employees, users, departments, positions } from "../../drizzle/schema";
 import { eq, and, lte, gte, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { sendEmail } from "../lib/email-service";
@@ -195,8 +195,23 @@ export const hiringRouter = router({
 
       // Get all active employees and filter in memory
       const allEmployees = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          employeeNumber: employees.employeeNumber,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.title,
+          contract1ExpirationDate: employees.contract1ExpirationDate,
+          contract2ExpirationDate: employees.contract2ExpirationDate,
+          contract3ExpirationDate: employees.contract3ExpirationDate,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.isActive, true));
 
       // Filter employees with expiring contracts
@@ -272,8 +287,23 @@ export const hiringRouter = router({
 
       // Get all active employees and filter in memory
       const allEmployees = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          employeeNumber: employees.employeeNumber,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.title,
+          contract1ExpirationDate: employees.contract1ExpirationDate,
+          contract2ExpirationDate: employees.contract2ExpirationDate,
+          contract3ExpirationDate: employees.contract3ExpirationDate,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.isActive, true));
 
       // Filter employees with expiring contracts
@@ -334,8 +364,8 @@ export const hiringRouter = router({
             <tr>
               <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.employeeNumber || "-"}</td>
               <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.firstName} ${emp.lastName}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.department || "-"}</td>
-              <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.position || "-"}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.departmentName || "-"}</td>
+              <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.positionName || "-"}</td>
               <td style="padding: 12px; border-bottom: 1px solid #ddd;">${contract.type}</td>
               <td style="padding: 12px; border-bottom: 1px solid #ddd;">${new Date(contract.date).toLocaleDateString()}</td>
             </tr>

@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { competencies, skillsMatrix, skillsMatrixImports, employees } from "../../drizzle/schema";
+import { competencies, skillsMatrix, skillsMatrixImports, employees, departments, positions } from "../../drizzle/schema";
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -106,10 +106,10 @@ export const skillsMatrixRouter = router({
       // Get all employees with optional filters
       const filters = [];
       if (input.departmentId) {
-        filters.push(eq(employees.department, input.departmentId.toString()));
+        filters.push(eq(employees.departmentId, input.departmentId));
       }
       if (input.positionId) {
-        filters.push(eq(employees.position, input.positionId.toString()));
+        filters.push(eq(employees.positionId, input.positionId));
       }
       if (input.employeeName) {
         filters.push(sql`CONCAT(${employees.firstName}, ' ', ${employees.lastName}) LIKE ${`%${input.employeeName}%`}`);
@@ -278,13 +278,27 @@ export const skillsMatrixRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      // Get matrix data with filters
+      // Get matrix data with filters using JOINs
+      const employeesListQuery = db
+        .select({
+          id: employees.id,
+          email: employees.email,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          departmentName: departments.name,
+          positionName: positions.title,
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id));
+      
       const employeesList = input.departmentId
-        ? await db.select().from(employees).where(eq(employees.department, input.departmentId.toString()))
-        : await db.select().from(employees);
+        ? await employeesListQuery.where(eq(employees.departmentId, input.departmentId))
+        : await employeesListQuery;
+      
       const competenciesList = await db.select().from(competencies).orderBy(competencies.type, competencies.name);
 
-      const employeeIds = employeesList.map((e: typeof employees.$inferSelect) => e.id);
+      const employeeIds = employeesList.map((e) => e.id);
       let matrixEntries: (typeof skillsMatrix.$inferSelect)[] = [];
       
       if (employeeIds.length > 0) {
@@ -294,12 +308,12 @@ export const skillsMatrixRouter = router({
       }
 
       // Format data for Excel export
-      const exportData = employeesList.map((emp: typeof employees.$inferSelect) => {
+      const exportData = employeesList.map((emp) => {
         const row: any = {
           email: emp.email,
           nombre: `${emp.firstName} ${emp.lastName}`,
-          departamento: emp.department,
-          puesto: emp.position,
+          departamento: emp.departmentName || 'Sin departamento',
+          puesto: emp.positionName || 'Sin puesto',
         };
 
         competenciesList.forEach((comp: typeof competencies.$inferSelect) => {

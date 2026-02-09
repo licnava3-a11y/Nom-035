@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeePositionAcceptances, committeeMembers, employees, companyGeneralData, companyLogo, companyDigitalSignature } from "../../drizzle/schema";
+import { committeePositionAcceptances, committeeMembers, employees, companyGeneralData, companyLogo, companyDigitalSignature, departments } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
@@ -84,8 +84,15 @@ export const committeePositionAcceptanceRouter = router({
       }
 
       const [employee] = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          employeeNumber: employees.employeeNumber,
+          departmentName: departments.name,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
         .where(sql`${employees.id} = ${member.employeeId}`);
 
       if (!employee) {
@@ -103,7 +110,7 @@ export const committeePositionAcceptanceRouter = router({
           fullName: `${employee.firstName} ${employee.lastName}`,
           employeeNumber: employee.employeeNumber || "N/A",
           position: acceptance.positionType,
-          department: employee.department || "N/A",
+          department: employee.departmentName || "N/A",
           inePhotoUrl: acceptance.inePhotoUrl || undefined,
           signatureUrl: acceptance.signatureUrl || undefined,
           acceptanceDate: new Date(acceptance.acceptanceDate),

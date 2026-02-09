@@ -11,6 +11,8 @@ import {
   employeeCompetencies,
   jobPositions,
   jobProfiles,
+  positions,
+  departments,
 } from "../../drizzle/schema";
 
 // Schema para crear necesidad de capacitación
@@ -223,8 +225,20 @@ export const trainingNeedsRouter = router({
 
       // Obtener empleado desde userId
       const [employee] = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          userId: employees.userId,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.title,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.userId, evaluation.userId))
         .limit(1);
 
@@ -245,7 +259,7 @@ export const trainingNeedsRouter = router({
       const [position] = await db
         .select()
         .from(jobPositions)
-        .where(sql`${jobPositions.positionName} = ${employee.position}`)
+        .where(sql`${jobPositions.positionName} = ${employee.positionName}`)
         .limit(1);
 
       if (!position) {
@@ -344,8 +358,20 @@ export const trainingNeedsRouter = router({
 
       // Obtener empleado
       const [employee] = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          userId: employees.userId,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.title,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.id, input.employeeId))
         .limit(1);
 
@@ -366,7 +392,7 @@ export const trainingNeedsRouter = router({
       const [position] = await db
         .select()
         .from(jobPositions)
-        .where(sql`${jobPositions.positionName} = ${employee.position}`)
+        .where(sql`${jobPositions.positionName} = ${employee.positionName}`)
         .limit(1);
 
       if (!position) {

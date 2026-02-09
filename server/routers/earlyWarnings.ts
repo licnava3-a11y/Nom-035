@@ -47,7 +47,7 @@ export const earlyWarningsRouter = router({
           and(
             lte(nom035Cases.deadline, thirtyDaysFromNow),
             sql`${nom035Cases.status} != 'closed'`,
-            input?.department ? eq(employees.department, input.department) : undefined,
+            input?.department ? eq(employees.departmentId, input.department) : undefined,
             input?.startDate ? gte(nom035Cases.deadline, new Date(input.startDate)) : undefined,
             input?.endDate ? lte(nom035Cases.deadline, new Date(input.endDate)) : undefined
           )

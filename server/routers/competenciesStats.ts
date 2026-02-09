@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, employeeCompetencies, jobProfiles, jobPositions } from "../../drizzle/schema";
+import { employees, employeeCompetencies, jobProfiles, jobPositions, departments, positions } from "../../drizzle/schema";
 import { eq, and, sql, gte, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -25,8 +25,19 @@ export const competenciesStatsRouter = router({
 
     // Get all active employees with their competencies
     const activeEmployees = await db
-      .select()
+      .select({
+        id: employees.id,
+        firstName: employees.firstName,
+        lastName: employees.lastName,
+        email: employees.email,
+        departmentId: employees.departmentId,
+        positionId: employees.positionId,
+        departmentName: departments.name,
+        positionName: positions.title,
+      })
       .from(employees)
+      .leftJoin(departments, eq(employees.departmentId, departments.id))
+      .leftJoin(positions, eq(employees.positionId, positions.id))
       .where(eq(employees.isActive, true));
 
     // Get all competencies
@@ -54,7 +65,7 @@ export const competenciesStatsRouter = router({
     > = {};
 
     for (const emp of activeEmployees) {
-      const dept = emp.department || "Sin Departamento";
+      const dept = emp.departmentName || "Sin Departamento";
 
       if (!departmentStats[dept]) {
         departmentStats[dept] = {
@@ -81,11 +92,11 @@ export const competenciesStatsRouter = router({
       }
 
       // Count critical gaps (employees with competencies below required)
-      if (emp.position) {
+      if (emp.positionName) {
         const [positionRecord] = await db
           .select()
           .from(jobPositions)
-          .where(eq(jobPositions.positionName, emp.position))
+          .where(eq(jobPositions.positionName, emp.positionName))
           .limit(1);
 
         if (positionRecord) {
@@ -228,12 +239,12 @@ export const competenciesStatsRouter = router({
       > = {};
 
       for (const emp of activeEmployees) {
-        if (!emp.position) continue;
+        if (!emp.positionName) continue;
 
         const [positionRecord] = await db
           .select()
           .from(jobPositions)
-          .where(eq(jobPositions.positionName, emp.position))
+          .where(eq(jobPositions.positionName, emp.positionName))
           .limit(1);
 
         if (!positionRecord) continue;

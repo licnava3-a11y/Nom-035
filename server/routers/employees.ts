@@ -290,7 +290,7 @@ export const employeesRouter = router({
    * Get positions by department
    */
   getPositionsByDepartment: protectedProcedure
-    .input(z.object({ department: z.string() }))
+    .input(z.object({ department: z.number() }))
     .query(async ({ input }) => {
       return await employeesDb.getPositionsByDepartment(input.department);
     }),

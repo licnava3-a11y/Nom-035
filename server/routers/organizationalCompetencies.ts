@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { organizationalCompetencies, employeeCompetencies, employees } from "../../drizzle/schema";
+import { organizationalCompetencies, employeeCompetencies, employees, departments } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -101,8 +101,16 @@ export const organizationalCompetenciesRouter = router({
 
       // Get employee info
       const [employee] = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          departmentId: employees.departmentId,
+          departmentName: departments.name,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
         .where(eq(employees.id, input.employeeId))
         .limit(1);
 
@@ -131,7 +139,7 @@ export const organizationalCompetenciesRouter = router({
         if (!departments && !roles) return true;
 
         // Check department match
-        const departmentMatch = !departments || departments.includes(employee.department);
+        const departmentMatch = !departments || departments.includes(employee.departmentName);
 
         // Check role match (if roles are specified)
         const roleMatch = !roles; // For now, we don't have role field in employees table

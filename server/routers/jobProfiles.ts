@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { jobProfiles, employeeCompetencies, trainingNeeds, employees, jobPositions, organizationalCompetencies } from "../../drizzle/schema";
+import { jobProfiles, employeeCompetencies, trainingNeeds, employees, jobPositions, organizationalCompetencies, departments, positions } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -177,12 +177,23 @@ export const jobProfilesRouter = router({
 
       // Get employee and position
       const [employee] = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.title,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.id, input.employeeId))
         .limit(1);
 
-      if (!employee || !employee.position) {
+      if (!employee || !employee.positionName) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Empleado o puesto no encontrado",
@@ -193,7 +204,7 @@ export const jobProfilesRouter = router({
       const [positionRecord] = await db
         .select()
         .from(jobPositions)
-        .where(eq(jobPositions.positionName, employee.position))
+        .where(eq(jobPositions.positionName, employee.positionName))
         .limit(1);
 
       if (!positionRecord) {
@@ -269,7 +280,7 @@ export const jobProfilesRouter = router({
       const applicableOrgCompetencies = orgCompetencies.filter((c) => {
         const departments = c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null;
         // If no department restriction or employee's department is in the list
-        return !departments || departments.includes(employee.department);
+        return !departments || departments.includes(employee.departmentName);
       });
 
       // Check gaps for organizational competencies

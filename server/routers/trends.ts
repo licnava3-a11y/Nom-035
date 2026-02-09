@@ -43,8 +43,8 @@ export const trendsRouter = router({
 
       // Formato de agrupación según período
       const dateFormat = period === 'weekly' 
-        ? sql`DATE_FORMAT(created_at, '%Y-%u')` // Año-Semana
-        : sql`DATE_FORMAT(created_at, '%Y-%m')`; // Año-Mes
+        ? sql`DATE_FORMAT(createdAt, '%Y-%u')` // Año-Semana
+        : sql`DATE_FORMAT(createdAt, '%Y-%m')`; // Año-Mes
 
       // Datos del período actual
       const currentData = await db
