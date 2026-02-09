@@ -80,6 +80,8 @@ import CompanySettings from "./pages/company/CompanySettings";
 import EqualityPolicy from "./pages/equality/Policy";
 import NOM035Questionnaire from "./pages/NOM035Questionnaire";
 import NOM035Results from "./pages/NOM035Results";
+import Departments from "./pages/Departments";
+import Positions from "./pages/Positions";
 import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
 import MassiveImport from "./pages/MassiveImport";
@@ -467,6 +469,16 @@ function Router() {
       <Route path={"/nom035/results"}>
         <DashboardLayout>
           <NOM035Results />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/departments"}>
+        <DashboardLayout>
+          <Departments />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/positions"}>
+        <DashboardLayout>
+          <Positions />
         </DashboardLayout>
       </Route>
       <Route path={"/alerts"}>

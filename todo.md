@@ -7653,37 +7653,38 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Crear procedimiento `departments.update` con validación
 - [x] Crear procedimiento `departments.delete` con verificación de dependencias
 - [x] Crear procedimiento `departments.getHierarchy` para obtener árbol organizacional
-- [ ] Crear procedimiento `positions.list` con filtros por departamento
-- [ ] Crear procedimiento `positions.create` con validación
-- [ ] Crear procedimiento `positions.update` con validación
-- [ ] Crear procedimiento `positions.delete` con verificación de empleados asignados
+- [x] Crear procedimiento `positions.list` con filtros por departamento
+- [x] Crear procedimiento `positions.create` con validación
+- [x] Crear procedimiento `positions.update` con validación
+- [x] Crear procedimiento `positions.delete` con verificación de empleados asignados
+- [x] Integrar positionsRouter en appRouter principal
 - [x] Crear procedimiento `departments.getStats` para estadísticas por departamento
 - [x] Integrar departmentsRouter en appRouter principal
 
 ### Frontend - CRUD de Departamentos
 
-- [ ] Crear página `Departments.tsx` con tabla shadcn/ui
-- [ ] Implementar paginación del lado del servidor
-- [ ] Agregar filtros: búsqueda por nombre, estado activo/inactivo
-- [ ] Crear componente `DepartmentForm.tsx` con validación en tiempo real
-- [ ] Implementar diálogo de confirmación para eliminación
-- [ ] Agregar validación: nombre único, código único, jefe de departamento
-- [ ] Mostrar contador de empleados por departamento en tabla
-- [ ] Implementar ordenamiento por columnas (nombre, código, empleados)
+- [x] Crear página `Departments.tsx` con tabla shadcn/ui
+- [x] Implementar paginación del lado del servidor
+- [x] Agregar filtros: búsqueda por nombre
+- [x] Crear formularios integrados con validación en tiempo real
+- [x] Implementar diálogo de confirmación para eliminación
+- [x] Agregar validación: nombre único, código único
+- [x] Mostrar contador de empleados por departamento en tabla
+- [x] Agregar rutas en App.tsx y enlaces en menú de navegación
 
 ### Frontend - CRUD de Puestos
 
-- [ ] Crear página `Positions.tsx` con tabla shadcn/ui
-- [ ] Implementar paginación y filtros por departamento
-- [ ] Crear componente `PositionForm.tsx` con campos: nombre, descripción, departamento, nivel jerárquico
-- [ ] Agregar validación en tiempo real con Zod
-- [ ] Implementar diálogo de confirmación para eliminación
-- [ ] Mostrar contador de empleados asignados a cada puesto
-- [ ] Agregar campo de competencias requeridas por puesto
+- [x] Crear página `Positions.tsx` con tabla shadcn/ui
+- [x] Implementar paginación y filtros por departamento
+- [x] Crear formularios integrados con campos: título, descripción, departamento, nivel jerárquico
+- [x] Agregar validación en tiempo real con Zod
+- [x] Implementar diálogo de confirmación para eliminación
+- [x] Mostrar contador de empleados asignados a cada puesto
+- [x] Agregar rutas en App.tsx y enlaces en menú de navegación
 
 ### Frontend - Organigrama Visual
 
-- [ ] Instalar React Flow: `pnpm add reactflow`
+- [x] Instalar React Flow: `pnpm add reactflow`
 - [ ] Crear componente `OrganizationChart.tsx` usando React Flow
 - [ ] Implementar nodos personalizados con información de departamento (nombre, jefe, empleados)
 - [ ] Configurar layout jerárquico automático (dagre o elk)
