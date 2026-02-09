@@ -51,7 +51,7 @@ export const committeeDocumentsRouter = router({
         .select({
           name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           position: committeeMembers.position,
-          department: employees.department,
+          departmentId: employees.departmentId,
         })
         .from(committeeMembers)
         .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`);
@@ -76,7 +76,7 @@ export const committeeDocumentsRouter = router({
         members: members.map(m => ({
           name: m.name || "Sin nombre",
           position: m.position || "Sin cargo",
-          department: m.department || "Sin departamento",
+          departmentId: m.departmentId || null,
         })),
         logoUrl,
         folio,
@@ -141,7 +141,7 @@ export const committeeDocumentsRouter = router({
         .select({
           name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           position: committeeMembers.position,
-          department: employees.department,
+          departmentId: employees.departmentId,
         })
         .from(committeeMembers)
         .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`);
@@ -166,7 +166,7 @@ export const committeeDocumentsRouter = router({
         members: members.map(m => ({
           name: m.name || "Sin nombre",
           position: m.position || "Sin cargo",
-          department: m.department || "Sin departamento",
+          departmentId: m.departmentId || null,
         })),
         logoUrl,
         folio,

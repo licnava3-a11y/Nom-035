@@ -140,7 +140,7 @@ export default function Committee() {
                   <option value="">Seleccionar usuario...</option>
                   {users.map((user) => (
                     <option key={user.id} value={user.id}>
-                      {user.firstName} {user.lastName} - {user.position}
+                      {user.firstName} {user.lastName} - Puesto ID: {user.positionId || "N/A"}
                     </option>
                   ))}
                 </select>

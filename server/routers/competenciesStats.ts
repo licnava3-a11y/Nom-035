@@ -24,7 +24,16 @@ export const competenciesStatsRouter = router({
     }
 
     // Get all active employees with their competencies
-    const activeEmployees = await db
+    const activeEmployees: Array<{
+      id: number;
+      firstName: string;
+      lastName: string;
+      email: string;
+      departmentId: number | null;
+      positionId: number | null;
+      departmentName: string | null;
+      positionName: string | null;
+    }> = await db
       .select({
         id: employees.id,
         firstName: employees.firstName,
@@ -239,12 +248,13 @@ export const competenciesStatsRouter = router({
       > = {};
 
       for (const emp of activeEmployees) {
-        if (!emp.positionName) continue;
+        const empWithJoin = emp as { id: number; firstName: string; lastName: string; email: string; departmentId: number | null; positionId: number | null; departmentName: string | null; positionName: string | null };
+        if (!empWithJoin.positionName) continue;
 
         const [positionRecord] = await db
           .select()
           .from(jobPositions)
-          .where(eq(jobPositions.positionName, emp.positionName))
+          .where(eq(jobPositions.positionName, empWithJoin.positionName))
           .limit(1);
 
         if (!positionRecord) continue;

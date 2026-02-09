@@ -33,7 +33,7 @@ export const earlyWarningsRouter = router({
           folio: nom035Cases.folio,
           employeeId: nom035Cases.employeeId,
           employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
-          department: employees.department,
+          departmentId: employees.departmentId,
           riskLevel: nom035Cases.riskLevel,
           riskCategory: nom035Cases.riskCategory,
           description: nom035Cases.description,
@@ -47,7 +47,7 @@ export const earlyWarningsRouter = router({
           and(
             lte(nom035Cases.deadline, thirtyDaysFromNow),
             sql`${nom035Cases.status} != 'closed'`,
-            input?.department ? eq(employees.departmentId, input.department) : undefined,
+            input?.department ? eq(employees.departmentId, parseInt(input.department)) : undefined,
             input?.startDate ? gte(nom035Cases.deadline, new Date(input.startDate)) : undefined,
             input?.endDate ? lte(nom035Cases.deadline, new Date(input.endDate)) : undefined
           )

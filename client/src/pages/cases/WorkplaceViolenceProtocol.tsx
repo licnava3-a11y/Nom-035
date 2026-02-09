@@ -209,7 +209,7 @@ export default function WorkplaceViolenceProtocol() {
                     <SelectContent>
                       {employees?.map((emp) => (
                         <SelectItem key={emp.id} value={emp.id.toString()}>
-                          {emp.firstName} {emp.lastName} - {emp.department || "Sin departamento"}
+                          {emp.firstName} {emp.lastName} - Depto ID: {emp.departmentId || "N/A"}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -227,7 +227,7 @@ export default function WorkplaceViolenceProtocol() {
                   <SelectContent>
                     {employees?.map((emp) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
-                        {emp.firstName} {emp.lastName} - {emp.position || "Sin puesto"}
+                        {emp.firstName} {emp.lastName} - Puesto ID: {emp.positionId || "N/A"}
                       </SelectItem>
                     ))}
                   </SelectContent>
