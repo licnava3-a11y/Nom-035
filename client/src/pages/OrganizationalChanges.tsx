@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
-import { Calendar, FileSpreadsheet, TrendingUp, Plus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Calendar, FileSpreadsheet, TrendingUp, Plus, Edit, Trash2, Search, Filter, FileText } from 'lucide-react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -26,6 +26,8 @@ import {
   Filler,
 } from 'chart.js';
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -195,6 +197,164 @@ export default function OrganizationalChanges() {
     XLSX.writeFile(wb, fileName);
   };
 
+  // Función para generar reporte PDF
+  const handleGeneratePDF = async () => {
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let yPosition = 20;
+    
+    // Encabezado institucional
+    pdf.setFillColor(30, 58, 138); // #1e3a8a
+    pdf.rect(0, 0, pageWidth, 40, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(22);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Reporte de Evolución Organizacional', pageWidth / 2, 15, { align: 'center' });
+    
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Plataforma de Capacitación NOM-035 STPS 2018', pageWidth / 2, 25, { align: 'center' });
+    pdf.text(`Generado: ${new Date().toLocaleString('es-MX')}`, pageWidth / 2, 32, { align: 'center' });
+    
+    yPosition = 50;
+    
+    // Estadísticas de resumen
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Resumen Ejecutivo', 15, yPosition);
+    yPosition += 10;
+    
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Total de Cambios: ${summaryStats.total}`, 15, yPosition);
+    yPosition += 6;
+    pdf.text(`Creaciones: ${summaryStats.created}`, 15, yPosition);
+    yPosition += 6;
+    pdf.text(`Actualizaciones: ${summaryStats.updated}`, 15, yPosition);
+    yPosition += 6;
+    pdf.text(`Eliminaciones: ${summaryStats.deleted}`, 15, yPosition);
+    yPosition += 15;
+    
+    // Capturar gráficas
+    try {
+      // Gráfica de evolución
+      const evolutionChart = document.getElementById('evolution-chart');
+      if (evolutionChart) {
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Gráfica de Evolución Mensual', 15, yPosition);
+        yPosition += 5;
+        
+        const canvas = await html2canvas(evolutionChart, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - 30;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        if (yPosition + imgHeight > pageHeight - 30) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        pdf.addImage(imgData, 'PNG', 15, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + 10;
+      }
+      
+      // Gráfica de distribución
+      if (yPosition > pageHeight - 80) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+      
+      const distributionChart = document.getElementById('distribution-chart');
+      if (distributionChart) {
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Distribución por Tipo de Cambio', 15, yPosition);
+        yPosition += 5;
+        
+        const canvas = await html2canvas(distributionChart, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - 30;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        if (yPosition + imgHeight > pageHeight - 30) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        pdf.addImage(imgData, 'PNG', 15, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + 10;
+      }
+    } catch (error) {
+      console.error('Error al capturar gráficas:', error);
+    }
+    
+    // Línea de tiempo de cambios recientes
+    if (changes && changes.length > 0) {
+      pdf.addPage();
+      yPosition = 20;
+      
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Línea de Tiempo de Cambios Recientes', 15, yPosition);
+      yPosition += 10;
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      
+      const recentChanges = changes.slice(0, 15); // Últimos 15 cambios
+      
+      recentChanges.forEach((change: any) => {
+        if (yPosition > pageHeight - 20) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        const date = new Date(change.changedAt).toLocaleString('es-MX');
+        const type = getChangeText(change.changeType);
+        
+        // Color según tipo
+        if (change.changeType === 'created') {
+          pdf.setTextColor(22, 163, 74); // green
+        } else if (change.changeType === 'updated') {
+          pdf.setTextColor(8, 145, 178); // cyan
+        } else {
+          pdf.setTextColor(220, 38, 38); // red
+        }
+        
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`• ${type}`, 15, yPosition);
+        
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`${change.name} (${change.code}) - ${date}`, 25, yPosition);
+        
+        yPosition += 6;
+      });
+    }
+    
+    // Pie de página en todas las páginas
+    const totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setTextColor(128, 128, 128);
+      pdf.text(
+        `Página ${i} de ${totalPages} | Confidencial - Uso Interno`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: 'center' }
+      );
+    }
+    
+    // Descargar PDF
+    const fileName = `reporte-evolucion-organizacional-${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
+  };
+
   // Función para obtener icono según tipo de cambio
   const getChangeIcon = (type: string) => {
     switch (type) {
@@ -233,6 +393,13 @@ export default function OrganizationalChanges() {
             Historial completo de cambios en la estructura organizacional
           </p>
         </div>
+        <Button
+          onClick={handleGeneratePDF}
+          className="bg-red-600 hover:bg-red-700 text-white"
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Generar Reporte PDF
+        </Button>
       </div>
 
       {/* Tarjetas de resumen */}
@@ -300,7 +467,7 @@ export default function OrganizationalChanges() {
                 <p className="text-muted-foreground">Cargando gráfica...</p>
               </div>
             ) : monthlyChartData ? (
-              <div className="h-[300px]">
+              <div className="h-[300px]" id="evolution-chart">
                 <Line
                   data={monthlyChartData}
                   options={{
@@ -343,7 +510,7 @@ export default function OrganizationalChanges() {
                 <p className="text-muted-foreground">Cargando gráfica...</p>
               </div>
             ) : typeChartData ? (
-              <div className="h-[300px]">
+              <div className="h-[300px]" id="distribution-chart">
                 <Bar
                   data={typeChartData}
                   options={{

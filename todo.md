@@ -8078,3 +8078,30 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar botón de exportación con selectores de fecha
 - [x] Generar Excel con tres hojas (creados, eliminados, movidos)
 - [x] Incluir detalles de cambios (parentId anterior y nuevo)
+
+
+## FASE 228-230: Menú, Notificaciones y Reporte PDF
+
+### Entrada de Menú en DashboardLayout
+- [x] Buscar sección de Gestión de Talento en DashboardLayout
+- [x] Agregar enlace "Cambios Organizacionales" con ruta /organization/changes
+- [x] Agregar icono apropiado (History o Clock)
+- [x] Verificar que el enlace funcione correctamente
+
+### Notificaciones Automáticas de Cambios Críticos
+- [x] Crear función de notificación en server/routers/departments.ts
+- [x] Detectar eliminación de departamentos con empleados activos
+- [x] Detectar reestructuraciones mayores (cambios de parentId masivos)
+- [x] Enviar correo al administrador con detalles del cambio
+- [x] Incluir lista de empleados afectados en notificación
+
+### Reporte PDF de Evolución Organizacional
+- [x] Instalar dependencias para generación de PDF (jsPDF, html2canvas)
+- [x] Crear función de generación de PDF en OrganizationalChanges
+- [x] Incluir gráficas de evolución en PDF
+- [x] Agregar línea de tiempo de cambios recientes
+- [x] Incluir análisis de tendencias y estadísticas
+- [x] Agregar encabezado y pie de página institucional
+- [x] Botón de descarga en página OrganizationalChanges
+
+**FASE 228-230: ✅ COMPLETADA AL 100%**

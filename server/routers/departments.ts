@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, departmentHistory, positions, employees } from "../../drizzle/schema";
+import { departments, departmentHistory, positions, employees, systemSettings } from "../../drizzle/schema";
+import { sendEmail } from "../lib/email-sender";
 import { eq, like, and, sql, count, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -244,6 +245,91 @@ export const departmentsRouter = router({
           changeType: 'updated',
           changedBy: null,
         });
+        
+        // Notificar cambios críticos de estructura
+        if (updates.parentId !== undefined && updates.parentId !== existing.parentId) {
+          try {
+            // Obtener configuración del sistema para correo de notificaciones
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [settings] = await db
+              .select()
+              .from(systemSettings)
+              .where(eq(systemSettings.key, 'hr_email'))
+              .limit(1);
+            
+            const hrEmail = settings?.value || process.env.OWNER_EMAIL;
+            
+            if (hrEmail) {
+              // Obtener información del departamento padre anterior y nuevo
+              let oldParentName = 'Raíz (sin padre)';
+              let newParentName = 'Raíz (sin padre)';
+              
+              if (existing.parentId) {
+                // @ts-expect-error - getDb() siempre retorna instancia válida
+                const [oldParent] = await db
+                  .select()
+                  .from(departments)
+                  .where(eq(departments.id, existing.parentId))
+                  .limit(1);
+                if (oldParent) oldParentName = oldParent.name;
+              }
+              
+              if (updated.parentId) {
+                // @ts-expect-error - getDb() siempre retorna instancia válida
+                const [newParent] = await db
+                  .select()
+                  .from(departments)
+                  .where(eq(departments.id, updated.parentId))
+                  .limit(1);
+                if (newParent) newParentName = newParent.name;
+              }
+              
+              // Obtener empleados afectados
+              // @ts-expect-error - getDb() siempre retorna instancia válida
+              const affectedEmployees = await db
+                .select({
+                  id: employees.id,
+                  firstName: employees.firstName,
+                  lastName: employees.lastName,
+                  email: employees.email,
+                })
+                .from(employees)
+                .where(eq(employees.departmentId, updated.id));
+              
+              const employeeList = affectedEmployees.length > 0
+                ? affectedEmployees.map(e => `- ${e.firstName} ${e.lastName} (${e.email})`).join('\n')
+                : 'Ningún empleado asignado actualmente';
+              
+              await sendEmail({
+                to: hrEmail,
+                subject: `⚠️ Reestructuración Organizacional: ${updated.name}`,
+                html: `
+                  <h2 style="color: #1e3a8a;">⚠️ Cambio Crítico en Estructura Organizacional</h2>
+                  <p>Se ha detectado un cambio en la jerarquía organizacional que requiere su atención:</p>
+                  
+                  <div style="background-color: #f3f4f6; padding: 15px; border-left: 4px solid #1e3a8a; margin: 20px 0;">
+                    <h3 style="margin-top: 0;">Detalles del Cambio</h3>
+                    <p><strong>Departamento:</strong> ${updated.name} (${updated.code})</p>
+                    <p><strong>Departamento Padre Anterior:</strong> ${oldParentName}</p>
+                    <p><strong>Nuevo Departamento Padre:</strong> ${newParentName}</p>
+                    <p><strong>Fecha del Cambio:</strong> ${new Date().toLocaleString('es-MX')}</p>
+                  </div>
+                  
+                  <h3>Empleados Afectados (${affectedEmployees.length})</h3>
+                  <pre style="background-color: #f9fafb; padding: 10px; border-radius: 4px;">${employeeList}</pre>
+                  
+                  <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
+                    Esta es una notificación automática del sistema de gestión de talento NOM-035.<br>
+                    Para ver el historial completo de cambios, acceda al dashboard de Cambios Organizacionales.
+                  </p>
+                `,
+              });
+            }
+          } catch (emailError) {
+            // No fallar la operación si el correo falla, solo registrar
+            console.error('Error al enviar notificación de cambio organizacional:', emailError);
+          }
+        }
       }
 
       return { success: true };
