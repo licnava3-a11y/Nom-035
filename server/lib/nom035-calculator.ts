@@ -35,11 +35,9 @@ export interface DomainScore {
 
 export interface DimensionScore {
   dimension: string;
-  codigo: string; // G2-1, G2-2, G3-1, etc.
   score: number;
   riskLevel: RiskLevel;
   riskColor: RiskColor;
-  interpretacion: string; // Texto descriptivo del nivel de riesgo
 }
 
 export interface SurveyResult {
@@ -151,54 +149,6 @@ const GUIDE_III_ACTIONS = {
     'Establecer las acciones de intervención de forma inmediata.',
   ],
 };
-
-/**
- * Mapeo de dimensiones a códigos oficiales NOM-035
- */
-export const DIMENSION_CODES: Record<string, string> = {
-  // Guía II
-  'Condiciones en el ambiente de trabajo': 'G2-1',
-  'Carga de trabajo': 'G2-2',
-  'Falta de control sobre el trabajo': 'G2-3',
-  'Jornada de trabajo': 'G2-4',
-  'Interferencia en la relación trabajo-familia': 'G2-5',
-  // Guía III
-  'Condiciones peligrosas e inseguras': 'G3-1',
-  'Cargas de trabajo cuantitativas': 'G3-2',
-  'Ritmos de trabajo acelerado': 'G3-3',
-  'Cargas de trabajo mentales': 'G3-4',
-  'Cargas de trabajo psicológicas': 'G3-5',
-  'Falta de control y autonomía sobre el trabajo': 'G3-6',
-  'Jornadas de trabajo extensas': 'G3-7',
-  'Interferencia en la relación trabajo-familia (Gía III)': 'G3-8',
-  'Liderazgo negativo': 'G3-9',
-  'Relaciones negativas en el trabajo': 'G3-10',
-  'Violencia laboral': 'G3-11',
-  'Reconocimiento del desempeño': 'G3-12',
-  'Insuficiente sentido de pertenencia': 'G3-13',
-  'Inestabilidad laboral': 'G3-14',
-  'Escasa o nula capacitación': 'G3-15',
-};
-
-/**
- * Genera texto de interpretación según color y puntuación
- */
-export function generarInterpretacion(color: RiskColor, score: number): string {
-  switch (color) {
-    case 'red':
-      return 'Alto riesgo - Requiere intervención inmediata';
-    case 'orange':
-      return 'Riesgo medio-alto - Requiere acciones correctivas en 90 días';
-    case 'yellow':
-      return 'Riesgo medio - Requiere revisión de políticas';
-    case 'green':
-      return 'Riesgo bajo - Requiere difusión de políticas';
-    case 'blue':
-      return 'Nulo o despreciable - No requiere medidas adicionales';
-    default:
-      return 'Sin clasificación';
-  }
-}
 
 // ============================================================================
 // FUNCIONES DE CÁLCULO
@@ -339,16 +289,12 @@ export function calculateDimensionScore(
   }
   
   const riskResult = determineRiskLevel(score, guideType);
-  const codigo = DIMENSION_CODES[dimension] || 'N/A';
-  const interpretacion = generarInterpretacion(riskResult.color, score);
   
   return {
     dimension,
-    codigo,
     score,
     riskLevel: riskResult.level,
     riskColor: riskResult.color,
-    interpretacion,
   };
 }
 

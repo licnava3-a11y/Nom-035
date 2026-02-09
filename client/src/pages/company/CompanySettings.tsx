@@ -14,7 +14,6 @@ import {
   Plus, Edit, Trash2, CheckCircle, Clock, XCircle
 } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { AITextarea } from "@/components/AITextarea";
 
 export default function CompanySettings() {
   const toast = (opts: { title: string; description: string; variant?: string }) => {
@@ -1421,30 +1420,32 @@ function SurveyReportTab() {
                 />
               </div>
 
-              <AITextarea
-                id="actividadPrincipal"
-                label="Actividad Económica Principal"
-                value={formData.actividadPrincipal}
-                onChange={(value) => setFormData({ ...formData, actividadPrincipal: value })}
-                placeholder="Descripción de la actividad económica principal del centro de trabajo"
-                rows={2}
-                fieldType="descripcion"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="actividadPrincipal">Actividad Económica Principal</Label>
+                <Textarea
+                  id="actividadPrincipal"
+                  value={formData.actividadPrincipal}
+                  onChange={(e) => setFormData({ ...formData, actividadPrincipal: e.target.value })}
+                  placeholder="Descripción de la actividad económica principal del centro de trabajo"
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
 
           {/* SECCIÓN 3: OBJETIVO */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2">b) Objetivo del Informe</h3>
-            <AITextarea
-              id="objetivoInforme"
-              label="Objetivo"
-              value={formData.objetivoInforme}
-              onChange={(value) => setFormData({ ...formData, objetivoInforme: value })}
-              placeholder="Objetivo de la evaluación de riesgos psicosociales"
-              rows={3}
-              fieldType="descripcion"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="objetivoInforme">Objetivo</Label>
+              <Textarea
+                id="objetivoInforme"
+                value={formData.objetivoInforme}
+                onChange={(e) => setFormData({ ...formData, objetivoInforme: e.target.value })}
+                placeholder="Objetivo de la evaluación de riesgos psicosociales"
+                rows={3}
+              />
+            </div>
           </div>
 
           {/* SECCIÓN 4: ACTIVIDADES REALIZADAS */}
@@ -1525,30 +1526,32 @@ function SurveyReportTab() {
           {/* SECCIÓN 7: CONCLUSIONES */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2">f) Conclusiones</h3>
-            <AITextarea
-              id="conclusiones"
-              label="Conclusiones"
-              value={formData.conclusiones}
-              onChange={(value) => setFormData({ ...formData, conclusiones: value })}
-              placeholder="Conclusiones derivadas de la evaluación"
-              rows={4}
-              fieldType="descripcion"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="conclusiones">Conclusiones</Label>
+              <Textarea
+                id="conclusiones"
+                value={formData.conclusiones}
+                onChange={(e) => setFormData({ ...formData, conclusiones: e.target.value })}
+                placeholder="Conclusiones derivadas de la evaluación"
+                rows={4}
+              />
+            </div>
           </div>
 
           {/* SECCIÓN 8: RECOMENDACIONES */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2">g) Recomendaciones y Acciones de Intervención</h3>
             <div className="space-y-4">
-              <AITextarea
-                id="recomendaciones"
-                label="Recomendaciones"
-                value={formData.recomendaciones}
-                onChange={(value) => setFormData({ ...formData, recomendaciones: value })}
-                placeholder="Recomendaciones para la prevención y control de factores de riesgo"
-                rows={4}
-                fieldType="descripcion"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="recomendaciones">Recomendaciones</Label>
+                <Textarea
+                  id="recomendaciones"
+                  value={formData.recomendaciones}
+                  onChange={(e) => setFormData({ ...formData, recomendaciones: e.target.value })}
+                  placeholder="Recomendaciones para la prevención y control de factores de riesgo"
+                  rows={4}
+                />
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="accionesIntervencion">Acciones de Intervención</Label>

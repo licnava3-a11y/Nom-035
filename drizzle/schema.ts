@@ -11,21 +11,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", [
-    "admin", 
-    "instructor", 
-    "student", 
-    "committee", 
-    "committee_member", 
-    "committee_coordinator",
-    // Roles NOM-035 específicos
-    "director",
-    "responsable_nom035",
-    "supervisor",
-    "jefe_area",
-    "recursos_humanos",
-    "demo"
-  ]).default("student").notNull(),
+  role: mysqlEnum("role", ["admin", "instructor", "student", "committee", "committee_member", "committee_coordinator"]).default("student").notNull(),
   
   // Campos NOM-035 STPS 2018 - Guía V
   curp: varchar("curp", { length: 18 }).unique(),
@@ -524,8 +510,8 @@ export const employees = mysqlTable("employees", {
   
   // Employment Information
   employeeNumber: varchar("employeeNumber", { length: 50 }).unique(),
-  department: varchar("department", { length: 100 }),
-  position: varchar("position", { length: 100 }),
+  departmentId: int("departmentId").references(() => departments.id),
+  positionId: int("positionId").references(() => positions.id),
   hireDate: date("hireDate"),
   contractType: mysqlEnum("contractType", ["permanent", "temporary", "contract"]).default("permanent"),
   contract1ExpirationDate: date("contract1ExpirationDate"),
@@ -728,10 +714,6 @@ export const surveyResponses = mysqlTable('survey_responses', {
   ipAddress: varchar('ip_address', { length: 45 }),
   deviceInfo: text('device_info'),
   results: text('results'), // Resultados calculados en JSON
-  // Campos de metadata de evaluación NOM-035
-  fecha: varchar('fecha', { length: 10 }), // Fecha de evaluación (ISO 8601: "2024-01-15")
-  periodo: varchar('periodo', { length: 20 }), // Periodo de evaluación ("Q1-2024")
-  version_nom: varchar('version_nom', { length: 50 }).default('NOM-035-STPS-2018'), // Versión de la norma
 });
 
 // Respuestas individuales a preguntas
@@ -1847,209 +1829,3 @@ export const committeeTrainingAttendance = mysqlTable("committee_attendance", {
 
 export type CommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferSelect;
 export type InsertCommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferInsert;
-
-
-// ============================================================================
-// SISTEMA DE ROLES Y PERMISOS GRANULARES NOM-035
-// ============================================================================
-
-/**
- * Role Permissions - Permisos por rol (matriz de permisos)
- * Define qué puede hacer cada rol en cada módulo del sistema
- */
-export const rolePermissions = mysqlTable("role_permissions", {
-  id: int("id").autoincrement().primaryKey(),
-  role: mysqlEnum("role", [
-    "admin",
-    "director",
-    "responsable_nom035",
-    "supervisor",
-    "jefe_area",
-    "recursos_humanos",
-    "demo"
-  ]).notNull(),
-  module: mysqlEnum("module", [
-    "employees",    // Gestión de empleados
-    "surveys",      // Encuestas NOM-035
-    "cases",        // Casos de riesgo psicosocial
-    "courses",      // Cursos de capacitación
-    "reports",      // Reportes y análisis
-    "committee",    // Comité de atención
-    "company",      // Datos de la empresa
-    "admin"         // Administración del sistema
-  ]).notNull(),
-  canView: boolean("can_view").default(false).notNull(),
-  canCreate: boolean("can_create").default(false).notNull(),
-  canEdit: boolean("can_edit").default(false).notNull(),
-  canDelete: boolean("can_delete").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
-});
-
-export type RolePermission = typeof rolePermissions.$inferSelect;
-export type InsertRolePermission = typeof rolePermissions.$inferInsert;
-
-/**
- * User Permissions - Permisos específicos por usuario (override de permisos de rol)
- * Permite asignar permisos personalizados a usuarios individuales
- */
-export const userPermissions = mysqlTable("user_permissions", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("user_id").references(() => users.id).notNull(),
-  module: mysqlEnum("module", [
-    "employees",
-    "surveys",
-    "cases",
-    "courses",
-    "reports",
-    "committee",
-    "company",
-    "admin"
-  ]).notNull(),
-  canView: boolean("can_view").default(false).notNull(),
-  canCreate: boolean("can_create").default(false).notNull(),
-  canEdit: boolean("can_edit").default(false).notNull(),
-  canDelete: boolean("can_delete").default(false).notNull(),
-  grantedBy: int("granted_by").references(() => users.id), // Usuario que otorgó el permiso
-  reason: text("reason"), // Razón del override de permisos
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
-});
-
-export type UserPermission = typeof userPermissions.$inferSelect;
-export type InsertUserPermission = typeof userPermissions.$inferInsert;
-
-/**
- * Role Audit Log - Historial de cambios de roles
- * Registra todos los cambios de rol para auditoría
- */
-export const roleAuditLog = mysqlTable("role_audit_log", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("user_id").references(() => users.id).notNull(),
-  oldRole: varchar("old_role", { length: 50 }),
-  newRole: varchar("new_role", { length: 50 }).notNull(),
-  changedBy: int("changed_by").references(() => users.id).notNull(),
-  reason: text("reason"), // Razón del cambio de rol
-  ipAddress: varchar("ip_address", { length: 45 }),
-  userAgent: text("user_agent"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export type RoleAuditLog = typeof roleAuditLog.$inferSelect;
-export type InsertRoleAuditLog = typeof roleAuditLog.$inferInsert;
-
-// Relations para rolePermissions
-export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => ({
-  // No hay relaciones directas, es una tabla de configuración
-}));
-
-// Relations para userPermissions
-export const userPermissionsRelations = relations(userPermissions, ({ one }) => ({
-  user: one(users, {
-    fields: [userPermissions.userId],
-    references: [users.id],
-  }),
-  grantedByUser: one(users, {
-    fields: [userPermissions.grantedBy],
-    references: [users.id],
-  }),
-}));
-
-// Relations para roleAuditLog
-export const roleAuditLogRelations = relations(roleAuditLog, ({ one }) => ({
-  user: one(users, {
-    fields: [roleAuditLog.userId],
-    references: [users.id],
-  }),
-  changedByUser: one(users, {
-    fields: [roleAuditLog.changedBy],
-    references: [users.id],
-  }),
-}));
-
-/**
- * ============================================================================
- * MÓDULO DE AUTODIAGNÓSTICO NOM-035
- * ============================================================================
- */
-
-/**
- * Autodiagnósticos - Registro de evaluaciones de cumplimiento NOM-035
- */
-export const autodiagnosticos = mysqlTable("autodiagnosticos", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("user_id").references(() => users.id).notNull(),
-  fecha: timestamp("fecha").defaultNow().notNull(),
-  porcentajeTotal: decimal("porcentaje_total", { precision: 5, scale: 2 }).default("0.00"),
-  porcentajeCategoria1: decimal("porcentaje_categoria_1", { precision: 5, scale: 2 }).default("0.00"), // Política
-  porcentajeCategoria2: decimal("porcentaje_categoria_2", { precision: 5, scale: 2 }).default("0.00"), // Identificación
-  porcentajeCategoria3: decimal("porcentaje_categoria_3", { precision: 5, scale: 2 }).default("0.00"), // Análisis
-  porcentajeCategoria4: decimal("porcentaje_categoria_4", { precision: 5, scale: 2 }).default("0.00"), // Medidas de Control
-  porcentajeCategoria5: decimal("porcentaje_categoria_5", { precision: 5, scale: 2 }).default("0.00"), // Registros
-  status: varchar("status", { length: 50 }).default("en_progreso").notNull(), // en_progreso, completado
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Autodiagnostico = typeof autodiagnosticos.$inferSelect;
-export type InsertAutodiagnostico = typeof autodiagnosticos.$inferInsert;
-
-/**
- * Requirements - Catálogo de requisitos normativos NOM-035
- */
-export const requirements = mysqlTable("requirements", {
-  id: int("id").autoincrement().primaryKey(),
-  categoria: int("categoria").notNull(), // 1-5
-  categoriaNombre: varchar("categoria_nombre", { length: 100 }).notNull(),
-  codigo: varchar("codigo", { length: 20 }).notNull(), // Ej: POL-01, IDE-02
-  descripcion: text("descripcion").notNull(),
-  articuloNOM: varchar("articulo_nom", { length: 100 }), // Referencia al artículo de la NOM-035
-  orden: int("orden").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export type Requirement = typeof requirements.$inferSelect;
-export type InsertRequirement = typeof requirements.$inferInsert;
-
-/**
- * Evidences - Evidencias de cumplimiento por requisito
- */
-export const evidences = mysqlTable("evidences", {
-  id: int("id").autoincrement().primaryKey(),
-  autodiagnosticoId: int("autodiagnostico_id").references(() => autodiagnosticos.id).notNull(),
-  requirementId: int("requirement_id").references(() => requirements.id).notNull(),
-  cumple: boolean("cumple").default(false).notNull(),
-  evidenciaUrl: text("evidencia_url"), // URL de S3
-  evidenciaNombre: varchar("evidencia_nombre", { length: 255 }),
-  observaciones: text("observaciones"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Evidence = typeof evidences.$inferSelect;
-export type InsertEvidence = typeof evidences.$inferInsert;
-
-// Relations
-export const autodiagnosticosRelations = relations(autodiagnosticos, ({ one, many }) => ({
-  user: one(users, {
-    fields: [autodiagnosticos.userId],
-    references: [users.id],
-  }),
-  evidences: many(evidences),
-}));
-
-export const requirementsRelations = relations(requirements, ({ many }) => ({
-  evidences: many(evidences),
-}));
-
-export const evidencesRelations = relations(evidences, ({ one }) => ({
-  autodiagnostico: one(autodiagnosticos, {
-    fields: [evidences.autodiagnosticoId],
-    references: [autodiagnosticos.id],
-  }),
-  requirement: one(requirements, {
-    fields: [evidences.requirementId],
-    references: [requirements.id],
-  }),
-}));
-

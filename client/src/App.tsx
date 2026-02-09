@@ -87,10 +87,6 @@ import EarlyWarnings from "./pages/EarlyWarnings";
 import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
-import RolesPage from "./pages/admin/Roles";
-import SmtpConfig from "./pages/admin/SmtpConfig";
-import Autodiagnostico from "./pages/nom035/Autodiagnostico";
-import DashboardInteractivo from "./pages/nom035/DashboardInteractivo";
 
 function Router() {
   return (
@@ -247,16 +243,6 @@ function Router() {
       <Route path={"/settings"}>
         <DashboardLayout>
           <Settings />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/admin/roles"}>
-        <DashboardLayout>
-          <RolesPage />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/admin/smtp-config"}>
-        <DashboardLayout>
-          <SmtpConfig />
         </DashboardLayout>
       </Route>
       <Route path={"/profile"}>
@@ -456,16 +442,6 @@ function Router() {
         <Route path={"/nom035/evidences"}>
         <DashboardLayout>
           <EvidenceFolder />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/nom035/autodiagnostico"}>
-        <DashboardLayout>
-          <Autodiagnostico />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/nom035/dashboard"}>
-        <DashboardLayout>
-          <DashboardInteractivo />
         </DashboardLayout>
       </Route>
       <Route path={"/alerts"}>

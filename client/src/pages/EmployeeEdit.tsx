@@ -7,8 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 // Select components replaced with native HTML elements
 import { ArrowLeft, Save } from "lucide-react";
-import { DepartmentSelect } from "@/components/DepartmentSelect";
-import { PositionSelect } from "@/components/PositionSelect";
 
 export default function EmployeeEdit() {
   const { id } = useParams<{ id: string }>();
@@ -287,29 +285,51 @@ export default function EmployeeEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="department">Departamento</Label>
-                <DepartmentSelect
+                <select
+                  id="department"
                   value={formData.department}
-                  onChange={(value) => {
-                    handleChange("department", value);
+                  onChange={(e) => {
+                    handleChange("department", e.target.value);
                     // Clear position when department changes
                     handleChange("position", "");
                   }}
-                  error={errors.department}
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">Seleccionar departamento</option>
+                  {departments?.map((dept) => dept && (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Seleccione primero el departamento
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="position">Puesto</Label>
-                <PositionSelect
+                <select
+                  id="position"
                   value={formData.position}
-                  onChange={(value) => handleChange("position", value)}
-                  department={formData.department}
+                  onChange={(e) => handleChange("position", e.target.value)}
                   disabled={!formData.department}
-                  error={errors.position}
-                />
-                {formData.department && !formData.position && (
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">
+                    {formData.department 
+                      ? "Seleccionar puesto" 
+                      : "Seleccione departamento primero"}
+                  </option>
+                  {positions?.map((pos) => pos && (
+                    <option key={pos} value={pos}>
+                      {pos}
+                    </option>
+                  ))}
+                </select>
+                {formData.department && positions && positions.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Escribe para buscar o crear un nuevo puesto
+                    No hay puestos registrados para este departamento
                   </p>
                 )}
               </div>

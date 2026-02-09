@@ -1,8 +1,0 @@
-{
-  "query": "ALTER TABLE survey_responses \nADD COLUMN fecha VARCHAR(10) COMMENT 'Fecha de evaluación (ISO 8601: \"2024-01-15\")',\nADD COLUMN periodo VARCHAR(20) COMMENT 'Periodo de evaluación (\"Q1-2024\")',\nADD COLUMN version_nom VARCHAR(50) DEFAULT 'NOM-035-STPS-2018' COMMENT 'Versión de la norma';",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute ALTER TABLE survey_responses \nADD COLUMN fecha VARCHAR(10) COMMENT 'Fecha de evaluación (ISO 8601: \"2024-01-15\")',\nADD COLUMN periodo VARCHAR(20) COMMENT 'Periodo de evaluación (\"Q1-2024\")',\nADD COLUMN version_nom VARCHAR(50) DEFAULT 'NOM-035-STPS-2018' COMMENT 'Versión de la norma';",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1060 (42S21) at line 1: Duplicate column name 'fecha'"
-  ]
-}

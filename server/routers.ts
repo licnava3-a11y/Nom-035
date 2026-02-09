@@ -43,11 +43,6 @@ import { earlyWarningsRouter } from "./routers/earlyWarnings";
 import { investigationsRouter } from "./routers/investigations";
 import { workplaceViolenceRouter } from "./routers/workplaceViolence";
 import { committeeTrainingRouter } from "./routers/committeeTraining";
-import { rolesRouter } from "./routers/roles";
-import { autodiagnosticoRouter } from "./routers/autodiagnostico";
-import { dashboardNom035Router } from "./routers/dashboardNom035";
-import { notificationsRouter } from "./routers/notifications";
-import { aiRouter } from "./routers/ai";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -106,11 +101,6 @@ export const appRouter = router({
   investigations: investigationsRouter,
   workplaceViolence: workplaceViolenceRouter,
   committeeTraining: committeeTrainingRouter,
-  roles: rolesRouter,
-  autodiagnostico: autodiagnosticoRouter,
-  dashboardNom035: dashboardNom035Router,
-  notifications: notificationsRouter,
-  ai: aiRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -845,6 +835,21 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         return await db.addMailboxResponse(input.mailboxId, ctx.user.id, input.response);
       }),
+  }),
+
+  // Notifications
+  notifications: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserNotifications(ctx.user.id);
+    }),
+    markAsRead: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return await db.markNotificationAsRead(input.id);
+      }),
+    unreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUnreadNotificationsCount(ctx.user.id);
+    }),
   }),
 
   // Case assignments

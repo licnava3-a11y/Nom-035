@@ -1,6 +1,6 @@
 import { eq, like, and, or, desc, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { employees, users, committeeMembers } from "../drizzle/schema";
+import { employees, users, committeeMembers, departments, positions } from "../drizzle/schema";
 import type { Employee, InsertEmployee } from "../drizzle/schema";
 
 /**
@@ -21,7 +21,7 @@ export async function getAllEmployees(filters?: {
   }
 
   if (filters?.department) {
-    conditions.push(eq(employees.department, filters.department));
+    conditions.push(eq(employees.departmentId, parseInt(filters.department)));
   }
 
   if (filters?.search) {
@@ -162,11 +162,12 @@ export async function getAllDepartments() {
   if (!db) throw new Error("Database not available");
 
   const result = await db
-    .selectDistinct({ department: employees.department })
-    .from(employees)
-    .where(and(eq(employees.isActive, true), sql`${employees.department} IS NOT NULL`));
+    .select()
+    .from(departments)
+    .where(eq(departments.isActive, true))
+    .orderBy(departments.name);
 
-  return result.map((r) => r.department).filter(Boolean);
+  return result;
 }
 
 /**
@@ -177,32 +178,33 @@ export async function getAllPositions() {
   if (!db) throw new Error("Database not available");
 
   const result = await db
-    .selectDistinct({ position: employees.position })
-    .from(employees)
-    .where(and(eq(employees.isActive, true), sql`${employees.position} IS NOT NULL`));
+    .select()
+    .from(positions)
+    .where(eq(positions.isActive, true))
+    .orderBy(positions.title);
 
-  return result.map((r) => r.position).filter(Boolean);
+  return result;
 }
 
 /**
  * Get positions by department
  */
-export async function getPositionsByDepartment(department: string) {
+export async function getPositionsByDepartment(departmentId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   const result = await db
-    .selectDistinct({ position: employees.position })
-    .from(employees)
+    .select()
+    .from(positions)
     .where(
       and(
-        eq(employees.isActive, true),
-        eq(employees.department, department),
-        sql`${employees.position} IS NOT NULL`
+        eq(positions.isActive, true),
+        eq(positions.departmentId, departmentId)
       )
-    );
+    )
+    .orderBy(positions.title);
 
-  return result.map((r) => r.position).filter(Boolean);
+  return result;
 }
 
 /**
@@ -263,18 +265,20 @@ export async function getEmployeeStats() {
 
   const departmentCounts = await db
     .select({
-      department: employees.department,
+      departmentId: employees.departmentId,
+      departmentName: departments.name,
       count: sql<number>`count(*)`,
     })
     .from(employees)
+    .leftJoin(departments, eq(employees.departmentId, departments.id))
     .where(eq(employees.isActive, true))
-    .groupBy(employees.department);
+    .groupBy(employees.departmentId, departments.name);
 
   return {
     totalActive: Number(totalActive.count),
     totalInactive: Number(totalInactive.count),
     byDepartment: departmentCounts.map((d) => ({
-      department: d.department || "Sin departamento",
+      department: d.departmentName || "Sin departamento",
       count: Number(d.count),
     })),
   };
