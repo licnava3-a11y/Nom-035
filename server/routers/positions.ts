@@ -238,24 +238,43 @@ export const positionsRouter = router({
     }),
 
   // Obtener estadísticas por puesto
-  getStats: protectedProcedure.query(async () => {
-    const db = await getDb();
+  getStats: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
 
-    // @ts-expect-error - getDb() siempre retorna instancia válida
-    const stats = await db
-      .select({
-        positionId: positions.id,
-        positionTitle: positions.title,
-        departmentName: departments.name,
-        employeeCount: count(employees.id),
-      })
-      .from(positions)
-      .leftJoin(employees, eq(positions.id, employees.positionId))
-      .leftJoin(departments, eq(positions.departmentId, departments.id))
-      .where(eq(positions.isActive, true))
-      .groupBy(positions.id, positions.title, departments.name)
-      .orderBy(desc(count(employees.id)));
+      // Construir condiciones de filtrado
+      const conditions = [eq(positions.isActive, true)];
+      
+      if (input?.startDate && input?.endDate) {
+        conditions.push(
+          and(
+            sql`${employees.hireDate} >= ${input.startDate}`,
+            sql`${employees.hireDate} <= ${input.endDate}`
+          ) as any
+        );
+      }
 
-    return stats;
-  }),
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const stats = await db
+        .select({
+          positionId: positions.id,
+          positionTitle: positions.title,
+          departmentName: departments.name,
+          employeeCount: count(employees.id),
+        })
+        .from(positions)
+        .leftJoin(employees, eq(positions.id, employees.positionId))
+        .leftJoin(departments, eq(positions.departmentId, departments.id))
+        .where(and(...conditions))
+        .groupBy(positions.id, positions.title, departments.name)
+        .orderBy(desc(count(employees.id)));
+
+      return stats;
+    }),
 });

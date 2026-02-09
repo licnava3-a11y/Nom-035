@@ -7960,3 +7960,41 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar notificaciones del navegador en diferentes navegadores
 - [ ] Optimizar rendimiento de consultas de notificaciones
 - [ ] Crear checkpoint final
+
+
+## FASE 221: Filtros Temporales Avanzados en Dashboards (EN PROGRESO)
+
+### Componente DateRangePicker
+- [x] Crear componente `DateRangePicker.tsx` reutilizable
+- [x] Implementar con react-day-picker para selección de rangos
+- [x] Agregar estilos profesionales con shadcn/ui
+- [x] Probar funcionalidad de selección de rangos
+
+### Backend - Parámetros de Fecha
+- [x] Actualizar procedimiento `departments.getStats` con parámetros startDate/endDate
+- [x] Actualizar procedimiento `positions.getStats` con parámetros startDate/endDate
+- [x] Modificar queries para filtrar por fecha de contratación (hireDate)
+- [x] Probar procedimientos con diferentes rangos de fechas (0 errores TypeScript)
+
+### OrganizationDashboard - Filtros
+- [x] Agregar selector de periodo (semana anterior, mes anterior, año anterior, personalizado)
+- [x] Integrar DateRangePicker para periodo personalizado
+- [x] Implementar función getDateRange() para calcular rangos
+- [x] Actualizar queries tRPC con parámetros de fecha
+- [x] Agregar indicador visual del periodo seleccionado en header
+- [ ] Probar con datos reales (pendiente)
+
+### TurnoverDashboard - Filtros
+- [ ] Agregar opciones "semana anterior" y "personalizado" al selector existente
+- [ ] Integrar DateRangePicker para periodo personalizado
+- [ ] Actualizar función de cálculo de rangos
+- [ ] Modificar queries tRPC con parámetros de fecha
+- [ ] Agregar indicador visual del periodo seleccionado
+- [ ] Probar con datos reales
+
+### Persistencia y UX
+- [x] Guardar preferencia de filtro en localStorage (OrganizationDashboard)
+- [ ] Guardar preferencia de filtro en localStorage (TurnoverDashboard) - pendiente
+- [x] Restaurar filtros al cargar componentes (OrganizationDashboard)
+- [ ] Agregar animaciones de transición al cambiar filtros - opcional
+- [ ] Crear checkpoint final

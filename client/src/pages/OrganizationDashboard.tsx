@@ -1,18 +1,72 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/DateRangePicker";
 import { trpc } from "@/lib/trpc";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Building2, Briefcase, Users, FileSpreadsheet } from "lucide-react";
+import { Building2, Briefcase, Users, FileSpreadsheet, Calendar } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { subWeeks, subMonths, subYears, format } from "date-fns";
 import * as XLSX from 'xlsx';
-
 // Paleta de colores profesional: negro, verde, azul marino, rojo
 const COLORS = ["#1e3a8a", "#16a34a", "#dc2626", "#0f172a", "#22c55e", "#ef4444"];
 
 export default function OrganizationDashboard() {
+  // Estado de filtros temporales
+  const [period, setPeriod] = useState<string>("all");
+  const [customRange, setCustomRange] = useState<DateRange | undefined>();
+
+  // Calcular rango de fechas según periodo seleccionado
+  const getDateRange = () => {
+    const today = new Date();
+    
+    switch (period) {
+      case "week":
+        return {
+          startDate: format(subWeeks(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "month":
+        return {
+          startDate: format(subMonths(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "year":
+        return {
+          startDate: format(subYears(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "custom":
+        if (customRange?.from && customRange?.to) {
+          return {
+            startDate: format(customRange.from, "yyyy-MM-dd"),
+            endDate: format(customRange.to, "yyyy-MM-dd"),
+          };
+        }
+        return undefined;
+      default:
+        return undefined;
+    }
+  };
+
+  const dateRange = getDateRange();
+
+  // Persistir filtro en localStorage
+  useEffect(() => {
+    localStorage.setItem('org-dashboard-period', period);
+  }, [period]);
+
+  // Restaurar filtro al cargar
+  useEffect(() => {
+    const savedPeriod = localStorage.getItem('org-dashboard-period');
+    if (savedPeriod) setPeriod(savedPeriod);
+  }, []);
+
   // @ts-expect-error - Router types will regenerate on server restart
-  const { data: deptStats, isLoading: loadingDepts } = trpc.departments.getStats.useQuery();
+  const { data: deptStats, isLoading: loadingDepts } = trpc.departments.getStats.useQuery(dateRange);
   // @ts-expect-error - Router types will regenerate on server restart
-  const { data: posStats, isLoading: loadingPos } = trpc.positions.getStats.useQuery();
+  const { data: posStats, isLoading: loadingPos } = trpc.positions.getStats.useQuery(dateRange);
 
   if (loadingDepts || loadingPos) {
     return (
@@ -105,14 +159,44 @@ export default function OrganizationDashboard() {
           <p className="text-muted-foreground mt-2">
             Estadísticas visuales de empleados por departamento y puesto
           </p>
+          {period !== "all" && (
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Periodo: {period === "week" && "Semana anterior"}
+              {period === "month" && "Mes anterior"}
+              {period === "year" && "Año anterior"}
+              {period === "custom" && customRange?.from && customRange?.to && (
+                `${format(customRange.from, "dd/MM/yyyy")} - ${format(customRange.to, "dd/MM/yyyy")}`
+              )}
+            </p>
+          )}
         </div>
-        <Button
-          onClick={handleExportExcel}
-          className="bg-[#16a34a] hover:bg-[#15803d]"
-        >
-          <FileSpreadsheet className="mr-2 h-4 w-4" />
-          Exportar a Excel
-        </Button>
+        <div className="flex gap-3">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los periodos</SelectItem>
+              <SelectItem value="week">Semana anterior</SelectItem>
+              <SelectItem value="month">Mes anterior</SelectItem>
+              <SelectItem value="year">Año anterior</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          {period === "custom" && (
+            <DateRangePicker value={customRange} onChange={setCustomRange} />
+          )}
+          
+          <Button
+            onClick={handleExportExcel}
+            className="bg-[#16a34a] hover:bg-[#15803d]"
+          >
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Exportar a Excel
+          </Button>
+        </div>
       </div>
 
       {/* KPIs */}
