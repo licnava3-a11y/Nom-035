@@ -522,6 +522,10 @@ export const employees = mysqlTable("employees", {
   isActive: boolean("isActive").default(true).notNull(),
   terminationDate: date("terminationDate"),
   
+  // Reentry tracking
+  reentryCount: int("reentryCount").default(0).notNull(), // Number of times re-hired
+  previousHireDates: json("previousHireDates").$type<string[]>(), // Array of previous hire dates
+  
   // Relationship with users table
   userId: int("userId").unique(), // Link to users table when employee has system access
   
@@ -533,6 +537,41 @@ export const employees = mysqlTable("employees", {
 export type Employee = typeof employees.$inferSelect;
 export type InsertEmployee = typeof employees.$inferInsert;
 
+/**
+ * Employee History - Tracks all employment events (hires, terminations, reentries)
+ */
+export const employeeHistory = mysqlTable("employeeHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employeeId").references(() => employees.id).notNull(),
+  curp: varchar("curp", { length: 18 }).notNull(), // Store CURP for tracking across reentries
+  eventType: mysqlEnum("eventType", ["hire", "termination", "reentry"]).notNull(),
+  eventDate: date("eventDate").notNull(),
+  
+  // Termination details (only for termination events)
+  terminationReason: mysqlEnum("terminationReason", [
+    "resignation",
+    "dismissal",
+    "retirement",
+    "contract_end",
+    "death",
+    "abandonment",
+    "mutual_agreement",
+    "other"
+  ]),
+  terminationCategory: mysqlEnum("terminationCategory", ["voluntary", "involuntary", "legal"]),
+  terminationNotes: text("terminationNotes"),
+  evidenceUrls: json("evidenceUrls").$type<string[]>(), // S3 URLs of uploaded evidence
+  processedBy: int("processedBy").references(() => users.id), // User who processed the termination
+  
+  // Employment details at time of event
+  departmentId: int("departmentId").references(() => departments.id),
+  positionId: int("positionId").references(() => positions.id),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EmployeeHistory = typeof employeeHistory.$inferSelect;
+export type InsertEmployeeHistory = typeof employeeHistory.$inferInsert;
 
 // Catálogo de formatos (para administración)
 export const formatCatalog = mysqlTable('format_catalog', {

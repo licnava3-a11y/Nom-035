@@ -7480,3 +7480,60 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar generación con diferentes cantidades de evidencias
 - [ ] Verificar calidad de separadores y formato visual
 - [ ] Validar cumplimiento con estructura oficial de NOM-035
+
+
+## FASE 214: GESTIÓN DE REINGRESOS Y ROTACIÓN DE PERSONAL
+
+### 1. Detección de Reingresos con Timeline Visual
+- [x] Actualizar schema para agregar campo `reentryCount` (contador de reingresos) en employees
+- [x] Actualizar schema para agregar campo `previousHireDates` (JSON array de fechas previas) en employees
+- [x] Crear tabla `employeeHistory` para almacenar historial completo de contrataciones y bajas
+- [ ] Modificar procedimiento `importEmployees` para detectar CURP duplicados
+- [ ] Modificar procedimiento `create` en employees para detectar reingresos
+- [ ] Crear procedimiento tRPC `getEmployeeHistory` que retorne timeline completo
+- [ ] Actualizar EmployeeNew.tsx para mostrar alerta cuando se detecte CURP existente
+- [ ] Crear componente `ReentryBadge` que muestre "Reingreso #N" con tooltip de fechas previas
+- [ ] Crear componente `EmployeeTimeline` con visualización interactiva del historial
+- [ ] Integrar timeline en EmployeeProfile.tsx
+- [ ] Agregar filtro "Solo Reingresos" en tabla de empleados
+- [ ] Agregar columna "Reingresos" en tabla de empleados con badge visual
+
+### 2. Wizard de Proceso de Baja
+- [ ] Crear tabla `employeeTerminations` en schema con campos: employeeId, terminationDate, reason, category, documents, evidenceUrls, notes, processedBy, createdAt
+- [ ] Definir enum de motivos de baja: resignation, dismissal, retirement, contract_end, death, abandonment, mutual_agreement, other
+- [ ] Definir enum de categorías de documentación: voluntary, involuntary, legal
+- [ ] Crear procedimiento tRPC `initiateTermination` para iniciar proceso de baja
+- [ ] Crear procedimiento tRPC `uploadTerminationEvidence` para subir archivos a S3
+- [ ] Crear procedimiento tRPC `completeTermination` para ejecutar la baja final
+- [ ] Crear componente `TerminationWizard` con steps: Selección de Motivo → Documentación → Evidencias → Confirmación
+- [ ] Implementar step 1: Selección de motivo con radio buttons y descripción
+- [ ] Implementar step 2: Checklist de documentación requerida según categoría
+- [ ] Implementar step 3: Drag & drop para carga de archivos PDF/imágenes a S3
+- [ ] Implementar step 4: Resumen completo con confirmación final
+- [ ] Crear página `/employees/:id/terminate` para acceder al wizard
+- [ ] Agregar botón "Dar de Baja" en EmployeeProfile.tsx
+- [ ] Implementar validación: no permitir baja si hay documentación pendiente
+- [ ] Al completar baja, actualizar `isActive=false` y registrar en employeeHistory
+
+### 3. Dashboard de Rotación con Gráficos
+- [ ] Instalar dependencia `recharts` para gráficos
+- [ ] Crear procedimiento tRPC `getTurnoverMetrics` que calcule métricas de rotación
+- [ ] Calcular tasa de rotación: (Bajas en periodo / Promedio de empleados) * 100
+- [ ] Crear procedimiento tRPC `getTurnoverByReason` que agrupe bajas por motivo
+- [ ] Crear procedimiento tRPC `getTurnoverByDepartment` que agrupe bajas por departamento
+- [ ] Crear procedimiento tRPC `getTurnoverTrends` que retorne series temporales mensuales/trimestrales/anuales
+- [ ] Crear página `/reports/turnover` para dashboard de rotación
+- [ ] Implementar selector de periodo: Mensual / Trimestral / Anual
+- [ ] Crear gráfico de línea con tendencia de rotación usando LineChart de Recharts
+- [ ] Crear gráfico de barras con bajas por motivo usando BarChart de Recharts
+- [ ] Crear gráfico de pastel con distribución por departamento usando PieChart de Recharts
+- [ ] Mostrar KPIs: Total de Bajas, Tasa de Rotación %, Promedio Mensual, Departamento con Mayor Rotación
+- [ ] Implementar tabla detallada de bajas con filtros por fecha, motivo y departamento
+- [ ] Crear función de exportación a Excel usando xlsx
+- [ ] Incluir en Excel: Resumen ejecutivo, Datos detallados, Gráficos como imágenes
+- [ ] Agregar enlace "Dashboard de Rotación" en menú Reportes y Análisis
+- [ ] Implementar permisos: solo Admin y RH pueden acceder al dashboard
+
+---
+
+**Objetivo**: Implementar sistema completo de gestión de reingresos con detección automática por CURP, wizard de proceso de baja con validación y evidencias en S3, y dashboard analítico de rotación con gráficos interactivos y exportación a Excel.

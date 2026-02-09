@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_employeeId_employees_id_fk` FOREIGN KEY (`employeeId`) REFERENCES `employees`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_processedBy_users_id_fk` FOREIGN KEY (`processedBy`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_departmentId_departments_id_fk` FOREIGN KEY (`departmentId`) REFERENCES `departments`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_positionId_positions_id_fk` FOREIGN KEY (`positionId`) REFERENCES `positions`(`id`) ON DELETE no action ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute ALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_employeeId_employees_id_fk` FOREIGN KEY (`employeeId`) REFERENCES `employees`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_processedBy_users_id_fk` FOREIGN KEY (`processedBy`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_departmentId_departments_id_fk` FOREIGN KEY (`departmentId`) REFERENCES `departments`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `employeeHistory` ADD CONSTRAINT `employeeHistory_positionId_positions_id_fk` FOREIGN KEY (`positionId`) REFERENCES `positions`(`id`) ON DELETE no action ON UPDATE no action;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 3436
+}
