@@ -8468,3 +8468,62 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - Mejoras de Navegabilidad: 3/3 tareas ✅
 
 **TOTAL: 93/111 tareas completadas (83.8%)**
+
+
+## ✅ FASE 189B: Sistema de Notificaciones (Backend Completado - 7/18 tareas)
+
+### Backend (7/10 tareas completadas)
+- [x] Tabla notifications ya existía en schema (reutilizada)
+- [x] Crear procedimiento tRPC notifications.getAll
+- [x] Crear procedimiento tRPC notifications.getUnread
+- [x] Crear procedimiento tRPC notifications.markAsRead
+- [x] Crear procedimiento tRPC notifications.markAllAsRead
+- [x] Crear procedimiento tRPC notifications.delete
+- [x] Crear procedimiento tRPC notifications.checkCriticalCases
+- [ ] Implementar lógica de detección de casos críticos (puntaje > 75)
+- [ ] Implementar envío automático de notificaciones al detectar caso crítico
+- [ ] Crear job programado para verificar casos críticos cada 5 minutos
+
+### Frontend (8 tareas)
+- [ ] Crear componente NotificationsPanel.tsx
+- [ ] Implementar badge de contador de notificaciones no leídas en header
+- [ ] Implementar dropdown de notificaciones con últimas 5
+- [ ] Agregar botón "Marcar todas como leídas"
+- [ ] Implementar auto-refresh del dashboard cada 5 minutos
+- [ ] Agregar indicador visual de "Actualizando datos..."
+- [ ] Crear página /notifications con historial completo
+- [ ] Agregar ruta /notifications en App.tsx
+
+## 📄 FASE 190: Exportación de Reportes NOM-035 a PDF (12 tareas)
+
+### Backend (4 tareas)
+- [ ] Instalar dependencia @react-pdf/renderer
+- [ ] Crear procedimiento tRPC autodiagnostico.generatePDF
+- [ ] Implementar generación de PDF con logo de empresa
+- [ ] Agregar endpoint para descarga de PDF
+
+### Frontend (8 tareas)
+- [ ] Crear componente AutodiagnosticoPDFDocument.tsx con @react-pdf/renderer
+- [ ] Implementar sección de portada con logo y datos de empresa
+- [ ] Implementar tabla de cumplimiento por categoría
+- [ ] Agregar gráfica de barras de porcentajes por categoría
+- [ ] Implementar sección de evidencias documentales con URLs
+- [ ] Agregar sección de observaciones y recomendaciones
+- [ ] Implementar botón "Exportar a PDF" en página de Autodiagnóstico
+- [ ] Agregar loading state durante generación de PDF
+
+## 🔍 FASE 191: Filtros Avanzados en Dashboard Interactivo (8 tareas)
+
+### Backend (2 tareas)
+- [ ] Actualizar procedimiento getDimensionHeatmap para aceptar filtro de departamento
+- [ ] Actualizar procedimiento getTemporalTrends para comparativas entre periodos
+
+### Frontend (6 tareas)
+- [ ] Agregar selector de departamento/área en header del dashboard
+- [ ] Implementar comparativa "mes actual vs mes anterior" con indicadores ↑↓
+- [ ] Agregar botón de modo pantalla completa para gráficas
+- [ ] Implementar drill-down en gráfica de mapa de calor (click para ver detalles)
+- [ ] Agregar tooltips informativos en todas las gráficas
+- [ ] Implementar guardado de preferencias de visualización en localStorage
+
+**NUEVAS TAREAS AGREGADAS: 38 tareas**
