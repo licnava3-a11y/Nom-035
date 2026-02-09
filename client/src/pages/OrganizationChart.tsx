@@ -11,6 +11,7 @@ import ReactFlow, {
   Panel,
   MarkerType,
   useReactFlow,
+  NodeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,13 +26,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { trpc } from '@/lib/trpc';
-import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight } from 'lucide-react';
+import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight, Maximize, Printer } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import ELK from 'elkjs/lib/elk.bundled.js';
 
 // Nodo personalizado para departamentos (vista completa)
-function DepartmentNode({ data }: { data: { name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean } }) {
+function DepartmentNode({ data }: NodeProps<{ name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean }>) {
   // Colores según nivel jerárquico
   const levelColors = [
     { from: '#1e3a8a', to: '#16a34a' }, // Nivel 0: Azul marino a verde
@@ -86,8 +93,8 @@ function DepartmentNode({ data }: { data: { name: string; code: string; employee
   );
 }
 
-// Nodo compacto para departamentos
-function CompactDepartmentNode({ data }: { data: { name: string; code: string; level: number; isHighlighted?: boolean } }) {
+// Nodo compacto para departamentos con tooltip
+function CompactDepartmentNode({ data }: NodeProps<{ name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean }>) {
   // Colores según nivel jerárquico
   const levelColors = [
     { from: '#1e3a8a', to: '#16a34a' },
@@ -100,27 +107,54 @@ function CompactDepartmentNode({ data }: { data: { name: string; code: string; l
   const colors = levelColors[colorIndex];
 
   return (
-    <div 
-      className={`px-4 py-2 rounded-lg border-2 shadow-md transition-all duration-300 ${
-        data.isHighlighted 
-          ? 'border-yellow-500 ring-4 ring-yellow-300 scale-110' 
-          : 'border-[#1e3a8a]'
-      }`}
-      style={{
-        background: data.isHighlighted 
-          ? 'linear-gradient(to right, #eab308, #f59e0b)' 
-          : `linear-gradient(to right, ${colors.from}, ${colors.to})`,
-        minWidth: '180px',
-      }}
-    >
-      <div className="flex items-center gap-2 text-white">
-        <Building2 className="h-4 w-4 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold truncate">{data.name}</p>
-          <p className="text-xs opacity-90 truncate">{data.code}</p>
-        </div>
-      </div>
-    </div>
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div 
+            className={`px-4 py-2 rounded-lg border-2 shadow-md transition-all duration-300 cursor-pointer ${
+              data.isHighlighted 
+                ? 'border-yellow-500 ring-4 ring-yellow-300 scale-110' 
+                : 'border-[#1e3a8a]'
+            }`}
+            style={{
+              background: data.isHighlighted 
+                ? 'linear-gradient(to right, #eab308, #f59e0b)' 
+                : `linear-gradient(to right, ${colors.from}, ${colors.to})`,
+              minWidth: '180px',
+            }}
+          >
+            <div className="flex items-center gap-2 text-white">
+              <Building2 className="h-4 w-4 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold truncate">{data.name}</p>
+                <p className="text-xs opacity-90 truncate">{data.code}</p>
+              </div>
+            </div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="max-w-xs">
+          <div className="space-y-2">
+            <div>
+              <p className="font-bold text-sm">{data.name}</p>
+              <p className="text-xs text-muted-foreground">Código: {data.code}</p>
+            </div>
+            <div className="border-t pt-2 space-y-1">
+              <p className="text-xs">
+                <strong>Empleados:</strong> {data.employeeCount}
+              </p>
+              {data.manager && (
+                <p className="text-xs">
+                  <strong>Jefe:</strong> {data.manager}
+                </p>
+              )}
+              <p className="text-xs">
+                <strong>Nivel jerárquico:</strong> {data.level}
+              </p>
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -251,6 +285,7 @@ export default function OrganizationChart() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isExporting, setIsExporting] = useState(false);
   const [isCalculatingLayout, setIsCalculatingLayout] = useState(false);
+  const [isPrintMode, setIsPrintMode] = useState(false);
   
   // Estados de búsqueda
   const [searchTerm, setSearchTerm] = useState('');
@@ -385,6 +420,11 @@ export default function OrganizationChart() {
     setCurrentMatchIndex(0);
   };
 
+  // Ajustar a pantalla (reset zoom y centrar)
+  const handleFitView = useCallback(() => {
+    fitView({ padding: 0.2, duration: 800 });
+  }, [fitView]);
+
   // Exportar organigrama a PNG
   const handleExport = useCallback(() => {
     setIsExporting(true);
@@ -412,6 +452,19 @@ export default function OrganizationChart() {
     }
   }, [isCompactMode, orientation]);
 
+  // Activar modo impresión
+  const handlePrintMode = useCallback(() => {
+    setIsPrintMode(true);
+    // Ajustar vista para impresión
+    setTimeout(() => {
+      fitView({ padding: 0.1, duration: 500 });
+      setTimeout(() => {
+        window.print();
+        setIsPrintMode(false);
+      }, 600);
+    }, 100);
+  }, [fitView]);
+
   if (isLoading || isCalculatingLayout) {
     return (
       <div className="container py-8">
@@ -426,9 +479,9 @@ export default function OrganizationChart() {
   }
 
   return (
-    <div className="container py-8 space-y-6">
+    <div className={`container py-8 space-y-6 ${isPrintMode ? 'print-mode' : ''}`}>
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 print:hidden">
         <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">Organigrama Organizacional</h1>
           <p className="text-muted-foreground mt-2">
@@ -436,6 +489,17 @@ export default function OrganizationChart() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Botón ajustar a pantalla */}
+          <Button
+            onClick={handleFitView}
+            variant="outline"
+            size="icon"
+            title="Ajustar a pantalla"
+            className="border-[#1e3a8a] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white"
+          >
+            <Maximize className="h-4 w-4" />
+          </Button>
+          
           {/* Selector de orientación */}
           <div className="flex items-center gap-2 border rounded-lg px-4 py-2 bg-background">
             {orientation === 'DOWN' ? (
@@ -478,6 +542,16 @@ export default function OrganizationChart() {
           </div>
           
           <Button
+            onClick={handlePrintMode}
+            variant="outline"
+            disabled={nodes.length === 0}
+            className="border-[#1e3a8a] text-[#1e3a8a] hover:bg-[#1e3a8a] hover:text-white"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Imprimir
+          </Button>
+          
+          <Button
             onClick={handleExport}
             disabled={isExporting || nodes.length === 0}
             className="bg-[#1e3a8a] hover:bg-[#16a34a]"
@@ -489,7 +563,7 @@ export default function OrganizationChart() {
       </div>
 
       {/* Barra de búsqueda */}
-      <Card>
+      <Card className="print:hidden">
         <CardContent className="pt-6">
           <div className="flex items-center gap-3">
             <div className="relative flex-1">
@@ -545,9 +619,26 @@ export default function OrganizationChart() {
         </CardContent>
       </Card>
 
+      {/* Encabezado de impresión */}
+      {isPrintMode && (
+        <div className="hidden print:block border-b-2 border-[#1e3a8a] pb-4 mb-4">
+          <h1 className="text-2xl font-bold text-[#1e3a8a]">Organigrama Organizacional</h1>
+          <p className="text-sm text-muted-foreground">
+            Plataforma de Capacitación NOM-035 STPS 2018
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Generado el: {new Date().toLocaleDateString('es-MX', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+      )}
+
       {/* React Flow Canvas */}
-      <Card className="h-[700px]">
-        <CardContent className="p-0 h-full">
+      <Card className="h-[700px] print:h-auto print:border-0">
+        <CardContent className="p-0 h-full print:p-4">
           {nodes.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-muted-foreground">
@@ -565,7 +656,7 @@ export default function OrganizationChart() {
               attributionPosition="bottom-left"
             >
               <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#e5e7eb" />
-              <Controls />
+              <Controls className="print:hidden" />
               <MiniMap
                 nodeColor={(node) => {
                   if (node.data.isHighlighted) return '#eab308';
@@ -583,8 +674,9 @@ export default function OrganizationChart() {
                 }}
                 pannable
                 zoomable
+                className="print:hidden"
               />
-              <Panel position="top-right" className="bg-white p-3 rounded-lg shadow-md border">
+              <Panel position="top-right" className="bg-white p-3 rounded-lg shadow-md border print:hidden">
                 <div className="text-sm space-y-1">
                   <p className="font-semibold text-[#1e3a8a]">Controles:</p>
                   <p className="text-xs text-muted-foreground">• Arrastrar para mover nodos</p>
@@ -605,8 +697,24 @@ export default function OrganizationChart() {
         </CardContent>
       </Card>
 
+      {/* Pie de página de impresión */}
+      {isPrintMode && (
+        <div className="hidden print:block border-t-2 border-[#1e3a8a] pt-4 mt-4 text-xs text-muted-foreground">
+          <div className="flex justify-between items-center">
+            <div>
+              <p>© 2026 Plataforma de Capacitación NOM-035 STPS 2018</p>
+              <p>Todos los derechos reservados</p>
+            </div>
+            <div className="text-right">
+              <p>Documento confidencial</p>
+              <p>Página 1 de 1</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Leyenda */}
-      <Card>
+      <Card className="print:hidden">
         <CardHeader>
           <CardTitle className="text-lg">Leyenda de Niveles Jerárquicos</CardTitle>
         </CardHeader>
@@ -633,6 +741,38 @@ export default function OrganizationChart() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Estilos de impresión */}
+      <style>{`
+        @media print {
+          @page {
+            size: A4 landscape;
+            margin: 1cm;
+          }
+          
+          body {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          .print-mode {
+            max-width: 100% !important;
+            padding: 0 !important;
+          }
+          
+          .print\\:hidden {
+            display: none !important;
+          }
+          
+          .print\\:block {
+            display: block !important;
+          }
+          
+          .react-flow {
+            height: auto !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
