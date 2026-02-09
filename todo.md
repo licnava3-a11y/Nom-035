@@ -7648,16 +7648,17 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 ### Backend - Procedimientos tRPC
 
-- [ ] Crear procedimiento `departments.list` con filtros y paginación
-- [ ] Crear procedimiento `departments.create` con validación
-- [ ] Crear procedimiento `departments.update` con validación
-- [ ] Crear procedimiento `departments.delete` con verificación de dependencias
-- [ ] Crear procedimiento `departments.getHierarchy` para obtener árbol organizacional
+- [x] Crear procedimiento `departments.list` con filtros y paginación
+- [x] Crear procedimiento `departments.create` con validación
+- [x] Crear procedimiento `departments.update` con validación
+- [x] Crear procedimiento `departments.delete` con verificación de dependencias
+- [x] Crear procedimiento `departments.getHierarchy` para obtener árbol organizacional
 - [ ] Crear procedimiento `positions.list` con filtros por departamento
 - [ ] Crear procedimiento `positions.create` con validación
 - [ ] Crear procedimiento `positions.update` con validación
 - [ ] Crear procedimiento `positions.delete` con verificación de empleados asignados
-- [ ] Crear procedimiento `departments.getStats` para estadísticas por departamento
+- [x] Crear procedimiento `departments.getStats` para estadísticas por departamento
+- [x] Integrar departmentsRouter en appRouter principal
 
 ### Frontend - CRUD de Departamentos
 
