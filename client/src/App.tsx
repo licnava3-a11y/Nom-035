@@ -84,6 +84,7 @@ import Departments from "./pages/Departments";
 import Positions from "./pages/Positions";
 import OrganizationDashboard from "./pages/OrganizationDashboard";
 import OrganizationChart from "./pages/OrganizationChart";
+import OrganizationalChanges from "./pages/OrganizationalChanges";
 import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
 import MassiveImport from "./pages/MassiveImport";
@@ -491,6 +492,11 @@ function Router() {
       <Route path={"/organization/chart"}>
         <DashboardLayout>
           <OrganizationChart />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/organization/changes"}>
+        <DashboardLayout>
+          <OrganizationalChanges />
         </DashboardLayout>
       </Route>
       <Route path={"/alerts"}>

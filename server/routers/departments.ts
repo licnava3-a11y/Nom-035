@@ -173,6 +173,36 @@ export const departmentsRouter = router({
         });
       }
 
+      // Si se actualiza el parentId, verificar que no cree un ciclo
+      if (updates.parentId !== undefined && updates.parentId !== existing.parentId) {
+        // Función recursiva para detectar ciclos
+        const wouldCreateCycle = async (deptId: number, targetParentId: number | null): Promise<boolean> => {
+          if (targetParentId === null) return false; // Raíz no crea ciclo
+          if (targetParentId === deptId) return true; // Ciclo directo
+          
+          // @ts-expect-error - getDb() siempre retorna instancia válida
+          const [parent] = await db
+            .select()
+            .from(departments)
+            .where(eq(departments.id, targetParentId))
+            .limit(1);
+          
+          if (!parent) return false; // Padre no existe
+          if (parent.parentId === null) return false; // Llegó a la raíz
+          
+          // Verificar recursivamente hacia arriba
+          return await wouldCreateCycle(deptId, parent.parentId);
+        };
+        
+        const hasCycle = await wouldCreateCycle(id, updates.parentId);
+        if (hasCycle) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "No se puede asignar este departamento padre porque crearía un ciclo en la jerarquía. Un departamento no puede ser descendiente de sí mismo.",
+          });
+        }
+      }
+
       // Si se actualiza el código, verificar que sea único
       if (updates.code && updates.code !== existing.code) {
         // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -411,5 +441,99 @@ export const departmentsRouter = router({
       });
 
       return rootDepartments;
+    }),
+
+  // Obtener historial de cambios organizacionales
+  getChangeHistory: protectedProcedure
+    .input(
+      z.object({
+        changeType: z.enum(['created', 'updated', 'deleted', 'all']).optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        departmentId: z.number().optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+
+      // Construir condiciones de filtrado
+      const conditions: any[] = [];
+      
+      if (input?.changeType && input.changeType !== 'all') {
+        conditions.push(eq(departmentHistory.changeType, input.changeType));
+      }
+      
+      if (input?.startDate) {
+        conditions.push(sql`${departmentHistory.changedAt} >= ${input.startDate}`);
+      }
+      
+      if (input?.endDate) {
+        conditions.push(sql`${departmentHistory.changedAt} <= ${input.endDate}`);
+      }
+      
+      if (input?.departmentId) {
+        conditions.push(eq(departmentHistory.departmentId, input.departmentId));
+      }
+
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const changes = await db
+        .select()
+        .from(departmentHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(departmentHistory.changedAt))
+        .limit(500); // Limitar a 500 cambios más recientes
+
+      return changes;
+    }),
+
+  // Obtener estadísticas de cambios
+  getChangeStats: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional()
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+
+      // Construir condiciones de filtrado
+      const conditions: any[] = [];
+      
+      if (input?.startDate) {
+        conditions.push(sql`${departmentHistory.changedAt} >= ${input.startDate}`);
+      }
+      
+      if (input?.endDate) {
+        conditions.push(sql`${departmentHistory.changedAt} <= ${input.endDate}`);
+      }
+
+      // Obtener conteo por tipo de cambio
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const statsByType = await db
+        .select({
+          changeType: departmentHistory.changeType,
+          count: count(departmentHistory.id),
+        })
+        .from(departmentHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .groupBy(departmentHistory.changeType);
+
+      // Obtener conteo por mes
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const statsByMonth = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${departmentHistory.changedAt}, '%Y-%m')`,
+          count: count(departmentHistory.id),
+        })
+        .from(departmentHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .groupBy(sql`DATE_FORMAT(${departmentHistory.changedAt}, '%Y-%m')`)
+        .orderBy(sql`DATE_FORMAT(${departmentHistory.changedAt}, '%Y-%m')`);
+
+      return {
+        byType: statsByType,
+        byMonth: statsByMonth,
+      };
     }),
 });

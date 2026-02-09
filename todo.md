@@ -8047,3 +8047,34 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Historial automático de cambios
 
 **FASE 222-224: ✅ COMPLETADA AL 100%**
+
+
+## FASE 225-227: Validación de Ciclos y Dashboard Histórico
+
+### Validación de Ciclos en Backend
+- [x] Crear función recursiva para detectar ciclos en jerarquía
+- [x] Integrar validación en procedimiento update de departments
+- [x] Agregar mensaje de error descriptivo para ciclos detectados
+- [x] Probar casos de ciclo directo (A→B→A)
+- [x] Probar casos de ciclo indirecto (A→B→C→A)
+
+### Dashboard de Cambios Organizacionales
+- [x] Crear página OrganizationalChanges.tsx
+- [x] Implementar procedimiento getChangeHistory en backend
+- [x] Crear línea de tiempo con todos los cambios históricos
+- [x] Agregar filtros por tipo de cambio (creación, actualización, eliminación)
+- [x] Implementar filtros temporales (semana, mes, año, personalizado)
+- [x] Agregar búsqueda por departamento
+
+### Gráficas de Evolución Histórica
+- [x] Crear gráfica de evolución de cantidad de departamentos
+- [x] Implementar gráfica de cambios por mes
+- [x] Agregar gráfica de distribución por tipo de cambio
+- [x] Crear tarjetas de resumen (total cambios, creaciones, movimientos, eliminaciones)
+
+### Exportación de Comparación Temporal
+- [x] Crear procedimiento getComparisonBetweenDates
+- [x] Implementar lógica de diferencias (creados, eliminados, movidos)
+- [x] Agregar botón de exportación con selectores de fecha
+- [x] Generar Excel con tres hojas (creados, eliminados, movidos)
+- [x] Incluir detalles de cambios (parentId anterior y nuevo)
