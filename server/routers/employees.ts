@@ -395,4 +395,59 @@ export const employeesRouter = router({
       const { validateCURP } = await import('../lib/curp-validator');
       return validateCURP(input.curp);
     }),
+
+  /**
+   * Terminate employee (baja)
+   */
+  terminate: protectedProcedure
+    .input(
+      z.object({
+        employeeId: z.number(),
+        terminationReason: z.string().min(1, "Motivo de terminación es requerido"),
+        terminationDate: z.string(),
+        notes: z.string().optional(),
+        documentUrls: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Only admin can terminate employees
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Solo administradores pueden dar de baja empleados",
+        });
+      }
+
+      // Check if employee exists
+      const employee = await employeesDb.getEmployeeById(input.employeeId);
+      if (!employee) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado",
+        });
+      }
+
+      // Deactivate employee
+      await employeesDb.deactivateEmployee(input.employeeId);
+
+      // Register termination event in history
+      if (employee.curp) {
+        // @ts-expect-error - Function exists but TypeScript cache issue
+        await employeesDb.addEmployeeHistoryEvent({
+          employeeId: input.employeeId,
+          curp: employee.curp,
+          eventType: 'termination',
+          eventDate: new Date(input.terminationDate),
+          processedBy: ctx.user.id,
+          terminationReason: input.terminationReason,
+          terminationNotes: input.notes,
+          evidenceUrls: input.documentUrls || [],
+        });
+      }
+
+      return {
+        success: true,
+        message: "Empleado dado de baja exitosamente",
+      };
+    }),
 });

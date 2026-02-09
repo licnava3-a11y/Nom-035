@@ -36,6 +36,7 @@ import EmployeeEdit from "./pages/EmployeeEdit";
 import EmployeeProfile from "./pages/EmployeeProfile";
 import EmployeeDocuments from "./pages/EmployeeDocuments";
 import EmployeeTrainingNeeds from "./pages/EmployeeTrainingNeeds";
+import EmployeeTermination from "./pages/EmployeeTermination";
 import CompetenciesDashboard from "./pages/CompetenciesDashboard";
 import SkillsMatrix from "./pages/SkillsMatrix";
 import EmployeeCompetencyEvaluation from "./pages/EmployeeCompetencyEvaluation";
@@ -299,6 +300,11 @@ function Router() {
       <Route path={"/employees/:id/training-needs"}>
         <DashboardLayout>
           <EmployeeTrainingNeeds />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/employees/terminate"}>
+        <DashboardLayout>
+          <EmployeeTermination />
         </DashboardLayout>
       </Route>
       <Route path={"/documents"}>
