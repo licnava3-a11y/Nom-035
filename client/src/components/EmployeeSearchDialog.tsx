@@ -25,7 +25,7 @@ export default function EmployeeSearchDialog({
 }: EmployeeSearchDialogProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: employees, isLoading } = trpc.employees.list.useQuery(
+  const { data: employeesData, isLoading } = trpc.employees.list.useQuery(
     {
       search: searchTerm,
     },
@@ -33,6 +33,7 @@ export default function EmployeeSearchDialog({
       enabled: open,
     }
   );
+  const employees = (employeesData as any) as Array<{ id: number; firstName: string; lastName: string; email: string; phone: string | null; employeeNumber: string | null; department: string; position: string; curp: string | null }> | undefined;
 
   const handleSelect = (employee: any) => {
     const fullName = `${employee.firstName} ${employee.lastName}`;

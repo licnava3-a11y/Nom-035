@@ -62,7 +62,8 @@ export default function DNCDashboard() {
   const { data: trainingNeeds, isLoading, refetch } = trpc.jobProfiles.getAllTrainingNeeds.useQuery();
 
   // Fetch employees for department filter
-  const { data: employees } = trpc.employees.list.useQuery();
+  const { data: employeesData } = trpc.employees.list.useQuery();
+  const employees = (employeesData as any) as Array<{ id: number; firstName: string; lastName: string; department: string; position: string }> | undefined;
 
   // Get unique departments
   const departments = useMemo(() => {

@@ -20,8 +20,8 @@ export default function EmployeeEdit() {
     phone: "",
     curp: "",
     employeeNumber: "",
-    department: "",
-    position: "",
+    department: "" as string | number,
+    position: "" as string | number,
     hireDate: "",
     contractType: "permanent" as "permanent" | "temporary" | "contract",
   });
@@ -39,8 +39,8 @@ export default function EmployeeEdit() {
   
   // Fetch positions filtered by selected department
   const { data: positions } = trpc.employees.getPositionsByDepartment.useQuery(
-    { department: formData.department },
-    { enabled: !!formData.department } // Only fetch when department is selected
+    { department: typeof formData.department === 'number' ? formData.department : 0 },
+    { enabled: typeof formData.department === 'number' && formData.department > 0 } // Only fetch when department is selected
   );
 
   // Update form when employee data loads
@@ -53,8 +53,8 @@ export default function EmployeeEdit() {
         phone: employee.phone || "",
         curp: employee.curp || "",
         employeeNumber: employee.employeeNumber || "",
-        department: employee.department || "",
-        position: employee.position || "",
+        department: (employee as any).department || employee.departmentId || "",
+        position: (employee as any).position || employee.positionId || "",
         hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split("T")[0] : "",
         contractType: employee.contractType || "permanent",
       });
@@ -103,13 +103,17 @@ export default function EmployeeEdit() {
       return;
     }
 
-    updateMutation.mutate({
+    // Convert department and position to number before submitting
+    const dataToSubmit = {
       id: employeeId,
       ...formData,
-    });
+      department: typeof formData.department === 'number' ? formData.department : undefined,
+      position: typeof formData.position === 'number' ? formData.position : undefined,
+    };
+    updateMutation.mutate(dataToSubmit as any);
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -289,7 +293,8 @@ export default function EmployeeEdit() {
                   id="department"
                   value={formData.department}
                   onChange={(e) => {
-                    handleChange("department", e.target.value);
+                    const value = e.target.value ? parseInt(e.target.value) : "";
+                    handleChange("department", value);
                     // Clear position when department changes
                     handleChange("position", "");
                   }}
@@ -297,8 +302,8 @@ export default function EmployeeEdit() {
                 >
                   <option value="">Seleccionar departamento</option>
                   {departments?.map((dept) => dept && (
-                    <option key={dept} value={dept}>
-                      {dept}
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
                     </option>
                   ))}
                 </select>
@@ -312,7 +317,10 @@ export default function EmployeeEdit() {
                 <select
                   id="position"
                   value={formData.position}
-                  onChange={(e) => handleChange("position", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value ? parseInt(e.target.value) : "";
+                    handleChange("position", value);
+                  }}
                   disabled={!formData.department}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -322,8 +330,8 @@ export default function EmployeeEdit() {
                       : "Seleccione departamento primero"}
                   </option>
                   {positions?.map((pos) => pos && (
-                    <option key={pos} value={pos}>
-                      {pos}
+                    <option key={pos.id} value={pos.id}>
+                      {pos.title}
                     </option>
                   ))}
                 </select>

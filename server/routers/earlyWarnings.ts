@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { nom035Cases, correctiveActions, employees, surveys, surveyResponses } from "../../drizzle/schema";
+import { nom035Cases, correctiveActions, employees, surveys, surveyResponses, departments } from "../../drizzle/schema";
 import { eq, and, isNull, sql, lt, lte, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -34,6 +34,7 @@ export const earlyWarningsRouter = router({
           employeeId: nom035Cases.employeeId,
           employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           departmentId: employees.departmentId,
+          department: departments.name,
           riskLevel: nom035Cases.riskLevel,
           riskCategory: nom035Cases.riskCategory,
           description: nom035Cases.description,
@@ -43,6 +44,7 @@ export const earlyWarningsRouter = router({
         })
         .from(nom035Cases)
         .leftJoin(employees, eq(nom035Cases.employeeId, employees.id))
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
         .where(
           and(
             lte(nom035Cases.deadline, thirtyDaysFromNow),

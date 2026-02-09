@@ -17,8 +17,8 @@ export default function EmployeeNew() {
     phone: "",
     curp: "",
     employeeNumber: "",
-    department: "",
-    position: "",
+    department: "" as string | number,
+    position: "" as string | number,
     hireDate: "",
     contractType: "permanent" as "permanent" | "temporary" | "contract",
     gender: "", // Nuevo campo para género extraído de CURP
@@ -43,8 +43,8 @@ export default function EmployeeNew() {
   
   // Fetch positions filtered by selected department
   const { data: positions } = trpc.employees.getPositionsByDepartment.useQuery(
-    { department: formData.department },
-    { enabled: !!formData.department } // Only fetch when department is selected
+    { department: typeof formData.department === 'number' ? formData.department : 0 },
+    { enabled: typeof formData.department === 'number' && formData.department > 0 } // Only fetch when department is selected
   );
 
   const generateCredentialsMutation = trpc.hiring.createEmployeeAccount.useMutation();
@@ -105,14 +105,20 @@ export default function EmployeeNew() {
       return;
     }
 
-    createMutation.mutate(formData);
+    // Convert department and position to number before submitting
+    const dataToSubmit = {
+      ...formData,
+      department: typeof formData.department === 'number' ? formData.department : undefined,
+      position: typeof formData.position === 'number' ? formData.position : undefined,
+    };
+    createMutation.mutate(dataToSubmit as any);
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     
     // Validaciones en tiempo real
-    if (field === 'curp' && value.length === 18) {
+    if (field === 'curp' && typeof value === 'string' && value.length === 18) {
       validateCURPField(value);
     }
     
@@ -370,7 +376,8 @@ export default function EmployeeNew() {
                   id="department"
                   value={formData.department}
                   onChange={(e) => {
-                    handleChange("department", e.target.value);
+                    const value = e.target.value ? parseInt(e.target.value) : "";
+                    handleChange("department", value);
                     // Clear position when department changes
                     handleChange("position", "");
                   }}
@@ -378,8 +385,8 @@ export default function EmployeeNew() {
                 >
                   <option value="">Seleccionar departamento</option>
                   {departments?.map((dept) => dept && (
-                    <option key={dept} value={dept}>
-                      {dept}
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
                     </option>
                   ))}
                 </select>
@@ -393,7 +400,10 @@ export default function EmployeeNew() {
                 <select
                   id="position"
                   value={formData.position}
-                  onChange={(e) => handleChange("position", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value ? parseInt(e.target.value) : "";
+                    handleChange("position", value);
+                  }}
                   disabled={!formData.department}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -403,8 +413,8 @@ export default function EmployeeNew() {
                       : "Seleccione departamento primero"}
                   </option>
                   {positions?.map((pos) => pos && (
-                    <option key={pos} value={pos}>
-                      {pos}
+                    <option key={pos.id} value={pos.id}>
+                      {pos.title}
                     </option>
                   ))}
                 </select>

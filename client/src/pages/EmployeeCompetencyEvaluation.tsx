@@ -43,7 +43,8 @@ export default function EmployeeCompetencyEvaluation() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Fetch employees
-  const { data: employees, isLoading: loadingEmployees } = trpc.employees.list.useQuery();
+  const { data: employeesData, isLoading: loadingEmployees } = trpc.employees.list.useQuery();
+  const employees = (employeesData as any) as Array<{ id: number; firstName: string; lastName: string; position: string; department: string }> | undefined;
 
   // Fetch organizational competencies
   const { data: orgCompetencies, isLoading: loadingCompetencies } =

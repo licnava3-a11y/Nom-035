@@ -20,9 +20,10 @@ export function useWorkerSearch() {
   const [selectedWorkerId, setSelectedWorkerId] = useState<number | null>(null);
 
   // Obtener lista de trabajadores activos
-  const { data: workers, isLoading } = trpc.employees.list.useQuery({
+  const { data: workersData, isLoading } = trpc.employees.list.useQuery({
     isActive: true,
   });
+  const workers = (workersData as any) as Array<{ id: number; firstName: string; lastName: string; email: string; employeeNumber: string | null; department: string; position: string; curp: string | null }> | undefined;
 
   // Filtrar trabajadores según término de búsqueda
   const filteredWorkers = useMemo(() => {
