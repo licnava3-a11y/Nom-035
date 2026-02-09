@@ -17,8 +17,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
-import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2 } from 'lucide-react';
+import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import ELK from 'elkjs/lib/elk.bundled.js';
 
@@ -134,18 +141,21 @@ type DepartmentNode = {
   children?: DepartmentNode[];
 };
 
+type Orientation = 'DOWN' | 'RIGHT';
+
 // Función para calcular layout con ELK
 async function getLayoutedElements(
   departments: DepartmentNode[],
-  isCompactMode: boolean
+  isCompactMode: boolean,
+  orientation: Orientation
 ): Promise<{ nodes: Node[]; edges: Edge[] }> {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
-  // Configuración de layout ELK según modo
+  // Configuración de layout ELK según modo y orientación
   const elkOptions = {
     'elk.algorithm': 'layered',
-    'elk.direction': 'DOWN',
+    'elk.direction': orientation,
     'elk.spacing.nodeNode': isCompactMode ? '50' : '80',
     'elk.layered.spacing.nodeNodeBetweenLayers': isCompactMode ? '60' : '100',
     'elk.padding': '[top=50,left=50,bottom=50,right=50]',
@@ -252,6 +262,12 @@ export default function OrganizationChart() {
     return saved ? JSON.parse(saved) : false;
   });
   
+  // Estado de orientación
+  const [orientation, setOrientation] = useState<Orientation>(() => {
+    const saved = localStorage.getItem('orgchart-orientation');
+    return (saved as Orientation) || 'DOWN';
+  });
+  
   const { fitView, setCenter } = useReactFlow();
 
   // Persistir preferencia de modo compacto
@@ -259,13 +275,18 @@ export default function OrganizationChart() {
     localStorage.setItem('orgchart-compact-mode', JSON.stringify(isCompactMode));
   }, [isCompactMode]);
 
+  // Persistir preferencia de orientación
+  useEffect(() => {
+    localStorage.setItem('orgchart-orientation', orientation);
+  }, [orientation]);
+
   // Generar layout jerárquico con ELK
   useEffect(() => {
     if (!hierarchy) return;
 
     setIsCalculatingLayout(true);
     
-    getLayoutedElements(hierarchy as DepartmentNode[], isCompactMode)
+    getLayoutedElements(hierarchy as DepartmentNode[], isCompactMode, orientation)
       .then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
@@ -275,7 +296,7 @@ export default function OrganizationChart() {
         console.error('Error al calcular layout:', error);
         setIsCalculatingLayout(false);
       });
-  }, [hierarchy, isCompactMode, setNodes, setEdges]);
+  }, [hierarchy, isCompactMode, orientation, setNodes, setEdges]);
 
   // Búsqueda y resaltado de nodos
   useEffect(() => {
@@ -376,7 +397,9 @@ export default function OrganizationChart() {
       })
         .then((dataUrl) => {
           const link = document.createElement('a');
-          link.download = `organigrama-${isCompactMode ? 'compacto' : 'completo'}-${new Date().toISOString().split('T')[0]}.png`;
+          const orientationLabel = orientation === 'DOWN' ? 'vertical' : 'horizontal';
+          const modeLabel = isCompactMode ? 'compacto' : 'completo';
+          link.download = `organigrama-${orientationLabel}-${modeLabel}-${new Date().toISOString().split('T')[0]}.png`;
           link.href = dataUrl;
           link.click();
           setIsExporting(false);
@@ -386,7 +409,7 @@ export default function OrganizationChart() {
           setIsExporting(false);
         });
     }
-  }, [isCompactMode]);
+  }, [isCompactMode, orientation]);
 
   if (isLoading || isCalculatingLayout) {
     return (
@@ -412,6 +435,30 @@ export default function OrganizationChart() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Selector de orientación */}
+          <div className="flex items-center gap-2 border rounded-lg px-4 py-2 bg-background">
+            {orientation === 'DOWN' ? (
+              <ArrowDown className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            )}
+            <Label htmlFor="orientation" className="text-sm">
+              Orientación:
+            </Label>
+            <Select
+              value={orientation}
+              onValueChange={(value) => setOrientation(value as Orientation)}
+            >
+              <SelectTrigger className="w-[130px] h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DOWN">Vertical</SelectItem>
+                <SelectItem value="RIGHT">Horizontal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
           {/* Toggle de modo compacto */}
           <div className="flex items-center gap-2 border rounded-lg px-4 py-2 bg-background">
             {isCompactMode ? (
@@ -524,9 +571,14 @@ export default function OrganizationChart() {
                   <p className="text-xs text-muted-foreground">• Arrastrar para mover nodos</p>
                   <p className="text-xs text-muted-foreground">• Rueda del ratón para zoom</p>
                   <p className="text-xs text-muted-foreground">• Click en nodo para detalles</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Modo: <strong>{isCompactMode ? 'Compacto' : 'Completo'}</strong>
-                  </p>
+                  <div className="border-t pt-2 mt-2 space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Modo:</strong> {isCompactMode ? 'Compacto' : 'Completo'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Orientación:</strong> {orientation === 'DOWN' ? 'Vertical' : 'Horizontal'}
+                    </p>
+                  </div>
                 </div>
               </Panel>
             </ReactFlow>
