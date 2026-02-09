@@ -17,24 +17,23 @@ export function NotificationsDropdown() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
   
-  const { data: notifications = [] } = trpc.notifications.list.useQuery(undefined, {
+  const { data: notificationsData } = trpc.notifications.getUnread.useQuery(undefined, {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
   
-  const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(undefined, {
-    refetchInterval: 30000,
-  });
+  const notifications = notificationsData?.notifications || [];
+  const unreadCount = notificationsData?.count || 0;
   
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
-      utils.notifications.list.invalidate();
-      utils.notifications.unreadCount.invalidate();
+      utils.notifications.getAll.invalidate();
+      utils.notifications.getUnread.invalidate();
     },
   });
   
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
-      markAsRead.mutate({ id: notification.id });
+      markAsRead.mutate({ notificationId: notification.id });
     }
     
     // Navigate to related entity

@@ -8527,3 +8527,49 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Implementar guardado de preferencias de visualización en localStorage
 
 **NUEVAS TAREAS AGREGADAS: 38 tareas**
+
+
+## ✅ FASE 189C: Frontend de Notificaciones COMPLETADA (8/8 tareas)
+
+- [x] Crear componente NotificationsPanel.tsx con dropdown
+- [x] Implementar badge de contador de notificaciones no leídas en header
+- [x] Agregar icono de campana en DashboardLayout header
+- [x] Implementar dropdown con últimas 5 notificaciones
+- [x] Agregar botón "Marcar todas como leídas"
+- [x] Crear página /notifications con historial completo
+- [x] Implementar paginación en página de notificaciones
+- [x] Agregar ruta /notifications en App.tsx
+
+## 📄 FASE 190: Exportación PDF Autodiagnóstico (12 tareas)
+
+### Backend (4 tareas)
+- [ ] Instalar dependencia @react-pdf/renderer
+- [ ] Crear procedimiento tRPC autodiagnostico.generatePDF
+- [ ] Implementar generación de PDF con logo de empresa
+- [ ] Agregar endpoint para descarga de PDF
+
+### Frontend (8 tareas)
+- [ ] Crear componente AutodiagnosticoPDFDocument.tsx
+- [ ] Implementar sección de portada con logo y datos
+- [ ] Implementar tabla de cumplimiento por categoría
+- [ ] Agregar gráfica de barras de porcentajes
+- [ ] Implementar sección de evidencias con URLs
+- [ ] Agregar sección de observaciones y recomendaciones
+- [ ] Implementar botón "Exportar a PDF" en Autodiagnóstico
+- [ ] Agregar loading state durante generación
+
+## 🔍 FASE 191: Filtros Avanzados Dashboard (8 tareas)
+
+### Backend (2 tareas)
+- [ ] Actualizar getDimensionHeatmap para filtro de departamento
+- [ ] Actualizar getTemporalTrends para comparativas entre periodos
+
+### Frontend (6 tareas)
+- [ ] Agregar selector de departamento/área en header
+- [ ] Implementar comparativa "mes actual vs mes anterior" con ↑↓
+- [ ] Agregar botón de modo pantalla completa
+- [ ] Implementar drill-down en mapa de calor (click para detalles)
+- [ ] Agregar tooltips informativos en gráficas
+- [ ] Guardar preferencias de visualización en localStorage
+
+**NUEVAS TAREAS AGREGADAS: 28 tareas**

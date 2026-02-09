@@ -6,23 +6,36 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
+type Notification = {
+  id: number;
+  userId: number;
+  type: string;
+  title: string;
+  message: string;
+  relatedEntityType: string | null;
+  relatedEntityId: number | null;
+  isRead: boolean;
+  createdAt: Date;
+};
+
 export default function Notifications() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
   
-  const { data: notifications = [], isLoading } = trpc.notifications.list.useQuery();
+  const { data: notificationsData, isLoading } = trpc.notifications.getAll.useQuery({ limit: 50, offset: 0 });
+  const notifications = notificationsData?.notifications || [];
   
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
-      utils.notifications.list.invalidate();
-      utils.notifications.unreadCount.invalidate();
+      utils.notifications.getAll.invalidate();
+      utils.notifications.getUnread.invalidate();
       toast.success("Notificación marcada como leída");
     },
   });
   
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (!notification.isRead) {
-      markAsRead.mutate({ id: notification.id });
+      markAsRead.mutate({ notificationId: notification.id });
     }
     
     // Navigate to related entity
@@ -72,8 +85,8 @@ export default function Notifications() {
     });
   };
   
-  const unreadNotifications = notifications.filter(n => !n.isRead);
-  const readNotifications = notifications.filter(n => n.isRead);
+  const unreadNotifications = notifications.filter((n: Notification) => !n.isRead);
+  const readNotifications = notifications.filter((n: Notification) => n.isRead);
   
   if (isLoading) {
     return (
@@ -122,7 +135,7 @@ export default function Notifications() {
                 <h2 className="text-xl font-semibold">Sin leer</h2>
                 <Badge>{unreadNotifications.length}</Badge>
               </div>
-              {unreadNotifications.map((notification) => (
+              {unreadNotifications.map((notification: Notification) => (
                 <Card 
                   key={notification.id}
                   className="cursor-pointer hover:bg-accent/50 transition-colors border-l-4 border-l-blue-500"
@@ -150,7 +163,7 @@ export default function Notifications() {
                         size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
-                          markAsRead.mutate({ id: notification.id });
+                          markAsRead.mutate({ notificationId: notification.id });
                         }}
                       >
                         <Check className="h-4 w-4" />
@@ -168,7 +181,7 @@ export default function Notifications() {
                 <h2 className="text-xl font-semibold">Leídas</h2>
                 <CheckCheck className="h-5 w-5 text-muted-foreground" />
               </div>
-              {readNotifications.map((notification) => (
+              {readNotifications.map((notification: Notification) => (
                 <Card 
                   key={notification.id}
                   className="cursor-pointer hover:bg-accent/50 transition-colors opacity-70"
