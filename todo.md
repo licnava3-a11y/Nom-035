@@ -8790,11 +8790,14 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 ## 🚨 CORRECCIÓN URGENTE: Errores removeChild en Sitio Publicado (15 tareas)
 
-### Páginas Afectadas
+### Páginas Afectadas (7 páginas)
 - [ ] /courses - Error removeChild al cargar página
 - [ ] /settings - Error removeChild al cargar página
 - [ ] /trends - Error removeChild al cargar página
 - [ ] /company - Error removeChild al cargar página
+- [ ] /competencies-dashboard - Error removeChild al cargar página
+- [ ] /skills-matrix - Error removeChild al cargar página
+- [ ] /dnc-dashboard - Error removeChild al cargar página
 
 ### Correcciones Necesarias (12 tareas)
 - [ ] Localizar componentes Select en Courses.tsx
