@@ -170,7 +170,9 @@ const hierarchicalMenuItems = [
     roles: ["admin"],
     submenu: [
       { label: "Usuarios", path: "/users", description: "Gestión de usuarios y permisos de acceso" },
-      { label: "Configuración", path: "/settings", description: "Configuración general del sistema y parámetros SMTP" },
+      { label: "Roles y Permisos", path: "/admin/roles", description: "Gestión de roles y permisos por módulo" },
+      { label: "Configuración SMTP", path: "/admin/smtp-config", description: "Configuración de servidor de correo electrónico" },
+      { label: "Configuración", path: "/settings", description: "Configuración general del sistema" },
     ],
   },
 ];

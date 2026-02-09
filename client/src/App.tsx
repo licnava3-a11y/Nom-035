@@ -88,6 +88,7 @@ import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 import RolesPage from "./pages/admin/Roles";
+import SmtpConfig from "./pages/admin/SmtpConfig";
 import Autodiagnostico from "./pages/nom035/Autodiagnostico";
 import DashboardInteractivo from "./pages/nom035/DashboardInteractivo";
 
@@ -251,6 +252,11 @@ function Router() {
       <Route path={"/admin/roles"}>
         <DashboardLayout>
           <RolesPage />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/admin/smtp-config"}>
+        <DashboardLayout>
+          <SmtpConfig />
         </DashboardLayout>
       </Route>
       <Route path={"/profile"}>

@@ -8573,3 +8573,52 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Guardar preferencias de visualización en localStorage
 
 **NUEVAS TAREAS AGREGADAS: 28 tareas**
+
+
+## 📧 FASE 192: Configuración SMTP y Mejoras de Documentación (3 tareas nuevas)
+
+### Configuración de Credenciales SMTP (1 tarea)
+- [ ] Usar `webdev_request_secrets` para capturar servidor, puerto, usuario y contraseña SMTP
+- [ ] Configurar variables de entorno: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+- [ ] Permitir envío automático de notificaciones por correo electrónico
+- [ ] Crear botón "Enviar correo de prueba" en página de configuración
+- [ ] Validar conexión SMTP antes de guardar credenciales
+
+### Logotipo en Encabezado de PDFs (1 tarea)
+- [ ] Implementar conversión de imagen a formato compatible con markdown-pdf
+- [ ] Agregar logotipo de empresa en encabezado de todos los documentos PDF generados
+- [ ] Verificar compatibilidad con PDFKit y @react-pdf/renderer
+- [ ] Aplicar logo en: reportes NOM-035, certificados, actas, minutas, políticas
+- [ ] Mantener proporción y calidad de imagen en diferentes tamaños de página
+
+### Página de Configuración SMTP (1 tarea)
+- [ ] Crear página `/admin/smtp-config` con formulario de configuración SMTP
+- [ ] Implementar campos: servidor SMTP, puerto, usuario, contraseña, encriptación (TLS/SSL)
+- [ ] Agregar botón "Probar Conexión" que envíe correo de prueba
+- [ ] Mostrar estado de conexión (exitosa/fallida) con mensajes descriptivos
+- [ ] Implementar procedimiento tRPC `system.testSmtpConnection`
+- [ ] Agregar ruta en App.tsx y enlace en menú de Administración
+- [ ] Implementar almacenamiento seguro de credenciales SMTP
+
+**NUEVAS TAREAS AGREGADAS: 3 tareas principales (15 subtareas)**
+
+
+## ✅ IMPLEMENTACIÓN COMPLETADA: Página de Configuración SMTP (8/8 tareas)
+
+### Backend - Procedimientos tRPC (3/3 tareas completadas)
+- [x] Crear procedimiento tRPC `system.testSmtpConnection` para probar conexión SMTP
+- [x] Implementar validación de credenciales SMTP (host, port, user, password)
+- [x] Retornar estado de conexión (exitosa/fallida) con mensaje descriptivo
+
+### Frontend - Página /admin/smtp-config (8/8 tareas completadas)
+- [x] Crear componente SmtpConfig.tsx en /client/src/pages/admin/
+- [x] Implementar formulario con 4 campos: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+- [x] Agregar campo opcional SMTP_FROM_EMAIL y SMTP_FROM_NAME
+- [x] Implementar botón "Probar Conexión" que llame a system.testSmtpConnection
+- [x] Mostrar estado de conexión con toast (exitosa/fallida)
+- [x] Agregar ruta /admin/smtp-config en App.tsx
+- [x] Agregar enlace "Configuración SMTP" en menú de Administración
+- [x] Implementar nota informativa: "Los datos SMTP deben ser configurados por el administrador del sistema"
+- [x] Agregar sección de proveedores SMTP comunes (Gmail, Outlook, SendGrid, Mailgun)
+
+**NOTA:** Los campos quedan vacíos para que el usuario los configure posteriormente usando `webdev_request_secrets` o directamente en la interfaz
