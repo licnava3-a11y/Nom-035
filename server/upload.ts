@@ -21,8 +21,9 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     }
 
     // Generate unique file key
+    const folder = req.body.folder || "resources";
     const fileExtension = req.file.originalname.split(".").pop();
-    const fileKey = `resources/${nanoid()}.${fileExtension}`;
+    const fileKey = `${folder}/${nanoid()}.${fileExtension}`;
 
     // Upload to S3
     const result = await storagePut(

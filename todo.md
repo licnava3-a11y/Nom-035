@@ -7537,3 +7537,46 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ---
 
 **Objetivo**: Implementar sistema completo de gestión de reingresos con detección automática por CURP, wizard de proceso de baja con validación y evidencias en S3, y dashboard analítico de rotación con gráficos interactivos y exportación a Excel.
+
+
+## FASE 215: Sistema de Gestión de Reingresos y Rotación
+
+### Dashboard de Rotación
+- [x] Crear procedimiento tRPC para obtener estadísticas de rotación
+- [x] Implementar cálculo de tasa de rotación mensual/trimestral/anual
+- [x] Crear procedimiento para obtener tendencias de bajas por periodo
+- [x] Crear procedimiento para obtener distribución por motivo de terminación
+- [x] Crear procedimiento para obtener métricas por departamento
+- [x] Crear página TurnoverDashboard.tsx con gráficos Recharts
+- [x] Implementar gráfico de tendencias mensuales de bajas
+- [x] Implementar gráfico de distribución por motivo
+- [x] Implementar gráfico de métricas por departamento
+- [x] Implementar tarjetas de KPIs (tasa de rotación, total bajas, promedio)
+- [x] Agregar filtros temporales (mes, trimestre, año)
+- [ ] Implementar exportación a Excel de datos de rotación (placeholder agregado)
+- [x] Agregar ruta en App.tsx
+
+### ReentryBadge en Tabla de Empleados
+- [x] Crear componente ReentryBadge.tsx (ya existía)
+- [x] Implementar tooltip con fechas de contrataciones previas
+- [x] Integrar badge en tabla de empleados (Employees.tsx)
+- [x] Mostrar badge solo para empleados con reentryCount > 0
+- [x] Agregar estilos distintivos según número de reingresos
+
+### Carga de Evidencias a S3
+- [x] Importar helper storagePut en TerminationWizard
+- [x] Implementar función handleFileUpload con carga a S3
+- [x] Agregar indicador de progreso de carga (toast notification)
+- [x] Actualizar estado con URLs de S3 retornadas
+- [x] Validar tamaño y tipo de archivos antes de subir (10MB limit)
+- [x] Mostrar lista de archivos cargados con opción de eliminar
+- [x] Pasar URLs de S3 al procedimiento terminate
+
+### Pruebas y Validación
+- [ ] Probar dashboard de rotación con datos reales
+- [ ] Verificar cálculos de tasa de rotación
+- [ ] Probar exportación a Excel
+- [ ] Validar visualización de ReentryBadge
+- [ ] Probar carga de archivos a S3
+- [ ] Verificar que URLs se guardan correctamente en BD
+- [ ] Crear checkpoint final

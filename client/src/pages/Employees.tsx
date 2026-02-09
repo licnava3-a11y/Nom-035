@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Search, User, Mail, Phone, Building, Briefcase, Calendar } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ReentryBadge } from "@/components/ReentryBadge";
 // Using alert for now instead of toast
 
 export default function Employees() {
@@ -197,9 +198,15 @@ export default function Employees() {
                       <CardDescription>{employee.position || "Sin puesto"}</CardDescription>
                     </div>
                   </div>
-                  <Badge variant={employee.isActive ? "default" : "secondary"}>
-                    {employee.isActive ? "Activo" : "Inactivo"}
-                  </Badge>
+                  <div className="flex flex-col gap-1 items-end">
+                    <Badge variant={employee.isActive ? "default" : "secondary"}>
+                      {employee.isActive ? "Activo" : "Inactivo"}
+                    </Badge>
+                    <ReentryBadge 
+                      reentryCount={employee.reentryCount || 0}
+                      previousHireDates={employee.previousHireDates}
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

@@ -120,8 +120,39 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
 
   const handleSubmit = async () => {
     try {
-      // TODO: Upload documents to S3 first
+      // Upload documents to S3 first
       const documentUrls: string[] = [];
+      
+      if (data.documents.length > 0) {
+        toast.info("Subiendo documentos...", {
+          description: `Cargando ${data.documents.length} archivo(s) a S3`,
+        });
+
+        for (const file of data.documents) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('folder', 'terminations');
+
+            const response = await fetch('/api/upload', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error(`Error al subir ${file.name}`);
+            }
+
+            const result = await response.json();
+            documentUrls.push(result.url);
+          } catch (uploadError) {
+            console.error(`Error uploading ${file.name}:`, uploadError);
+            toast.error("Error al subir archivo", {
+              description: `No se pudo subir ${file.name}`,
+            });
+          }
+        }
+      }
 
       await terminateMutation.mutateAsync({
         employeeId: data.employeeId,

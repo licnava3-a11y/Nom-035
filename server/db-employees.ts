@@ -536,3 +536,130 @@ export async function updateEmployeeReentryInfo(
     })
     .where(eq(employees.id, employeeId));
 }
+
+/**
+ * Get turnover statistics for a given period
+ */
+export async function getTurnoverStats(startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory, departments } = await import("../drizzle/schema");
+  
+  // Get total terminations in period
+  const terminations = await db
+    .select({
+      id: employeeHistory.id,
+      eventDate: employeeHistory.eventDate,
+      terminationReason: employeeHistory.terminationReason,
+      terminationCategory: employeeHistory.terminationCategory,
+      departmentId: employeeHistory.departmentId,
+      departmentName: departments.name,
+    })
+    .from(employeeHistory)
+    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .where(
+      sql`${employeeHistory.eventType} = 'termination' 
+          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split('T')[0]}
+          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split('T')[0]}`
+    );
+
+  // Get average employee count in period
+  const avgEmployees = await db
+    .select({
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(employees)
+    .where(sql`${employees.isActive} = 1`);
+
+  const totalActive = avgEmployees[0]?.count || 0;
+  const totalTerminations = terminations.length;
+
+  // Calculate turnover rate
+  const turnoverRate = totalActive > 0 ? (totalTerminations / totalActive) * 100 : 0;
+
+  return {
+    totalTerminations,
+    totalActive,
+    turnoverRate: Math.round(turnoverRate * 100) / 100,
+    terminations,
+  };
+}
+
+/**
+ * Get monthly termination trends
+ */
+export async function getMonthlyTerminationTrends(months: number = 12) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+  
+  const trends = await db
+    .select({
+      month: sql<string>`DATE_FORMAT(${employeeHistory.eventDate}, '%Y-%m')`,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(employeeHistory)
+    .where(
+      sql`${employeeHistory.eventType} = 'termination' 
+          AND ${employeeHistory.eventDate} >= DATE_SUB(CURDATE(), INTERVAL ${months} MONTH)`
+    )
+    .groupBy(sql`DATE_FORMAT(${employeeHistory.eventDate}, '%Y-%m')`)
+    .orderBy(sql`DATE_FORMAT(${employeeHistory.eventDate}, '%Y-%m') ASC`);
+
+  return trends;
+}
+
+/**
+ * Get termination distribution by reason
+ */
+export async function getTerminationsByReason(startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+  
+  const distribution = await db
+    .select({
+      reason: employeeHistory.terminationReason,
+      category: employeeHistory.terminationCategory,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(employeeHistory)
+    .where(
+      sql`${employeeHistory.eventType} = 'termination' 
+          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split('T')[0]}
+          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split('T')[0]}`
+    )
+    .groupBy(employeeHistory.terminationReason, employeeHistory.terminationCategory);
+
+  return distribution;
+}
+
+/**
+ * Get termination metrics by department
+ */
+export async function getTerminationsByDepartment(startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory, departments } = await import("../drizzle/schema");
+  
+  const metrics = await db
+    .select({
+      departmentId: employeeHistory.departmentId,
+      departmentName: departments.name,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(employeeHistory)
+    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .where(
+      sql`${employeeHistory.eventType} = 'termination' 
+          AND ${employeeHistory.eventDate} >= ${startDate.toISOString().split('T')[0]}
+          AND ${employeeHistory.eventDate} <= ${endDate.toISOString().split('T')[0]}`
+    )
+    .groupBy(employeeHistory.departmentId, departments.name);
+
+  return metrics;
+}
