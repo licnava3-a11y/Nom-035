@@ -8745,10 +8745,81 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 **TOTAL: 74 tareas pendientes**
 
 
-## ✅ IMPLEMENTACIÓN PARCIAL: Exportación PDF y Datos de Prueba (1/2 tareas)
+## ✅ IMPLEMENTACIÓN COMPLETADA: Exportación PDF y Datos de Prueba (2/2 tareas)
 
-- [ ] Agregar botón "Exportar PDF" en `/nom035/autodiagnostico` que use PDFDownloadLink de @react-pdf/renderer (pendiente)
+- [x] Agregar botón "Exportar PDF" en `/nom035/autodiagnostico` que use PDFDownloadLink de @react-pdf/renderer
 - [x] Componente AutodiagnosticoPDFDocument.tsx creado con @react-pdf/renderer
 - [x] Procedimiento tRPC autodiagnostico.getPDFData implementado
 - [x] 17 empleados poblados en base de datos
+- [x] Correción de errores TypeScript en Autodiagnostico.tsx (conversión de tipos Date/string)
 - [ ] Poblar 10 casos NOM-035 y 5 autodiagnósticos con evidencias (pendiente por errores de foreign key)
+
+
+## 🚨 CORRECCIÓN URGENTE: Error removeChild en Sitio Publicado (15 tareas)
+
+### Investigación y Diagnóstico (5 tareas)
+- [ ] Revisar logs del navegador en sitio publicado para identificar componente exacto
+- [ ] Localizar componentes con manipulación directa del DOM (Select, Dropdown, Modal)
+- [ ] Identificar uso de refs y manipulación de nodos hijos
+- [ ] Revisar componentes con renderizado condicional complejo
+- [ ] Verificar uso de portales de React en componentes
+
+### Corrección de Componentes (10 tareas)
+- [ ] Reemplazar Select personalizado por select HTML nativo en componentes críticos
+- [ ] Corregir uso de refs en componentes con eliminación de nodos
+- [ ] Agregar validaciones de existencia de nodos antes de removeChild
+- [ ] Revisar y corregir DashboardLayout.tsx
+- [ ] Revisar y corregir Autodiagnostico.tsx
+- [ ] Revisar y corregir DashboardInteractivo.tsx
+- [ ] Revisar y corregir SmtpConfig.tsx
+- [ ] Revisar y corregir Roles.tsx
+- [ ] Probar corrección en desarrollo
+- [ ] Guardar checkpoint y verificar en sitio publicado
+
+## 📄 IMPLEMENTACIÓN: Botón Exportar PDF en Autodiagnóstico (3 tareas)
+
+- [ ] Agregar import de PDFDownloadLink en Autodiagnostico.tsx
+- [ ] Crear botón "Exportar PDF" que use PDFDownloadLink con AutodiagnosticoPDFDocument
+- [ ] Probar generación y descarga de PDF con datos reales
+
+## 📊 POBLACIÓN DE DATOS: Casos NOM-035 y Autodiagnósticos (2 tareas)
+
+- [ ] Consultar IDs reales de empleados y poblar 10 casos NOM-035 con categorías variadas
+- [ ] Poblar 5 autodiagnósticos completos con evidencias y porcentajes por categoría
+
+
+## 🚨 CORRECCIÓN URGENTE: Errores removeChild en Sitio Publicado (15 tareas)
+
+### Páginas Afectadas
+- [ ] /courses - Error removeChild al cargar página
+- [ ] /settings - Error removeChild al cargar página
+- [ ] /trends - Error removeChild al cargar página
+- [ ] /company - Error removeChild al cargar página
+
+### Correcciones Necesarias (12 tareas)
+- [ ] Localizar componentes Select en Courses.tsx
+- [ ] Localizar componentes Select en Settings.tsx
+- [ ] Localizar componentes Select en TrendsCharts.tsx
+- [ ] Aplicar corrección de portal con validación parentNode en todos los Select
+- [ ] Verificar componentes Dialog que usan portales
+- [ ] Verificar componentes Popover que usan portales
+- [ ] Verificar componentes DropdownMenu que usan portales
+- [ ] Reemplazar Select por <select> nativo en componentes críticos si es necesario
+- [ ] Probar corrección en /courses
+- [ ] Probar corrección en /settings
+- [ ] Probar corrección en /trends
+- [ ] Guardar checkpoint con correcciones aplicadas
+
+## 🤖 NUEVA FUNCIONALIDAD: IA Gratuita para Redacción en /company (8 tareas)
+
+### Backend (4 tareas)
+- [ ] Crear procedimiento tRPC `ai.generateText` para redacción con IA
+- [ ] Integrar invokeLLM del sistema para generación de texto
+- [ ] Implementar prompt template para redacción de información empresarial
+- [ ] Agregar validación de longitud de texto generado (máximo 500 palabras)
+
+### Frontend (4 tareas)
+- [ ] Agregar botón "Generar con IA" en campos de texto libre de /company
+- [ ] Implementar componente AITextGenerator con textarea y botón
+- [ ] Mostrar loading state durante generación de texto
+- [ ] Permitir edición del texto generado antes de guardar

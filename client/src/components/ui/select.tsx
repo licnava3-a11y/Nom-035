@@ -55,8 +55,27 @@ function SelectContent({
   align = "center",
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  const [container, setContainer] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    // Crear contenedor del portal si no existe
+    const portalContainer = document.createElement('div');
+    portalContainer.id = 'select-portal-' + Math.random().toString(36).substr(2, 9);
+    document.body.appendChild(portalContainer);
+    setContainer(portalContainer);
+
+    // Limpieza: eliminar contenedor solo si es hijo de body
+    return () => {
+      if (portalContainer && portalContainer.parentNode === document.body) {
+        document.body.removeChild(portalContainer);
+      }
+    };
+  }, []);
+
+  if (!container) return null;
+
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal container={container}>
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(

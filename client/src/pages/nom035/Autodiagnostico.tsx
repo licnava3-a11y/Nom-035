@@ -34,8 +34,11 @@ import {
   FileText, 
   AlertCircle,
   CheckCircle2,
-  Clock
+  Clock,
+  Download
 } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { AutodiagnosticoPDFDocument } from '@/components/AutodiagnosticoPDFDocument';
 import { toast } from 'sonner';
 
 export default function AutodiagnosticoPage() {
@@ -191,9 +194,48 @@ export default function AutodiagnosticoPage() {
             Evaluación de cumplimiento de requisitos normativos
           </p>
         </div>
-        <Button onClick={handleCreateNew} disabled={createMutation.isPending}>
-          {createMutation.isPending ? 'Creando...' : 'Nuevo Autodiagnóstico'}
-        </Button>
+        <div className="flex gap-2">
+          {currentAutodiagnostico && (
+            <PDFDownloadLink
+              document={
+                <AutodiagnosticoPDFDocument
+                  autodiagnostico={{
+                    id: currentAutodiagnostico.autodiagnostico.id,
+                    fecha: currentAutodiagnostico.autodiagnostico.fecha.toISOString().split('T')[0],
+                    porcentajeTotal: parseFloat(currentAutodiagnostico.autodiagnostico.porcentajeTotal || '0'),
+                    status: currentAutodiagnostico.autodiagnostico.status || 'en_progreso'
+                  }}
+                  categorias={[
+                    { categoria: 'Categoría 1', porcentaje: parseFloat(currentAutodiagnostico.autodiagnostico.porcentajeCategoria1 || '0'), cumplidos: 0, total: 0 },
+                    { categoria: 'Categoría 2', porcentaje: parseFloat(currentAutodiagnostico.autodiagnostico.porcentajeCategoria2 || '0'), cumplidos: 0, total: 0 },
+                    { categoria: 'Categoría 3', porcentaje: parseFloat(currentAutodiagnostico.autodiagnostico.porcentajeCategoria3 || '0'), cumplidos: 0, total: 0 },
+                    { categoria: 'Categoría 4', porcentaje: parseFloat(currentAutodiagnostico.autodiagnostico.porcentajeCategoria4 || '0'), cumplidos: 0, total: 0 },
+                    { categoria: 'Categoría 5', porcentaje: parseFloat(currentAutodiagnostico.autodiagnostico.porcentajeCategoria5 || '0'), cumplidos: 0, total: 0 }
+                  ]}
+                  evidencias={currentAutodiagnostico.evidences.map(e => ({
+                    requirementId: e.evidence.requirementId,
+                    codigo: e.requirement?.codigo || '',
+                    descripcion: e.requirement?.descripcion || '',
+                    cumple: e.evidence.cumple,
+                    evidenciaUrl: e.evidence.evidenciaUrl,
+                    observaciones: e.evidence.observaciones
+                  }))}
+                />
+              }
+              fileName={`autodiagnostico-nom035-${new Date().toISOString().split('T')[0]}.pdf`}
+            >
+              {({ loading }) => (
+                <Button variant="outline" disabled={loading}>
+                  <Download className="h-4 w-4 mr-2" />
+                  {loading ? 'Generando PDF...' : 'Exportar PDF'}
+                </Button>
+              )}
+            </PDFDownloadLink>
+          )}
+          <Button onClick={handleCreateNew} disabled={createMutation.isPending}>
+            {createMutation.isPending ? 'Creando...' : 'Nuevo Autodiagnóstico'}
+          </Button>
+        </div>
       </div>
 
       {/* Selector de autodiagnóstico */}
