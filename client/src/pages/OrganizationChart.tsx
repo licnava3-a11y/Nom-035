@@ -9,17 +9,19 @@ import ReactFlow, {
   BackgroundVariant,
   Panel,
   MarkerType,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
-import { Download, Users, Building2, Loader2 } from 'lucide-react';
+import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import ELK from 'elkjs/lib/elk.bundled.js';
 
 // Nodo personalizado para departamentos
-function DepartmentNode({ data }: { data: { name: string; code: string; employeeCount: number; manager?: string; level: number } }) {
+function DepartmentNode({ data }: { data: { name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean } }) {
   // Colores según nivel jerárquico
   const levelColors = [
     { from: '#1e3a8a', to: '#16a34a' }, // Nivel 0: Azul marino a verde
@@ -32,11 +34,19 @@ function DepartmentNode({ data }: { data: { name: string; code: string; employee
   const colors = levelColors[colorIndex];
 
   return (
-    <Card className="min-w-[280px] border-2 border-[#1e3a8a] shadow-lg">
+    <Card 
+      className={`min-w-[280px] border-2 shadow-lg transition-all duration-300 ${
+        data.isHighlighted 
+          ? 'border-yellow-500 ring-4 ring-yellow-300 scale-110' 
+          : 'border-[#1e3a8a]'
+      }`}
+    >
       <CardHeader 
         className="pb-3 text-white"
         style={{
-          background: `linear-gradient(to right, ${colors.from}, ${colors.to})`
+          background: data.isHighlighted 
+            ? 'linear-gradient(to right, #eab308, #f59e0b)' 
+            : `linear-gradient(to right, ${colors.from}, ${colors.to})`
         }}
       >
         <div className="flex items-center gap-2">
@@ -114,6 +124,7 @@ async function getLayoutedElements(
           code: dept.code,
           employeeCount: dept.employeeCount,
           level: currentLevel,
+          isHighlighted: false,
         },
       });
 
@@ -188,6 +199,13 @@ export default function OrganizationChart() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isExporting, setIsExporting] = useState(false);
   const [isCalculatingLayout, setIsCalculatingLayout] = useState(false);
+  
+  // Estados de búsqueda
+  const [searchTerm, setSearchTerm] = useState('');
+  const [matchedNodeIds, setMatchedNodeIds] = useState<string[]>([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  
+  const { fitView, setCenter } = useReactFlow();
 
   // Generar layout jerárquico con ELK
   useEffect(() => {
@@ -206,6 +224,89 @@ export default function OrganizationChart() {
         setIsCalculatingLayout(false);
       });
   }, [hierarchy, setNodes, setEdges]);
+
+  // Búsqueda y resaltado de nodos
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      // Limpiar resaltado
+      setNodes((nds) =>
+        nds.map((node) => ({
+          ...node,
+          data: { ...node.data, isHighlighted: false },
+        }))
+      );
+      setMatchedNodeIds([]);
+      setCurrentMatchIndex(0);
+      return;
+    }
+
+    const term = searchTerm.toLowerCase();
+    const matches: string[] = [];
+
+    setNodes((nds) =>
+      nds.map((node) => {
+        const isMatch =
+          node.data.name.toLowerCase().includes(term) ||
+          node.data.code.toLowerCase().includes(term);
+        
+        if (isMatch) {
+          matches.push(node.id);
+        }
+
+        return {
+          ...node,
+          data: { ...node.data, isHighlighted: false },
+        };
+      })
+    );
+
+    setMatchedNodeIds(matches);
+    setCurrentMatchIndex(0);
+  }, [searchTerm, setNodes]);
+
+  // Resaltar nodo actual y centrar
+  useEffect(() => {
+    if (matchedNodeIds.length === 0) return;
+
+    const currentNodeId = matchedNodeIds[currentMatchIndex];
+
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isHighlighted: node.id === currentNodeId,
+        },
+      }))
+    );
+
+    // Centrar en el nodo resaltado
+    const currentNode = nodes.find((n) => n.id === currentNodeId);
+    if (currentNode) {
+      setCenter(
+        currentNode.position.x + 150, // 150 = mitad del ancho del nodo
+        currentNode.position.y + 75,  // 75 = mitad de la altura del nodo
+        { zoom: 1.2, duration: 800 }
+      );
+    }
+  }, [currentMatchIndex, matchedNodeIds, setNodes, nodes, setCenter]);
+
+  // Navegación entre resultados
+  const goToNextMatch = () => {
+    if (matchedNodeIds.length === 0) return;
+    setCurrentMatchIndex((prev) => (prev + 1) % matchedNodeIds.length);
+  };
+
+  const goToPreviousMatch = () => {
+    if (matchedNodeIds.length === 0) return;
+    setCurrentMatchIndex((prev) => (prev - 1 + matchedNodeIds.length) % matchedNodeIds.length);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    setMatchedNodeIds([]);
+    setCurrentMatchIndex(0);
+  };
 
   // Exportar organigrama a PNG
   const handleExport = useCallback(() => {
@@ -248,8 +349,8 @@ export default function OrganizationChart() {
   return (
     <div className="container py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">Organigrama Organizacional</h1>
           <p className="text-muted-foreground mt-2">
             Visualización interactiva de la estructura jerárquica de departamentos
@@ -264,6 +365,63 @@ export default function OrganizationChart() {
           {isExporting ? 'Exportando...' : 'Exportar PNG'}
         </Button>
       </div>
+
+      {/* Barra de búsqueda */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Buscar departamento por nombre o código..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            
+            {matchedNodeIds.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {currentMatchIndex + 1} de {matchedNodeIds.length}
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={goToPreviousMatch}
+                    disabled={matchedNodeIds.length <= 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={goToNextMatch}
+                    disabled={matchedNodeIds.length <= 1}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            {searchTerm && matchedNodeIds.length === 0 && (
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                Sin resultados
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* React Flow Canvas */}
       <Card className="h-[700px]">
@@ -304,7 +462,7 @@ export default function OrganizationChart() {
         <CardHeader>
           <CardTitle className="text-lg">Leyenda de Niveles Jerárquicos</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-4">
+        <CardContent className="grid gap-4 md:grid-cols-5">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded" style={{ background: 'linear-gradient(to right, #1e3a8a, #16a34a)' }}></div>
             <span className="text-sm">Nivel 0: Departamentos raíz</span>
@@ -320,6 +478,10 @@ export default function OrganizationChart() {
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded" style={{ background: 'linear-gradient(to right, #7c3aed, #dc2626)' }}></div>
             <span className="text-sm">Nivel 3+: Niveles inferiores</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded" style={{ background: 'linear-gradient(to right, #eab308, #f59e0b)' }}></div>
+            <span className="text-sm">🔍 Resultado de búsqueda</span>
           </div>
         </CardContent>
       </Card>
