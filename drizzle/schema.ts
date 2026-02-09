@@ -467,6 +467,7 @@ export const departments = mysqlTable("departments", {
   name: varchar("name", { length: 255 }).notNull().unique(),
   description: text("description"),
   code: varchar("code", { length: 50 }).unique(), // Código del departamento (ej: "RH", "IT", "FIN")
+  parentId: int("parentId"), // Departamento padre para jerarquía (self-reference)
   managerId: int("managerId"), // Jefe del departamento (self-reference a employees)
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

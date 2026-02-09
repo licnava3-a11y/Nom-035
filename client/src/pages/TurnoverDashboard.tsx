@@ -1,38 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { DateRangePicker } from "@/components/DateRangePicker";
 import { trpc } from "@/lib/trpc";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingDown, Users, Calendar, Download, FileSpreadsheet } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { subWeeks, subMonths, subYears, format } from "date-fns";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d", "#ffc658", "#ff7c7c"];
 
 export default function TurnoverDashboard() {
-  const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
+  const [period, setPeriod] = useState<string>("month");
+  const [customRange, setCustomRange] = useState<DateRange | undefined>();
   
   // Calculate date ranges based on period
   const getDateRange = () => {
-    const endDate = new Date();
-    const startDate = new Date();
+    const today = new Date();
     
-    if (period === "month") {
-      startDate.setMonth(startDate.getMonth() - 1);
-    } else if (period === "quarter") {
-      startDate.setMonth(startDate.getMonth() - 3);
-    } else {
-      startDate.setFullYear(startDate.getFullYear() - 1);
+    switch (period) {
+      case "week":
+        return {
+          startDate: format(subWeeks(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "month":
+        return {
+          startDate: format(subMonths(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "quarter":
+        return {
+          startDate: format(subMonths(today, 3), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "year":
+        return {
+          startDate: format(subYears(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "custom":
+        if (customRange?.from && customRange?.to) {
+          return {
+            startDate: format(customRange.from, "yyyy-MM-dd"),
+            endDate: format(customRange.to, "yyyy-MM-dd"),
+          };
+        }
+        return {
+          startDate: format(subMonths(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      default:
+        return {
+          startDate: format(subMonths(today, 1), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
     }
-    
-    return {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-    };
   };
 
   const dateRange = getDateRange();
+
+  // Persistir filtro en localStorage
+  useEffect(() => {
+    localStorage.setItem('turnover-dashboard-period', period);
+  }, [period]);
+
+  // Restaurar filtro al cargar
+  useEffect(() => {
+    const savedPeriod = localStorage.getItem('turnover-dashboard-period');
+    if (savedPeriod) setPeriod(savedPeriod);
+  }, []);
 
   // Fetch data
   const { data: stats, isLoading: statsLoading } = trpc.employees.getTurnoverStats.useQuery(dateRange);
@@ -126,20 +166,38 @@ export default function TurnoverDashboard() {
         <div>
           <h1 className="text-3xl font-bold">Dashboard de Rotación</h1>
           <p className="text-muted-foreground">Análisis de bajas y tendencias de personal</p>
+          {period !== "month" && (
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Periodo: {period === "week" && "Semana anterior"}
+              {period === "quarter" && "Trimestre anterior"}
+              {period === "year" && "Año anterior"}
+              {period === "custom" && customRange?.from && customRange?.to && (
+                `${format(customRange.from, "dd/MM/yyyy")} - ${format(customRange.to, "dd/MM/yyyy")}`
+              )}
+            </p>
+          )}
         </div>
         <div className="flex gap-3">
           <Select value={period} onValueChange={(v) => setPeriod(v as any)}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="week">Semana anterior</SelectItem>
               <SelectItem value="month">Último mes</SelectItem>
               <SelectItem value="quarter">Último trimestre</SelectItem>
               <SelectItem value="year">Último año</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
             </SelectContent>
           </Select>
+          
+          {period === "custom" && (
+            <DateRangePicker value={customRange} onChange={setCustomRange} />
+          )}
+          
           <Button onClick={handleExportToExcel} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
             Exportar a Excel
           </Button>
         </div>
