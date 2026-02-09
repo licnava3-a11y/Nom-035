@@ -129,9 +129,9 @@ export default function Employees() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                {departments?.map((dept) => dept && (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
+                {departments?.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id.toString()}>
+                    {dept.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -182,7 +182,7 @@ export default function Employees() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {employees.map((employee) => (
+          {employees.map((employee: any) => (
             <Card key={employee.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">

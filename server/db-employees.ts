@@ -3,6 +3,12 @@ import { getDb } from "./db";
 import { employees, users, committeeMembers, departments, positions } from "../drizzle/schema";
 import type { Employee, InsertEmployee } from "../drizzle/schema";
 
+// Type for employee with department and position names
+export type EmployeeWithRelations = Employee & {
+  department: string;
+  position: string;
+};
+
 /**
  * Get all employees with optional filters
  */
@@ -10,7 +16,7 @@ export async function getAllEmployees(filters?: {
   isActive?: boolean;
   department?: string;
   search?: string;
-}) {
+}): Promise<EmployeeWithRelations[]> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -36,26 +42,91 @@ export async function getAllEmployees(filters?: {
   }
 
   const query = conditions.length > 0
-    ? db.select().from(employees).where(and(...conditions)).orderBy(desc(employees.createdAt))
-    : db.select().from(employees).orderBy(desc(employees.createdAt));
+    ? db.select({
+        id: employees.id,
+        firstName: employees.firstName,
+        lastName: employees.lastName,
+        email: employees.email,
+        phone: employees.phone,
+        curp: employees.curp,
+        employeeNumber: employees.employeeNumber,
+        departmentId: employees.departmentId,
+        positionId: employees.positionId,
+        hireDate: employees.hireDate,
+        contractType: employees.contractType,
+        isActive: employees.isActive,
+        userId: employees.userId,
+        createdAt: employees.createdAt,
+        updatedAt: employees.updatedAt,
+        department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`
+      })
+      .from(employees)
+      .leftJoin(departments, eq(employees.departmentId, departments.id))
+      .leftJoin(positions, eq(employees.positionId, positions.id))
+      .where(and(...conditions))
+      .orderBy(desc(employees.createdAt))
+    : db.select({
+        id: employees.id,
+        firstName: employees.firstName,
+        lastName: employees.lastName,
+        email: employees.email,
+        phone: employees.phone,
+        curp: employees.curp,
+        employeeNumber: employees.employeeNumber,
+        departmentId: employees.departmentId,
+        positionId: employees.positionId,
+        hireDate: employees.hireDate,
+        contractType: employees.contractType,
+        isActive: employees.isActive,
+        userId: employees.userId,
+        createdAt: employees.createdAt,
+        updatedAt: employees.updatedAt,
+        department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`
+      })
+      .from(employees)
+      .leftJoin(departments, eq(employees.departmentId, departments.id))
+      .leftJoin(positions, eq(employees.positionId, positions.id))
+      .orderBy(desc(employees.createdAt));
 
-  return await query;
+  return (await query) as EmployeeWithRelations[];
 }
 
 /**
  * Get employee by ID
  */
-export async function getEmployeeById(id: number) {
+export async function getEmployeeById(id: number): Promise<EmployeeWithRelations | null> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
   const result = await db
-    .select()
+    .select({
+      id: employees.id,
+      firstName: employees.firstName,
+      lastName: employees.lastName,
+      email: employees.email,
+      phone: employees.phone,
+      curp: employees.curp,
+      employeeNumber: employees.employeeNumber,
+      departmentId: employees.departmentId,
+      positionId: employees.positionId,
+      hireDate: employees.hireDate,
+      contractType: employees.contractType,
+      isActive: employees.isActive,
+      userId: employees.userId,
+      createdAt: employees.createdAt,
+      updatedAt: employees.updatedAt,
+      department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+      position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`
+    })
     .from(employees)
+    .leftJoin(departments, eq(employees.departmentId, departments.id))
+    .leftJoin(positions, eq(employees.positionId, positions.id))
     .where(eq(employees.id, id))
     .limit(1);
 
-  return result[0] || null;
+  return (result[0] as EmployeeWithRelations) || null;
 }
 
 /**

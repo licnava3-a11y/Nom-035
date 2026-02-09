@@ -7161,3 +7161,35 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 1. Aplicar mismo patrón de JOINs en Employees.tsx para resolver 4 errores
 2. Continuar aplicando patrón en archivos restantes hasta alcanzar 0 errores TypeScript
 3. Implementar IA en reportes regulatorios con acciones STPS por niveles
+
+
+## FASE 205: AUDITORÍA PROFUNDA Y CORRECCIÓN DE ERRORES CRÍTICOS
+
+### 1. Corrección de Errores TypeScript en Employees.tsx
+- [x] Identificar router de empleados que genera los datos
+- [x] Agregar JOINs con departments y positions en query de empleados (getAllEmployees)
+- [x] Corregir línea 134 (renderizado de departamento) - Corregido mapeo de departments
+- [x] Corregir línea 197 (acceso a position) - Agregado type assertion
+- [x] Corregir líneas 219 y 222 (acceso a department) - Agregado type assertion
+- [x] Verificar que 4 errores TypeScript desaparezcan - ✅ COMPLETADO
+- [x] Corregir getEmployeeById con JOINs para EmployeeProfile.tsx
+- [x] Agregar type assertions en EmployeeProfile.tsx y EmployeeTrainingNeeds.tsx
+- [x] **Reducción: 42 → 31 errores TypeScript (26% reducción en esta fase)**
+
+### 2. Auditoría de Errores removeChild
+- [ ] Revisar logs de browserConsole.log para identificar errores removeChild
+- [ ] Identificar componentes problemáticos con manipulación del DOM
+- [ ] Aplicar validaciones previas antes de removeChild
+- [ ] Reemplazar componentes problemáticos por elementos HTML nativos si es necesario
+
+### 3. Auditoría de Errores 404 y Conexiones Rotas
+- [ ] Revisar logs de networkRequests.log para identificar errores 404
+- [ ] Identificar rutas rotas o endpoints inexistentes
+- [ ] Corregir rutas en frontend y backend
+- [ ] Verificar que todas las conexiones funcionen correctamente
+
+### 4. Mejoras de Experiencia de Usuario
+- [ ] Revisar componentes con estados de carga lentos
+- [ ] Agregar skeletons y estados de carga donde falten
+- [ ] Mejorar mensajes de error para que sean más descriptivos
+- [ ] Verificar que todos los formularios tengan validación adecuada

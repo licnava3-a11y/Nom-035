@@ -27,7 +27,7 @@ export default function EmployeeProfile() {
   const { data: employee, isLoading, refetch } = trpc.employees.getById.useQuery(
     { id: employeeId },
     { enabled: employeeId > 0 }
-  );
+  ) as { data: any; isLoading: boolean; refetch: () => void };
 
   const deactivateMutation = trpc.employees.deactivate.useMutation({
     onSuccess: () => {
