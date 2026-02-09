@@ -8867,3 +8867,81 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Confirmar 0 errores TypeScript en todo el sistema
 
 **Estado:** 4/8 campos integrados (50%), 0 errores TypeScript
+
+
+## FASE 197: Sistema de Cursos y Programas de Capacitación NOM-035
+
+### 1. Diseño de Base de Datos
+- [x] Crear tabla training_programs (programas de capacitación)
+- [x] Crear tabla training_modules (módulos por programa)
+- [x] Crear tabla training_materials (materiales: presentaciones, manuales, videos)
+- [x] Crear tabla training_evaluations (evaluaciones diagnósticas/formativas/sumativas)
+- [x] Crear tabla training_evidence (evidencias de aprendizaje)
+- [x] Crear tabla training_versions (control de versiones ISO)
+- [x] Crear tabla training_approvals (aprobaciones y firmas)
+- [x] Ejecutar migración SQL
+
+### 2. Backend tRPC
+- [ ] Crear router server/routers/training.ts con procedimientos CRUD
+- [ ] Implementar getAll (listar programas con filtros)
+- [ ] Implementar getById (obtener programa completo con módulos)
+- [ ] Implementar create (crear programa nuevo)
+- [ ] Implementar update (actualizar programa existente)
+- [ ] Implementar createVersion (crear nueva versión con control ISO)
+- [ ] Implementar addModule (agregar módulo a programa)
+- [ ] Implementar updateModule (actualizar módulo existente)
+- [ ] Implementar addMaterial (agregar material de capacitación)
+- [ ] Implementar generateParticipantManual (generar PDF Manual del Participante)
+- [ ] Implementar generateInstructorManual (generar PDF Manual del Instructor)
+- [ ] Implementar generatePresentation (generar presentación del curso)
+
+### 3. Frontend - Página de Gestión
+- [ ] Crear página /training/programs con listado de programas
+- [ ] Crear página /training/programs/new con formulario de 11 secciones
+- [ ] Crear página /training/programs/[id] con vista detallada
+- [ ] Crear página /training/programs/[id]/edit con formulario de edición
+- [ ] Implementar componente TrainingProgramForm con 11 secciones colapsables
+- [ ] Implementar sección 1: Datos Generales del Curso (8 campos)
+- [ ] Implementar sección 2: Objetivos (3 campos con AITextarea)
+- [ ] Implementar sección 3: Alineación Normativa y Técnica (4 campos)
+- [ ] Implementar sección 4: Estructura del Curso (módulos dinámicos)
+- [ ] Implementar sección 5: Estrategia Didáctica (4 campos)
+- [ ] Implementar sección 6: Materiales de Capacitación (6 tipos de materiales)
+- [ ] Implementar sección 7: Evaluación del Aprendizaje (5 campos)
+- [ ] Implementar sección 8: Evidencias de Aprendizaje (4 campos)
+- [ ] Implementar sección 9: Requerimientos Modalidad en Línea (4 campos)
+- [ ] Implementar sección 10: Requerimientos Modalidad Presencial (4 campos)
+- [ ] Implementar sección 11: Control Documental (4 campos)
+
+### 4. Generación de Documentos PDF
+- [ ] Crear componente ParticipantManualPDF.tsx con @react-pdf/renderer
+- [ ] Crear componente InstructorManualPDF.tsx con @react-pdf/renderer
+- [ ] Crear componente PresentationPDF.tsx con @react-pdf/renderer
+- [ ] Implementar plantilla institucional con logotipo en header
+- [ ] Implementar portada con datos del curso
+- [ ] Implementar índice automático
+- [ ] Implementar secciones de contenido por módulo
+- [ ] Implementar pie de página con control ISO (código, versión, fecha)
+- [ ] Implementar página de aprobaciones con firmas
+- [ ] Agregar botones de descarga en vista detallada del programa
+
+### 5. Control Documental ISO
+- [ ] Implementar generación automática de código de documento (ej: CAP-NOM035-001-V1.0)
+- [ ] Implementar versionamiento semántico (major.minor)
+- [ ] Implementar historial de cambios con tabla de versiones
+- [ ] Implementar sección de aprobaciones con roles (Elaboró, Revisó, Autorizó)
+- [ ] Implementar upload de logotipo institucional
+- [ ] Implementar watermark "COPIA CONTROLADA" en PDFs
+
+### 6. Integración y Pruebas
+- [ ] Agregar rutas en App.tsx
+- [ ] Agregar enlace en menú "Capacitación y Desarrollo"
+- [ ] Poblar 3 programas de capacitación de ejemplo (Riesgos Psicosociales Básico, Intermedio, Avanzado)
+- [ ] Probar creación de programa completo con 4 módulos
+- [ ] Probar generación de Manual del Participante
+- [ ] Probar generación de Manual del Instructor
+- [ ] Probar generación de Presentación
+- [ ] Probar control de versiones
+- [ ] Verificar 0 errores TypeScript
+
+**Estado:** 0/58 tareas completadas
