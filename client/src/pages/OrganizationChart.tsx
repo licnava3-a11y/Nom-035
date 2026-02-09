@@ -15,12 +15,14 @@ import 'reactflow/dist/style.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { trpc } from '@/lib/trpc';
-import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import ELK from 'elkjs/lib/elk.bundled.js';
 
-// Nodo personalizado para departamentos
+// Nodo personalizado para departamentos (vista completa)
 function DepartmentNode({ data }: { data: { name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean } }) {
   // Colores según nivel jerárquico
   const levelColors = [
@@ -76,21 +78,51 @@ function DepartmentNode({ data }: { data: { name: string; code: string; employee
   );
 }
 
+// Nodo compacto para departamentos
+function CompactDepartmentNode({ data }: { data: { name: string; code: string; level: number; isHighlighted?: boolean } }) {
+  // Colores según nivel jerárquico
+  const levelColors = [
+    { from: '#1e3a8a', to: '#16a34a' },
+    { from: '#16a34a', to: '#0891b2' },
+    { from: '#0891b2', to: '#7c3aed' },
+    { from: '#7c3aed', to: '#dc2626' },
+  ];
+  
+  const colorIndex = Math.min(data.level, levelColors.length - 1);
+  const colors = levelColors[colorIndex];
+
+  return (
+    <div 
+      className={`px-4 py-2 rounded-lg border-2 shadow-md transition-all duration-300 ${
+        data.isHighlighted 
+          ? 'border-yellow-500 ring-4 ring-yellow-300 scale-110' 
+          : 'border-[#1e3a8a]'
+      }`}
+      style={{
+        background: data.isHighlighted 
+          ? 'linear-gradient(to right, #eab308, #f59e0b)' 
+          : `linear-gradient(to right, ${colors.from}, ${colors.to})`,
+        minWidth: '180px',
+      }}
+    >
+      <div className="flex items-center gap-2 text-white">
+        <Building2 className="h-4 w-4 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold truncate">{data.name}</p>
+          <p className="text-xs opacity-90 truncate">{data.code}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const nodeTypes = {
   department: DepartmentNode,
+  compactDepartment: CompactDepartmentNode,
 };
 
 // Inicializar ELK para layout automático
 const elk = new ELK();
-
-// Configuración de layout ELK
-const elkOptions = {
-  'elk.algorithm': 'layered',
-  'elk.direction': 'DOWN',
-  'elk.spacing.nodeNode': '80',
-  'elk.layered.spacing.nodeNodeBetweenLayers': '100',
-  'elk.padding': '[top=50,left=50,bottom=50,right=50]',
-};
 
 type DepartmentNode = {
   id: number;
@@ -105,10 +137,19 @@ type DepartmentNode = {
 // Función para calcular layout con ELK
 async function getLayoutedElements(
   departments: DepartmentNode[],
-  level = 0
+  isCompactMode: boolean
 ): Promise<{ nodes: Node[]; edges: Edge[] }> {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
+
+  // Configuración de layout ELK según modo
+  const elkOptions = {
+    'elk.algorithm': 'layered',
+    'elk.direction': 'DOWN',
+    'elk.spacing.nodeNode': isCompactMode ? '50' : '80',
+    'elk.layered.spacing.nodeNodeBetweenLayers': isCompactMode ? '60' : '100',
+    'elk.padding': '[top=50,left=50,bottom=50,right=50]',
+  };
 
   // Función recursiva para construir nodos y edges
   function buildGraph(depts: DepartmentNode[], parentId: string | null = null, currentLevel = 0) {
@@ -117,7 +158,7 @@ async function getLayoutedElements(
       
       nodes.push({
         id: nodeId,
-        type: 'department',
+        type: isCompactMode ? 'compactDepartment' : 'department',
         position: { x: 0, y: 0 }, // ELK calculará las posiciones
         data: {
           name: dept.name,
@@ -136,7 +177,7 @@ async function getLayoutedElements(
           target: nodeId,
           type: 'smoothstep',
           animated: true,
-          style: { stroke: '#1e3a8a', strokeWidth: 2 },
+          style: { stroke: '#1e3a8a', strokeWidth: isCompactMode ? 1.5 : 2 },
           markerEnd: {
             type: MarkerType.ArrowClosed,
             color: '#1e3a8a',
@@ -164,8 +205,8 @@ async function getLayoutedElements(
     layoutOptions: elkOptions,
     children: nodes.map((node) => ({
       id: node.id,
-      width: 300,
-      height: 150,
+      width: isCompactMode ? 200 : 300,
+      height: isCompactMode ? 60 : 150,
     })),
     edges: edges.map((edge) => ({
       id: edge.id,
@@ -205,7 +246,18 @@ export default function OrganizationChart() {
   const [matchedNodeIds, setMatchedNodeIds] = useState<string[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   
+  // Estado de modo compacto
+  const [isCompactMode, setIsCompactMode] = useState(() => {
+    const saved = localStorage.getItem('orgchart-compact-mode');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
   const { fitView, setCenter } = useReactFlow();
+
+  // Persistir preferencia de modo compacto
+  useEffect(() => {
+    localStorage.setItem('orgchart-compact-mode', JSON.stringify(isCompactMode));
+  }, [isCompactMode]);
 
   // Generar layout jerárquico con ELK
   useEffect(() => {
@@ -213,7 +265,7 @@ export default function OrganizationChart() {
 
     setIsCalculatingLayout(true);
     
-    getLayoutedElements(hierarchy as DepartmentNode[])
+    getLayoutedElements(hierarchy as DepartmentNode[], isCompactMode)
       .then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
@@ -223,7 +275,7 @@ export default function OrganizationChart() {
         console.error('Error al calcular layout:', error);
         setIsCalculatingLayout(false);
       });
-  }, [hierarchy, setNodes, setEdges]);
+  }, [hierarchy, isCompactMode, setNodes, setEdges]);
 
   // Búsqueda y resaltado de nodos
   useEffect(() => {
@@ -283,13 +335,16 @@ export default function OrganizationChart() {
     // Centrar en el nodo resaltado
     const currentNode = nodes.find((n) => n.id === currentNodeId);
     if (currentNode) {
+      const nodeWidth = isCompactMode ? 200 : 300;
+      const nodeHeight = isCompactMode ? 60 : 150;
+      
       setCenter(
-        currentNode.position.x + 150, // 150 = mitad del ancho del nodo
-        currentNode.position.y + 75,  // 75 = mitad de la altura del nodo
+        currentNode.position.x + nodeWidth / 2,
+        currentNode.position.y + nodeHeight / 2,
         { zoom: 1.2, duration: 800 }
       );
     }
-  }, [currentMatchIndex, matchedNodeIds, setNodes, nodes, setCenter]);
+  }, [currentMatchIndex, matchedNodeIds, setNodes, nodes, setCenter, isCompactMode]);
 
   // Navegación entre resultados
   const goToNextMatch = () => {
@@ -321,7 +376,7 @@ export default function OrganizationChart() {
       })
         .then((dataUrl) => {
           const link = document.createElement('a');
-          link.download = `organigrama-${new Date().toISOString().split('T')[0]}.png`;
+          link.download = `organigrama-${isCompactMode ? 'compacto' : 'completo'}-${new Date().toISOString().split('T')[0]}.png`;
           link.href = dataUrl;
           link.click();
           setIsExporting(false);
@@ -331,7 +386,7 @@ export default function OrganizationChart() {
           setIsExporting(false);
         });
     }
-  }, []);
+  }, [isCompactMode]);
 
   if (isLoading || isCalculatingLayout) {
     return (
@@ -356,14 +411,33 @@ export default function OrganizationChart() {
             Visualización interactiva de la estructura jerárquica de departamentos
           </p>
         </div>
-        <Button
-          onClick={handleExport}
-          disabled={isExporting || nodes.length === 0}
-          className="bg-[#1e3a8a] hover:bg-[#16a34a]"
-        >
-          <Download className="mr-2 h-4 w-4" />
-          {isExporting ? 'Exportando...' : 'Exportar PNG'}
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Toggle de modo compacto */}
+          <div className="flex items-center gap-2 border rounded-lg px-4 py-2 bg-background">
+            {isCompactMode ? (
+              <Minimize2 className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <Maximize2 className="h-4 w-4 text-muted-foreground" />
+            )}
+            <Label htmlFor="compact-mode" className="text-sm cursor-pointer">
+              Vista compacta
+            </Label>
+            <Switch
+              id="compact-mode"
+              checked={isCompactMode}
+              onCheckedChange={setIsCompactMode}
+            />
+          </div>
+          
+          <Button
+            onClick={handleExport}
+            disabled={isExporting || nodes.length === 0}
+            className="bg-[#1e3a8a] hover:bg-[#16a34a]"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {isExporting ? 'Exportando...' : 'Exportar PNG'}
+          </Button>
+        </div>
       </div>
 
       {/* Barra de búsqueda */}
@@ -450,6 +524,9 @@ export default function OrganizationChart() {
                   <p className="text-xs text-muted-foreground">• Arrastrar para mover nodos</p>
                   <p className="text-xs text-muted-foreground">• Rueda del ratón para zoom</p>
                   <p className="text-xs text-muted-foreground">• Click en nodo para detalles</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Modo: <strong>{isCompactMode ? 'Compacto' : 'Completo'}</strong>
+                  </p>
                 </div>
               </Panel>
             </ReactFlow>
