@@ -7292,3 +7292,75 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 4. Validación de tipos en hooks reutilizables
 
 ---
+
+
+## FASE 208: SISTEMA DE IMPORTACIÓN MASIVA CON EXCEL PARA MÚLTIPLES ENTIDADES
+
+### Funcionalidad de Importación Masiva Universal
+- [ ] Crear componente reutilizable ImportMassiveData con drag & drop para archivos Excel
+- [ ] Diseñar plantilla Excel para Empresas (nombre, RFC, dirección, contacto, etc.)
+- [ ] Diseñar plantilla Excel para Centros de Trabajo (nombre, dirección, empresa_id, etc.)
+- [ ] Diseñar plantilla Excel para Puestos (título, descripción, departamento_id, nivel, etc.)
+- [ ] Diseñar plantilla Excel para Trabajadores (todos los campos actuales + validación CURP)
+- [ ] Implementar procedimiento tRPC genérico para procesar archivos Excel
+- [ ] Agregar preview de datos antes de confirmar importación (tabla con paginación)
+- [ ] Implementar validación automática de formato (extensión .xlsx, estructura de columnas)
+- [ ] Agregar validación de tipos de datos por columna (texto, número, fecha, email)
+- [ ] Implementar validación de campos requeridos vs opcionales
+- [ ] Crear sistema de reporte detallado de errores (fila, columna, tipo de error)
+- [ ] Agregar advertencias para datos duplicados o inconsistentes
+- [ ] Implementar botón de descarga de plantillas Excel desde el sistema
+- [ ] Agregar indicador de progreso durante procesamiento de archivos grandes
+- [ ] Implementar rollback automático en caso de error durante importación
+- [ ] Crear logs de importación con timestamp y usuario responsable
+- [ ] Agregar opción de exportar datos actuales a Excel como respaldo
+- [ ] Documentar formato de cada plantilla Excel con ejemplos
+
+## FASE 209: PORTADA PROFESIONAL INSTITUCIONAL Y LANDING PAGE
+
+### Diseño de Landing Page Profesional
+- [ ] Crear componente LandingPage.tsx para página de inicio pública
+- [ ] Diseñar hero section con título impactante sobre NOM-035 STPS
+- [ ] Agregar subtítulo descriptivo del sistema de capacitación
+- [ ] Implementar botones CTA (Iniciar Sesión, Registrarse, Demo)
+- [ ] Buscar e integrar imágenes profesionales de seguridad ocupacional
+- [ ] Crear sección "Características del Sistema" con iconos y descripciones
+- [ ] Implementar sección de beneficios para empresas y trabajadores
+- [ ] Agregar sección de testimonios con avatares y citas
+- [ ] Crear sección de estadísticas (empresas registradas, trabajadores capacitados)
+- [ ] Diseñar footer informativo con enlaces legales y contacto
+- [ ] Agregar sección de derechos reservados con logo del desarrollador
+- [ ] Incluir datos del desarrollador (nombre de empresa, año, versión del software)
+- [ ] Implementar diseño responsive para móviles y tablets
+- [ ] Agregar animaciones sutiles al hacer scroll (fade-in, slide-up)
+- [ ] Optimizar imágenes para carga rápida
+- [ ] Implementar modo oscuro/claro según preferencia del usuario
+- [ ] Agregar meta tags para SEO (título, descripción, keywords)
+- [ ] Crear página de Política de Privacidad
+- [ ] Crear página de Términos y Condiciones
+- [ ] Implementar navegación suave entre secciones (smooth scroll)
+
+## FASE 210: POLÍTICA DE PROTECCIÓN DE DATOS PERSONALES PARA ENCUESTAS NOM-035
+
+### Implementación de Consentimiento de Datos Personales
+- [ ] Crear tabla `privacy_consents` en base de datos (user_id, accepted_at, ip_address, version)
+- [ ] Crear migración SQL para tabla de consentimientos
+- [ ] Diseñar documento de Política de Protección de Datos Personales (ARCO)
+- [ ] Crear componente PrivacyPolicyModal con scroll y contenido completo
+- [ ] Implementar checkbox de aceptación obligatorio antes de encuestas
+- [ ] Agregar validación de que checkbox esté marcado antes de continuar
+- [ ] Implementar lógica de detección automática de tipo de encuesta según tamaño de empresa
+  - Menos de 15 trabajadores: Solo Guía I
+  - 15 a 50 trabajadores: Guía I + Guía II
+  - Más de 50 trabajadores: Guía I + Guía III
+- [ ] Crear procedimiento tRPC para registrar consentimiento con timestamp
+- [ ] Implementar sistema de versionado de política de privacidad
+- [ ] Agregar campo de versión aceptada en tabla de consentimientos
+- [ ] Mostrar modal de política solo si usuario no ha aceptado versión actual
+- [ ] Implementar checkbox único que funcione para ambas guías simultáneas
+- [ ] Agregar registro de IP y user agent al momento de aceptación
+- [ ] Crear reporte de consentimientos para administrador
+- [ ] Implementar opción de revocación de consentimiento
+- [ ] Agregar enlace a política de privacidad en footer de todas las páginas
+- [ ] Documentar proceso de cumplimiento con LFPDPPP (Ley Federal de Protección de Datos)
+- [ ] Crear tests para flujo de consentimiento

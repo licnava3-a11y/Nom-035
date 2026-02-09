@@ -354,3 +354,56 @@ export async function getEmployeeStats() {
     })),
   };
 }
+
+
+/**
+ * Create a new department
+ */
+export async function createDepartment(data: {
+  name: string;
+  description?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(departments).values({
+    name: data.name,
+    description: data.description || null,
+    createdAt: new Date(),
+  });
+  return result;
+}
+
+/**
+ * Create a new position
+ */
+export async function createPosition(data: {
+  title: string;
+  description?: string | null;
+  departmentId: number;
+  level?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const [result] = await db.insert(positions).values({
+    title: data.title,
+    description: data.description || null,
+    departmentId: data.departmentId,
+    level: data.level || "mid",
+    createdAt: new Date(),
+  });
+  return result;
+}
+
+/**
+ * Get employee by CURP
+ */
+export async function getEmployeeByCURP(curp: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db.query.employees.findFirst({
+    where: (employees: any, { eq }: any) => eq(employees.curp, curp),
+  });
+}
