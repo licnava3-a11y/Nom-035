@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, positions, employees } from "../../drizzle/schema";
+import { departments, departmentHistory, positions, employees } from "../../drizzle/schema";
 import { eq, like, and, sql, count, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -193,6 +193,29 @@ export const departmentsRouter = router({
       // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.update(departments).set(updates).where(eq(departments.id, id));
 
+      // Guardar en historial
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const [updated] = await db
+        .select()
+        .from(departments)
+        .where(eq(departments.id, id))
+        .limit(1);
+
+      if (updated) {
+        // @ts-expect-error - getDb() siempre retorna instancia válida
+        await db.insert(departmentHistory).values({
+          departmentId: updated.id,
+          name: updated.name,
+          description: updated.description,
+          code: updated.code,
+          parentId: updated.parentId,
+          managerId: updated.managerId,
+          isActive: updated.isActive,
+          changeType: 'updated',
+          changedBy: null,
+        });
+      }
+
       return { success: true };
     }),
 
@@ -328,5 +351,65 @@ export const departmentsRouter = router({
         .orderBy(desc(count(employees.id)));
 
       return stats;
+    }),
+
+  // Obtener jerarquía organizacional en una fecha específica
+  getHierarchyAtDate: protectedProcedure
+    .input(z.object({ date: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+
+      // Obtener el estado de cada departamento en la fecha especificada
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const historicalDepartments = await db
+        .select({
+          id: sql<number>`dh.departmentId`,
+          name: sql<string>`dh.name`,
+          code: sql<string>`dh.code`,
+          managerId: sql<number | null>`dh.managerId`,
+          parentId: sql<number | null>`dh.parentId`,
+          isActive: sql<boolean>`dh.isActive`,
+          employeeCount: sql<number>`0`, // No calculamos empleados históricos por simplicidad
+        })
+        .from(sql`(
+          SELECT dh1.*
+          FROM department_history dh1
+          INNER JOIN (
+            SELECT departmentId, MAX(changedAt) as maxChangedAt
+            FROM department_history
+            WHERE changedAt <= ${input.date}
+            GROUP BY departmentId
+          ) dh2 ON dh1.departmentId = dh2.departmentId AND dh1.changedAt = dh2.maxChangedAt
+          WHERE dh1.changeType != 'deleted'
+        ) as dh`);
+
+      // Construir árbol jerárquico
+      type DepartmentNode = typeof historicalDepartments[0] & { children?: DepartmentNode[] };
+      
+      const departmentMap = new Map<number, DepartmentNode>();
+      const rootDepartments: DepartmentNode[] = [];
+
+      // Crear mapa de departamentos
+      historicalDepartments.forEach(dept => {
+        departmentMap.set(dept.id, { ...dept, children: [] });
+      });
+
+      // Construir jerarquía
+      historicalDepartments.forEach(dept => {
+        const node = departmentMap.get(dept.id)!;
+        
+        if (dept.parentId === null) {
+          rootDepartments.push(node);
+        } else {
+          const parent = departmentMap.get(dept.parentId);
+          if (parent) {
+            parent.children!.push(node);
+          } else {
+            rootDepartments.push(node);
+          }
+        }
+      });
+
+      return rootDepartments;
     }),
 });

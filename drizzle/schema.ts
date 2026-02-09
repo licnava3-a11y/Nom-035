@@ -478,6 +478,27 @@ export type Department = typeof departments.$inferSelect;
 export type InsertDepartment = typeof departments.$inferInsert;
 
 /**
+ * Department History table - Track changes to departments over time
+ * Stores historical snapshots of department changes for temporal comparison
+ */
+export const departmentHistory = mysqlTable("department_history", {
+  id: int("id").autoincrement().primaryKey(),
+  departmentId: int("departmentId").notNull(), // Reference to departments.id
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  code: varchar("code", { length: 50 }),
+  parentId: int("parentId"), // Historical parent
+  managerId: int("managerId"), // Historical manager
+  isActive: boolean("isActive").notNull(),
+  changeType: mysqlEnum("changeType", ["created", "updated", "deleted"]).notNull(),
+  changedAt: timestamp("changedAt").defaultNow().notNull(),
+  changedBy: int("changedBy"), // User who made the change
+});
+
+export type DepartmentHistory = typeof departmentHistory.$inferSelect;
+export type InsertDepartmentHistory = typeof departmentHistory.$inferInsert;
+
+/**
  * Positions table - Job positions catalog
  * Master catalog of all job positions in the organization
  */

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -33,9 +33,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { trpc } from '@/lib/trpc';
-import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight, Maximize, Printer } from 'lucide-react';
+import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight, Maximize, Printer, FileSpreadsheet, Calendar, History } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import ELK from 'elkjs/lib/elk.bundled.js';
+import * as XLSX from 'xlsx';
 
 // Nodo personalizado para departamentos (vista completa)
 function DepartmentNode({ data }: NodeProps<{ name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean }>) {
@@ -304,6 +305,20 @@ export default function OrganizationChart() {
     return (saved as Orientation) || 'DOWN';
   });
   
+  // Estados de comparación temporal
+  const [isHistoricalView, setIsHistoricalView] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  
+
+  
+  // @ts-expect-error - Router types will regenerate on server restart
+  const { data: historicalHierarchy, isLoading: isLoadingHistorical } = trpc.departments.getHierarchyAtDate.useQuery(
+    { date: selectedDate },
+    { enabled: isHistoricalView && selectedDate !== '' }
+  );
+  
+
+  
   const { fitView, setCenter } = useReactFlow();
 
   // Persistir preferencia de modo compacto
@@ -318,11 +333,12 @@ export default function OrganizationChart() {
 
   // Generar layout jerárquico con ELK
   useEffect(() => {
-    if (!hierarchy) return;
+    const activeHierarchy = isHistoricalView ? historicalHierarchy : hierarchy;
+    if (!activeHierarchy) return;
 
     setIsCalculatingLayout(true);
     
-    getLayoutedElements(hierarchy as DepartmentNode[], isCompactMode, orientation)
+    getLayoutedElements(activeHierarchy as DepartmentNode[], isCompactMode, orientation)
       .then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
@@ -332,7 +348,7 @@ export default function OrganizationChart() {
         console.error('Error al calcular layout:', error);
         setIsCalculatingLayout(false);
       });
-  }, [hierarchy, isCompactMode, orientation, setNodes, setEdges]);
+  }, [hierarchy, historicalHierarchy, isHistoricalView, isCompactMode, orientation, setNodes, setEdges]);
 
   // Búsqueda y resaltado de nodos
   useEffect(() => {
@@ -452,6 +468,57 @@ export default function OrganizationChart() {
     }
   }, [isCompactMode, orientation]);
 
+  // Exportar estructura jerárquica a Excel
+  const handleExportExcel = useCallback(() => {
+    if (!hierarchy) return;
+
+    // Función para aplanar el árbol jerárquico
+    const flattenHierarchy = (depts: DepartmentNode[], parentName = '', level = 0): any[] => {
+      const result: any[] = [];
+      
+      depts.forEach((dept) => {
+        result.push({
+          'Nivel': level,
+          'Código': dept.code,
+          'Nombre del Departamento': dept.name,
+          'Departamento Padre': parentName || 'Ninguno (Raíz)',
+          'Número de Empleados': dept.employeeCount,
+          'Jefe del Departamento': dept.managerId ? `ID: ${dept.managerId}` : 'Sin asignar',
+        });
+        
+        if (dept.children && dept.children.length > 0) {
+          result.push(...flattenHierarchy(dept.children, dept.name, level + 1));
+        }
+      });
+      
+      return result;
+    };
+
+    const flatData = flattenHierarchy(hierarchy as DepartmentNode[]);
+    
+    // Crear workbook y worksheet
+    const ws = XLSX.utils.json_to_sheet(flatData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Estructura Organizacional');
+    
+    // Ajustar anchos de columnas
+    const colWidths = [
+      { wch: 8 },  // Nivel
+      { wch: 12 }, // Código
+      { wch: 35 }, // Nombre del Departamento
+      { wch: 30 }, // Departamento Padre
+      { wch: 20 }, // Número de Empleados
+      { wch: 25 }, // Jefe del Departamento
+    ];
+    ws['!cols'] = colWidths;
+    
+    // Descargar archivo
+    const fileName = `estructura-organizacional-${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  }, [hierarchy]);
+
+
+
   // Activar modo impresión
   const handlePrintMode = useCallback(() => {
     setIsPrintMode(true);
@@ -465,7 +532,7 @@ export default function OrganizationChart() {
     }, 100);
   }, [fitView]);
 
-  if (isLoading || isCalculatingLayout) {
+  if (isLoading || isLoadingHistorical || isCalculatingLayout) {
     return (
       <div className="container py-8">
         <div className="flex flex-col items-center justify-center h-[600px] space-y-4">
@@ -541,6 +608,42 @@ export default function OrganizationChart() {
             />
           </div>
           
+          {/* Selector de vista histórica */}
+          <div className="flex items-center gap-2 border rounded-lg px-4 py-2 bg-background">
+            <History className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="historical-view" className="text-sm cursor-pointer">
+              Vista histórica
+            </Label>
+            <Switch
+              id="historical-view"
+              checked={isHistoricalView}
+              onCheckedChange={(checked) => {
+                setIsHistoricalView(checked);
+                if (!checked) {
+                  setSelectedDate('');
+                }
+              }}
+            />
+          </div>
+          
+          {/* Selector de fecha (solo visible en vista histórica) */}
+          {isHistoricalView && (
+            <div className="flex items-center gap-2 border rounded-lg px-4 py-2 bg-background">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="historical-date" className="text-sm">
+                Fecha:
+              </Label>
+              <Input
+                id="historical-date"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                className="w-[150px] h-8"
+              />
+            </div>
+          )}
+          
           <Button
             onClick={handlePrintMode}
             variant="outline"
@@ -549,6 +652,16 @@ export default function OrganizationChart() {
           >
             <Printer className="mr-2 h-4 w-4" />
             Imprimir
+          </Button>
+          
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            disabled={nodes.length === 0}
+            className="border-[#16a34a] text-[#16a34a] hover:bg-[#16a34a] hover:text-white"
+          >
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Exportar Excel
           </Button>
           
           <Button

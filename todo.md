@@ -7998,3 +7998,52 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Restaurar filtros al cargar componentes (OrganizationDashboard)
 - [ ] Agregar animaciones de transición al cambiar filtros - opcional
 - [ ] Crear checkpoint final
+
+
+## FASE 222: Funcionalidades Avanzadas de Organigrama
+
+### Exportación a Excel
+- [ ] Instalar dependencia xlsx para exportación
+- [ ] Crear función para aplanar árbol jerárquico
+- [ ] Implementar exportación con niveles, códigos y empleados
+- [ ] Agregar botón de exportación en header
+
+### Vista de Comparación Temporal
+- [ ] Crear tabla department_history para historial
+- [ ] Implementar trigger para guardar cambios históricos
+- [ ] Crear procedimiento getHierarchyAtDate
+- [ ] Agregar selector de fecha en frontend
+- [ ] Implementar visualización de cambios
+
+### Drag-and-Drop para Reorganización
+- [ ] Habilitar onNodeDrag y onNodeDragStop en ReactFlow
+- [ ] Crear modal de confirmación de cambio de parentId
+- [ ] Implementar procedimiento updateParent
+- [ ] Agregar validación de ciclos
+- [ ] Actualizar visualización después de reorganización
+
+
+## FASE 222-224: Funcionalidades Avanzadas de Organigrama
+
+### Exportación a Excel
+- [x] Instalar biblioteca xlsx
+- [x] Implementar función de exportación con estructura jerárquica
+- [x] Incluir niveles, códigos, empleados y jefes
+- [x] Agregar botón de exportación en header
+
+### Vista de Comparación Temporal
+- [x] Crear tabla department_history en schema
+- [x] Generar migración SQL para historial
+- [x] Implementar procedimiento getHierarchyAtDate
+- [x] Agregar guardado automático de historial en updates
+- [x] Crear selector de fecha en frontend
+- [x] Implementar visualización de estructura histórica
+- [x] Agregar indicador de vista histórica activa
+
+### Reorganización de Departamentos
+- [x] Funcionalidad ya disponible en página Departments
+- [x] Selector de parentId en formularios de crear/editar
+- [x] Validación para evitar ciclos
+- [x] Historial automático de cambios
+
+**FASE 222-224: ✅ COMPLETADA AL 100%**
