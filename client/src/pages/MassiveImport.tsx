@@ -110,57 +110,23 @@ export default function MassiveImport() {
   };
 
   const downloadTemplate = (type: string) => {
-    let data: any[] = [];
-    let filename = "";
+    let templatePath = "";
 
     if (type === "departments") {
-      data = [
-        { name: "Recursos Humanos", description: "Gestión del talento humano" },
-        { name: "Operaciones", description: "Operaciones y producción" },
-        { name: "Ventas", description: "Área comercial y ventas" },
-      ];
-      filename = "plantilla_departamentos.xlsx";
+      templatePath = "/templates/departments_template.xlsx";
     } else if (type === "positions") {
-      data = [
-        { title: "Gerente de RH", description: "Gerente del área de recursos humanos", departmentId: 1, level: "management" },
-        { title: "Analista de RH", description: "Analista de recursos humanos", departmentId: 1, level: "specialist" },
-        { title: "Supervisor de Producción", description: "Supervisor de línea de producción", departmentId: 2, level: "supervisor" },
-      ];
-      filename = "plantilla_puestos.xlsx";
+      templatePath = "/templates/positions_template.xlsx";
     } else if (type === "employees") {
-      data = [
-        {
-          firstName: "Juan",
-          lastName: "Pérez García",
-          email: "juan.perez@empresa.com",
-          phone: "+52 614 123 4567",
-          curp: "PEGJ850101HCHRRN09",
-          employeeNumber: "EMP-001",
-          departmentId: 1,
-          positionId: 1,
-          hireDate: "2024-01-15",
-          isActive: true,
-        },
-        {
-          firstName: "María",
-          lastName: "González López",
-          email: "maria.gonzalez@empresa.com",
-          phone: "+52 614 234 5678",
-          curp: "GOLM900215MCHPPR08",
-          employeeNumber: "EMP-002",
-          departmentId: 1,
-          positionId: 2,
-          hireDate: "2024-02-01",
-          isActive: true,
-        },
-      ];
-      filename = "plantilla_trabajadores.xlsx";
+      templatePath = "/templates/employees_template.xlsx";
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
-    XLSX.writeFile(workbook, filename);
+    // Crear enlace temporal para descargar el archivo
+    const link = document.createElement('a');
+    link.href = templatePath;
+    link.download = templatePath.split('/').pop() || 'template.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

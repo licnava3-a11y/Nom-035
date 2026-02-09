@@ -7407,9 +7407,9 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar enlace en menú de Administración
 
 ### Plantillas Excel Descargables
-- [ ] Crear plantilla departments_template.xlsx con headers y ejemplos
-- [ ] Crear plantilla positions_template.xlsx con headers y ejemplos
-- [ ] Crear plantilla employees_template.xlsx con headers y ejemplos
+- [x] Crear plantilla departments_template.xlsx con headers y ejemplos
+- [x] Crear plantilla positions_template.xlsx con headers y ejemplos
+- [x] Crear plantilla employees_template.xlsx con headers y ejemplos
 - [ ] Implementar función de descarga de plantillas en frontend
 - [ ] Agregar instrucciones de uso en cada plantilla
 
