@@ -24,16 +24,7 @@ export const competenciesStatsRouter = router({
     }
 
     // Get all active employees with their competencies
-    const activeEmployees: Array<{
-      id: number;
-      firstName: string;
-      lastName: string;
-      email: string;
-      departmentId: number | null;
-      positionId: number | null;
-      departmentName: string | null;
-      positionName: string | null;
-    }> = await db
+    const activeEmployees = (await db
       .select({
         id: employees.id,
         firstName: employees.firstName,
@@ -47,7 +38,16 @@ export const competenciesStatsRouter = router({
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
       .leftJoin(positions, eq(employees.positionId, positions.id))
-      .where(eq(employees.isActive, true));
+      .where(eq(employees.isActive, true))) as unknown as Array<{
+      id: number;
+      firstName: string;
+      lastName: string;
+      email: string;
+      departmentId: number | null;
+      positionId: number | null;
+      departmentName: string | null;
+      positionName: string | null;
+    }>;
 
     // Get all competencies
     const allCompetencies = await db.select().from(employeeCompetencies);
@@ -218,10 +218,30 @@ export const competenciesStatsRouter = router({
       }
 
       // Get all active employees
-      const activeEmployees = await db
-        .select()
+      const activeEmployees = (await db
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.title,
+        })
         .from(employees)
-        .where(eq(employees.isActive, true));
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .where(eq(employees.isActive, true))) as unknown as Array<{
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        departmentId: number | null;
+        positionId: number | null;
+        departmentName: string | null;
+        positionName: string | null;
+      }>;
 
       // Get all competencies
       const allCompetencies = await db.select().from(employeeCompetencies);
@@ -248,13 +268,12 @@ export const competenciesStatsRouter = router({
       > = {};
 
       for (const emp of activeEmployees) {
-        const empWithJoin = emp as { id: number; firstName: string; lastName: string; email: string; departmentId: number | null; positionId: number | null; departmentName: string | null; positionName: string | null };
-        if (!empWithJoin.positionName) continue;
+        if (!emp.positionName) continue;
 
         const [positionRecord] = await db
           .select()
           .from(jobPositions)
-          .where(eq(jobPositions.positionName, empWithJoin.positionName))
+          .where(eq(jobPositions.positionName, emp.positionName))
           .limit(1);
 
         if (!positionRecord) continue;
