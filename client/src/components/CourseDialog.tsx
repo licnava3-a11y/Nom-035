@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,6 +36,22 @@ export function CourseDialog({ open, onOpenChange, course }: CourseDialogProps) 
   const [category, setCategory] = useState<"fundamentos" | "categorias_dominios" | "mobbing" | "burnout" | "protocolos" | "comite" | "analisis_puestos" | "otros">(course?.category as any || "fundamentos");
   const [level, setLevel] = useState<"basico" | "intermedio" | "avanzado">(course?.level as any || "basico");
   const [status, setStatus] = useState<"draft" | "published" | "archived">(course?.status as any || "draft");
+
+  // Sync form state when course prop changes or dialog opens
+  useEffect(() => {
+    if (open) {
+      if (course) {
+        setTitle(course.title || "");
+        setDescription(course.description || "");
+        setDuration(course.duration?.toString() || "");
+        setCategory((course.category as any) || "fundamentos");
+        setLevel((course.level as any) || "basico");
+        setStatus((course.status as any) || "draft");
+      } else {
+        resetForm();
+      }
+    }
+  }, [open, course]);
 
   const utils = trpc.useUtils();
   const createMutation = trpc.courses.create.useMutation({
