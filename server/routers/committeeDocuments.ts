@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeeMembers, employees, companyGeneralData, companyLogo } from "../../drizzle/schema";
+import { committeeMembers, employees, companyGeneralData, companyLogo, departments } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
@@ -51,10 +51,11 @@ export const committeeDocumentsRouter = router({
         .select({
           name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           position: committeeMembers.position,
-          departmentId: employees.departmentId,
+          department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
         })
         .from(committeeMembers)
-        .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`);
+        .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`)
+        .leftJoin(departments, sql`${employees.departmentId} = ${departments.id}`);
 
       if (!members || members.length === 0) {
         throw new TRPCError({
@@ -76,7 +77,7 @@ export const committeeDocumentsRouter = router({
         members: members.map(m => ({
           name: m.name || "Sin nombre",
           position: m.position || "Sin cargo",
-          departmentId: m.departmentId || null,
+          department: m.department || "Sin departamento",
         })),
         logoUrl,
         folio,
@@ -141,10 +142,11 @@ export const committeeDocumentsRouter = router({
         .select({
           name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           position: committeeMembers.position,
-          departmentId: employees.departmentId,
+          department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
         })
         .from(committeeMembers)
-        .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`);
+        .leftJoin(employees, sql`${committeeMembers.employeeId} = ${employees.id}`)
+        .leftJoin(departments, sql`${employees.departmentId} = ${departments.id}`);
 
       if (!members || members.length === 0) {
         throw new TRPCError({
@@ -166,7 +168,7 @@ export const committeeDocumentsRouter = router({
         members: members.map(m => ({
           name: m.name || "Sin nombre",
           position: m.position || "Sin cargo",
-          departmentId: m.departmentId || null,
+          department: m.department || "Sin departamento",
         })),
         logoUrl,
         folio,
