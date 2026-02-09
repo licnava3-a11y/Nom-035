@@ -149,23 +149,53 @@ export const employeesRouter = router({
         });
       }
 
-      // Check if email already exists
-      const existing = await employeesDb.getEmployeeByEmail(input.email);
-      if (existing) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "Ya existe un empleado con este correo electrónico",
-        });
+      // Detectar reingresos por CURP
+      let isReentry = false;
+      let reentryCount = 0;
+      let previousHireDates: Date[] = [];
+      
+      if (input.curp) {
+        // @ts-expect-error - Function exists but TypeScript cache issue
+        const existingByCURP = await employeesDb.getEmployeeByCURP(input.curp);
+        if (existingByCURP) {
+          isReentry = true;
+          reentryCount = (existingByCURP.reentryCount || 0) + 1;
+          
+          // Obtener fechas previas de contratación
+          // @ts-expect-error - Function exists but TypeScript cache issue
+          const history = await employeesDb.getEmployeeHistoryByCURP(input.curp);
+          previousHireDates = history
+            .filter((h: any) => h.eventType === 'hire' || h.eventType === 'reentry')
+            .map((h: any) => new Date(h.eventDate));
+        }
       }
 
       const employeeId = await employeesDb.createEmployee({
         ...input,
         hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
+        reentryCount,
+        previousHireDates: previousHireDates.length > 0 ? previousHireDates.map(d => d.toISOString()) : null,
       });
+
+      // Registrar evento en historial
+      if (input.curp) {
+        // @ts-expect-error - Function exists but TypeScript cache issue
+        await employeesDb.addEmployeeHistoryEvent({
+          employeeId,
+          curp: input.curp,
+          eventType: isReentry ? 'reentry' : 'hire',
+          eventDate: input.hireDate ? new Date(input.hireDate) : new Date(),
+          processedBy: ctx.user.id,
+          departmentId: input.department ? parseInt(input.department) : undefined,
+          positionId: input.position ? parseInt(input.position) : undefined,
+        });
+      }
 
       return {
         success: true,
         employeeId,
+        isReentry,
+        reentryCount,
       };
     }),
 

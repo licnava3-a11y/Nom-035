@@ -407,3 +407,132 @@ export async function getEmployeeByCURP(curp: string) {
     where: (employees: any, { eq }: any) => eq(employees.curp, curp),
   });
 }
+
+
+/**
+ * Add event to employee history
+ */
+export async function addEmployeeHistoryEvent(data: {
+  employeeId: number;
+  curp: string;
+  eventType: 'hire' | 'termination' | 'reentry';
+  eventDate: Date;
+  terminationReason?: string;
+  terminationCategory?: string;
+  terminationNotes?: string;
+  evidenceUrls?: string[];
+  processedBy?: number;
+  departmentId?: number;
+  positionId?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+  
+  await db.insert(employeeHistory).values({
+    employeeId: data.employeeId,
+    curp: data.curp,
+    eventType: data.eventType,
+    eventDate: data.eventDate,
+    terminationReason: data.terminationReason as any,
+    terminationCategory: data.terminationCategory as any,
+    terminationNotes: data.terminationNotes,
+    evidenceUrls: data.evidenceUrls ? JSON.stringify(data.evidenceUrls) : null,
+    processedBy: data.processedBy,
+    departmentId: data.departmentId,
+    positionId: data.positionId,
+  });
+}
+
+/**
+ * Get employee history by employee ID
+ */
+export async function getEmployeeHistory(employeeId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+  
+  const history = await db
+    .select({
+      id: employeeHistory.id,
+      employeeId: employeeHistory.employeeId,
+      curp: employeeHistory.curp,
+      eventType: employeeHistory.eventType,
+      eventDate: employeeHistory.eventDate,
+      terminationReason: employeeHistory.terminationReason,
+      terminationCategory: employeeHistory.terminationCategory,
+      terminationNotes: employeeHistory.terminationNotes,
+      evidenceUrls: employeeHistory.evidenceUrls,
+      processedBy: employeeHistory.processedBy,
+      departmentId: employeeHistory.departmentId,
+      departmentName: departments.name,
+      positionId: employeeHistory.positionId,
+      positionTitle: positions.title,
+      createdAt: employeeHistory.createdAt,
+    })
+    .from(employeeHistory)
+    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .leftJoin(positions, sql`${employeeHistory.positionId} = ${positions.id}`)
+    .where(sql`${employeeHistory.employeeId} = ${employeeId}`)
+    .orderBy(sql`${employeeHistory.eventDate} DESC`);
+  
+  return history;
+}
+
+/**
+ * Get employee history by CURP (all records for this person)
+ */
+export async function getEmployeeHistoryByCURP(curp: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+  
+  const history = await db
+    .select({
+      id: employeeHistory.id,
+      employeeId: employeeHistory.employeeId,
+      curp: employeeHistory.curp,
+      eventType: employeeHistory.eventType,
+      eventDate: employeeHistory.eventDate,
+      terminationReason: employeeHistory.terminationReason,
+      terminationCategory: employeeHistory.terminationCategory,
+      terminationNotes: employeeHistory.terminationNotes,
+      evidenceUrls: employeeHistory.evidenceUrls,
+      processedBy: employeeHistory.processedBy,
+      departmentId: employeeHistory.departmentId,
+      departmentName: departments.name,
+      positionId: employeeHistory.positionId,
+      positionTitle: positions.title,
+      createdAt: employeeHistory.createdAt,
+    })
+    .from(employeeHistory)
+    .leftJoin(departments, sql`${employeeHistory.departmentId} = ${departments.id}`)
+    .leftJoin(positions, sql`${employeeHistory.positionId} = ${positions.id}`)
+    .where(sql`${employeeHistory.curp} = ${curp}`)
+    .orderBy(sql`${employeeHistory.eventDate} DESC`);
+  
+  return history;
+}
+
+/**
+ * Update employee reentry count and previous hire dates
+ */
+export async function updateEmployeeReentryInfo(
+  employeeId: number,
+  reentryCount: number,
+  previousHireDates: Date[]
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(employees)
+    .set({
+      reentryCount,
+      previousHireDates: JSON.stringify(previousHireDates.map(d => d.toISOString())),
+    })
+    .where(eq(employees.id, employeeId));
+}
