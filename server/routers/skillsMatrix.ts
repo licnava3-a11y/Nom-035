@@ -115,15 +115,49 @@ export const skillsMatrixRouter = router({
         filters.push(sql`CONCAT(${employees.firstName}, ' ', ${employees.lastName}) LIKE ${`%${input.employeeName}%`}`);
       }
 
-      const employeesList = filters.length > 0
-        ? await db.select().from(employees).where(and(...filters))
-        : await db.select().from(employees);
+      const employeesList = (filters.length > 0
+        ? await db.select({
+            id: employees.id,
+            firstName: employees.firstName,
+            lastName: employees.lastName,
+            email: employees.email,
+            departmentId: employees.departmentId,
+            positionId: employees.positionId,
+            department: departments.name,
+            position: positions.title,
+          })
+          .from(employees)
+          .leftJoin(departments, eq(employees.departmentId, departments.id))
+          .leftJoin(positions, eq(employees.positionId, positions.id))
+          .where(and(...filters))
+        : await db.select({
+            id: employees.id,
+            firstName: employees.firstName,
+            lastName: employees.lastName,
+            email: employees.email,
+            departmentId: employees.departmentId,
+            positionId: employees.positionId,
+            department: departments.name,
+            position: positions.title,
+          })
+          .from(employees)
+          .leftJoin(departments, eq(employees.departmentId, departments.id))
+          .leftJoin(positions, eq(employees.positionId, positions.id))) as unknown as Array<{
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        departmentId: number | null;
+        positionId: number | null;
+        department: string | null;
+        position: string | null;
+      }>;
 
       // Get all competencies
       const competenciesList = await db.select().from(competencies).orderBy(competencies.type, competencies.name);
 
       // Get all skills matrix entries for these employees
-      const employeeIds = employeesList.map((e: typeof employees.$inferSelect) => e.id);
+      const employeeIds = employeesList.map((e) => e.id);
       let matrixEntries: (typeof skillsMatrix.$inferSelect)[] = [];
       
       if (employeeIds.length > 0) {

@@ -87,9 +87,9 @@ export default function JobProfileManagement() {
           onValueChange={(value) => setSelectedPositionId(parseInt(value))}
         >
           <option value="">Seleccionar puesto...</option>
-          {positionsData?.filter((pos): pos is string => pos !== null).map((pos) => (
-            <option key={pos} value={pos}>
-              {pos}
+          {positionsData?.map((pos) => (
+            <option key={pos.id} value={pos.id}>
+              {pos.title}
             </option>
           ))}
         </Select>
