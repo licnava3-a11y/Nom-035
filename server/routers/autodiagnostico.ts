@@ -281,6 +281,86 @@ export const autodiagnosticoRouter = router({
         ...result,
       };
     }),
+
+  /**
+   * Obtiene datos completos para generar PDF del autodiagnóstico
+   */
+  getPDFData: protectedProcedure
+    .input(z.object({ autodiagnosticoId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      // Obtener autodiagnóstico
+      const [autodiagnostico] = await db
+        .select()
+        .from(autodiagnosticos)
+        .where(and(
+          eq(autodiagnosticos.id, input.autodiagnosticoId),
+          eq(autodiagnosticos.userId, ctx.user.id)
+        ));
+
+      if (!autodiagnostico) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Autodiagnóstico no encontrado' });
+      }
+
+      // Obtener evidencias con requisitos
+      const allEvidences = await db
+        .select({
+          evidence: evidences,
+          requirement: requirements,
+        })
+        .from(evidences)
+        .leftJoin(requirements, eq(evidences.requirementId, requirements.id))
+        .where(eq(evidences.autodiagnosticoId, input.autodiagnosticoId))
+        .orderBy(requirements.orden);
+
+      // Agrupar por categoría
+      const categorias = [
+        { id: 1, nombre: 'Política de Prevención' },
+        { id: 2, nombre: 'Identificación y Análisis' },
+        { id: 3, nombre: 'Medidas de Prevención y Control' },
+        { id: 4, nombre: 'Atención de Casos' },
+        { id: 5, nombre: 'Registros y Evidencias' },
+      ];
+
+      const categoriaData = categorias.map((cat) => {
+        const evidenciasCategoria = allEvidences.filter(
+          (item) => item.requirement?.categoria === cat.id
+        );
+        const cumplidos = evidenciasCategoria.filter((item) => item.evidence.cumple).length;
+        const total = evidenciasCategoria.length;
+        const porcentaje = total > 0 ? Math.round((cumplidos / total) * 100) : 0;
+
+        return {
+          categoria: cat.nombre,
+          porcentaje,
+          cumplidos,
+          total,
+        };
+      });
+
+      // Formatear evidencias
+      const evidenciasFormateadas = allEvidences.map((item) => ({
+        requirementId: item.evidence.requirementId,
+        codigo: item.requirement?.codigo || '',
+        descripcion: item.requirement?.descripcion || '',
+        cumple: item.evidence.cumple,
+        evidenciaUrl: item.evidence.evidenciaUrl,
+        observaciones: item.evidence.observaciones,
+      }));
+
+      return {
+        autodiagnostico: {
+          id: autodiagnostico.id,
+          fecha: autodiagnostico.fecha.toISOString(),
+          porcentajeTotal: autodiagnostico.porcentajeTotal,
+          status: autodiagnostico.status,
+        },
+        categorias: categoriaData,
+        evidencias: evidenciasFormateadas,
+      };
+    }),
 });
 
 /**
