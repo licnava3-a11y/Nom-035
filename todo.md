@@ -8826,3 +8826,44 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Implementar componente AITextGenerator con textarea y botón
 - [ ] Mostrar loading state durante generación de texto
 - [ ] Permitir edición del texto generado antes de guardar
+
+
+## 🤖 IA para Redacción en /company (8 tareas)
+
+### Backend (3 tareas)
+- [ ] Crear procedimiento tRPC `ai.generateCompanyDescription` que use invokeLLM
+- [ ] Implementar prompts específicos para cada campo (misión, visión, valores, historia)
+- [ ] Agregar validación de longitud y formato de texto generado
+
+### Frontend (5 tareas)
+- [ ] Agregar botón "Generar con IA" en campo de misión
+- [ ] Agregar botón "Generar con IA" en campo de visión
+- [ ] Agregar botón "Generar con IA" en campo de valores
+- [ ] Agregar botón "Generar con IA" en campo de historia
+- [ ] Implementar loading state durante generación con IA
+
+
+## FASE 196: Integración de IA en Campos de Texto Libre
+
+### Componente AITextarea
+- [x] Crear componente reutilizable AITextarea con botón "Generar con IA"
+- [x] Implementar procedimiento tRPC ai.generateCompanyDescription
+- [x] Integrar invokeLLM para generación de contenido contextual
+
+### Integración en CompanySettings.tsx
+- [x] Reemplazar campo actividadPrincipal por AITextarea (línea 1424)
+- [x] Reemplazar campo objetivoInforme por AITextarea (línea 1441)
+- [x] Reemplazar campo conclusiones por AITextarea (línea 1530)
+- [x] Reemplazar campo recomendaciones por AITextarea (línea 1545)
+- [ ] Reemplazar campo actividadesRealizadas por AITextarea (línea 1456)
+- [ ] Reemplazar campo metodoUtilizado por AITextarea (línea 1471)
+- [ ] Reemplazar campo resultadosObtenidos por AITextarea (línea 1497)
+- [ ] Reemplazar campo accionesIntervencion por AITextarea (línea 1559)
+
+### Pruebas y Validación
+- [ ] Probar generación de IA en cada campo integrado
+- [ ] Verificar que el contenido generado es relevante y contextual
+- [ ] Validar que los campos se guardan correctamente en base de datos
+- [ ] Confirmar 0 errores TypeScript en todo el sistema
+
+**Estado:** 4/8 campos integrados (50%), 0 errores TypeScript
