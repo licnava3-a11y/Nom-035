@@ -8622,3 +8622,124 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar sección de proveedores SMTP comunes (Gmail, Outlook, SendGrid, Mailgun)
 
 **NOTA:** Los campos quedan vacíos para que el usuario los configure posteriormente usando `webdev_request_secrets` o directamente en la interfaz
+
+
+## 🔍 AUDITORÍA EXHAUSTIVA DEL SISTEMA (40 tareas)
+
+### Auditoría de Campos y Formularios (10 tareas)
+- [ ] Verificar que todos los campos de formularios guarden correctamente en BD
+- [ ] Revisar validaciones de campos requeridos en todos los formularios
+- [ ] Verificar que los campos de fecha tengan formato correcto
+- [ ] Revisar que los campos numéricos no acepten texto
+- [ ] Verificar que los campos de email validen formato correcto
+- [ ] Revisar que los campos de teléfono tengan máscara correcta
+- [ ] Verificar que los campos de RFC validen formato mexicano
+- [ ] Revisar que los campos de CURP validen formato correcto
+- [ ] Verificar que los campos de archivo permitan subir documentos
+- [ ] Revisar que los campos de selección múltiple guarden todos los valores
+
+### Auditoría de Desplegables y Selects (8 tareas)
+- [ ] Verificar que todos los desplegables carguen datos de BD
+- [ ] Revisar que los selects de departamento muestren todos los registros
+- [ ] Verificar que los selects de puesto estén correlacionados con departamento
+- [ ] Revisar que los selects de empleado filtren por estado activo
+- [ ] Verificar que los selects de curso muestren solo cursos activos
+- [ ] Revisar que los selects de instructor muestren solo activos
+- [ ] Verificar que los selects de periodo muestren periodos vigentes
+- [ ] Revisar que los selects de rol muestren todos los roles disponibles
+
+### Auditoría de Botones y Acciones (10 tareas)
+- [ ] Verificar que el botón "Guardar" funcione en todos los formularios
+- [ ] Revisar que el botón "Cancelar" regrese a la página anterior
+- [ ] Verificar que el botón "Eliminar" muestre confirmación
+- [ ] Revisar que el botón "Editar" cargue datos correctos
+- [ ] Verificar que el botón "Exportar PDF" genere documento
+- [ ] Revisar que el botón "Exportar Excel" descargue archivo
+- [ ] Verificar que el botón "Enviar Email" envíe correo
+- [ ] Revisar que el botón "Imprimir" abra ventana de impresión
+- [ ] Verificar que el botón "Buscar" filtre resultados
+- [ ] Revisar que el botón "Limpiar" resetee filtros
+
+### Auditoría de Reportes y Gráficas (6 tareas)
+- [ ] Verificar que todos los reportes carguen datos reales de BD
+- [ ] Revisar que las gráficas de Chart.js muestren datos correctos
+- [ ] Verificar que los reportes de cumplimiento NOM-035 calculen correctamente
+- [ ] Revisar que los reportes de competencias muestren brechas reales
+- [ ] Verificar que los reportes de capacitación muestren historial completo
+- [ ] Revisar que los reportes de casos muestren estados actualizados
+
+### Auditoría de Errores 404 y Rutas (6 tareas)
+- [ ] Verificar que todas las rutas de App.tsx estén definidas
+- [ ] Revisar que no existan enlaces rotos en el menú lateral
+- [ ] Verificar que todas las páginas de administración sean accesibles
+- [ ] Revisar que las rutas de API tRPC respondan correctamente
+- [ ] Verificar que las imágenes y assets carguen sin error 404
+- [ ] Revisar que los enlaces externos abran en nueva pestaña
+
+---
+
+## 📄 FASE 190: Exportación PDF de Autodiagnóstico (12 tareas)
+
+### Backend - Generación de PDF (4 tareas)
+- [ ] Instalar @react-pdf/renderer y dependencias
+- [ ] Crear componente AutodiagnosticoPDFDocument.tsx
+- [ ] Implementar procedimiento tRPC autodiagnostico.generatePDF
+- [ ] Agregar endpoint para descargar PDF generado
+
+### Frontend - Interfaz de Exportación (8 tareas)
+- [ ] Agregar botón "Exportar a PDF" en página de Autodiagnóstico
+- [ ] Implementar sección de logo de empresa en PDF
+- [ ] Crear tabla de cumplimiento por categoría con porcentajes
+- [ ] Agregar gráfica de barras de cumplimiento por categoría
+- [ ] Implementar sección de evidencias documentales con URLs
+- [ ] Agregar pie de página con fecha de generación y folio
+- [ ] Implementar loading state durante generación de PDF
+- [ ] Mostrar toast de éxito al completar descarga
+
+---
+
+## 📊 FASE 191: Filtros Avanzados en Dashboard Interactivo (8 tareas)
+
+### Filtros y Comparativas (5 tareas)
+- [ ] Agregar selector de departamento/área en header del dashboard
+- [ ] Implementar filtro de periodo (mes actual, mes anterior, trimestre)
+- [ ] Crear comparativa "mes actual vs mes anterior" con indicadores ↑↓
+- [ ] Agregar botón de modo pantalla completa para presentaciones
+- [ ] Implementar drill-down en mapa de calor (click para ver detalles por dimensión)
+
+### Backend - Procedimientos de Filtrado (3 tareas)
+- [ ] Crear procedimiento tRPC dashboardNom035.filterByDepartment
+- [ ] Crear procedimiento tRPC dashboardNom035.comparePeriodsç
+- [ ] Crear procedimiento tRPC dashboardNom035.getDimensionDetails
+
+---
+
+## ⏰ FASE 192: Job Programado de Notificaciones Automáticas (6 tareas)
+
+### Backend - Cron Job (4 tareas)
+- [ ] Instalar node-cron para jobs programados
+- [ ] Crear archivo server/jobs/criticalCasesNotifier.ts
+- [ ] Implementar lógica de detección de casos críticos (puntaje > 75)
+- [ ] Configurar cron job para ejecutar cada 5 minutos
+
+### Notificaciones por Email (2 tareas)
+- [ ] Implementar envío de email a responsables NOM-035
+- [ ] Implementar envío de email a directores con resumen de casos críticos
+
+---
+
+## 🖼️ FASE 193: Logotipo en Encabezado de PDFs (8 tareas)
+
+### Backend - Gestión de Logo (3 tareas)
+- [ ] Agregar campo logoUrl a tabla company
+- [ ] Crear procedimiento tRPC company.uploadLogo con upload a S3
+- [ ] Crear procedimiento tRPC company.getLogo
+
+### Frontend - Interfaz de Carga (5 tareas)
+- [ ] Agregar campo de carga de imagen en /settings o /company
+- [ ] Implementar preview del logo cargado
+- [ ] Agregar validación de formato (PNG, JPG, SVG)
+- [ ] Implementar aplicación automática del logo en todos los PDFs
+- [ ] Mostrar logo en encabezado de reportes, certificados, actas y políticas
+
+**TOTAL: 74 tareas pendientes**
