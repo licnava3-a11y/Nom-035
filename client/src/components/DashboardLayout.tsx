@@ -61,6 +61,7 @@ const hierarchicalMenuItems = [
       { label: "Evaluación de Competencias", path: "/competency-evaluation", description: "Evaluación de competencias y desempeño" },
       { label: "DNC Consolidada", path: "/dnc-dashboard", description: "Detección de Necesidades de Capacitación consolidada" },
       { label: "Catálogo de Competencias", path: "/competencies-manager", description: "Administración del catálogo de competencias organizacionales" },
+      { label: "Dashboard de Rotación", path: "/employees/turnover", description: "Análisis de rotación de personal y tendencias de bajas" },
     ],
   },
   {

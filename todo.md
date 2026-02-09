@@ -7573,10 +7573,244 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Pasar URLs de S3 al procedimiento terminate
 
 ### Pruebas y Validación
-- [ ] Probar dashboard de rotación con datos reales
-- [ ] Verificar cálculos de tasa de rotación
-- [ ] Probar exportación a Excel
-- [ ] Validar visualización de ReentryBadge
-- [ ] Probar carga de archivos a S3
-- [ ] Verificar que URLs se guardan correctamente en BD
+- [x] Probar dashboard de rotación con datos reales
+- [x] Verificar cálculos de tasa de rotación
+- [ ] Probar exportación a Excel (placeholder funcional)
+- [x] Validar visualización de ReentryBadge
+- [x] Probar carga de archivos a S3
+- [x] Verificar que URLs se guardan correctamente en BD
+- [x] Agregar enlace al dashboard de rotación en menú de navegación
+- [x] Crear checkpoint final
+
+
+---
+
+## FASE 216: Cuestionario Interactivo NOM-035 Mejorado (72 Preguntas)
+
+**Objetivo**: Crear componente multi-paso completo para el cuestionario NOM-035 con las 72 preguntas organizadas por categoría, dominio y dimensión, con guardado automático, barra de progreso visual y visualización detallada de resultados con gráficos Recharts.
+
+### Backend - Estructura de Datos
+
+- [ ] Crear tabla `nom035_questions` con campos: id, questionNumber, category, domain, dimension, questionText, questionType
+- [ ] Crear tabla `nom035_responses` con campos: id, employeeId, surveyPeriodId, questionId, response, timestamp
+- [ ] Crear procedimiento tRPC `getNOM035Questions` para obtener preguntas organizadas por categoría
+- [ ] Crear procedimiento tRPC `saveNOM035Response` para guardar respuesta individual
+- [ ] Crear procedimiento tRPC `getNOM035Results` para calcular resultados por categoría/dominio/dimensión
+- [ ] Implementar cálculo de nivel de riesgo según normativa (Nulo, Bajo, Medio, Alto, Muy Alto)
+- [ ] Crear procedimiento tRPC `getNOM035Progress` para obtener progreso de respuestas
+
+### Frontend - Componente Multi-Paso
+
+- [ ] Crear componente `NOM035Questionnaire.tsx` con navegación por pasos
+- [ ] Implementar barra de progreso visual que muestre porcentaje completado
+- [ ] Organizar 72 preguntas en secciones por categoría (Ambiente, Liderazgo, Carga, etc.)
+- [ ] Implementar guardado automático en localStorage cada vez que se responde
+- [ ] Agregar botones de navegación: Anterior, Siguiente, Guardar y Salir
+- [ ] Implementar validación: no permitir avanzar sin responder pregunta actual
+- [ ] Mostrar indicador visual de preguntas respondidas vs pendientes
+- [ ] Agregar tooltip explicativo para cada categoría/dominio/dimensión
+
+### Frontend - Visualización de Resultados
+
+- [ ] Crear componente `NOM035Results.tsx` con gráficos Recharts
+- [ ] Implementar gráfico de nivel de riesgo global con código de colores (verde, amarillo, naranja, rojo)
+- [ ] Crear gráfico de barras horizontales para nivel de riesgo por categoría
+- [ ] Implementar gráfico radial para visualizar dominios (8 dominios de la NOM-035)
+- [ ] Crear tabla detallada de resultados por dimensión con puntajes
+- [ ] Agregar sección de recomendaciones automáticas según nivel de riesgo
+- [ ] Implementar exportación de resultados a PDF con gráficos incluidos
+- [ ] Agregar comparativa temporal si existen evaluaciones previas
+
+### Integración y Rutas
+
+- [ ] Agregar ruta `/surveys/nom035/questionnaire` en App.tsx
+- [ ] Agregar ruta `/surveys/nom035/results/:employeeId` en App.tsx
+- [ ] Crear enlace en menú "Encuestas NOM-035" → "Aplicar Cuestionario"
+- [ ] Integrar con sistema de períodos de evaluación existente
+- [ ] Agregar permisos: empleados pueden responder su cuestionario, admin puede ver todos
+
+### Pruebas y Validación
+
+- [ ] Cargar las 72 preguntas oficiales de la NOM-035 en base de datos
+- [ ] Probar guardado automático y recuperación desde localStorage
+- [ ] Validar cálculos de nivel de riesgo según normativa oficial
+- [ ] Verificar que gráficos muestren correctamente los 5 niveles de riesgo
+- [ ] Probar navegación completa del cuestionario (72 preguntas)
+- [ ] Validar exportación a PDF de resultados
 - [ ] Crear checkpoint final
+
+---
+
+## FASE 217: Frontend CRUD de Departamentos y Puestos con Organigrama
+
+**Objetivo**: Desarrollar páginas CRUD completas para gestión de departamentos y puestos con shadcn/ui, organigrama visual interactivo con React Flow mostrando jerarquía organizacional, y dashboard con estadísticas.
+
+### Backend - Procedimientos tRPC
+
+- [ ] Crear procedimiento `departments.list` con filtros y paginación
+- [ ] Crear procedimiento `departments.create` con validación
+- [ ] Crear procedimiento `departments.update` con validación
+- [ ] Crear procedimiento `departments.delete` con verificación de dependencias
+- [ ] Crear procedimiento `departments.getHierarchy` para obtener árbol organizacional
+- [ ] Crear procedimiento `positions.list` con filtros por departamento
+- [ ] Crear procedimiento `positions.create` con validación
+- [ ] Crear procedimiento `positions.update` con validación
+- [ ] Crear procedimiento `positions.delete` con verificación de empleados asignados
+- [ ] Crear procedimiento `departments.getStats` para estadísticas por departamento
+
+### Frontend - CRUD de Departamentos
+
+- [ ] Crear página `Departments.tsx` con tabla shadcn/ui
+- [ ] Implementar paginación del lado del servidor
+- [ ] Agregar filtros: búsqueda por nombre, estado activo/inactivo
+- [ ] Crear componente `DepartmentForm.tsx` con validación en tiempo real
+- [ ] Implementar diálogo de confirmación para eliminación
+- [ ] Agregar validación: nombre único, código único, jefe de departamento
+- [ ] Mostrar contador de empleados por departamento en tabla
+- [ ] Implementar ordenamiento por columnas (nombre, código, empleados)
+
+### Frontend - CRUD de Puestos
+
+- [ ] Crear página `Positions.tsx` con tabla shadcn/ui
+- [ ] Implementar paginación y filtros por departamento
+- [ ] Crear componente `PositionForm.tsx` con campos: nombre, descripción, departamento, nivel jerárquico
+- [ ] Agregar validación en tiempo real con Zod
+- [ ] Implementar diálogo de confirmación para eliminación
+- [ ] Mostrar contador de empleados asignados a cada puesto
+- [ ] Agregar campo de competencias requeridas por puesto
+
+### Frontend - Organigrama Visual
+
+- [ ] Instalar React Flow: `pnpm add reactflow`
+- [ ] Crear componente `OrganizationChart.tsx` usando React Flow
+- [ ] Implementar nodos personalizados con información de departamento (nombre, jefe, empleados)
+- [ ] Configurar layout jerárquico automático (dagre o elk)
+- [ ] Agregar interactividad: click en nodo muestra detalle del departamento
+- [ ] Implementar zoom y pan para navegación del organigrama
+- [ ] Agregar mini-mapa para navegación rápida
+- [ ] Implementar colores por nivel jerárquico
+- [ ] Agregar botón de exportación del organigrama a imagen PNG
+
+### Frontend - Dashboard de Estadísticas
+
+- [ ] Crear página `DepartmentsStats.tsx` con gráficos Recharts
+- [ ] Implementar gráfico de barras: empleados por departamento
+- [ ] Crear gráfico de pastel: distribución de empleados por puesto
+- [ ] Agregar tarjetas KPI: total departamentos, total puestos, promedio empleados/depto
+- [ ] Implementar tabla de departamentos con más rotación
+- [ ] Agregar filtros temporales para estadísticas
+- [ ] Crear gráfico de línea: evolución de plantilla por departamento
+
+### Integración y Rutas
+
+- [ ] Agregar ruta `/organization/departments` en App.tsx
+- [ ] Agregar ruta `/organization/positions` en App.tsx
+- [ ] Agregar ruta `/organization/chart` en App.tsx
+- [ ] Agregar ruta `/organization/stats` en App.tsx
+- [ ] Crear sección "Organización" en menú lateral con submenú
+- [ ] Agregar permisos: solo Admin y RH pueden gestionar departamentos/puestos
+
+### Pruebas y Validación
+
+- [ ] Probar CRUD completo de departamentos con validaciones
+- [ ] Probar CRUD completo de puestos con validaciones
+- [ ] Validar que organigrama muestre correctamente jerarquía
+- [ ] Verificar que no se puedan eliminar departamentos con empleados asignados
+- [ ] Probar exportación de organigrama a PNG
+- [ ] Validar estadísticas con datos reales
+- [ ] Crear checkpoint final
+
+---
+
+## FASE 218: Sistema WebSocket de Notificaciones en Tiempo Real
+
+**Objetivo**: Implementar sistema completo de notificaciones en tiempo real usando WebSocket (Socket.IO) para eventos críticos del sistema, con componente NotificationBell en el header y notificaciones del navegador.
+
+### Backend - Configuración Socket.IO
+
+- [ ] Instalar Socket.IO: `pnpm add socket.io @types/socket.io`
+- [ ] Crear `server/websocket/socketServer.ts` para configurar Socket.IO
+- [ ] Integrar Socket.IO con servidor Express existente
+- [ ] Crear middleware de autenticación para conexiones WebSocket
+- [ ] Implementar rooms por usuario para notificaciones personalizadas
+- [ ] Crear room global para notificaciones broadcast (admin)
+
+### Backend - Eventos de Notificación
+
+- [ ] Crear servicio `server/services/notificationService.ts`
+- [ ] Implementar evento `case:created` cuando se crea nuevo incidente
+- [ ] Implementar evento `case:expiring` para casos próximos a vencer (24h antes)
+- [ ] Implementar evento `action:overdue` para acciones correctivas vencidas
+- [ ] Implementar evento `survey:completed` cuando empleado completa encuesta
+- [ ] Implementar evento `compliance:changed` cuando cambia nivel de cumplimiento
+- [ ] Implementar evento `employee:terminated` cuando se procesa baja
+- [ ] Crear procedimiento tRPC `notifications.markAsRead` para marcar leídas
+
+### Backend - Almacenamiento de Notificaciones
+
+- [ ] Crear tabla `notifications` con campos: id, userId, type, title, message, link, isRead, createdAt
+- [ ] Crear procedimiento tRPC `notifications.getUnread` para obtener no leídas
+- [ ] Crear procedimiento tRPC `notifications.getAll` con paginación
+- [ ] Crear procedimiento tRPC `notifications.markAllAsRead`
+- [ ] Implementar limpieza automática de notificaciones antiguas (>30 días)
+
+### Frontend - Cliente Socket.IO
+
+- [ ] Instalar Socket.IO cliente: `pnpm add socket.io-client`
+- [ ] Crear hook `useSocket.ts` para gestionar conexión WebSocket
+- [ ] Implementar reconexión automática en caso de desconexión
+- [ ] Crear contexto `SocketContext` para compartir conexión en toda la app
+- [ ] Implementar listeners para todos los eventos de notificación
+- [ ] Agregar manejo de errores y estados de conexión
+
+### Frontend - Componente NotificationBell
+
+- [ ] Crear componente `NotificationBell.tsx` para header
+- [ ] Implementar badge contador con número de notificaciones no leídas
+- [ ] Crear dropdown con lista de últimas 5 notificaciones
+- [ ] Agregar animación de "shake" cuando llega nueva notificación
+- [ ] Implementar sonido opcional para notificaciones críticas
+- [ ] Agregar botón "Marcar todas como leídas"
+- [ ] Crear enlace "Ver todas" que redirija a página completa de notificaciones
+- [ ] Implementar código de colores por tipo de notificación (info, warning, error, success)
+
+### Frontend - Página de Notificaciones
+
+- [ ] Crear página `Notifications.tsx` con lista completa de notificaciones
+- [ ] Implementar paginación infinita (scroll infinito)
+- [ ] Agregar filtros por tipo de notificación
+- [ ] Implementar búsqueda por texto
+- [ ] Agregar filtro temporal (hoy, última semana, último mes)
+- [ ] Mostrar notificaciones agrupadas por fecha
+- [ ] Implementar click en notificación para navegar al recurso relacionado
+
+### Frontend - Notificaciones del Navegador
+
+- [ ] Implementar solicitud de permisos de notificaciones del navegador
+- [ ] Crear servicio `browserNotifications.ts` usando API de Notifications
+- [ ] Mostrar notificación del navegador para eventos críticos (solo si ventana inactiva)
+- [ ] Agregar icono y badge personalizado a notificaciones del navegador
+- [ ] Implementar click en notificación del navegador para enfocar ventana y navegar
+- [ ] Agregar configuración de usuario para habilitar/deshabilitar notificaciones del navegador
+
+### Integración y Configuración
+
+- [ ] Agregar NotificationBell al header de DashboardLayout
+- [ ] Agregar ruta `/notifications` en App.tsx
+- [ ] Crear página de configuración de notificaciones en Settings
+- [ ] Permitir al usuario elegir qué tipos de notificaciones recibir
+- [ ] Agregar toggle para habilitar/deshabilitar sonido
+- [ ] Implementar preferencias de notificación por tipo de evento
+
+### Pruebas y Validación
+
+- [ ] Probar conexión WebSocket y reconexión automática
+- [ ] Validar que notificaciones lleguen en tiempo real
+- [ ] Probar NotificationBell con múltiples notificaciones simultáneas
+- [ ] Verificar que contador de badge se actualice correctamente
+- [ ] Probar notificaciones del navegador en diferentes navegadores
+- [ ] Validar que notificaciones se marquen como leídas correctamente
+- [ ] Probar limpieza automática de notificaciones antiguas
+- [ ] Crear checkpoint final
+
+---
