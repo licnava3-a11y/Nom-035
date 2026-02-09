@@ -7591,13 +7591,14 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 ### Backend - Estructura de Datos
 
-- [ ] Crear tabla `nom035_questions` con campos: id, questionNumber, category, domain, dimension, questionText, questionType
-- [ ] Crear tabla `nom035_responses` con campos: id, employeeId, surveyPeriodId, questionId, response, timestamp
-- [ ] Crear procedimiento tRPC `getNOM035Questions` para obtener preguntas organizadas por categoría
-- [ ] Crear procedimiento tRPC `saveNOM035Response` para guardar respuesta individual
-- [ ] Crear procedimiento tRPC `getNOM035Results` para calcular resultados por categoría/dominio/dimensión
-- [ ] Implementar cálculo de nivel de riesgo según normativa (Nulo, Bajo, Medio, Alto, Muy Alto)
-- [ ] Crear procedimiento tRPC `getNOM035Progress` para obtener progreso de respuestas
+- [x] Crear tabla `nom035_questions` con campos: id, questionNumber, category, domain, dimension, questionText, questionType
+- [x] Crear tabla `nom035_responses` con campos: id, employeeId, surveyPeriodId, questionId, response, timestamp
+- [x] Crear procedimiento tRPC `getNOM035Questions` para obtener preguntas organizadas por categoría
+- [x] Crear procedimiento tRPC `saveNOM035Response` para guardar respuesta individual
+- [x] Crear procedimiento tRPC `getNOM035Results` para calcular resultados por categoría/dominio/dimensión
+- [x] Implementar cálculo de nivel de riesgo según normativa (Nulo, Bajo, Medio, Alto, Muy Alto)
+- [x] Crear procedimiento tRPC `getNOM035Progress` para obtener progreso de respuestas
+- [x] Cargar las 72 preguntas oficiales en base de datos
 
 ### Frontend - Componente Multi-Paso
 

@@ -1868,3 +1868,64 @@ export const committeeTrainingAttendance = mysqlTable("committee_attendance", {
 
 export type CommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferSelect;
 export type InsertCommitteeTrainingAttendance = typeof committeeTrainingAttendance.$inferInsert;
+
+// NOM-035 Questionnaire Questions - 72 preguntas oficiales del cuestionario
+export const nom035Questions = mysqlTable("nom035_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  questionNumber: int("question_number").notNull().unique(), // Número de pregunta (1-72)
+  category: varchar("category", { length: 100 }).notNull(), // Categoría principal (Ambiente, Liderazgo, Carga, etc.)
+  domain: varchar("domain", { length: 150 }), // Dominio según NOM-035 (8 dominios)
+  dimension: varchar("dimension", { length: 150 }), // Dimensión específica
+  questionText: text("question_text").notNull(), // Texto de la pregunta
+  questionType: mysqlEnum("question_type", ["likert_5", "yes_no", "multiple_choice"]).default("likert_5").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Nom035Question = typeof nom035Questions.$inferSelect;
+export type InsertNom035Question = typeof nom035Questions.$inferInsert;
+
+// NOM-035 Survey Periods - Períodos de aplicación del cuestionario
+export const nom035SurveyPeriods = mysqlTable("nom035_survey_periods", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(), // Nombre del período (ej: "Evaluación Anual 2024")
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  status: mysqlEnum("status", ["draft", "active", "closed"]).default("draft").notNull(),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Nom035SurveyPeriod = typeof nom035SurveyPeriods.$inferSelect;
+export type InsertNom035SurveyPeriod = typeof nom035SurveyPeriods.$inferInsert;
+
+// NOM-035 Responses - Respuestas individuales del cuestionario
+export const nom035Responses = mysqlTable("nom035_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  surveyPeriodId: int("survey_period_id").references(() => nom035SurveyPeriods.id).notNull(),
+  questionId: int("question_id").references(() => nom035Questions.id).notNull(),
+  response: int("response").notNull(), // Valor numérico de la respuesta (0-4 para Likert)
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type Nom035Response = typeof nom035Responses.$inferSelect;
+export type InsertNom035Response = typeof nom035Responses.$inferInsert;
+
+// NOM-035 Results - Resultados calculados por empleado y período
+export const nom035Results = mysqlTable("nom035_results", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  surveyPeriodId: int("survey_period_id").references(() => nom035SurveyPeriods.id).notNull(),
+  globalScore: int("global_score").notNull(), // Puntaje global
+  globalRiskLevel: mysqlEnum("global_risk_level", ["nulo", "bajo", "medio", "alto", "muy_alto"]).notNull(),
+  categoryScores: json("category_scores"), // JSON con puntajes por categoría
+  domainScores: json("domain_scores"), // JSON con puntajes por dominio
+  dimensionScores: json("dimension_scores"), // JSON con puntajes por dimensión
+  recommendations: text("recommendations"), // Recomendaciones automáticas
+  completedAt: timestamp("completed_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Nom035Result = typeof nom035Results.$inferSelect;
+export type InsertNom035Result = typeof nom035Results.$inferInsert;
