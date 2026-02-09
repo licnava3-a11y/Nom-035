@@ -4,6 +4,7 @@ import ReactFlow, {
   Edge,
   Controls,
   Background,
+  MiniMap,
   useNodesState,
   useEdgesState,
   BackgroundVariant,
@@ -565,6 +566,24 @@ export default function OrganizationChart() {
             >
               <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="#e5e7eb" />
               <Controls />
+              <MiniMap
+                nodeColor={(node) => {
+                  if (node.data.isHighlighted) return '#eab308';
+                  const levelColors = ['#1e3a8a', '#16a34a', '#0891b2', '#7c3aed'];
+                  const level = Math.min(node.data.level || 0, levelColors.length - 1);
+                  return levelColors[level];
+                }}
+                maskColor="rgba(0, 0, 0, 0.1)"
+                position="bottom-right"
+                style={{
+                  backgroundColor: '#ffffff',
+                  border: '2px solid #1e3a8a',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                }}
+                pannable
+                zoomable
+              />
               <Panel position="top-right" className="bg-white p-3 rounded-lg shadow-md border">
                 <div className="text-sm space-y-1">
                   <p className="font-semibold text-[#1e3a8a]">Controles:</p>
