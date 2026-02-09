@@ -1,0 +1,367 @@
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Download, FileSpreadsheet, Upload } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import * as XLSX from "xlsx";
+
+export default function MassiveImport() {
+  const [activeTab, setActiveTab] = useState("departments");
+  const [departmentsFile, setDepartmentsFile] = useState<File | null>(null);
+  const [positionsFile, setPositionsFile] = useState<File | null>(null);
+  const [employeesFile, setEmployeesFile] = useState<File | null>(null);
+
+  // @ts-ignore - massiveImport router está correctamente registrado en server/routers.ts
+  const importDepartmentsMutation = trpc.massiveImport.importDepartments.useMutation();
+  // @ts-ignore
+  const importPositionsMutation = trpc.massiveImport.importPositions.useMutation();
+  // @ts-ignore
+  const importEmployeesMutation = trpc.massiveImport.importEmployees.useMutation();
+
+  // @ts-ignore
+  const { data: departments } = trpc.massiveImport.getDepartmentsForImport.useQuery();
+  // @ts-ignore
+  const { data: positions } = trpc.massiveImport.getPositionsForImport.useQuery();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (type === "departments") setDepartmentsFile(file);
+    else if (type === "positions") setPositionsFile(file);
+    else if (type === "employees") setEmployeesFile(file);
+  };
+
+  const processExcelFile = async (file: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: "binary" });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          resolve(jsonData);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error("Error al leer el archivo"));
+      reader.readAsBinaryString(file);
+    });
+  };
+
+  const handleImportDepartments = async () => {
+    if (!departmentsFile) {
+      toast.error("Por favor selecciona un archivo");
+      return;
+    }
+
+    try {
+      const data = await processExcelFile(departmentsFile);
+      const result = await importDepartmentsMutation.mutateAsync(data as any);
+      toast.success(result.message);
+      setDepartmentsFile(null);
+    } catch (error: any) {
+      toast.error(error.message || "Error al importar departamentos");
+    }
+  };
+
+  const handleImportPositions = async () => {
+    if (!positionsFile) {
+      toast.error("Por favor selecciona un archivo");
+      return;
+    }
+
+    try {
+      const data = await processExcelFile(positionsFile);
+      const result = await importPositionsMutation.mutateAsync(data as any);
+      toast.success(result.message);
+      setPositionsFile(null);
+    } catch (error: any) {
+      toast.error(error.message || "Error al importar puestos");
+    }
+  };
+
+  const handleImportEmployees = async () => {
+    if (!employeesFile) {
+      toast.error("Por favor selecciona un archivo");
+      return;
+    }
+
+    try {
+      const data = await processExcelFile(employeesFile);
+      const result = await importEmployeesMutation.mutateAsync(data as any);
+      
+      if (result.duplicates > 0) {
+        toast.warning(`${result.message}. Ver detalles en la consola.`);
+        console.log("Duplicados encontrados:", result.duplicateDetails);
+      } else {
+        toast.success(result.message);
+      }
+      
+      setEmployeesFile(null);
+    } catch (error: any) {
+      toast.error(error.message || "Error al importar trabajadores");
+    }
+  };
+
+  const downloadTemplate = (type: string) => {
+    let data: any[] = [];
+    let filename = "";
+
+    if (type === "departments") {
+      data = [
+        { name: "Recursos Humanos", description: "Gestión del talento humano" },
+        { name: "Operaciones", description: "Operaciones y producción" },
+        { name: "Ventas", description: "Área comercial y ventas" },
+      ];
+      filename = "plantilla_departamentos.xlsx";
+    } else if (type === "positions") {
+      data = [
+        { title: "Gerente de RH", description: "Gerente del área de recursos humanos", departmentId: 1, level: "management" },
+        { title: "Analista de RH", description: "Analista de recursos humanos", departmentId: 1, level: "specialist" },
+        { title: "Supervisor de Producción", description: "Supervisor de línea de producción", departmentId: 2, level: "supervisor" },
+      ];
+      filename = "plantilla_puestos.xlsx";
+    } else if (type === "employees") {
+      data = [
+        {
+          firstName: "Juan",
+          lastName: "Pérez García",
+          email: "juan.perez@empresa.com",
+          phone: "+52 614 123 4567",
+          curp: "PEGJ850101HCHRRN09",
+          employeeNumber: "EMP-001",
+          departmentId: 1,
+          positionId: 1,
+          hireDate: "2024-01-15",
+          isActive: true,
+        },
+        {
+          firstName: "María",
+          lastName: "González López",
+          email: "maria.gonzalez@empresa.com",
+          phone: "+52 614 234 5678",
+          curp: "GOLM900215MCHPPR08",
+          employeeNumber: "EMP-002",
+          departmentId: 1,
+          positionId: 2,
+          hireDate: "2024-02-01",
+          isActive: true,
+        },
+      ];
+      filename = "plantilla_trabajadores.xlsx";
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+    XLSX.writeFile(workbook, filename);
+  };
+
+  return (
+    <div className="container mx-auto py-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Importación Masiva</h1>
+        <p className="text-muted-foreground mt-2">
+          Importa departamentos, puestos y trabajadores desde archivos Excel
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="departments">Departamentos</TabsTrigger>
+          <TabsTrigger value="positions">Puestos</TabsTrigger>
+          <TabsTrigger value="employees">Trabajadores</TabsTrigger>
+        </TabsList>
+
+        {/* Departamentos */}
+        <TabsContent value="departments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Importar Departamentos</CardTitle>
+              <CardDescription>
+                Carga un archivo Excel con la lista de departamentos a importar
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => downloadTemplate("departments")}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar Plantilla
+                </Button>
+              </div>
+
+              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <FileSpreadsheet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => handleFileChange(e, "departments")}
+                  className="hidden"
+                  id="departments-file"
+                />
+                <label htmlFor="departments-file" className="cursor-pointer">
+                  <Button variant="secondary" asChild>
+                    <span>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Seleccionar Archivo
+                    </span>
+                  </Button>
+                </label>
+                {departmentsFile && (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Archivo seleccionado: {departmentsFile.name}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleImportDepartments}
+                disabled={!departmentsFile || importDepartmentsMutation.isLoading}
+                className="w-full"
+              >
+                {importDepartmentsMutation.isLoading ? "Importando..." : "Importar Departamentos"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Puestos */}
+        <TabsContent value="positions">
+          <Card>
+            <CardHeader>
+              <CardTitle>Importar Puestos</CardTitle>
+              <CardDescription>
+                Carga un archivo Excel con la lista de puestos a importar
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => downloadTemplate("positions")}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar Plantilla
+                </Button>
+              </div>
+
+              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <FileSpreadsheet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => handleFileChange(e, "positions")}
+                  className="hidden"
+                  id="positions-file"
+                />
+                <label htmlFor="positions-file" className="cursor-pointer">
+                  <Button variant="secondary" asChild>
+                    <span>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Seleccionar Archivo
+                    </span>
+                  </Button>
+                </label>
+                {positionsFile && (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Archivo seleccionado: {positionsFile.name}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleImportPositions}
+                disabled={!positionsFile || importPositionsMutation.isLoading}
+                className="w-full"
+              >
+                {importPositionsMutation.isLoading ? "Importando..." : "Importar Puestos"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Trabajadores */}
+        <TabsContent value="employees">
+          <Card>
+            <CardHeader>
+              <CardTitle>Importar Trabajadores</CardTitle>
+              <CardDescription>
+                Carga un archivo Excel con la lista de trabajadores a importar
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => downloadTemplate("employees")}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar Plantilla
+                </Button>
+              </div>
+
+              <div className="bg-muted p-4 rounded-lg text-sm">
+                <p className="font-semibold mb-2">Campos obligatorios:</p>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>Nombre (firstName)</li>
+                  <li>Apellido (lastName)</li>
+                  <li>Correo electrónico (email)</li>
+                  <li>Teléfono (phone)</li>
+                  <li>CURP (18 caracteres)</li>
+                  <li>Número de empleado (employeeNumber)</li>
+                  <li>ID de departamento (departmentId)</li>
+                  <li>ID de puesto (positionId)</li>
+                  <li>Fecha de ingreso (hireDate en formato YYYY-MM-DD)</li>
+                </ul>
+              </div>
+
+              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                <FileSpreadsheet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={(e) => handleFileChange(e, "employees")}
+                  className="hidden"
+                  id="employees-file"
+                />
+                <label htmlFor="employees-file" className="cursor-pointer">
+                  <Button variant="secondary" asChild>
+                    <span>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Seleccionar Archivo
+                    </span>
+                  </Button>
+                </label>
+                {employeesFile && (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Archivo seleccionado: {employeesFile.name}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleImportEmployees}
+                disabled={!employeesFile || importEmployeesMutation.isLoading}
+                className="w-full"
+              >
+                {importEmployeesMutation.isLoading ? "Importando..." : "Importar Trabajadores"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

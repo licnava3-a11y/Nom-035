@@ -207,6 +207,7 @@ export default function EmployeeNew() {
                   id="firstName"
                   value={formData.firstName}
                   onChange={(e) => handleChange("firstName", e.target.value)}
+                  required
                   placeholder="Juan"
                   className={errors.firstName ? "border-destructive" : ""}
                 />
@@ -223,6 +224,7 @@ export default function EmployeeNew() {
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) => handleChange("lastName", e.target.value)}
+                  required
                   placeholder="Pérez García"
                   className={errors.lastName ? "border-destructive" : ""}
                 />
@@ -241,6 +243,7 @@ export default function EmployeeNew() {
                   id="email"
                   type="email"
                   value={formData.email}
+                  required
                   onChange={(e) => handleChange("email", e.target.value)}
                   placeholder="juan.perez@empresa.com"
                   className={errors.email ? "border-destructive" : ""}
@@ -275,6 +278,7 @@ export default function EmployeeNew() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
+                  required
                   onChange={(e) => handleChange("phone", e.target.value)}
                   placeholder="+52 614 123 4567"
                 />
@@ -287,9 +291,11 @@ export default function EmployeeNew() {
                     id="curp"
                     value={formData.curp}
                     onChange={(e) => handleChange("curp", e.target.value.toUpperCase())}
+                    required
+                    minLength={18}
+                    maxLength={18}
                     onBlur={handleCURPBlur}
                     placeholder="PEGG850101HCHRRN09"
-                    maxLength={18}
                     className={`pr-10 ${
                       errors.curp || (validations.curp && !validations.curp.valid)
                         ? "border-destructive"
@@ -354,6 +360,7 @@ export default function EmployeeNew() {
                   id="employeeNumber"
                   value={formData.employeeNumber}
                   onChange={(e) => handleChange("employeeNumber", e.target.value)}
+                  required
                   placeholder="EMP-001"
                 />
               </div>
@@ -364,6 +371,7 @@ export default function EmployeeNew() {
                   id="hireDate"
                   type="date"
                   value={formData.hireDate}
+                  required
                   onChange={(e) => handleChange("hireDate", e.target.value)}
                 />
               </div>

@@ -7364,3 +7364,119 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Agregar enlace a política de privacidad en footer de todas las páginas
 - [ ] Documentar proceso de cumplimiento con LFPDPPP (Ley Federal de Protección de Datos)
 - [ ] Crear tests para flujo de consentimiento
+
+
+## FASE 211: VALIDACIÓN DE CAMPOS OBLIGATORIOS EN TRABAJADORES
+
+### Backend - Validaciones de Importación
+- [ ] Actualizar schema de importEmployees para hacer obligatorios: firstName, lastName, email, departmentId, positionId
+- [ ] Agregar validación de CURP obligatorio
+- [ ] Agregar validación de employeeNumber obligatorio
+- [ ] Agregar validación de hireDate obligatoria
+- [ ] Agregar mensajes de error descriptivos para cada campo faltante
+
+### Frontend - Formulario de Captura Manual
+- [ ] Actualizar EmployeeNew.tsx para marcar todos los campos como required
+- [ ] Agregar validación en handleSubmit antes de enviar al backend
+- [ ] Mostrar mensajes de error claros para campos vacíos
+- [ ] Deshabilitar botón de guardar si hay campos vacíos
+- [ ] Agregar indicadores visuales (*) en labels de campos obligatorios
+
+### Frontend - Formulario de Edición
+- [ ] Actualizar EmployeeEdit.tsx con las mismas validaciones
+- [ ] Mantener consistencia con formulario de captura
+
+### Pruebas
+- [ ] Probar importación con campos vacíos (debe rechazar)
+- [ ] Probar captura manual con campos vacíos (debe mostrar errores)
+- [ ] Verificar mensajes de error descriptivos
+- [ ] Confirmar que solo se guardan registros completos
+
+
+## FASE 212: PÁGINAS FRONTEND DE IMPORTACIÓN MASIVA
+
+### Página Principal /admin/import
+- [x] Crear componente MassiveImport.tsx con estructura de pestañas
+- [x] Implementar pestaña "Departamentos" con ImportMassiveData
+- [x] Implementar pestaña "Puestos" con ImportMassiveData
+- [x] Implementar pestaña "Trabajadores" con ImportMassiveData
+- [x] Agregar botones de descarga de plantillas Excel
+- [x] Conectar con procedimientos tRPC de importación
+- [x] Mostrar resultados de importación (exitosos/fallidos)
+- [x] Agregar ruta /admin/import en App.tsx
+- [x] Agregar enlace en menú de Administración
+
+### Plantillas Excel Descargables
+- [ ] Crear plantilla departments_template.xlsx con headers y ejemplos
+- [ ] Crear plantilla positions_template.xlsx con headers y ejemplos
+- [ ] Crear plantilla employees_template.xlsx con headers y ejemplos
+- [ ] Implementar función de descarga de plantillas en frontend
+- [ ] Agregar instrucciones de uso en cada plantilla
+
+### Historial de Importaciones
+- [ ] Crear tabla import_history en schema
+- [ ] Generar migración SQL para tabla de historial
+- [ ] Crear procedimiento tRPC para guardar historial
+- [ ] Crear procedimiento tRPC para consultar historial
+- [ ] Implementar componente ImportHistory.tsx
+- [ ] Mostrar tabla con: fecha, usuario, entidad, registros exitosos/fallidos
+- [ ] Agregar modal de detalle con log de errores
+- [ ] Integrar historial en página /admin/import
+
+### Pruebas
+- [ ] Probar importación de departamentos con archivo válido
+- [ ] Probar importación de puestos con archivo válido
+- [ ] Probar importación de trabajadores con archivo válido
+- [ ] Verificar validación de campos obligatorios
+- [ ] Probar descarga de plantillas Excel
+- [ ] Verificar que historial se guarda correctamente
+- [ ] Validar visualización de errores en importaciones fallidas
+
+
+## FASE 213: GENERADOR DE CARPETA DE EVIDENCIAS NOM-035
+
+### Estructura y Organización de Evidencias
+- [ ] Crear tabla evidence_documents en schema para almacenar evidencias
+- [ ] Definir estructura de índice según incisos de NOM-035 STPS 2018
+- [ ] Mapear evidencias existentes del sistema a incisos de la norma
+- [ ] Crear catálogo de tipos de evidencia por inciso
+
+### Generación de Documento PDF/Word
+- [ ] Crear procedimiento tRPC generateEvidenceFolder
+- [ ] Implementar generación de portada con datos de la empresa
+- [ ] Implementar generación de índice automático con numeración
+- [ ] Crear separadores visuales con títulos de incisos
+- [ ] Agregar páginas de evidencias con metadatos (fecha, responsable, descripción)
+- [ ] Implementar marca de agua con "Evidencia NOM-035 STPS 2018"
+
+### Mapeo de Evidencias por Inciso
+- [ ] **5.1** Política de prevención de riesgos psicosociales
+- [ ] **5.2** Medidas de prevención y acciones de control
+- [ ] **5.3** Identificación y análisis de factores de riesgo
+- [ ] **5.4** Evaluación del entorno organizacional favorable
+- [ ] **5.5** Difusión de información a trabajadores
+- [ ] **5.6** Medidas y acciones de control implementadas
+- [ ] **5.7** Registros de atención a trabajadores expuestos
+- [ ] **5.8** Exámenes médicos y evaluaciones psicológicas
+- [ ] **5.9** Capacitación y sensibilización
+
+### Vista Previa y Personalización
+- [ ] Crear componente EvidenceFolderPreview.tsx
+- [ ] Mostrar vista previa del documento antes de generar
+- [ ] Permitir seleccionar/deseleccionar evidencias a incluir
+- [ ] Agregar opción de ordenar evidencias manualmente
+- [ ] Implementar filtros por fecha, tipo, inciso
+
+### Interfaz de Usuario
+- [ ] Crear página /nom035/evidence-folder
+- [ ] Agregar botón "Generar Carpeta de Evidencias" en dashboard
+- [ ] Mostrar progreso de generación del documento
+- [ ] Permitir descargar en formato PDF o Word
+- [ ] Agregar historial de carpetas generadas
+
+### Pruebas y Validación
+- [ ] Verificar que todas las evidencias se mapeen correctamente
+- [ ] Validar formato de índice y numeración
+- [ ] Probar generación con diferentes cantidades de evidencias
+- [ ] Verificar calidad de separadores y formato visual
+- [ ] Validar cumplimiento con estructura oficial de NOM-035

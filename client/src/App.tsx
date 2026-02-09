@@ -78,6 +78,7 @@ import CompanySettings from "./pages/company/CompanySettings";
 import EqualityPolicy from "./pages/equality/Policy";
 import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
+import MassiveImport from "./pages/MassiveImport";
 import EqualityComplaints from "./pages/equality/Complaints";
 import EqualityCommittee from "./pages/equality/Committee";
 
@@ -462,6 +463,13 @@ function Router() {
       {/* Ruta pública de aplicación de encuestas */}
       <Route path="/survey/apply" component={SurveyApply} />
       
+      {/* Ruta de Importación Masiva */}
+      <Route path={"/admin/import"}>
+        <DashboardLayout>
+          <MassiveImport />
+        </DashboardLayout>
+      </Route>
+
       {/* Ruta de Empresa (Consolidada) */}
       <Route path={"/company"}>
         <DashboardLayout>

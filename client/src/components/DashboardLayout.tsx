@@ -161,6 +161,7 @@ const hierarchicalMenuItems = [
     submenu: [
       { label: "Usuarios", path: "/users", description: "Gestión de usuarios y permisos de acceso" },
       { label: "Configuración", path: "/settings", description: "Configuración general del sistema y parámetros SMTP" },
+      { label: "Importación Masiva", path: "/admin/import", description: "Importar departamentos, puestos y trabajadores desde archivos Excel" },
     ],
   },
 ];

@@ -89,15 +89,15 @@ export const massiveImportRouter = router({
     .input(
       z.array(
         z.object({
-          firstName: z.string(),
-          lastName: z.string(),
-          email: z.string().email(),
-          phone: z.string().optional(),
-          curp: z.string().optional(),
-          employeeNumber: z.string().optional(),
-          departmentId: z.number(),
-          positionId: z.number(),
-          hireDate: z.string().optional(),
+          firstName: z.string().min(1, "El nombre es obligatorio"),
+          lastName: z.string().min(1, "El apellido es obligatorio"),
+          email: z.string().email("Correo electrónico inválido"),
+          phone: z.string().min(1, "El teléfono es obligatorio"),
+          curp: z.string().min(18, "El CURP debe tener 18 caracteres").max(18),
+          employeeNumber: z.string().min(1, "El número de empleado es obligatorio"),
+          departmentId: z.number().positive("Debe seleccionar un departamento"),
+          positionId: z.number().positive("Debe seleccionar un puesto"),
+          hireDate: z.string().min(1, "La fecha de ingreso es obligatoria"),
           isActive: z.boolean().optional(),
         })
       )
