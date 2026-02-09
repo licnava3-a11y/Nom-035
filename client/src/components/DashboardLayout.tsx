@@ -81,6 +81,7 @@ const hierarchicalMenuItems = [
     description: "Guías de Referencia I, II y III para evaluación de factores de riesgo psicosocial",
     roles: ["admin", "committee"],
     submenu: [
+      { label: "Cuestionario Interactivo (72 preguntas)", path: "/nom035/questionnaire", description: "Cuestionario completo NOM-035 con 72 preguntas organizadas por categoría, dominio y dimensión" },
       { label: "Guía I - ATS", path: "/surveys/guide-i", description: "Cuestionario para identificar trabajadores expuestos a acontecimientos traumáticos severos" },
       { label: "Guía II - Identificación", path: "/surveys/guide-ii", description: "Cuestionario de identificación de factores de riesgo (centros de trabajo con 16-50 trabajadores)" },
       { label: "Guía III - Evaluación", path: "/surveys/guide-iii", description: "Cuestionario de evaluación del entorno organizacional (centros de trabajo con más de 50 trabajadores)" },

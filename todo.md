@@ -7602,20 +7602,20 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 ### Frontend - Componente Multi-Paso
 
-- [ ] Crear componente `NOM035Questionnaire.tsx` con navegación por pasos
-- [ ] Implementar barra de progreso visual que muestre porcentaje completado
-- [ ] Organizar 72 preguntas en secciones por categoría (Ambiente, Liderazgo, Carga, etc.)
-- [ ] Implementar guardado automático en localStorage cada vez que se responde
-- [ ] Agregar botones de navegación: Anterior, Siguiente, Guardar y Salir
-- [ ] Implementar validación: no permitir avanzar sin responder pregunta actual
-- [ ] Mostrar indicador visual de preguntas respondidas vs pendientes
-- [ ] Agregar tooltip explicativo para cada categoría/dominio/dimensión
+- [x] Crear componente `NOM035Questionnaire.tsx` con navegación por pasos
+- [x] Implementar barra de progreso visual que muestre porcentaje completado
+- [x] Organizar 72 preguntas en secciones por categoría (Ambiente, Liderazgo, Carga, etc.)
+- [x] Implementar guardado automático en localStorage cada vez que se responde
+- [x] Agregar botones de navegación: Anterior, Siguiente, Guardar y Salir
+- [x] Implementar validación: no permitir avanzar sin responder pregunta actual
+- [x] Mostrar indicador visual de preguntas respondidas vs pendientes
+- [x] Agregar tooltip explicativo para cada categoría/dominio/dimensión (mostrado en preguntas)
 
 ### Frontend - Visualización de Resultados
 
-- [ ] Crear componente `NOM035Results.tsx` con gráficos Recharts
-- [ ] Implementar gráfico de nivel de riesgo global con código de colores (verde, amarillo, naranja, rojo)
-- [ ] Crear gráfico de barras horizontales para nivel de riesgo por categoría
+- [x] Crear componente `NOM035Results.tsx` con gráficos Recharts
+- [x] Implementar gráfico de nivel de riesgo global con código de colores (verde, amarillo, naranja, rojo)
+- [x] Crear gráfico de barras horizontales para nivel de riesgo por categoría
 - [ ] Implementar gráfico radial para visualizar dominios (8 dominios de la NOM-035)
 - [ ] Crear tabla detallada de resultados por dimensión con puntajes
 - [ ] Agregar sección de recomendaciones automáticas según nivel de riesgo

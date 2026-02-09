@@ -78,6 +78,8 @@ import SurveyApply from "./pages/SurveyApply";
 import Settings from "./pages/Settings";
 import CompanySettings from "./pages/company/CompanySettings";
 import EqualityPolicy from "./pages/equality/Policy";
+import NOM035Questionnaire from "./pages/NOM035Questionnaire";
+import NOM035Results from "./pages/NOM035Results";
 import EqualitySalaryGap from "./pages/equality/SalaryGap";
 import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
 import MassiveImport from "./pages/MassiveImport";
@@ -455,6 +457,16 @@ function Router() {
         <Route path={"/nom035/evidences"}>
         <DashboardLayout>
           <EvidenceFolder />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/nom035/questionnaire"}>
+        <DashboardLayout>
+          <NOM035Questionnaire />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/nom035/results"}>
+        <DashboardLayout>
+          <NOM035Results />
         </DashboardLayout>
       </Route>
       <Route path={"/alerts"}>
