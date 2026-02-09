@@ -7875,3 +7875,88 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar organigrama con jerarquía de departamentos
 - [ ] Verificar exportación a Excel
 - [ ] Crear checkpoint final
+
+
+## FASE 221: Filtros Temporales Avanzados en Dashboards
+
+### OrganizationDashboard - Filtros Temporales
+- [ ] Agregar selector de periodo (semana anterior, mes anterior, año anterior, personalizado)
+- [ ] Instalar react-day-picker para date pickers personalizados
+- [ ] Modificar procedimiento `departments.getStats` para aceptar parámetros startDate/endDate
+- [ ] Modificar procedimiento `positions.getStats` para aceptar parámetros startDate/endDate
+- [ ] Actualizar gráficos para reflejar datos filtrados dinámicamente
+- [ ] Agregar indicador visual del periodo seleccionado en header
+- [ ] Guardar preferencia de filtro en localStorage
+
+### TurnoverDashboard - Filtros Temporales Mejorados
+- [ ] Agregar opciones: semana anterior y personalizado (ya tiene mes/trimestre/año)
+- [ ] Implementar date pickers con react-day-picker para rango personalizado
+- [ ] Agregar validación de rangos de fechas (máximo 2 años)
+- [ ] Actualizar indicador visual del periodo seleccionado
+- [ ] Guardar preferencia de filtro en localStorage
+
+---
+
+## FASE 222: Organigrama con Jerarquía Real
+
+### Backend - Schema y Migración
+- [ ] Modificar schema de `departments` para agregar campo `parentId` (nullable, self-reference)
+- [ ] Generar migración SQL con `pnpm drizzle-kit generate`
+- [ ] Aplicar migración con `webdev_execute_sql`
+- [ ] Actualizar procedimiento `departments.getHierarchy` para construir árbol jerárquico real
+- [ ] Crear procedimiento `departments.getTree` que retorne estructura anidada
+
+### Frontend - Organigrama Jerárquico
+- [ ] Modificar OrganizationChart para usar layout de árbol vertical (dagre o elkjs)
+- [ ] Actualizar nodos para mostrar relación padre-hijo visualmente
+- [ ] Implementar algoritmo de posicionamiento jerárquico automático
+- [ ] Agregar líneas de conexión entre nodos padre-hijo
+- [ ] Mejorar diseño de nodos con indicador de subdepartamentos
+- [ ] Agregar funcionalidad de colapsar/expandir subdepartamentos
+
+### Formularios - Selector de Departamento Padre
+- [ ] Actualizar formulario de Departments para incluir selector de departamento padre
+- [ ] Agregar validación: un departamento no puede ser su propio padre
+- [ ] Agregar validación: prevenir ciclos en jerarquía
+- [ ] Mostrar jerarquía completa en selector (con indentación)
+
+---
+
+## FASE 223: Sistema WebSocket de Notificaciones en Tiempo Real
+
+### Backend - Infraestructura WebSocket
+- [ ] Instalar Socket.IO: `pnpm add socket.io socket.io-client`
+- [ ] Crear archivo `server/websocket.ts` con configuración de Socket.IO
+- [ ] Integrar Socket.IO con servidor Express existente
+- [ ] Crear sistema de rooms por usuario (userId)
+- [ ] Implementar autenticación de conexiones WebSocket con JWT
+- [ ] Crear helper `emitNotification(userId, notification)` para enviar notificaciones
+
+### Backend - Eventos de Notificación
+- [ ] Identificar eventos críticos: vencimientos de acciones correctivas, nuevos incidentes, cambios en cumplimiento
+- [ ] Crear tabla `notifications` en schema (id, userId, type, title, message, data, read, createdAt)
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear procedimientos tRPC: `notifications.list`, `notifications.markAsRead`, `notifications.markAllAsRead`
+- [ ] Integrar emisión de notificaciones WebSocket en eventos críticos
+
+### Frontend - Componente NotificationBell
+- [ ] Crear componente `NotificationBell.tsx` con badge contador
+- [ ] Implementar conexión WebSocket con Socket.IO client
+- [ ] Crear dropdown con lista de notificaciones recientes (últimas 10)
+- [ ] Implementar marcado de notificaciones como leídas
+- [ ] Agregar sonido de notificación (opcional, configurable)
+- [ ] Integrar NotificationBell en DashboardLayout header
+
+### Frontend - Notificaciones del Navegador
+- [ ] Solicitar permiso de notificaciones al usuario (Notification API)
+- [ ] Implementar función para mostrar notificaciones del navegador
+- [ ] Agregar configuración de usuario para habilitar/deshabilitar notificaciones
+- [ ] Crear página `/notifications` con historial completo
+- [ ] Agregar filtros por tipo y estado (leído/no leído)
+
+### Pruebas y Optimización
+- [ ] Probar conexión WebSocket con múltiples usuarios simultáneos
+- [ ] Verificar que notificaciones lleguen en tiempo real
+- [ ] Probar notificaciones del navegador en diferentes navegadores
+- [ ] Optimizar rendimiento de consultas de notificaciones
+- [ ] Crear checkpoint final
