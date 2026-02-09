@@ -103,7 +103,7 @@ export const departmentsRouter = router({
         description: z.string().optional(),
         code: z.string().min(1, "El código es requerido"),
         managerId: z.number().optional(),
-
+        parentId: z.number().nullable().optional(),
         isActive: z.boolean().default(true),
       })
     )
@@ -133,7 +133,7 @@ export const departmentsRouter = router({
           description: input.description,
           code: input.code,
           managerId: input.managerId,
-  
+          parentId: input.parentId ?? null,
           isActive: input.isActive,
         })
         .$returningId();
@@ -150,7 +150,7 @@ export const departmentsRouter = router({
         description: z.string().optional(),
         code: z.string().min(1).optional(),
         managerId: z.number().optional(),
-
+        parentId: z.number().nullable().optional(),
         isActive: z.boolean().optional(),
       })
     )
@@ -247,6 +247,7 @@ export const departmentsRouter = router({
         name: departments.name,
         code: departments.code,
         managerId: departments.managerId,
+        parentId: departments.parentId,
         isActive: departments.isActive,
         employeeCount: sql<number>`(
           SELECT COUNT(*) 
@@ -257,8 +258,37 @@ export const departmentsRouter = router({
       .from(departments)
       .where(eq(departments.isActive, true));
 
-    // Retornar lista plana (sin jerarquía de subdepartamentos)
-    return allDepartments;
+    // Construir árbol jerárquico
+    type DepartmentNode = typeof allDepartments[0] & { children?: DepartmentNode[] };
+    
+    const departmentMap = new Map<number, DepartmentNode>();
+    const rootDepartments: DepartmentNode[] = [];
+
+    // Crear mapa de departamentos
+    allDepartments.forEach(dept => {
+      departmentMap.set(dept.id, { ...dept, children: [] });
+    });
+
+    // Construir jerarquía
+    allDepartments.forEach(dept => {
+      const node = departmentMap.get(dept.id)!;
+      
+      if (dept.parentId === null) {
+        // Es un departamento raíz
+        rootDepartments.push(node);
+      } else {
+        // Es un subdepartamento, agregarlo al padre
+        const parent = departmentMap.get(dept.parentId);
+        if (parent) {
+          parent.children!.push(node);
+        } else {
+          // Si el padre no existe, tratarlo como raíz
+          rootDepartments.push(node);
+        }
+      }
+    });
+
+    return rootDepartments;
   }),
 
   // Obtener estadísticas por departamento

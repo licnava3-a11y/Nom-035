@@ -30,7 +30,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Search, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Users, Network } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function Departments() {
@@ -44,6 +51,7 @@ export default function Departments() {
     name: "",
     description: "",
     code: "",
+    parentId: null as number | null,
   });
 
   // @ts-expect-error - Router types will be generated
@@ -93,7 +101,7 @@ export default function Departments() {
   });
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", code: "" });
+    setFormData({ name: "", description: "", code: "", parentId: null });
     setSelectedDepartment(null);
   };
 
@@ -111,6 +119,7 @@ export default function Departments() {
       name: department.name,
       description: department.description || "",
       code: department.code,
+      parentId: department.parentId || null,
     });
     setIsEditOpen(true);
   };
@@ -296,6 +305,38 @@ export default function Departments() {
                 }
               />
             </div>
+            <div>
+              <Label htmlFor="parentId">
+                <Network className="inline h-4 w-4 mr-1" />
+                Departamento Padre (opcional)
+              </Label>
+              <Select
+                value={formData.parentId?.toString() || "none"}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    parentId: value === "none" ? null : parseInt(value),
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sin departamento padre" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin departamento padre (Raíz)</SelectItem>
+                  {data?.data
+                    .filter((d: any) => d.id !== selectedDepartment?.id)
+                    .map((dept: any) => (
+                      <SelectItem key={dept.id} value={dept.id.toString()}>
+                        {dept.code} - {dept.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Selecciona un departamento padre para crear una jerarquía
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
@@ -350,6 +391,38 @@ export default function Departments() {
                   setFormData({ ...formData, description: e.target.value })
                 }
               />
+            </div>
+            <div>
+              <Label htmlFor="edit-parentId">
+                <Network className="inline h-4 w-4 mr-1" />
+                Departamento Padre (opcional)
+              </Label>
+              <Select
+                value={formData.parentId?.toString() || "none"}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    parentId: value === "none" ? null : parseInt(value),
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sin departamento padre" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin departamento padre (Raíz)</SelectItem>
+                  {data?.data
+                    .filter((d: any) => d.id !== selectedDepartment?.id)
+                    .map((dept: any) => (
+                      <SelectItem key={dept.id} value={dept.id.toString()}>
+                        {dept.code} - {dept.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Selecciona un departamento padre para crear una jerarquía
+              </p>
             </div>
           </div>
           <DialogFooter>
