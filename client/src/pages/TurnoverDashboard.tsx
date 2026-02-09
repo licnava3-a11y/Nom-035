@@ -4,7 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingDown, Users, Calendar, Download } from "lucide-react";
+import { TrendingDown, Users, Calendar, Download, FileSpreadsheet } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d", "#ffc658", "#ff7c7c"];
@@ -59,10 +60,53 @@ export default function TurnoverDashboard() {
   })) || [];
 
   const handleExportToExcel = () => {
-    // TODO: Implement Excel export
-    toast.info("Exportación a Excel", {
-      description: "Esta funcionalidad estará disponible próximamente",
-    });
+    if (!stats || !trends || !byReason || !byDepartment) {
+      toast.error("Error", { description: "No hay datos disponibles para exportar" });
+      return;
+    }
+
+    // Hoja 1: KPIs
+    const kpisData = [
+      ['Indicador', 'Valor'],
+      ['Tasa de Rotación', `${stats.turnoverRate}%`],
+      ['Total Bajas', stats.totalTerminations],
+      ['Empleados Activos', stats.activeEmployees],
+      ['Promedio Bajas Mensuales', stats.averageMonthly],
+    ];
+
+    // Hoja 2: Tendencias Mensuales
+    const trendsData = [
+      ['Mes', 'Bajas'],
+      ...monthlyData.map((d: { month: string; bajas: number }) => [d.month, d.bajas]),
+    ];
+
+    // Hoja 3: Por Motivo
+    const reasonDataExport = [
+      ['Motivo', 'Cantidad'],
+      ...reasonData.map((r: { name: string; value: number }) => [r.name, r.value]),
+    ];
+
+    // Hoja 4: Por Departamento
+    const deptDataExport = [
+      ['Departamento', 'Bajas'],
+      ...departmentData.map((d: { name: string; bajas: number }) => [d.name, d.bajas]),
+    ];
+
+    // Crear libro de Excel
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(kpisData);
+    const ws2 = XLSX.utils.aoa_to_sheet(trendsData);
+    const ws3 = XLSX.utils.aoa_to_sheet(reasonDataExport);
+    const ws4 = XLSX.utils.aoa_to_sheet(deptDataExport);
+
+    XLSX.utils.book_append_sheet(wb, ws1, 'KPIs');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Tendencias Mensuales');
+    XLSX.utils.book_append_sheet(wb, ws3, 'Por Motivo');
+    XLSX.utils.book_append_sheet(wb, ws4, 'Por Departamento');
+
+    // Descargar archivo
+    XLSX.writeFile(wb, `dashboard-rotacion-${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success("Éxito", { description: "Reporte exportado correctamente" });
   };
 
   if (isLoading) {

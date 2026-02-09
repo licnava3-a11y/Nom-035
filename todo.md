@@ -7864,11 +7864,11 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar ruta y enlace en menú de Gestión de Talento
 
 ### Exportación a Excel
-- [ ] Instalar biblioteca `xlsx`: `pnpm add xlsx`
-- [ ] Implementar función de exportación en OrganizationDashboard
-- [ ] Implementar función de exportación en TurnoverDashboard
-- [ ] Agregar botones de exportación con iconos
-- [ ] Generar archivo Excel con múltiples hojas (KPIs, datos por departamento, datos por puesto)
+- [x] Instalar biblioteca `xlsx`: `pnpm add xlsx` (ya estaba instalada)
+- [x] Implementar función de exportación en OrganizationDashboard (3 hojas: KPIs, Por Departamento, Por Puesto)
+- [x] Implementar función de exportación en TurnoverDashboard (4 hojas: KPIs, Tendencias, Por Motivo, Por Departamento)
+- [x] Agregar botones de exportación con iconos (FileSpreadsheet)
+- [x] Generar archivo Excel con múltiples hojas y nombres descriptivos
 
 ### Pruebas y Entrega
 - [ ] Probar filtros temporales con datos reales

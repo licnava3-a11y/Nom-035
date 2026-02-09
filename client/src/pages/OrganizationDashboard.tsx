@@ -1,7 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Building2, Briefcase, Users } from "lucide-react";
+import { Building2, Briefcase, Users, FileSpreadsheet } from "lucide-react";
+import * as XLSX from 'xlsx';
 
 // Paleta de colores profesional: negro, verde, azul marino, rojo
 const COLORS = ["#1e3a8a", "#16a34a", "#dc2626", "#0f172a", "#22c55e", "#ef4444"];
@@ -55,14 +57,62 @@ export default function OrganizationDashboard() {
     fill: COLORS[index % COLORS.length],
   }));
 
+  // Exportar a Excel
+  const handleExportExcel = () => {
+    if (!deptStats || !posStats) return;
+
+    // Hoja 1: KPIs
+    const kpisData = [
+      ['Indicador', 'Valor'],
+      ['Total Departamentos', totalDepartments],
+      ['Total Puestos', totalPositions],
+      ['Total Empleados', totalEmployees],
+      ['Promedio Empleados por Departamento', (totalEmployees / (totalDepartments || 1)).toFixed(2)],
+    ];
+
+    // Hoja 2: Empleados por Departamento
+    const deptData = [
+      ['Departamento', 'Empleados'],
+      ...deptChartData.map((d: { name: string; empleados: number }) => [d.name, d.empleados]),
+    ];
+
+    // Hoja 3: Empleados por Puesto (Top 10)
+    const posData = [
+      ['Puesto', 'Empleados'],
+      ...posChartData.map((p: { name: string; empleados: number }) => [p.name, p.empleados]),
+    ];
+
+    // Crear libro de Excel
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(kpisData);
+    const ws2 = XLSX.utils.aoa_to_sheet(deptData);
+    const ws3 = XLSX.utils.aoa_to_sheet(posData);
+
+    XLSX.utils.book_append_sheet(wb, ws1, 'KPIs');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Por Departamento');
+    XLSX.utils.book_append_sheet(wb, ws3, 'Por Puesto');
+
+    // Descargar archivo
+    XLSX.writeFile(wb, `dashboard-organizacional-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="container py-8 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Organizacional</h1>
-        <p className="text-muted-foreground mt-2">
-          Estadísticas visuales de empleados por departamento y puesto
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard Organizacional</h1>
+          <p className="text-muted-foreground mt-2">
+            Estadísticas visuales de empleados por departamento y puesto
+          </p>
+        </div>
+        <Button
+          onClick={handleExportExcel}
+          className="bg-[#16a34a] hover:bg-[#15803d]"
+        >
+          <FileSpreadsheet className="mr-2 h-4 w-4" />
+          Exportar a Excel
+        </Button>
       </div>
 
       {/* KPIs */}
