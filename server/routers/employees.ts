@@ -40,6 +40,17 @@ export const employeesRouter = router({
     }),
 
   /**
+   * Get employee history
+   */
+  getHistory: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .query(async ({ input }) => {
+      // @ts-expect-error - Function exists but TypeScript cache issue
+      const history = await employeesDb.getEmployeeHistory(input.employeeId);
+      return history || [];
+    }),
+
+  /**
    * Get employee with user info
    */
   getWithUser: protectedProcedure

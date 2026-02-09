@@ -3,6 +3,8 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ReentryBadge } from "@/components/ReentryBadge";
+import { EmployeeTimeline } from "@/components/EmployeeTimeline";
 import {
   ArrowLeft,
   User,
@@ -28,6 +30,11 @@ export default function EmployeeProfile() {
     { id: employeeId },
     { enabled: employeeId > 0 }
   ) as { data: any; isLoading: boolean; refetch: () => void };
+
+  const { data: employeeHistory } = trpc.employees.getHistory.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 }
+  );
 
   const deactivateMutation = trpc.employees.deactivate.useMutation({
     onSuccess: () => {
@@ -111,6 +118,10 @@ export default function EmployeeProfile() {
                   <Badge variant={employee.isActive ? "default" : "secondary"}>
                     {employee.isActive ? "Activo" : "Inactivo"}
                   </Badge>
+                  <ReentryBadge 
+                    reentryCount={employee.reentryCount || 0}
+                    previousHireDates={employee.previousHireDates}
+                  />
                 </div>
                 <CardDescription className="text-lg mt-1">
                   {employee.position || "Sin puesto asignado"}
@@ -290,6 +301,14 @@ export default function EmployeeProfile() {
       </div>
 
       {/* Future sections placeholder */}
+      {/* Timeline de historial laboral */}
+      <div className="mt-6">
+        <EmployeeTimeline 
+          history={employeeHistory || []}
+          employeeName={`${employee.firstName} ${employee.lastName}`}
+        />
+      </div>
+
       <Card className="mt-6">
         <CardHeader>
           <CardTitle>Secciones Adicionales</CardTitle>
