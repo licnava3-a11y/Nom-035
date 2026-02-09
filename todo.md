@@ -7817,3 +7817,29 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Crear checkpoint final
 
 ---
+
+
+## FASE 219: Dashboard de Estadísticas Organizacionales
+
+**Objetivo**: Crear panel de control con estadísticas visuales sobre el número de empleados por departamento y puesto usando gráficos Recharts.
+
+### Backend - Procedimientos de Estadísticas
+- [x] Verificar si ya existe procedimiento `departments.getStats` (ya existía)
+- [x] Crear procedimiento `positions.getStats` para estadísticas de empleados por puesto (ya existía)
+- [x] Implementar procedimiento para obtener distribución de empleados por departamento (ya existía)
+- [x] Crear procedimiento para obtener top 10 puestos con más empleados (implementado en frontend)
+
+### Frontend - Dashboard Visual
+- [x] Crear componente `OrganizationDashboard.tsx` con gráficos Recharts
+- [x] Implementar tarjetas de KPIs (total departamentos, total puestos, total empleados)
+- [x] Crear gráfico de barras: empleados por departamento
+- [x] Crear gráfico de barras horizontales: top 10 puestos con más empleados
+- [x] Agregar gráfico de pie: distribución porcentual por departamento
+- [ ] Implementar filtros temporales (mes actual, mes anterior, año actual, año anterior) - pendiente
+- [x] Agregar diseño profesional e institucional con paleta de colores (negro, verde, azul marino, rojo)
+
+### Integración y Navegación
+- [x] Agregar ruta en App.tsx para `/organization/dashboard`
+- [x] Agregar enlace en menú de Gestión de Talento
+- [ ] Probar dashboard con datos reales (pendiente)
+- [ ] Crear checkpoint final
