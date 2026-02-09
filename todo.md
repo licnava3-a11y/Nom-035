@@ -7843,3 +7843,35 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar enlace en menú de Gestión de Talento
 - [ ] Probar dashboard con datos reales (pendiente)
 - [ ] Crear checkpoint final
+
+
+## FASE 220: Mejoras al Dashboard Organizacional y Organigrama Visual
+
+**Objetivo**: Agregar filtros temporales, organigrama interactivo con React Flow, y exportación a Excel.
+
+### Filtros Temporales
+- [ ] Agregar selector de periodo en OrganizationDashboard (hoy, semana actual, mes actual, mes anterior, año actual, año anterior, personalizado)
+- [ ] Implementar lógica de filtrado por fechas en backend
+- [ ] Actualizar gráficos para reflejar datos filtrados
+- [ ] Agregar indicador visual del periodo seleccionado
+
+### Organigrama Visual con React Flow
+- [x] Crear componente `OrganizationChart.tsx` usando React Flow
+- [x] Implementar nodos personalizados con información de departamento
+- [x] Configurar layout jerárquico automático (grid 3 columnas)
+- [x] Agregar interactividad: zoom, pan, arrastrar nodos
+- [x] Implementar exportación del organigrama a PNG con html-to-image
+- [x] Agregar ruta y enlace en menú de Gestión de Talento
+
+### Exportación a Excel
+- [ ] Instalar biblioteca `xlsx`: `pnpm add xlsx`
+- [ ] Implementar función de exportación en OrganizationDashboard
+- [ ] Implementar función de exportación en TurnoverDashboard
+- [ ] Agregar botones de exportación con iconos
+- [ ] Generar archivo Excel con múltiples hojas (KPIs, datos por departamento, datos por puesto)
+
+### Pruebas y Entrega
+- [ ] Probar filtros temporales con datos reales
+- [ ] Probar organigrama con jerarquía de departamentos
+- [ ] Verificar exportación a Excel
+- [ ] Crear checkpoint final

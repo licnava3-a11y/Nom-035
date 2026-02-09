@@ -58,6 +58,7 @@ const hierarchicalMenuItems = [
       { label: "Departamentos", path: "/departments", description: "Catálogo de departamentos organizacionales" },
       { label: "Puestos", path: "/positions", description: "Catálogo de puestos y descripciones de trabajo" },
       { label: "Dashboard Organizacional", path: "/organization/dashboard", description: "Estadísticas visuales de empleados por departamento y puesto" },
+      { label: "Organigrama", path: "/organization/chart", description: "Visualización interactiva de la estructura organizacional" },
       { label: "Competencias", path: "/competencies-dashboard", description: "Dashboard de competencias por trabajador y departamento" },
       { label: "Matriz de Habilidades", path: "/skills-matrix", description: "Matriz de habilidades y competencias del personal" },
       { label: "Evaluación de Competencias", path: "/competency-evaluation", description: "Evaluación de competencias y desempeño" },
