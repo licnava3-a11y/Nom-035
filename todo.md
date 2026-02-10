@@ -8397,3 +8397,28 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Probar análisis de desarrollo con datos de prueba
 - [x] Probar dashboard con diferentes filtros temporales
 - [ ] Guardar checkpoint final
+
+
+## FASE 249: Gráfica Comparativa y Alertas Visuales en Dashboard
+
+### Gráfica de Tendencia Histórica Comparativa
+- [x] Crear procedimiento tRPC para obtener datos del mes actual
+- [x] Crear procedimiento tRPC para obtener datos del mes anterior
+- [x] Implementar cálculo de diferencia porcentual entre periodos
+- [x] Agregar gráfica de barras comparativas en Dashboard (mes actual vs anterior)
+- [x] Mostrar indicadores de mejora/deterioro con iconos y colores
+- [x] Incluir métricas: casos abiertos, cerrados, casos críticos, cobertura de encuestas
+
+### Sistema de Alertas Visuales
+- [x] Definir umbrales críticos (casos abiertos > 50, cobertura < 80%)
+- [x] Crear componente AlertBanner reutilizable con niveles (info, warning, critical)
+- [x] Implementar verificación de umbrales en Dashboard
+- [x] Agregar alertas visuales en parte superior del Dashboard
+- [x] Mostrar banner de alerta cuando se superen umbrales
+- [x] Agregar animación de pulso en alertas críticas
+
+### Pruebas y Validación
+- [x] Probar gráfica comparativa con datos reales
+- [x] Verificar que alertas se activan correctamente
+- [x] Probar diferentes escenarios de umbrales
+- [ ] Guardar checkpoint final

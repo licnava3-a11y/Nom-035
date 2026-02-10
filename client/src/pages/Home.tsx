@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AlertCircle, TrendingUp, Users, FileText, BarChart3 } from "lucide-react";
+import { AlertBanner } from "@/components/AlertBanner";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,6 +47,7 @@ export default function Home() {
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
   const { data: trendsData, isLoading: trendsLoading } = trpc.executiveDashboard.getTrendsData.useQuery({ period });
+  const { data: comparison, isLoading: comparisonLoading } = trpc.executiveDashboard.getHistoricalComparison.useQuery();
 
   // Configuración de gráficas
   const lineChartOptions = {
@@ -172,6 +174,39 @@ export default function Home() {
         </Select>
       </div>
 
+      {/* Sistema de Alertas Visuales */}
+      {metrics && (
+        <div className="space-y-2">
+          {/* Alerta Crítica: Casos críticos > 10 */}
+          {(metrics.nom035Compliance.casesOpen || 0) > 50 && (
+            <AlertBanner
+              level="critical"
+              title="¡Alerta Crítica!"
+              description={`Hay ${metrics.nom035Compliance.casesOpen} casos abiertos. Se recomienda revisar y atender los casos prioritarios inmediatamente.`}
+              pulse={true}
+            />
+          )}
+
+          {/* Alerta Warning: Cobertura < 80% */}
+          {metrics.nom035Compliance.surveyCoverage < 80 && (
+            <AlertBanner
+              level="warning"
+              title="Cobertura de Encuestas Baja"
+              description={`La cobertura actual es ${metrics.nom035Compliance.surveyCoverage.toFixed(1)}%. Se recomienda enviar recordatorios a los empleados pendientes.`}
+            />
+          )}
+
+          {/* Alerta Info: Casos cerrados exitosamente */}
+          {metrics.nom035Compliance.casesClosed > 0 && metrics.nom035Compliance.surveyCoverage >= 90 && (
+            <AlertBanner
+              level="info"
+              title="Cumplimiento Excelente"
+              description={`Se han cerrado ${metrics.nom035Compliance.casesClosed} casos y la cobertura de encuestas es ${metrics.nom035Compliance.surveyCoverage.toFixed(1)}%. ¡Buen trabajo!`}
+            />
+          )}
+        </div>
+      )}
+
       {/* Cards de métricas principales */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -273,6 +308,90 @@ export default function Home() {
                 <Bar options={lineChartOptions} data={surveyCoverageData} />
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Comparación Histórica: Mes Actual vs Anterior */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Comparación Histórica: Mes Actual vs Anterior</CardTitle>
+            <CardDescription>Mejoras en cumplimiento NOM-035</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              {comparisonLoading ? (
+                <div className="flex items-center justify-center h-full">Cargando...</div>
+              ) : (
+                <Bar
+                  options={{
+                    ...lineChartOptions,
+                    plugins: {
+                      ...lineChartOptions.plugins,
+                      legend: {
+                        position: 'top' as const,
+                      },
+                    },
+                  }}
+                  data={{
+                    labels: ['Casos Abiertos', 'Casos Cerrados', 'Casos Críticos', 'Cobertura (%)'],
+                    datasets: [
+                      {
+                        label: 'Mes Anterior',
+                        data: [
+                          comparison?.lastMonth.casesOpen || 0,
+                          comparison?.lastMonth.casesClosed || 0,
+                          comparison?.lastMonth.criticalCases || 0,
+                          comparison?.lastMonth.surveyCoverage || 0,
+                        ],
+                        backgroundColor: 'rgba(156, 163, 175, 0.5)',
+                        borderColor: 'rgba(156, 163, 175, 1)',
+                        borderWidth: 1,
+                      },
+                      {
+                        label: 'Mes Actual',
+                        data: [
+                          comparison?.currentMonth.casesOpen || 0,
+                          comparison?.currentMonth.casesClosed || 0,
+                          comparison?.currentMonth.criticalCases || 0,
+                          comparison?.currentMonth.surveyCoverage || 0,
+                        ],
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                />
+              )}
+            </div>
+            {comparison && (
+              <div className="mt-4 grid grid-cols-4 gap-4 text-sm">
+                <div className="text-center">
+                  <p className="text-muted-foreground">Casos Abiertos</p>
+                  <p className={`font-bold ${comparison.changes.casesOpen > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {comparison.changes.casesOpen > 0 ? '+' : ''}{comparison.changes.casesOpen.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Casos Cerrados</p>
+                  <p className={`font-bold ${comparison.changes.casesClosed > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {comparison.changes.casesClosed > 0 ? '+' : ''}{comparison.changes.casesClosed.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Casos Críticos</p>
+                  <p className={`font-bold ${comparison.changes.criticalCases > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {comparison.changes.criticalCases > 0 ? '+' : ''}{comparison.changes.criticalCases.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Cobertura</p>
+                  <p className={`font-bold ${comparison.changes.surveyCoverage > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {comparison.changes.surveyCoverage > 0 ? '+' : ''}{comparison.changes.surveyCoverage.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

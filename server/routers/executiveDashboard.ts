@@ -317,4 +317,194 @@ export const executiveDashboardRouter = router({
         })),
       };
     }),
+
+  /**
+   * Obtener comparación histórica entre mes actual y anterior
+   * Para visualizar mejoras en cumplimiento NOM-035
+   */
+  getHistoricalComparison: protectedProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
+
+      const now = new Date();
+      
+      // Mes actual
+      const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const currentMonthEnd = now;
+      
+      // Mes anterior
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+      // Formatear fechas
+      const currentStartStr = currentMonthStart.toISOString().split('T')[0];
+      const currentEndStr = currentMonthEnd.toISOString().split('T')[0];
+      const lastStartStr = lastMonthStart.toISOString().split('T')[0];
+      const lastEndStr = lastMonthEnd.toISOString().split('T')[0];
+
+      // === CASOS MES ACTUAL ===
+      const [currentCasesOpen] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.status, 'open'),
+            sql`DATE(${cases.createdAt}) >= ${currentStartStr}`,
+            sql`DATE(${cases.createdAt}) <= ${currentEndStr}`
+          )
+        );
+
+      const [currentCasesClosed] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.status, 'closed'),
+            sql`DATE(${cases.closedAt}) >= ${currentStartStr}`,
+            sql`DATE(${cases.closedAt}) <= ${currentEndStr}`
+          )
+        );
+
+      const [currentCriticalCases] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.priority, 'critical'),
+            eq(cases.status, 'open'),
+            sql`DATE(${cases.createdAt}) >= ${currentStartStr}`,
+            sql`DATE(${cases.createdAt}) <= ${currentEndStr}`
+          )
+        );
+
+      // === CASOS MES ANTERIOR ===
+      const [lastCasesOpen] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.status, 'open'),
+            sql`DATE(${cases.createdAt}) >= ${lastStartStr}`,
+            sql`DATE(${cases.createdAt}) <= ${lastEndStr}`
+          )
+        );
+
+      const [lastCasesClosed] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.status, 'closed'),
+            sql`DATE(${cases.closedAt}) >= ${lastStartStr}`,
+            sql`DATE(${cases.closedAt}) <= ${lastEndStr}`
+          )
+        );
+
+      const [lastCriticalCases] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(cases)
+        .where(
+          and(
+            eq(cases.priority, 'critical'),
+            eq(cases.status, 'open'),
+            sql`DATE(${cases.createdAt}) >= ${lastStartStr}`,
+            sql`DATE(${cases.createdAt}) <= ${lastEndStr}`
+          )
+        );
+
+      // === ENCUESTAS MES ACTUAL ===
+      const [currentSurveysSent] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(surveyResponses)
+        .where(
+          and(
+            sql`DATE(${surveyResponses.startedAt}) >= ${currentStartStr}`,
+            sql`DATE(${surveyResponses.startedAt}) <= ${currentEndStr}`
+          )
+        );
+
+      const [currentSurveysCompleted] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(surveyResponses)
+        .where(
+          and(
+            sql`${surveyResponses.completedAt} IS NOT NULL`,
+            sql`DATE(${surveyResponses.completedAt}) >= ${currentStartStr}`,
+            sql`DATE(${surveyResponses.completedAt}) <= ${currentEndStr}`
+          )
+        );
+
+      // === ENCUESTAS MES ANTERIOR ===
+      const [lastSurveysSent] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(surveyResponses)
+        .where(
+          and(
+            sql`DATE(${surveyResponses.startedAt}) >= ${lastStartStr}`,
+            sql`DATE(${surveyResponses.startedAt}) <= ${lastEndStr}`
+          )
+        );
+
+      const [lastSurveysCompleted] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(surveyResponses)
+        .where(
+          and(
+            sql`${surveyResponses.completedAt} IS NOT NULL`,
+            sql`DATE(${surveyResponses.completedAt}) >= ${lastStartStr}`,
+            sql`DATE(${surveyResponses.completedAt}) <= ${lastEndStr}`
+          )
+        );
+
+      // Calcular coberturas
+      const currentCoverage = currentSurveysSent?.count
+        ? (Number(currentSurveysCompleted?.count || 0) / Number(currentSurveysSent.count)) * 100
+        : 0;
+
+      const lastCoverage = lastSurveysSent?.count
+        ? (Number(lastSurveysCompleted?.count || 0) / Number(lastSurveysSent.count)) * 100
+        : 0;
+
+      // Calcular diferencias porcentuales
+      const calculateChange = (current: number, last: number): number => {
+        if (last === 0) return current > 0 ? 100 : 0;
+        return ((current - last) / last) * 100;
+      };
+
+      return {
+        currentMonth: {
+          casesOpen: Number(currentCasesOpen?.count || 0),
+          casesClosed: Number(currentCasesClosed?.count || 0),
+          criticalCases: Number(currentCriticalCases?.count || 0),
+          surveyCoverage: Math.round(currentCoverage * 10) / 10,
+        },
+        lastMonth: {
+          casesOpen: Number(lastCasesOpen?.count || 0),
+          casesClosed: Number(lastCasesClosed?.count || 0),
+          criticalCases: Number(lastCriticalCases?.count || 0),
+          surveyCoverage: Math.round(lastCoverage * 10) / 10,
+        },
+        changes: {
+          casesOpen: calculateChange(
+            Number(currentCasesOpen?.count || 0),
+            Number(lastCasesOpen?.count || 0)
+          ),
+          casesClosed: calculateChange(
+            Number(currentCasesClosed?.count || 0),
+            Number(lastCasesClosed?.count || 0)
+          ),
+          criticalCases: calculateChange(
+            Number(currentCriticalCases?.count || 0),
+            Number(lastCriticalCases?.count || 0)
+          ),
+          surveyCoverage: currentCoverage - lastCoverage,
+        },
+      };
+    }),
 });
