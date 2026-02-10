@@ -304,7 +304,7 @@ export const appRouter = router({
     create: publicProcedure
       .input(z.object({
         reporterName: z.string().optional(),
-        reporterEmail: z.string().email().optional(),
+        reporterEmail: z.union([z.string().email(), z.literal('')]).optional(),
         reporterPhone: z.string().optional(),
         isAnonymous: z.boolean().default(false),
         caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']),
