@@ -8194,3 +8194,32 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar envío de notificaciones por correo
 
 **FASE 232-233: ✅ COMPLETADA AL 80% - Transacciones y base de notificaciones implementadas**
+
+
+## FASE 235-237: Sistema WebSocket y Mejoras UX Críticas
+
+### Completar Sistema WebSocket
+- [x] Corregir errores TypeScript en NotificationBell (markAllAsRead, delete, tipos)
+- [x] Integrar NotificationBell en DashboardLayout (header)
+- [ ] Crear servidor WebSocket en /server/websocket.ts
+- [ ] Implementar emisión de notificaciones en tiempo real
+- [ ] Conectar cliente WebSocket en frontend
+- [ ] Integrar API de Notifications del navegador para alertas de escritorio
+- [ ] Solicitar permisos de notificaciones al usuario
+- [ ] Probar notificaciones en tiempo real
+
+### Mejoras UX Críticas
+- [ ] Crear componente Tooltip reutilizable
+- [ ] Agregar tooltips en formularios complejos (empleados, casos, encuestas)
+- [ ] Crear componente Breadcrumb reutilizable (ya existe, verificar)
+- [ ] Agregar breadcrumbs en todas las páginas principales
+- [ ] Crear componentes Skeleton para estados de carga
+- [ ] Implementar skeletons en dashboards y tablas
+- [ ] Agregar skeletons en formularios de carga
+
+### Pruebas y Validación
+- [ ] Probar notificaciones WebSocket en tiempo real
+- [ ] Verificar tooltips en formularios
+- [ ] Validar breadcrumbs en todas las páginas
+- [ ] Confirmar skeletons en estados de carga
+- [ ] Checkpoint final

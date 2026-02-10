@@ -847,21 +847,6 @@ export const appRouter = router({
       }),
   }),
 
-  // Notifications
-  notifications: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getUserNotifications(ctx.user.id);
-    }),
-    markAsRead: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        return await db.markNotificationAsRead(input.id);
-      }),
-    unreadCount: protectedProcedure.query(async ({ ctx }) => {
-      return await db.getUnreadNotificationsCount(ctx.user.id);
-    }),
-  }),
-
   // Case assignments
   caseAssignments: router({
     assign: committeeProcedure

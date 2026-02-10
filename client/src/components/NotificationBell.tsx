@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
+
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -29,7 +29,6 @@ type Notification = {
 };
 
 export function NotificationBell() {
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   
   // Queries
@@ -52,10 +51,6 @@ export function NotificationBell() {
 
   const markAllAsReadMutation = trpc.notifications.markAllAsRead.useMutation({
     onSuccess: () => {
-      toast({
-        title: "Notificaciones marcadas",
-        description: "Todas las notificaciones han sido marcadas como leídas",
-      });
       refetchUnread();
       refetchNotifications();
     },

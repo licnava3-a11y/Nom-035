@@ -17,18 +17,18 @@ export function NotificationsDropdown() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
   
-  const { data: notifications = [] } = trpc.notifications.list.useQuery(undefined, {
+  const { data: notifications = [] } = trpc.notifications.getAll.useQuery({}, {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
   
-  const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(undefined, {
+  const { data: unreadCount = 0 } = trpc.notifications.getUnreadCount.useQuery(undefined, {
     refetchInterval: 30000,
   });
   
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
-      utils.notifications.list.invalidate();
-      utils.notifications.unreadCount.invalidate();
+      utils.notifications.getAll.invalidate();
+      utils.notifications.getUnreadCount.invalidate();
     },
   });
   
@@ -82,12 +82,12 @@ export function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
+          {unreadCount && unreadCount.count > 0 && (
             <Badge 
               variant="destructive" 
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
-              {unreadCount > 9 ? "9+" : unreadCount}
+              {unreadCount.count > 9 ? "9+" : unreadCount.count}
             </Badge>
           )}
         </Button>
@@ -95,8 +95,8 @@ export function NotificationsDropdown() {
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notificaciones</span>
-          {unreadCount > 0 && (
-            <Badge variant="secondary">{unreadCount} nuevas</Badge>
+          {unreadCount && unreadCount.count > 0 && (
+            <Badge variant="secondary">{unreadCount.count} nuevas</Badge>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

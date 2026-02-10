@@ -10,12 +10,12 @@ export default function Notifications() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
   
-  const { data: notifications = [], isLoading } = trpc.notifications.list.useQuery();
+  const { data: notifications = [], isLoading } = trpc.notifications.getAll.useQuery({ limit: 100 });
   
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
-      utils.notifications.list.invalidate();
-      utils.notifications.unreadCount.invalidate();
+      utils.notifications.getAll.invalidate();
+      utils.notifications.getUnreadCount.invalidate();
       toast.success("Notificación marcada como leída");
     },
   });
@@ -72,8 +72,8 @@ export default function Notifications() {
     });
   };
   
-  const unreadNotifications = notifications.filter(n => !n.isRead);
-  const readNotifications = notifications.filter(n => n.isRead);
+  const unreadNotifications = notifications.filter((n: any) => !n.isRead);
+  const readNotifications = notifications.filter((n: any) => n.isRead);
   
   if (isLoading) {
     return (
