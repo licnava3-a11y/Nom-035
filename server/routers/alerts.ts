@@ -170,4 +170,69 @@ export const alertsRouter = router({
       const result = await sendManualAlertSummary(input.frequency);
       return result;
     }),
+
+  // Obtener métricas de tiempo de resolución
+  getResolutionMetrics: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    // Obtener alertas resueltas con tiempo de resolución
+    const resolvedAlerts = await db
+      .select({
+        id: alertHistory.id,
+        alertType: alertHistory.alertType,
+        triggeredAt: alertHistory.triggeredAt,
+        resolvedAt: alertHistory.resolvedAt,
+      })
+      .from(alertHistory)
+      .where(eq(alertHistory.status, "resolved"));
+
+    // Calcular tiempo promedio de resolución (en horas)
+    const resolutionTimes = resolvedAlerts
+      .filter((alert) => alert.resolvedAt)
+      .map((alert) => {
+        const triggered = new Date(alert.triggeredAt).getTime();
+        const resolved = new Date(alert.resolvedAt!).getTime();
+        return (resolved - triggered) / (1000 * 60 * 60); // Convertir a horas
+      });
+
+    const avgResolutionTime =
+      resolutionTimes.length > 0
+        ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
+        : 0;
+
+    // Calcular tiempo promedio por tipo de alerta
+    const byType: Record<string, { total: number; count: number; avg: number }> = {
+      critical_cases: { total: 0, count: 0, avg: 0 },
+      low_coverage: { total: 0, count: 0, avg: 0 },
+      excellent_compliance: { total: 0, count: 0, avg: 0 },
+    };
+
+    resolvedAlerts.forEach((alert) => {
+      if (!alert.resolvedAt) return;
+      const triggered = new Date(alert.triggeredAt).getTime();
+      const resolved = new Date(alert.resolvedAt).getTime();
+      const hours = (resolved - triggered) / (1000 * 60 * 60);
+
+      byType[alert.alertType].total += hours;
+      byType[alert.alertType].count += 1;
+    });
+
+    // Calcular promedios
+    Object.keys(byType).forEach((type) => {
+      if (byType[type].count > 0) {
+        byType[type].avg = byType[type].total / byType[type].count;
+      }
+    });
+
+    return {
+      avgResolutionTime,
+      totalResolved: resolvedAlerts.length,
+      byType: {
+        critical_cases: byType.critical_cases.avg,
+        low_coverage: byType.low_coverage.avg,
+        excellent_compliance: byType.excellent_compliance.avg,
+      },
+    };
+  }),
 });

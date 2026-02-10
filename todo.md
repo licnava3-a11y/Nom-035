@@ -8606,3 +8606,35 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar contador de alertas en header
 - [ ] Verificar sistema de priorización
 - [ ] Guardar checkpoint final
+
+
+## FASE 263-265: Filtro de Rango de Fechas y Dashboard de Métricas de Alertas
+
+### Filtro de Rango de Fechas en AlertHistory
+- [ ] Agregar componente DateRangePicker en AlertHistory
+- [ ] Actualizar query alerts.getHistory para soportar startDate y endDate
+- [ ] Implementar lógica de filtrado por rango de fechas
+- [ ] Agregar botones de rangos predefinidos (Última semana, Último mes, Último trimestre, Último año)
+- [ ] Incluir rango de fechas en metadatos de exportación a Excel
+
+### Dashboard de Métricas de Alertas
+- [ ] Crear página AlertMetricsDashboard (/alert-metrics)
+- [ ] Implementar query alerts.getMetrics para obtener estadísticas avanzadas
+- [ ] Crear gráfica de tendencias históricas (Chart.js) por mes
+- [ ] Agregar gráfica de distribución por tipo de alerta
+- [ ] Implementar gráfica de distribución por prioridad
+- [ ] Mostrar KPIs principales (total alertas, activas, resueltas, tasa de resolución)
+
+### Tiempo Promedio de Resolución
+- [ ] Agregar campo resolvedAt a tabla alert_history
+- [ ] Generar y aplicar migración SQL
+- [ ] Actualizar procedimiento resolve para registrar fecha de resolución
+- [ ] Crear query para calcular tiempo promedio de resolución
+- [ ] Mostrar métrica en Dashboard de Métricas
+- [ ] Agregar gráfica de tiempo de resolución por tipo de alerta
+
+### Validación Final
+- [ ] Probar filtro de rango de fechas con diferentes combinaciones
+- [ ] Verificar gráficas y métricas en Dashboard
+- [ ] Probar cálculo de tiempo promedio de resolución
+- [ ] Guardar checkpoint final

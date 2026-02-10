@@ -26,6 +26,7 @@ import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
 import AlertHistory from "./pages/AlertHistory";
 import AlertReportsConfig from "./pages/AlertReportsConfig";
+import AlertMetricsDashboard from "./pages/AlertMetricsDashboard";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
@@ -216,6 +217,11 @@ function Router() {
       <Route path={"/alert-reports-config"}>
         <DashboardLayout>
           <AlertReportsConfig />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/alert-metrics"}>
+        <DashboardLayout>
+          <AlertMetricsDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/competencies-dashboard"}>

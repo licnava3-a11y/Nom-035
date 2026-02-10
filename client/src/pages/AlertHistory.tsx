@@ -19,7 +19,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle, Info, Download } from "lucide-react";
+import { AlertCircle, CheckCircle, Info, Download, Calendar } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
@@ -31,6 +36,8 @@ export default function AlertHistory() {
   const [alertType, setAlertType] = useState<AlertType>("all");
   const [status, setStatus] = useState<AlertStatus>("all");
   const [priority, setPriority] = useState<AlertPriority>("all");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
@@ -42,6 +49,8 @@ export default function AlertHistory() {
     alertType: alertType === "all" ? undefined : alertType,
     status: status === "all" ? undefined : status,
     priority: priority === "all" ? undefined : priority,
+    startDate: startDate ? startDate.toISOString() : undefined,
+    endDate: endDate ? endDate.toISOString() : undefined,
   });
 
   // Mutation para resolver alerta
@@ -172,9 +181,10 @@ export default function AlertHistory() {
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
-          <CardDescription>Filtra el histórico por tipo de alerta, estado y prioridad</CardDescription>
+          <CardDescription>Filtra el histórico por tipo de alerta, estado, prioridad y rango de fechas</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Tipo de Alerta</label>
             <Select value={alertType} onValueChange={(v) => setAlertType(v as AlertType)}>
@@ -217,6 +227,127 @@ export default function AlertHistory() {
                 <SelectItem value="info">Información</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          </div>
+
+          {/* Rango de Fechas */}
+          <div className="border-t pt-4">
+            <label className="text-sm font-medium mb-3 block">Rango de Fechas</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs text-muted-foreground mb-2 block">Fecha Inicio</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground mb-2 block">Fecha Fin</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            {/* Botones de rangos predefinidos */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const now = new Date();
+                  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                  setStartDate(weekAgo);
+                  setEndDate(now);
+                }}
+              >
+                Última semana
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const now = new Date();
+                  const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                  setStartDate(monthAgo);
+                  setEndDate(now);
+                }}
+              >
+                Último mes
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const now = new Date();
+                  const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                  setStartDate(quarterAgo);
+                  setEndDate(now);
+                }}
+              >
+                Último trimestre
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const now = new Date();
+                  const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                  setStartDate(yearAgo);
+                  setEndDate(now);
+                }}
+              >
+                Último año
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStartDate(undefined);
+                  setEndDate(undefined);
+                }}
+              >
+                Limpiar fechas
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
