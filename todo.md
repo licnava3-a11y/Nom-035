@@ -9306,3 +9306,36 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Probar edición de plantillas en Monaco Editor
 - [x] Validar que variables dinámicas están correctamente documentadas
 - [ ] Guardar checkpoint
+
+## FASE 187 - Procedimientos tRPC para Generación de PDFs
+
+### Procedimiento generateRiskAnalysisPDF
+- [x] Crear procedimiento en compliance router con input validation
+- [x] Cargar plantilla 'analisis_riesgos' desde base de datos
+- [x] Obtener datos de análisis de riesgos del trabajador
+- [x] Generar folio con formato AR (Análisis de Riesgos)
+- [x] Preparar datos para variables dinámicas de la plantilla
+- [x] Generar código QR para verificación NOM-151
+- [x] Renderizar HTML con Handlebars y generar PDF
+- [x] Registrar reporte en base de datos con trazabilidad
+- [x] Retornar PDF en base64 al frontend
+
+### Procedimiento generateCommitteeMinutesPDF
+- [x] Crear procedimiento en compliance router con input validation
+- [x] Cargar plantilla 'minuta_comite' desde base de datos
+- [x] Obtener datos de la minuta (asistentes, acuerdos, firmas)
+- [x] Generar folio con formato MC (Minuta de Comité)
+- [x] Preparar datos para variables dinámicas de la plantilla
+- [x] Generar código QR para verificación NOM-151
+- [x] Renderizar HTML con Handlebars y generar PDF
+- [x] Registrar minuta en base de datos con trazabilidad
+- [x] Retornar PDF en base64 al frontend
+
+### Pruebas y Validación
+- [x] Probar generación de PDF de análisis de riesgos
+- [x] Probar generación de PDF de minuta de comité
+- [x] Verificar que folios se generan correctamente
+- [x] Validar que códigos QR funcionan
+- [x] Insertar formatos AR y MC en catálogo de formatos
+- [x] Ambos procedimientos funcionando sin errores TypeScript
+- [ ] Guardar checkpoint

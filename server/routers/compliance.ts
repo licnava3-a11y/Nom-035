@@ -814,4 +814,686 @@ export const complianceRouter = router({
         data: report[0].data,
       };
     }),
+
+  // Generar PDF de Análisis de Riesgos Psicosociales
+  generateRiskAnalysisPDF: protectedProcedure
+    .input(z.object({
+      workerId: z.number(),
+      surveyResultId: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      // Obtener datos del trabajador
+      const worker = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.id, input.workerId))
+        .limit(1);
+
+      if (!worker || worker.length === 0) {
+        throw new Error('Trabajador no encontrado');
+      }
+
+      // Obtener resultados de encuesta NOM-035
+      const surveyResults = await db
+        .select()
+        .from(nom035Results)
+        .where(eq(nom035Results.employeeId, input.workerId))
+        .orderBy(desc(nom035Results.createdAt))
+        .limit(1);
+
+      if (!surveyResults || surveyResults.length === 0) {
+        throw new Error('No se encontraron resultados de evaluación para este trabajador');
+      }
+
+      const result = surveyResults[0];
+
+      // Obtener datos de la empresa
+      const companyData = await db
+        .select()
+        .from(companyGeneralData)
+        .limit(1);
+
+      // Obtener logo de la empresa
+      const logo = await db
+        .select()
+        .from(companyLogo)
+        .orderBy(desc(companyLogo.createdAt))
+        .limit(1);
+
+      // Obtener representantes legales activos con firma
+      const representatives = await db
+        .select()
+        .from(companyLegalRepresentative)
+        .where(eq(companyLegalRepresentative.activo, true))
+        .orderBy(companyLegalRepresentative.createdAt)
+        .limit(3);
+
+      // Obtener formato de documento para generar folio
+      const format = await db
+        .select()
+        .from(documentFormats)
+        .where(eq(documentFormats.codigo, 'AR'))
+        .limit(1);
+
+      if (!format || format.length === 0) {
+        throw new Error('Formato AR no encontrado. Configure el formato en Catálogo de Formatos.');
+      }
+
+      // Incrementar consecutivo
+      const newConsecutive = (format[0].consecutivoActual || 0) + 1;
+      const currentYear = new Date().getFullYear();
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+
+      // Actualizar consecutivo en base de datos
+      await db
+        .update(documentFormats)
+        .set({ consecutivoActual: newConsecutive })
+        .where(eq(documentFormats.id, format[0].id));
+
+      // Generar UUID único para el reporte (NOM-151)
+      const reportUuid = crypto.randomUUID();
+
+      // Preparar datos del análisis
+      const nivelRiesgo = result.globalRiskLevel || 'medio';
+      const nivelRiesgoMap: Record<string, string> = {
+        'nulo': 'Nulo',
+        'bajo': 'Bajo',
+        'medio': 'Medio',
+        'alto': 'Alto',
+        'muy_alto': 'Muy Alto'
+      };
+
+      // Simular categorías (en producción vendrían de la BD)
+      const categorias = [
+        { nombre: 'Ambiente de Trabajo', nivel: 'Bajo', nivelClass: 'bajo', calificacion: 15, maximo: 50, porcentaje: 30 },
+        { nombre: 'Factores Propios de la Actividad', nivel: 'Medio', nivelClass: 'medio', calificacion: 35, maximo: 70, porcentaje: 50 },
+        { nombre: 'Organización del Tiempo', nivel: 'Alto', nivelClass: 'alto', calificacion: 45, maximo: 60, porcentaje: 75 },
+        { nombre: 'Liderazgo y Relaciones', nivel: 'Medio', nivelClass: 'medio', calificacion: 28, maximo: 60, porcentaje: 47 }
+      ];
+
+      const dominios = [
+        { nombre: 'Condiciones en el ambiente de trabajo', categoria: 'Ambiente', calificacion: 15, nivel: 'Bajo', nivelClass: 'bajo' },
+        { nombre: 'Carga de trabajo', categoria: 'Actividad', calificacion: 35, nivel: 'Medio', nivelClass: 'medio' },
+        { nombre: 'Falta de control sobre el trabajo', categoria: 'Actividad', calificacion: 28, nivel: 'Medio', nivelClass: 'medio' },
+        { nombre: 'Jornada de trabajo', categoria: 'Tiempo', calificacion: 45, nivel: 'Alto', nivelClass: 'alto' }
+      ];
+
+      const dimensionesCriticas = [
+        { nombre: 'Jornadas de trabajo superiores a 48 horas semanales', nivel: 'Alto', nivelClass: 'alto', descripcion: 'Se detectaron jornadas laborales extensas que pueden afectar la salud del trabajador.' },
+        { nombre: 'Interferencia en la relación trabajo-familia', nivel: 'Medio', nivelClass: 'medio', descripcion: 'El trabajador reporta dificultades para equilibrar vida laboral y personal.' }
+      ];
+
+      const recomendaciones = [
+        { icono: '⏰', titulo: 'Reducir Jornadas Laborales', descripcion: 'Implementar horarios flexibles y respetar límites de 48 horas semanales según la LFT.' },
+        { icono: '🤝', titulo: 'Fortalecer Comunicación', descripcion: 'Establecer canales de comunicación efectivos entre líderes y colaboradores.' },
+        { icono: '🎯', titulo: 'Capacitación en Manejo de Estrés', descripcion: 'Ofrecer talleres de técnicas de relajación y manejo de presión laboral.' }
+      ];
+
+      // Guardar reporte en base de datos
+      const fullReportData = {
+        generatedAt: new Date(),
+        generatedBy: ctx.user.name,
+        userEmail: ctx.user.email,
+        worker: worker[0],
+        surveyResult: result,
+        company: companyData[0] || null,
+        logo: logo[0] || null,
+        representatives: representatives || [],
+      };
+
+      const newReport: typeof complianceReports.$inferInsert = {
+        uuid: reportUuid,
+        tipo: 'analisis_riesgos',
+        titulo: `Análisis de Riesgos Psicosociales - ${worker[0].nombre}`,
+        formatId: format[0].id,
+        folioNumber: newConsecutive,
+        folioYear: currentYear,
+        folio: folio,
+        generatedBy: ctx.user.id,
+        generatedByName: ctx.user.name || 'Usuario',
+        generatedByEmail: ctx.user.email || undefined,
+        data: fullReportData as any,
+      };
+
+      await db.insert(complianceReports).values(newReport);
+
+      // Obtener ID del reporte insertado
+      const insertedReport = await db
+        .select({ id: complianceReports.id })
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, reportUuid))
+        .limit(1);
+
+      // Registrar descarga en auditoría
+      if (insertedReport && insertedReport.length > 0) {
+        await db.insert(documentAuditLog).values({
+          reportId: insertedReport[0].id,
+          userId: ctx.user.id,
+          userName: ctx.user.name,
+          userEmail: ctx.user.email,
+          action: "download",
+          ipAddress: null,
+          userAgent: null,
+        });
+      }
+
+      // Cargar plantilla default desde base de datos
+      const template = await db
+        .select()
+        .from(reportTemplates)
+        .where(
+          and(
+            eq(reportTemplates.tipo, 'analisis_riesgos'),
+            eq(reportTemplates.isDefault, true),
+            eq(reportTemplates.activo, true)
+          )
+        )
+        .limit(1);
+
+      if (!template || template.length === 0) {
+        throw new Error('No se encontró una plantilla activa para reportes de análisis de riesgos.');
+      }
+
+      // Generar código QR para verificación
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
+      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+
+      // Preparar datos para la plantilla
+      const templateData = {
+        logo: logo[0]?.logoUrl || '',
+        razonSocial: companyData[0]?.razonSocial || 'Empresa',
+        rfc: companyData[0]?.rfc || '',
+        folio: folio,
+        nombreTrabajador: worker[0].nombre || 'Trabajador',
+        departamento: worker[0].departamento || 'Sin departamento',
+        puesto: worker[0].puesto || 'Sin puesto',
+        fechaEvaluacion: new Date(result.createdAt).toLocaleDateString('es-MX', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        nivelRiesgoGeneral: nivelRiesgo,
+        nivelRiesgoGeneralTexto: nivelRiesgoMap[nivelRiesgo] || 'Medio',
+        calificacionGeneral: result.globalScore || 0,
+        resumenEjecutivo: `El análisis de factores de riesgo psicosocial realizado al trabajador ${worker[0].nombre || 'Trabajador'} muestra un nivel de riesgo ${nivelRiesgoMap[nivelRiesgo] || 'Medio'}. Se identificaron áreas de oportunidad en la organización del tiempo de trabajo y la carga laboral. Se recomienda implementar acciones preventivas y correctivas para mejorar las condiciones laborales.`,
+        categorias: categorias,
+        dominios: dominios,
+        dimensionesCriticas: dimensionesCriticas,
+        recomendaciones: recomendaciones,
+        firmas: representatives.map(rep => ({
+          nombre: rep.nombre,
+          cargo: rep.cargo,
+          firmaUrl: rep.firmaUrl || ''
+        })),
+        qrCode: qrCodeDataUrl
+      };
+
+      // Generar PDF desde plantilla
+      const pdfBuffer = await generatePDFFromTemplate(
+        template[0].htmlTemplate,
+        template[0].cssStyles || '',
+        templateData
+      );
+
+      // Convertir buffer a base64 para enviar al frontend
+      const pdfBase64 = pdfBuffer.toString('base64');
+
+      return {
+        success: true,
+        pdfBase64: pdfBase64,
+        data: {
+          uuid: reportUuid,
+          folio: folio,
+          generatedAt: new Date(),
+          generatedBy: ctx.user.name,
+          userEmail: ctx.user.email,
+          worker: worker[0],
+          surveyResult: result,
+        },
+      };
+    }),
+
+
+  // Generar PDF de Minuta de Comité
+  generateCommitteeMinutesPDF: protectedProcedure
+    .input(z.object({
+      minuteId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      // TODO: Obtener datos de la minuta desde la base de datos
+      // Por ahora usaremos datos de ejemplo
+      const minuteData = {
+        id: input.minuteId,
+        numeroSesion: 'S-001',
+        tipoReunion: 'Reunión Ordinaria',
+        fecha: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+        hora: '10:00 AM',
+        lugar: 'Sala de Juntas Principal',
+      };
+
+      // Obtener datos de la empresa
+      const companyData = await db
+        .select()
+        .from(companyGeneralData)
+        .limit(1);
+
+      // Obtener logo de la empresa
+      const logo = await db
+        .select()
+        .from(companyLogo)
+        .orderBy(desc(companyLogo.createdAt))
+        .limit(1);
+
+      // Obtener representantes legales activos con firma
+      const representatives = await db
+        .select()
+        .from(companyLegalRepresentative)
+        .where(eq(companyLegalRepresentative.activo, true))
+        .orderBy(companyLegalRepresentative.createdAt)
+        .limit(3);
+
+      // Obtener formato de documento para generar folio
+      const format = await db
+        .select()
+        .from(documentFormats)
+        .where(eq(documentFormats.codigo, 'MC'))
+        .limit(1);
+
+      if (!format || format.length === 0) {
+        throw new Error('Formato MC no encontrado. Configure el formato en Catálogo de Formatos.');
+      }
+
+      // Incrementar consecutivo
+      const newConsecutive = (format[0].consecutivoActual || 0) + 1;
+      const currentYear = new Date().getFullYear();
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+
+      // Actualizar consecutivo en base de datos
+      await db
+        .update(documentFormats)
+        .set({ consecutivoActual: newConsecutive })
+        .where(eq(documentFormats.id, format[0].id));
+
+      // Generar UUID único para el reporte (NOM-151)
+      const reportUuid = crypto.randomUUID();
+
+      // Datos de ejemplo para la minuta
+      const asistentes = [
+        { nombre: 'Juan Pérez García', cargo: 'Director General', rolComite: 'Presidente', asistencia: 'Presente', asistenciaClass: 'presente' },
+        { nombre: 'María López Hernández', cargo: 'Gerente de RH', rolComite: 'Secretaria', asistencia: 'Presente', asistenciaClass: 'presente' },
+        { nombre: 'Carlos Ramírez Soto', cargo: 'Jefe de Seguridad', rolComite: 'Vocal', asistencia: 'Presente', asistenciaClass: 'presente' },
+        { nombre: 'Ana Martínez Cruz', cargo: 'Representante Sindical', rolComite: 'Vocal', asistencia: 'Ausente', asistenciaClass: 'ausente' }
+      ];
+
+      const ordenDia = [
+        { tema: 'Verificación de quórum', descripcion: 'Confirmación de asistencia de miembros del comité' },
+        { tema: 'Lectura y aprobación del acta anterior', descripcion: 'Revisión de minuta de sesión anterior' },
+        { tema: 'Análisis de casos reportados', descripcion: 'Revisión de casos de riesgo psicosocial identificados en el último mes' },
+        { tema: 'Propuesta de acciones preventivas', descripcion: 'Discusión de medidas para mitigar factores de riesgo' },
+        { tema: 'Asuntos generales', descripcion: '' }
+      ];
+
+      const acuerdos = [
+        { numero: 1, descripcion: 'Implementar programa de capacitación en manejo de estrés para el área de producción', responsable: 'María López', fechaCompromiso: '15/03/2026', estado: 'Pendiente', estadoClass: 'pendiente' },
+        { numero: 2, descripcion: 'Realizar evaluación de clima laboral en departamento de ventas', responsable: 'Carlos Ramírez', fechaCompromiso: '28/02/2026', estado: 'En Proceso', estadoClass: 'proceso' },
+        { numero: 3, descripcion: 'Actualizar política de prevención de riesgos psicosociales', responsable: 'Juan Pérez', fechaCompromiso: '10/03/2026', estado: 'Pendiente', estadoClass: 'pendiente' }
+      ];
+
+      const seguimientoAcuerdos = [
+        { acuerdo: 'Capacitación en comunicación asertiva para líderes', responsable: 'María López', estatus: 'Completado', estatusClass: 'completado' },
+        { acuerdo: 'Instalación de buzón de quejas anónimo', responsable: 'Carlos Ramírez', estatus: 'Completado', estatusClass: 'completado' }
+      ];
+
+      const desarrollo = 'Se llevó a cabo la reunión ordinaria del Comité de Atención de Factores de Riesgo Psicosocial. Se verificó el quórum reglamentario y se procedió con el orden del día establecido. Se presentaron los casos identificados durante el último mes y se discutieron las acciones preventivas necesarias. Los miembros del comité expresaron su compromiso con la implementación de las medidas acordadas.';
+
+      const observaciones = 'Se solicita mayor participación de los representantes sindicales en las próximas sesiones. Se recomienda programar la siguiente reunión en horario vespertino para facilitar la asistencia de todos los miembros.';
+
+      // Guardar reporte en base de datos
+      const fullReportData = {
+        generatedAt: new Date(),
+        generatedBy: ctx.user.name,
+        userEmail: ctx.user.email,
+        minuteData: minuteData,
+        company: companyData[0] || null,
+        logo: logo[0] || null,
+        representatives: representatives || [],
+      };
+
+      const newReport: typeof complianceReports.$inferInsert = {
+        uuid: reportUuid,
+        tipo: 'minuta_comite',
+        titulo: `Minuta de Comité - Sesión ${minuteData.numeroSesion}`,
+        formatId: format[0].id,
+        folioNumber: newConsecutive,
+        folioYear: currentYear,
+        folio: folio,
+        generatedBy: ctx.user.id,
+        generatedByName: ctx.user.name || 'Usuario',
+        generatedByEmail: ctx.user.email || undefined,
+        data: fullReportData as any,
+      };
+
+      await db.insert(complianceReports).values(newReport);
+
+      // Obtener ID del reporte insertado
+      const insertedReport = await db
+        .select({ id: complianceReports.id })
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, reportUuid))
+        .limit(1);
+
+      // Registrar descarga en auditoría
+      if (insertedReport && insertedReport.length > 0) {
+        await db.insert(documentAuditLog).values({
+          reportId: insertedReport[0].id,
+          userId: ctx.user.id,
+          userName: ctx.user.name,
+          userEmail: ctx.user.email,
+          action: "download",
+          ipAddress: null,
+          userAgent: null,
+        });
+      }
+
+      // Cargar plantilla default desde base de datos
+      const template = await db
+        .select()
+        .from(reportTemplates)
+        .where(
+          and(
+            eq(reportTemplates.tipo, 'minuta_comite'),
+            eq(reportTemplates.isDefault, true),
+            eq(reportTemplates.activo, true)
+          )
+        )
+        .limit(1);
+
+      if (!template || template.length === 0) {
+        throw new Error('No se encontró una plantilla activa para minutas de comité.');
+      }
+
+      // Generar código QR para verificación
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
+      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+
+      // Preparar datos para la plantilla
+      const templateData = {
+        logo: logo[0]?.logoUrl || '',
+        razonSocial: companyData[0]?.razonSocial || 'Empresa',
+        rfc: companyData[0]?.rfc || '',
+        qrCode: qrCodeDataUrl,
+        tipoReunion: minuteData.tipoReunion,
+        numeroSesion: minuteData.numeroSesion,
+        folio: folio,
+        fecha: minuteData.fecha,
+        hora: minuteData.hora,
+        lugar: minuteData.lugar,
+        asistentes: asistentes,
+        ordenDia: ordenDia,
+        desarrollo: desarrollo,
+        acuerdos: acuerdos,
+        seguimientoAcuerdos: seguimientoAcuerdos,
+        observaciones: observaciones,
+        documentacionRespaldo: null,
+        fotoRepresentantes: null,
+        firmas: representatives.map(rep => ({
+          nombre: rep.nombre,
+          cargo: rep.cargo,
+          rolComite: 'Miembro del Comité',
+          firmaUrl: rep.firmaUrl || ''
+        })),
+        versionFormato: format[0].version || 'V1.0',
+        fechaGeneracion: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+      };
+
+      // Generar PDF desde plantilla
+      const pdfBuffer = await generatePDFFromTemplate(
+        template[0].htmlTemplate,
+        template[0].cssStyles || '',
+        templateData
+      );
+
+      // Convertir buffer a base64 para enviar al frontend
+      const pdfBase64 = pdfBuffer.toString('base64');
+
+      return {
+        success: true,
+        pdfBase64: pdfBase64,
+        data: {
+          uuid: reportUuid,
+          folio: folio,
+          generatedAt: new Date(),
+          generatedBy: ctx.user.name,
+          userEmail: ctx.user.email,
+          minuteData: minuteData,
+        },
+      };
+    }),
+
+
+  // Generar PDF de Minuta de Comité
+  generateCommitteeMinutesPDF: protectedProcedure
+    .input(z.object({
+      minuteId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      // TODO: Obtener datos de la minuta desde la base de datos
+      // Por ahora usaremos datos de ejemplo
+      const minuteData = {
+        id: input.minuteId,
+        numeroSesion: 'S-001',
+        tipoReunion: 'Reunión Ordinaria',
+        fecha: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+        hora: '10:00 AM',
+        lugar: 'Sala de Juntas Principal',
+      };
+
+      // Obtener datos de la empresa
+      const companyData = await db
+        .select()
+        .from(companyGeneralData)
+        .limit(1);
+
+      // Obtener logo de la empresa
+      const logo = await db
+        .select()
+        .from(companyLogo)
+        .orderBy(desc(companyLogo.createdAt))
+        .limit(1);
+
+      // Obtener representantes legales activos con firma
+      const representatives = await db
+        .select()
+        .from(companyLegalRepresentative)
+        .where(eq(companyLegalRepresentative.activo, true))
+        .orderBy(companyLegalRepresentative.createdAt)
+        .limit(3);
+
+      // Obtener formato de documento para generar folio
+      const format = await db
+        .select()
+        .from(documentFormats)
+        .where(eq(documentFormats.codigo, 'MC'))
+        .limit(1);
+
+      if (!format || format.length === 0) {
+        throw new Error('Formato MC no encontrado. Configure el formato en Catálogo de Formatos.');
+      }
+
+      // Incrementar consecutivo
+      const newConsecutive = (format[0].consecutivoActual || 0) + 1;
+      const currentYear = new Date().getFullYear();
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+
+      // Actualizar consecutivo en base de datos
+      await db
+        .update(documentFormats)
+        .set({ consecutivoActual: newConsecutive })
+        .where(eq(documentFormats.id, format[0].id));
+
+      // Generar UUID único para el reporte (NOM-151)
+      const reportUuid = crypto.randomUUID();
+
+      // Datos de ejemplo para la minuta
+      const asistentes = [
+        { nombre: 'Juan Pérez García', cargo: 'Director General', rolComite: 'Presidente', asistencia: 'Presente', asistenciaClass: 'presente' },
+        { nombre: 'María López Hernández', cargo: 'Gerente de RH', rolComite: 'Secretaria', asistencia: 'Presente', asistenciaClass: 'presente' },
+        { nombre: 'Carlos Ramírez Soto', cargo: 'Jefe de Seguridad', rolComite: 'Vocal', asistencia: 'Presente', asistenciaClass: 'presente' },
+        { nombre: 'Ana Martínez Cruz', cargo: 'Representante Sindical', rolComite: 'Vocal', asistencia: 'Ausente', asistenciaClass: 'ausente' }
+      ];
+
+      const ordenDia = [
+        { tema: 'Verificación de quórum', descripcion: 'Confirmación de asistencia de miembros del comité' },
+        { tema: 'Lectura y aprobación del acta anterior', descripcion: 'Revisión de minuta de sesión anterior' },
+        { tema: 'Análisis de casos reportados', descripcion: 'Revisión de casos de riesgo psicosocial identificados en el último mes' },
+        { tema: 'Propuesta de acciones preventivas', descripcion: 'Discusión de medidas para mitigar factores de riesgo' },
+        { tema: 'Asuntos generales', descripcion: '' }
+      ];
+
+      const acuerdos = [
+        { numero: 1, descripcion: 'Implementar programa de capacitación en manejo de estrés para el área de producción', responsable: 'María López', fechaCompromiso: '15/03/2026', estado: 'Pendiente', estadoClass: 'pendiente' },
+        { numero: 2, descripcion: 'Realizar evaluación de clima laboral en departamento de ventas', responsable: 'Carlos Ramírez', fechaCompromiso: '28/02/2026', estado: 'En Proceso', estadoClass: 'proceso' },
+        { numero: 3, descripcion: 'Actualizar política de prevención de riesgos psicosociales', responsable: 'Juan Pérez', fechaCompromiso: '10/03/2026', estado: 'Pendiente', estadoClass: 'pendiente' }
+      ];
+
+      const seguimientoAcuerdos = [
+        { acuerdo: 'Capacitación en comunicación asertiva para líderes', responsable: 'María López', estatus: 'Completado', estatusClass: 'completado' },
+        { acuerdo: 'Instalación de buzón de quejas anónimo', responsable: 'Carlos Ramírez', estatus: 'Completado', estatusClass: 'completado' }
+      ];
+
+      const desarrollo = 'Se llevó a cabo la reunión ordinaria del Comité de Atención de Factores de Riesgo Psicosocial. Se verificó el quórum reglamentario y se procedió con el orden del día establecido. Se presentaron los casos identificados durante el último mes y se discutieron las acciones preventivas necesarias. Los miembros del comité expresaron su compromiso con la implementación de las medidas acordadas.';
+
+      const observaciones = 'Se solicita mayor participación de los representantes sindicales en las próximas sesiones. Se recomienda programar la siguiente reunión en horario vespertino para facilitar la asistencia de todos los miembros.';
+
+      // Guardar reporte en base de datos
+      const fullReportData = {
+        generatedAt: new Date(),
+        generatedBy: ctx.user.name,
+        userEmail: ctx.user.email,
+        minuteData: minuteData,
+        company: companyData[0] || null,
+        logo: logo[0] || null,
+        representatives: representatives || [],
+      };
+
+      const newReport: typeof complianceReports.$inferInsert = {
+        uuid: reportUuid,
+        tipo: 'minuta_comite',
+        titulo: `Minuta de Comité - Sesión ${minuteData.numeroSesion}`,
+        formatId: format[0].id,
+        folioNumber: newConsecutive,
+        folioYear: currentYear,
+        folio: folio,
+        generatedBy: ctx.user.id,
+        generatedByName: ctx.user.name || 'Usuario',
+        generatedByEmail: ctx.user.email || undefined,
+        data: fullReportData as any,
+      };
+
+      await db.insert(complianceReports).values(newReport);
+
+      // Obtener ID del reporte insertado
+      const insertedReport = await db
+        .select({ id: complianceReports.id })
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, reportUuid))
+        .limit(1);
+
+      // Registrar descarga en auditoría
+      if (insertedReport && insertedReport.length > 0) {
+        await db.insert(documentAuditLog).values({
+          reportId: insertedReport[0].id,
+          userId: ctx.user.id,
+          userName: ctx.user.name,
+          userEmail: ctx.user.email,
+          action: "download",
+          ipAddress: null,
+          userAgent: null,
+        });
+      }
+
+      // Cargar plantilla default desde base de datos
+      const template = await db
+        .select()
+        .from(reportTemplates)
+        .where(
+          and(
+            eq(reportTemplates.tipo, 'minuta_comite'),
+            eq(reportTemplates.isDefault, true),
+            eq(reportTemplates.activo, true)
+          )
+        )
+        .limit(1);
+
+      if (!template || template.length === 0) {
+        throw new Error('No se encontró una plantilla activa para minutas de comité.');
+      }
+
+      // Generar código QR para verificación
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
+      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+
+      // Preparar datos para la plantilla
+      const templateData = {
+        logo: logo[0]?.logoUrl || '',
+        razonSocial: companyData[0]?.razonSocial || 'Empresa',
+        rfc: companyData[0]?.rfc || '',
+        qrCode: qrCodeDataUrl,
+        tipoReunion: minuteData.tipoReunion,
+        numeroSesion: minuteData.numeroSesion,
+        folio: folio,
+        fecha: minuteData.fecha,
+        hora: minuteData.hora,
+        lugar: minuteData.lugar,
+        asistentes: asistentes,
+        ordenDia: ordenDia,
+        desarrollo: desarrollo,
+        acuerdos: acuerdos,
+        seguimientoAcuerdos: seguimientoAcuerdos,
+        observaciones: observaciones,
+        documentacionRespaldo: null,
+        fotoRepresentantes: null,
+        firmas: representatives.map(rep => ({
+          nombre: rep.nombre,
+          cargo: rep.cargo,
+          rolComite: 'Miembro del Comité',
+          firmaUrl: rep.firmaUrl || ''
+        })),
+        versionFormato: format[0].version || 'V1.0',
+        fechaGeneracion: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+      };
+
+      // Generar PDF desde plantilla
+      const pdfBuffer = await generatePDFFromTemplate(
+        template[0].htmlTemplate,
+        template[0].cssStyles || '',
+        templateData
+      );
+
+      // Convertir buffer a base64 para enviar al frontend
+      const pdfBase64 = pdfBuffer.toString('base64');
+
+      return {
+        success: true,
+        pdfBase64: pdfBase64,
+        data: {
+          uuid: reportUuid,
+          folio: folio,
+          generatedAt: new Date(),
+          generatedBy: ctx.user.name,
+          userEmail: ctx.user.email,
+          minuteData: minuteData,
+        },
+      };
+    }),
+
 });

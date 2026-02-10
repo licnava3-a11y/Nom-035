@@ -32,7 +32,7 @@ export interface PDFTemplateData {
 export async function generatePDFFromTemplate(
   htmlTemplate: string,
   cssStyles: string,
-  data: PDFTemplateData
+  data: any
 ): Promise<Buffer> {
   // Compilar plantilla con Handlebars
   const template = Handlebars.compile(htmlTemplate);
