@@ -2328,3 +2328,23 @@ export const documentFormats = mysqlTable("document_formats", {
 
 export type DocumentFormat = typeof documentFormats.$inferSelect;
 export type InsertDocumentFormat = typeof documentFormats.$inferInsert;
+
+
+/**
+ * Document Audit Log - ISO 9001 Compliance
+ * Registro de accesos, visualizaciones y descargas de documentos
+ */
+export const documentAuditLog = mysqlTable("document_audit_log", {
+  id: int("id").autoincrement().primaryKey(),
+  reportId: int("report_id").notNull(), // FK a compliance_reports
+  userId: int("user_id"), // Puede ser null para accesos anónimos (verificación pública)
+  userName: varchar("user_name", { length: 255 }), // Nombre del usuario que accedió
+  userEmail: varchar("user_email", { length: 320 }), // Email del usuario
+  action: mysqlEnum("action", ["view", "download", "verify"]).notNull(), // Tipo de acción
+  ipAddress: varchar("ip_address", { length: 45 }), // IPv4 o IPv6
+  userAgent: text("user_agent"), // Navegador y sistema operativo
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type DocumentAuditLog = typeof documentAuditLog.$inferSelect;
+export type InsertDocumentAuditLog = typeof documentAuditLog.$inferInsert;

@@ -108,6 +108,7 @@ import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 import VerifyReport from "./pages/VerifyReport";
 import DocumentFormats from "./pages/DocumentFormats";
 import ReportsHistory from "./pages/ReportsHistory";
+import DocumentAudit from "./pages/DocumentAudit";
 
 function Router() {
   return (
@@ -575,6 +576,11 @@ function Router() {
       <Route path={"/compliance/reports-history"}>
         <DashboardLayout>
           <ReportsHistory />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/document-audit"}>
+        <DashboardLayout>
+          <DocumentAudit />
         </DashboardLayout>
       </Route>
       {/* Ruta pública de aplicación de encuestas */}

@@ -30,6 +30,7 @@ import { organizationalCompetenciesRouter } from "./routers/organizationalCompet
 import { surveyAlertsRouter } from "./routers/surveyAlerts";
 import { complianceRouter } from "./routers/compliance";
 import { documentFormatsRouter } from "./routers/documentFormats";
+import { documentAuditRouter } from "./routers/documentAudit";
 import { companyRouter } from "./routers/company";
 import { equalityRouter } from "./routers/equality";
 import { executiveDashboardRouter } from "./routers/executiveDashboard";
@@ -104,6 +105,7 @@ export const appRouter = router({
   surveyAlerts: surveyAlertsRouter,
   compliance: complianceRouter,
   documentFormats: documentFormatsRouter,
+  documentAudit: documentAuditRouter,
   company: companyRouter,
   evidenceFolder: evidenceFolderRouter,
   committeePositionAcceptance: committeePositionAcceptanceRouter,

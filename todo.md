@@ -9065,3 +9065,45 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Documentar proceso de integración y requisitos legales
 
 - [ ] Guardar checkpoint final
+
+
+## FASE 184: Sistema Avanzado de Gestión Documental
+
+### 1. Módulo de Auditoría de Documentos (ISO 9001) ✅
+- [x] Crear tabla document_audit_log para registro de accesos
+- [x] Campos: id, reportId, userId, userName, userEmail, action (view/download/verify), timestamp, ipAddress, userAgent
+- [x] Crear procedimiento tRPC logAccess para registrar acceso a documento
+- [x] Crear procedimiento getAuditLog con filtros completos
+- [x] Crear procedimiento getStatistics para métricas de auditoría
+- [x] Crear página DocumentAudit.tsx con tabla de auditoría
+- [x] Implementar filtros por tipo de acción, usuario, fecha, búsqueda
+- [x] Agregar tarjetas de estadísticas (total, views, downloads, verifications, usuarios únicos)
+- [x] Paginación de resultados
+- [x] Agregar ruta y enlace en sidebar (Administración)
+- [ ] Modificar procedimientos de reportes para registrar accesos automáticamente
+
+### 2. Plantillas Personalizables de Reportes
+- [ ] Crear tabla report_templates para plantillas
+- [ ] Campos: id, nombre, tipo, headerHTML, footerHTML, stylesCSS, activo
+- [ ] Crear router tRPC reportTemplates con CRUD
+- [ ] Crear página ReportTemplates.tsx para administración
+- [ ] Implementar editor visual de encabezado y pie de página
+- [ ] Permitir personalización de colores, fuentes, logos
+- [ ] Modificar generateNumeralsPDF para usar plantilla seleccionada
+- [ ] Agregar selector de plantilla en configuración de empresa
+- [ ] Agregar ruta y enlace en sidebar (Administración)
+
+### 3. Firma Electrónica Avanzada e.firma SAT
+- [ ] Investigar librerías de firma digital (node-forge, pdfkit-sign)
+- [ ] Crear tabla digital_certificates para certificados
+- [ ] Campos: id, representativeId, cerFile, keyFile, password (encrypted), validFrom, validTo
+- [ ] Crear procedimiento para cargar certificados .cer y .key
+- [ ] Implementar validación de certificados (fecha, estructura)
+- [ ] Crear función para generar firma digital de PDF
+- [ ] Agregar sello digital en pie de página con timestamp
+- [ ] Crear página DigitalSignatures.tsx para gestión
+- [ ] Implementar verificación de firma en página pública
+- [ ] Documentar proceso y requisitos legales
+- [ ] Agregar ruta y enlace en sidebar (Administración)
+
+- [ ] Guardar checkpoint final
