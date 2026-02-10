@@ -11,6 +11,7 @@ import uploadRouter from "../upload";
 import exportRouter from "../exportRouter";
 import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
+import { initializeWebSocket } from "../websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -64,6 +65,9 @@ async function startServer() {
   if (port !== preferredPort) {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
+
+  // Inicializar WebSocket
+  initializeWebSocket(server);
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);

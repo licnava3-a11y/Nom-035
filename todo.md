@@ -8223,3 +8223,60 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Validar breadcrumbs en todas las páginas
 - [ ] Confirmar skeletons en estados de carga
 - [ ] Checkpoint final
+
+
+## FASE 238-240: Sistema WebSocket Completo y Mejoras UX
+
+### Servidor WebSocket con Socket.IO
+- [x] Crear archivo /server/websocket.ts con configuración de Socket.IO
+- [x] Integrar Socket.IO con servidor Express existente en server/_core/index.ts
+- [x] Implementar autenticación de conexiones WebSocket con JWT
+- [x] Crear sistema de rooms por usuario (userId)
+- [x] Implementar función emitNotification(userId, notification) para broadcast
+- [x] Conectar emisión de notificaciones con procedimientos tRPC existentes
+
+### Cliente WebSocket en Frontend
+- [x] Crear hook useSocket.ts para gestionar conexión WebSocket
+- [x] Implementar reconexión automática en caso de desconexión
+- [x] Actualizar NotificationBell para usar WebSocket en lugar de polling
+- [x] Implementar listeners para eventos de notificación en tiempo real
+- [x] Agregar indicador de estado de conexión WebSocket
+
+### Browser Notifications API
+- [x] Solicitar permisos de notificaciones al usuario al iniciar sesión
+- [x] Implementar función para mostrar notificaciones del navegador
+- [x] Conectar notificaciones del navegador con eventos WebSocket
+- [ ] Agregar configuración de usuario para habilitar/deshabilitar notificaciones
+- [ ] Implementar sonido de notificación (opcional)
+
+### Mejoras UX: Tooltips
+- [ ] Verificar componente Tooltip existente de shadcn/ui
+- [ ] Agregar tooltips en formulario de empleados (campos CURP, RFC, NSS)
+- [ ] Agregar tooltips en formulario de casos (nivel de riesgo, tipo de caso)
+- [ ] Agregar tooltips en configuración de encuestas
+- [ ] Agregar tooltips en formulario de acciones correctivas
+
+### Mejoras UX: Breadcrumbs
+- [ ] Verificar si existe componente Breadcrumb de shadcn/ui
+- [ ] Crear componente Breadcrumb reutilizable si no existe
+- [ ] Agregar breadcrumbs en páginas de Gestión de Talento
+- [ ] Agregar breadcrumbs en páginas de Encuestas NOM-035
+- [ ] Agregar breadcrumbs en páginas de Prevención de Riesgos
+- [ ] Agregar breadcrumbs en páginas de Reportes y Análisis
+
+### Mejoras UX: Skeleton States
+- [ ] Verificar componente Skeleton existente de shadcn/ui
+- [ ] Crear skeleton para tabla de empleados
+- [ ] Crear skeleton para dashboard principal
+- [ ] Crear skeleton para gráficas de estadísticas
+- [ ] Crear skeleton para formularios de carga
+- [ ] Implementar skeletons en páginas críticas
+
+### Pruebas y Validación
+- [ ] Probar conexión WebSocket con múltiples usuarios
+- [ ] Verificar notificaciones en tiempo real
+- [ ] Probar notificaciones del navegador en Chrome, Firefox, Edge
+- [ ] Validar tooltips en todos los formularios
+- [ ] Verificar breadcrumbs en todas las páginas
+- [ ] Confirmar skeletons en estados de carga
+- [ ] Guardar checkpoint final

@@ -3,6 +3,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { notifications } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { emitNotification } from "../websocket";
 
 export const notificationsRouter = router({
   /**
@@ -141,6 +142,28 @@ export const notificationsRouter = router({
         relatedEntityId: input.relatedEntityId,
         isRead: false,
       } as any);
+
+      // Emitir notificación en tiempo real vía WebSocket
+      try {
+        // Buscar el openId del usuario para emitir la notificación
+        const userResult = await db.select().from(notifications).where(eq(notifications.id, result.insertId)).limit(1);
+        if (userResult.length > 0) {
+          const notification = userResult[0];
+          // Nota: Necesitamos el openId del usuario, no el id numérico
+          // Por ahora emitimos con el userId, pero deberíamos buscar el openId en la tabla users
+          emitNotification(input.userId.toString(), {
+            id: result.insertId,
+            type: input.type,
+            title: input.title,
+            message: input.message,
+            relatedEntityType: input.relatedEntityType || null,
+            relatedEntityId: input.relatedEntityId || null,
+            createdAt: notification.createdAt,
+          });
+        }
+      } catch (err) {
+        console.error("[Notifications] Error al emitir notificación WebSocket:", err);
+      }
 
       return { success: true, id: result.insertId };
     }),

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bell, Check, CheckCheck, Trash2, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { useSocket } from "@/hooks/useSocket";
+import { getAuthToken } from "@/lib/cookies";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { useBrowserNotifications } from "@/hooks/useBrowserNotifications";
 
 type Notification = {
   id: number;
@@ -30,10 +34,20 @@ type Notification = {
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const [token, setToken] = useState<string | null>(null);
   
-  // Queries
+  // Obtener token JWT de cookies
+  useEffect(() => {
+    if (isAuthenticated) {
+      const authToken = getAuthToken();
+      setToken(authToken);
+    }
+  }, [isAuthenticated]);
+  
+  // Queries (sin polling, se actualizará vía WebSocket)
   const { data: unreadData, refetch: refetchUnread } = trpc.notifications.getUnreadCount.useQuery(undefined, {
-    refetchInterval: 30000, // Poll every 30 seconds
+    refetchInterval: false, // Deshabilitado: usamos WebSocket
   });
   
   const { data: notifications, refetch: refetchNotifications } = trpc.notifications.getAll.useQuery(
@@ -61,6 +75,48 @@ export function NotificationBell() {
       refetchUnread();
       refetchNotifications();
     },
+  });
+
+  // Browser Notifications
+  const { permission, showNotification, shouldNotify, requestPermission } = useBrowserNotifications();
+
+  // Solicitar permiso de notificaciones al montar (solo si está autenticado)
+  useEffect(() => {
+    if (isAuthenticated && permission === "default") {
+      // Esperar 2 segundos antes de solicitar para no ser intrusivo
+      const timer = setTimeout(() => {
+        requestPermission();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, permission, requestPermission]);
+
+  // Callback para notificaciones en tiempo real
+  const handleNewNotification = useCallback((notification: any) => {
+    console.log("[NotificationBell] Nueva notificación recibida:", notification);
+    
+    // Mostrar notificación del navegador si es crítica
+    if (shouldNotify(notification.type)) {
+      showNotification({
+        title: notification.title,
+        body: notification.message,
+        tag: `notification-${notification.id}`,
+        requireInteraction: notification.type === "deadline_approaching",
+      });
+    }
+    
+    // Refrescar contadores y lista
+    refetchUnread();
+    if (open) {
+      refetchNotifications();
+    }
+  }, [refetchUnread, refetchNotifications, open, shouldNotify, showNotification]);
+
+  // Conectar WebSocket
+  const { isConnected } = useSocket(token, {
+    onNotification: handleNewNotification,
+    onConnect: () => console.log("[NotificationBell] WebSocket conectado"),
+    onDisconnect: () => console.log("[NotificationBell] WebSocket desconectado"),
   });
 
   const unreadCount = unreadData?.count || 0;
