@@ -8483,3 +8483,23 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Filtros operativos
 - [x] Sistema de resolución implementado
 - [ ] Guardar checkpoint final
+
+
+## FASE 252: Exportación a Excel en Histórico de Alertas
+
+### Implementar Función de Exportación
+- [x] Agregar función handleExportToExcel en AlertHistory.tsx
+- [x] Incluir hoja de metadatos con fecha de exportación, filtros aplicados
+- [x] Incluir estadísticas: total de alertas, activas, resueltas
+- [x] Incluir hoja de datos con todas las alertas filtradas (8 columnas)
+- [x] Aplicar formato profesional con auto-ajuste de columnas
+
+### Agregar Botón de Exportación
+- [x] Agregar botón "Exportar a Excel" en CardHeader
+- [x] Agregar icono de descarga (Download)
+- [x] Botón deshabilitado cuando no hay datos
+
+### Validación Final
+- [x] Exportación completa con 2 hojas (Metadatos + Alertas)
+- [x] Metadatos con filtros y estadísticas
+- [ ] Guardar checkpoint final

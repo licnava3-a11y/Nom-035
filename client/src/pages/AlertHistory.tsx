@@ -19,7 +19,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle, Info } from "lucide-react";
+import { AlertCircle, CheckCircle, Info, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 type AlertType = "critical_cases" | "low_coverage" | "excellent_compliance" | "all";
@@ -62,6 +63,61 @@ export default function AlertHistory() {
         notes: notes || undefined,
       });
     }
+  };
+
+  const handleExportToExcel = () => {
+    if (!alerts || alerts.length === 0) return;
+
+    const wb = XLSX.utils.book_new();
+
+    // Hoja de Metadatos
+    const metadata = [
+      ["Histórico de Alertas - Plataforma NOM-035"],
+      [""],
+      ["Fecha de Exportación:", new Date().toLocaleString("es-MX")],
+      ["Filtros Aplicados:"],
+      ["  Tipo de Alerta:", alertType === "all" ? "Todas" : getAlertTypeLabel(alertType)],
+      ["  Estado:", status === "all" ? "Todos" : status === "active" ? "Activas" : "Resueltas"],
+      [""],
+      ["Estadísticas:"],
+      ["  Total de Alertas:", alerts.length],
+      ["  Alertas Activas:", alerts.filter(a => a.status === "active").length],
+      ["  Alertas Resueltas:", alerts.filter(a => a.status === "resolved").length],
+    ];
+    const wsMetadata = XLSX.utils.aoa_to_sheet(metadata);
+    XLSX.utils.book_append_sheet(wb, wsMetadata, "Metadatos");
+
+    // Hoja de Datos
+    const data = alerts.map(alert => ({
+      "Fecha": new Date(alert.triggeredAt).toLocaleString("es-MX"),
+      "Tipo": getAlertTypeLabel(alert.alertType),
+      "Descripción": alert.description,
+      "Umbral": alert.threshold,
+      "Valor Actual": alert.currentValue,
+      "Estado": alert.status === "active" ? "Activa" : "Resuelta",
+      "Fecha Resolución": alert.resolvedAt ? new Date(alert.resolvedAt).toLocaleString("es-MX") : "N/A",
+      "Notas": alert.notes || "N/A",
+    }));
+    const wsData = XLSX.utils.json_to_sheet(data);
+    
+    // Auto-ajustar columnas
+    const colWidths = [
+      { wch: 20 }, // Fecha
+      { wch: 20 }, // Tipo
+      { wch: 50 }, // Descripción
+      { wch: 12 }, // Umbral
+      { wch: 15 }, // Valor Actual
+      { wch: 12 }, // Estado
+      { wch: 20 }, // Fecha Resolución
+      { wch: 40 }, // Notas
+    ];
+    wsData["!cols"] = colWidths;
+    
+    XLSX.utils.book_append_sheet(wb, wsData, "Alertas");
+
+    // Exportar archivo
+    const fileName = `historico_alertas_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   };
 
   const getAlertTypeLabel = (type: string) => {
@@ -148,10 +204,23 @@ export default function AlertHistory() {
       {/* Tabla de Alertas */}
       <Card>
         <CardHeader>
-          <CardTitle>Registro de Alertas</CardTitle>
-          <CardDescription>
-            {alerts?.length || 0} alertas encontradas
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Registro de Alertas</CardTitle>
+              <CardDescription>
+                {alerts?.length || 0} alertas encontradas
+              </CardDescription>
+            </div>
+            <Button
+              onClick={handleExportToExcel}
+              disabled={!alerts || alerts.length === 0}
+              variant="outline"
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Exportar a Excel
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
