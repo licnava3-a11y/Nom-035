@@ -8663,3 +8663,24 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Mostrar notificación en tiempo real (alert + notificación del navegador)
 - [x] Integrar en DashboardLayout para recibir notificaciones
 - [ ] Probar flujo completo de notificaciones
+
+
+## FASE 269-270: Panel de Configuración de Umbrales y Historial de Notificaciones
+
+### Panel de Configuración de Umbrales
+- [x] Crear tabla alertThresholds en schema para almacenar umbrales configurables
+- [x] Generar y ejecutar migración SQL para nueva tabla
+- [x] Crear procedimientos tRPC para obtener y actualizar umbrales
+- [x] Crear página AlertThresholdsConfig con formulario de configuración
+- [x] Agregar validaciones de umbrales (valores numéricos positivos)
+- [ ] Actualizar lógica de jobs para usar umbrales dinámicos de BD
+- [x] Agregar ruta en App.tsx y enlace en sidebar
+
+### Historial de Notificaciones Push
+- [x] Crear tabla notificationHistory en schema
+- [x] Generar y ejecutar migración SQL para tabla de notificaciones
+- [x] Modificar emitCriticalAlert para guardar en BD
+- [x] Crear procedimientos tRPC para consultar historial
+- [x] Crear página NotificationHistory con tabla y filtros
+- [x] Agregar paginación y ordenamiento por fecha
+- [x] Agregar ruta en App.tsx y enlace en sidebar

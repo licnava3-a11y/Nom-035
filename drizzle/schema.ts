@@ -1975,3 +1975,32 @@ export const alertHistory = mysqlTable("alert_history", {
 
 export type AlertHistory = typeof alertHistory.$inferSelect;
 export type InsertAlertHistory = typeof alertHistory.$inferInsert;
+
+// Alert Thresholds - Umbrales configurables para alertas
+export const alertThresholds = mysqlTable("alert_thresholds", {
+  id: int("id").autoincrement().primaryKey(),
+  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance"]).notNull().unique(),
+  threshold: int("threshold").notNull(), // Valor umbral configurable
+  description: text("description"), // Descripción del umbral
+  updatedBy: int("updated_by").references(() => users.id), // Usuario que actualizó
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AlertThreshold = typeof alertThresholds.$inferSelect;
+export type InsertAlertThreshold = typeof alertThresholds.$inferInsert;
+
+// Notification History - Historial de notificaciones push enviadas
+export const notificationHistory = mysqlTable("notification_history", {
+  id: int("id").autoincrement().primaryKey(),
+  alertId: int("alert_id").references(() => alertHistory.id).notNull(), // Referencia a la alerta
+  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance"]).notNull(),
+  priority: mysqlEnum("priority", ["info", "warning", "critical"]).notNull(),
+  description: text("description").notNull(),
+  currentValue: int("current_value").notNull(),
+  threshold: int("threshold").notNull(),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+});
+
+export type NotificationHistory = typeof notificationHistory.$inferSelect;
+export type InsertNotificationHistory = typeof notificationHistory.$inferInsert;

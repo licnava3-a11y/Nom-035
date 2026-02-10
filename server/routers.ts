@@ -49,6 +49,8 @@ import { departmentsRouter } from "./routers/departments";
 import { positionsRouter } from "./routers/positions";
 import { notificationsRouter } from "./routers/notifications";
 import { alertsRouter } from "./routers/alerts";
+import { alertThresholdsRouter } from "./routers/alertThresholds";
+import { notificationHistoryRouter } from "./routers/notificationHistory";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -113,6 +115,8 @@ export const appRouter = router({
   positions: positionsRouter,
   notifications: notificationsRouter,
   alerts: alertsRouter,
+  alertThresholds: alertThresholdsRouter,
+  notificationHistory: notificationHistoryRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

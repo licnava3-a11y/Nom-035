@@ -27,6 +27,8 @@ import Reports from "./pages/Reports";
 import AlertHistory from "./pages/AlertHistory";
 import AlertReportsConfig from "./pages/AlertReportsConfig";
 import AlertMetricsDashboard from "./pages/AlertMetricsDashboard";
+import AlertThresholdsConfig from "./pages/AlertThresholdsConfig";
+import NotificationHistory from "./pages/NotificationHistory";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
@@ -222,6 +224,16 @@ function Router() {
       <Route path={"/alert-metrics"}>
         <DashboardLayout>
           <AlertMetricsDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/alert-thresholds"}>
+        <DashboardLayout>
+          <AlertThresholdsConfig />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/notification-history"}>
+        <DashboardLayout>
+          <NotificationHistory />
         </DashboardLayout>
       </Route>
       <Route path={"/competencies-dashboard"}>

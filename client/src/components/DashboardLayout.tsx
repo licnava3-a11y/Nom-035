@@ -142,6 +142,8 @@ const hierarchicalMenuItems = [
         submenu: [
           { label: "Histórico de Alertas", path: "/alert-history", description: "Registro completo de alertas para auditoría de cumplimiento NOM-035" },
           { label: "Dashboard de Métricas", path: "/alert-metrics", description: "Análisis avanzado con gráficas de tendencias y tiempo de resolución" },
+          { label: "Historial de Notificaciones", path: "/notification-history", description: "Registro de notificaciones push enviadas en tiempo real" },
+          { label: "Configuración de Umbrales", path: "/alert-thresholds", description: "Configurar valores que disparan alertas automáticas (casos críticos, cobertura)" },
           { label: "Configuración de Reportes", path: "/alert-reports-config", description: "Configuración de frecuencia de reportes automáticos (semanal/mensual)" },
         ]
       },

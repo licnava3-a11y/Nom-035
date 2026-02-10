@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `alert_thresholds` (`alert_type`, `threshold`, `description`) VALUES\n('critical_cases', 50, 'Número de casos críticos abiertos que disparan alerta'),\n('low_coverage', 80, 'Porcentaje mínimo de cobertura de encuestas (alerta si está por debajo)'),\n('excellent_compliance', 95, 'Porcentaje de cumplimiento excelente para reconocimiento');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute INSERT INTO `alert_thresholds` (`alert_type`, `threshold`, `description`) VALUES\n('critical_cases', 50, 'Número de casos críticos abiertos que disparan alerta'),\n('low_coverage', 80, 'Porcentaje mínimo de cobertura de encuestas (alerta si está por debajo)'),\n('excellent_compliance', 95, 'Porcentaje de cumplimiento excelente para reconocimiento');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 382
+}
