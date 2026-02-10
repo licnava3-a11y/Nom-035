@@ -165,4 +165,156 @@ export const executiveDashboardRouter = router({
         },
       };
     }),
+
+  /**
+   * Obtener datos de tendencias para gráficas del dashboard
+   * Con filtros temporales (día/semana/mes/año actual y anterior)
+   */
+  getTrendsData: protectedProcedure
+    .input(z.object({
+      period: z.enum(['today', 'this_week', 'this_month', 'this_year', 'last_week', 'last_month', 'last_year', 'custom']),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
+
+      // Calcular rango de fechas según período
+      const now = new Date();
+      let startDate: Date;
+      let endDate: Date = now;
+
+      switch (input.period) {
+        case 'today':
+          startDate = new Date(now.setHours(0, 0, 0, 0));
+          endDate = new Date(now.setHours(23, 59, 59, 999));
+          break;
+        case 'this_week':
+          const startOfWeek = new Date(now);
+          startOfWeek.setDate(now.getDate() - now.getDay());
+          startDate = new Date(startOfWeek.setHours(0, 0, 0, 0));
+          break;
+        case 'this_month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          break;
+        case 'this_year':
+          startDate = new Date(now.getFullYear(), 0, 1);
+          break;
+        case 'last_week':
+          const lastWeekEnd = new Date(now);
+          lastWeekEnd.setDate(now.getDate() - now.getDay() - 1);
+          const lastWeekStart = new Date(lastWeekEnd);
+          lastWeekStart.setDate(lastWeekEnd.getDate() - 6);
+          startDate = lastWeekStart;
+          endDate = lastWeekEnd;
+          break;
+        case 'last_month':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+          break;
+        case 'last_year':
+          startDate = new Date(now.getFullYear() - 1, 0, 1);
+          endDate = new Date(now.getFullYear() - 1, 11, 31);
+          break;
+        case 'custom':
+          startDate = input.startDate ? new Date(input.startDate) : new Date(now.getFullYear(), 0, 1);
+          endDate = input.endDate ? new Date(input.endDate) : now;
+          break;
+        default:
+          startDate = new Date(now.getFullYear(), 0, 1);
+      }
+
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = endDate.toISOString().split('T')[0];
+
+      // === TENDENCIA DE CASOS (Abiertos vs Cerrados) ===
+      const casesCreated = await db
+        .select({
+          date: sql<string>`DATE(${cases.createdAt})`,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(cases)
+        .where(
+          and(
+            sql`DATE(${cases.createdAt}) >= ${startDateStr}`,
+            sql`DATE(${cases.createdAt}) <= ${endDateStr}`
+          )
+        )
+        .groupBy(sql`DATE(${cases.createdAt})`);
+
+      const casesClosed = await db
+        .select({
+          date: sql<string>`DATE(${cases.closedAt})`,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(cases)
+        .where(
+          and(
+            sql`${cases.closedAt} IS NOT NULL`,
+            sql`DATE(${cases.closedAt}) >= ${startDateStr}`,
+            sql`DATE(${cases.closedAt}) <= ${endDateStr}`
+          )
+        )
+        .groupBy(sql`DATE(${cases.closedAt})`);
+
+      // === COBERTURA DE ENCUESTAS ===
+      const surveyCompletion = await db
+        .select({
+          date: sql<string>`DATE(${surveyResponses.completedAt})`,
+          completed: sql<number>`COUNT(*)`,
+        })
+        .from(surveyResponses)
+        .where(
+          and(
+            sql`${surveyResponses.completedAt} IS NOT NULL`,
+            sql`DATE(${surveyResponses.completedAt}) >= ${startDateStr}`,
+            sql`DATE(${surveyResponses.completedAt}) <= ${endDateStr}`
+          )
+        )
+        .groupBy(sql`DATE(${surveyResponses.completedAt})`);
+
+      // === DISTRIBUCIÓN DE NIVELES DE PRIORIDAD ===
+      const riskLevels = await db
+        .select({
+          riskLevel: cases.priority,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(cases)
+        .where(
+          and(
+            sql`DATE(${cases.createdAt}) >= ${startDateStr}`,
+            sql`DATE(${cases.createdAt}) <= ${endDateStr}`
+          )
+        )
+        .groupBy(cases.priority);
+
+      return {
+        period: input.period,
+        dateRange: { start: startDateStr, end: endDateStr },
+        casesTrend: {
+          created: casesCreated.map(c => ({
+            date: c.date,
+            count: Number(c.count),
+          })),
+          closed: casesClosed.map(c => ({
+            date: c.date,
+            count: Number(c.count),
+          })),
+        },
+        surveyCompletion: surveyCompletion.map(s => ({
+          date: s.date,
+          completed: Number(s.completed),
+        })),
+        riskDistribution: riskLevels.map(r => ({
+          level: r.riskLevel || 'No especificado',
+          count: Number(r.count),
+        })),
+      };
+    }),
 });

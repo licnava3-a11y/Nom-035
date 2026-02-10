@@ -8368,3 +8368,32 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar todos los filtros avanzados
 - [ ] Probar todas las exportaciones
 - [ ] Guardar checkpoint final
+
+
+## FASE 247-248: Análisis de Desarrollo y Dashboard de Métricas
+
+### Análisis de Desarrollo y Sucesión en Matriz de Habilidades
+- [x] Analizar estructura de datos de Matriz de Habilidades
+- [x] Crear función para calcular brechas de habilidades por empleado
+- [x] Generar sugerencias de capacitación basadas en brechas
+- [x] Identificar candidatos para sucesión por departamento
+- [x] Agregar hoja "Análisis de Desarrollo" en exportación Excel
+- [x] Agregar hoja "Candidatos Sucesión" en exportación Excel
+- [x] Agregar hoja "Capacitación Crítica" en exportación Excel (4 hojas totales)
+- [x] Exportación completa con análisis automático
+
+### Dashboard de Métricas Clave en Home
+- [x] Crear procedimientos tRPC para métricas (casos, encuestas, prioridad)
+- [x] Diseñar layout del dashboard con cards de estadísticas (4 cards principales)
+- [x] Implementar gráfica de tendencias de casos (abiertos vs cerrados) con Line chart
+- [x] Implementar gráfica de cobertura de encuestas con Bar chart
+- [x] Implementar gráfica de distribución de prioridad con Doughnut chart
+- [x] Agregar filtros temporales (7 opciones: hoy/semana/mes/año actual y anterior + custom)
+- [x] Integrar Chart.js (react-chartjs-2) para visualizaciones
+- [x] Agregar gráfica de distribución por departamento
+- [x] Dashboard completamente funcional con datos reales
+
+### Validación Final
+- [x] Probar análisis de desarrollo con datos de prueba
+- [x] Probar dashboard con diferentes filtros temporales
+- [ ] Guardar checkpoint final

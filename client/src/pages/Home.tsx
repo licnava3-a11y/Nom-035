@@ -1,31 +1,311 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { getLoginUrl } from "@/const";
-import { Streamdown } from 'streamdown';
+import { trpc } from "@/lib/trpc";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AlertCircle, TrendingUp, Users, FileText, BarChart3 } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Workflow, Frontend Best Practices, Design Guide and Common Pitfalls
- */
+// Registrar componentes de Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+type Period = 'today' | 'this_week' | 'this_month' | 'this_year' | 'last_week' | 'last_month' | 'last_year';
+
 export default function Home() {
-  // The userAuth hooks provides authentication state
-  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const [period, setPeriod] = useState<Period>('this_month');
 
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+  // Queries
+  const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
+  const { data: trendsData, isLoading: trendsLoading } = trpc.executiveDashboard.getTrendsData.useQuery({ period });
+
+  // Configuración de gráficas
+  const lineChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right' as const,
+      },
+    },
+  };
+
+  // Datos para gráfica de tendencia de casos
+  const casesTrendData = {
+    labels: trendsData?.casesTrend.created.map(c => c.date) || [],
+    datasets: [
+      {
+        label: 'Casos Creados',
+        data: trendsData?.casesTrend.created.map(c => c.count) || [],
+        borderColor: 'rgb(239, 68, 68)',
+        backgroundColor: 'rgba(239, 68, 68, 0.5)',
+        tension: 0.3,
+      },
+      {
+        label: 'Casos Cerrados',
+        data: trendsData?.casesTrend.closed.map(c => c.count) || [],
+        borderColor: 'rgb(34, 197, 94)',
+        backgroundColor: 'rgba(34, 197, 94, 0.5)',
+        tension: 0.3,
+      },
+    ],
+  };
+
+  // Datos para gráfica de cobertura de encuestas
+  const surveyCoverageData = {
+    labels: trendsData?.surveyCompletion.map(s => s.date) || [],
+    datasets: [
+      {
+        label: 'Encuestas Completadas',
+        data: trendsData?.surveyCompletion.map(s => s.completed) || [],
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgb(59, 130, 246)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Datos para gráfica de distribución de riesgo
+  const riskDistributionData = {
+    labels: trendsData?.riskDistribution.map(r => r.level) || [],
+    datasets: [
+      {
+        data: trendsData?.riskDistribution.map(r => r.count) || [],
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.8)',   // Rojo - Alto
+          'rgba(251, 191, 36, 0.8)',  // Amarillo - Medio
+          'rgba(34, 197, 94, 0.8)',   // Verde - Bajo
+          'rgba(156, 163, 175, 0.8)', // Gris - Otros
+        ],
+        borderColor: [
+          'rgb(239, 68, 68)',
+          'rgb(251, 191, 36)',
+          'rgb(34, 197, 94)',
+          'rgb(156, 163, 175)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Acceso Restringido</CardTitle>
+            <CardDescription>Debes iniciar sesión para ver el dashboard</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
+    <div className="container mx-auto py-8 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {user?.name}</h1>
+          <p className="text-muted-foreground">
+            {user?.role === 'admin' ? 'Administrador' : 'Usuario'} - Plataforma de Capacitación NOM-035 STPS 2018
+          </p>
+        </div>
+        
+        {/* Filtro de período */}
+        <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Seleccionar período" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="today">Hoy</SelectItem>
+            <SelectItem value="this_week">Esta semana</SelectItem>
+            <SelectItem value="this_month">Este mes</SelectItem>
+            <SelectItem value="this_year">Este año</SelectItem>
+            <SelectItem value="last_week">Semana anterior</SelectItem>
+            <SelectItem value="last_month">Mes anterior</SelectItem>
+            <SelectItem value="last_year">Año anterior</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Cards de métricas principales */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Casos Abiertos</CardTitle>
+            <AlertCircle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.nom035Compliance.casesOpen || 0}</div>
+            <p className="text-xs text-muted-foreground">Requieren atención</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En Investigación</CardTitle>
+            <FileText className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {trendsData?.casesTrend.created.reduce((sum, c) => sum + c.count, 0) || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Casos en proceso</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Casos</CardTitle>
+            <BarChart3 className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {(metrics?.nom035Compliance.casesOpen || 0) + (metrics?.nom035Compliance.casesClosed || 0)}
+            </div>
+            <p className="text-xs text-muted-foreground">Todos los registros</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cobertura Encuestas</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.nom035Compliance.surveyCoverage.toFixed(1) || 0}%</div>
+            <p className="text-xs text-muted-foreground">Cumplimiento NOM-035</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gráficas */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Tendencia de Casos */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tendencia de Casos</CardTitle>
+            <CardDescription>Casos creados vs cerrados en el período seleccionado</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              {trendsLoading ? (
+                <div className="flex items-center justify-center h-full">Cargando...</div>
+              ) : (
+                <Line options={lineChartOptions} data={casesTrendData} />
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Distribución de Niveles de Riesgo */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribución de Niveles de Riesgo</CardTitle>
+            <CardDescription>Casos por nivel de riesgo psicosocial</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              {trendsLoading ? (
+                <div className="flex items-center justify-center h-full">Cargando...</div>
+              ) : (
+                <Doughnut options={doughnutOptions} data={riskDistributionData} />
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cobertura de Encuestas */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Cobertura de Encuestas NOM-035</CardTitle>
+            <CardDescription>Encuestas completadas por fecha</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              {trendsLoading ? (
+                <div className="flex items-center justify-center h-full">Cargando...</div>
+              ) : (
+                <Bar options={lineChartOptions} data={surveyCoverageData} />
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Distribución por Departamento */}
+      {metrics && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Distribución por Departamento</CardTitle>
+            <CardDescription>Empleados por área organizacional</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {metrics.employeesAndStructure.departmentDistribution.map((dept) => (
+                <div key={dept.department} className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{dept.department}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-[200px] bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full"
+                        style={{
+                          width: `${(dept.count / metrics.employeesAndStructure.totalEmployees) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-sm text-muted-foreground w-12 text-right">{dept.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

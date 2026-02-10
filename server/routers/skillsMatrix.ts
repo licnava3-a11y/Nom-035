@@ -321,6 +321,7 @@ export const skillsMatrixRouter = router({
           lastName: employees.lastName,
           departmentName: departments.name,
           positionName: positions.title,
+          departmentId: employees.departmentId,
         })
         .from(employees)
         .leftJoin(departments, eq(employees.departmentId, departments.id))
@@ -341,6 +342,18 @@ export const skillsMatrixRouter = router({
           .where(inArray(skillsMatrix.employeeId, employeeIds));
       }
 
+      // Helper: Convert level to numeric value
+      const levelToValue = (level: string): number => {
+        const levels: Record<string, number> = {
+          "Sin evaluar": 0,
+          "Básico": 1,
+          "Intermedio": 2,
+          "Avanzado": 3,
+          "Experto": 4,
+        };
+        return levels[level] || 0;
+      };
+
       // Format data for Excel export
       const exportData = employeesList.map((emp) => {
         const row: any = {
@@ -360,10 +373,98 @@ export const skillsMatrixRouter = router({
         return row;
       });
 
+      // ===== ANÁLISIS DE DESARROLLO Y SUCESIÓN =====
+      
+      // 1. Calcular brechas de habilidades por empleado
+      const developmentAnalysis = employeesList.map((emp) => {
+        const empEntries = matrixEntries.filter((e) => e.employeeId === emp.id);
+        const totalCompetencies = competenciesList.length;
+        const evaluatedCount = empEntries.filter((e) => e.level !== "Sin evaluar").length;
+        const avgLevel = empEntries.reduce((sum, e) => sum + levelToValue(e.level), 0) / totalCompetencies;
+        
+        // Identificar competencias con brecha (nivel < Avanzado)
+        const gaps = competenciesList
+          .map((comp) => {
+            const entry = empEntries.find((e) => e.competencyId === comp.id);
+            const currentLevel = entry ? entry.level : "Sin evaluar";
+            const currentValue = levelToValue(currentLevel);
+            return {
+              competencia: comp.name,
+              nivelActual: currentLevel,
+              brecha: currentValue < 3 ? `Mejorar a Avanzado/Experto` : "Ninguna",
+            };
+          })
+          .filter((g) => g.brecha !== "Ninguna");
+
+        return {
+          nombre: `${emp.firstName} ${emp.lastName}`,
+          departamento: emp.departmentName || 'Sin departamento',
+          puesto: emp.positionName || 'Sin puesto',
+          competenciasEvaluadas: `${evaluatedCount}/${totalCompetencies}`,
+          nivelPromedio: avgLevel.toFixed(2),
+          brechasIdentificadas: gaps.length,
+          sugerenciaCapacitacion: gaps.length > 0 
+            ? gaps.slice(0, 3).map((g) => g.competencia).join(", ") 
+            : "Ninguna - Nivel óptimo",
+        };
+      });
+
+      // 2. Identificar candidatos para sucesión por departamento
+      const successionAnalysis: Record<string, any[]> = {};
+      employeesList.forEach((emp) => {
+        const deptName = emp.departmentName || 'Sin departamento';
+        if (!successionAnalysis[deptName]) {
+          successionAnalysis[deptName] = [];
+        }
+        
+        const empEntries = matrixEntries.filter((e) => e.employeeId === emp.id);
+        const avgLevel = empEntries.reduce((sum, e) => sum + levelToValue(e.level), 0) / competenciesList.length;
+        
+        successionAnalysis[deptName].push({
+          nombre: `${emp.firstName} ${emp.lastName}`,
+          puesto: emp.positionName || 'Sin puesto',
+          nivelPromedio: avgLevel.toFixed(2),
+          potencial: avgLevel >= 3 ? "Alto" : avgLevel >= 2 ? "Medio" : "En desarrollo",
+        });
+      });
+
+      // Ordenar candidatos por nivel promedio (descendente)
+      Object.keys(successionAnalysis).forEach((dept) => {
+        successionAnalysis[dept].sort((a, b) => parseFloat(b.nivelPromedio) - parseFloat(a.nivelPromedio));
+      });
+
+      // 3. Sugerencias de capacitación crítica por departamento
+      const trainingRecommendations: Record<string, any> = {};
+      Object.keys(successionAnalysis).forEach((dept) => {
+        const deptEmployees = employeesList.filter((e) => (e.departmentName || 'Sin departamento') === dept);
+        const deptEntries = matrixEntries.filter((e) => deptEmployees.some((emp) => emp.id === e.employeeId));
+        
+        // Identificar competencias con mayor brecha en el departamento
+        const competencyGaps = competenciesList.map((comp) => {
+          const compEntries = deptEntries.filter((e) => e.competencyId === comp.id);
+          const avgLevel = compEntries.reduce((sum, e) => sum + levelToValue(e.level), 0) / deptEmployees.length;
+          return {
+            competencia: comp.name,
+            nivelPromedio: avgLevel.toFixed(2),
+            prioridad: avgLevel < 2 ? "Alta" : avgLevel < 3 ? "Media" : "Baja",
+          };
+        });
+
+        // Top 5 competencias críticas
+        const topGaps = competencyGaps
+          .sort((a, b) => parseFloat(a.nivelPromedio) - parseFloat(b.nivelPromedio))
+          .slice(0, 5);
+
+        trainingRecommendations[dept] = topGaps;
+      });
+
       return {
         data: exportData,
         competencies: competenciesList,
         employees: employeesList,
+        developmentAnalysis,
+        successionAnalysis,
+        trainingRecommendations,
       };
     }),
 

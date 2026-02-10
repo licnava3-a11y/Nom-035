@@ -131,15 +131,12 @@ export default function SkillsMatrix() {
       // Create workbook with metadata
       const wb = XLSX.utils.book_new();
       
-      // Create worksheet with metadata first
+      // === HOJA 1: Matriz de Habilidades ===
       const ws = XLSX.utils.aoa_to_sheet(metadata);
-      
-      // Append data below metadata
       XLSX.utils.sheet_add_json(ws, data.data, { origin: -1, skipHeader: false });
-      
       XLSX.utils.book_append_sheet(wb, ws, "Matriz de Habilidades");
 
-      // Auto-size columns
+      // Auto-size columns for main sheet
       const maxWidth = 50;
       const headers = Object.keys(data.data[0]);
       const colWidths = headers.map(key => {
@@ -151,16 +148,95 @@ export default function SkillsMatrix() {
       });
       ws['!cols'] = colWidths;
 
+      // === HOJA 2: Análisis de Desarrollo ===
+      if (data.developmentAnalysis && data.developmentAnalysis.length > 0) {
+        const devMetadata = [
+          ['Análisis de Desarrollo Individual'],
+          ['Fecha:', now.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' })],
+          ['Descripción:', 'Brechas de habilidades y sugerencias de capacitación por empleado'],
+          [],
+        ];
+        const wsDevAnalysis = XLSX.utils.aoa_to_sheet(devMetadata);
+        XLSX.utils.sheet_add_json(wsDevAnalysis, data.developmentAnalysis, { origin: -1, skipHeader: false });
+        XLSX.utils.book_append_sheet(wb, wsDevAnalysis, "Análisis de Desarrollo");
+        
+        // Auto-size columns
+        const devHeaders = Object.keys(data.developmentAnalysis[0]);
+        const devColWidths = devHeaders.map(key => {
+          const maxLen = Math.max(
+            key.length,
+            ...data.developmentAnalysis.map((row: Record<string, unknown>) => String(row[key] || '').length)
+          );
+          return { wch: Math.min(maxLen + 2, maxWidth) };
+        });
+        wsDevAnalysis['!cols'] = devColWidths;
+      }
+
+      // === HOJA 3: Candidatos para Sucesión ===
+      if (data.successionAnalysis) {
+        const successionData: any[] = [];
+        Object.keys(data.successionAnalysis).forEach((dept) => {
+          successionData.push({ departamento: dept, nombre: '', puesto: '', nivelPromedio: '', potencial: '' });
+          data.successionAnalysis[dept].forEach((candidate: any) => {
+            successionData.push({
+              departamento: '',
+              nombre: candidate.nombre,
+              puesto: candidate.puesto,
+              nivelPromedio: candidate.nivelPromedio,
+              potencial: candidate.potencial,
+            });
+          });
+          successionData.push({ departamento: '', nombre: '', puesto: '', nivelPromedio: '', potencial: '' }); // Empty row
+        });
+
+        const succMetadata = [
+          ['Candidatos para Sucesión por Departamento'],
+          ['Fecha:', now.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' })],
+          ['Descripción:', 'Empleados con mayor potencial ordenados por nivel de competencia'],
+          [],
+        ];
+        const wsSuccession = XLSX.utils.aoa_to_sheet(succMetadata);
+        XLSX.utils.sheet_add_json(wsSuccession, successionData, { origin: -1, skipHeader: false });
+        XLSX.utils.book_append_sheet(wb, wsSuccession, "Candidatos Sucesión");
+      }
+
+      // === HOJA 4: Sugerencias de Capacitación ===
+      if (data.trainingRecommendations) {
+        const trainingData: any[] = [];
+        Object.keys(data.trainingRecommendations).forEach((dept) => {
+          trainingData.push({ departamento: dept, competencia: '', nivelPromedio: '', prioridad: '' });
+          data.trainingRecommendations[dept].forEach((rec: any) => {
+            trainingData.push({
+              departamento: '',
+              competencia: rec.competencia,
+              nivelPromedio: rec.nivelPromedio,
+              prioridad: rec.prioridad,
+            });
+          });
+          trainingData.push({ departamento: '', competencia: '', nivelPromedio: '', prioridad: '' }); // Empty row
+        });
+
+        const trainMetadata = [
+          ['Sugerencias de Capacitación Crítica por Departamento'],
+          ['Fecha:', now.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' })],
+          ['Descripción:', 'Top 5 competencias con mayor brecha por departamento'],
+          [],
+        ];
+        const wsTraining = XLSX.utils.aoa_to_sheet(trainMetadata);
+        XLSX.utils.sheet_add_json(wsTraining, trainingData, { origin: -1, skipHeader: false });
+        XLSX.utils.book_append_sheet(wb, wsTraining, "Capacitación Crítica");
+      }
+
       // Generate filename with timestamp
       const timestamp = now.toISOString().split('T')[0];
-      const filename = `matriz_habilidades_${timestamp}.xlsx`;
+      const filename = `matriz_habilidades_analisis_${timestamp}.xlsx`;
 
       // Download
       XLSX.writeFile(wb, filename);
-      toast.success(`Exportación exitosa: ${data.data.length} registros exportados`);
-    } catch (error) {
+      toast.success(`Exportación exitosa: ${data.data.length} empleados + análisis completo`);
+    } catch (error: any) {
       console.error("Error al exportar:", error);
-      toast.error("Error", { description: "No se pudo exportar la matriz" });
+      toast.error("Error", { description: error.message || "No se pudo exportar la matriz" });
     }
   };
 
