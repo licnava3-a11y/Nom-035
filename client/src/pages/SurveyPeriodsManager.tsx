@@ -28,8 +28,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Plus, Calendar, Users, CheckCircle, Clock, Archive } from "lucide-react";
+import { Plus, Calendar, Users, CheckCircle, Clock, Archive, HelpCircle } from "lucide-react";
 
 export default function SurveyPeriodsManager() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -217,7 +218,24 @@ export default function SurveyPeriodsManager() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="surveyType">Tipo de Encuesta *</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="surveyType">Tipo de Encuesta *</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Guías de Referencia NOM-035</p>
+                          <ul className="text-xs space-y-1">
+                            <li>• <strong>Guía I:</strong> Identificación y análisis de factores de riesgo psicosocial (todos los centros de trabajo)</li>
+                            <li>• <strong>Guía II:</strong> Identificación de trabajadores expuestos a acontecimientos traumáticos severos</li>
+                            <li>• <strong>Guía III:</strong> Evaluación del entorno organizacional (centros con +50 trabajadores)</li>
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <Select name="surveyType" required>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione el tipo de encuesta" />
@@ -233,7 +251,19 @@ export default function SurveyPeriodsManager() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="startDate">Fecha de Inicio *</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="startDate">Fecha de Inicio *</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="text-xs">Fecha en que inicia el periodo de aplicación de la encuesta. Los trabajadores podrán responder a partir de esta fecha.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Input
                       id="startDate"
                       name="startDate"
@@ -242,7 +272,19 @@ export default function SurveyPeriodsManager() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="endDate">Fecha de Fin *</Label>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="endDate">Fecha de Fin *</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="text-xs">Fecha límite para responder la encuesta. Después de esta fecha, el periodo se cerrará automáticamente y no se aceptarán más respuestas.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <Input
                       id="endDate"
                       name="endDate"

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -64,7 +66,21 @@ export function CaseFollowUpDialog({ open, onOpenChange, caseId, onSuccess }: Ca
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="action">Acción Realizada *</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="action">Acción Realizada *</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="font-semibold mb-1">Acciones de Seguimiento</p>
+                    <p className="text-xs mb-1">Describe brevemente la acción realizada para dar seguimiento al caso.</p>
+                    <p className="text-xs">Ejemplos: Entrevista con el afectado, Revisión de documentos, Reunión con el supervisor, Implementación de medidas preventivas.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Input
               id="action"
               value={action}

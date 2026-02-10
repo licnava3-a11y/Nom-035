@@ -8313,3 +8313,22 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Verificar breadcrumbs en todas las páginas
 - [ ] Confirmar skeletons en estados de carga
 - [ ] Guardar checkpoint final
+
+
+## FASE 244: Completar Cobertura de Tooltips
+
+### Tooltips en Configuración de Encuestas
+- [x] Buscar formularios de configuración de encuestas
+- [x] Agregar tooltips en campos de periodicidad
+- [x] Agregar tooltips en campos de tipo de encuesta
+- [x] Agregar tooltips en campos de configuración de alertas
+
+### Tooltips en Acciones Correctivas
+- [x] Buscar formularios de acciones correctivas
+- [x] Agregar tooltips en campo de acción realizada
+- [x] Agregar tooltips con ejemplos de acciones de seguimiento
+- [x] Completar cobertura de tooltips en formularios de casos
+
+### Validación
+- [ ] Probar tooltips en todos los formularios
+- [ ] Guardar checkpoint final
