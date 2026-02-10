@@ -148,6 +148,28 @@ export default function SurveysAdminPanel() {
         return;
       }
 
+      // Prepare metadata
+      const now = new Date();
+      const metadata = [
+        ['Reporte de Encuestas NOM-035 STPS 2018'],
+        ['Fecha de Exportación:', now.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' })],
+        ['Filtros Aplicados:'],
+        ['  - Tipo de Encuesta:', surveyType === 'all' ? 'Todas' : getSurveyTypeLabel(surveyType)],
+        ['  - Estado:', status === 'all' ? 'Todos' : status === 'completed' ? 'Completadas' : 'En Progreso'],
+        ['  - Departamento:', departamento === 'all' ? 'Todos' : departamento],
+        ['  - Período:', datePeriod === 'all' ? 'Todo el historial' : 
+          datePeriod === 'today' ? 'Hoy' :
+          datePeriod === 'this_week' ? 'Esta semana' :
+          datePeriod === 'this_month' ? 'Este mes' :
+          datePeriod === 'this_year' ? 'Este año' :
+          datePeriod === 'last_week' ? 'Semana anterior' :
+          datePeriod === 'last_month' ? 'Mes anterior' :
+          datePeriod === 'last_year' ? 'Año anterior' :
+          `${startDate} a ${endDate}`],
+        ['Total de Registros:', data.length.toString()],
+        [], // Empty row
+      ];
+
       // Prepare data for Excel
       const excelData = data.map(r => ({
         'Tipo de Encuesta': r.surveyType === 'guia_i' ? 'Guía I - ATS' : 
@@ -165,9 +187,15 @@ export default function SurveysAdminPanel() {
         'Resultados': r.results || 'N/A',
       }));
 
-      // Create workbook
-      const ws = XLSX.utils.json_to_sheet(excelData);
+      // Create workbook with metadata
       const wb = XLSX.utils.book_new();
+      
+      // Create worksheet with metadata first
+      const ws = XLSX.utils.aoa_to_sheet(metadata);
+      
+      // Append data below metadata
+      XLSX.utils.sheet_add_json(ws, excelData, { origin: -1, skipHeader: false });
+      
       XLSX.utils.book_append_sheet(wb, ws, "Respuestas de Encuestas");
 
       // Auto-size columns
@@ -181,13 +209,14 @@ export default function SurveysAdminPanel() {
       });
       ws['!cols'] = colWidths;
 
-      // Generate filename with timestamp
-      const timestamp = new Date().toISOString().split('T')[0];
-      const filename = `encuestas_nom035_${timestamp}.xlsx`;
+      // Generate filename with timestamp and filters
+      const timestamp = now.toISOString().split('T')[0];
+      const typeLabel = surveyType === 'all' ? 'todas' : surveyType.replace('guia_', 'guia');
+      const filename = `encuestas_nom035_${typeLabel}_${timestamp}.xlsx`;
 
       // Download
       XLSX.writeFile(wb, filename);
-      toast.success("Archivo Excel generado exitosamente");
+      toast.success(`Archivo Excel generado: ${data.length} registros exportados`);
     } catch (error) {
       console.error("Error al exportar:", error);
       toast.error("Error al generar el archivo Excel");

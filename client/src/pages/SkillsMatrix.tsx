@@ -22,6 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Download, Upload, Filter, TrendingUp, AlertCircle } from "lucide-react";
+import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   Dialog,
@@ -109,35 +110,56 @@ export default function SkillsMatrix() {
         departmentId: filters.departmentId,
       });
       
-      // Convert data to CSV
       if (data.data.length === 0) {
         toast.error("Sin datos", { description: "No hay datos para exportar" });
         return;
       }
 
+      // Prepare metadata
+      const now = new Date();
+      const metadata = [
+        ['Matriz de Habilidades - NOM-035 STPS 2018'],
+        ['Fecha de Exportación:', now.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' })],
+        ['Filtros Aplicados:'],
+        ['  - Departamento:', filters.departmentId ? 'Filtrado' : 'Todos'],
+        ['  - Puesto:', filters.positionId ? 'Filtrado' : 'Todos'],
+        ['  - Empleado:', filters.employeeName || 'Todos'],
+        ['Total de Registros:', data.data.length.toString()],
+        [], // Empty row
+      ];
+
+      // Create workbook with metadata
+      const wb = XLSX.utils.book_new();
+      
+      // Create worksheet with metadata first
+      const ws = XLSX.utils.aoa_to_sheet(metadata);
+      
+      // Append data below metadata
+      XLSX.utils.sheet_add_json(ws, data.data, { origin: -1, skipHeader: false });
+      
+      XLSX.utils.book_append_sheet(wb, ws, "Matriz de Habilidades");
+
+      // Auto-size columns
+      const maxWidth = 50;
       const headers = Object.keys(data.data[0]);
-      const csvContent = [
-        headers.join(","),
-        ...data.data.map((row: Record<string, unknown>) => 
-          headers.map(h => {
-            const value = row[h];
-            return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
-          }).join(",")
-        ),
-      ].join("\n");
+      const colWidths = headers.map(key => {
+        const maxLen = Math.max(
+          key.length,
+          ...data.data.map((row: Record<string, unknown>) => String(row[key] || '').length)
+        );
+        return { wch: Math.min(maxLen + 2, maxWidth) };
+      });
+      ws['!cols'] = colWidths;
 
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `matriz_habilidades_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Generate filename with timestamp
+      const timestamp = now.toISOString().split('T')[0];
+      const filename = `matriz_habilidades_${timestamp}.xlsx`;
 
-      toast.success("Exportación exitosa", { description: "La matriz se exportó correctamente" });
+      // Download
+      XLSX.writeFile(wb, filename);
+      toast.success(`Exportación exitosa: ${data.data.length} registros exportados`);
     } catch (error) {
+      console.error("Error al exportar:", error);
       toast.error("Error", { description: "No se pudo exportar la matriz" });
     }
   };

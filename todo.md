@@ -8332,3 +8332,39 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Validación
 - [ ] Probar tooltips en todos los formularios
 - [ ] Guardar checkpoint final
+
+
+## FASE 245-246: Filtros Avanzados y Exportación a Excel
+
+### Filtros Avanzados en SurveysAdminPanel
+- [x] Analizar filtros existentes en SurveysAdminPanel
+- [x] Verificar que existan opciones: día actual, semana actual, mes actual, año actual
+- [x] YA EXISTÍAN: semana anterior, mes anterior, año anterior
+- [x] Mantener opción de rango personalizado (custom)
+- [x] Filtros completos y funcionales
+
+### Filtros Avanzados en Cases
+- [x] Analizar filtros existentes en Cases
+- [x] YA EXISTÍA DateRangeFilter con opciones predefinidas
+- [x] YA EXISTÍAN opciones: hoy/ayer/semana/mes/año (actual y anterior)
+- [x] Filtros conectados con procedimiento tRPC
+- [x] Filtros completos y funcionales
+
+### Exportación a Excel en Reportes de Encuestas
+- [x] Verificar que XLSX ya esté instalado
+- [x] Analizar función de exportación existente en SurveysAdminPanel
+- [x] Mejorar formato de exportación (encabezados, estilos)
+- [x] Agregar metadatos (fecha de exportación, filtros aplicados)
+- [x] Exportación mejorada con metadatos profesionales
+
+### Exportación a Excel en Matriz de Habilidades
+- [x] Buscar página de matriz de habilidades (SkillsMatrix.tsx)
+- [x] YA EXISTÍA botón de exportación (exportaba a CSV)
+- [x] Convertir exportación de CSV a Excel con formato profesional
+- [x] Incluir metadatos, encabezados y auto-ajuste de columnas
+- [x] Exportación mejorada a Excel
+
+### Validación Final
+- [ ] Probar todos los filtros avanzados
+- [ ] Probar todas las exportaciones
+- [ ] Guardar checkpoint final
