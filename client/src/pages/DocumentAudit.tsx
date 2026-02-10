@@ -10,6 +10,32 @@ import { FileText, Download, Eye, CheckCircle, Users, Activity, FileSpreadsheet 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import * as XLSX from "xlsx";
+import { Line, Doughnut, Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+
+// Registrar componentes de Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 export default function DocumentAudit() {
   const [filters, setFilters] = useState({
@@ -21,6 +47,8 @@ export default function DocumentAudit() {
     pageSize: 50,
   });
 
+  const [trendsPeriod, setTrendsPeriod] = useState<"day" | "week" | "month">("day");
+
   // Obtener log de auditoría
   const { data: auditData, isLoading } = trpc.documentAudit.getAuditLog.useQuery(filters);
 
@@ -28,6 +56,13 @@ export default function DocumentAudit() {
   const { data: stats } = trpc.documentAudit.getStatistics.useQuery({
     startDate: filters.startDate,
     endDate: filters.endDate,
+  });
+
+  // Obtener datos de tendencias
+  const { data: trendsData } = trpc.documentAudit.getTrends.useQuery({
+    startDate: filters.startDate,
+    endDate: filters.endDate,
+    period: trendsPeriod,
   });
 
   const handleFilterChange = (key: string, value: any) => {
@@ -160,6 +195,155 @@ export default function DocumentAudit() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.uniqueUsers}</div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Gráficas de Tendencias */}
+      {trendsData && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Gráfica de Accesos por Periodo */}
+          <Card className="col-span-full">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Accesos por Periodo</CardTitle>
+                  <CardDescription>Tendencia de accesos a documentos</CardDescription>
+                </div>
+                <Select
+                  value={trendsPeriod}
+                  onValueChange={(value: "day" | "week" | "month") => setTrendsPeriod(value)}
+                >
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day">Por Día</SelectItem>
+                    <SelectItem value="week">Por Semana</SelectItem>
+                    <SelectItem value="month">Por Mes</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div style={{ height: "300px" }}>
+                <Line
+                  data={{
+                    labels: trendsData.accessesByPeriod.map((item) => item.period),
+                    datasets: [
+                      {
+                        label: "Accesos",
+                        data: trendsData.accessesByPeriod.map((item) => item.count),
+                        borderColor: "rgb(59, 130, 246)",
+                        backgroundColor: "rgba(59, 130, 246, 0.1)",
+                        tension: 0.4,
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Gráfica de Distribución por Acción */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Distribución por Tipo de Acción</CardTitle>
+              <CardDescription>Proporción de acciones realizadas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div style={{ height: "300px" }}>
+                <Doughnut
+                  data={{
+                    labels: ["Visualizaciones", "Descargas", "Verificaciones"],
+                    datasets: [
+                      {
+                        data: [
+                          trendsData.actionDistribution.view,
+                          trendsData.actionDistribution.download,
+                          trendsData.actionDistribution.verify,
+                        ],
+                        backgroundColor: [
+                          "rgba(59, 130, 246, 0.8)",
+                          "rgba(34, 197, 94, 0.8)",
+                          "rgba(168, 85, 247, 0.8)",
+                        ],
+                        borderColor: [
+                          "rgb(59, 130, 246)",
+                          "rgb(34, 197, 94)",
+                          "rgb(168, 85, 247)",
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: "bottom",
+                      },
+                    },
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Gráfica de Usuarios Más Activos */}
+          <Card className="col-span-full lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Usuarios Más Activos</CardTitle>
+              <CardDescription>Top 10 usuarios con más accesos</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div style={{ height: "300px" }}>
+                <Bar
+                  data={{
+                    labels: trendsData.topUsers.map((user) => user.userName),
+                    datasets: [
+                      {
+                        label: "Accesos",
+                        data: trendsData.topUsers.map((user) => user.count),
+                        backgroundColor: "rgba(59, 130, 246, 0.8)",
+                        borderColor: "rgb(59, 130, 246)",
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                  options={{
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                    },
+                    scales: {
+                      x: {
+                        beginAtZero: true,
+                      },
+                    },
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>

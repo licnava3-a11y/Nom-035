@@ -9119,6 +9119,14 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Incluir todas las columnas del log en el Excel
 - [x] Ajustar anchos de columnas para mejor legibilidad
 - [x] Generar nombre de archivo con fecha y hora
+- [x] Gráficas de tendencias en auditoría
+- [x] Instalar Chart.js (react-chartjs-2 y chart.js)
+- [x] Crear procedimiento tRPC getTrends para obtener datos de tendencias
+- [x] Agregar gráfica de accesos por día/semana/mes (línea)
+- [x] Agregar gráfica de distribución por tipo de acción (dona)
+- [x] Agregar gráfica de usuarios más activos (barras horizontales)
+- [x] Integrar gráficas en página DocumentAudit.tsx
+- [x] Selector de periodo (día/semana/mes) para gráfica de accesos
 - [ ] Plantillas personalizables de reportes
 - [ ] Crear tabla report_templates en base de datos
 - [ ] Crear router tRPC para gestión de plantillas

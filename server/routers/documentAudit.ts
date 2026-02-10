@@ -171,4 +171,86 @@ export const documentAuditRouter = router({
         uniqueUsers,
       };
     }),
+
+  /**
+   * Obtener datos de tendencias para gráficas
+   */
+  getTrends: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        period: z.enum(["day", "week", "month"]).default("day"),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const conditions: any[] = [];
+
+      if (input.startDate) {
+        conditions.push(gte(documentAuditLog.timestamp, new Date(input.startDate)));
+      }
+      if (input.endDate) {
+        conditions.push(lte(documentAuditLog.timestamp, new Date(input.endDate)));
+      }
+
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const allLogs = await db
+        .select()
+        .from(documentAuditLog)
+        .where(where)
+        .orderBy(desc(documentAuditLog.timestamp));
+
+      // Accesos por día/semana/mes
+      const accessesByPeriod: Record<string, number> = {};
+      allLogs.forEach((log: any) => {
+        const date = new Date(log.timestamp);
+        let key: string;
+
+        if (input.period === "day") {
+          key = date.toISOString().split("T")[0]; // YYYY-MM-DD
+        } else if (input.period === "week") {
+          const weekStart = new Date(date);
+          weekStart.setDate(date.getDate() - date.getDay());
+          key = weekStart.toISOString().split("T")[0];
+        } else {
+          key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`; // YYYY-MM
+        }
+
+        accessesByPeriod[key] = (accessesByPeriod[key] || 0) + 1;
+      });
+
+      // Distribución por tipo de acción
+      const actionDistribution: Record<string, number> = {
+        view: 0,
+        download: 0,
+        verify: 0,
+      };
+      allLogs.forEach((log: any) => {
+        actionDistribution[log.action] = (actionDistribution[log.action] || 0) + 1;
+      });
+
+      // Usuarios más activos (top 10)
+      const userActivity: Record<string, number> = {};
+      allLogs.forEach((log: any) => {
+        if (log.userName) {
+          userActivity[log.userName] = (userActivity[log.userName] || 0) + 1;
+        }
+      });
+      const topUsers = Object.entries(userActivity)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([userName, count]) => ({ userName, count }));
+
+      return {
+        accessesByPeriod: Object.entries(accessesByPeriod)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([period, count]) => ({ period, count })),
+        actionDistribution,
+        topUsers,
+      };
+    }),
 });
