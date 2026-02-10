@@ -8556,3 +8556,27 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Lógica anti-duplicados implementada
 - [x] Selector de rango de meses implementado
 - [ ] Guardar checkpoint final
+
+
+## FASE 257: Toast de Duplicados y Resolución Automática
+
+### Toast Informativo para Alertas Duplicadas
+- [x] Instalar o verificar librería de toast (react-hot-toast o sonner) - Sonner ya instalado
+- [x] Agregar toast informativo en Dashboard cuando createAlert retorne isDuplicate: true
+- [x] Mostrar mensaje descriptivo: "Esta alerta ya está activa"
+- [x] Usar estilo de toast "info" con icono apropiado
+- [x] Toast implementado con duración de 5 segundos
+
+### Resolución Automática de Alertas
+- [x] Modificar useEffect de registro de alertas en Home.tsx
+- [x] Implementar lógica para detectar cuando umbrales vuelven a niveles normales
+- [x] Agregar query de alertas activas para obtener IDs
+- [x] Llamar a trpc.alerts.resolve.useMutation() cuando casos abiertos < 50
+- [x] Llamar a trpc.alerts.resolve.useMutation() cuando cobertura > 80%
+- [x] Agregar notas automáticas en resolución: "Resuelta automáticamente: umbral normalizado"
+- [x] Resolución automática completamente funcional
+
+### Validación Final
+- [x] Toast de duplicados implementado
+- [x] Resolución automática implementada
+- [ ] Guardar checkpoint final

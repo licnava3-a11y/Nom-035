@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AlertCircle, TrendingUp, Users, FileText, BarChart3 } from "lucide-react";
+import { toast } from "sonner";
 import { AlertBanner } from "@/components/AlertBanner";
 import {
   Chart as ChartJS,
@@ -49,9 +50,22 @@ export default function Home() {
 
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
+  const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
   
   // Mutation para crear alertas
-  const createAlertMutation = trpc.alerts.create.useMutation();
+  const createAlertMutation = trpc.alerts.create.useMutation({
+    onSuccess: (data) => {
+      if (data.isDuplicate) {
+        toast.info(`Esta alerta ya está activa`, {
+          description: data.message || "Ya existe una alerta activa de este tipo",
+          duration: 5000,
+        });
+      }
+    },
+  });
+  
+  // Mutation para resolver alertas
+  const resolveAlertMutation = trpc.alerts.resolve.useMutation();
   
   // Registro automático de alertas cuando se detecten umbrales
   useEffect(() => {
@@ -67,6 +81,15 @@ export default function Home() {
         threshold: 50,
         currentValue: casesOpen,
       });
+    } else if (activeAlerts) {
+      // Resolución automática: casos abiertos < 50
+      const criticalAlert = activeAlerts.find(a => a.alertType === "critical_cases");
+      if (criticalAlert) {
+        resolveAlertMutation.mutate({
+          alertId: criticalAlert.id,
+          notes: "Resuelta automáticamente: umbral normalizado (casos abiertos < 50)",
+        });
+      }
     }
     
     // Alerta warning: cobertura < 80%
@@ -77,8 +100,17 @@ export default function Home() {
         threshold: 80,
         currentValue: surveyCoverage,
       });
+    } else if (activeAlerts) {
+      // Resolución automática: cobertura > 80%
+      const coverageAlert = activeAlerts.find(a => a.alertType === "low_coverage");
+      if (coverageAlert) {
+        resolveAlertMutation.mutate({
+          alertId: coverageAlert.id,
+          notes: "Resuelta automáticamente: umbral normalizado (cobertura > 80%)",
+        });
+      }
     }
-   }, [metrics]);
+   }, [metrics, activeAlerts]);
   
   const { data: trendsData, isLoading: trendsLoading } = trpc.executiveDashboard.getTrendsData.useQuery({ period });
   const { data: alertTrends, isLoading: alertTrendsLoading } = trpc.alerts.getTrends.useQuery({ months: alertMonths });
