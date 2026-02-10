@@ -63,9 +63,7 @@ export default function OrganizationDashboard() {
     if (savedPeriod) setPeriod(savedPeriod);
   }, []);
 
-  // @ts-expect-error - Router types will regenerate on server restart
   const { data: deptStats, isLoading: loadingDepts } = trpc.departments.getStats.useQuery(dateRange);
-  // @ts-expect-error - Router types will regenerate on server restart
   const { data: posStats, isLoading: loadingPos } = trpc.positions.getStats.useQuery(dateRange);
 
   if (loadingDepts || loadingPos) {
@@ -89,16 +87,16 @@ export default function OrganizationDashboard() {
 
   // Preparar datos para gráfico de departamentos
   const deptChartData = (deptStats?.departments || [])
-    .map((dept: { name: string; employeeCount: number }) => ({
-      name: dept.name,
+    .map((dept: { departmentName: string; employeeCount: number }) => ({
+      name: dept.departmentName,
       empleados: dept.employeeCount,
     }))
     .sort((a: { empleados: number }, b: { empleados: number }) => b.empleados - a.empleados);
 
   // Preparar datos para gráfico de puestos (top 10)
   const posChartData = (posStats?.positions || [])
-    .map((pos: { title: string; employeeCount: number }) => ({
-      name: pos.title,
+    .map((pos: { positionTitle: string; employeeCount: number }) => ({
+      name: pos.positionTitle,
       empleados: pos.employeeCount,
     }))
     .sort((a: { empleados: number }, b: { empleados: number }) => b.empleados - a.empleados)

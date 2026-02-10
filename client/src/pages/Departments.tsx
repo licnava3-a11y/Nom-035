@@ -54,14 +54,12 @@ export default function Departments() {
     parentId: null as number | null,
   });
 
-  // @ts-expect-error - Router types will be generated
   const { data, isLoading, refetch } = trpc.departments.list.useQuery({
     page,
     pageSize: 10,
     search: search || undefined,
   });
 
-  // @ts-expect-error - Router types will be generated
   const createMutation = trpc.departments.create.useMutation({
     onSuccess: () => {
       toast.success("Departamento creado exitosamente");
@@ -74,7 +72,6 @@ export default function Departments() {
     },
   });
 
-  // @ts-expect-error - Router types will be generated
   const updateMutation = trpc.departments.update.useMutation({
     onSuccess: () => {
       toast.success("Departamento actualizado exitosamente");
@@ -87,7 +84,6 @@ export default function Departments() {
     },
   });
 
-  // @ts-expect-error - Router types will be generated
   const deleteMutation = trpc.departments.delete.useMutation({
     onSuccess: () => {
       toast.success("Departamento eliminado exitosamente");

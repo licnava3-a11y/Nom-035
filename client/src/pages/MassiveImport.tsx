@@ -192,10 +192,10 @@ export default function MassiveImport() {
 
               <Button
                 onClick={handleImportDepartments}
-                disabled={!departmentsFile || importDepartmentsMutation.isLoading}
+                disabled={!departmentsFile || importDepartmentsMutation.isPending}
                 className="w-full"
               >
-                {importDepartmentsMutation.isLoading ? "Importando..." : "Importar Departamentos"}
+                {importDepartmentsMutation.isPending ? "Importando..." : "Importar Departamentos"}
               </Button>
             </CardContent>
           </Card>
@@ -248,10 +248,10 @@ export default function MassiveImport() {
 
               <Button
                 onClick={handleImportPositions}
-                disabled={!positionsFile || importPositionsMutation.isLoading}
+                disabled={!positionsFile || importPositionsMutation.isPending}
                 className="w-full"
               >
-                {importPositionsMutation.isLoading ? "Importando..." : "Importar Puestos"}
+                {importPositionsMutation.isPending ? "Importando..." : "Importar Puestos"}
               </Button>
             </CardContent>
           </Card>
@@ -319,10 +319,10 @@ export default function MassiveImport() {
 
               <Button
                 onClick={handleImportEmployees}
-                disabled={!employeesFile || importEmployeesMutation.isLoading}
+                disabled={!employeesFile || importEmployeesMutation.isPending}
                 className="w-full"
               >
-                {importEmployeesMutation.isLoading ? "Importando..." : "Importar Trabajadores"}
+                {importEmployeesMutation.isPending ? "Importando..." : "Importar Trabajadores"}
               </Button>
             </CardContent>
           </Card>

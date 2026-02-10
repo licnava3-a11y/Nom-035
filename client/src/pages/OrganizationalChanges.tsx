@@ -54,14 +54,12 @@ export default function OrganizationalChanges() {
   const [compareEndDate, setCompareEndDate] = useState('');
 
   // Queries
-  // @ts-expect-error - Router types will regenerate on server restart
   const { data: changes, isLoading: isLoadingChanges } = trpc.departments.getChangeHistory.useQuery({
     changeType: changeType === 'all' ? undefined : changeType,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
 
-  // @ts-expect-error - Router types will regenerate on server restart
   const { data: stats, isLoading: isLoadingStats } = trpc.departments.getChangeStats.useQuery({
     startDate: startDate || undefined,
     endDate: endDate || undefined,

@@ -24,33 +24,27 @@ export default function NOM035Questionnaire() {
   const [surveyPeriodId, setSurveyPeriodId] = useState<number | null>(null);
 
   // Obtener período activo
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const { data: activePeriod, isLoading: loadingPeriod } = trpc.nom035.getActivePeriod.useQuery();
 
   // Obtener todas las preguntas
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const { data: questions, isLoading: loadingQuestions } = trpc.nom035.getQuestions.useQuery();
 
   // Obtener progreso guardado
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const { data: progress } = trpc.nom035.getProgress.useQuery(
     { surveyPeriodId: surveyPeriodId! },
     { enabled: !!surveyPeriodId }
   );
 
   // Obtener respuestas previas
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const { data: savedResponses } = trpc.nom035.getResponses.useQuery(
     { surveyPeriodId: surveyPeriodId! },
     { enabled: !!surveyPeriodId }
   );
 
   // Guardar respuesta
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const saveResponseMutation = trpc.nom035.saveResponse.useMutation();
 
   // Calcular resultados
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const calculateResultsMutation = trpc.nom035.calculateResults.useMutation({
     onSuccess: () => {
       setLocation("/nom035/results");

@@ -45,9 +45,14 @@ export const employeesRouter = router({
   getHistory: protectedProcedure
     .input(z.object({ employeeId: z.number() }))
     .query(async ({ input }) => {
-      // @ts-expect-error - Function exists but TypeScript cache issue
       const history = await employeesDb.getEmployeeHistory(input.employeeId);
-      return history || [];
+      // Convert Date to string for frontend compatibility
+      return (history || []).map(event => ({
+        ...event,
+        eventDate: event.eventDate instanceof Date 
+          ? event.eventDate.toISOString().split('T')[0] 
+          : event.eventDate
+      }));
     }),
 
   /**
@@ -166,14 +171,12 @@ export const employeesRouter = router({
       let previousHireDates: Date[] = [];
       
       if (input.curp) {
-        // @ts-expect-error - Function exists but TypeScript cache issue
         const existingByCURP = await employeesDb.getEmployeeByCURP(input.curp);
         if (existingByCURP) {
           isReentry = true;
           reentryCount = (existingByCURP.reentryCount || 0) + 1;
           
           // Obtener fechas previas de contratación
-          // @ts-expect-error - Function exists but TypeScript cache issue
           const history = await employeesDb.getEmployeeHistoryByCURP(input.curp);
           previousHireDates = history
             .filter((h: any) => h.eventType === 'hire' || h.eventType === 'reentry')
@@ -190,7 +193,6 @@ export const employeesRouter = router({
 
       // Registrar evento en historial
       if (input.curp) {
-        // @ts-expect-error - Function exists but TypeScript cache issue
         await employeesDb.addEmployeeHistoryEvent({
           employeeId,
           curp: input.curp,
@@ -432,7 +434,6 @@ export const employeesRouter = router({
 
       // Register termination event in history
       if (employee.curp) {
-        // @ts-expect-error - Function exists but TypeScript cache issue
         await employeesDb.addEmployeeHistoryEvent({
           employeeId: input.employeeId,
           curp: employee.curp,
@@ -462,7 +463,6 @@ export const employeesRouter = router({
     .query(async ({ input }) => {
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
-      // @ts-expect-error - Function exists but TypeScript cache issue
       return await employeesDb.getTurnoverStats(startDate, endDate);
     }),
 
@@ -473,7 +473,6 @@ export const employeesRouter = router({
       })
     )
     .query(async ({ input }) => {
-      // @ts-expect-error - Function exists but TypeScript cache issue
       return await employeesDb.getMonthlyTerminationTrends(input.months);
     }),
 
@@ -487,7 +486,6 @@ export const employeesRouter = router({
     .query(async ({ input }) => {
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
-      // @ts-expect-error - Function exists but TypeScript cache issue
       return await employeesDb.getTerminationsByReason(startDate, endDate);
     }),
 
@@ -501,7 +499,6 @@ export const employeesRouter = router({
     .query(async ({ input }) => {
       const startDate = new Date(input.startDate);
       const endDate = new Date(input.endDate);
-      // @ts-expect-error - Function exists but TypeScript cache issue
       return await employeesDb.getTerminationsByDepartment(startDate, endDate);
     }),
 });

@@ -8105,3 +8105,36 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Botón de descarga en página OrganizationalChanges
 
 **FASE 228-230: ✅ COMPLETADA AL 100%**
+
+
+## FASE 231-234: Correcciones Críticas (Auditoría 2026-02-09)
+
+### Configuración SMTP
+- [ ] Agregar variables SMTP usando webdev_request_secrets
+- [ ] Probar envío de correo de reestructuración
+- [ ] Verificar que notificaciones lleguen correctamente
+
+### Corrección de Errores TypeScript (52 errores)
+- [x] Eliminar 9 directivas @ts-expect-error obsoletas en employees.ts
+- [x] Eliminar 16 directivas @ts-expect-error obsoletas en archivos client
+- [x] Corregir nombres de columnas en departments.ts (key → settingKey, value → settingValue)
+- [x] Agregar campos averageMonthly y activeEmployees en backend de TurnoverDashboard
+- [x] Agregar campos totalDepartments, totalEmployees, departments en getStats de departments
+- [x] Agregar campos totalPositions, positions en getStats de positions
+- [x] Corregir tipos en db-employees.ts (previousHireDates, evidenceUrls, getEmployeeByCURP)
+- [x] Cambiar isLoading a isPending en MassiveImport.tsx
+- [x] Corregir property name → departmentName y title → positionTitle en OrganizationDashboard
+- [x] Convertir eventDate de Date a string en getHistory
+- [x] Verificar compilación sin errores (0 errores TypeScript confirmados)
+
+### Implementación de Transacciones
+- [ ] Implementar transacciones en departments.ts (create, update)
+- [ ] Implementar transacciones en employees.ts (create, update, delete)
+- [ ] Implementar transacciones en surveys.ts (create, update)
+- [ ] Probar rollback en caso de error
+- [ ] Verificar integridad de datos
+
+### Checkpoint Final
+- [ ] Actualizar todo.md con tareas completadas
+- [ ] Crear checkpoint con todas las correcciones
+- [ ] Verificar que servidor compile sin errores

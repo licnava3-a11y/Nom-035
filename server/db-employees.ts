@@ -390,8 +390,7 @@ export async function createPosition(data: {
     title: data.title,
     description: data.description || null,
     departmentId: data.departmentId,
-    level: data.level || "mid",
-    createdAt: new Date(),
+    level: (data.level as any) || null,
   });
   return result;
 }
@@ -403,9 +402,13 @@ export async function getEmployeeByCURP(curp: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  return await db.query.employees.findFirst({
-    where: (employees: any, { eq }: any) => eq(employees.curp, curp),
-  });
+  const [employee] = await db
+    .select()
+    .from(employees)
+    .where(eq(employees.curp, curp))
+    .limit(1);
+  
+  return employee;
 }
 
 
@@ -438,7 +441,7 @@ export async function addEmployeeHistoryEvent(data: {
     terminationReason: data.terminationReason as any,
     terminationCategory: data.terminationCategory as any,
     terminationNotes: data.terminationNotes,
-    evidenceUrls: data.evidenceUrls ? JSON.stringify(data.evidenceUrls) : null,
+    evidenceUrls: data.evidenceUrls || null,
     processedBy: data.processedBy,
     departmentId: data.departmentId,
     positionId: data.positionId,
@@ -532,7 +535,7 @@ export async function updateEmployeeReentryInfo(
     .update(employees)
     .set({
       reentryCount,
-      previousHireDates: JSON.stringify(previousHireDates.map(d => d.toISOString())),
+      previousHireDates: previousHireDates.map(d => d.toISOString()),
     })
     .where(eq(employees.id, employeeId));
 }
@@ -578,10 +581,16 @@ export async function getTurnoverStats(startDate: Date, endDate: Date) {
   // Calculate turnover rate
   const turnoverRate = totalActive > 0 ? (totalTerminations / totalActive) * 100 : 0;
 
+  // Calculate average monthly terminations
+  const months = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+  const averageMonthly = Math.round((totalTerminations / months) * 100) / 100;
+
   return {
     totalTerminations,
     totalActive,
+    activeEmployees: totalActive, // Alias for compatibility
     turnoverRate: Math.round(turnoverRate * 100) / 100,
+    averageMonthly,
     terminations,
   };
 }

@@ -275,6 +275,12 @@ export const positionsRouter = router({
         .groupBy(positions.id, positions.title, departments.name)
         .orderBy(desc(count(employees.id)));
 
-      return stats;
+      // Calcular totales
+      const totalPositions = stats.length;
+
+      return {
+        totalPositions,
+        positions: stats,
+      };
     }),
 });

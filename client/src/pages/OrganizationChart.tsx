@@ -280,7 +280,6 @@ async function getLayoutedElements(
 }
 
 export default function OrganizationChart() {
-  // @ts-expect-error - Router types will regenerate on server restart
   const { data: hierarchy, isLoading } = trpc.departments.getHierarchy.useQuery();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -311,7 +310,6 @@ export default function OrganizationChart() {
   
 
   
-  // @ts-expect-error - Router types will regenerate on server restart
   const { data: historicalHierarchy, isLoading: isLoadingHistorical } = trpc.departments.getHierarchyAtDate.useQuery(
     { date: selectedDate },
     { enabled: isHistoricalView && selectedDate !== '' }

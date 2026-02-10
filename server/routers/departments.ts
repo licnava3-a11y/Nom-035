@@ -254,10 +254,10 @@ export const departmentsRouter = router({
             const [settings] = await db
               .select()
               .from(systemSettings)
-              .where(eq(systemSettings.key, 'hr_email'))
+              .where(eq(systemSettings.settingKey, 'hr_email'))
               .limit(1);
             
-            const hrEmail = settings?.value || process.env.OWNER_EMAIL;
+            const hrEmail = settings?.settingValue || process.env.OWNER_EMAIL;
             
             if (hrEmail) {
               // Obtener información del departamento padre anterior y nuevo
@@ -466,7 +466,15 @@ export const departmentsRouter = router({
         .groupBy(departments.id, departments.name)
         .orderBy(desc(count(employees.id)));
 
-      return stats;
+      // Calcular totales
+      const totalDepartments = stats.length;
+      const totalEmployees = stats.reduce((sum, dept) => sum + dept.employeeCount, 0);
+
+      return {
+        totalDepartments,
+        totalEmployees,
+        departments: stats,
+      };
     }),
 
   // Obtener jerarquía organizacional en una fecha específica

@@ -43,11 +43,9 @@ export default function NOM035Results() {
   const [surveyPeriodId, setSurveyPeriodId] = useState<number | null>(null);
 
   // Obtener período activo
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const { data: activePeriod } = trpc.nom035.getActivePeriod.useQuery();
 
   // Obtener resultados
-  // @ts-expect-error - Router nom035 existe pero tipos aún no regenerados
   const { data: results, isLoading, error } = trpc.nom035.getResults.useQuery(
     { surveyPeriodId: surveyPeriodId! },
     { enabled: !!surveyPeriodId }

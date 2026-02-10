@@ -64,7 +64,6 @@ export default function Positions() {
     level: "specialist" as "executive" | "management" | "supervisor" | "specialist" | "entry",
   });
 
-  // @ts-expect-error - Router types will be generated
   const { data, isLoading, refetch } = trpc.positions.list.useQuery({
     page,
     pageSize: 10,
@@ -72,14 +71,12 @@ export default function Positions() {
     departmentId: filterDepartment,
   });
 
-  // @ts-expect-error - Router types will be generated
   const { data: departments } = trpc.departments.list.useQuery({
     page: 1,
     pageSize: 100,
     isActive: true,
   });
 
-  // @ts-expect-error - Router types will be generated
   const createMutation = trpc.positions.create.useMutation({
     onSuccess: () => {
       toast.success("Puesto creado exitosamente");
@@ -92,7 +89,6 @@ export default function Positions() {
     },
   });
 
-  // @ts-expect-error - Router types will be generated
   const updateMutation = trpc.positions.update.useMutation({
     onSuccess: () => {
       toast.success("Puesto actualizado exitosamente");
@@ -105,7 +101,6 @@ export default function Positions() {
     },
   });
 
-  // @ts-expect-error - Router types will be generated
   const deleteMutation = trpc.positions.delete.useMutation({
     onSuccess: () => {
       toast.success("Puesto eliminado exitosamente");
