@@ -8956,3 +8956,16 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Validaciones de tamaño y tipo de archivo
 - [x] Visualización de firma en tabla
 - [ ] Guardar checkpoint
+
+
+## Firmas de Representantes Legales en Reportes PDF
+- [x] Modificar generateNumeralsPDF para obtener representantes activos con firma
+- [x] Incluir representantes en respuesta del procedimiento
+- [x] Actualizar generación de PDF en frontend para agregar sección de firmas
+- [x] Agregar firmas antes del pie de página del PDF
+- [x] Mostrar nombre y cargo debajo de cada firma
+- [x] Ajustar layout para múltiples firmas (máximo 3)
+- [x] Carga asíncrona de imágenes de firmas
+- [x] Distribución horizontal proporcional de firmas
+- [x] Línea de firma para validez formal
+- [ ] Guardar checkpoint

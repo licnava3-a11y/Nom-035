@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users, companyGeneralData, companyLogo } from "../../drizzle/schema.js";
+import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users, companyGeneralData, companyLogo, companyLegalRepresentative } from "../../drizzle/schema.js";
 import { eq, sql, desc } from "drizzle-orm";
 
 export const complianceRouter = router({
@@ -453,6 +453,14 @@ export const complianceRouter = router({
         .orderBy(desc(companyLogo.createdAt))
         .limit(1);
 
+      // Obtener representantes legales activos con firma
+      const representatives = await db
+        .select()
+        .from(companyLegalRepresentative)
+        .where(eq(companyLegalRepresentative.activo, true))
+        .orderBy(companyLegalRepresentative.createdAt)
+        .limit(3);
+
       // Obtener requisitos de Numerales 7 y 8
       const requirements = await db
         .select()
@@ -490,6 +498,7 @@ export const complianceRouter = router({
           requirements: reportData,
           company: companyData[0] || null,
           logo: logo[0] || null,
+          representatives: representatives || [],
         },
       };
     }),

@@ -196,6 +196,66 @@ export default function NumeralsVerification() {
           yPosition += (findings.length * 5) + 5;
         });
         
+        // Sección de firmas de representantes legales
+        if (result.data.representatives && result.data.representatives.length > 0) {
+          // Verificar si necesitamos nueva página para firmas
+          if (yPosition > pageHeight - 60) {
+            doc.addPage();
+            yPosition = 20;
+          } else {
+            yPosition += 10;
+          }
+          
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Firmas de Autorización', 14, yPosition);
+          yPosition += 10;
+          
+          // Calcular espacio disponible para cada firma
+          const numReps = Math.min(result.data.representatives.length, 3);
+          const signatureWidth = (pageWidth - 28) / numReps;
+          
+          // Cargar y colocar firmas
+          for (let i = 0; i < numReps; i++) {
+            const rep = result.data.representatives[i];
+            const xPosition = 14 + (i * signatureWidth);
+            
+            // Cargar firma si existe
+            if (rep.firmaUrl) {
+              try {
+                const firmaImg = new Image();
+                firmaImg.crossOrigin = 'anonymous';
+                await new Promise((resolve, reject) => {
+                  firmaImg.onload = resolve;
+                  firmaImg.onerror = reject;
+                  firmaImg.src = rep.firmaUrl || '';
+                });
+                
+                // Agregar firma
+                const firmaWidth = signatureWidth - 10;
+                const firmaHeight = 15;
+                doc.addImage(firmaImg, 'PNG', xPosition, yPosition, firmaWidth, firmaHeight);
+              } catch (error) {
+                console.warn('No se pudo cargar la firma:', error);
+              }
+            }
+            
+            // Línea para firma
+            doc.setLineWidth(0.3);
+            doc.line(xPosition, yPosition + 20, xPosition + signatureWidth - 10, yPosition + 20);
+            
+            // Nombre y cargo
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            const nameLines = doc.splitTextToSize(rep.nombre, signatureWidth - 10);
+            doc.text(nameLines, xPosition + (signatureWidth - 10) / 2, yPosition + 24, { align: 'center' });
+            
+            doc.setFont('helvetica', 'normal');
+            const cargoLines = doc.splitTextToSize(rep.cargo, signatureWidth - 10);
+            doc.text(cargoLines, xPosition + (signatureWidth - 10) / 2, yPosition + 28, { align: 'center' });
+          }
+        }
+        
         // Pie de página en todas las páginas
         const totalPages = doc.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
