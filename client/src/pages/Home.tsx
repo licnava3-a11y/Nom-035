@@ -77,6 +77,7 @@ export default function Home() {
     if (casesOpen > 50) {
       createAlertMutation.mutate({
         alertType: "critical_cases",
+        priority: "critical",
         description: `Hay ${casesOpen} casos abiertos que requieren atención inmediata`,
         threshold: 50,
         currentValue: casesOpen,
@@ -96,6 +97,7 @@ export default function Home() {
     if (surveyCoverage < 80) {
       createAlertMutation.mutate({
         alertType: "low_coverage",
+        priority: "warning",
         description: `La cobertura de encuestas es ${surveyCoverage.toFixed(1)}%`,
         threshold: 80,
         currentValue: surveyCoverage,

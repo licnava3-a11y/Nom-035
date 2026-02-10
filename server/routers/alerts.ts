@@ -10,6 +10,7 @@ export const alertsRouter = router({
     .input(
       z.object({
         alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]),
+        priority: z.enum(["info", "warning", "critical"]).optional(),
         threshold: z.number(),
         currentValue: z.number(),
         description: z.string(),
@@ -72,7 +73,11 @@ export const alertsRouter = router({
         .select()
         .from(alertHistory)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(alertHistory.triggeredAt))
+        .orderBy(
+          // Ordenar primero por prioridad (critical > warning > info), luego por fecha
+          sql`CASE ${alertHistory.priority} WHEN 'critical' THEN 1 WHEN 'warning' THEN 2 WHEN 'info' THEN 3 END`,
+          desc(alertHistory.triggeredAt)
+        )
         .limit(100);
 
       return alerts;

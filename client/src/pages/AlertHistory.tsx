@@ -91,6 +91,7 @@ export default function AlertHistory() {
     const data = alerts.map(alert => ({
       "Fecha": new Date(alert.triggeredAt).toLocaleString("es-MX"),
       "Tipo": getAlertTypeLabel(alert.alertType),
+      "Prioridad": alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa",
       "Descripción": alert.description,
       "Umbral": alert.threshold,
       "Valor Actual": alert.currentValue,
@@ -236,6 +237,7 @@ export default function AlertHistory() {
                   <tr className="border-b">
                     <th className="text-left p-3 font-medium">Fecha</th>
                     <th className="text-left p-3 font-medium">Tipo</th>
+                    <th className="text-center p-3 font-medium">Prioridad</th>
                     <th className="text-left p-3 font-medium">Descripción</th>
                     <th className="text-center p-3 font-medium">Umbral</th>
                     <th className="text-center p-3 font-medium">Valor Actual</th>
@@ -262,6 +264,14 @@ export default function AlertHistory() {
                             {getAlertTypeLabel(alert.alertType)}
                           </Badge>
                         </div>
+                      </td>
+                      <td className="p-3 text-center">
+                        <Badge 
+                          variant={alert.priority === "critical" ? "destructive" : alert.priority === "warning" ? "secondary" : "outline"}
+                          className={alert.priority === "info" ? "bg-blue-100 text-blue-800 hover:bg-blue-200" : ""}
+                        >
+                          {alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa"}
+                        </Badge>
                       </td>
                       <td className="p-3 text-sm max-w-md">
                         {alert.description}

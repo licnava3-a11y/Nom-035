@@ -8580,3 +8580,29 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Toast de duplicados implementado
 - [x] Resolución automática implementada
 - [ ] Guardar checkpoint final
+
+
+## FASE 258-259: Contador de Alertas y Sistema de Priorización
+
+### Contador de Alertas Activas en Header
+- [x] Agregar query de alertas activas en DashboardLayout
+- [x] Crear componente AlertBadge con contador numérico
+- [x] Agregar badge en header del Dashboard (móvil)
+- [x] Implementar enlace a página de Histórico de Alertas al hacer clic
+- [x] Contador funcional con icono de alerta
+
+### Sistema de Priorización de Alertas
+- [x] Agregar campo priority a tabla alert_history (info/warning/critical)
+- [x] Generar migración SQL para agregar columna priority (0043_clumsy_firedrake.sql)
+- [x] Aplicar migración con webdev_execute_sql
+- [x] Actualizar procedimientos tRPC para incluir priority (opcional en create)
+- [x] Implementar ordenamiento automático por priority en getHistory (critical > warning > info)
+- [x] Actualizar UI de AlertHistory para mostrar prioridad con badges de color (rojo=critical, gris=warning, azul=info)
+- [x] Actualizar lógica de registro automático para asignar prioridad correcta (critical para casos, warning para cobertura)
+- [x] Probar ordenamiento y visualización de prioridades
+- [x] Agregar columna de prioridad en exportación a Excel
+
+### Validación Final
+- [ ] Probar contador de alertas en header
+- [ ] Verificar sistema de priorización
+- [ ] Guardar checkpoint final

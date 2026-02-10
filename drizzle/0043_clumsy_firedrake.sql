@@ -1,0 +1,1 @@
+ALTER TABLE `alert_history` ADD `priority` enum('info','warning','critical') DEFAULT 'warning' NOT NULL;

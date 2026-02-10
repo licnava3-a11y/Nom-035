@@ -1962,6 +1962,7 @@ export type InsertNom035Result = typeof nom035Results.$inferInsert;
 export const alertHistory = mysqlTable("alert_history", {
   id: int("id").autoincrement().primaryKey(),
   alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance"]).notNull(),
+  priority: mysqlEnum("priority", ["info", "warning", "critical"]).default("warning").notNull(),
   threshold: int("threshold").notNull(), // Umbral que activó la alerta
   currentValue: int("current_value").notNull(), // Valor actual que superó el umbral
   description: text("description").notNull(), // Descripción de la alerta
