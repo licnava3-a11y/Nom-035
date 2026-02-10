@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { toast } from "sonner";
 import { FileDown, Search, Calendar, Filter, Eye } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -211,6 +212,11 @@ export default function SurveysAdminPanel() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb items={[
+        { label: "Encuestas NOM-035", href: "/" },
+        { label: "Panel de Administración" }
+      ]} />
+      
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

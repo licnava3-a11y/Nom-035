@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import { WorkerSelector } from "@/components/WorkerSelector";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -224,7 +226,25 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="caseType">Tipo de Caso *</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="caseType">Tipo de Caso *</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">Tipos de Riesgo Psicosocial</p>
+                      <ul className="text-xs space-y-1">
+                        <li>• <strong>Mobbing:</strong> Acoso laboral sistemático</li>
+                        <li>• <strong>Burnout:</strong> Síndrome de desgaste profesional</li>
+                        <li>• <strong>Violencia Laboral:</strong> Agresión física o verbal</li>
+                        <li>• <strong>Estrés Laboral:</strong> Presión excesiva en el trabajo</li>
+                      </ul>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <Select
                 value={caseType}
                 onValueChange={(value) => setCaseType(value)}

@@ -8280,3 +8280,36 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Verificar breadcrumbs en todas las páginas
 - [ ] Confirmar skeletons en estados de carga
 - [ ] Guardar checkpoint final
+
+
+## FASE 241-243: Mejoras UX Críticas (Tooltips, Breadcrumbs, Skeletons)
+
+### Tooltips Informativos
+- [x] Verificar componente Tooltip de shadcn/ui
+- [x] Agregar tooltips en formulario de empleados (CURP, RFC, NSS, fecha de nacimiento)
+- [x] Agregar tooltips en formulario de casos (nivel de riesgo, tipo de caso, estado)
+- [ ] Agregar tooltips en configuración de encuestas (periodicidad, tipo)
+- [ ] Agregar tooltips en formulario de acciones correctivas (prioridad, plazo)
+
+### Breadcrumbs de Navegación
+- [x] Verificar componente Breadcrumb de shadcn/ui
+- [x] Crear componente Breadcrumb reutilizable si no existe
+- [x] Agregar breadcrumbs en páginas de Gestión de Talento (Empleados, Departamentos)
+- [x] Agregar breadcrumbs en páginas de Encuestas NOM-035 (Configuración, Resultados)
+- [x] Agregar breadcrumbs en páginas de Prevención de Riesgos (Casos, Acciones)
+- [ ] Agregar breadcrumbs en páginas de Reportes y Análisis
+- [ ] Agregar breadcrumbs en páginas de Capacitación y Desarrollo
+
+### Skeleton Loading States
+- [x] Verificar componente Skeleton de shadcn/ui
+- [x] Crear skeleton para tabla de empleados (EmployeesPage)
+- [x] Crear skeleton para dashboard principal (Home)
+- [x] Crear skeleton para gráficas de estadísticas (Dashboard)
+- [x] Crear skeleton para tabla de casos (CasesPage)
+- [ ] Crear skeleton para formularios de carga (EmployeeForm, CaseForm)
+
+### Pruebas y Validación
+- [ ] Probar tooltips en todos los formularios
+- [ ] Verificar breadcrumbs en todas las páginas
+- [ ] Confirmar skeletons en estados de carga
+- [ ] Guardar checkpoint final

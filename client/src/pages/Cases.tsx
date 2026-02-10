@@ -20,6 +20,7 @@ import { DateRangeFilter, DateRange } from "@/components/DateRangeFilter";
 import { CaseDialog } from "@/components/CaseDialog";
 import { CaseFollowUpDialog } from "@/components/CaseFollowUpDialog";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function Cases() {
   const { user } = useAuth();
@@ -132,19 +133,17 @@ export default function Cases() {
   if (isLoading) {
     return (
       <div className="space-y-6">
+        <Breadcrumb items={[
+          { label: "Prevención de Riesgos Psicosociales", href: "/" },
+          { label: "Casos" }
+        ]} />
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Gestión de Casos</h1>
             <p className="text-muted-foreground mt-2">Seguimiento de casos psicosociales</p>
           </div>
         </div>
-        <Card>
-          <CardContent className="py-12">
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-          </CardContent>
-        </Card>
+        <TableSkeleton rows={8} columns={7} />
       </div>
     );
   }

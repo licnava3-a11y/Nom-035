@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Save, CheckCircle2, XCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { useValidation } from "@/hooks/useValidation";
 
 export default function EmployeeNew() {
@@ -285,7 +286,22 @@ export default function EmployeeNew() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="curp">CURP</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="curp">CURP</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Clave Única de Registro de Población</p>
+                        <p className="text-xs">Formato: 18 caracteres alfanuméricos</p>
+                        <p className="text-xs mt-1">Ejemplo: PEGG850101HCHRRN09</p>
+                        <p className="text-xs mt-1">El sistema valida automáticamente el formato y extrae fecha de nacimiento, género y estado.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <div className="relative">
                   <Input
                     id="curp"
@@ -366,7 +382,21 @@ export default function EmployeeNew() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="hireDate">Fecha de Ingreso</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="hireDate">Fecha de Ingreso</Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Fecha de Contratación</p>
+                        <p className="text-xs">Fecha en que el empleado inició su relación laboral con la empresa.</p>
+                        <p className="text-xs mt-1">Esta fecha se usa para calcular antigüedad, prestaciones y periodos de evaluación.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <Input
                   id="hireDate"
                   type="date"
