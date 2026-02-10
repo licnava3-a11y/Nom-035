@@ -9373,3 +9373,47 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Crear interfaces de usuario para análisis de riesgos y minutas de comité
 
 **CHECKPOINT FINAL RECOMENDADO**
+
+
+## FASE 188 - Interfaces de Usuario para Análisis de Riesgos y Minutas de Comité
+
+### Página de Análisis de Riesgos Psicosociales
+- [ ] Crear componente RiskAnalysisPage.tsx con formulario completo
+- [ ] Implementar selector de trabajador con búsqueda
+- [ ] Crear sección de captura de resultados por categorías
+- [ ] Crear sección de captura de resultados por dominios
+- [ ] Crear sección de captura de resultados por dimensiones
+- [ ] Implementar cálculo automático de niveles de riesgo
+- [ ] Agregar botón de exportación PDF con loading state
+- [ ] Integrar procedimiento tRPC generateRiskAnalysisPDF
+- [ ] Agregar validación de formulario antes de exportar
+
+### Módulo de Gestión de Minutas de Comité
+- [ ] Crear componente CommitteeMinutesPage.tsx con lista de minutas
+- [ ] Implementar tabla con minutas existentes (número, fecha, tipo, estado)
+- [ ] Crear componente CommitteeMinuteForm.tsx para crear/editar
+- [ ] Implementar formulario de datos generales (número sesión, fecha, hora, lugar, tipo)
+- [ ] Crear sección de asistentes con tabla editable
+- [ ] Crear sección de orden del día con lista editable
+- [ ] Crear sección de acuerdos con responsables y fechas
+- [ ] Crear sección de seguimiento de acuerdos anteriores
+- [ ] Implementar guardado de borradores automático
+- [ ] Implementar historial de versiones con timestamps
+- [ ] Agregar botón de exportación PDF
+- [ ] Integrar procedimiento tRPC generateCommitteeMinutesPDF
+- [ ] Crear procedimientos tRPC para CRUD de minutas
+
+### Integración y Navegación
+- [ ] Agregar rutas en App.tsx para ambas páginas
+- [ ] Agregar enlaces en sidebar de DashboardLayout
+- [ ] Crear iconos apropiados para navegación
+- [ ] Agregar accesos directos en dashboard principal
+
+### Pruebas y Validación
+- [ ] Probar formulario de análisis de riesgos con datos reales
+- [ ] Probar exportación PDF de análisis de riesgos
+- [ ] Probar CRUD completo de minutas
+- [ ] Probar guardado de borradores
+- [ ] Probar exportación PDF de minutas
+- [ ] Verificar que no hay errores en consola
+- [ ] Guardar checkpoint

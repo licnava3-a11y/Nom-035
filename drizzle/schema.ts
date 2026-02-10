@@ -2400,3 +2400,117 @@ export const reportTemplates = mysqlTable("report_templates", {
 
 export type ReportTemplate = typeof reportTemplates.$inferSelect;
 export type InsertReportTemplate = typeof reportTemplates.$inferInsert;
+
+
+/**
+ * Committee Minutes - Minutas de Comité
+ * Gestión completa de minutas con borradores, historial y exportación PDF
+ */
+export const committeeMinutes = mysqlTable("committee_minutes", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 100 }).notNull().unique(), // MC-001/2026
+  sessionNumber: int("session_number").notNull(), // Número de sesión
+  meetingDate: date("meeting_date").notNull(), // Fecha de la reunión
+  meetingTime: varchar("meeting_time", { length: 10 }).notNull(), // Hora (HH:MM)
+  meetingPlace: varchar("meeting_place", { length: 255 }).notNull(), // Lugar de la reunión
+  meetingType: mysqlEnum("meeting_type", [
+    "ordinaria",
+    "extraordinaria",
+    "urgente",
+    "seguimiento"
+  ]).notNull().default("ordinaria"),
+  status: mysqlEnum("status", ["borrador", "finalizada", "archivada"]).notNull().default("borrador"),
+  objective: text("objective"), // Objetivo de la reunión
+  results: text("results"), // Resultados obtenidos
+  groupPhotoUrl: varchar("group_photo_url", { length: 512 }), // Foto grupal
+  groupPhotoKey: varchar("group_photo_key", { length: 512 }),
+  attendanceListUrl: varchar("attendance_list_url", { length: 512 }), // Lista de asistencia
+  attendanceListKey: varchar("attendance_list_key", { length: 512 }),
+  pdfUrl: varchar("pdf_url", { length: 512 }), // PDF generado
+  pdfKey: varchar("pdf_key", { length: 512 }),
+  qrCode: varchar("qr_code", { length: 255 }).unique(), // Código QR para verificación
+  version: int("version").notNull().default(1), // Versión del documento
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  finalizedAt: timestamp("finalized_at"), // Fecha de finalización
+});
+
+export type CommitteeMinute = typeof committeeMinutes.$inferSelect;
+export type InsertCommitteeMinute = typeof committeeMinutes.$inferInsert;
+
+/**
+ * Committee Minute Attendees - Asistentes a Minutas
+ */
+export const committeeMinuteAttendees = mysqlTable("committee_minute_attendees", {
+  id: int("id").autoincrement().primaryKey(),
+  minuteId: int("minute_id").references(() => committeeMinutes.id).notNull(),
+  userId: int("user_id").references(() => users.id), // Puede ser null para externos
+  name: varchar("name", { length: 255 }).notNull(),
+  position: varchar("position", { length: 255 }), // Cargo
+  role: varchar("role", { length: 100 }), // Rol en la reunión (presidente, secretario, vocal, etc.)
+  photoUrl: varchar("photo_url", { length: 512 }), // Foto del representante
+  photoKey: varchar("photo_key", { length: 512 }),
+  signatureUrl: varchar("signature_url", { length: 512 }), // Firma digital
+  signatureKey: varchar("signature_key", { length: 512 }),
+  attended: boolean("attended").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CommitteeMinuteAttendee = typeof committeeMinuteAttendees.$inferSelect;
+export type InsertCommitteeMinuteAttendee = typeof committeeMinuteAttendees.$inferInsert;
+
+/**
+ * Committee Minute Agenda Items - Orden del Día
+ */
+export const committeeMinuteAgendaItems = mysqlTable("committee_minute_agenda_items", {
+  id: int("id").autoincrement().primaryKey(),
+  minuteId: int("minute_id").references(() => committeeMinutes.id).notNull(),
+  orderIndex: int("order_index").notNull(), // Orden en la agenda
+  topic: varchar("topic", { length: 255 }).notNull(), // Tema
+  description: text("description"), // Descripción
+  presenter: varchar("presenter", { length: 255 }), // Responsable de presentar
+  duration: int("duration"), // Duración estimada en minutos
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CommitteeMinuteAgendaItem = typeof committeeMinuteAgendaItems.$inferSelect;
+export type InsertCommitteeMinuteAgendaItem = typeof committeeMinuteAgendaItems.$inferInsert;
+
+/**
+ * Committee Minute Agreements - Acuerdos de Minutas
+ */
+export const committeeMinuteAgreements = mysqlTable("committee_minute_agreements", {
+  id: int("id").autoincrement().primaryKey(),
+  minuteId: int("minute_id").references(() => committeeMinutes.id).notNull(),
+  agreementNumber: varchar("agreement_number", { length: 50 }).notNull(), // Número de acuerdo
+  description: text("description").notNull(), // Descripción del acuerdo
+  responsibleUserId: int("responsible_user_id").references(() => users.id), // Responsable
+  responsibleName: varchar("responsible_name", { length: 255 }), // Nombre del responsable
+  dueDate: date("due_date"), // Fecha de cumplimiento
+  status: mysqlEnum("status", ["pendiente", "en_proceso", "completado", "cancelado"]).notNull().default("pendiente"),
+  priority: mysqlEnum("priority", ["baja", "media", "alta", "urgente"]).notNull().default("media"),
+  notes: text("notes"), // Notas adicionales
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CommitteeMinuteAgreement = typeof committeeMinuteAgreements.$inferSelect;
+export type InsertCommitteeMinuteAgreement = typeof committeeMinuteAgreements.$inferInsert;
+
+/**
+ * Committee Minute History - Historial de Versiones de Minutas
+ */
+export const committeeMinuteHistory = mysqlTable("committee_minute_history", {
+  id: int("id").autoincrement().primaryKey(),
+  minuteId: int("minute_id").references(() => committeeMinutes.id).notNull(),
+  version: int("version").notNull(),
+  snapshot: json("snapshot").notNull(), // Snapshot completo de la minuta
+  changedBy: int("changed_by").references(() => users.id).notNull(),
+  changeDescription: text("change_description"), // Descripción del cambio
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CommitteeMinuteHistoryEntry = typeof committeeMinuteHistory.$inferSelect;
+export type InsertCommitteeMinuteHistoryEntry = typeof committeeMinuteHistory.$inferInsert;

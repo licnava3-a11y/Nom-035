@@ -2473,5 +2473,22 @@ export const surveysRouter = router({
     };
   }),
 
+  // Obtener resultados de encuestas de un empleado específico
+  getEmployeeResults: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const { nom035Results } = await import("../../drizzle/schema");
+      
+      const results = await db
+        .select()
+        .from(nom035Results)
+        .where(eq(nom035Results.employeeId, input.employeeId))
+        .orderBy(desc(nom035Results.completedAt));
+
+      return results;
+    }),
 
 });

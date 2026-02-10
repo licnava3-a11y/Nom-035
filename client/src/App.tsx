@@ -111,6 +111,7 @@ import ReportsHistory from "./pages/ReportsHistory";
 import DocumentAudit from "./pages/DocumentAudit";
 import SecurityAlerts from "./pages/SecurityAlerts";
 import ReportTemplates from "./pages/ReportTemplates";
+import RiskAnalysis from "./pages/RiskAnalysis";
 
 function Router() {
   return (
@@ -267,6 +268,11 @@ function Router() {
       <Route path="/competencies-manager">
         <DashboardLayout>
           <OrganizationalCompetenciesManager />
+        </DashboardLayout>
+      </Route>
+      <Route path="/risk-analysis">
+        <DashboardLayout>
+          <RiskAnalysis />
         </DashboardLayout>
       </Route>
       <Route path={"/meeting-minutes"}>
