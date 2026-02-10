@@ -2292,6 +2292,11 @@ export const complianceReports = mysqlTable("compliance_reports", {
   uuid: varchar("uuid", { length: 36 }).notNull().unique(), // UUID v4 único
   tipo: varchar("tipo", { length: 100 }).notNull(), // "verificacion_numerales", "auditoria", etc.
   titulo: varchar("titulo", { length: 500 }).notNull(),
+  // Folio para sistemas de gestión: CÓDIGO-CONSECUTIVO/AÑO
+  formatId: int("format_id").references(() => documentFormats.id),
+  folioNumber: int("folio_number"), // Número consecutivo
+  folioYear: int("folio_year"), // Año del folio
+  folio: varchar("folio", { length: 50 }), // Folio completo generado (ej: "VN-001/2026")
   generatedAt: timestamp("generated_at").defaultNow().notNull(),
   generatedBy: int("generated_by").notNull().references(() => users.id),
   generatedByName: varchar("generated_by_name", { length: 255 }).notNull(),
@@ -2302,3 +2307,24 @@ export const complianceReports = mysqlTable("compliance_reports", {
 
 export type ComplianceReport = typeof complianceReports.$inferSelect;
 export type InsertComplianceReport = typeof complianceReports.$inferInsert;
+
+/**
+ * Catálogo de formatos de documentos para sistema de gestión
+ * Gestiona nomenclatura de folios: CÓDIGO-CONSECUTIVO/AÑO
+ */
+export const documentFormats = mysqlTable("document_formats", {
+  id: int("id").autoincrement().primaryKey(),
+  codigo: varchar("codigo", { length: 20 }).notNull().unique(), // Ej: "VN", "RN", "AC"
+  nombre: varchar("nombre", { length: 255 }).notNull(), // Ej: "Verificación de Numerales"
+  descripcion: text("descripcion"),
+  version: varchar("version", { length: 20 }).notNull().default("1.0"), // Ej: "1.0", "2.1"
+  fechaVersion: date("fecha_version").notNull(), // Fecha de la versión actual
+  referencia: varchar("referencia", { length: 500 }), // Referencia normativa o interna
+  consecutivoActual: int("consecutivo_actual").notNull().default(0), // Último consecutivo usado
+  activo: boolean("activo").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull().onUpdateNow(),
+});
+
+export type DocumentFormat = typeof documentFormats.$inferSelect;
+export type InsertDocumentFormat = typeof documentFormats.$inferInsert;

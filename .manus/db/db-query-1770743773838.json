@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `document_formats` (`codigo`, `nombre`, `descripcion`, `version`, `fecha_version`, `referencia`, `consecutivo_actual`, `activo`) \nVALUES ('VN', 'Verificación de Numerales NOM-035', 'Reporte de verificación de cumplimiento de Numerales 7 y 8 de la NOM-035 STPS 2018', '1.0', '2026-02-10', 'NOM-035-STPS-2018', 0, true);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute INSERT INTO `document_formats` (`codigo`, `nombre`, `descripcion`, `version`, `fecha_version`, `referencia`, `consecutivo_actual`, `activo`) \nVALUES ('VN', 'Verificación de Numerales NOM-035', 'Reporte de verificación de cumplimiento de Numerales 7 y 8 de la NOM-035 STPS 2018', '1.0', '2026-02-10', 'NOM-035-STPS-2018', 0, true);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 406
+}

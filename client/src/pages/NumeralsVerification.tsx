@@ -163,6 +163,15 @@ export default function NumeralsVerification() {
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         const generatedDate = new Date(result.data.generatedAt).toLocaleString('es-MX');
+        
+        // Folio (destacado)
+        if (result.data.folio) {
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Folio: ${result.data.folio}`, 14, yPosition);
+          yPosition += 6;
+          doc.setFont('helvetica', 'normal');
+        }
+        
         doc.text(`Fecha de generación: ${generatedDate}`, 14, yPosition);
         yPosition += 6;
         doc.text(`Generado por: ${result.data.generatedBy}`, 14, yPosition);
@@ -290,12 +299,23 @@ export default function NumeralsVerification() {
           doc.setPage(i);
           doc.setFontSize(8);
           doc.setFont('helvetica', 'italic');
+          
+          // Folio en esquina inferior izquierda
+          if (result.data.folio) {
+            doc.setFont('helvetica', 'bold');
+            doc.text(result.data.folio, 14, pageHeight - 10);
+            doc.setFont('helvetica', 'italic');
+          }
+          
+          // Número de página al centro
           doc.text(
             `Página ${i} de ${totalPages}`,
             pageWidth / 2,
             pageHeight - 10,
             { align: 'center' }
           );
+          
+          // Texto descriptivo
           doc.text(
             'Documento generado automáticamente por el Sistema de Gestión NOM-035',
             pageWidth / 2,

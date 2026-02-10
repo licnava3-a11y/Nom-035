@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users, companyGeneralData, companyLogo, companyLegalRepresentative, complianceReports } from "../../drizzle/schema.js";
+import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results } from "../../drizzle/schema";
 import { eq, sql, desc } from "drizzle-orm";
 
 export const complianceRouter = router({
@@ -525,6 +525,28 @@ export const complianceRouter = router({
         };
       });
 
+      // Obtener formato de documento para generar folio
+      const format = await db
+        .select()
+        .from(documentFormats)
+        .where(eq(documentFormats.codigo, 'VN'))
+        .limit(1);
+
+      if (!format || format.length === 0) {
+        throw new Error('Formato VN no encontrado. Configure el formato en Catálogo de Formatos.');
+      }
+
+      // Incrementar consecutivo
+      const newConsecutive = (format[0].consecutivoActual || 0) + 1;
+      const currentYear = new Date().getFullYear();
+      const folio = `${format[0].codigo}-${String(newConsecutive).padStart(3, '0')}/${currentYear}`;
+
+      // Actualizar consecutivo en base de datos
+      await db
+        .update(documentFormats)
+        .set({ consecutivoActual: newConsecutive })
+        .where(eq(documentFormats.id, format[0].id));
+
       // Generar UUID único para el reporte (NOM-151)
       const reportUuid = crypto.randomUUID();
       
@@ -544,6 +566,10 @@ export const complianceRouter = router({
         uuid: reportUuid,
         tipo: 'verificacion_numerales',
         titulo: 'Reporte de Verificación de Numerales 7 y 8 - NOM-035 STPS 2018',
+        formatId: format[0].id,
+        folioNumber: newConsecutive,
+        folioYear: currentYear,
+        folio: folio,
         generatedBy: ctx.user.id,
         generatedByName: ctx.user.name || 'Usuario',
         generatedByEmail: ctx.user.email || undefined,
@@ -556,6 +582,7 @@ export const complianceRouter = router({
         success: true,
         data: {
           uuid: reportUuid,
+          folio: folio,
           generatedAt: new Date(),
           generatedBy: ctx.user.name,
           userEmail: ctx.user.email,
@@ -564,6 +591,110 @@ export const complianceRouter = router({
           logo: logo[0] || null,
           representatives: representatives || [],
         },
+      };
+    }),
+
+  // Listar reportes generados con filtros
+  listReports: protectedProcedure
+    .input(z.object({
+      tipo: z.string().optional(),
+      startDate: z.string().optional(), // YYYY-MM-DD
+      endDate: z.string().optional(), // YYYY-MM-DD
+      limit: z.number().default(50),
+      offset: z.number().default(0),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      let query = db
+        .select({
+          id: complianceReports.id,
+          uuid: complianceReports.uuid,
+          tipo: complianceReports.tipo,
+          titulo: complianceReports.titulo,
+          folio: complianceReports.folio,
+          folioNumber: complianceReports.folioNumber,
+          folioYear: complianceReports.folioYear,
+          generatedAt: complianceReports.generatedAt,
+          generatedByName: complianceReports.generatedByName,
+          generatedByEmail: complianceReports.generatedByEmail,
+        })
+        .from(complianceReports)
+        .$dynamic();
+
+      // Aplicar filtros
+      const conditions = [];
+      
+      if (input.tipo) {
+        conditions.push(eq(complianceReports.tipo, input.tipo));
+      }
+      
+      if (input.startDate) {
+        conditions.push(sql`${complianceReports.generatedAt} >= ${input.startDate}`);
+      }
+      
+      if (input.endDate) {
+        conditions.push(sql`${complianceReports.generatedAt} <= ${input.endDate}`);
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(sql`${sql.join(conditions, sql` AND `)}`);
+      }
+
+      const reports = await query
+        .orderBy(desc(complianceReports.generatedAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      // Contar total
+      const totalQuery = db
+        .select({ count: sql<number>`count(*)` })
+        .from(complianceReports)
+        .$dynamic();
+
+      if (conditions.length > 0) {
+        totalQuery.where(sql`${sql.join(conditions, sql` AND `)}`);
+      }
+
+      const totalResult = await totalQuery;
+      const total = totalResult[0]?.count || 0;
+
+      return {
+        reports,
+        total,
+        hasMore: input.offset + reports.length < total,
+      };
+    }),
+
+  // Obtener datos completos de un reporte para re-descarga
+  getReportData: protectedProcedure
+    .input(z.object({
+      uuid: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      const report = await db
+        .select()
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, input.uuid))
+        .limit(1);
+
+      if (!report || report.length === 0) {
+        throw new Error('Reporte no encontrado');
+      }
+
+      return {
+        uuid: report[0].uuid,
+        folio: report[0].folio,
+        tipo: report[0].tipo,
+        titulo: report[0].titulo,
+        generatedAt: report[0].generatedAt,
+        generatedByName: report[0].generatedByName,
+        generatedByEmail: report[0].generatedByEmail,
+        data: report[0].data,
       };
     }),
 });

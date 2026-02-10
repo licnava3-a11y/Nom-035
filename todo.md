@@ -8987,3 +8987,81 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Estados visuales: auténtico, no encontrado, error
 - [x] Certificación de autenticidad según NOM-151
 - [ ] Guardar checkpoint
+
+
+## FASE 183: Sistema Completo de Gestión Documental
+
+### 1. Nomenclatura de Folios Administrable
+- [ ] Crear tabla document_formats para catálogo de formatos
+- [ ] Campos: código, nombre, versión, fechaVersión, referencia, consecutivo actual
+- [ ] Crear procedimientos tRPC CRUD para gestión de formatos
+- [ ] Crear página de administración de catálogo de formatos
+- [ ] Modificar tabla compliance_reports para agregar campo folioNumber
+- [ ] Implementar lógica de auto-incremento de consecutivo por formato
+- [ ] Agregar folio en pie de página de PDF (formato: CÓDIGO-###/AAAA)
+- [ ] Permitir al usuario configurar código de formato desde interfaz
+
+### 2. Historial de Reportes con Re-descarga
+- [ ] Crear procedimiento tRPC para listar reportes generados
+- [ ] Filtros: fecha, tipo, generador, folio
+- [ ] Paginación y ordenamiento
+- [ ] Crear página de historial de reportes en dashboard de cumplimiento
+- [ ] Tabla con columnas: folio, tipo, fecha, generador, acciones
+- [ ] Botón de re-descarga que regenere PDF desde datos guardados
+- [ ] Botón de ver detalles del reporte
+- [ ] Badge de estado (activo/archivado)
+
+### 3. Firma Electrónica Avanzada e.firma SAT
+- [ ] Investigar requisitos de e.firma SAT (certificados .cer y .key)
+- [ ] Crear tabla efirma_certificates para almacenar certificados
+- [ ] Campos: representativeId, certificateData, privateKeyData (encriptado), password (encriptado), validFrom, validTo
+- [ ] Implementar validación de certificados digitales SAT
+- [ ] Crear procedimiento para subir certificado y llave privada
+- [ ] Implementar firma digital de documentos PDF con certificado
+- [ ] Agregar sección de e.firma en gestión de representantes legales
+- [ ] Validar vigencia de certificados antes de firmar
+- [ ] Mostrar datos del certificado (titular, RFC, vigencia)
+- [ ] Integrar firma electrónica en generación de reportes PDF
+
+### Checkpoint Final
+- [ ] Probar nomenclatura de folios completa
+- [ ] Probar historial y re-descarga de reportes
+- [ ] Probar firma electrónica avanzada
+- [ ] Guardar checkpoint
+
+
+## FASE 183: Sistema Completo de Gestión Documental
+
+### 1. Nomenclatura de Folios Administrable ✅
+- [x] Crear tabla document_formats para catálogo de formatos
+- [x] Campos: código, nombre, consecutivoActual, versión, fechaVersion, referencia
+- [x] Modificar tabla compliance_reports para agregar campos de folio
+- [x] Insertar formato de ejemplo "VN" para Verificación de Numerales
+- [x] Crear router tRPC documentFormats con CRUD completo
+- [x] Crear página DocumentFormats.tsx para administración
+- [x] Modificar generateNumeralsPDF para generar folio automáticamente
+- [x] Mostrar folio en encabezado del PDF
+- [x] Mostrar folio en pie de página del PDF (esquina inferior izquierda)
+- [x] Agregar ruta y enlace en sidebar (Administración)
+
+### 2. Historial de Reportes con Re-descarga ✅
+- [x] Crear procedimiento listReports con filtros (tipo, fechas, paginación)
+- [x] Crear procedimiento getReportData para obtener datos completos
+- [x] Crear página ReportsHistory.tsx con tabla de reportes
+- [x] Implementar filtros por tipo y rango de fechas
+- [x] Botón de re-descarga que regenera PDF desde datos guardados
+- [x] Botón de verificación que abre página pública
+- [x] Paginación de resultados
+- [x] Agregar ruta y enlace en sidebar (Prevención de Riesgos)
+
+### 3. Firma Electrónica Avanzada e.firma SAT (PENDIENTE)
+- [ ] Investigar integración con e.firma SAT (requiere certificados digitales del SAT)
+- [ ] Crear tabla para almacenar certificados digitales (.cer y .key)
+- [ ] Implementar carga de archivos .cer (certificado público) y .key (llave privada)
+- [ ] Validar certificados con el SAT mediante API
+- [ ] Generar firma digital de documentos PDF usando librería de firma electrónica
+- [ ] Agregar sello digital en pie de página con código de verificación
+- [ ] Implementar verificación de firma digital en página pública
+- [ ] Documentar proceso de integración y requisitos legales
+
+- [ ] Guardar checkpoint final

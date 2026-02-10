@@ -106,6 +106,8 @@ import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
 import VerifyReport from "./pages/VerifyReport";
+import DocumentFormats from "./pages/DocumentFormats";
+import ReportsHistory from "./pages/ReportsHistory";
 
 function Router() {
   return (
@@ -563,6 +565,16 @@ function Router() {
       <Route path={"/compliance/numerals"}>
         <DashboardLayout>
           <NumeralsVerification />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/document-formats"}>
+        <DashboardLayout>
+          <DocumentFormats />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/compliance/reports-history"}>
+        <DashboardLayout>
+          <ReportsHistory />
         </DashboardLayout>
       </Route>
       {/* Ruta pública de aplicación de encuestas */}

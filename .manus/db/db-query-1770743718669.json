@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `document_formats` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`codigo` varchar(20) NOT NULL,\n\t`nombre` varchar(255) NOT NULL,\n\t`descripcion` text,\n\t`version` varchar(20) NOT NULL DEFAULT '1.0',\n\t`fecha_version` date NOT NULL,\n\t`referencia` varchar(500),\n\t`consecutivo_actual` int NOT NULL DEFAULT 0,\n\t`activo` boolean NOT NULL DEFAULT true,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `document_formats_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `document_formats_codigo_unique` UNIQUE(`codigo`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `document_formats` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`codigo` varchar(20) NOT NULL,\n\t`nombre` varchar(255) NOT NULL,\n\t`descripcion` text,\n\t`version` varchar(20) NOT NULL DEFAULT '1.0',\n\t`fecha_version` date NOT NULL,\n\t`referencia` varchar(500),\n\t`consecutivo_actual` int NOT NULL DEFAULT 0,\n\t`activo` boolean NOT NULL DEFAULT true,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `document_formats_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `document_formats_codigo_unique` UNIQUE(`codigo`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 628
+}
