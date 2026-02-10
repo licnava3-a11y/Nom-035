@@ -8927,3 +8927,17 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Implementar carga asíncrona de imagen del logo
 - [x] Ajustar posiciones dinámicas de elementos en PDF
 - [ ] Guardar checkpoint
+
+
+## Página de Configuración de Empresa
+- [x] Router tRPC company ya existía con procedimientos completos
+- [x] Procedimiento company.generalData.get para obtener datos actuales
+- [x] Procedimiento company.generalData.update para actualizar información
+- [x] Procedimiento company.logo.upload para subir logo a S3
+- [x] Crear página CompanySettings.tsx con formulario completo
+- [x] Implementar carga de imagen con preview en tiempo real
+- [x] Campos: Razón Social, RFC, Dirección, Giro, Actividades, Teléfono, Email, Página Web, Email Notificaciones
+- [x] Validaciones de formulario (campos requeridos, formato email, tamaño archivo)
+- [x] Integrar con ruta /company existente
+- [x] Enlace en sidebar ya configurado
+- [ ] Guardar checkpoint
