@@ -12,6 +12,7 @@ import {
   Shield,
   PlayCircle,
   Loader2,
+  Download,
 } from "lucide-react";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -27,6 +28,7 @@ export default function NumeralsVerification() {
   const verifyNumeral71 = trpc.compliance.verifyNumeral71.useMutation();
   const verifyNumeral72 = trpc.compliance.verifyNumeral72.useMutation();
   const verifyNumeral82 = trpc.compliance.verifyNumeral82.useMutation();
+  const generatePDF = trpc.compliance.generateNumeralsPDF.useMutation();
 
   const handleVerify71 = async () => {
     try {
@@ -71,6 +73,125 @@ export default function NumeralsVerification() {
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      const result = await generatePDF.mutateAsync({ includeEvidence: true });
+      
+      if (result.success) {
+        // Generar PDF en el cliente usando jsPDF
+        const { jsPDF } = await import('jspdf');
+        await import('jspdf-autotable');
+        
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        
+        // Encabezado
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Reporte de Verificación de Cumplimiento', pageWidth / 2, 20, { align: 'center' });
+        
+        doc.setFontSize(14);
+        doc.text('Numerales 7 y 8 - NOM-035 STPS 2018', pageWidth / 2, 28, { align: 'center' });
+        
+        // Información del reporte
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const generatedDate = new Date(result.data.generatedAt).toLocaleString('es-MX');
+        doc.text(`Fecha de generación: ${generatedDate}`, 14, 40);
+        doc.text(`Generado por: ${result.data.generatedBy}`, 14, 46);
+        
+        // Línea separadora
+        doc.setLineWidth(0.5);
+        doc.line(14, 50, pageWidth - 14, 50);
+        
+        // Tabla de resultados
+        const tableData = result.data.requirements.map((req: any) => [
+          req.numeral,
+          req.title,
+          req.isCompliant ? '✓ Cumple' : '✗ No Cumple',
+          req.verifiedAt ? new Date(req.verifiedAt).toLocaleDateString('es-MX') : 'Sin verificar',
+        ]);
+        
+        (doc as any).autoTable({
+          startY: 55,
+          head: [['Numeral', 'Requisito', 'Estado', 'Fecha Verificación']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+          styles: { fontSize: 9, cellPadding: 3 },
+          columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 80 },
+            2: { cellWidth: 35 },
+            3: { cellWidth: 45 },
+          },
+        });
+        
+        // Hallazgos detallados
+        let yPosition = (doc as any).lastAutoTable.finalY + 10;
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Hallazgos y Observaciones', 14, yPosition);
+        yPosition += 8;
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        
+        result.data.requirements.forEach((req: any) => {
+          // Verificar si necesitamos nueva página
+          if (yPosition > pageHeight - 40) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${req.numeral} - ${req.title}`, 14, yPosition);
+          yPosition += 5;
+          
+          doc.setFont('helvetica', 'normal');
+          const findings = doc.splitTextToSize(req.findings, pageWidth - 28);
+          doc.text(findings, 14, yPosition);
+          yPosition += (findings.length * 5) + 5;
+        });
+        
+        // Pie de página en todas las páginas
+        const totalPages = doc.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'italic');
+          doc.text(
+            `Página ${i} de ${totalPages}`,
+            pageWidth / 2,
+            pageHeight - 10,
+            { align: 'center' }
+          );
+          doc.text(
+            'Documento generado automáticamente por el Sistema de Gestión NOM-035',
+            pageWidth / 2,
+            pageHeight - 6,
+            { align: 'center' }
+          );
+        }
+        
+        // Descargar PDF
+        const fileName = `Verificacion_Numerales_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        
+        toast.success('PDF generado exitosamente', {
+          description: `El reporte ha sido descargado como ${fileName}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      toast.error('Error al generar PDF', {
+        description: 'Ocurrió un error al generar el reporte en PDF',
+      });
+    }
+  };
+
   const numeral71 = requirements?.find((r) => r.numeral === "7.1");
   const numeral72 = requirements?.find((r) => r.numeral === "7.2");
   const numeral82 = requirements?.find((r) => r.numeral === "8.2");
@@ -94,14 +215,33 @@ export default function NumeralsVerification() {
       </Breadcrumb>
 
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <Shield className="h-8 w-8 text-blue-600" />
-          Verificación de Numerales 7 y 8
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Verificación automática de cumplimiento de obligaciones patronales según NOM-035 STPS 2018
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <Shield className="h-8 w-8 text-blue-600" />
+            Verificación de Numerales 7 y 8
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Verificación automática de cumplimiento de obligaciones patronales según NOM-035 STPS 2018
+          </p>
+        </div>
+        <Button
+          onClick={handleExportPDF}
+          disabled={generatePDF.isPending}
+          variant="outline"
+        >
+          {generatePDF.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Generando...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              Exportar a PDF
+            </>
+          )}
+        </Button>
       </div>
 
       <Alert>

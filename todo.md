@@ -8905,3 +8905,15 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Verificar que el enlace apunta a /compliance/numerals
 - [x] Probar navegación desde sidebar
 - [ ] Guardar checkpoint
+
+
+## Exportación PDF de Verificación de Numerales
+- [x] Crear procedimiento tRPC generateNumeralsPDF en compliance router
+- [x] Implementar generación de PDF con jsPDF y jspdf-autotable
+- [x] Incluir encabezado con título y datos de identificación
+- [x] Agregar tabla de resultados de verificación por numeral
+- [x] Incluir hallazgos y observaciones detalladas
+- [x] Agregar fecha de generación y responsable
+- [x] Implementar botón de exportación en NumeralsVerification.tsx
+- [x] Instalar dependencias jspdf y jspdf-autotable
+- [ ] Guardar checkpoint

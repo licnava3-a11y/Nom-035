@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions } from "../../drizzle/schema.js";
+import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users } from "../../drizzle/schema.js";
 import { eq, sql, desc } from "drizzle-orm";
 
 export const complianceRouter = router({
@@ -428,6 +428,54 @@ export const complianceRouter = router({
         generatedAt: new Date(),
         generatedBy: ctx.user.name,
         report,
+      };
+    }),
+
+  // Generar PDF de verificación de numerales
+  generateNumeralsPDF: protectedProcedure
+    .input(z.object({
+      includeEvidence: z.boolean().default(true),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      // Obtener requisitos de Numerales 7 y 8
+      const requirements = await db
+        .select()
+        .from(complianceRequirements)
+        .where(eq(complianceRequirements.isActive, true))
+        .orderBy(complianceRequirements.numeral);
+
+      // Obtener últimas verificaciones
+      const checks = await db
+        .select()
+        .from(complianceChecks)
+        .orderBy(desc(complianceChecks.verifiedAt));
+
+      // Preparar datos del reporte
+      const reportData = requirements.map(req => {
+        const latestCheck = checks.find(c => c.checklistItemId === req.id);
+        return {
+          numeral: req.numeral,
+          title: req.title,
+          description: req.description,
+          category: req.category,
+          isCompliant: latestCheck?.isCompliant || false,
+          verifiedAt: latestCheck?.verifiedAt,
+          verifiedBy: latestCheck?.verifiedBy,
+          findings: latestCheck?.notes || 'Sin verificación realizada',
+        };
+      });
+
+      return {
+        success: true,
+        data: {
+          generatedAt: new Date(),
+          generatedBy: ctx.user.name,
+          userEmail: ctx.user.email,
+          requirements: reportData,
+        },
       };
     }),
 });
