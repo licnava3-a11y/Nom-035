@@ -77,6 +77,31 @@ export default function NumeralsVerification() {
     try {
       const result = await generatePDF.mutateAsync({ includeEvidence: true });
       
+      if (result.success && result.pdfBase64) {
+        // Convertir base64 a blob y descargar
+        const binaryString = window.atob(result.pdfBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Verificacion_Numerales_${result.data.folio.replace(/\//g, '-')}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        toast.success('PDF generado exitosamente', {
+          description: `Folio: ${result.data.folio}`
+        });
+        return;
+      }
+      
+      // Fallback al código anterior si no hay pdfBase64
+      
       if (result.success) {
         // Generar PDF en el cliente usando jsPDF
         const { jsPDF } = await import('jspdf');

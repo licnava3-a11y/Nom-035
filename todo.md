@@ -9254,3 +9254,28 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar ruta /report-templates en App.tsx
 - [x] Agregar enlace en sidebar (Administración)
 - [ ] Guardar checkpoint
+
+## FASE 185 - Sistema de Plantillas Personalizables (Parte 3: Integración en PDFs)
+
+### Instalación de Dependencias
+- [x] Instalar handlebars para procesamiento de templates
+- [x] Instalar puppeteer o html-pdf-node para convertir HTML a PDF
+- [x] Configurar dependencias en package.json
+
+### Modificación del Backend
+- [x] Modificar procedimiento generateNumeralsPDF en compliance.ts
+- [x] Cargar plantilla default desde base de datos
+- [x] Preparar datos para reemplazar variables dinámicas
+- [x] Renderizar HTML con Handlebars
+- [x] Convertir HTML renderizado a PDF
+- [x] Mantener funcionalidad de folio, QR y registro en BD
+- [x] Crear helper pdfGenerator.ts con funciones reutilizables
+- [x] Modificar frontend para descargar PDF en base64
+
+### Pruebas
+- [x] Probar generación de PDF con plantilla personalizada
+- [x] Verificar que todas las variables se reemplazan correctamente
+- [x] Validar que el diseño CSS se respeta en el PDF
+- [x] Confirmar que folio y QR funcionan correctamente
+- [x] Sistema completamente integrado (0 errores TypeScript, 0 errores LSP)
+- [ ] Guardar checkpoint

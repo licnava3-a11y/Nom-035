@@ -610,81 +610,8 @@ export const complianceRouter = router({
         });
       }
 
-
-      // Cargar plantilla default desde base de datos
-      const template = await db
-        .select()
-        .from(reportTemplates)
-        .where(
-          and(
-            eq(reportTemplates.tipo, 'verificacion_numerales'),
-            eq(reportTemplates.isDefault, true),
-            eq(reportTemplates.activo, true)
-          )
-        )
-        .limit(1);
-
-      if (!template || template.length === 0) {
-        throw new Error('No se encontró una plantilla activa para reportes de verificación de numerales.');
-      }
-
-      // Generar código QR para verificación
-      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const qrCodeDataUrl = await generateQRCode(verificationUrl);
-
-      // Preparar datos para la plantilla
-      const templateData = {
-        logo: logo[0]?.logoUrl || '',
-        razonSocial: companyData[0]?.razonSocial || 'Empresa',
-        rfc: companyData[0]?.rfc || '',
-        folio: folio,
-        fecha: new Date().toLocaleDateString('es-MX', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        generadoPor: ctx.user.name || 'Usuario',
-        numerales: reportData.map(req => ({
-          numeral: req.numeral,
-          descripcion: req.title,
-          estado: req.isCompliant ? 'Cumple' : 'No cumple',
-          estadoClass: req.isCompliant ? 'cumple' : 'nocumple',
-          ultimaVerificacion: req.verifiedAt 
-            ? new Date(req.verifiedAt).toLocaleDateString('es-MX')
-            : 'Sin verificar'
-        })),
-        hallazgos: reportData
-          .filter(req => req.findings && req.findings !== 'Sin verificación realizada')
-          .map(req => ({
-            numeral: req.numeral,
-            fecha: req.verifiedAt 
-              ? new Date(req.verifiedAt).toLocaleDateString('es-MX')
-              : '',
-            observaciones: req.findings
-          })),
-        firmas: representatives.map(rep => ({
-          nombre: rep.nombre,
-          cargo: rep.cargo,
-          firmaUrl: rep.firmaUrl || ''
-        })),
-        qrCode: qrCodeDataUrl
-      };
-
-      // Generar PDF desde plantilla
-      const pdfBuffer = await generatePDFFromTemplate(
-        template[0].htmlTemplate,
-        template[0].cssStyles || '',
-        templateData
-      );
-
-      // Convertir buffer a base64 para enviar al frontend
-      const pdfBase64 = pdfBuffer.toString('base64');
-
       return {
         success: true,
-        pdfBase64: pdfBase64,
         data: {
           uuid: reportUuid,
           folio: folio,
@@ -697,7 +624,6 @@ export const complianceRouter = router({
           representatives: representatives || [],
         },
       };
-
     }),
 
   // Listar reportes generados con filtros
