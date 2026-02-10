@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results } from "../../drizzle/schema";
+import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog } from "../../drizzle/schema";
 import { eq, sql, desc } from "drizzle-orm";
 
 export const complianceRouter = router({
@@ -436,7 +436,7 @@ export const complianceRouter = router({
     .input(z.object({
       uuid: z.string().uuid(),
     }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
@@ -452,6 +452,17 @@ export const complianceRouter = router({
           message: 'Reporte no encontrado. El código QR puede ser inválido o el reporte fue eliminado.',
         };
       }
+
+      // Registrar verificación en auditoría
+      await db.insert(documentAuditLog).values({
+        reportId: report[0].id,
+        userId: ctx.user?.id || null,
+        userName: ctx.user?.name || "Anónimo",
+        userEmail: ctx.user?.email || null,
+        action: "verify",
+        ipAddress: null,
+        userAgent: null,
+      });
 
       return {
         found: true,
@@ -578,6 +589,26 @@ export const complianceRouter = router({
       
       await db.insert(complianceReports).values(newReport);
 
+      // Obtener ID del reporte insertado
+      const insertedReport = await db
+        .select({ id: complianceReports.id })
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, reportUuid))
+        .limit(1);
+
+      // Registrar descarga en auditoría
+      if (insertedReport && insertedReport.length > 0) {
+        await db.insert(documentAuditLog).values({
+          reportId: insertedReport[0].id,
+          userId: ctx.user.id,
+          userName: ctx.user.name,
+          userEmail: ctx.user.email,
+          action: "download",
+          ipAddress: null,
+          userAgent: null,
+        });
+      }
+
       return {
         success: true,
         data: {
@@ -672,7 +703,7 @@ export const complianceRouter = router({
     .input(z.object({
       uuid: z.string(),
     }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
@@ -685,6 +716,17 @@ export const complianceRouter = router({
       if (!report || report.length === 0) {
         throw new Error('Reporte no encontrado');
       }
+
+      // Registrar visualización en auditoría
+      await db.insert(documentAuditLog).values({
+        reportId: report[0].id,
+        userId: ctx.user?.id || null,
+        userName: ctx.user?.name || "Desconocido",
+        userEmail: ctx.user?.email || null,
+        action: "view",
+        ipAddress: null,
+        userAgent: null,
+      });
 
       return {
         uuid: report[0].uuid,

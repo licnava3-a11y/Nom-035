@@ -9080,7 +9080,9 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar tarjetas de estadísticas (total, views, downloads, verifications, usuarios únicos)
 - [x] Paginación de resultados
 - [x] Agregar ruta y enlace en sidebar (Administración)
-- [ ] Modificar procedimientos de reportes para registrar accesos automáticamente
+- [x] Modificar getReportData para registrar visualización automáticamente
+- [x] Modificar generateNumeralsPDF para registrar descarga automáticamente
+- [x] Modificar verifyReport para registrar verificación automáticamente
 
 ### 2. Plantillas Personalizables de Reportes
 - [ ] Crear tabla report_templates para plantillas
