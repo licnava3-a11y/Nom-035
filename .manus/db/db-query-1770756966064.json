@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, nombre, tipo, is_default, activo FROM report_templates ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, nombre, tipo, is_default, activo FROM report_templates ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "nombre": "Plantilla Profesional - Verificación de Numerales",
+      "tipo": "verificacion_numerales",
+      "is_default": "1",
+      "activo": "1"
+    },
+    {
+      "id": "2",
+      "nombre": "Plantilla Profesional - Análisis de Riesgos Psicosociales",
+      "tipo": "analisis_riesgos",
+      "is_default": "1",
+      "activo": "1"
+    },
+    {
+      "id": "3",
+      "nombre": "Plantilla Profesional - Minuta de Reunión Comité NOM-035",
+      "tipo": "minuta_comite",
+      "is_default": "1",
+      "activo": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnombre\ttipo\tis_default\tactivo\n1\tPlantilla Profesional - Verificación de Numerales\tverificacion_numerales\t1\t1\n2\tPlantilla Profesional - Análisis de Riesgos Psicosociales\tanalisis_riesgos\t1\t1\n3\tPlantilla Profesional - Minuta de Reunión Comité NOM-035\tminuta_comite\t1\t1\n",
+  "stderr": "",
+  "execution_time_ms": 423
+}

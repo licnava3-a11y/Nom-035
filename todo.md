@@ -9279,3 +9279,30 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Confirmar que folio y QR funcionan correctamente
 - [x] Sistema completamente integrado (0 errores TypeScript, 0 errores LSP)
 - [ ] Guardar checkpoint
+
+## FASE 186 - Plantillas Adicionales de Reportes
+
+### Plantilla de Análisis de Riesgos Psicosociales
+- [x] Diseñar estructura HTML con secciones: resumen ejecutivo, análisis por categorías, dominios, dimensiones
+- [x] Crear CSS profesional con gráficas de barras visuales
+- [x] Definir variables dinámicas: empleado, departamento, fecha, resultados por categoría/dominio/dimensión
+- [x] Incluir tabla de resultados con niveles de riesgo (Nulo, Bajo, Medio, Alto, Muy Alto)
+- [x] Agregar sección de recomendaciones personalizadas
+- [x] Insertar plantilla en base de datos
+
+### Plantilla de Minutas del Comité
+- [x] Diseñar estructura HTML con secciones: encabezado, asistentes, orden del día, acuerdos, seguimientos
+- [x] Crear CSS profesional con diseño formal de acta
+- [x] Definir variables dinámicas: número de sesión, fecha, hora, lugar, asistentes, temas, acuerdos
+- [x] Incluir tabla de asistentes con firma
+- [x] Agregar tabla de acuerdos con responsables y fechas de cumplimiento
+- [x] Incluir sección de seguimiento de acuerdos anteriores
+- [x] Incluir foto de representantes para validación
+- [x] Agregar documentación de respaldo (objetivo, resultados, foto grupal)
+- [x] Insertar plantilla en base de datos
+
+### Pruebas y Validación
+- [x] Verificar que ambas plantillas aparecen en módulo de administración
+- [x] Probar edición de plantillas en Monaco Editor
+- [x] Validar que variables dinámicas están correctamente documentadas
+- [ ] Guardar checkpoint
