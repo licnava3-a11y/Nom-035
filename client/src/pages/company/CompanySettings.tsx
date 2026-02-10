@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Building2, Upload, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import LegalRepresentatives from '@/components/LegalRepresentatives';
 
 export default function CompanySettings() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -428,6 +429,9 @@ export default function CompanySettings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Sección de Representantes Legales */}
+      <LegalRepresentatives />
     </div>
   );
 }

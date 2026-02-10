@@ -8941,3 +8941,18 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Integrar con ruta /company existente
 - [x] Enlace en sidebar ya configurado
 - [ ] Guardar checkpoint
+
+
+## Gestión de Representantes Legales con Firma Digital
+- [x] Crear componente LegalRepresentatives para gestión de representantes
+- [x] Tabla con lista de representantes legales activos e inactivos
+- [x] Modal/Dialog para agregar nuevo representante
+- [x] Campos: Nombre, Cargo, Email, Teléfono, RFC, CURP, Domicilio, Acta Constitutiva, Poder Notarial
+- [x] Campo para subir firma digitalizada (imagen PNG/JPG)
+- [x] Vista previa de firma antes de guardar
+- [x] Botón para activar/desactivar representante
+- [x] Botón para eliminar representante con confirmación
+- [x] Integrar componente en CompanySettings.tsx
+- [x] Validaciones de tamaño y tipo de archivo
+- [x] Visualización de firma en tabla
+- [ ] Guardar checkpoint
