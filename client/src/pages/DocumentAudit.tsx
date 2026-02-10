@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Download, Eye, CheckCircle, Users, Activity } from "lucide-react";
+import { FileText, Download, Eye, CheckCircle, Users, Activity, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import * as XLSX from "xlsx";
 
 export default function DocumentAudit() {
   const [filters, setFilters] = useState({
@@ -44,6 +45,47 @@ export default function DocumentAudit() {
       default:
         return <FileText className="h-4 w-4" />;
     }
+  };
+
+  const handleExportToExcel = () => {
+    if (!auditData || auditData.logs.length === 0) {
+      return;
+    }
+
+    // Preparar datos para Excel
+    const excelData = auditData.logs.map((log) => ({
+      "Fecha y Hora": format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss", { locale: es }),
+      "Acción": getActionLabel(log.action),
+      "Usuario": log.userName,
+      "Email": log.userEmail || "N/A",
+      "Reporte ID": log.reportId,
+      "Dirección IP": log.ipAddress || "N/A",
+      "User Agent": log.userAgent || "N/A",
+    }));
+
+    // Crear libro de Excel
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Log de Auditoría");
+
+    // Ajustar ancho de columnas
+    const maxWidth = 50;
+    const columnWidths = [
+      { wch: 20 }, // Fecha y Hora
+      { wch: 15 }, // Acción
+      { wch: 25 }, // Usuario
+      { wch: 30 }, // Email
+      { wch: 12 }, // Reporte ID
+      { wch: 15 }, // IP
+      { wch: maxWidth }, // User Agent
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    // Generar nombre de archivo con fecha
+    const fileName = `log_auditoria_${format(new Date(), "yyyyMMdd_HHmmss")}.xlsx`;
+
+    // Descargar archivo
+    XLSX.writeFile(workbook, fileName);
   };
 
   const getActionLabel = (action: string) => {
@@ -204,10 +246,22 @@ export default function DocumentAudit() {
       {/* Tabla de Log */}
       <Card>
         <CardHeader>
-          <CardTitle>Registro de Auditoría</CardTitle>
-          <CardDescription>
-            {auditData ? `${auditData.total} registros encontrados` : "Cargando..."}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Registro de Auditoría</CardTitle>
+              <CardDescription>
+                {auditData ? `${auditData.total} registros encontrados` : "Cargando..."}
+              </CardDescription>
+            </div>
+            <Button
+              onClick={handleExportToExcel}
+              disabled={!auditData || auditData.logs.length === 0}
+              variant="outline"
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Exportar a Excel
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

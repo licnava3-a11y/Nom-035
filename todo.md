@@ -9109,3 +9109,25 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Agregar ruta y enlace en sidebar (Administración)
 
 - [ ] Guardar checkpoint final
+
+
+## FASE 184 Parte 2: Exportación Excel + Plantillas + Firma SAT
+- [x] Exportación de log de auditoría a Excel
+- [x] Agregar botón de exportación en DocumentAudit.tsx
+- [x] Instalar librería xlsx para generación de Excel
+- [x] Crear función de exportación con filtros aplicados
+- [x] Incluir todas las columnas del log en el Excel
+- [x] Ajustar anchos de columnas para mejor legibilidad
+- [x] Generar nombre de archivo con fecha y hora
+- [ ] Plantillas personalizables de reportes
+- [ ] Crear tabla report_templates en base de datos
+- [ ] Crear router tRPC para gestión de plantillas
+- [ ] Crear página de administración de plantillas
+- [ ] Editor visual con vista previa en tiempo real
+- [ ] Firma electrónica avanzada e.firma SAT
+- [ ] Investigar integración con e.firma SAT
+- [ ] Crear tabla para certificados digitales
+- [ ] Implementar carga de archivos .cer y .key
+- [ ] Validar certificados con el SAT
+- [ ] Generar sello digital en PDFs
+- [ ] Guardar checkpoint final
