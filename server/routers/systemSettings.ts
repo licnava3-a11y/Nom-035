@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { systemSettings } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { restartAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 
 export const systemSettingsRouter = router({
   /**
@@ -120,5 +121,55 @@ export const systemSettingsRouter = router({
       await db.delete(systemSettings).where(eq(systemSettings.settingKey, input.key));
 
       return { success: true };
+    }),
+
+  /**
+   * Update alert summary frequency and restart cron job
+   */
+  updateAlertSummaryFrequency: adminProcedure
+    .input(
+      z.object({
+        frequency: z.enum(["weekly", "monthly", "disabled"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
+
+      // Check if setting exists
+      const [existing] = await db
+        .select()
+        .from(systemSettings)
+        .where(eq(systemSettings.settingKey, "alert_summary_frequency"))
+        .limit(1);
+
+      if (existing) {
+        // Update existing setting
+        await db
+          .update(systemSettings)
+          .set({
+            settingValue: input.frequency,
+            updatedBy: ctx.user.id,
+          })
+          .where(eq(systemSettings.settingKey, "alert_summary_frequency"));
+      } else {
+        // Create new setting
+        await db.insert(systemSettings).values({
+          settingKey: "alert_summary_frequency",
+          settingValue: input.frequency,
+          description: "Frecuencia de envío de resumen de alertas (weekly/monthly/disabled)",
+          updatedBy: ctx.user.id,
+        });
+      }
+
+      // Restart cron job with new configuration
+      await restartAlertSummaryCronJob();
+
+      return { success: true, message: `Frecuencia actualizada a: ${input.frequency}` };
     }),
 });

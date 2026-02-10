@@ -25,10 +25,12 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 
 type AlertType = "critical_cases" | "low_coverage" | "excellent_compliance" | "all";
 type AlertStatus = "active" | "resolved" | "all";
+type AlertPriority = "critical" | "warning" | "info" | "all";
 
 export default function AlertHistory() {
   const [alertType, setAlertType] = useState<AlertType>("all");
   const [status, setStatus] = useState<AlertStatus>("all");
+  const [priority, setPriority] = useState<AlertPriority>("all");
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
@@ -39,6 +41,7 @@ export default function AlertHistory() {
   const { data: alerts, isLoading } = trpc.alerts.getHistory.useQuery({
     alertType: alertType === "all" ? undefined : alertType,
     status: status === "all" ? undefined : status,
+    priority: priority === "all" ? undefined : priority,
   });
 
   // Mutation para resolver alerta
@@ -78,6 +81,7 @@ export default function AlertHistory() {
       ["Filtros Aplicados:"],
       ["  Tipo de Alerta:", alertType === "all" ? "Todas" : getAlertTypeLabel(alertType)],
       ["  Estado:", status === "all" ? "Todos" : status === "active" ? "Activas" : "Resueltas"],
+      ["  Prioridad:", priority === "all" ? "Todas" : priority === "critical" ? "Crítica" : priority === "warning" ? "Advertencia" : "Información"],
       [""],
       ["Estadísticas:"],
       ["  Total de Alertas:", alerts.length],
@@ -168,9 +172,9 @@ export default function AlertHistory() {
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
-          <CardDescription>Filtra el histórico por tipo de alerta y estado</CardDescription>
+          <CardDescription>Filtra el histórico por tipo de alerta, estado y prioridad</CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Tipo de Alerta</label>
             <Select value={alertType} onValueChange={(v) => setAlertType(v as AlertType)}>
@@ -196,6 +200,21 @@ export default function AlertHistory() {
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="active">Activas</SelectItem>
                 <SelectItem value="resolved">Resueltas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex-1">
+            <label className="text-sm font-medium mb-2 block">Prioridad</label>
+            <Select value={priority} onValueChange={(v) => setPriority(v as AlertPriority)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                <SelectItem value="critical">Crítica</SelectItem>
+                <SelectItem value="warning">Advertencia</SelectItem>
+                <SelectItem value="info">Información</SelectItem>
               </SelectContent>
             </Select>
           </div>

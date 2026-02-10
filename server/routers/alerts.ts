@@ -53,16 +53,18 @@ export const alertsRouter = router({
       z.object({
         alertType: z.enum(["critical_cases", "low_coverage", "excellent_compliance"]).optional(),
         status: z.enum(["active", "resolved"]).optional(),
+        priority: z.enum(["info", "warning", "critical"]).optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
       })
     )
     .query(async ({ input }) => {
-      const { alertType, status, startDate, endDate } = input;
+      const { alertType, status, priority, startDate, endDate } = input;
 
       const conditions = [];
       if (alertType) conditions.push(eq(alertHistory.alertType, alertType));
       if (status) conditions.push(eq(alertHistory.status, status));
+      if (priority) conditions.push(eq(alertHistory.priority, priority));
       if (startDate) conditions.push(gte(alertHistory.triggeredAt, new Date(startDate)));
       if (endDate) conditions.push(lte(alertHistory.triggeredAt, new Date(endDate)));
 
@@ -154,5 +156,18 @@ export const alertsRouter = router({
         .orderBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`);
       
       return trends;
+    }),
+
+  // Enviar resumen manual de alertas
+  sendSummary: protectedProcedure
+    .input(
+      z.object({
+        frequency: z.enum(["weekly", "monthly"]).default("weekly"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { sendManualAlertSummary } = await import("../jobs/alertSummaryJob");
+      const result = await sendManualAlertSummary(input.frequency);
+      return result;
     }),
 });
