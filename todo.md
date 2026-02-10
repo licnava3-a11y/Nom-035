@@ -8737,3 +8737,73 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Skeleton loaders verificados en 5 páginas con estados de carga
 - [x] Validación de CURP completamente funcional con extracción de datos
 - [x] Sistema UX completo y funcional
+
+
+## FASE 276-282: Módulo de Reclutamiento y Salida de Personal
+
+### Esquema de Base de Datos - Reclutamiento
+- [x] Crear tabla `candidates` (candidatos/postulantes)
+- [x] Crear tabla `candidate_work_history` (historial laboral)
+- [x] Crear tabla `candidate_references` (referencias laborales)
+- [x] Crear tabla `job_openings` (vacantes disponibles)
+- [x] Generar y ejecutar migraciones SQL
+
+### Flujo de Postulación Pública
+- [ ] Crear página pública de postulación (/apply/:jobId)
+- [ ] Implementar formulario multi-paso (datos personales, CURP, historial, referencias)
+- [ ] Agregar validación de CURP con autocompletado
+- [ ] Implementar cláusula ARCO con checkbox obligatorio
+- [ ] Agregar leyenda de veracidad de información con checkbox
+- [ ] Crear procedimientos tRPC para guardar postulación
+- [ ] Implementar envío de confirmación por correo al candidato
+
+### Gestión de Candidatos
+- [ ] Crear página de lista de candidatos (/candidates)
+- [ ] Implementar filtros por vacante, estado, fecha
+- [ ] Crear vista detallada de candidato individual
+- [ ] Agregar funcionalidad de cambio de estado (nuevo, revisión, entrevista, rechazado, contratado)
+- [ ] Implementar notas del reclutador por candidato
+
+### Tabla de Comparación de Candidatos
+- [ ] Crear página de comparación (/candidates/compare)
+- [ ] Implementar selección múltiple de candidatos
+- [ ] Mostrar comparación lado a lado (experiencia, referencias, educación)
+- [ ] Calcular índice de contratación basado en referencias
+- [ ] Agregar scoring manual por reclutador
+
+### Esquema de Base de Datos - Salida de Personal
+- [x] Crear tabla `employee_terminations` (bajas de personal)
+- [x] Crear tabla `exit_interviews` (entrevistas de salida)
+- [x] Crear tabla `exit_interview_responses` (respuestas de entrevista)
+- [x] Crear tabla `exit_interview_questions` (catálogo de preguntas)
+- [x] Crear tabla `turnover_action_plans` (planes de acción)
+- [x] Generar y ejecutar migraciones SQL
+
+### Entrevista de Salida
+- [ ] Crear página de entrevista de salida (/exit-interview/:terminationId)
+- [ ] Implementar formulario con 15 preguntas de opción múltiple
+- [ ] Agregar campo de observaciones adicionales
+- [ ] Garantizar confidencialidad de respuestas
+- [ ] Crear procedimientos tRPC para guardar entrevista
+
+### Análisis de Rotación
+- [ ] Crear página de análisis de rotación (/turnover-analysis)
+- [ ] Implementar gráficas acumulativas por causa (Chart.js)
+- [ ] Agregar filtros por mes, departamento, periodo
+- [ ] Calcular tasa de rotación mensual/anual
+- [ ] Mostrar tendencias históricas
+
+### Planes de Acción
+- [ ] Crear generador automático de planes de acción
+- [ ] Identificar causas principales de rotación
+- [ ] Sugerir acciones correctivas por causa
+- [ ] Permitir edición y personalización de planes
+- [ ] Exportar planes a PDF para auditoría
+
+### Integración y Pruebas
+- [ ] Integrar reclutamiento con contratación existente
+- [ ] Correlacionar datos de candidato → empleado
+- [ ] Probar flujo completo de postulación
+- [ ] Probar flujo completo de salida de personal
+- [ ] Verificar cálculos de índices y métricas
+- [ ] Guardar checkpoint final

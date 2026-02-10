@@ -2004,3 +2004,250 @@ export const notificationHistory = mysqlTable("notification_history", {
 
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
 export type InsertNotificationHistory = typeof notificationHistory.$inferInsert;
+
+
+// ============================================================================
+// RECRUITMENT MODULE - Módulo de Reclutamiento
+// ============================================================================
+
+// Job Openings - Vacantes disponibles
+export const jobOpenings = mysqlTable("job_openings", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(), // Título de la vacante
+  description: text("description").notNull(), // Descripción detallada
+  departmentId: int("department_id").references(() => departments.id),
+  positionId: int("position_id").references(() => jobPositions.id),
+  requirements: text("requirements"), // Requisitos del puesto
+  responsibilities: text("responsibilities"), // Responsabilidades
+  salaryRange: varchar("salary_range", { length: 100 }), // Rango salarial
+  location: varchar("location", { length: 255 }), // Ubicación
+  employmentType: mysqlEnum("employment_type", ["permanent", "temporary", "contract", "internship"]).default("permanent").notNull(),
+  status: mysqlEnum("status", ["draft", "open", "closed", "filled"]).default("draft").notNull(),
+  openDate: date("open_date"),
+  closeDate: date("close_date"),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type JobOpening = typeof jobOpenings.$inferSelect;
+export type InsertJobOpening = typeof jobOpenings.$inferInsert;
+
+// Candidates - Candidatos/Postulantes
+export const candidates = mysqlTable("candidates", {
+  id: int("id").autoincrement().primaryKey(),
+  jobOpeningId: int("job_opening_id").references(() => jobOpenings.id).notNull(),
+  
+  // Datos personales
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 15 }).notNull(),
+  curp: varchar("curp", { length: 18 }).notNull(),
+  
+  // Datos extraídos de CURP
+  birthDate: date("birth_date"),
+  gender: mysqlEnum("gender", ["Masculino", "Femenino"]),
+  birthState: varchar("birth_state", { length: 100 }),
+  age: int("age"),
+  
+  // Dirección
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  postalCode: varchar("postal_code", { length: 10 }),
+  
+  // Educación
+  education: varchar("education", { length: 255 }), // Último grado de estudios
+  fieldOfStudy: varchar("field_of_study", { length: 255 }), // Carrera/especialidad
+  
+  // Cláusulas ARCO y veracidad
+  arcoAccepted: boolean("arco_accepted").default(false).notNull(), // Aceptación de cláusulas ARCO
+  arcoAcceptedAt: timestamp("arco_accepted_at"),
+  verificationAuthorized: boolean("verification_authorized").default(false).notNull(), // Autorización de verificación
+  verificationAuthorizedAt: timestamp("verification_authorized_at"),
+  
+  // Estado del candidato
+  status: mysqlEnum("status", ["new", "reviewing", "interview", "offer", "hired", "rejected"]).default("new").notNull(),
+  hiringScore: int("hiring_score"), // Índice de contratación (0-100)
+  
+  // Notas del reclutador
+  recruiterNotes: text("recruiter_notes"),
+  
+  // CV/Resume
+  resumeUrl: varchar("resume_url", { length: 500 }),
+  
+  // Fechas
+  appliedAt: timestamp("applied_at").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewed_at"),
+  interviewedAt: timestamp("interviewed_at"),
+  hiredAt: timestamp("hired_at"),
+  rejectedAt: timestamp("rejected_at"),
+  
+  // Relación con empleado (si fue contratado)
+  employeeId: int("employee_id").references(() => employees.id),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Candidate = typeof candidates.$inferSelect;
+export type InsertCandidate = typeof candidates.$inferInsert;
+
+// Candidate Work History - Historial laboral del candidato
+export const candidateWorkHistory = mysqlTable("candidate_work_history", {
+  id: int("id").autoincrement().primaryKey(),
+  candidateId: int("candidate_id").references(() => candidates.id, { onDelete: "cascade" }).notNull(),
+  companyName: varchar("company_name", { length: 255 }).notNull(),
+  position: varchar("position", { length: 255 }).notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date"), // NULL si es empleo actual
+  isCurrent: boolean("is_current").default(false).notNull(),
+  responsibilities: text("responsibilities"),
+  reasonForLeaving: text("reason_for_leaving"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CandidateWorkHistory = typeof candidateWorkHistory.$inferSelect;
+export type InsertCandidateWorkHistory = typeof candidateWorkHistory.$inferInsert;
+
+// Candidate References - Referencias laborales del candidato
+export const candidateReferences = mysqlTable("candidate_references", {
+  id: int("id").autoincrement().primaryKey(),
+  candidateId: int("candidate_id").references(() => candidates.id, { onDelete: "cascade" }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  position: varchar("position", { length: 255 }).notNull(),
+  company: varchar("company", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 15 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  relationship: varchar("relationship", { length: 100 }), // Relación (jefe directo, colega, etc.)
+  
+  // Verificación de referencia
+  verified: boolean("verified").default(false).notNull(),
+  verifiedAt: timestamp("verified_at"),
+  verifiedBy: int("verified_by").references(() => users.id),
+  verificationNotes: text("verification_notes"),
+  referenceScore: int("reference_score"), // Calificación de la referencia (0-10)
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CandidateReference = typeof candidateReferences.$inferSelect;
+export type InsertCandidateReference = typeof candidateReferences.$inferInsert;
+
+// ============================================================================
+// EMPLOYEE TERMINATION MODULE - Módulo de Salida de Personal
+// ============================================================================
+
+// Employee Terminations - Bajas de personal
+export const employeeTerminations = mysqlTable("employee_terminations", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  terminationDate: date("termination_date").notNull(),
+  terminationReason: mysqlEnum("termination_reason", [
+    "resignation", // Renuncia voluntaria
+    "dismissal", // Despido
+    "retirement", // Jubilación
+    "contract_end", // Fin de contrato
+    "mutual_agreement", // Mutuo acuerdo
+    "death", // Fallecimiento
+    "other" // Otro
+  ]).notNull(),
+  terminationReasonDetails: text("termination_reason_details"), // Detalles adicionales
+  noticeGiven: boolean("notice_given").default(false).notNull(), // ¿Se dio aviso previo?
+  noticePeriodDays: int("notice_period_days"), // Días de aviso previo
+  finalWorkDate: date("final_work_date"), // Último día trabajado
+  severancePayment: decimal("severance_payment", { precision: 10, scale: 2 }), // Liquidación
+  notes: text("notes"),
+  documentUrls: json("document_urls"), // URLs de documentos relacionados
+  processedBy: int("processed_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmployeeTermination = typeof employeeTerminations.$inferSelect;
+export type InsertEmployeeTermination = typeof employeeTerminations.$inferInsert;
+
+// Exit Interview Questions - Catálogo de preguntas para entrevista de salida
+export const exitInterviewQuestions = mysqlTable("exit_interview_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  questionText: text("question_text").notNull(),
+  questionType: mysqlEnum("question_type", ["multiple_choice", "text"]).default("multiple_choice").notNull(),
+  options: json("options"), // Array de opciones para preguntas de opción múltiple
+  category: varchar("category", { length: 100 }), // Categoría de la pregunta (ambiente, compensación, desarrollo, etc.)
+  order: int("order").notNull(), // Orden de presentación
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ExitInterviewQuestion = typeof exitInterviewQuestions.$inferSelect;
+export type InsertExitInterviewQuestion = typeof exitInterviewQuestions.$inferInsert;
+
+// Exit Interviews - Entrevistas de salida
+export const exitInterviews = mysqlTable("exit_interviews", {
+  id: int("id").autoincrement().primaryKey(),
+  terminationId: int("termination_id").references(() => employeeTerminations.id).notNull(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  
+  // Observaciones adicionales
+  additionalComments: text("additional_comments"),
+  
+  // Confidencialidad
+  isConfidential: boolean("is_confidential").default(true).notNull(),
+  
+  // Estado
+  status: mysqlEnum("status", ["pending", "completed"]).default("pending").notNull(),
+  completedAt: timestamp("completed_at"),
+  
+  // Auditoría
+  conductedBy: int("conducted_by").references(() => users.id), // Usuario que realizó la entrevista
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ExitInterview = typeof exitInterviews.$inferSelect;
+export type InsertExitInterview = typeof exitInterviews.$inferInsert;
+
+// Exit Interview Responses - Respuestas de entrevista de salida
+export const exitInterviewResponses = mysqlTable("exit_interview_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  exitInterviewId: int("exit_interview_id").references(() => exitInterviews.id, { onDelete: "cascade" }).notNull(),
+  questionId: int("question_id").references(() => exitInterviewQuestions.id).notNull(),
+  response: text("response").notNull(), // Respuesta seleccionada o texto libre
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ExitInterviewResponse = typeof exitInterviewResponses.$inferSelect;
+export type InsertExitInterviewResponse = typeof exitInterviewResponses.$inferInsert;
+
+// Turnover Action Plans - Planes de acción basados en análisis de rotación
+export const turnoverActionPlans = mysqlTable("turnover_action_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  
+  // Causas identificadas
+  primaryCauses: json("primary_causes"), // Array de causas principales de rotación
+  
+  // Acciones propuestas
+  proposedActions: json("proposed_actions"), // Array de acciones correctivas
+  
+  // Periodo de análisis
+  analysisStartDate: date("analysis_start_date").notNull(),
+  analysisEndDate: date("analysis_end_date").notNull(),
+  
+  // Estado del plan
+  status: mysqlEnum("status", ["draft", "approved", "in_progress", "completed"]).default("draft").notNull(),
+  
+  // Responsable
+  assignedTo: int("assigned_to").references(() => users.id),
+  
+  // Fechas
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+export type TurnoverActionPlan = typeof turnoverActionPlans.$inferSelect;
+export type InsertTurnoverActionPlan = typeof turnoverActionPlans.$inferInsert;
