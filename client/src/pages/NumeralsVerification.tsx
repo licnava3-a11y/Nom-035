@@ -86,24 +86,64 @@ export default function NumeralsVerification() {
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         
-        // Encabezado
+        let yPosition = 20;
+        
+        // Logo de la empresa (si existe)
+        if (result.data.logo?.logoUrl) {
+          try {
+            // Cargar logo como imagen
+            const logoImg = new Image();
+            logoImg.crossOrigin = 'anonymous';
+            await new Promise((resolve, reject) => {
+              logoImg.onload = resolve;
+              logoImg.onerror = reject;
+              logoImg.src = result.data.logo.logoUrl;
+            });
+            
+            // Agregar logo (esquina superior izquierda)
+            const logoWidth = 30;
+            const logoHeight = 15;
+            doc.addImage(logoImg, 'PNG', 14, yPosition, logoWidth, logoHeight);
+          } catch (error) {
+            console.warn('No se pudo cargar el logo:', error);
+          }
+        }
+        
+        // Encabezado con datos de empresa
         doc.setFontSize(18);
         doc.setFont('helvetica', 'bold');
-        doc.text('Reporte de Verificación de Cumplimiento', pageWidth / 2, 20, { align: 'center' });
+        doc.text('Reporte de Verificación de Cumplimiento', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 8;
         
         doc.setFontSize(14);
-        doc.text('Numerales 7 y 8 - NOM-035 STPS 2018', pageWidth / 2, 28, { align: 'center' });
+        doc.text('Numerales 7 y 8 - NOM-035 STPS 2018', pageWidth / 2, yPosition, { align: 'center' });
+        yPosition += 10;
+        
+        // Datos de la empresa (si existen)
+        if (result.data.company) {
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.text(result.data.company.razonSocial, pageWidth / 2, yPosition, { align: 'center' });
+          yPosition += 5;
+          
+          doc.setFont('helvetica', 'normal');
+          doc.text(`RFC: ${result.data.company.rfc}`, pageWidth / 2, yPosition, { align: 'center' });
+          yPosition += 8;
+        }
         
         // Información del reporte
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         const generatedDate = new Date(result.data.generatedAt).toLocaleString('es-MX');
-        doc.text(`Fecha de generación: ${generatedDate}`, 14, 40);
-        doc.text(`Generado por: ${result.data.generatedBy}`, 14, 46);
+        doc.text(`Fecha de generación: ${generatedDate}`, 14, yPosition);
+        yPosition += 6;
+        doc.text(`Generado por: ${result.data.generatedBy}`, 14, yPosition);
+        yPosition += 4;
         
         // Línea separadora
         doc.setLineWidth(0.5);
-        doc.line(14, 50, pageWidth - 14, 50);
+        doc.line(14, yPosition, pageWidth - 14, yPosition);
+        yPosition += 5;
         
         // Tabla de resultados
         const tableData = result.data.requirements.map((req: any) => [
@@ -114,7 +154,7 @@ export default function NumeralsVerification() {
         ]);
         
         (doc as any).autoTable({
-          startY: 55,
+          startY: yPosition,
           head: [['Numeral', 'Requisito', 'Estado', 'Fecha Verificación']],
           body: tableData,
           theme: 'grid',
@@ -129,7 +169,7 @@ export default function NumeralsVerification() {
         });
         
         // Hallazgos detallados
-        let yPosition = (doc as any).lastAutoTable.finalY + 10;
+        yPosition = (doc as any).lastAutoTable.finalY + 10;
         
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');

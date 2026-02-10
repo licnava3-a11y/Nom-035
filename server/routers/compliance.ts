@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users } from "../../drizzle/schema.js";
+import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users, companyGeneralData, companyLogo } from "../../drizzle/schema.js";
 import { eq, sql, desc } from "drizzle-orm";
 
 export const complianceRouter = router({
@@ -440,6 +440,19 @@ export const complianceRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
+      // Obtener datos de la empresa
+      const companyData = await db
+        .select()
+        .from(companyGeneralData)
+        .limit(1);
+
+      // Obtener logo de la empresa
+      const logo = await db
+        .select()
+        .from(companyLogo)
+        .orderBy(desc(companyLogo.createdAt))
+        .limit(1);
+
       // Obtener requisitos de Numerales 7 y 8
       const requirements = await db
         .select()
@@ -475,6 +488,8 @@ export const complianceRouter = router({
           generatedBy: ctx.user.name,
           userEmail: ctx.user.email,
           requirements: reportData,
+          company: companyData[0] || null,
+          logo: logo[0] || null,
         },
       };
     }),

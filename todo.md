@@ -8917,3 +8917,13 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Implementar botón de exportación en NumeralsVerification.tsx
 - [x] Instalar dependencias jspdf y jspdf-autotable
 - [ ] Guardar checkpoint
+
+
+## Logo de Empresa en Reportes PDF
+- [x] Revisar tablas company_general_data y company_logo
+- [x] Modificar procedimiento generateNumeralsPDF para incluir datos de empresa
+- [x] Actualizar generación de PDF para incluir logo en encabezado
+- [x] Agregar nombre de empresa (razón social) y RFC en encabezado
+- [x] Implementar carga asíncrona de imagen del logo
+- [x] Ajustar posiciones dinámicas de elementos en PDF
+- [ ] Guardar checkpoint
