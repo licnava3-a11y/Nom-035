@@ -8843,3 +8843,58 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Verificar conversión de candidato a empleado
 - [ ] Confirmar generación de alertas y notificaciones
 - [ ] Guardar checkpoint final
+
+
+## FASE 182: Cumplimiento Normativo NOM-035 (P0 - CRÍTICO)
+
+### Esquema de Base de Datos
+- [x] Crear tabla `compliance_checks` (verificaciones de cumplimiento) - Ya existía
+- [x] Crear tabla `compliance_requirements` (requisitos normativos)
+- [x] Crear tabla `compliance_evidence` (evidencias de cumplimiento) - Ya existía
+- [x] Generar y ejecutar migraciones SQL
+- [x] Insertar 8 requisitos normativos de Numerales 7 y 8
+
+### Verificación Numeral 7 (Identificación y Análisis)
+- [ ] Implementar verificación de política de prevención
+- [ ] Verificar identificación de trabajadores expuestos
+- [ ] Validar aplicación de Guía de Referencia I, II o III según corresponda
+- [ ] Verificar análisis de resultados de encuestas
+
+### Verificación Numeral 8 (Medidas de Control)
+- [ ] Verificar adopción de medidas preventivas
+- [ ] Validar implementación de acciones correctivas
+- [ ] Verificar difusión de información a trabajadores
+- [ ] Validar registro documental de medidas
+
+### Integración NOM-030
+- [ ] Verificar existencia de Servicios Preventivos de Seguridad y Salud
+- [ ] Validar integración con médico del trabajo
+- [ ] Verificar exámenes médicos específicos
+
+### Reportes de Auditoría
+- [ ] Crear generador de reporte de cumplimiento
+- [ ] Implementar dashboard de cumplimiento normativo
+- [ ] Agregar exportación a PDF con evidencias
+
+
+## FASE 182: Cumplimiento Normativo NOM-035 - ACTUALIZACIÓN ✅
+### Router tRPC de Cumplimiento
+- [x] Procedimiento getRequirements: Obtener requisitos normativos
+- [x] Procedimiento verifyNumeral71: Verificar Política de Prevención
+- [x] Procedimiento verifyNumeral72: Verificar Análisis de Factores de Riesgo
+- [x] Procedimiento verifyNumeral82: Verificar Medidas de Control
+- [x] Procedimiento getDashboard: Dashboard de cumplimiento con métricas
+- [x] Procedimiento generateReport: Generar reporte completo de cumplimiento
+### Interfaz de Verificación
+- [x] Página NumeralsVerification.tsx para verificación automática
+- [x] Botones de verificación individual por numeral
+- [x] Visualización de resultados con badges de estado
+- [x] Información detallada de hallazgos
+- [x] Criterios de verificación documentados
+- [x] Ruta /compliance/numerals agregada en App.tsx
+### Estado del Sistema
+- [x] 0 errores TypeScript
+- [x] 0 errores LSP
+- [x] Sistema estable y funcional
+- [ ] Agregar enlace en sidebar de DashboardLayout
+- [ ] Guardar checkpoint con FASE 182 completada

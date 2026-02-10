@@ -2259,3 +2259,26 @@ export const turnoverActionPlans = mysqlTable("turnover_action_plans", {
 
 export type TurnoverActionPlan = typeof turnoverActionPlans.$inferSelect;
 export type InsertTurnoverActionPlan = typeof turnoverActionPlans.$inferInsert;
+
+
+// ============================================
+// COMPLIANCE MANAGEMENT (NOM-035 Numerals 7 & 8)
+// ============================================
+
+/**
+ * Compliance requirements catalog - NOM-035 Numerals 7 & 8
+ */
+export const complianceRequirements = mysqlTable("compliance_requirements", {
+  id: int("id").autoincrement().primaryKey(),
+  numeral: varchar("numeral", { length: 10 }).notNull(), // "7.1", "7.2", "8.1", etc.
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description").notNull(),
+  category: mysqlEnum("category", ["identification", "analysis", "prevention", "control", "documentation"]).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ComplianceRequirement = typeof complianceRequirements.$inferSelect;
+export type InsertComplianceRequirement = typeof complianceRequirements.$inferInsert;
+
+// Note: complianceChecks and complianceEvidence are already defined above (lines 1321-1347)

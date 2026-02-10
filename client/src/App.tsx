@@ -62,6 +62,7 @@ import DocumentGallery from "./pages/DocumentGallery";
 import GuideI from "./pages/surveys/GuideI";
 import ComplianceChecklist from "./pages/ComplianceChecklist";
 import ComplianceDashboard from "./pages/ComplianceDashboard";
+import NumeralsVerification from "./pages/NumeralsVerification";
 import GuideII from "./pages/surveys/GuideII";
 import GuideIII from "./pages/surveys/GuideIII";
 import SurveysDashboard from "./pages/surveys/Dashboard";
@@ -552,6 +553,11 @@ function Router() {
       <Route path={"/compliance/checklist"}>
         <DashboardLayout>
           <ComplianceChecklist />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/compliance/numerals"}>
+        <DashboardLayout>
+          <NumeralsVerification />
         </DashboardLayout>
       </Route>
       {/* Ruta pública de aplicación de encuestas */}

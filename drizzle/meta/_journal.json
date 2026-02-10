@@ -330,6 +330,13 @@
       "when": 1770733421812,
       "tag": "0046_eminent_rogue",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "5",
+      "when": 1770739061829,
+      "tag": "0047_sturdy_captain_britain",
+      "breakpoints": true
     }
   ]
 }
