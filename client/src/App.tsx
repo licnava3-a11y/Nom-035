@@ -24,6 +24,7 @@ import TrendsCharts from './pages/TrendsCharts';
 import SignatureTest from './pages/SignatureTest';
 import JobPositions from "./pages/JobPositions";
 import Reports from "./pages/Reports";
+import AlertHistory from "./pages/AlertHistory";
 import Users from "./pages/Users";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
@@ -204,6 +205,11 @@ function Router() {
       <Route path={"/reports/regulatory"}>
         <DashboardLayout>
           <RegulatoryReports />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/alert-history"}>
+        <DashboardLayout>
+          <AlertHistory />
         </DashboardLayout>
       </Route>
       <Route path={"/competencies-dashboard"}>

@@ -8455,3 +8455,31 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Sistema de alertas con backend completo
 - [x] Botón de acción rápida funcional
 - [ ] Guardar checkpoint final
+
+
+## FASE 251: Página Completa de Histórico de Alertas
+
+### Crear Página AlertHistory.tsx
+- [x] Crear archivo client/src/pages/AlertHistory.tsx
+- [x] Implementar tabla con columnas: Fecha, Tipo de Alerta, Umbral, Valor Actual, Estado, Acciones
+- [x] Agregar badges de estado (activa/resuelta) con colores distintivos
+- [x] Tabla completa con iconos y descripción de alertas
+
+### Filtros y Funcionalidad
+- [x] Agregar selector de tipo de alerta (critical_cases, low_coverage, excellent_compliance)
+- [x] Agregar selector de estado (activa, resuelta, todas)
+- [x] Filtros funcionales con query tRPC
+- [x] Agregar botón de "Resolver" para alertas activas con modal de notas
+- [x] Implementar query tRPC alerts.getHistory con filtros
+- [x] Mutation tRPC alerts.resolve con invalidación automática
+
+### Integración en Menú
+- [x] Agregar ruta /alert-history en App.tsx
+- [x] Agregar enlace "Histórico de Alertas" en menú de Reportes y Análisis
+- [x] Agregar breadcrumb en página
+
+### Validación Final
+- [x] Página completa y funcional
+- [x] Filtros operativos
+- [x] Sistema de resolución implementado
+- [ ] Guardar checkpoint final

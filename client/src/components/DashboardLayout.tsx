@@ -157,6 +157,7 @@ const hierarchicalMenuItems = [
     submenu: [
       { label: "Gráficas de Tendencias", path: "/trends", description: "Evolución temporal de casos, cobertura de encuestas y cumplimiento normativo" },
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento normativo NOM-035 y NMX-025" },
+      { label: "Histórico de Alertas", path: "/alert-history", description: "Registro de alertas del sistema para auditoría de cumplimiento" },
     ],
   },
   {
