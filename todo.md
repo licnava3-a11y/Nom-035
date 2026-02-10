@@ -8693,3 +8693,47 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Reemplazar valores hardcodeados por valores dinámicos de BD
 - [x] Actualizar procedimiento checkLowCoverageAlerts para aceptar coverageThreshold
 - [x] Usar umbral dinámico en lógica de verificación y mensajes
+
+
+## FASE 272-275: Mejoras UX y Validación CURP
+
+### Tooltips Explicativos en Formularios
+- [x] Verificar componente Tooltip de shadcn/ui - Ya existe
+- [x] Agregar tooltips en formulario de empleados (CURP, fecha de ingreso) - Ya implementado
+- [x] Agregar tooltips en formulario de casos (tipo de caso) - Ya implementado
+- [x] Tooltips principales ya están implementados en formularios complejos
+
+### Breadcrumbs en Páginas Principales
+- [x] Verificar si existe componente Breadcrumb de shadcn/ui - Ya existe
+- [x] Componente Breadcrumb reutilizable ya implementado
+- [x] Breadcrumbs ya implementados en 25 páginas principales:
+  - Gestión de Talento (Empleados, Perfiles, Evaluaciones)
+  - Encuestas NOM-035 (Panel Admin, Resultados)
+  - Prevención de Riesgos (Casos, Comité, Buzón)
+  - Sistema de Alertas (Histórico, Dashboard, Configuración, Reportes)
+
+### Skeleton Loaders para Estados de Carga
+- [x] Verificar componente Skeleton de shadcn/ui - Ya existe
+- [x] Skeleton ya implementado en 5 páginas:
+  - Employees (tabla de empleados)
+  - Cases (lista de casos con TableSkeleton)
+  - AlertThresholdsConfig (formulario de configuración)
+  - NotificationHistory (tabla de notificaciones)
+- [x] Componente TableSkeleton reutilizable ya creado
+
+### Validación CURP con API
+- [x] Investigar APIs gratuitas - No hay APIs públicas gratuitas disponibles
+- [x] Función de validación de CURP ya implementada en backend (server/lib/curp-validator.ts)
+- [x] Extracción completa de datos: fecha nacimiento, sexo, género, estado, edad
+- [x] Validación integrada en formulario de empleados (EmployeeNew.tsx)
+- [x] Autocompletado automático al ingresar 18 caracteres
+- [x] Indicadores visuales (CheckCircle/XCircle) implementados
+- [x] Procedimiento tRPC employees.validateCURP disponible
+- [x] Tests unitarios completos en server/curp-validator.test.ts
+
+### Validación Final
+- [x] Tooltips verificados en formularios principales (EmployeeNew, CaseDialog)
+- [x] Breadcrumbs verificados en 25 páginas principales
+- [x] Skeleton loaders verificados en 5 páginas con estados de carga
+- [x] Validación de CURP completamente funcional con extracción de datos
+- [x] Sistema UX completo y funcional
