@@ -98,6 +98,8 @@ import EqualityCommittee from "./pages/equality/Committee";
 
 import RegulatoryReports from "./pages/RegulatoryReports";
 import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
+import JobApplication from "./pages/JobApplication";
+import ApplicationSuccess from "./pages/ApplicationSuccess";
 import EarlyWarnings from "./pages/EarlyWarnings";
 import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
@@ -448,6 +450,14 @@ function Router() {
       {/* Ruta pública para responder cuestionarios de investigación (mobbing/burnout) */}
       <Route path={"/questionnaire/:token"}>
         <QuestionnairePublic />
+      </Route>
+      {/* Ruta pública para postulación a vacantes */}
+      <Route path={"/apply/:jobId"}>
+        <JobApplication />
+      </Route>
+      {/* Ruta pública de confirmación de postulación */}
+      <Route path={"/application-success"}>
+        <ApplicationSuccess />
       </Route>
       <Route path={"/surveys/action-plan/:surveyId"}>
         <DashboardLayout>

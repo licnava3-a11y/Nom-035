@@ -8819,13 +8819,15 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Procedimientos implementados: createJobOpening, getJobOpenings, createCandidate, getCandidatesByJob, getCandidateDetail, updateCandidateStatus
 
 ### Formulario Público de Postulación
-- [ ] Crear página pública /apply/:jobId accesible sin autenticación
-- [ ] Implementar paso 1: Datos personales con validación de CURP
-- [ ] Implementar paso 2: Aceptación de cláusulas ARCO y veracidad
-- [ ] Implementar paso 3: Historial laboral (empresa, puesto, fechas, responsabilidades)
-- [ ] Implementar paso 4: Referencias laborales (nombre, puesto, empresa, contacto)
-- [ ] Agregar subida de CV/Resume
-- [ ] Implementar navegación multi-paso con validación
+- [x] Crear página pública /apply/:jobId accesible sin autenticación
+- [x] Implementar paso 1: Datos personales con validación de CURP
+- [x] Implementar paso 2: Aceptación de cláusulas ARCO y veracidad
+- [x] Implementar paso 3: Historial laboral (empresa, puesto, fechas, responsabilidades)
+- [x] Implementar paso 4: Referencias laborales (nombre, puesto, empresa, contacto)
+- [ ] Agregar subida de CV/Resume (opcional)
+- [x] Implementar navegación multi-paso con validación
+- [x] Crear página de confirmación /application-success
+- [x] Agregar rutas públicas en App.tsx
 
 ### Panel Administrativo de Candidatos
 - [ ] Crear página /recruitment/candidates con tabla de candidatos
