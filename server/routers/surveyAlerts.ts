@@ -21,6 +21,7 @@ export const surveyAlertsRouter = router({
   checkLowCoverageAlerts: publicProcedure
     .input(z.object({
       surveyId: z.number().optional(), // Si no se especifica, verifica todas las encuestas activas
+      coverageThreshold: z.number().optional(), // Umbral de cobertura (por defecto 80)
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -59,8 +60,10 @@ export const surveyAlertsRouter = router({
             ? (responsesCount.count / totalUsers.count) * 100 
             : 0;
 
-          // Si la cobertura es < 80%, verificar si ya se envió alerta reciente
-          if (coverage < 80) {
+          const threshold = input.coverageThreshold || 80;
+          
+          // Si la cobertura es menor al umbral, verificar si ya se envió alerta reciente
+          if (coverage < threshold) {
             // Buscar alertas enviadas en las últimas 24 horas
             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
             
@@ -92,7 +95,7 @@ export const surveyAlertsRouter = router({
                 const notificationSent = await notifyOwner({
                   title: `⚠️ Alerta: Cobertura Baja en Encuesta NOM-035`,
                   content: `
-La encuesta "${survey.title}" tiene una cobertura del ${coverage.toFixed(1)}%, por debajo del umbral del 80%.
+La encuesta "${survey.title}" tiene una cobertura del ${coverage.toFixed(1)}%, por debajo del umbral del ${threshold}%.
 
 **Estadísticas:**
 - Total de trabajadores: ${totalUsers.count}

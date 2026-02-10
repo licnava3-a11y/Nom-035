@@ -8684,3 +8684,12 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Crear página NotificationHistory con tabla y filtros
 - [x] Agregar paginación y ordenamiento por fecha
 - [x] Agregar ruta en App.tsx y enlace en sidebar
+
+
+## FASE 271: Actualizar Jobs para Usar Umbrales Dinámicos
+
+### Modificar survey-alerts-job.ts
+- [x] Leer umbrales desde tabla alert_thresholds al inicio del job
+- [x] Reemplazar valores hardcodeados por valores dinámicos de BD
+- [x] Actualizar procedimiento checkLowCoverageAlerts para aceptar coverageThreshold
+- [x] Usar umbral dinámico en lógica de verificación y mensajes

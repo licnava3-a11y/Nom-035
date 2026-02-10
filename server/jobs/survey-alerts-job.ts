@@ -6,8 +6,9 @@
  */
 
 import { getDb } from "../db";
-import { surveys } from "../../drizzle/schema";
+import { surveys, alertThresholds } from "../../drizzle/schema";
 import { surveyAlertsRouter } from "../routers/surveyAlerts";
+import { eq } from "drizzle-orm";
 
 /**
  * Ejecutar verificación de alertas
@@ -34,9 +35,19 @@ export async function runSurveyAlertsCheck() {
       res: {} as any,
     });
 
+    // Obtener umbral de cobertura desde BD
+    const [lowCoverageThreshold] = await db
+      .select()
+      .from(alertThresholds)
+      .where(eq(alertThresholds.alertType, 'low_coverage'))
+      .limit(1);
+
+    const coverageThreshold = lowCoverageThreshold?.threshold || 80; // Valor por defecto si no existe
+    console.log(`[Survey Alerts Job] Using coverage threshold: ${coverageThreshold}%`);
+
     // Verificar alertas de cobertura baja
     console.log('[Survey Alerts Job] Checking low coverage alerts...');
-    const coverageResults = await caller.checkLowCoverageAlerts({});
+    const coverageResults = await caller.checkLowCoverageAlerts({ coverageThreshold });
     console.log(`[Survey Alerts Job] Coverage check completed:`, coverageResults);
 
     // Verificar alertas de trabajadores pendientes por 2+ días
