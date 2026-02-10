@@ -428,6 +428,11 @@ export const notifications = mysqlTable("notifications", {
     "deadline_approaching",
     "new_mailbox_request",
     "mailbox_status_change",
+    "employee_hire",
+    "employee_termination",
+    "department_change",
+    "survey_expiring",
+    "training_due",
     "system"
   ]).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
@@ -1123,8 +1128,8 @@ export const systemSettings = mysqlTable("systemSettings", {
   settingValue: text("settingValue"),
   description: text("description"),
   updatedBy: int("updatedBy"), // FK to users
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 });
 
 export type SystemSetting = typeof systemSettings.$inferSelect;

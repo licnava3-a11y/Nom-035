@@ -173,6 +173,127 @@ export async function createEmployee(data: InsertEmployee) {
 }
 
 /**
+ * Create new employee with history event in a transaction
+ * Ensures atomicity: both employee and history are created or neither is
+ */
+export async function createEmployeeWithHistory(
+  employeeData: InsertEmployee,
+  historyData: {
+    curp: string;
+    eventType: 'hire' | 'reentry';
+    eventDate: Date;
+    processedBy?: number;
+    departmentId?: number;
+    positionId?: number;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+
+  return await db.transaction(async (tx) => {
+    // 1. Insert employee
+    const result = await tx.insert(employees).values(employeeData);
+    const employeeId = Number((result as any).insertId);
+
+    // 2. Insert history event
+    await tx.insert(employeeHistory).values({
+      employeeId,
+      curp: historyData.curp,
+      eventType: historyData.eventType,
+      eventDate: historyData.eventDate,
+      processedBy: historyData.processedBy,
+      departmentId: historyData.departmentId,
+      positionId: historyData.positionId,
+    });
+
+    return employeeId;
+  });
+}
+
+/**
+ * Deactivate employee (soft delete)
+ */
+export async function deactivateEmployee(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(employees)
+    .set({ isActive: false, updatedAt: new Date() })
+    .where(eq(employees.id, id));
+
+  return await getEmployeeById(id);
+}
+
+/**
+ * Terminate employee with history event in a transaction
+ * Ensures atomicity: both employee termination and history are recorded or neither is
+ */
+export async function terminateEmployeeWithHistory(
+  id: number,
+  terminationData: {
+    terminationDate: Date;
+    terminationReason?: string;
+    terminationCategory?: string;
+    terminationNotes?: string;
+    evidenceUrls?: string[];
+  },
+  historyData: {
+    curp: string;
+    processedBy?: number;
+    departmentId?: number;
+    positionId?: number;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { employeeHistory } = await import("../drizzle/schema");
+
+  return await db.transaction(async (tx) => {
+    // 1. Update employee with termination data
+    await tx
+      .update(employees)
+      .set({
+        isActive: false,
+        terminationDate: terminationData.terminationDate,
+        terminationReason: terminationData.terminationReason,
+        terminationCategory: terminationData.terminationCategory,
+        terminationNotes: terminationData.terminationNotes,
+        evidenceUrls: terminationData.evidenceUrls,
+        updatedAt: new Date(),
+      } as any)
+      .where(eq(employees.id, id));
+
+    // 2. Insert history event
+    await tx.insert(employeeHistory).values({
+      employeeId: id,
+      curp: historyData.curp,
+      eventType: 'termination',
+      eventDate: terminationData.terminationDate,
+      terminationReason: terminationData.terminationReason,
+      terminationCategory: terminationData.terminationCategory,
+      terminationNotes: terminationData.terminationNotes,
+      evidenceUrls: terminationData.evidenceUrls,
+      processedBy: historyData.processedBy,
+      departmentId: historyData.departmentId,
+      positionId: historyData.positionId,
+    } as any);
+
+    // 3. Return updated employee
+    const result = await tx
+      .select()
+      .from(employees)
+      .where(eq(employees.id, id))
+      .limit(1);
+
+    return result[0];
+  });
+}
+
+/**
  * Update employee
  */
 export async function updateEmployee(id: number, data: Partial<InsertEmployee>) {
@@ -188,26 +309,7 @@ export async function updateEmployee(id: number, data: Partial<InsertEmployee>) 
 }
 
 /**
- * Deactivate employee (soft delete)
- */
-export async function deactivateEmployee(id: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db
-    .update(employees)
-    .set({
-      isActive: false,
-      terminationDate: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(employees.id, id));
-
-  return await getEmployeeById(id);
-}
-
-/**
- * Reactivate employee
+ * Reactivate employee (undo soft delete)
  */
 export async function reactivateEmployee(id: number) {
   const db = await getDb();

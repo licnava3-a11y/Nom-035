@@ -184,25 +184,30 @@ export const employeesRouter = router({
         }
       }
 
-      const employeeId = await employeesDb.createEmployee({
-        ...input,
-        hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
-        reentryCount,
-        previousHireDates: previousHireDates.length > 0 ? previousHireDates.map(d => d.toISOString()) : null,
-      });
-
-      // Registrar evento en historial
-      if (input.curp) {
-        await employeesDb.addEmployeeHistoryEvent({
-          employeeId,
-          curp: input.curp,
-          eventType: isReentry ? 'reentry' : 'hire',
-          eventDate: input.hireDate ? new Date(input.hireDate) : new Date(),
-          processedBy: ctx.user.id,
-          departmentId: input.department ? parseInt(input.department) : undefined,
-          positionId: input.position ? parseInt(input.position) : undefined,
-        });
-      }
+      // Use transaction to ensure atomicity
+      const employeeId = input.curp
+        ? await employeesDb.createEmployeeWithHistory(
+            {
+              ...input,
+              hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
+              reentryCount,
+              previousHireDates: previousHireDates.length > 0 ? previousHireDates.map(d => d.toISOString()) : null,
+            },
+            {
+              curp: input.curp,
+              eventType: isReentry ? 'reentry' : 'hire',
+              eventDate: input.hireDate ? new Date(input.hireDate) : new Date(),
+              processedBy: ctx.user.id,
+              departmentId: input.department ? parseInt(input.department) : undefined,
+              positionId: input.position ? parseInt(input.position) : undefined,
+            }
+          )
+        : await employeesDb.createEmployee({
+            ...input,
+            hireDate: input.hireDate ? new Date(input.hireDate) : undefined,
+            reentryCount,
+            previousHireDates: previousHireDates.length > 0 ? previousHireDates.map(d => d.toISOString()) : null,
+          });
 
       return {
         success: true,
@@ -429,21 +434,26 @@ export const employeesRouter = router({
         });
       }
 
-      // Deactivate employee
-      await employeesDb.deactivateEmployee(input.employeeId);
-
-      // Register termination event in history
+      // Use transaction to ensure atomicity
       if (employee.curp) {
-        await employeesDb.addEmployeeHistoryEvent({
-          employeeId: input.employeeId,
-          curp: employee.curp,
-          eventType: 'termination',
-          eventDate: new Date(input.terminationDate),
-          processedBy: ctx.user.id,
-          terminationReason: input.terminationReason,
-          terminationNotes: input.notes,
-          evidenceUrls: input.documentUrls || [],
-        });
+        await employeesDb.terminateEmployeeWithHistory(
+          input.employeeId,
+          {
+            terminationDate: new Date(input.terminationDate),
+            terminationReason: input.terminationReason,
+            terminationNotes: input.notes,
+            evidenceUrls: input.documentUrls || [],
+          },
+          {
+            curp: employee.curp,
+            processedBy: ctx.user.id,
+            departmentId: employee.departmentId || undefined,
+            positionId: employee.positionId || undefined,
+          }
+        );
+      } else {
+        // Fallback for employees without CURP
+        await employeesDb.deactivateEmployee(input.employeeId);
       }
 
       return {

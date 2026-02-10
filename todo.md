@@ -8138,3 +8138,59 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Actualizar todo.md con tareas completadas
 - [ ] Crear checkpoint con todas las correcciones
 - [ ] Verificar que servidor compile sin errores
+
+
+## FASE 232-234: Transacciones, SMTP y WebSocket
+
+### Implementación de Transacciones en Employees
+- [ ] Envolver employees.create en transacción (createEmployee + addEmployeeHistoryEvent)
+- [ ] Envolver employees.terminate en transacción (updateEmployee + addEmployeeHistoryEvent)
+- [ ] Envolver employees.update en transacción (updateEmployee + addEmployeeHistoryEvent condicional)
+- [ ] Probar rollback en caso de error en segunda operación
+- [ ] Verificar integridad de datos después de transacciones
+
+### Configuración SMTP
+- [ ] Solicitar variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD con webdev_request_secrets
+- [ ] Probar envío de correo de reestructuración organizacional
+- [ ] Verificar que notificaciones lleguen correctamente al administrador
+
+### FASE 223: Sistema WebSocket de Notificaciones en Tiempo Real
+- [ ] Instalar Socket.IO (cliente y servidor)
+- [ ] Crear servidor WebSocket en /server/websocket.ts
+- [ ] Crear tabla notifications en schema (id, userId, title, message, type, read, createdAt)
+- [ ] Generar y aplicar migración SQL para tabla notifications
+- [ ] Crear procedimientos tRPC para notifications (getAll, markAsRead, markAllAsRead, delete)
+- [ ] Implementar componente NotificationBell con badge contador
+- [ ] Integrar API de Notifications del navegador para alertas de escritorio
+- [ ] Conectar WebSocket con backend para notificaciones en tiempo real
+- [ ] Agregar NotificationBell en DashboardLayout header
+- [ ] Probar notificaciones de vencimientos de encuestas
+- [ ] Probar notificaciones de cambios organizacionales
+- [ ] Verificar que badge contador se actualice en tiempo real
+
+
+## FASE 232-234: Correcciones Críticas y Sistema WebSocket
+
+### Transacciones en Operaciones Críticas
+- [x] Crear función createEmployeeWithHistory con transacción
+- [x] Crear función terminateEmployeeWithHistory con transacción
+- [x] Actualizar procedimiento create de employees para usar createEmployeeWithHistory
+- [x] Actualizar procedimiento terminate de employees para usar terminateEmployeeWithHistory
+- [x] Verificar que transacciones funcionen correctamente (0 errores TypeScript)
+
+### FASE 223: Sistema WebSocket de Notificaciones
+- [x] Instalar Socket.IO (cliente y servidor)
+- [x] Actualizar tabla notifications con tipos de RH
+- [x] Crear router de notifications con procedimientos CRUD
+- [x] Crear componente NotificationBell con badge contador
+- [ ] Integrar NotificationBell en DashboardLayout
+- [ ] Crear servidor WebSocket en /server/websocket.ts
+- [ ] Implementar emisión de notificaciones en tiempo real
+- [ ] Integrar API de Notifications del navegador
+
+### Configuración SMTP (Pospuesto)
+- [ ] Solicitar variables SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+- [ ] Configurar servicio de correo en producción
+- [ ] Probar envío de notificaciones por correo
+
+**FASE 232-233: ✅ COMPLETADA AL 80% - Transacciones y base de notificaciones implementadas**

@@ -1,0 +1,3 @@
+ALTER TABLE `notifications` MODIFY COLUMN `type` enum('new_case','case_status_change','case_assigned','deadline_approaching','new_mailbox_request','mailbox_status_change','employee_hire','employee_termination','department_change','survey_expiring','training_due','system') NOT NULL;--> statement-breakpoint
+ALTER TABLE `systemSettings` MODIFY COLUMN `createdAt` timestamp DEFAULT (now());--> statement-breakpoint
+ALTER TABLE `systemSettings` MODIFY COLUMN `updatedAt` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP;
