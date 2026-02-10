@@ -8807,3 +8807,37 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar flujo completo de salida de personal
 - [ ] Verificar cálculos de índices y métricas
 - [ ] Guardar checkpoint final
+
+
+## FASE 283-285: Implementación Completa del Módulo de Reclutamiento
+
+### Routers tRPC para Reclutamiento
+- [x] Crear router de vacantes (jobOpenings) con CRUD completo
+- [x] Crear router de candidatos con procedimientos: create, getAll, getById, updateStatus
+- [x] Implementar procedimientos básicos de gestión de candidatos
+- [x] Integrar routers en server/routers.ts
+- [x] Procedimientos implementados: createJobOpening, getJobOpenings, createCandidate, getCandidatesByJob, getCandidateDetail, updateCandidateStatus
+
+### Formulario Público de Postulación
+- [ ] Crear página pública /apply/:jobId accesible sin autenticación
+- [ ] Implementar paso 1: Datos personales con validación de CURP
+- [ ] Implementar paso 2: Aceptación de cláusulas ARCO y veracidad
+- [ ] Implementar paso 3: Historial laboral (empresa, puesto, fechas, responsabilidades)
+- [ ] Implementar paso 4: Referencias laborales (nombre, puesto, empresa, contacto)
+- [ ] Agregar subida de CV/Resume
+- [ ] Implementar navegación multi-paso con validación
+
+### Panel Administrativo de Candidatos
+- [ ] Crear página /recruitment/candidates con tabla de candidatos
+- [ ] Implementar filtros por vacante y estado
+- [ ] Agregar columna de índice de contratación (scoring)
+- [ ] Implementar modal de detalle de candidato con historial y referencias
+- [ ] Agregar botón de verificación de referencias
+- [ ] Implementar botón de conversión a empleado
+- [ ] Crear modal de conversión con selección de departamento, puesto, fecha ingreso
+
+### Pruebas Finales
+- [ ] Probar flujo completo de postulación pública
+- [ ] Verificar conversión de candidato a empleado
+- [ ] Confirmar generación de alertas y notificaciones
+- [ ] Guardar checkpoint final
