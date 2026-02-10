@@ -9243,10 +9243,14 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Procedimiento setDefault para establecer plantilla por defecto
 - [x] Integrar reportTemplatesRouter en routers.ts
 - [ ] Insertar plantilla de ejemplo para Verificación de Numerales
-- [ ] Crear página ReportTemplates.tsx con editor HTML/CSS
-- [ ] Implementar editor de código con sintaxis highlighting
-- [ ] Vista previa en tiempo real de la plantilla
-- [ ] Lista de variables disponibles ({logo}, {razonSocial}, {rfc}, etc.)
-- [ ] Integrar plantillas en generateNumeralsPDF
-- [ ] Agregar ruta y enlace en sidebar
+- [x] Instalar Monaco Editor (@monaco-editor/react)
+- [x] Crear página ReportTemplates.tsx con editor HTML/CSS
+- [x] Implementar editor de código Monaco con sintaxis highlighting
+- [x] Vista previa en tiempo real de la plantilla con iframe
+- [x] Lista de variables disponibles ({logo}, {razonSocial}, {rfc}, etc.)
+- [x] Formulario completo de creación/edición de plantillas
+- [x] Grid de tarjetas con plantillas existentes
+- [x] Botones de acción: vista previa, editar, eliminar, establecer como default
+- [x] Agregar ruta /report-templates en App.tsx
+- [x] Agregar enlace en sidebar (Administración)
 - [ ] Guardar checkpoint

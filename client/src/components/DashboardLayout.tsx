@@ -184,6 +184,7 @@ const hierarchicalMenuItems = [
       { label: "Usuarios", path: "/users", description: "Gestión de usuarios y permisos de acceso" },
       { label: "Configuración", path: "/settings", description: "Configuración general del sistema y parámetros SMTP" },
       { label: "Catálogo de Formatos", path: "/document-formats", description: "Nomenclatura de folios para documentos del sistema de gestión" },
+      { label: "Plantillas de Reportes", path: "/report-templates", description: "Plantillas personalizables HTML/CSS para documentos oficiales" },
       { label: "Auditoría de Documentos", path: "/document-audit", description: "Registro de accesos y descargas de documentos según ISO 9001" },
       { label: "Alertas de Seguridad", path: "/security-alerts", description: "Monitoreo de actividad sospechosa y alertas automáticas" },
       { label: "Importación Masiva", path: "/admin/import", description: "Importar departamentos, puestos y trabajadores desde archivos Excel" },

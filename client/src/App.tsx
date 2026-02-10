@@ -110,6 +110,7 @@ import DocumentFormats from "./pages/DocumentFormats";
 import ReportsHistory from "./pages/ReportsHistory";
 import DocumentAudit from "./pages/DocumentAudit";
 import SecurityAlerts from "./pages/SecurityAlerts";
+import ReportTemplates from "./pages/ReportTemplates";
 
 function Router() {
   return (
@@ -572,6 +573,11 @@ function Router() {
       <Route path={"/document-formats"}>
         <DashboardLayout>
           <DocumentFormats />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/report-templates"}>
+        <DashboardLayout>
+          <ReportTemplates />
         </DashboardLayout>
       </Route>
       <Route path={"/compliance/reports-history"}>
