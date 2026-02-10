@@ -9185,3 +9185,44 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Documentar proceso completo de integración
 
 - [ ] Guardar checkpoint final
+
+
+## FASE 184 Parte 4: Job Automático + Plantillas + Firma SAT
+
+### 1. Job Automático de Detección de Alertas ✅
+- [x] Buscar jobs existentes en el proyecto para seguir el patrón
+- [x] Crear archivo de job en server/jobs/security-alerts-job.ts
+- [x] Implementar lógica de análisis de log de auditoría
+- [x] Detectar patrones sospechosos automáticamente (múltiples descargas, IPs desconocidas, accesos fuera de horario)
+- [x] Integrar con sistema de notificaciones (notifyOwner)
+- [x] Configurar ejecución cada 15 minutos con setInterval
+- [x] Registrar en server/_core/index.ts con startSecurityAlertsJob()
+- [x] Verificar inicio correcto del job en logs del servidor
+
+### 2. Plantillas Personalizables de Reportes
+- [ ] Crear tabla report_templates en base de datos
+- [ ] Campos: nombre, descripción, htmlTemplate, cssStyles, isDefault, tipo
+- [ ] Crear router tRPC para gestión de plantillas
+- [ ] Procedimientos CRUD completos (create, list, get, update, delete)
+- [ ] Crear página de administración de plantillas
+- [ ] Editor de HTML con sintaxis highlighting
+- [ ] Editor de CSS con vista previa en tiempo real
+- [ ] Variables disponibles para plantillas ({logo}, {razonSocial}, {rfc}, etc.)
+- [ ] Modificar generateNumeralsPDF para usar plantilla seleccionada
+- [ ] Agregar selector de plantilla en página de verificación
+
+### 3. Firma Electrónica Avanzada e.firma SAT
+- [ ] Investigar librerías de firma electrónica en Node.js
+- [ ] Crear tabla digital_certificates para certificados
+- [ ] Campos: representativeId, cerFile, keyFile, password (encrypted), validFrom, validTo
+- [ ] Crear procedimiento para cargar certificados .cer y .key
+- [ ] Implementar encriptación de contraseña de llave privada
+- [ ] Investigar API del SAT para validación de certificados
+- [ ] Crear procedimiento para validar certificado con el SAT
+- [ ] Implementar generación de sello digital XML
+- [ ] Agregar sello digital en pie de página de PDFs
+- [ ] Crear página de administración de certificados digitales
+- [ ] Implementar verificación de firma digital en página pública
+- [ ] Documentar proceso completo de integración
+
+- [ ] Guardar checkpoint final

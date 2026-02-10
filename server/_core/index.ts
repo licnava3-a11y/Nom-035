@@ -12,6 +12,7 @@ import exportRouter from "../exportRouter";
 import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
+import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
 import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -77,6 +78,7 @@ async function startServer() {
     startSurveyAlertsJob();
     startCoverageAlertsJob();
     startAlertSummaryCronJob();
+    startSecurityAlertsJob();
   });
 }
 
