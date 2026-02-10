@@ -12,7 +12,7 @@ import exportRouter from "../exportRouter";
 import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
-import { initializeWebSocket } from "../websocket";
+import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {

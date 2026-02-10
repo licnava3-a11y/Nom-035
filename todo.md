@@ -8638,3 +8638,28 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Verificar gráficas y métricas en Dashboard
 - [ ] Probar cálculo de tiempo promedio de resolución
 - [ ] Guardar checkpoint final
+
+
+## FASE 266-268: Accesos Directos, Exportación PDF y Notificaciones en Tiempo Real
+
+### Accesos Directos en Sidebar
+- [x] Agregar sección "Sistema de Alertas" en DashboardLayout sidebar
+- [x] Incluir enlace a "Histórico de Alertas" (/alert-history)
+- [x] Incluir enlace a "Dashboard de Métricas" (/alert-metrics)
+- [x] Incluir enlace a "Configuración de Reportes" (/alert-reports-config)
+- [x] Agregar iconos apropiados para cada enlace
+
+### Exportación a PDF del Dashboard
+- [x] Instalar librería html2canvas y jsPDF
+- [x] Agregar botón "Exportar a PDF" en AlertMetricsDashboard
+- [x] Implementar función de captura de pantalla del dashboard
+- [x] Generar PDF con gráficas y métricas
+- [x] Incluir metadata (fecha de generación en nombre de archivo)
+
+### Notificaciones Push en Tiempo Real
+- [x] Configurar WebSocket server en backend
+- [x] Crear hook useWebSocket en frontend
+- [x] Implementar emisión de evento al crear alerta crítica
+- [x] Mostrar notificación en tiempo real (alert + notificación del navegador)
+- [x] Integrar en DashboardLayout para recibir notificaciones
+- [ ] Probar flujo completo de notificaciones

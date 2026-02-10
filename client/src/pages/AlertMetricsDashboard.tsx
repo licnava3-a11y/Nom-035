@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/Breadcrumb";
+// Using alert for now instead of toast
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import {
   BarChart3,
   TrendingUp,
@@ -9,6 +13,7 @@ import {
   CheckCircle,
   Clock,
   PieChart,
+  Download,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -38,6 +43,11 @@ ChartJS.register(
 
 export default function AlertMetricsDashboard() {
   const [months, setMonths] = useState(6);
+  const [isExporting, setIsExporting] = useState(false);
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const toast = (opts: { title: string; description: string; variant?: string }) => {
+    alert(`${opts.title}\n${opts.description}`);
+  };
 
   // Query para obtener estadísticas generales
   const { data: stats, isLoading: loadingStats } = trpc.alerts.getStats.useQuery();
@@ -47,6 +57,70 @@ export default function AlertMetricsDashboard() {
 
   // Query para obtener métricas de resolución
   const { data: resolutionMetrics, isLoading: loadingResolution } = trpc.alerts.getResolutionMetrics.useQuery();
+
+  // Función para exportar dashboard a PDF
+  const exportToPDF = async () => {
+    if (!dashboardRef.current) return;
+
+    setIsExporting(true);
+    toast({
+      title: "Generando PDF",
+      description: "Por favor espera mientras se genera el documento...",
+    });
+
+    try {
+      // Capturar el contenido del dashboard
+      const canvas = await html2canvas(dashboardRef.current, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+
+      // Crear PDF
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Agregar primera página
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Agregar páginas adicionales si es necesario
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      // Descargar PDF
+      const fecha = new Date().toISOString().split("T")[0];
+      pdf.save(`dashboard-metricas-alertas-${fecha}.pdf`);
+
+      toast({
+        title: "Éxito",
+        description: "El PDF se ha generado correctamente",
+      });
+    } catch (error) {
+      console.error("Error al generar PDF:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar el PDF. Intenta nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Configuración de gráfica de tendencias
   const trendsData = {
@@ -176,7 +250,7 @@ export default function AlertMetricsDashboard() {
   const resolutionRate = totalAlerts > 0 ? ((stats?.resolvedAlerts || 0) / totalAlerts) * 100 : 0;
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container py-6 space-y-6" ref={dashboardRef}>
       <Breadcrumb
         items={[
           { label: "Administración", href: "/admin" },
@@ -184,11 +258,21 @@ export default function AlertMetricsDashboard() {
         ]}
       />
 
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard de Métricas de Alertas</h1>
-        <p className="text-muted-foreground mt-2">
-          Análisis avanzado de alertas para auditoría de cumplimiento NOM-035
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard de Métricas de Alertas</h1>
+          <p className="text-muted-foreground mt-2">
+            Análisis avanzado de alertas para auditoría de cumplimiento NOM-035
+          </p>
+        </div>
+        <Button
+          onClick={exportToPDF}
+          disabled={isExporting || loadingStats || loadingTrends || loadingResolution}
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          {isExporting ? "Generando PDF..." : "Exportar a PDF"}
+        </Button>
       </div>
 
       {/* KPIs Principales */}

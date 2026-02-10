@@ -3,6 +3,7 @@ import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { alertHistory } from "../../drizzle/schema";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { emitCriticalAlert } from "../_core/websocket";
 
 export const alertsRouter = router({
   // Crear nueva alerta
@@ -44,6 +45,19 @@ export const alertsRouter = router({
       
       // Si no existe, crear nueva alerta
       const [alert] = await db.insert(alertHistory).values(input);
+      
+      // Si la alerta es crítica, emitir notificación por WebSocket
+      if (input.priority === "critical" || input.alertType === "critical_cases") {
+        emitCriticalAlert({
+          id: alert.insertId,
+          alertType: input.alertType,
+          description: input.description,
+          priority: input.priority || "critical",
+          currentValue: input.currentValue,
+          threshold: input.threshold,
+        });
+      }
+      
       return { success: true, alertId: alert.insertId, isDuplicate: false };
     }),
 

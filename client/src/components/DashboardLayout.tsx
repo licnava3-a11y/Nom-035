@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
+import { useWebSocket } from "@/hooks/useWebSocket";
 import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { AlertBadge } from "./AlertBadge";
@@ -135,6 +136,15 @@ const hierarchicalMenuItems = [
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos psicosociales" },
       { label: "Carpeta de Evidencias", path: "/nom035/evidences", description: "Repositorio centralizado de documentación para cumplimiento normativo" },
       { label: "Alertas Tempranas", path: "/alerts", description: "Dashboard de alertas: casos próximos a vencer, encuestas pendientes y acciones sin seguimiento" },
+      { 
+        label: "Sistema de Alertas", 
+        description: "Gestión y análisis de alertas del sistema",
+        submenu: [
+          { label: "Histórico de Alertas", path: "/alert-history", description: "Registro completo de alertas para auditoría de cumplimiento NOM-035" },
+          { label: "Dashboard de Métricas", path: "/alert-metrics", description: "Análisis avanzado con gráficas de tendencias y tiempo de resolución" },
+          { label: "Configuración de Reportes", path: "/alert-reports-config", description: "Configuración de frecuencia de reportes automáticos (semanal/mensual)" },
+        ]
+      },
     ],
   },
   {
@@ -192,6 +202,20 @@ export default function DashboardLayout({
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   const { loading, user } = useAuth();
+  const { isConnected, lastAlert, requestNotificationPermission } = useWebSocket();
+  const [location] = useLocation();
+
+  // Solicitar permiso para notificaciones al montar
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
+  // Mostrar alerta cuando se reciba una nueva
+  useEffect(() => {
+    if (lastAlert) {
+      alert(`⚠️ ALERTA CRÍTICA NOM-035\n\n${lastAlert.description}\n\nValor actual: ${lastAlert.currentValue}\nUmbral: ${lastAlert.threshold}`);
+    }
+  }, [lastAlert]);
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
