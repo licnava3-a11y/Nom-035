@@ -8898,3 +8898,10 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Sistema estable y funcional
 - [ ] Agregar enlace en sidebar de DashboardLayout
 - [ ] Guardar checkpoint con FASE 182 completada
+
+
+## Mejora UX: Enlace en Sidebar para Verificación de Numerales
+- [x] Agregar enlace "Verificación Numerales 7 y 8" en sección de Cumplimiento del sidebar
+- [x] Verificar que el enlace apunta a /compliance/numerals
+- [x] Probar navegación desde sidebar
+- [ ] Guardar checkpoint
