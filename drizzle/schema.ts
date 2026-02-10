@@ -2378,3 +2378,25 @@ export const securityAlerts = mysqlTable("security_alerts", {
 
 export type SecurityAlert = typeof securityAlerts.$inferSelect;
 export type InsertSecurityAlert = typeof securityAlerts.$inferInsert;
+
+
+/**
+ * Report Templates - Plantillas Personalizables de Reportes
+ * Permite a cada empresa definir su propio diseño de documentos oficiales
+ */
+export const reportTemplates = mysqlTable("report_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  nombre: varchar("nombre", { length: 255 }).notNull(),
+  descripcion: text("descripcion"),
+  tipo: varchar("tipo", { length: 100 }).notNull(), // 'verificacion_numerales', 'minuta', 'constancia', etc.
+  htmlTemplate: text("html_template").notNull(), // Template HTML con variables {{variable}}
+  cssStyles: text("css_styles"), // Estilos CSS personalizados
+  variables: json("variables"), // Lista de variables disponibles con descripción
+  isDefault: boolean("is_default").default(false).notNull(),
+  activo: boolean("activo").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReportTemplate = typeof reportTemplates.$inferSelect;
+export type InsertReportTemplate = typeof reportTemplates.$inferInsert;

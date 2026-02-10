@@ -372,6 +372,13 @@
       "when": 1770751267411,
       "tag": "0052_shocking_amphibian",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "5",
+      "when": 1770755186386,
+      "tag": "0053_small_magik",
+      "breakpoints": true
     }
   ]
 }

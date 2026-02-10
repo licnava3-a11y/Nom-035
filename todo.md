@@ -9226,3 +9226,27 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Documentar proceso completo de integración
 
 - [ ] Guardar checkpoint final
+
+
+## FASE 185: Plantillas Personalizables de Reportes
+- [x] Crear tabla report_templates en base de datos
+- [x] Campos: nombre, descripción, tipo, htmlTemplate, cssStyles, variables, isDefault, activo
+- [x] Generar migración SQL con drizzle-kit
+- [x] Aplicar migración con webdev_execute_sql
+- [x] Crear router tRPC reportTemplates con CRUD completo
+- [x] Procedimiento list para listar plantillas
+- [x] Procedimiento getById para obtener plantilla específica
+- [x] Procedimiento getDefault para obtener plantilla por defecto
+- [x] Procedimiento create para crear nueva plantilla
+- [x] Procedimiento update para actualizar plantilla
+- [x] Procedimiento delete para eliminar plantilla
+- [x] Procedimiento setDefault para establecer plantilla por defecto
+- [x] Integrar reportTemplatesRouter en routers.ts
+- [ ] Insertar plantilla de ejemplo para Verificación de Numerales
+- [ ] Crear página ReportTemplates.tsx con editor HTML/CSS
+- [ ] Implementar editor de código con sintaxis highlighting
+- [ ] Vista previa en tiempo real de la plantilla
+- [ ] Lista de variables disponibles ({logo}, {razonSocial}, {rfc}, etc.)
+- [ ] Integrar plantillas en generateNumeralsPDF
+- [ ] Agregar ruta y enlace en sidebar
+- [ ] Guardar checkpoint

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `report_templates` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`nombre` varchar(255) NOT NULL,\n\t`descripcion` text,\n\t`tipo` varchar(100) NOT NULL,\n\t`html_template` text NOT NULL,\n\t`css_styles` text,\n\t`variables` json,\n\t`is_default` boolean NOT NULL DEFAULT false,\n\t`activo` boolean NOT NULL DEFAULT true,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `report_templates_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `report_templates` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`nombre` varchar(255) NOT NULL,\n\t`descripcion` text,\n\t`tipo` varchar(100) NOT NULL,\n\t`html_template` text NOT NULL,\n\t`css_styles` text,\n\t`variables` json,\n\t`is_default` boolean NOT NULL DEFAULT false,\n\t`activo` boolean NOT NULL DEFAULT true,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `report_templates_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 608
+}
