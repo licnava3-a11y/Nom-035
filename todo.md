@@ -8969,3 +8969,21 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Distribución horizontal proporcional de firmas
 - [x] Línea de firma para validez formal
 - [ ] Guardar checkpoint
+
+
+## Código QR Único en Reportes PDF (NOM-151)
+- [x] Crear tabla compliance_reports para historial de reportes
+- [x] Campos: id, uuid, tipo, titulo, generatedAt, generatedBy, generatedByName, generatedByEmail, data (JSON)
+- [x] Generar SQL de migración con drizzle-kit
+- [x] Aplicar migración con webdev_execute_sql
+- [x] Modificar generateNumeralsPDF para guardar reporte en BD
+- [x] Generar UUID único para cada reporte (crypto.randomUUID())
+- [x] Instalar librería qrcode y @types/qrcode
+- [x] Agregar código QR en esquina superior derecha del PDF
+- [x] QR apunta a URL de verificación con UUID
+- [x] Crear procedimiento público verifyReport en compliance router
+- [x] Crear página pública /verify/:uuid para verificar autenticidad
+- [x] Mostrar datos del reporte verificado con diseño profesional
+- [x] Estados visuales: auténtico, no encontrado, error
+- [x] Certificación de autenticidad según NOM-151
+- [ ] Guardar checkpoint

@@ -105,6 +105,7 @@ import EarlyWarnings from "./pages/EarlyWarnings";
 import Investigations from "./pages/cases/Investigations";
 import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
 import QuestionnairePublic from "./pages/public/QuestionnairePublic";
+import VerifyReport from "./pages/VerifyReport";
 
 function Router() {
   return (
@@ -451,6 +452,10 @@ function Router() {
       {/* Ruta pública para responder cuestionarios de investigación (mobbing/burnout) */}
       <Route path={"/questionnaire/:token"}>
         <QuestionnairePublic />
+      </Route>
+      {/* Ruta pública para verificar autenticidad de reportes (NOM-151) */}
+      <Route path={"/verify/:uuid"}>
+        <VerifyReport />
       </Route>
       {/* Ruta pública para postulación a vacantes */}
       <Route path={"/apply/:jobId"}>

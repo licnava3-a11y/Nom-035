@@ -2282,3 +2282,23 @@ export type ComplianceRequirement = typeof complianceRequirements.$inferSelect;
 export type InsertComplianceRequirement = typeof complianceRequirements.$inferInsert;
 
 // Note: complianceChecks and complianceEvidence are already defined above (lines 1321-1347)
+
+/**
+ * Historial de reportes de cumplimiento generados
+ * Almacena cada reporte PDF generado con UUID único para verificación NOM-151
+ */
+export const complianceReports = mysqlTable("compliance_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  uuid: varchar("uuid", { length: 36 }).notNull().unique(), // UUID v4 único
+  tipo: varchar("tipo", { length: 100 }).notNull(), // "verificacion_numerales", "auditoria", etc.
+  titulo: varchar("titulo", { length: 500 }).notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  generatedBy: int("generated_by").notNull().references(() => users.id),
+  generatedByName: varchar("generated_by_name", { length: 255 }).notNull(),
+  generatedByEmail: varchar("generated_by_email", { length: 320 }),
+  data: json("data"), // Datos completos del reporte en JSON
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ComplianceReport = typeof complianceReports.$inferSelect;
+export type InsertComplianceReport = typeof complianceReports.$inferInsert;

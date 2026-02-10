@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users, companyGeneralData, companyLogo, companyLegalRepresentative } from "../../drizzle/schema.js";
+import { complianceChecklist, complianceChecks, complianceEvidence, complianceRequirements, nom035Policies, nom035Results, correctiveActions, users, companyGeneralData, companyLogo, companyLegalRepresentative, complianceReports } from "../../drizzle/schema.js";
 import { eq, sql, desc } from "drizzle-orm";
 
 export const complianceRouter = router({
@@ -431,6 +431,42 @@ export const complianceRouter = router({
       };
     }),
 
+  // Verificar autenticidad de reporte por UUID (público para QR)
+  verifyReport: publicProcedure
+    .input(z.object({
+      uuid: z.string().uuid(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      const report = await db
+        .select()
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, input.uuid))
+        .limit(1);
+
+      if (!report || report.length === 0) {
+        return {
+          found: false,
+          message: 'Reporte no encontrado. El código QR puede ser inválido o el reporte fue eliminado.',
+        };
+      }
+
+      return {
+        found: true,
+        report: {
+          id: report[0].id,
+          tipo: report[0].tipo,
+          titulo: report[0].titulo,
+          generatedAt: report[0].generatedAt,
+          generatedByName: report[0].generatedByName,
+          generatedByEmail: report[0].generatedByEmail,
+          // No enviar datos completos por seguridad
+        },
+      };
+    }),
+
   // Generar PDF de verificación de numerales
   generateNumeralsPDF: protectedProcedure
     .input(z.object({
@@ -489,9 +525,37 @@ export const complianceRouter = router({
         };
       });
 
+      // Generar UUID único para el reporte (NOM-151)
+      const reportUuid = crypto.randomUUID();
+      
+      // Preparar datos completos del reporte
+      const fullReportData = {
+        generatedAt: new Date(),
+        generatedBy: ctx.user.name,
+        userEmail: ctx.user.email,
+        requirements: reportData,
+        company: companyData[0] || null,
+        logo: logo[0] || null,
+        representatives: representatives || [],
+      };
+
+      // Guardar reporte en base de datos para trazabilidad
+      const newReport: typeof complianceReports.$inferInsert = {
+        uuid: reportUuid,
+        tipo: 'verificacion_numerales',
+        titulo: 'Reporte de Verificación de Numerales 7 y 8 - NOM-035 STPS 2018',
+        generatedBy: ctx.user.id,
+        generatedByName: ctx.user.name || 'Usuario',
+        generatedByEmail: ctx.user.email || undefined,
+        data: fullReportData as any,
+      };
+      
+      await db.insert(complianceReports).values(newReport);
+
       return {
         success: true,
         data: {
+          uuid: reportUuid,
           generatedAt: new Date(),
           generatedBy: ctx.user.name,
           userEmail: ctx.user.email,

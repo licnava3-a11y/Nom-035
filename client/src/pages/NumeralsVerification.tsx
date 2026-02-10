@@ -88,6 +88,34 @@ export default function NumeralsVerification() {
         
         let yPosition = 20;
         
+        // Código QR para verificación NOM-151 (esquina superior derecha)
+        if (result.data.uuid) {
+          try {
+            const QRCode = (await import('qrcode')).default;
+            const verificationUrl = `${window.location.origin}/verify/${result.data.uuid}`;
+            const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+              width: 200,
+              margin: 1,
+              color: {
+                dark: '#000000',
+                light: '#FFFFFF',
+              },
+            });
+            
+            // Agregar QR en esquina superior derecha
+            const qrSize = 25;
+            doc.addImage(qrDataUrl, 'PNG', pageWidth - qrSize - 14, yPosition, qrSize, qrSize);
+            
+            // Texto "Verificar autenticidad" debajo del QR
+            doc.setFontSize(6);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Verificar', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 3, { align: 'center' });
+            doc.text('autenticidad', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 6, { align: 'center' });
+          } catch (error) {
+            console.warn('No se pudo generar el código QR:', error);
+          }
+        }
+        
         // Logo de la empresa (si existe)
         if (result.data.logo?.logoUrl) {
           try {

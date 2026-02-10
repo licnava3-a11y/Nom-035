@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `compliance_reports` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`uuid` varchar(36) NOT NULL,\n\t`tipo` varchar(100) NOT NULL,\n\t`titulo` varchar(500) NOT NULL,\n\t`generated_at` timestamp NOT NULL DEFAULT (now()),\n\t`generated_by` int NOT NULL,\n\t`generated_by_name` varchar(255) NOT NULL,\n\t`generated_by_email` varchar(320),\n\t`data` json,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `compliance_reports_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `compliance_reports_uuid_unique` UNIQUE(`uuid`)\n);\n\nALTER TABLE `compliance_reports` ADD CONSTRAINT `compliance_reports_generated_by_users_id_fk` FOREIGN KEY (`generated_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `compliance_reports` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`uuid` varchar(36) NOT NULL,\n\t`tipo` varchar(100) NOT NULL,\n\t`titulo` varchar(500) NOT NULL,\n\t`generated_at` timestamp NOT NULL DEFAULT (now()),\n\t`generated_by` int NOT NULL,\n\t`generated_by_name` varchar(255) NOT NULL,\n\t`generated_by_email` varchar(320),\n\t`data` json,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `compliance_reports_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `compliance_reports_uuid_unique` UNIQUE(`uuid`)\n);\n\nALTER TABLE `compliance_reports` ADD CONSTRAINT `compliance_reports_generated_by_users_id_fk` FOREIGN KEY (`generated_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1872
+}
