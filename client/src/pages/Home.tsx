@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -48,7 +48,39 @@ export default function Home() {
 
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
+  
+  // Mutation para crear alertas
+  const createAlertMutation = trpc.alerts.create.useMutation();
+  
+  // Registro automático de alertas cuando se detecten umbrales
+  useEffect(() => {
+    if (!metrics) return;
+    
+    const { casesOpen, surveyCoverage } = metrics.nom035Compliance;
+    
+    // Alerta crítica: casos abiertos > 50
+    if (casesOpen > 50) {
+      createAlertMutation.mutate({
+        alertType: "critical_cases",
+        description: `Hay ${casesOpen} casos abiertos que requieren atención inmediata`,
+        threshold: 50,
+        currentValue: casesOpen,
+      });
+    }
+    
+    // Alerta warning: cobertura < 80%
+    if (surveyCoverage < 80) {
+      createAlertMutation.mutate({
+        alertType: "low_coverage",
+        description: `La cobertura de encuestas es ${surveyCoverage.toFixed(1)}%`,
+        threshold: 80,
+        currentValue: surveyCoverage,
+      });
+    }
+   }, [metrics]);
+  
   const { data: trendsData, isLoading: trendsLoading } = trpc.executiveDashboard.getTrendsData.useQuery({ period });
+  const { data: alertTrends, isLoading: alertTrendsLoading } = trpc.alerts.getTrends.useQuery({ months: 6 });
   const { data: comparison, isLoading: comparisonLoading } = trpc.executiveDashboard.getHistoricalComparison.useQuery();
 
   // Configuración de gráficas
@@ -401,6 +433,47 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Tendencia de Alertas */}
+      <Card className="md:col-span-2">
+        <CardHeader>
+          <CardTitle>Tendencia de Alertas</CardTitle>
+          <CardDescription>Evolución de alertas activas vs resueltas (últimos 6 meses)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            {alertTrendsLoading ? (
+              <div className="flex items-center justify-center h-full">Cargando...</div>
+            ) : (
+              <Line
+                options={lineChartOptions}
+                data={{
+                  labels: alertTrends?.map(t => {
+                    const [year, month] = t.month.split('-');
+                    return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+                  }) || [],
+                  datasets: [
+                    {
+                      label: 'Alertas Activas',
+                      data: alertTrends?.map(t => t.activeAlerts) || [],
+                      borderColor: 'rgba(239, 68, 68, 1)',
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      tension: 0.4,
+                    },
+                    {
+                      label: 'Alertas Resueltas',
+                      data: alertTrends?.map(t => t.resolvedAlerts) || [],
+                      borderColor: 'rgba(34, 197, 94, 1)',
+                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                      tension: 0.4,
+                    },
+                  ],
+                }}
+              />
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Distribución por Departamento */}
       {metrics && (

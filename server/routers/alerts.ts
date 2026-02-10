@@ -97,4 +97,33 @@ export const alertsRouter = router({
 
     return stats;
   }),
+
+  // Obtener tendencia de alertas por mes
+  getTrends: protectedProcedure
+    .input(
+      z.object({
+        months: z.number().min(1).max(24).default(6), // Últimos 6 meses por defecto
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      
+      // Calcular fecha de inicio (N meses atrás)
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - input.months);
+      
+      const trends = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`,
+          activeAlerts: sql<number>`SUM(CASE WHEN ${alertHistory.status} = 'active' THEN 1 ELSE 0 END)`,
+          resolvedAlerts: sql<number>`SUM(CASE WHEN ${alertHistory.status} = 'resolved' THEN 1 ELSE 0 END)`,
+        })
+        .from(alertHistory)
+        .where(gte(alertHistory.triggeredAt, startDate))
+        .groupBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`)
+        .orderBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`);
+      
+      return trends;
+    }),
 });

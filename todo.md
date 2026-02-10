@@ -8503,3 +8503,34 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Exportación completa con 2 hojas (Metadatos + Alertas)
 - [x] Metadatos con filtros y estadísticas
 - [ ] Guardar checkpoint final
+
+
+## FASE 253-255: Registro Automático de Alertas, SMTP y Gráfica de Tendencia
+
+### Registro Automático de Alertas en Dashboard
+- [x] Agregar mutation trpc.alerts.create.useMutation() en Home.tsx
+- [x] Implementar lógica de detección de umbrales superados (casos abiertos > 50, cobertura < 80%)
+- [x] Registrar alertas automáticamente cuando se detecten umbrales
+- [x] useEffect con dependencia en metrics para registro automático
+- [x] Sistema de registro funcional
+
+### Configuración SMTP y Notificaciones por Correo
+- [ ] PENDIENTE: Solicitar credenciales SMTP al usuario (host, port, user, password)
+- [ ] PENDIENTE: Configurar variables de entorno SMTP con webdev_request_secrets
+- [ ] PENDIENTE: Crear función de envío de correo para alertas críticas
+- [ ] PENDIENTE: Incluir enlace directo a Dashboard en correo
+- [ ] PENDIENTE: Incluir botón de acción rápida en correo
+- [ ] PENDIENTE: Probar envío de correo con alerta de prueba
+
+### Gráfica de Tendencia de Alertas
+- [x] Crear procedimiento tRPC alerts.getTrends para obtener datos mensuales
+- [x] Implementar query que agrupe alertas por mes (activas vs resueltas)
+- [x] Agregar gráfica de líneas en Dashboard con Chart.js
+- [x] Mostrar evolución de alertas activas y resueltas por mes
+- [x] Parámetro configurable de meses (últimos 6 por defecto)
+
+### Validación Final
+- [x] Registro automático implementado
+- [ ] SMTP pendiente de configuración
+- [x] Gráfica de tendencia funcional
+- [ ] Guardar checkpoint final
