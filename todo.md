@@ -8534,3 +8534,25 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] SMTP pendiente de configuración
 - [x] Gráfica de tendencia funcional
 - [ ] Guardar checkpoint final
+
+
+## FASE 256: Lógica Anti-Duplicados y Selector de Rango de Meses
+
+### Lógica Anti-Duplicados en Registro de Alertas
+- [x] Modificar procedimiento alerts.create para verificar alertas activas existentes
+- [x] Implementar query que busque alertas activas del mismo tipo antes de crear
+- [x] Retornar alerta existente si ya hay una activa del mismo tipo (isDuplicate: true)
+- [x] Backend retorna mensaje informativo cuando detecta duplicado
+- [x] Lógica anti-duplicados completamente funcional
+
+### Selector de Rango de Meses en Gráfica de Tendencia
+- [x] Agregar estado local para rango de meses seleccionado (6/12/24)
+- [x] Crear selector con opciones 6, 12 y 24 meses en CardHeader
+- [x] Conectar selector con query alerts.getTrends usando alertMonths dinámico
+- [x] Gráfica se actualiza automáticamente cuando cambia el rango
+- [x] Selector funcional con 3 opciones
+
+### Validación Final
+- [x] Lógica anti-duplicados implementada
+- [x] Selector de rango de meses implementado
+- [ ] Guardar checkpoint final

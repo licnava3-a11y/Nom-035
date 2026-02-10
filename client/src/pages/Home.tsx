@@ -45,6 +45,7 @@ export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [period, setPeriod] = useState<Period>('this_month');
+  const [alertMonths, setAlertMonths] = useState<6 | 12 | 24>(6);
 
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
@@ -80,7 +81,7 @@ export default function Home() {
    }, [metrics]);
   
   const { data: trendsData, isLoading: trendsLoading } = trpc.executiveDashboard.getTrendsData.useQuery({ period });
-  const { data: alertTrends, isLoading: alertTrendsLoading } = trpc.alerts.getTrends.useQuery({ months: 6 });
+  const { data: alertTrends, isLoading: alertTrendsLoading } = trpc.alerts.getTrends.useQuery({ months: alertMonths });
   const { data: comparison, isLoading: comparisonLoading } = trpc.executiveDashboard.getHistoricalComparison.useQuery();
 
   // Configuración de gráficas
@@ -437,8 +438,22 @@ export default function Home() {
       {/* Tendencia de Alertas */}
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle>Tendencia de Alertas</CardTitle>
-          <CardDescription>Evolución de alertas activas vs resueltas (últimos 6 meses)</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Tendencia de Alertas</CardTitle>
+              <CardDescription>Evolución de alertas activas vs resueltas</CardDescription>
+            </div>
+            <Select value={alertMonths.toString()} onValueChange={(v) => setAlertMonths(parseInt(v) as 6 | 12 | 24)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="6">Últimos 6 meses</SelectItem>
+                <SelectItem value="12">Últimos 12 meses</SelectItem>
+                <SelectItem value="24">Últimos 24 meses</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">

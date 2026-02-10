@@ -18,8 +18,32 @@ export const alertsRouter = router({
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
+      
+      // Verificar si ya existe una alerta activa del mismo tipo
+      const [existingAlert] = await db
+        .select()
+        .from(alertHistory)
+        .where(
+          and(
+            eq(alertHistory.alertType, input.alertType),
+            eq(alertHistory.status, "active")
+          )
+        )
+        .limit(1);
+      
+      // Si ya existe, retornar la alerta existente sin crear duplicado
+      if (existingAlert) {
+        return { 
+          success: true, 
+          alertId: existingAlert.id, 
+          isDuplicate: true,
+          message: "Ya existe una alerta activa de este tipo" 
+        };
+      }
+      
+      // Si no existe, crear nueva alerta
       const [alert] = await db.insert(alertHistory).values(input);
-      return { success: true, alertId: alert.insertId };
+      return { success: true, alertId: alert.insertId, isDuplicate: false };
     }),
 
   // Obtener histórico de alertas con filtros
