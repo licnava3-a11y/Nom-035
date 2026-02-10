@@ -902,6 +902,7 @@ export type InsertSurveyNotification = typeof surveyNotifications.$inferInsert;
 export const correctiveActions = mysqlTable("correctiveActions", {
   id: int("id").autoincrement().primaryKey(),
   surveyResponseId: int("surveyResponseId"),
+  surveyPeriodId: int("surveyPeriodId"), // Periodo de encuesta al que pertenece
   riskLevel: mysqlEnum("riskLevel", ["nulo", "bajo", "medio", "alto", "muy_alto"]).notNull(),
   category: varchar("category", { length: 255 }),
   title: varchar("title", { length: 255 }), // Título de la acción
@@ -914,6 +915,13 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   notes: text("notes"),
   observations: text("observations"), // Observaciones adicionales
   pdfUrl: varchar("pdfUrl", { length: 500 }), // URL del PDF generado
+  
+  // FASE 181: Acciones Correctivas en 3 Niveles
+  actionLevel: mysqlEnum("actionLevel", ["organizacional", "grupal", "individual"]).notNull(), // Nivel de la acción
+  targetScope: int("targetScope"), // null para organizacional, departmentId para grupal, employeeId para individual
+  atsDetected: boolean("atsDetected").default(false), // Acontecimientos Traumáticos Severos detectados
+  sourceGuide: mysqlEnum("sourceGuide", ["guia_i", "guia_ii", "guia_iii"]), // Guía de origen
+  
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

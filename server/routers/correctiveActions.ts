@@ -34,6 +34,7 @@ export const correctiveActionsRouter = router({
         responsibleUserId: input.responsibleUserId,
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         surveyResponseId: input.surveyResponseId,
+        actionLevel: 'individual', // Valor por defecto para acciones manuales
         status: 'pendiente',
       }).$returningId();
 
@@ -728,5 +729,166 @@ export const correctiveActionsRouter = router({
         pdfUrl,
         filename,
       };
+    }),
+
+  // FASE 181: Generar acciones correctivas en 3 niveles con detección de ATS
+  generateMultiLevelActions: protectedProcedure
+    .input(z.object({
+      surveyPeriodId: z.number(),
+      sourceGuide: z.enum(['guia_i', 'guia_ii', 'guia_iii']),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions, nom035Results, users, employees } = await import('../../drizzle/schema');
+      const { eq, and, sql } = await import('drizzle-orm');
+
+      // Obtener todos los resultados del periodo
+      const results = await dbInstance
+        .select()
+        .from(nom035Results)
+        .where(eq(nom035Results.surveyPeriodId, input.surveyPeriodId));
+
+      const actionsCreated = {
+        organizacional: 0,
+        grupal: 0,
+        individual: 0,
+        atsDetected: 0,
+      };
+
+      // Analizar resultados y generar acciones según nivel de riesgo
+      for (const result of results) {
+        const riskLevel = result.globalRiskLevel;
+        // TODO: Implementar detección de ATS analizando respuestas individuales
+        const atsDetected = false; // Simplificado por ahora
+
+        // Generar acciones individuales para riesgo alto/muy alto
+        if (riskLevel === 'alto' || riskLevel === 'muy_alto') {
+          await dbInstance.insert(correctiveActions).values({
+            surveyPeriodId: input.surveyPeriodId,
+            riskLevel,
+            actionLevel: 'individual',
+            targetScope: result.employeeId,
+            atsDetected: false,
+            sourceGuide: input.sourceGuide,
+            title: `Acción Individual - Riesgo ${riskLevel}`,
+            description: `Seguimiento personalizado para trabajador con nivel de riesgo ${riskLevel}. Evaluar factores específicos y proporcionar apoyo.`,
+            priority: riskLevel === 'muy_alto' ? 'high' : 'medium',
+            status: 'pendiente',
+          });
+          actionsCreated.individual++;
+        }
+      }
+
+      // Generar acciones grupales por departamento
+      const departmentRisks = await dbInstance
+        .select({
+          departmentId: employees.departmentId,
+          avgRisk: sql<number>`AVG(CASE 
+            WHEN ${nom035Results.globalRiskLevel} = 'muy_alto' THEN 5
+            WHEN ${nom035Results.globalRiskLevel} = 'alto' THEN 4
+            WHEN ${nom035Results.globalRiskLevel} = 'medio' THEN 3
+            WHEN ${nom035Results.globalRiskLevel} = 'bajo' THEN 2
+            ELSE 1 END)`,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(nom035Results)
+        .leftJoin(employees, eq(nom035Results.employeeId, employees.id))
+        .where(eq(nom035Results.surveyPeriodId, input.surveyPeriodId))
+        .groupBy(employees.departmentId);
+
+      for (const dept of departmentRisks) {
+        if (dept.avgRisk && dept.avgRisk >= 3) {
+          await dbInstance.insert(correctiveActions).values({
+            surveyPeriodId: input.surveyPeriodId,
+            riskLevel: dept.avgRisk >= 4 ? 'alto' : 'medio',
+            actionLevel: 'grupal',
+            targetScope: dept.departmentId,
+            atsDetected: false,
+            sourceGuide: input.sourceGuide,
+            title: `Acción Grupal - Departamento ${dept.departmentId}`,
+            description: `Implementar intervenciones grupales en departamento. Riesgo promedio: ${dept.avgRisk.toFixed(2)}. Trabajadores: ${dept.count}.`,
+            priority: dept.avgRisk >= 4 ? 'high' : 'medium',
+            status: 'pendiente',
+          });
+          actionsCreated.grupal++;
+        }
+      }
+
+      // Generar acción organizacional si el riesgo general es alto
+      const overallRisk = await dbInstance
+        .select({
+          avgRisk: sql<number>`AVG(CASE 
+            WHEN ${nom035Results.globalRiskLevel} = 'muy_alto' THEN 5
+            WHEN ${nom035Results.globalRiskLevel} = 'alto' THEN 4
+            WHEN ${nom035Results.globalRiskLevel} = 'medio' THEN 3
+            WHEN ${nom035Results.globalRiskLevel} = 'bajo' THEN 2
+            ELSE 1 END)`,
+        })
+        .from(nom035Results)
+        .where(eq(nom035Results.surveyPeriodId, input.surveyPeriodId));
+
+      if (overallRisk[0]?.avgRisk && overallRisk[0].avgRisk >= 3.5) {
+        await dbInstance.insert(correctiveActions).values({
+          surveyPeriodId: input.surveyPeriodId,
+          riskLevel: overallRisk[0].avgRisk >= 4 ? 'alto' : 'medio',
+          actionLevel: 'organizacional',
+          targetScope: null,
+          atsDetected: false,
+          sourceGuide: input.sourceGuide,
+          title: 'Acción Organizacional - Riesgo General Elevado',
+          description: `Implementar políticas y programas organizacionales para reducir factores de riesgo psicosocial. Riesgo general: ${overallRisk[0].avgRisk.toFixed(2)}/5.`,
+          priority: 'high',
+          status: 'pendiente',
+        });
+        actionsCreated.organizacional++;
+      }
+
+      return {
+        success: true,
+        actionsCreated,
+      };
+    }),
+
+  // Obtener acciones por nivel
+  getByLevel: protectedProcedure
+    .input(z.object({
+      actionLevel: z.enum(['organizacional', 'grupal', 'individual']),
+      surveyPeriodId: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions, users } = await import('../../drizzle/schema');
+      const { eq, and } = await import('drizzle-orm');
+
+      const conditions = [eq(correctiveActions.actionLevel, input.actionLevel)];
+      if (input.surveyPeriodId) {
+        conditions.push(eq(correctiveActions.surveyPeriodId, input.surveyPeriodId));
+      }
+
+      const actions = await dbInstance
+        .select({
+          id: correctiveActions.id,
+          title: correctiveActions.title,
+          description: correctiveActions.description,
+          riskLevel: correctiveActions.riskLevel,
+          actionLevel: correctiveActions.actionLevel,
+          targetScope: correctiveActions.targetScope,
+          atsDetected: correctiveActions.atsDetected,
+          sourceGuide: correctiveActions.sourceGuide,
+          status: correctiveActions.status,
+          priority: correctiveActions.priority,
+          departamento: correctiveActions.departamento,
+          dueDate: correctiveActions.dueDate,
+          createdAt: correctiveActions.createdAt,
+          completedAt: correctiveActions.completedAt,
+        })
+        .from(correctiveActions)
+        .where(and(...conditions));
+
+      return actions;
     }),
 });
