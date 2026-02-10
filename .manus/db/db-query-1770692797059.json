@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `alert_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`alert_type` enum('critical_cases','low_coverage','excellent_compliance') NOT NULL,\n\t`threshold` int NOT NULL,\n\t`current_value` int NOT NULL,\n\t`description` text NOT NULL,\n\t`status` enum('active','resolved') NOT NULL DEFAULT 'active',\n\t`triggered_at` timestamp NOT NULL DEFAULT (now()),\n\t`resolved_at` timestamp,\n\t`user_id` int,\n\t`notes` text,\n\tCONSTRAINT `alert_history_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `alert_history` ADD CONSTRAINT `alert_history_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `alert_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`alert_type` enum('critical_cases','low_coverage','excellent_compliance') NOT NULL,\n\t`threshold` int NOT NULL,\n\t`current_value` int NOT NULL,\n\t`description` text NOT NULL,\n\t`status` enum('active','resolved') NOT NULL DEFAULT 'active',\n\t`triggered_at` timestamp NOT NULL DEFAULT (now()),\n\t`resolved_at` timestamp,\n\t`user_id` int,\n\t`notes` text,\n\tCONSTRAINT `alert_history_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `alert_history` ADD CONSTRAINT `alert_history_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1456
+}

@@ -1956,3 +1956,21 @@ export const nom035Results = mysqlTable("nom035_results", {
 
 export type Nom035Result = typeof nom035Results.$inferSelect;
 export type InsertNom035Result = typeof nom035Results.$inferInsert;
+
+
+// Alert History - Histórico de alertas del sistema para auditoría
+export const alertHistory = mysqlTable("alert_history", {
+  id: int("id").autoincrement().primaryKey(),
+  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance"]).notNull(),
+  threshold: int("threshold").notNull(), // Umbral que activó la alerta
+  currentValue: int("current_value").notNull(), // Valor actual que superó el umbral
+  description: text("description").notNull(), // Descripción de la alerta
+  status: mysqlEnum("status", ["active", "resolved"]).default("active").notNull(),
+  triggeredAt: timestamp("triggered_at").defaultNow().notNull(),
+  resolvedAt: timestamp("resolved_at"),
+  userId: int("user_id").references(() => users.id), // Usuario que resolvió la alerta (opcional)
+  notes: text("notes"), // Notas sobre acciones tomadas
+});
+
+export type AlertHistory = typeof alertHistory.$inferSelect;
+export type InsertAlertHistory = typeof alertHistory.$inferInsert;

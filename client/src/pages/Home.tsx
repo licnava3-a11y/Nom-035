@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +43,7 @@ type Period = 'today' | 'this_week' | 'this_month' | 'this_year' | 'last_week' |
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
   const [period, setPeriod] = useState<Period>('this_month');
 
   // Queries
@@ -184,6 +186,10 @@ export default function Home() {
               title="¡Alerta Crítica!"
               description={`Hay ${metrics.nom035Compliance.casesOpen} casos abiertos. Se recomienda revisar y atender los casos prioritarios inmediatamente.`}
               pulse={true}
+              action={{
+                label: "Ver Casos Críticos",
+                onClick: () => setLocation("/cases?priority=critical"),
+              }}
             />
           )}
 
