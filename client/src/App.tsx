@@ -109,6 +109,7 @@ import VerifyReport from "./pages/VerifyReport";
 import DocumentFormats from "./pages/DocumentFormats";
 import ReportsHistory from "./pages/ReportsHistory";
 import DocumentAudit from "./pages/DocumentAudit";
+import SecurityAlerts from "./pages/SecurityAlerts";
 
 function Router() {
   return (
@@ -581,6 +582,12 @@ function Router() {
       <Route path={"/document-audit"}>
         <DashboardLayout>
           <DocumentAudit />
+        </DashboardLayout>
+      </Route>
+
+      <Route path={"/security-alerts"}>
+        <DashboardLayout>
+          <SecurityAlerts />
         </DashboardLayout>
       </Route>
       {/* Ruta pública de aplicación de encuestas */}

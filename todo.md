@@ -9139,3 +9139,49 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Validar certificados con el SAT
 - [ ] Generar sello digital en PDFs
 - [ ] Guardar checkpoint final
+
+
+## FASE 184 Parte 3: Alertas + Plantillas + Firma SAT
+
+### 1. Alertas Automáticas de Actividad Sospechosa ✅
+- [x] Crear tabla security_alerts para almacenar alertas
+- [x] Crear router tRPC securityAlerts con procedimientos completos
+- [x] Implementar detección de múltiples descargas en corto tiempo (>5 en 10 minutos)
+- [x] Implementar detección de accesos desde IPs desconocidas
+- [x] Implementar detección de accesos fuera de horario laboral (antes 7am o después 8pm)
+- [x] Crear procedimiento detectSuspiciousActivity
+- [x] Integrar con sistema de notificaciones existente (notifyOwner)
+- [x] Crear página SecurityAlerts.tsx con interfaz completa
+- [x] Filtros por tipo, severidad, estado y fechas
+- [x] Estadísticas de alertas (total, pendientes, críticas, altas, resueltas)
+- [x] Dialog de revisión de alertas con notas
+- [x] Paginación de resultados
+- [x] Agregar ruta y enlace en sidebar (Administración)
+
+### 2. Plantillas Personalizables de Reportes
+- [ ] Crear tabla report_templates en base de datos
+- [ ] Campos: nombre, descripción, htmlTemplate, cssStyles, isDefault, tipo
+- [ ] Crear router tRPC para gestión de plantillas
+- [ ] Procedimientos CRUD completos (create, list, get, update, delete)
+- [ ] Crear página de administración de plantillas
+- [ ] Editor de HTML con sintaxis highlighting
+- [ ] Editor de CSS con vista previa en tiempo real
+- [ ] Variables disponibles para plantillas ({logo}, {razonSocial}, {rfc}, etc.)
+- [ ] Modificar generateNumeralsPDF para usar plantilla seleccionada
+- [ ] Agregar selector de plantilla en página de verificación
+
+### 3. Firma Electrónica Avanzada e.firma SAT
+- [ ] Investigar librerías de firma electrónica en Node.js
+- [ ] Crear tabla digital_certificates para certificados
+- [ ] Campos: representativeId, cerFile, keyFile, password (encrypted), validFrom, validTo
+- [ ] Crear procedimiento para cargar certificados .cer y .key
+- [ ] Implementar encriptación de contraseña de llave privada
+- [ ] Investigar API del SAT para validación de certificados
+- [ ] Crear procedimiento para validar certificado con el SAT
+- [ ] Implementar generación de sello digital XML
+- [ ] Agregar sello digital en pie de página de PDFs
+- [ ] Crear página de administración de certificados digitales
+- [ ] Implementar verificación de firma digital en página pública
+- [ ] Documentar proceso completo de integración
+
+- [ ] Guardar checkpoint final

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `security_alerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`alert_type` enum('multiple_downloads','unknown_ip','off_hours','suspicious_pattern') NOT NULL,\n\t`severity` enum('low','medium','high','critical') NOT NULL DEFAULT 'medium',\n\t`user_id` int,\n\t`user_name` varchar(255),\n\t`report_id` int,\n\t`ip_address` varchar(45),\n\t`description` text NOT NULL,\n\t`metadata` json,\n\t`status` enum('pending','reviewed','resolved','false_positive') NOT NULL DEFAULT 'pending',\n\t`reviewed_by` int,\n\t`reviewed_at` timestamp,\n\t`review_notes` text,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `security_alerts_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `security_alerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`alert_type` enum('multiple_downloads','unknown_ip','off_hours','suspicious_pattern') NOT NULL,\n\t`severity` enum('low','medium','high','critical') NOT NULL DEFAULT 'medium',\n\t`user_id` int,\n\t`user_name` varchar(255),\n\t`report_id` int,\n\t`ip_address` varchar(45),\n\t`description` text NOT NULL,\n\t`metadata` json,\n\t`status` enum('pending','reviewed','resolved','false_positive') NOT NULL DEFAULT 'pending',\n\t`reviewed_by` int,\n\t`reviewed_at` timestamp,\n\t`review_notes` text,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `security_alerts_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 602
+}

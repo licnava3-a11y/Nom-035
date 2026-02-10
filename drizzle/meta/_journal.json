@@ -365,6 +365,13 @@
       "when": 1770746371471,
       "tag": "0051_aspiring_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "5",
+      "when": 1770751267411,
+      "tag": "0052_shocking_amphibian",
+      "breakpoints": true
     }
   ]
 }

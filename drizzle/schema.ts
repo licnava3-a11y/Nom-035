@@ -2348,3 +2348,33 @@ export const documentAuditLog = mysqlTable("document_audit_log", {
 
 export type DocumentAuditLog = typeof documentAuditLog.$inferSelect;
 export type InsertDocumentAuditLog = typeof documentAuditLog.$inferInsert;
+
+
+/**
+ * Security Alerts - Alertas de Actividad Sospechosa
+ * Registro de alertas de seguridad detectadas automáticamente
+ */
+export const securityAlerts = mysqlTable("security_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  alertType: mysqlEnum("alert_type", [
+    "multiple_downloads", // Múltiples descargas en corto tiempo
+    "unknown_ip", // Acceso desde IP desconocida
+    "off_hours", // Acceso fuera de horario laboral
+    "suspicious_pattern", // Patrón sospechoso general
+  ]).notNull(),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).notNull().default("medium"),
+  userId: int("user_id"), // Usuario involucrado (puede ser null)
+  userName: varchar("user_name", { length: 255 }),
+  reportId: int("report_id"), // Reporte involucrado (puede ser null)
+  ipAddress: varchar("ip_address", { length: 45 }),
+  description: text("description").notNull(), // Descripción de la alerta
+  metadata: json("metadata"), // Datos adicionales (conteo, timestamps, etc.)
+  status: mysqlEnum("status", ["pending", "reviewed", "resolved", "false_positive"]).notNull().default("pending"),
+  reviewedBy: int("reviewed_by"), // Usuario que revisó la alerta
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"), // Notas de revisión
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SecurityAlert = typeof securityAlerts.$inferSelect;
+export type InsertSecurityAlert = typeof securityAlerts.$inferInsert;
