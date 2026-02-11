@@ -177,6 +177,7 @@ const hierarchicalMenuItems = [
     description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
+      { label: "Reportes STPS", path: "/stps-reports", description: "Generación de formatos oficiales DC-2, DC-3 y DC-4" },
       { label: "Gráficas de Tendencias", path: "/trends", description: "Evolución temporal de casos y cumplimiento" },
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento NOM-035 y NMX-025" },
       { label: "Histórico de Alertas", path: "/alert-history", description: "Registro de alertas para auditoría" },
