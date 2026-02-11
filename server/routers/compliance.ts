@@ -4,6 +4,7 @@ import { getDb } from '../db.js';
 import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog, reportTemplates, employees, committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements } from "../../drizzle/schema";
 import { eq, sql, desc, and } from "drizzle-orm";
 import { generatePDFFromTemplate, generateQRCode } from '../utils/pdfGenerator.js';
+import { storagePut } from '../storage';
 
 export const complianceRouter = router({
   // Obtener checklist completo con estado de cumplimiento
