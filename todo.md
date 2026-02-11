@@ -10005,3 +10005,75 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Checkpoint Final
 - [ ] Guardar checkpoint con todas las mejoras implementadas
 - [ ] Documentar funcionalidades completadas
+
+
+## FASE 202: Conclusión de Fases Pendientes y Auditoría Profunda
+
+### Verificación de Estructura de Tabla Employees
+- [x] Ejecutar DESCRIBE employees para ver nombres reales de columnas
+- [x] Identificar que usa camelCase: departmentId, positionId
+- [x] Agregar columnas departmentId y positionId a tabla employees
+- [x] Verificar que tabla employees tiene 21 columnas
+- [x] Documentar estructura real de la tabla
+
+### Ejecución de Script SQL de Datos de Prueba
+- [x] Verificar que tabla employees ya tiene datos existentes
+- [ ] ERROR: Duplicate entry para emails (datos ya existen en BD)
+- [ ] Pendiente: Limpiar tabla employees y ejecutar script completo
+- [ ] O bien: Modificar script para usar correos diferentes
+- [ ] Validar inserción de 5 evaluaciones
+- [ ] Validar inserción de 5 plantillas de notificaciones
+- [ ] Validar inserción de 3 representantes legales
+- [ ] Validar inserción de 3 minutas de comité
+
+### Configuración de Credenciales SMTP
+- [ ] Usar webdev_request_secrets para SMTP_HOST
+- [ ] Agregar SMTP_PORT (587 o 465)
+- [ ] Agregar SMTP_USER (correo del remitente)
+- [ ] Agregar SMTP_PASS (contraseña del correo)
+- [ ] Probar envío de notificación de prueba
+- [ ] Verificar que desaparezca error "Configuración SMTP incompleta"
+
+### Implementación de Validaciones en Tiempo Real
+- [ ] Agregar validación de CURP (formato XXXNNNNNNHXXXXX00)
+- [ ] Agregar validación de RFC (formato XXXX000000XXX)
+- [ ] Agregar validación de email (formato correo@dominio.com)
+- [ ] Agregar validación de teléfono (10 dígitos)
+- [ ] Implementar mensajes de error claros y específicos
+- [ ] Agregar indicadores visuales (rojo para error, verde para válido)
+
+### Confirmaciones de Acciones Destructivas
+- [ ] Agregar diálogo de confirmación antes de eliminar empleados
+- [ ] Agregar diálogo de confirmación antes de eliminar evaluaciones
+- [ ] Agregar diálogo de confirmación antes de eliminar certificados
+- [ ] Agregar diálogo de confirmación antes de eliminar minutas
+- [ ] Implementar mensajes claros explicando consecuencias de la acción
+
+### Tooltips Explicativos
+- [ ] Agregar tooltips en campos de CURP explicando formato
+- [ ] Agregar tooltips en campos de RFC explicando formato
+- [ ] Agregar tooltips en campos complejos de evaluaciones
+- [ ] Agregar tooltips en campos de firma digital e.firma SAT
+- [ ] Usar componente Tooltip de shadcn/ui
+
+### Auditoría Profunda y Corrección de Errores TypeScript
+- [ ] Corregir error de fechaVersion en format_catalog
+- [ ] Corregir error de storagePut en compliance.ts línea 1523
+- [ ] Resolver los 51 errores TypeScript restantes
+- [ ] Ejecutar tsc --noEmit para validar compilación limpia
+- [ ] Eliminar código duplicado
+- [ ] Optimizar queries innecesarias
+
+### Pruebas Funcionales Exhaustivas
+- [ ] Probar flujo completo de evaluaciones con datos de prueba
+- [ ] Probar generación de certificados PDF
+- [ ] Probar firma digital con e.firma SAT
+- [ ] Probar sistema de notificaciones con SMTP configurado
+- [ ] Probar dashboard de capacitación con datos reales
+- [ ] Verificar navegación completa sin errores 404
+
+### Optimización y Checkpoint Final
+- [ ] Optimizar rendimiento del sistema
+- [ ] Reiniciar servidor para validar estabilidad
+- [ ] Guardar checkpoint final con todas las fases concluidas
+- [ ] Documentar estado final del proyecto
