@@ -10231,3 +10231,28 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Validación y Checkpoint Final
 - [ ] Realizar pruebas exhaustivas de todas las funcionalidades implementadas
 - [ ] Guardar checkpoint final con documentación detallada
+
+
+## FASE 208: Pruebas End-to-End de Reportes STPS, Corrección de Errores TypeScript y Tarjetas de Acceso Rápido
+
+### Pruebas de Generación de Reportes STPS
+- [ ] Recargar página /stps-reports y verificar que componentes carguen sin errores
+- [ ] Probar generación completa de DC-2 con datos de prueba y verificar PDF descargable
+- [ ] Probar generación completa de DC-3 con habilidades dinámicas y verificar PDF descargable
+- [ ] Probar generación completa de DC-4 con tabla de certificados y verificar PDF descargable
+- [ ] Verificar que plantillas HTML profesionales se rendericen correctamente en PDFs
+- [ ] Validar folios únicos y códigos QR funcionales en PDFs generados
+
+### Corrección de Errores TypeScript
+- [ ] Corregir 48 errores TypeScript restantes relacionados con formatCatalog fechaVersion
+- [ ] Lograr compilación TypeScript limpia (0 errores)
+
+### Mejoras de UX en Dashboard
+- [ ] Agregar tarjeta de acceso rápido "Generar DC-2" en dashboard principal
+- [ ] Agregar tarjeta de acceso rápido "Generar DC-3" en dashboard principal
+- [ ] Agregar tarjeta de acceso rápido "Generar DC-4" en dashboard principal
+- [ ] Verificar navegación correcta desde tarjetas a formularios específicos con pestañas preseleccionadas
+
+### Validación y Checkpoint Final
+- [ ] Realizar pruebas exhaustivas de todas las funcionalidades implementadas
+- [ ] Guardar checkpoint final con documentación detallada
