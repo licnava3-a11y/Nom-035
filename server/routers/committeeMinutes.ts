@@ -159,9 +159,9 @@ export const committeeMinutesRouter = router({
         await db.insert(committeeMinuteAgendaItems).values(
           input.agendaItems.map(item => ({
             minuteId,
-            orden: item.orden,
-            tema: item.tema,
-            descripcion: item.descripcion || null,
+            orderIndex: item.orden,
+            topic: item.tema,
+            description: item.descripcion || null,
           }))
         );
       }
@@ -171,11 +171,11 @@ export const committeeMinutesRouter = router({
         await db.insert(committeeMinuteAgreements).values(
           input.agreements.map(agr => ({
             minuteId,
-            numero: agr.numero,
-            descripcion: agr.descripcion,
-            responsable: agr.responsable,
-            fechaCompromiso: agr.fechaCompromiso,
-            estado: agr.estado,
+            agreementNumber: agr.numero.toString(),
+            description: agr.descripcion,
+            responsibleName: agr.responsable,
+            commitmentDate: agr.fechaCompromiso,
+            status: agr.estado,
           }))
         );
       }
@@ -184,9 +184,9 @@ export const committeeMinutesRouter = router({
       await db.insert(committeeMinuteHistory).values({
         minuteId,
         version: 1,
-        cambios: 'Creación inicial de la minuta',
-        modificadoPor: ctx.user.id,
-        modificadoPorNombre: ctx.user.name || 'Usuario',
+        changeDescription: 'Creación inicial de la minuta',
+        changedBy: ctx.user.id,
+        snapshot: {},
       });
 
       return {
@@ -300,9 +300,9 @@ export const committeeMinutesRouter = router({
           await db.insert(committeeMinuteAgendaItems).values(
             input.agendaItems.map(item => ({
               minuteId: input.id,
-              orden: item.orden,
-              tema: item.tema,
-              descripcion: item.descripcion || null,
+              orderIndex: item.orden,
+              topic: item.tema,
+              description: item.descripcion || null,
             }))
           );
         }
@@ -318,11 +318,11 @@ export const committeeMinutesRouter = router({
           await db.insert(committeeMinuteAgreements).values(
             input.agreements.map(agr => ({
               minuteId: input.id,
-              numero: agr.numero,
-              descripcion: agr.descripcion,
-              responsable: agr.responsable,
-              fechaCompromiso: agr.fechaCompromiso,
-              estado: agr.estado,
+              agreementNumber: agr.numero.toString(),
+              description: agr.descripcion,
+              responsibleName: agr.responsable,
+              commitmentDate: agr.fechaCompromiso,
+              status: agr.estado,
             }))
           );
         }
@@ -332,9 +332,9 @@ export const committeeMinutesRouter = router({
       await db.insert(committeeMinuteHistory).values({
         minuteId: input.id,
         version: newVersion,
-        cambios: input.cambios || 'Actualización de la minuta',
-        modificadoPor: ctx.user.id,
-        modificadoPorNombre: ctx.user.name || 'Usuario',
+        changeDescription: input.cambios || 'Actualización de la minuta',
+        changedBy: ctx.user.id,
+        snapshot: {},
       });
 
       return {
@@ -405,9 +405,9 @@ export const committeeMinutesRouter = router({
       await db.insert(committeeMinuteHistory).values({
         minuteId: input.id,
         version: newVersion,
-        cambios: 'Minuta publicada',
-        modificadoPor: ctx.user.id,
-        modificadoPorNombre: ctx.user.name || 'Usuario',
+        changeDescription: 'Minuta publicada',
+        changedBy: ctx.user.id,
+        snapshot: {},
       });
 
       return {

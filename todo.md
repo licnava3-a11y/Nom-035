@@ -9724,3 +9724,45 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Checkpoint Final
 - [x] Guardar checkpoint con todas las funcionalidades implementadas
 - [x] Documentar sistema completo
+
+
+## FASE 196: Auditoría Profunda y Corrección de Errores Críticos
+
+### Revisión de todo.md y Priorización
+- [ ] Revisar todas las tareas pendientes en todo.md
+- [ ] Identificar tareas críticas vs no críticas
+- [ ] Crear plan de resolución priorizado
+
+### Corrección de Errores TypeScript Críticos
+- [x] Corregir errores en compliance.ts (propiedades nombre, departamento, puesto)
+- [x] Corregir errores en committeeMinutes.ts (mapeo de columnas)
+- [x] Reducir errores TypeScript de 67 a 62
+- [ ] Verificar y corregir errores TypeScript restantes (58 errores pendientes)
+- [ ] Ejecutar tsc --noEmit para validar
+
+### Auditoría de Rutas y Enlaces
+- [x] Verificar todas las rutas definidas en App.tsx
+- [x] Identificar rutas 404 (12 rutas faltantes encontradas)
+- [ ] Crear rutas faltantes: /surveys, /surveys/dashboard, /surveys/:id
+- [ ] Crear rutas faltantes: /prevention, /compliance, /compliance/checklist
+- [ ] Crear rutas faltantes: /documents, /documents/history
+- [ ] Crear rutas faltantes: /application-success, /nom035/questionnaire, /nom035/results
+- [ ] Verificar enlaces en sidebar del DashboardLayout
+- [ ] Probar navegación completa del sistema
+
+### Corrección de Errores Fáciles
+- [ ] Corregir imports incorrectos
+- [ ] Resolver warnings de consola
+- [ ] Eliminar código duplicado
+- [ ] Optimizar queries innecesarias
+
+### Pruebas y Validación
+- [ ] Probar flujo completo de cada módulo
+- [ ] Verificar que no haya errores en consola del navegador
+- [ ] Validar que todas las funcionalidades principales funcionan
+- [ ] Probar con datos de prueba
+
+### Checkpoint y Documentación
+- [ ] Guardar checkpoint con correcciones
+- [ ] Documentar errores encontrados y corregidos
+- [ ] Proponer plan de acción para siguientes pasos
