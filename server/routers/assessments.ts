@@ -63,14 +63,14 @@ export const assessmentsRouter = router({
           title: assessments.title,
           description: assessments.description,
           courseId: assessments.courseId,
-          courseName: courses.name,
+          courseName: courses.title,
           passingScore: assessments.passingScore,
           timeLimit: assessments.timeLimit,
           maxAttempts: assessments.maxAttempts,
           status: assessments.status,
           createdAt: assessments.createdAt,
           createdBy: assessments.createdBy,
-          creatorName: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+          creatorName: users.name,
         })
         .from(assessments)
         .leftJoin(courses, eq(assessments.courseId, courses.id))

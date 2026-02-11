@@ -42,7 +42,7 @@ export async function runAgreementsAlertsJob() {
       .innerJoin(committeeMinutes, eq(committeeMinuteAgreements.minuteId, committeeMinutes.id))
       .where(
         and(
-          eq(committeeMinuteAgreements.status, 'pending'),
+          eq(committeeMinuteAgreements.status, 'pendiente'),
           sql`DATE(${committeeMinuteAgreements.dueDate}) = DATE(${in7Days.toISOString().split('T')[0]})`
         )
       );
@@ -62,7 +62,7 @@ export async function runAgreementsAlertsJob() {
       .innerJoin(committeeMinutes, eq(committeeMinuteAgreements.minuteId, committeeMinutes.id))
       .where(
         and(
-          eq(committeeMinuteAgreements.status, 'pending'),
+          eq(committeeMinuteAgreements.status, 'pendiente'),
           sql`DATE(${committeeMinuteAgreements.dueDate}) = DATE(${in3Days.toISOString().split('T')[0]})`
         )
       );

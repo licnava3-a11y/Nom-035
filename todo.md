@@ -10346,3 +10346,27 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Verificar que committeeMinutes.ts no tiene errores TypeScript
 - [x] Identificar 21 errores restantes en otros archivos (no relacionados con committeeMinutes)
 - [ ] Guardar checkpoint con correcciones de committeeMinutes.ts completadas
+
+
+## FASE 214: Corrección de 21 Errores TypeScript Restantes para Compilación Limpia ⏳ PARCIALMENTE COMPLETADA
+
+### Corrección de Errores en assessments.ts (3 errores)
+- [x] Corregir línea 66: courses.name → courses.title
+- [x] Corregir línea 73: users.firstName/lastName → users.name
+- [x] Reducir errores de 21 a 18
+
+### Corrección de Errores en agreementsAlerts.ts (2 errores)
+- [x] Corregir líneas 45 y 65: "pending" → "pendiente"
+- [x] Reducir errores de 18 a 16
+
+### Errores Restantes (16) - Requieren Implementación Backend
+- [ ] NotificationsDashboard.tsx (6 errores): Procedimientos tRPC no implementados
+  - deleteTemplate, updateTemplate, createTemplate, retryNotification
+- [ ] CommitteeMinutesManagement.tsx (4 errores): Procedimientos tRPC no implementados
+- [ ] AgreementsDashboard.tsx (4 errores): Procedimientos tRPC no implementados
+- [ ] TrainingCertificates.tsx (2 errores): getReportHistory no existe, cert sin tipo
+
+### Verificación Final
+- [x] Reducir errores TypeScript de 21 a 16 (5 errores corregidos)
+- [ ] Implementar procedimientos tRPC faltantes en backend
+- [ ] Guardar checkpoint con correcciones completadas
