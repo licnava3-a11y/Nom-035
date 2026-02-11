@@ -9965,3 +9965,43 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Documentar todas las funcionalidades implementadas
 - [ ] Crear lista de tareas pendientes para próximas fases
 - [ ] Guardar checkpoint final con documentación completa
+
+
+## FASE 201: Migraciones, Datos de Prueba, SMTP y Mejoras de UX Críticas
+
+### Aplicación de Migraciones SQL
+- [x] Leer migraciones SQL generadas en drizzle/ (0056_bizarre_catseye.sql)
+- [x] Aplicar migraciones SQL para crear tablas de evaluaciones y notificaciones
+- [x] Tablas creadas: assessments, exam_questions, exam_question_options, exam_attempts, exam_answers, notification_templates, notification_queue, notification_logs
+- [ ] Verificar estructura de tabla employees (tiene 21 columnas, nombres pueden ser diferentes)
+- [ ] Aplicar migraciones faltantes para departmentId y positionId
+
+### Ejecución de Script de Datos de Prueba
+- [x] Crear script SQL corregido (insert_test_data_corrected.sql)
+- [x] Corregir nombres de columnas para coincidir con schema actual
+- [ ] ERROR: Columna departmentId no existe en tabla employees
+- [ ] Pendiente: Verificar nombres reales de columnas en employees
+- [ ] Pendiente: Ejecutar script SQL con nombres correctos
+- [ ] Validar inserción correcta de 62+ registros
+
+### Configuración de Credenciales SMTP
+- [ ] Usar webdev_request_secrets para agregar SMTP_HOST
+- [ ] Agregar SMTP_PORT mediante webdev_request_secrets
+- [ ] Agregar SMTP_USER mediante webdev_request_secrets
+- [ ] Agregar SMTP_PASS mediante webdev_request_secrets
+- [ ] Probar envío de notificación de prueba
+
+### Mejoras de UX Críticas
+- [ ] Agregar validación en tiempo real de CURP en formulario de empleados
+- [ ] Agregar validación en tiempo real de RFC en formulario de empleados
+- [ ] Agregar validación en tiempo real de email en formularios
+- [ ] Implementar confirmación antes de eliminar empleados
+- [ ] Implementar confirmación antes de eliminar evaluaciones
+- [ ] Implementar confirmación antes de eliminar certificados
+- [ ] Agregar tooltips explicativos en campos complejos
+- [ ] Agregar skeletons de carga en tablas grandes
+- [ ] Mejorar mensajes de error con instrucciones claras
+
+### Checkpoint Final
+- [ ] Guardar checkpoint con todas las mejoras implementadas
+- [ ] Documentar funcionalidades completadas
