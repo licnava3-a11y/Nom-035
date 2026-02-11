@@ -31,7 +31,7 @@ export default function AssessmentsManagement() {
   const { data: assessments, isLoading, refetch } = trpc.assessments.list.useQuery({
     status: selectedStatus,
   });
-  const { data: courses } = trpc.courses.list.useQuery({});
+  const { data: courses } = trpc.courses.list.useQuery();
 
   // Mutations
   const createMutation = trpc.assessments.create.useMutation({
@@ -319,7 +319,7 @@ export default function AssessmentsManagement() {
                   <SelectItem value="none">Sin curso asociado</SelectItem>
                   {courses?.map((course) => (
                     <SelectItem key={course.id} value={course.id.toString()}>
-                      {course.name}
+                      {course.title}
                     </SelectItem>
                   ))}
                 </SelectContent>

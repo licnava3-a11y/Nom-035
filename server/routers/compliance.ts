@@ -836,7 +836,7 @@ export const complianceRouter = router({
           departmentId: employees.departmentId,
           positionId: employees.positionId,
           departmentName: departments.name,
-          positionName: positions.name,
+          positionName: positions.title,
         })
         .from(employees)
         .leftJoin(departments, eq(employees.departmentId, departments.id))
@@ -1206,7 +1206,7 @@ export const complianceRouter = router({
       const newReport: typeof complianceReports.$inferInsert = {
         uuid: reportUuid,
         tipo: 'minuta_comite',
-        titulo: `Minuta de Comité - Sesión ${minuteData.numeroSesion}`,
+        titulo: `Minuta de Comité - Sesión ${minuteData.sessionNumber}`,
         formatId: format[0].id,
         folioNumber: newConsecutive,
         folioYear: currentYear,
@@ -1266,12 +1266,12 @@ export const complianceRouter = router({
         razonSocial: companyData[0]?.razonSocial || 'Empresa',
         rfc: companyData[0]?.rfc || '',
         qrCode: qrCodeDataUrl,
-        tipoReunion: minuteData.tipoReunion,
-        numeroSesion: minuteData.numeroSesion,
+        tipoReunion: minuteData.meetingType,
+        numeroSesion: minuteData.sessionNumber.toString(),
         folio: folio,
-        fecha: minuteData.fecha,
-        hora: minuteData.hora,
-        lugar: minuteData.lugar,
+        fecha: minuteData.meetingDate.toISOString().split('T')[0],
+        hora: minuteData.meetingTime,
+        lugar: minuteData.meetingPlace,
         asistentes: asistentes,
         ordenDia: ordenDia,
         desarrollo: desarrollo,

@@ -174,10 +174,10 @@ export default function CommitteeMinutesManagement() {
         const base64data = reader.result as string;
         
         // Subir firma a S3
-        const result = await uploadSignatureMutation.mutateAsync({ signature: base64data });
+        const result = await uploadSignatureMutation.mutateAsync({ signatureDataUrl: base64data, attendeeName: attendees[currentAttendeeIndex].name });
         
         // Actualizar asistente con URL de firma
-        updateAttendee(currentAttendeeIndex, 'signatureUrl', result.url);
+        updateAttendee(currentAttendeeIndex, 'signatureUrl', result.signatureUrl);
         
         // Cerrar modal
         setSignatureModalOpen(false);
@@ -256,7 +256,7 @@ export default function CommitteeMinutesManagement() {
     };
 
     if (editingId) {
-      updateMutation.mutate({ id: editingId, data: minuteData });
+      updateMutation.mutate({ id: editingId, ...minuteData });
     } else {
       createMutation.mutate(minuteData);
     }
@@ -662,16 +662,24 @@ export default function CommitteeMinutesManagement() {
                     <div>
                       <Label>Foto Grupal</Label>
                       <FileUpload
+                        label="Foto Grupal"
                         accept="image/*"
-                        onUpload={(url) => setDocumentation({ ...documentation, groupPhotoUrl: url })}
+                        onFileSelect={(file) => {
+                          // TODO: Implementar subida a S3
+                          console.log('File selected:', file);
+                        }}
                         currentFileUrl={documentation.groupPhotoUrl}
                       />
                     </div>
                     <div>
                       <Label>Lista de Asistencia (PDF)</Label>
                       <FileUpload
+                        label="Lista de Asistencia"
                         accept="application/pdf"
-                        onUpload={(url) => setDocumentation({ ...documentation, attendanceListUrl: url })}
+                        onFileSelect={(file) => {
+                          // TODO: Implementar subida a S3
+                          console.log('File selected:', file);
+                        }}
                         currentFileUrl={documentation.attendanceListUrl}
                       />
                     </div>
@@ -722,13 +730,13 @@ export default function CommitteeMinutesManagement() {
         <CardHeader>
           <CardTitle>Minutas Registradas</CardTitle>
           <CardDescription>
-            {minutesData?.length || 0} minutas encontradas
+            {minutesData?.minutes?.length || 0} minutas encontradas
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {minutesData && minutesData.length > 0 ? (
-              minutesData.map((minute: any) => (
+            {minutesData?.minutes && minutesData.minutes.length > 0 ? (
+              minutesData.minutes.map((minute: any) => (
                 <Card key={minute.id} className="p-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
