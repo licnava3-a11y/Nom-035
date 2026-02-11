@@ -128,6 +128,8 @@ const hierarchicalMenuItems = [
           { label: "Certificados de Capacitación", path: "/training-certificates", description: "Generación de certificados oficiales con cumplimiento STPS y RED CONOCER" },
           { label: "Certificados e.firma SAT", path: "/efirma-sat", description: "Gestión de certificados digitales del SAT para firma electrónica avanzada" },
           { label: "Dashboard de Capacitación", path: "/training-dashboard", description: "Estadísticas, métricas y alertas de certificados de capacitación" },
+          { label: "Evaluaciones y Exámenes", path: "/assessments", description: "Gestión de evaluaciones en línea con banco de preguntas y calificación automática" },
+          { label: "Notificaciones Automáticas", path: "/notifications-dashboard", description: "Gestión de plantillas y envío automático de notificaciones por correo y SMS" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento formal de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },

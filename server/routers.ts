@@ -59,6 +59,7 @@ import { recruitmentRouter } from "./routers/recruitment";
 import { committeeMinutesRouter } from "./routers/committeeMinutes";
 import { digitalCertificatesRouter } from './routers/digitalCertificates';
 import { assessmentsRouter } from './routers/assessments';
+import { notificationsRouter } from './routers/notifications';
 import { trainingDashboardRouter } from "./routers/trainingDashboard";
 
 // Admin-only procedure
@@ -134,6 +135,7 @@ export const appRouter = router({
   committeeMinutes: committeeMinutesRouter,
   digitalCertificates: digitalCertificatesRouter,
   assessments: assessmentsRouter,
+  notifications: notificationsRouter,
   trainingDashboard: trainingDashboardRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

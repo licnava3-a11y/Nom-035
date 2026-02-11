@@ -117,6 +117,11 @@ import AgreementsDashboard from "./pages/AgreementsDashboard";
 import TrainingCertificates from "./pages/TrainingCertificates";
 import EfirmaSAT from "./pages/EfirmaSAT";
 import TrainingDashboard from "./pages/TrainingDashboard";
+import AssessmentsManagement from "./pages/AssessmentsManagement";
+import QuestionBank from "./pages/QuestionBank";
+import TakeExam from "./pages/TakeExam";
+import ExamResults from "./pages/ExamResults";
+import NotificationsDashboard from "./pages/NotificationsDashboard";
 
 function Router() {
   return (
@@ -303,6 +308,31 @@ function Router() {
       <Route path="/training-dashboard">
         <DashboardLayout>
           <TrainingDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path="/assessments">
+        <DashboardLayout>
+          <AssessmentsManagement />
+        </DashboardLayout>
+      </Route>
+      <Route path="/assessments/:id/questions">
+        <DashboardLayout>
+          <QuestionBank />
+        </DashboardLayout>
+      </Route>
+      <Route path="/exams/:id/take">
+        <DashboardLayout>
+          <TakeExam />
+        </DashboardLayout>
+      </Route>
+      <Route path="/exams/:assessmentId/results/:attemptId">
+        <DashboardLayout>
+          <ExamResults />
+        </DashboardLayout>
+      </Route>
+      <Route path="/notifications-dashboard">
+        <DashboardLayout>
+          <NotificationsDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/meeting-minutes"}>
