@@ -131,6 +131,7 @@ const hierarchicalMenuItems = [
         ]
       },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar factores de riesgo identificados" },
+      { label: "Análisis de Riesgos", path: "/risk-analysis", description: "Generación de reportes de análisis de riesgos psicosociales por empleado" },
       { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones del comité" },
       { label: "Cumplimiento NOM-035", path: "/compliance", description: "Checklist de cumplimiento normativo NOM-035-STPS-2018" },
       { label: "Verificación Numerales 7 y 8", path: "/compliance/numerals", description: "Verificación automática de obligaciones patronales según Numerales 7 y 8" },

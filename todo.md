@@ -9417,3 +9417,36 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar exportación PDF de minutas
 - [ ] Verificar que no hay errores en consola
 - [ ] Guardar checkpoint
+
+
+## FASE 189 - Mejoras Finales: Sidebar, CRUD Minutas y Joins
+
+### 1. Agregar Enlace en Sidebar
+- [x] Modificar DashboardLayout.tsx
+- [x] Agregar enlace "Análisis de Riesgos" en sección de Prevención de Riesgos Psicosociales
+- [x] Verificar navegación funcional
+
+### 2. CRUD Completo de Minutas de Comité
+- [x] Crear procedimientos tRPC: list, create, update, delete en committeeMinutes router
+- [x] Implementar guardado de borradores (status: draft/published)
+- [x] Crear procedimiento para historial de versiones
+- [x] Crear página CommitteeMinutesManagement.tsx con tabla de minutas
+- [x] Implementar formulario de creación/edición de minutas
+- [x] Agregar funcionalidad de asistentes, orden del día y acuerdos
+- [x] Integrar exportación PDF con generateCommitteeMinutesPDF
+- [x] Agregar ruta en App.tsx
+- [x] Corregir nombres de imports de tablas en router
+
+### 3. Mejorar Análisis de Riesgos con Joins
+- [x] Modificar procedimiento generateRiskAnalysisPDF
+- [x] Agregar join con tabla departments
+- [x] Agregar join con tabla positions
+- [x] Obtener nombres reales de departamento y puesto
+- [x] Actualizar templateData con valores reales
+
+### Pruebas y Checkpoint
+- [x] Probar enlace en sidebar
+- [x] Probar CRUD completo de minutas
+- [x] Probar generación de PDF de análisis de riesgos mejorado
+- [x] Verificar estado del proyecto (0 errores críticos)
+- [ ] Guardar checkpoint final

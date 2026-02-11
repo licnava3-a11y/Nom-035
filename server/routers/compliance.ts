@@ -825,10 +825,21 @@ export const complianceRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
-      // Obtener datos del trabajador
+      // Obtener datos del trabajador con departamento y puesto
       const worker = await db
-        .select()
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          departmentId: employees.departmentId,
+          positionId: employees.positionId,
+          departmentName: departments.name,
+          positionName: positions.name,
+        })
         .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.id, input.workerId))
         .limit(1);
 
@@ -947,7 +958,7 @@ export const complianceRouter = router({
       const newReport: typeof complianceReports.$inferInsert = {
         uuid: reportUuid,
         tipo: 'analisis_riesgos',
-        titulo: `Análisis de Riesgos Psicosociales - ${worker[0].nombre}`,
+        titulo: `Análisis de Riesgos Psicosociales - ${worker[0].firstName} ${worker[0].lastName}`,
         formatId: format[0].id,
         folioNumber: newConsecutive,
         folioYear: currentYear,
@@ -1008,8 +1019,8 @@ export const complianceRouter = router({
         rfc: companyData[0]?.rfc || '',
         folio: folio,
         nombreTrabajador: `${worker[0].firstName} ${worker[0].lastName}`,
-        departamento: 'Sin departamento', // TODO: Join con tabla departments
-        puesto: 'Sin puesto', // TODO: Join con tabla positions
+        departamento: worker[0].departmentName || 'No especificado',
+        puesto: worker[0].positionName || 'No especificado',
         fechaEvaluacion: new Date(result.createdAt).toLocaleDateString('es-MX', {
           year: 'numeric',
           month: 'long',
@@ -1018,7 +1029,7 @@ export const complianceRouter = router({
         nivelRiesgoGeneral: nivelRiesgo,
         nivelRiesgoGeneralTexto: nivelRiesgoMap[nivelRiesgo] || 'Medio',
         calificacionGeneral: result.globalScore || 0,
-        resumenEjecutivo: `El análisis de factores de riesgo psicosocial realizado al trabajador ${worker[0].nombre || 'Trabajador'} muestra un nivel de riesgo ${nivelRiesgoMap[nivelRiesgo] || 'Medio'}. Se identificaron áreas de oportunidad en la organización del tiempo de trabajo y la carga laboral. Se recomienda implementar acciones preventivas y correctivas para mejorar las condiciones laborales.`,
+        resumenEjecutivo: `El análisis de factores de riesgo psicosocial realizado al trabajador ${worker[0].firstName} ${worker[0].lastName} muestra un nivel de riesgo ${nivelRiesgoMap[nivelRiesgo] || 'Medio'}. Se identificaron áreas de oportunidad en la organización del tiempo de trabajo y la carga laboral. Se recomienda implementar acciones preventivas y correctivas para mejorar las condiciones laborales.`,
         categorias: categorias,
         dominios: dominios,
         dimensionesCriticas: dimensionesCriticas,
