@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteHistory } from "../../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, like } from "drizzle-orm";
 
 export const committeeMinutesRouter = router({
   // Listar todas las minutas
@@ -413,6 +413,119 @@ export const committeeMinutesRouter = router({
       return {
         success: true,
         message: 'Minuta publicada exitosamente',
+      };
+    }),
+
+  // Subir firma digital a S3
+  uploadSignature: protectedProcedure
+    .input(z.object({
+      signatureDataUrl: z.string(), // base64 data URL
+      attendeeName: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      // Convertir data URL a buffer
+      const base64Data = input.signatureDataUrl.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Generar nombre único para la firma
+      const timestamp = Date.now();
+      const sanitizedName = input.attendeeName.replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `signatures/${sanitizedName}_${timestamp}.png`;
+
+      // Subir a S3 usando storagePut
+      const { storagePut } = await import('../storage.js');
+      const result = await storagePut(fileName, buffer, 'image/png');
+
+      return {
+        success: true,
+        signatureUrl: result.url,
+        message: 'Firma subida exitosamente',
+      };
+    }),
+
+  // Subir archivo (foto grupal, lista de asistencia, PDFs) a S3
+  uploadFile: protectedProcedure
+    .input(z.object({
+      fileDataUrl: z.string(), // base64 data URL
+      fileName: z.string(),
+      fileType: z.string(), // mime type
+    }))
+    .mutation(async ({ input }) => {
+      // Convertir data URL a buffer
+      const base64Data = input.fileDataUrl.replace(/^data:[^;]+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Generar nombre único para el archivo
+      const timestamp = Date.now();
+      const extension = input.fileName.split('.').pop() || 'bin';
+      const sanitizedName = input.fileName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9]/g, '_');
+      const fileName = `committee-minutes/${sanitizedName}_${timestamp}.${extension}`;
+
+      // Subir a S3 usando storagePut
+      const { storagePut } = await import('../storage.js');
+      const result = await storagePut(fileName, buffer, input.fileType);
+
+      return {
+        success: true,
+        fileUrl: result.url,
+        fileKey: result.key,
+        message: 'Archivo subido exitosamente',
+      };
+    }),
+
+  // Obtener acuerdos con filtros
+  getAgreements: protectedProcedure
+    .input(z.object({
+      responsible: z.string().optional(),
+      priority: z.string().optional(),
+      status: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      let query = db
+        .select()
+        .from(committeeMinuteAgreements);
+
+      // Aplicar filtros
+      const conditions = [];
+      if (input.responsible) {
+        conditions.push(like(committeeMinuteAgreements.responsible, `%${input.responsible}%`));
+      }
+      if (input.priority) {
+        conditions.push(eq(committeeMinuteAgreements.priority, input.priority));
+      }
+      if (input.status) {
+        conditions.push(eq(committeeMinuteAgreements.status, input.status));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions)) as any;
+      }
+
+      const agreements = await query;
+      return agreements;
+    }),
+
+  // Actualizar estado de acuerdo
+  updateAgreementStatus: protectedProcedure
+    .input(z.object({
+      agreementId: z.number(),
+      status: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      await db
+        .update(committeeMinuteAgreements)
+        .set({ status: input.status })
+        .where(eq(committeeMinuteAgreements.id, input.agreementId));
+
+      return {
+        success: true,
+        message: 'Estado actualizado exitosamente',
       };
     }),
 });

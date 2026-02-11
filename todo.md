@@ -9486,3 +9486,44 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Probar formularios dinámicos completos
 - [x] Verificar compilación exitosa (0 errores TypeScript)
 - [ ] Guardar checkpoint final
+
+
+## FASE 191 - Firma Digital, Documentación de Respaldo y Dashboard de Acuerdos
+
+### 1. Componente de Captura de Firma Digital Táctil
+- [x] Crear componente SignatureCanvas.tsx con canvas HTML5
+- [x] Implementar eventos touch y mouse para dibujo
+- [x] Agregar botones: Limpiar, Guardar, Cancelar
+- [x] Implementar preview de firma antes de guardar
+- [x] Convertir canvas a blob/base64
+- [x] Crear procedimiento tRPC uploadSignature para subir firma a S3
+- [ ] Integrar componente en formulario de asistentes de minutas (pendiente)
+- [ ] Guardar URL de firma en campo signatureUrl de attendees (pendiente)
+
+### 2. Módulo de Documentación de Respaldo
+- [x] Verificar campos en tabla committeeMinutes (objetivo, resultados, groupPhotoUrl, attendanceListUrl ya existen)
+- [x] Crear componente FileUpload.tsx de carga de archivos con preview
+- [x] Implementar procedimiento tRPC uploadFile para subir archivos a S3
+- [ ] Agregar sección "Documentación de Respaldo" en formulario de minutas (pendiente)
+- [ ] Incluir campos: Objetivo, Resultados, Foto grupal, Lista de asistencia (pendiente)
+- [ ] Permitir carga de archivos PDF adicionales (pendiente)
+- [x] Plantilla de PDF ya incluye documentación de respaldo (generateCommitteeMinutesPDF)
+
+### 3. Dashboard de Seguimiento de Acuerdos
+- [x] Crear página AgreementsDashboard.tsx
+- [x] Crear procedimiento tRPC getAgreements para obtener acuerdos con filtros
+- [x] Implementar tabla con columnas: Descripción, Responsable, Fecha, Prioridad, Estado
+- [x] Agregar filtros: Por responsable, Por prioridad, Por estado
+- [x] Crear indicadores: Total pendientes, Vencidos, Por vencer (7 días)
+- [x] Implementar cálculo de alertas automáticas por vencimiento
+- [x] Agregar funcionalidad de cambio de estado con updateAgreementStatus
+- [x] Agregar ruta /agreements-dashboard en App.tsx
+- [x] Agregar enlace en sidebar (submenú Comité)
+- [ ] Agregar ruta en App.tsx y enlace en sidebar
+
+### Pruebas y Checkpoint
+- [ ] Probar captura de firma en dispositivo táctil
+- [ ] Probar carga de documentación de respaldo
+- [ ] Probar dashboard de acuerdos con filtros
+- [ ] Verificar alertas automáticas
+- [ ] Guardar checkpoint final

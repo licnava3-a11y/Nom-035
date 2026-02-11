@@ -113,6 +113,7 @@ import SecurityAlerts from "./pages/SecurityAlerts";
 import ReportTemplates from "./pages/ReportTemplates";
 import RiskAnalysis from "./pages/RiskAnalysis";
 import CommitteeMinutesManagement from "./pages/CommitteeMinutesManagement";
+import AgreementsDashboard from "./pages/AgreementsDashboard";
 
 function Router() {
   return (
@@ -279,6 +280,11 @@ function Router() {
       <Route path="/committee-minutes-management">
         <DashboardLayout>
           <CommitteeMinutesManagement />
+        </DashboardLayout>
+      </Route>
+      <Route path="/agreements-dashboard">
+        <DashboardLayout>
+          <AgreementsDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/meeting-minutes"}>

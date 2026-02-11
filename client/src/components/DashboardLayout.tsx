@@ -129,6 +129,7 @@ const hierarchicalMenuItems = [
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },
           { label: "Gestión de Minutas", path: "/committee-minutes-management", description: "CRUD completo de minutas de comité con borradores, historial y exportación PDF" },
+          { label: "Seguimiento de Acuerdos", path: "/agreements-dashboard", description: "Dashboard de seguimiento de acuerdos pendientes con alertas por vencimiento" },
         ]
       },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar factores de riesgo identificados" },
