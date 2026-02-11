@@ -9820,3 +9820,67 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Reiniciar servidor para validar estabilidad
 - [ ] Guardar checkpoint final con todas las correcciones
 - [ ] Documentar tareas pendientes para próximas fases
+
+
+## FASE 198: Auditoría Profunda Exhaustiva, Optimización y Mejora de UX
+
+### Corrección de Errores TypeScript Críticos (URGENTE)
+- [x] Corregir errores en committeeMinutes.ts (mapeo de attendees y agreements)
+- [x] Reducir errores TypeScript de 53 a 49 (4 errores corregidos)
+- [ ] Corregir errores restantes en compliance.ts líneas 1010-1021 (falsos positivos del sistema)
+- [ ] Verificar y corregir todos los 49 errores TypeScript restantes
+- [ ] Ejecutar tsc --noEmit para validar compilación limpia
+- [ ] Resolver warnings de consola del navegador
+
+### Auditoría de Correlaciones de Datos
+- [ ] Revisar formularios de empleados para eliminar capturas dobles
+- [ ] Implementar prellenado automático de campos desde datos existentes
+- [ ] Correlacionar departamentos y puestos en formularios
+- [ ] Eliminar redundancias en captura de información
+- [ ] Validar integridad referencial en todas las relaciones de datos
+
+### Reorganización de Menús del Sidebar
+- [x] Analizar secuencia lógica del programa NOM-035
+- [x] Crear nueva estructura optimizada con 9 menús principales
+- [x] Agrupar módulos de capacitación (evaluaciones, certificados, e.firma SAT, notificaciones)
+- [x] Reorganizar según flujo lógico: Dashboard → Empresa → Gestión → Capacitación → Encuestas → Prevención → Cumplimiento → Igualdad → Reportes → Administración
+- [x] Crear archivo DashboardLayout_NEW.tsx con estructura optimizada
+- [ ] Reemplazar estructura antigua en DashboardLayout.tsx
+- [ ] Implementar badges de notificación en menús relevantes
+
+### Mejora de Experiencia de Usuario (UX)
+- [ ] Mejorar mensajes de error con instrucciones claras
+- [ ] Agregar validaciones en tiempo real en formularios
+- [ ] Implementar confirmaciones antes de acciones destructivas
+- [ ] Agregar skeletons de carga en todas las páginas
+- [ ] Mejorar feedback visual de acciones (toasts, spinners)
+- [ ] Implementar breadcrumbs de navegación
+- [ ] Agregar tooltips explicativos en campos complejos
+
+### Optimización de Código y Performance
+- [ ] Eliminar queries duplicadas en componentes
+- [ ] Implementar paginación en tablas grandes
+- [ ] Optimizar renders innecesarios con React.memo
+- [ ] Eliminar componentes no utilizados
+- [ ] Reducir bundle size eliminando imports no usados
+- [ ] Implementar lazy loading de rutas pesadas
+- [ ] Optimizar imágenes y assets
+
+### Creación de Ligereza sin Perder Calidad
+- [ ] Eliminar código duplicado en routers
+- [ ] Extraer lógica común en hooks personalizados
+- [ ] Simplificar componentes complejos
+- [ ] Reducir dependencias innecesarias
+- [ ] Implementar code splitting estratégico
+
+### Pruebas y Validación Final
+- [ ] Probar todos los flujos críticos del sistema
+- [ ] Validar navegación completa sin errores
+- [ ] Verificar responsividad en diferentes resoluciones
+- [ ] Probar accesibilidad (keyboard navigation)
+- [ ] Validar performance con Lighthouse
+
+### Checkpoint Final
+- [ ] Guardar checkpoint con todas las optimizaciones
+- [ ] Documentar mejoras implementadas
+- [ ] Preparar lista de próximos pasos

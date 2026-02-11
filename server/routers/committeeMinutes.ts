@@ -115,7 +115,7 @@ export const committeeMinutesRouter = router({
         descripcion: z.string(),
         responsable: z.string(),
         fechaCompromiso: z.string(),
-        estado: z.enum(['pendiente', 'proceso', 'completado', 'cancelado']).default('pendiente'),
+        estado: z.enum(['pendiente', 'en_proceso', 'completado', 'cancelado']).default('pendiente'),
       })).optional().default([]),
     }))
     .mutation(async ({ input, ctx }) => {
@@ -146,10 +146,10 @@ export const committeeMinutesRouter = router({
         await db.insert(committeeMinuteAttendees).values(
           input.attendees.map(att => ({
             minuteId,
-            nombre: att.nombre,
-            cargo: att.cargo,
-            rolComite: att.rolComite,
-            asistencia: att.asistencia,
+            name: att.nombre,
+            position: att.cargo,
+            committeeRole: att.rolComite,
+            attendance: att.asistencia,
           }))
         );
       }
@@ -224,7 +224,7 @@ export const committeeMinutesRouter = router({
         descripcion: z.string(),
         responsable: z.string(),
         fechaCompromiso: z.string(),
-        estado: z.enum(['pendiente', 'proceso', 'completado', 'cancelado']),
+        estado: z.enum(['pendiente', 'en_proceso', 'completado', 'cancelado']),
       })).optional(),
       cambios: z.string().optional(),
     }))
@@ -281,10 +281,10 @@ export const committeeMinutesRouter = router({
           await db.insert(committeeMinuteAttendees).values(
             input.attendees.map(att => ({
               minuteId: input.id,
-              nombre: att.nombre,
-              cargo: att.cargo,
-              rolComite: att.rolComite,
-              asistencia: att.asistencia,
+              name: att.nombre,
+              position: att.cargo,
+              committeeRole: att.rolComite,
+              attendance: att.asistencia,
             }))
           );
         }
