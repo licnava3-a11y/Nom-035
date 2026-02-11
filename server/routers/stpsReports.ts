@@ -6,6 +6,7 @@ import { employees, complianceReports, formatCatalog } from "../../drizzle/schem
 import { eq, desc, and, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
 import Handlebars from "handlebars";
+import { generatePDFFromHTML } from "../_core/pdfGenerator";
 
 /**
  * Router para generación automatizada de reportes oficiales STPS
@@ -153,11 +154,12 @@ export const stpsReportsRouter = router({
 
     const reportId = result.insertId;
 
-    // Generar PDF (simulado por ahora, se implementará con puppeteer o similar)
-    const pdfBuffer = Buffer.from(htmlContent); // Placeholder
-
-    // Subir PDF a S3
-    const { url: pdfUrl } = await storagePut(`stps-reports/${folio}.pdf`, pdfBuffer, "application/pdf");
+    // Generar PDF real con Puppeteer
+    const pdfUrl = await generatePDFFromHTML(htmlContent, `dc2-${folio}`, {
+      format: "Letter",
+      orientation: "portrait",
+      margin: { top: "0.5in", right: "0.5in", bottom: "0.5in", left: "0.5in" },
+    });
 
     // Actualizar reporte con URL del PDF
     await db.update(complianceReports).set({ data: { ...JSON.parse(JSON.stringify(templateData)), pdfUrl } }).where(eq(complianceReports.id, reportId));
@@ -252,11 +254,12 @@ export const stpsReportsRouter = router({
 
     const reportId = result.insertId;
 
-    // Generar PDF (simulado por ahora)
-    const pdfBuffer = Buffer.from(htmlContent);
-
-    // Subir PDF a S3
-    const { url: pdfUrl } = await storagePut(`stps-reports/${folio}.pdf`, pdfBuffer, "application/pdf");
+    // Generar PDF real con Puppeteer
+    const pdfUrl = await generatePDFFromHTML(htmlContent, folio, {
+      format: "Letter",
+      orientation: "portrait",
+      margin: { top: "0.5in", right: "0.5in", bottom: "0.5in", left: "0.5in" },
+    });
 
     // Actualizar reporte con URL del PDF
     await db.update(complianceReports).set({ data: { ...JSON.parse(JSON.stringify(templateData)), pdfUrl } }).where(eq(complianceReports.id, reportId));
@@ -340,11 +343,12 @@ export const stpsReportsRouter = router({
 
     const reportId = result.insertId;
 
-    // Generar PDF (simulado por ahora)
-    const pdfBuffer = Buffer.from(htmlContent);
-
-    // Subir PDF a S3
-    const { url: pdfUrl } = await storagePut(`stps-reports/${folio}.pdf`, pdfBuffer, "application/pdf");
+    // Generar PDF real con Puppeteer
+    const pdfUrl = await generatePDFFromHTML(htmlContent, folio, {
+      format: "Letter",
+      orientation: "portrait",
+      margin: { top: "0.5in", right: "0.5in", bottom: "0.5in", left: "0.5in" },
+    });
 
     // Actualizar reporte con URL del PDF
     await db.update(complianceReports).set({ data: { ...JSON.parse(JSON.stringify(templateData)), pdfUrl } }).where(eq(complianceReports.id, reportId));

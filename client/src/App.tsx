@@ -125,6 +125,7 @@ import NotificationsDashboard from "./pages/NotificationsDashboard";
 import Surveys from "./pages/Surveys";
 import Prevention from "./pages/Prevention";
 import Compliance from "./pages/Compliance";
+import STPSReports from "./pages/STPSReports";
 
 function Router() {
   return (
@@ -307,13 +308,16 @@ function Router() {
         <DashboardLayout>
           <EfirmaSAT />
         </DashboardLayout>
-      </Route>
-      <Route path="/training-dashboard">
+      </Route>      <Route path={"/training-dashboard"}>
         <DashboardLayout>
           <TrainingDashboard />
         </DashboardLayout>
       </Route>
-      <Route path="/assessments">
+      <Route path={"/stps-reports"}>
+        <DashboardLayout>
+          <STPSReports />
+        </DashboardLayout>
+      </Route>      <Route path="/assessments">
         <DashboardLayout>
           <AssessmentsManagement />
         </DashboardLayout>

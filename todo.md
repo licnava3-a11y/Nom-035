@@ -10150,3 +10150,35 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Guardar checkpoint final
 
 **ESTADO**: Router backend completado, pendiente interfaces de usuario
+
+
+## FASE 205: Interfaces de Usuario para Reportes STPS y Generación Real de PDF ✅ COMPLETADA
+
+### Interfaces de Usuario
+- [x] Crear página principal STPSReports.tsx con navegación por pestañas (DC-2, DC-3, DC-4, Historial)
+- [x] Implementar formulario DC2Form.tsx para Constancia de Competencias
+- [x] Implementar formulario DC3Form.tsx para Constancia de Habilidades (con gestión dinámica de habilidades)
+- [x] Implementar formulario DC4Form.tsx para Lista de Constancias (con tabla dinámica de certificados)
+- [x] Crear componente ReportsList.tsx para historial con filtros y paginación
+- [x] Agregar ruta /stps-reports en App.tsx
+
+### Generación Real de PDF
+- [x] Instalar puppeteer (v24.37.2)
+- [x] Crear módulo pdfGenerator.ts con funciones reutilizables
+- [x] Integrar generatePDFFromHTML en procedimientos DC-2, DC-3 y DC-4
+- [x] Configurar formato Letter, orientación portrait y márgenes profesionales
+- [x] Implementar subida automática de PDFs a S3
+
+### Corrección de Errores TypeScript
+- [x] Corregir errores en DC2Form.tsx (toast hook, zod schema, employees query)
+- [x] Corregir errores en DC3Form.tsx (mismos tipos de errores)
+- [x] Corregir errores en DC4Form.tsx (toast hook)
+- [x] Reducir errores TypeScript de 61 a 57 (errores restantes en otros módulos no relacionados)
+
+### Resultados
+- ✅ Sistema completo de reportes STPS con interfaces intuitivas
+- ✅ Generación real de PDFs con Puppeteer (no simulados)
+- ✅ Formularios con validación completa y prellenado de datos
+- ✅ Gestión dinámica de habilidades (DC-3) y certificados (DC-4)
+- ✅ Historial de reportes con filtros, paginación y descarga directa
+- ✅ Integración completa con backend tRPC y almacenamiento S3
