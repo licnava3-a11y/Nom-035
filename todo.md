@@ -10109,3 +10109,44 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Guardar checkpoint con todas las correcciones
 - [ ] Documentar estado final del sistema
 - [ ] Listar tareas pendientes para próximas fases
+
+
+## FASE 204: Implementación de Módulo de Reportes STPS Automatizados
+
+### Corrección de Errores TypeScript
+- [x] Corregir fechaVersion a versionDate en 5 inserts de formatCatalog (documents.ts)
+- [x] Agregar import storagePut en compliance.ts
+- [x] Reducir errores TypeScript de 55 a 50
+
+### Inserción de Datos de Prueba
+- [x] Insertar 5 evaluaciones de capacitación
+- [x] Insertar 20 preguntas de evaluación (4 por evaluación)
+- [x] Insertar 16 opciones de respuesta completas
+- [x] Aprovechar 19 empleados existentes en BD
+- [x] Aprovechar plantillas de notificaciones existentes
+
+### Implementación de Router tRPC de Reportes STPS
+- [x] Crear router stpsReportsRouter con 5 procedimientos
+- [x] Implementar generateDC2 (Constancia de Competencias)
+- [x] Implementar generateDC3 (Constancia de Habilidades Laborales)
+- [x] Implementar generateDC4 (Lista de Constancias)
+- [x] Implementar listReports (listar reportes con paginación)
+- [x] Implementar getReportById (obtener reporte específico)
+- [x] Agregar folios únicos automáticos (DC2-NNNN/AAAA, DC3-NNNN/AAAA, DC4-NNNN/AAAA)
+- [x] Implementar códigos QR para verificación
+- [x] Crear plantillas HTML con Handlebars
+- [x] Integrar almacenamiento en S3
+- [x] Agregar trazabilidad completa en BD
+
+### Integración del Router
+- [x] Agregar import de stpsReportsRouter en routers.ts
+- [x] Integrar stpsReportsRouter en appRouter
+
+### Pendiente
+- [ ] Crear interfaces de usuario para generación de reportes STPS
+- [ ] Agregar rutas en App.tsx
+- [ ] Implementar generación real de PDF (actualmente simulado)
+- [ ] Validar funcionalidades con datos de prueba
+- [ ] Guardar checkpoint final
+
+**ESTADO**: Router backend completado, pendiente interfaces de usuario

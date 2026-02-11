@@ -161,7 +161,7 @@ export const documentsRouter = router({
         code: "AC",
         name: "Acta Constitutiva del Comité",
         version: "1.0",
-        fechaVersion: new Date(),
+        versionDate: new Date('2024-01-15'),
         reference: "NOM-035-STPS-2018",
       });
       catalog = { id: newCatalog.insertId, code: "AC" } as any;
@@ -251,7 +251,7 @@ export const documentsRouter = router({
         code: "FC",
         name: "Funciones del Comité",
         version: "1.0",
-        fechaVersion: new Date(),
+        versionDate: new Date('2024-01-15'),
         reference: "NOM-035-STPS-2018",
       });
       catalog = { id: newCatalog.insertId, code: "FC" } as any;
@@ -328,7 +328,7 @@ export const documentsRouter = router({
         code: "ACC",
         name: "Aceptación de Cargo",
         version: "1.0",
-        fechaVersion: new Date(),
+        versionDate: new Date('2024-01-15'),
         reference: "NOM-035-STPS-2018",
       });
       catalog = { id: newCatalog.insertId, code: "ACC" } as any;
@@ -411,7 +411,7 @@ export const documentsRouter = router({
         code: "AR",
         name: "Acta de Recorrido NOM-019",
         version: "1.0",
-        fechaVersion: new Date(),
+        versionDate: new Date('2024-01-15'),
         reference: "NOM-019-STPS-2011",
       });
       catalog = { id: newCatalog.insertId, code: "AR" } as any;
@@ -478,7 +478,7 @@ export const documentsRouter = router({
         code: "AFR",
         name: "Acta Final de Resultados",
         version: "1.0",
-        fechaVersion: new Date(),
+        versionDate: new Date('2024-01-15'),
         reference: "NOM-035-STPS-2018",
       });
       catalog = { id: newCatalog.insertId, code: "AFR" } as any;

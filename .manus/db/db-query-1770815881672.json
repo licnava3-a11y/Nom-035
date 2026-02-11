@@ -1,0 +1,143 @@
+{
+  "query": "SELECT id, firstName, lastName, email, employeeNumber FROM employees LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, firstName, lastName, email, employeeNumber FROM employees LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "firstName": "Test",
+      "lastName": "Employee",
+      "email": "test.employee@example.com",
+      "employeeNumber": "EMP-TEST-001"
+    },
+    {
+      "id": "30001",
+      "firstName": "María",
+      "lastName": "González López",
+      "email": "maria.gonzalez@example.com",
+      "employeeNumber": "EMP-RH-002"
+    },
+    {
+      "id": "30002",
+      "firstName": "Carlos",
+      "lastName": "Ramírez Sánchez",
+      "email": "carlos.ramirez@example.com",
+      "employeeNumber": "EMP-PROD-003"
+    },
+    {
+      "id": "30003",
+      "firstName": "Ana",
+      "lastName": "Martínez Pérez",
+      "email": "ana.martinez@example.com",
+      "employeeNumber": "EMP-TEC-004"
+    },
+    {
+      "id": "180001",
+      "firstName": "María",
+      "lastName": "González López",
+      "email": "maria.gonzalez@empresa.com",
+      "employeeNumber": "EMP001"
+    },
+    {
+      "id": "180002",
+      "firstName": "Juan Carlos",
+      "lastName": "Martínez",
+      "email": "juan.martinez@empresa.com",
+      "employeeNumber": "EMP002"
+    },
+    {
+      "id": "180003",
+      "firstName": "Ana Patricia",
+      "lastName": "Rodríguez",
+      "email": "ana.rodriguez@empresa.com",
+      "employeeNumber": "EMP003"
+    },
+    {
+      "id": "180004",
+      "firstName": "Luis Fernando",
+      "lastName": "Hernández",
+      "email": "luis.hernandez@empresa.com",
+      "employeeNumber": "EMP004"
+    },
+    {
+      "id": "180005",
+      "firstName": "Carmen",
+      "lastName": "Sánchez Torres",
+      "email": "carmen.sanchez@empresa.com",
+      "employeeNumber": "EMP005"
+    },
+    {
+      "id": "180006",
+      "firstName": "Roberto",
+      "lastName": "Díaz Morales",
+      "email": "roberto.diaz@empresa.com",
+      "employeeNumber": "EMP006"
+    },
+    {
+      "id": "180007",
+      "firstName": "Laura",
+      "lastName": "Jiménez Cruz",
+      "email": "laura.jimenez@empresa.com",
+      "employeeNumber": "EMP007"
+    },
+    {
+      "id": "180008",
+      "firstName": "Pedro",
+      "lastName": "Ramírez García",
+      "email": "pedro.ramirez@empresa.com",
+      "employeeNumber": "EMP008"
+    },
+    {
+      "id": "180009",
+      "firstName": "Sofía",
+      "lastName": "López Flores",
+      "email": "sofia.lopez@empresa.com",
+      "employeeNumber": "EMP009"
+    },
+    {
+      "id": "180010",
+      "firstName": "Miguel Ángel",
+      "lastName": "Torres",
+      "email": "miguel.torres@empresa.com",
+      "employeeNumber": "EMP010"
+    },
+    {
+      "id": "180011",
+      "firstName": "Gabriela",
+      "lastName": "Morales Ruiz",
+      "email": "gabriela.morales@empresa.com",
+      "employeeNumber": "EMP011"
+    },
+    {
+      "id": "180012",
+      "firstName": "Fernando",
+      "lastName": "Castro Pérez",
+      "email": "fernando.castro@empresa.com",
+      "employeeNumber": "EMP012"
+    },
+    {
+      "id": "180013",
+      "firstName": "Patricia",
+      "lastName": "Vargas Luna",
+      "email": "patricia.vargas@empresa.com",
+      "employeeNumber": "EMP013"
+    },
+    {
+      "id": "180014",
+      "firstName": "Jorge Luis",
+      "lastName": "Mendoza",
+      "email": "jorge.mendoza@empresa.com",
+      "employeeNumber": "EMP014"
+    },
+    {
+      "id": "180015",
+      "firstName": "Daniela",
+      "lastName": "Ortiz Silva",
+      "email": "daniela.ortiz@empresa.com",
+      "employeeNumber": "EMP015"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\temail\temployeeNumber\n1\tTest\tEmployee\ttest.employee@example.com\tEMP-TEST-001\n30001\tMaría\tGonzález López\tmaria.gonzalez@example.com\tEMP-RH-002\n30002\tCarlos\tRamírez Sánchez\tcarlos.ramirez@example.com\tEMP-PROD-003\n30003\tAna\tMartínez Pérez\tana.martinez@example.com\tEMP-TEC-004\n180001\tMaría\tGonzález López\tmaria.gonzalez@empresa.com\tEMP001\n180002\tJuan Carlos\tMartínez\tjuan.martinez@empresa.com\tEMP002\n180003\tAna Patricia\tRodríguez\tana.rodriguez@empresa.com\tEMP003\n180004\tLuis Fernando\tHernández\tluis.hernandez@empresa.com\tEMP004\n180005\tCarmen\tSánchez Torres\tcarmen.sanchez@empresa.com\tEMP005\n180006\tRoberto\tDíaz Morales\troberto.diaz@empresa.com\tEMP006\n180007\tLaura\tJiménez Cruz\tlaura.jimenez@empresa.com\tEMP007\n180008\tPedro\tRamírez García\tpedro.ramirez@empresa.com\tEMP008\n180009\tSofía\tLópez Flores\tsofia.lopez@empresa.com\tEMP009\n180010\tMiguel Ángel\tTorres\tmiguel.torres@empresa.com\tEMP010\n180011\tGabriela\tMorales Ruiz\tgabriela.morales@empresa.com\tEMP011\n180012\tFernando\tCastro Pérez\tfernando.castro@empresa.com\tEMP012\n180013\tPatricia\tVargas Luna\tpatricia.vargas@empresa.com\tEMP013\n180014\tJorge Luis\tMendoza\tjorge.mendoza@empresa.com\tEMP014\n180015\tDaniela\tOrtiz Silva\tdaniela.ortiz@empresa.com\tEMP015\n",
+  "stderr": "",
+  "execution_time_ms": 349
+}
