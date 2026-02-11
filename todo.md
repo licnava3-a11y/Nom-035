@@ -9567,3 +9567,52 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar job de alertas automáticas
 - [ ] Verificar envío de correos de alerta
 - [ ] Guardar checkpoint final
+
+
+## FASE 193 - Firma Digital e.firma SAT y Certificados de Capacitación
+
+### 1. Módulo de Firma Digital e.firma SAT
+- [ ] Crear esquema de BD para almacenar certificados digitales (.cer/.key)
+- [ ] Crear tabla digitalCertificates con campos: userId, certificatePath, keyPath, password (encrypted), validFrom, validUntil, status
+- [ ] Aplicar migración SQL
+- [ ] Crear componente de carga de certificados digitales (.cer/.key)
+- [ ] Implementar validación de formato de archivos
+- [ ] Crear procedimiento tRPC para subir certificados a S3
+- [ ] Implementar encriptación de contraseña de llave privada
+
+### 2. Validación con API del SAT y Sellos Digitales
+- [ ] Investigar API del SAT para validación de certificados
+- [ ] Crear helper para generar sellos digitales XML
+- [ ] Implementar función de firma digital de cadenas originales
+- [ ] Crear procedimiento tRPC para validar certificado con SAT
+- [ ] Implementar generación de sello digital en PDFs
+- [ ] Agregar campo de sello digital en plantillas de reportes
+
+### 3. Plantilla de Certificado de Capacitación
+- [ ] Diseñar plantilla HTML/CSS profesional de certificado
+- [ ] Incluir logo de empresa y sello oficial
+- [ ] Agregar variables dinámicas: nombre, curso, fecha, duración, instructor
+- [ ] Incluir folio único con formato CERT-NNNN/AAAA
+- [ ] Agregar código QR para verificación NOM-151
+- [ ] Incluir firma digital del instructor y representante legal
+- [ ] Cumplir con estándares STPS (Secretaría del Trabajo y Previsión Social)
+- [ ] Cumplir con estándares RED CONOCER
+- [ ] Insertar plantilla en base de datos
+
+### 4. Procedimientos tRPC para Certificados
+- [ ] Crear procedimiento generateCertificate en training router
+- [ ] Obtener datos del curso y participante
+- [ ] Generar folio único con formato CERT
+- [ ] Cargar plantilla de certificado desde BD
+- [ ] Renderizar HTML con variables dinámicas
+- [ ] Generar PDF del certificado
+- [ ] Aplicar firma digital e.firma SAT si está configurada
+- [ ] Registrar certificado en BD con trazabilidad
+- [ ] Retornar PDF en base64
+
+### Pruebas y Checkpoint
+- [ ] Probar carga de certificados digitales .cer/.key
+- [ ] Probar validación con API del SAT
+- [ ] Probar generación de certificados de capacitación
+- [ ] Verificar cumplimiento con estándares STPS/CONOCER
+- [ ] Guardar checkpoint final

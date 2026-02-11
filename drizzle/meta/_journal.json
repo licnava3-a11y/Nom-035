@@ -386,6 +386,13 @@
       "when": 1770767382258,
       "tag": "0054_nappy_clint_barton",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "5",
+      "when": 1770773399178,
+      "tag": "0055_shocking_kronos",
+      "breakpoints": true
     }
   ]
 }

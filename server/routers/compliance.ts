@@ -1313,6 +1313,190 @@ export const complianceRouter = router({
       };
     }),
 
+  // Generar certificado de capacitación en PDF
+  generateTrainingCertificatePDF: protectedProcedure
+    .input(
+      z.object({
+        employeeId: z.number(),
+        courseId: z.number(),
+        courseName: z.string(),
+        completionDate: z.string(),
+        durationHours: z.number(),
+        grade: z.string(),
+        instructorName: z.string(),
+        instructorSignatureUrl: z.string().optional(),
+        representativeName: z.string(),
+        representativeSignatureUrl: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
 
+      // Obtener datos del empleado
+      const employee = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.id, input.employeeId))
+        .limit(1);
+
+      if (!employee || employee.length === 0) {
+        throw new Error('Empleado no encontrado');
+      }
+
+      const nombreCompleto = `${employee[0].firstName} ${employee[0].lastName}`;
+
+      // Obtener datos de la empresa
+      const companyData = await db.select().from(companyGeneralData).limit(1);
+      const logo = await db.select().from(companyLogo).limit(1);
+
+      // Obtener o crear formato CERT
+      const currentYear = new Date().getFullYear();
+      let format = await db
+        .select()
+        .from(documentFormats)
+        .where(eq(documentFormats.codigo, 'CERT'))
+        .limit(1);
+
+      if (!format || format.length === 0) {
+        // Crear formato si no existe
+        await db.insert(documentFormats).values({
+          codigo: 'CERT',
+          nombre: 'Certificado de Capacitación',
+          version: '1.0',
+          consecutivoActual: 0,
+        });
+        format = await db
+          .select()
+          .from(documentFormats)
+          .where(eq(documentFormats.codigo, 'CERT'))
+          .limit(1);
+      }
+
+      // Incrementar consecutivo
+      const newConsecutive = (format[0].consecutivoActual || 0) + 1;
+      const folio = `CERT-${String(newConsecutive).padStart(4, '0')}/${currentYear}`;
+
+      await db
+        .update(documentFormats)
+        .set({ consecutivoActual: newConsecutive })
+        .where(eq(documentFormats.id, format[0].id));
+
+      // Generar UUID único para el certificado (NOM-151)
+      const certificateUuid = crypto.randomUUID();
+
+      // Guardar certificado en base de datos
+      const fullCertificateData = {
+        generatedAt: new Date(),
+        generatedBy: ctx.user.name,
+        userEmail: ctx.user.email,
+        employee: employee[0],
+        courseId: input.courseId,
+        courseName: input.courseName,
+        completionDate: input.completionDate,
+        durationHours: input.durationHours,
+        grade: input.grade,
+        instructorName: input.instructorName,
+        instructorSignatureUrl: input.instructorSignatureUrl,
+        representativeName: input.representativeName,
+        representativeSignatureUrl: input.representativeSignatureUrl,
+      };
+
+      const newReport: typeof complianceReports.$inferInsert = {
+        uuid: certificateUuid,
+        tipo: 'certificado_capacitacion',
+        titulo: `Certificado de Capacitación - ${nombreCompleto}`,
+        formatId: format[0].id,
+        folioNumber: newConsecutive,
+        folioYear: currentYear,
+        folio: folio,
+        generatedBy: ctx.user.id,
+        generatedByName: ctx.user.name || 'Usuario',
+        generatedByEmail: ctx.user.email || undefined,
+        data: fullCertificateData as any,
+      };
+
+      await db.insert(complianceReports).values(newReport);
+
+      // Obtener ID del certificado insertado
+      const insertedReport = await db
+        .select({ id: complianceReports.id })
+        .from(complianceReports)
+        .where(eq(complianceReports.uuid, certificateUuid))
+        .limit(1);
+
+      // Registrar descarga en auditoría
+      if (insertedReport && insertedReport.length > 0) {
+        await db.insert(documentAuditLog).values({
+          reportId: insertedReport[0].id,
+          userId: ctx.user.id,
+          userName: ctx.user.name,
+          userEmail: ctx.user.email,
+          action: "download",
+          ipAddress: null,
+          userAgent: null,
+        });
+      }
+
+      // Cargar plantilla default desde base de datos
+      const template = await db
+        .select()
+        .from(reportTemplates)
+        .where(
+          and(
+            eq(reportTemplates.tipo, 'certificate'),
+            eq(reportTemplates.isDefault, true),
+            eq(reportTemplates.activo, true)
+          )
+        )
+        .limit(1);
+
+      if (!template || template.length === 0) {
+        throw new Error('No se encontró una plantilla activa para certificados de capacitación.');
+      }
+
+      // Generar código QR para verificación
+      const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${certificateUuid}`;
+      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+
+      // Preparar datos para la plantilla
+      const templateData = {
+        logo: logo[0]?.logoUrl || '',
+        nombreCompleto: nombreCompleto,
+        nombreCurso: input.courseName,
+        fechaConclusion: input.completionDate,
+        duracion: input.durationHours,
+        calificacion: input.grade,
+        nombreInstructor: input.instructorName,
+        firmaInstructor: input.instructorSignatureUrl || '',
+        nombreRepresentante: input.representativeName,
+        firmaRepresentante: input.representativeSignatureUrl || '',
+        folio: folio,
+        qrCode: qrCodeDataUrl,
+      };
+
+      // Generar PDF desde plantilla
+      const pdfBuffer = await generatePDFFromTemplate(
+        template[0].htmlTemplate,
+        template[0].cssStyles || '',
+        templateData
+      );
+
+      // Convertir buffer a base64 para enviar al frontend
+      const pdfBase64 = pdfBuffer.toString('base64');
+
+      return {
+        success: true,
+        pdfBase64: pdfBase64,
+        data: {
+          uuid: certificateUuid,
+          folio: folio,
+          generatedAt: new Date(),
+          generatedBy: ctx.user.name,
+          employee: nombreCompleto,
+          courseName: input.courseName,
+        },
+      };
+    }),
 
 });

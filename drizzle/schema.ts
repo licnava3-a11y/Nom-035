@@ -2514,3 +2514,25 @@ export const committeeMinuteHistory = mysqlTable("committee_minute_history", {
 
 export type CommitteeMinuteHistoryEntry = typeof committeeMinuteHistory.$inferSelect;
 export type InsertCommitteeMinuteHistoryEntry = typeof committeeMinuteHistory.$inferInsert;
+
+/**
+ * Digital Certificates - Certificados Digitales e.firma SAT
+ */
+export const digitalCertificates = mysqlTable("digital_certificates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").references(() => users.id).notNull(),
+  certificateName: varchar("certificate_name", { length: 255 }).notNull(), // Nombre del certificado
+  certificatePath: varchar("certificate_path", { length: 500 }).notNull(), // Ruta del archivo .cer en S3
+  keyPath: varchar("key_path", { length: 500 }).notNull(), // Ruta del archivo .key en S3
+  passwordEncrypted: text("password_encrypted").notNull(), // Contraseña de la llave privada (encriptada)
+  validFrom: date("valid_from").notNull(), // Fecha de inicio de vigencia
+  validUntil: date("valid_until").notNull(), // Fecha de fin de vigencia
+  status: mysqlEnum("status", ["active", "expired", "revoked"]).notNull().default("active"),
+  issuer: varchar("issuer", { length: 255 }), // Emisor del certificado
+  serialNumber: varchar("serial_number", { length: 100 }), // Número de serie del certificado
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DigitalCertificate = typeof digitalCertificates.$inferSelect;
+export type InsertDigitalCertificate = typeof digitalCertificates.$inferInsert;
