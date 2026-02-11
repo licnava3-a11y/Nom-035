@@ -9782,18 +9782,15 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Validar compilación limpia con tsc --noEmit
 
 ### Implementación de Rutas Faltantes (Prioridad CRÍTICA)
-- [ ] Crear página Surveys.tsx para /surveys
-- [ ] Crear página SurveysDashboard.tsx para /surveys/dashboard
-- [ ] Crear página SurveyDetail.tsx para /surveys/:id
-- [ ] Crear página Prevention.tsx para /prevention
-- [ ] Crear página Compliance.tsx para /compliance
-- [ ] Crear página ComplianceChecklist.tsx para /compliance/checklist
-- [ ] Crear página Documents.tsx para /documents
-- [ ] Crear página DocumentsHistory.tsx para /documents/history
-- [ ] Crear página ApplicationSuccess.tsx para /application-success
-- [ ] Crear página NOM035Questionnaire.tsx para /nom035/questionnaire
-- [ ] Crear página NOM035Results.tsx para /nom035/results
-- [ ] Agregar todas las rutas en App.tsx
+- [x] Verificar páginas existentes (ApplicationSuccess, Documents, DocumentsHistory, NOM035Questionnaire, NOM035Results, ComplianceChecklist)
+- [x] Crear página Surveys.tsx para /surveys
+- [x] Crear página Prevention.tsx para /prevention
+- [x] Crear página Compliance.tsx para /compliance
+- [x] Agregar imports de nuevas páginas en App.tsx
+- [x] Agregar rutas /surveys, /prevention, /compliance en App.tsx
+- [ ] Crear página SurveysDashboard.tsx para /surveys/dashboard (opcional)
+- [ ] Crear página SurveyDetail.tsx para /surveys/:id (opcional)
+- [ ] Verificar que todas las rutas existentes estén registradas en App.tsx
 
 ### Resolución de Errores Fáciles
 - [ ] Corregir imports incorrectos en archivos

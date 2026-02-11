@@ -122,6 +122,9 @@ import QuestionBank from "./pages/QuestionBank";
 import TakeExam from "./pages/TakeExam";
 import ExamResults from "./pages/ExamResults";
 import NotificationsDashboard from "./pages/NotificationsDashboard";
+import Surveys from "./pages/Surveys";
+import Prevention from "./pages/Prevention";
+import Compliance from "./pages/Compliance";
 
 function Router() {
   return (
@@ -334,6 +337,15 @@ function Router() {
         <DashboardLayout>
           <NotificationsDashboard />
         </DashboardLayout>
+      </Route>
+      <Route path="/surveys">
+        <Surveys />
+      </Route>
+      <Route path="/prevention">
+        <Prevention />
+      </Route>
+      <Route path="/compliance">
+        <Compliance />
       </Route>
       <Route path={"/meeting-minutes"}>
         <DashboardLayout>
