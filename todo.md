@@ -10321,3 +10321,28 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Verificación
 - [ ] Ejecutar TypeScript check y verificar 0 errores
 - [ ] Guardar checkpoint con compilación TypeScript limpia
+
+
+## FASE 213: Corrección Completa de 22 Errores TypeScript en committeeMinutes.ts ✅ COMPLETADA
+
+### Análisis de Input Schema
+- [x] Analizar input schema del procedimiento create para identificar nombres de campos
+- [x] Mapear nombres de input a nombres de columnas del schema de committeeMinutes
+- [x] Identificar problemas: input en español, schema en inglés, enum incorrecto
+
+### Corrección de Insert Principal
+- [x] Corregir insert de committeeMinutes en línea 129 con nombres correctos
+- [x] Mapear numeroSesion→sessionNumber (con parseInt)
+- [x] Mapear fecha→meetingDate (con new Date())
+- [x] Mapear tipoReunion→meetingType (con type assertion)
+- [x] Corregir enum de status (draft/published → borrador/finalizada/archivada)
+
+### Corrección de Otros Procedimientos
+- [x] Corregir todos los input schemas con enum de status incorrecto
+- [x] Alinear todos los procedimientos con schema real
+- [x] Reducir errores TypeScript de 22 a 0 en committeeMinutes.ts
+
+### Verificación Final
+- [x] Verificar que committeeMinutes.ts no tiene errores TypeScript
+- [x] Identificar 21 errores restantes en otros archivos (no relacionados con committeeMinutes)
+- [ ] Guardar checkpoint con correcciones de committeeMinutes.ts completadas

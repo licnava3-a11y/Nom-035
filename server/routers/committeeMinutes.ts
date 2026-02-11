@@ -8,7 +8,7 @@ export const committeeMinutesRouter = router({
   // Listar todas las minutas
   list: protectedProcedure
     .input(z.object({
-      status: z.enum(['draft', 'published', 'all']).optional().default('all'),
+      status: z.enum(['borrador', 'finalizada', 'archivada', 'all']).optional().default('all'),
       limit: z.number().optional().default(50),
       offset: z.number().optional().default(0),
     }))
@@ -98,7 +98,7 @@ export const committeeMinutesRouter = router({
       lugar: z.string(),
       desarrollo: z.string().optional(),
       observaciones: z.string().optional(),
-      status: z.enum(['draft', 'published']).default('draft'),
+      status: z.enum(['borrador', 'finalizada', 'archivada']).default('borrador'),
       attendees: z.array(z.object({
         nombre: z.string(),
         cargo: z.string(),
@@ -127,12 +127,12 @@ export const committeeMinutesRouter = router({
         .insert(committeeMinutes)
         .values({
           folio: `MC-${String(input.numeroSesion).padStart(3, '0')}/${new Date().getFullYear()}`,
-          sessionNumber: input.numeroSesion,
-          meetingDate: input.fecha,
+          sessionNumber: parseInt(input.numeroSesion),
+          meetingDate: new Date(input.fecha),
           meetingTime: input.hora,
           meetingPlace: input.lugar,
-          meetingType: input.tipoReunion || 'ordinaria',
-          status: input.status || 'borrador',
+          meetingType: (input.tipoReunion as 'ordinaria' | 'extraordinaria' | 'urgente' | 'seguimiento') || 'ordinaria',
+          status: input.status,
           createdBy: ctx.user.id,
         })
         .$returningId();
@@ -205,7 +205,7 @@ export const committeeMinutesRouter = router({
       lugar: z.string().optional(),
       desarrollo: z.string().optional(),
       observaciones: z.string().optional(),
-      status: z.enum(['draft', 'published']).optional(),
+      status: z.enum(['borrador', 'finalizada', 'archivada']).optional(),
       attendees: z.array(z.object({
         nombre: z.string(),
         cargo: z.string(),
