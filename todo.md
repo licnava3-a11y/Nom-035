@@ -10182,3 +10182,29 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - ✅ Gestión dinámica de habilidades (DC-3) y certificados (DC-4)
 - ✅ Historial de reportes con filtros, paginación y descarga directa
 - ✅ Integración completa con backend tRPC y almacenamiento S3
+
+
+## FASE 206: Plantillas HTML Profesionales STPS, Enlace en Sidebar y Corrección de Errores TypeScript
+
+### Plantillas HTML Profesionales
+- [ ] Crear plantilla HTML para DC-2 (Constancia de Competencias) con formato oficial STPS
+- [ ] Crear plantilla HTML para DC-3 (Constancia de Habilidades) con formato oficial STPS
+- [ ] Crear plantilla HTML para DC-4 (Lista de Constancias) con formato oficial STPS
+- [ ] Incluir logotipos, firmas digitales, tablas de datos y códigos QR en plantillas
+- [ ] Validar cumplimiento normativo STPS en diseño de plantillas
+
+### Navegación y UX
+- [ ] Agregar enlace "Reportes STPS" en sidebar del dashboard
+- [ ] Verificar navegación correcta a /stps-reports
+
+### Corrección de Errores TypeScript
+- [ ] Corregir 13 errores en compliance.ts
+- [ ] Corregir 9 errores en committeeMinutes.ts
+- [ ] Corregir 3 errores en assessments.ts
+- [ ] Corregir 30 errores en páginas frontend
+- [ ] Lograr compilación TypeScript limpia (0 errores)
+
+### Validación y Checkpoint
+- [ ] Probar generación de DC-2, DC-3 y DC-4 con plantillas HTML
+- [ ] Verificar PDFs generados con formato profesional
+- [ ] Guardar checkpoint final con sistema completo
