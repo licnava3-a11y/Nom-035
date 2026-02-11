@@ -9527,3 +9527,43 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar dashboard de acuerdos con filtros
 - [ ] Verificar alertas automáticas
 - [ ] Guardar checkpoint final
+
+
+## FASE 192 - Integración Final: Firma Digital, Documentación y Alertas Automáticas
+
+### 1. Integrar Firma Digital en Formulario de Minutas
+- [ ] Modificar CommitteeMinutesManagement.tsx para agregar modal de firma
+- [ ] Crear estado para gestionar modal de firma por asistente
+- [ ] Integrar SignatureCanvas en modal con botones de acción
+- [ ] Implementar guardado de firma vinculada a asistente específico
+- [ ] Actualizar estado de asistentes con URL de firma
+- [ ] Mostrar preview de firma capturada en lista de asistentes
+- [ ] Guardar firmas en BD al crear/actualizar minuta
+
+### 2. Expandir Formulario con Documentación de Respaldo
+- [ ] Agregar sección "Documentación de Respaldo" en CommitteeMinutesManagement.tsx
+- [ ] Integrar FileUpload para campo objetivo (texto)
+- [ ] Integrar FileUpload para campo resultados (texto)
+- [ ] Integrar FileUpload para foto grupal (imagen)
+- [ ] Integrar FileUpload para lista de asistencia (PDF)
+- [ ] Crear estado para gestionar URLs de archivos subidos
+- [ ] Guardar URLs en campos de BD al crear/actualizar minuta
+- [ ] Mostrar preview de archivos subidos
+
+### 3. Job Programado de Alertas Automáticas
+- [ ] Crear archivo server/jobs/agreementsAlerts.ts
+- [ ] Implementar función para detectar acuerdos próximos a vencer (3 días)
+- [ ] Implementar función para detectar acuerdos próximos a vencer (7 días)
+- [ ] Crear plantilla de correo para alerta de 7 días
+- [ ] Crear plantilla de correo para alerta de 3 días
+- [ ] Integrar con servicio de correos existente
+- [ ] Programar ejecución diaria del job (cron)
+- [ ] Registrar job en server/index.ts
+- [ ] Probar envío de alertas con datos de prueba
+
+### Pruebas y Checkpoint
+- [ ] Probar captura de firma en modal de asistentes
+- [ ] Probar carga de documentación de respaldo completa
+- [ ] Probar job de alertas automáticas
+- [ ] Verificar envío de correos de alerta
+- [ ] Guardar checkpoint final

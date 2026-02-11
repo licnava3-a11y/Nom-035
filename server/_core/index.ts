@@ -13,6 +13,7 @@ import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
+import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -79,6 +80,7 @@ async function startServer() {
     startCoverageAlertsJob();
     startAlertSummaryCronJob();
     startSecurityAlertsJob();
+    startAgreementsAlertsJob();
   });
 }
 

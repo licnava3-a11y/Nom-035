@@ -6,7 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Plus, Edit, Trash2, Download, Eye, X, UserPlus, ClipboardList, CheckSquare } from "lucide-react";
+import { FileText, Plus, Edit, Trash2, Download, Eye, X, UserPlus, ClipboardList, CheckSquare, PenTool, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import SignatureCanvas from "@/components/SignatureCanvas";
+import FileUpload from "@/components/FileUpload";
 
 // Tipos para secciones dinámicas
 interface Attendee {
@@ -14,6 +17,7 @@ interface Attendee {
   position: string;
   role: string;
   attended: boolean;
+  signatureUrl?: string;
 }
 
 interface AgendaItem {
@@ -59,6 +63,18 @@ export default function CommitteeMinutesManagement() {
   const [agreements, setAgreements] = useState<Agreement[]>([
     { description: "", responsibleName: "", dueDate: "", priority: "media" }
   ]);
+
+  // Estado para modal de firma
+  const [signatureModalOpen, setSignatureModalOpen] = useState(false);
+  const [currentAttendeeIndex, setCurrentAttendeeIndex] = useState<number | null>(null);
+
+  // Estado para documentación de respaldo
+  const [documentation, setDocumentation] = useState({
+    objective: "",
+    results: "",
+    groupPhotoUrl: "",
+    attendanceListUrl: "",
+  });
 
   // Queries
   const { data: minutesData, refetch } = trpc.committeeMinutes.list.useQuery({
@@ -130,6 +146,8 @@ export default function CommitteeMinutesManagement() {
     },
   });
 
+  const uploadSignatureMutation = trpc.committeeMinutes.uploadSignature.useMutation();
+
   // Funciones para manejar asistentes
   const addAttendee = () => {
     setAttendees([...attendees, { name: "", position: "", role: "", attended: true }]);
@@ -143,6 +161,39 @@ export default function CommitteeMinutesManagement() {
     const updated = [...attendees];
     updated[index] = { ...updated[index], [field]: value };
     setAttendees(updated);
+  };
+
+  const handleSignatureSave = async (signatureBlob: Blob) => {
+    if (currentAttendeeIndex === null) return;
+
+    try {
+      // Convertir blob a base64
+      const reader = new FileReader();
+      reader.readAsDataURL(signatureBlob);
+      reader.onloadend = async () => {
+        const base64data = reader.result as string;
+        
+        // Subir firma a S3
+        const result = await uploadSignatureMutation.mutateAsync({ signature: base64data });
+        
+        // Actualizar asistente con URL de firma
+        updateAttendee(currentAttendeeIndex, 'signatureUrl', result.url);
+        
+        // Cerrar modal
+        setSignatureModalOpen(false);
+        setCurrentAttendeeIndex(null);
+        
+        alert('Firma guardada exitosamente');
+      };
+    } catch (error) {
+      alert('Error al guardar firma');
+      console.error(error);
+    }
+  };
+
+  const openSignatureModal = (index: number) => {
+    setCurrentAttendeeIndex(index);
+    setSignatureModalOpen(true);
   };
 
   // Funciones para manejar orden del día
@@ -198,6 +249,7 @@ export default function CommitteeMinutesManagement() {
     
     const minuteData = {
       ...formData,
+      ...documentation,
       attendees: attendees.filter(a => a.name.trim() !== ""),
       agendaItems: agendaItems.filter(a => a.topic.trim() !== ""),
       agreements: agreements.filter(a => a.description.trim() !== ""),
@@ -395,7 +447,7 @@ export default function CommitteeMinutesManagement() {
                           placeholder="Presidente"
                         />
                       </div>
-                      <div className="flex items-end gap-2">
+                      <div className="flex flex-col gap-2">
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
@@ -404,15 +456,33 @@ export default function CommitteeMinutesManagement() {
                           />
                           Asistió
                         </label>
-                        {attendees.length > 1 && (
+                        <div className="flex gap-2">
                           <Button
                             type="button"
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
-                            onClick={() => removeAttendee(index)}
+                            onClick={() => openSignatureModal(index)}
                           >
-                            <X className="h-4 w-4" />
+                            <PenTool className="h-4 w-4 mr-1" />
+                            {attendee.signatureUrl ? 'Ver Firma' : 'Capturar Firma'}
                           </Button>
+                          {attendees.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeAttendee(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        {attendee.signatureUrl && (
+                          <img 
+                            src={attendee.signatureUrl} 
+                            alt="Firma" 
+                            className="w-32 h-16 border rounded object-contain bg-white"
+                          />
                         )}
                       </div>
                     </div>
@@ -561,6 +631,54 @@ export default function CommitteeMinutesManagement() {
                 ))}
               </div>
 
+              {/* Sección de Documentación de Respaldo */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Documentación de Respaldo
+                </h3>
+                <Card className="p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <Label htmlFor="objective">Objetivo de la Actividad</Label>
+                      <Textarea
+                        id="objective"
+                        value={documentation.objective}
+                        onChange={(e) => setDocumentation({ ...documentation, objective: e.target.value })}
+                        placeholder="Describir el objetivo principal de la reunión..."
+                        rows={2}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="results">Resultados Obtenidos</Label>
+                      <Textarea
+                        id="results"
+                        value={documentation.results}
+                        onChange={(e) => setDocumentation({ ...documentation, results: e.target.value })}
+                        placeholder="Describir los resultados alcanzados en la reunión..."
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <Label>Foto Grupal</Label>
+                      <FileUpload
+                        accept="image/*"
+                        onUpload={(url) => setDocumentation({ ...documentation, groupPhotoUrl: url })}
+                        currentFileUrl={documentation.groupPhotoUrl}
+                      />
+                    </div>
+                    <div>
+                      <Label>Lista de Asistencia (PDF)</Label>
+                      <FileUpload
+                        accept="application/pdf"
+                        onUpload={(url) => setDocumentation({ ...documentation, attendanceListUrl: url })}
+                        currentFileUrl={documentation.attendanceListUrl}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
               {/* Desarrollo y Observaciones */}
               <div className="space-y-4">
                 <div>
@@ -659,6 +777,21 @@ export default function CommitteeMinutesManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Firma Digital */}
+      <Dialog open={signatureModalOpen} onOpenChange={setSignatureModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Capturar Firma Digital</DialogTitle>
+            <DialogDescription>
+              {currentAttendeeIndex !== null && attendees[currentAttendeeIndex] && (
+                <span>Firma para: <strong>{attendees[currentAttendeeIndex].name || 'Asistente'}</strong></span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <SignatureCanvas onSave={handleSignatureSave} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
