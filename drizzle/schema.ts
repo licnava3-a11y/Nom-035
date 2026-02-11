@@ -2536,3 +2536,164 @@ export const digitalCertificates = mysqlTable("digital_certificates", {
 
 export type DigitalCertificate = typeof digitalCertificates.$inferSelect;
 export type InsertDigitalCertificate = typeof digitalCertificates.$inferInsert;
+
+/**
+ * Assessments - Evaluaciones/Exámenes
+ */
+export const assessments = mysqlTable("assessments", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(), // Título del examen
+  description: text("description"), // Descripción
+  courseId: int("course_id").references(() => courses.id), // Curso asociado (opcional)
+  passingScore: int("passing_score").notNull().default(70), // Calificación mínima para aprobar
+  timeLimit: int("time_limit"), // Tiempo límite en minutos (null = sin límite)
+  maxAttempts: int("max_attempts").default(3), // Número máximo de intentos
+  shuffleQuestions: boolean("shuffle_questions").default(false), // Aleatorizar preguntas
+  shuffleOptions: boolean("shuffle_options").default(false), // Aleatorizar opciones
+  showResults: boolean("show_results").default(true), // Mostrar resultados al terminar
+  status: mysqlEnum("status", ["draft", "active", "archived"]).notNull().default("draft"),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Assessment = typeof assessments.$inferSelect;
+export type InsertAssessment = typeof assessments.$inferInsert;
+
+/**
+ * Exam Questions - Banco de Preguntas para Exámenes
+ */
+export const examQuestions = mysqlTable("exam_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  assessmentId: int("assessment_id").references(() => assessments.id).notNull(),
+  questionText: text("question_text").notNull(), // Texto de la pregunta
+  questionType: mysqlEnum("question_type", ["multiple_choice", "true_false", "short_answer"]).notNull().default("multiple_choice"),
+  points: int("points").notNull().default(1), // Puntos que vale la pregunta
+  orderIndex: int("order_index").notNull(), // Orden en el examen
+  explanation: text("explanation"), // Explicación de la respuesta correcta
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ExamQuestion = typeof examQuestions.$inferSelect;
+export type InsertExamQuestion = typeof examQuestions.$inferInsert;
+
+/**
+ * Exam Question Options - Opciones de Respuesta para Exámenes
+ */
+export const examQuestionOptions = mysqlTable("exam_question_options", {
+  id: int("id").autoincrement().primaryKey(),
+  questionId: int("question_id").references(() => examQuestions.id).notNull(),
+  optionText: text("option_text").notNull(), // Texto de la opción
+  isCorrect: boolean("is_correct").notNull().default(false), // Si es la respuesta correcta
+  orderIndex: int("order_index").notNull(), // Orden de la opción
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ExamQuestionOption = typeof examQuestionOptions.$inferSelect;
+export type InsertExamQuestionOption = typeof examQuestionOptions.$inferInsert;
+
+/**
+ * Exam Attempts - Intentos de Examen
+ */
+export const examAttempts = mysqlTable("exam_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  assessmentId: int("assessment_id").references(() => assessments.id).notNull(),
+  employeeId: int("employee_id").references(() => employees.id).notNull(),
+  attemptNumber: int("attempt_number").notNull().default(1), // Número de intento
+  startedAt: timestamp("started_at").notNull(), // Inicio del examen
+  submittedAt: timestamp("submitted_at"), // Fin del examen
+  score: int("score"), // Calificación obtenida
+  passed: boolean("passed"), // Si aprobó o no
+  status: mysqlEnum("status", ["in_progress", "completed", "abandoned"]).notNull().default("in_progress"),
+  timeSpent: int("time_spent"), // Tiempo transcurrido en segundos
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ExamAttempt = typeof examAttempts.$inferSelect;
+export type InsertExamAttempt = typeof examAttempts.$inferInsert;
+
+/**
+ * Exam Answers - Respuestas de Examen
+ */
+export const examAnswers = mysqlTable("exam_answers", {
+  id: int("id").autoincrement().primaryKey(),
+  attemptId: int("attempt_id").references(() => examAttempts.id).notNull(),
+  questionId: int("question_id").references(() => examQuestions.id).notNull(),
+  selectedOptionId: int("selected_option_id").references(() => examQuestionOptions.id), // Para multiple choice
+  textAnswer: text("text_answer"), // Para respuestas cortas
+  isCorrect: boolean("is_correct"), // Si la respuesta fue correcta
+  pointsEarned: int("points_earned").default(0), // Puntos obtenidos
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ExamAnswer = typeof examAnswers.$inferSelect;
+export type InsertExamAnswer = typeof examAnswers.$inferInsert;
+
+/**
+ * Notification Templates - Plantillas de Notificaciones
+ */
+export const notificationTemplates = mysqlTable("notification_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(), // Código único (ej: "cert_expiring_30")
+  name: varchar("name", { length: 255 }).notNull(), // Nombre descriptivo
+  description: text("description"), // Descripción
+  channel: mysqlEnum("channel", ["email", "sms", "both"]).notNull().default("email"),
+  emailSubject: varchar("email_subject", { length: 255 }), // Asunto del correo
+  emailBody: text("email_body"), // Cuerpo del correo (HTML)
+  smsBody: varchar("sms_body", { length: 500 }), // Cuerpo del SMS
+  variables: json("variables"), // Variables disponibles para la plantilla
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
+export type InsertNotificationTemplate = typeof notificationTemplates.$inferInsert;
+
+/**
+ * Notification Queue - Cola de Notificaciones
+ */
+export const notificationQueue = mysqlTable("notification_queue", {
+  id: int("id").autoincrement().primaryKey(),
+  templateCode: varchar("template_code", { length: 50 }).notNull(),
+  recipientId: int("recipient_id").references(() => employees.id), // Empleado destinatario
+  recipientEmail: varchar("recipient_email", { length: 320 }), // Email directo
+  recipientPhone: varchar("recipient_phone", { length: 20 }), // Teléfono directo
+  channel: mysqlEnum("channel", ["email", "sms", "both"]).notNull(),
+  subject: varchar("subject", { length: 255 }), // Asunto procesado
+  body: text("body"), // Cuerpo procesado
+  variables: json("variables"), // Variables utilizadas
+  status: mysqlEnum("status", ["pending", "sent", "failed", "cancelled"]).notNull().default("pending"),
+  scheduledFor: timestamp("scheduled_for"), // Cuándo enviar (null = inmediato)
+  sentAt: timestamp("sent_at"), // Cuándo se envió
+  errorMessage: text("error_message"), // Mensaje de error si falló
+  retryCount: int("retry_count").default(0), // Número de reintentos
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NotificationQueueItem = typeof notificationQueue.$inferSelect;
+export type InsertNotificationQueueItem = typeof notificationQueue.$inferInsert;
+
+/**
+ * Notification Logs - Historial de Notificaciones Enviadas
+ */
+export const notificationLogs = mysqlTable("notification_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  queueId: int("queue_id").references(() => notificationQueue.id),
+  templateCode: varchar("template_code", { length: 50 }).notNull(),
+  recipientId: int("recipient_id").references(() => employees.id),
+  recipientEmail: varchar("recipient_email", { length: 320 }),
+  recipientPhone: varchar("recipient_phone", { length: 20 }),
+  channel: mysqlEnum("channel", ["email", "sms"]).notNull(),
+  subject: varchar("subject", { length: 255 }),
+  body: text("body"),
+  status: mysqlEnum("status", ["sent", "failed", "bounced"]).notNull(),
+  errorMessage: text("error_message"),
+  sentAt: timestamp("sent_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type NotificationLog = typeof notificationLogs.$inferSelect;
+export type InsertNotificationLog = typeof notificationLogs.$inferInsert;

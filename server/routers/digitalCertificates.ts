@@ -209,4 +209,74 @@ export const digitalCertificatesRouter = router({
         },
       };
     }),
+
+  // Firmar documento con certificado e.firma SAT
+  signDocument: protectedProcedure
+    .input(
+      z.object({
+        certificateId: z.number(),
+        documentContent: z.string(), // Contenido del documento en base64
+        documentType: z.enum(['pdf', 'xml', 'text']),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      // Obtener certificado activo
+      const cert = await db
+        .select()
+        .from(digitalCertificates)
+        .where(
+          and(
+            eq(digitalCertificates.id, input.certificateId),
+            eq(digitalCertificates.userId, ctx.user.id),
+            eq(digitalCertificates.status, 'active')
+          )
+        )
+        .limit(1);
+
+      if (!cert || cert.length === 0) {
+        throw new Error('Certificado no encontrado o no activo');
+      }
+
+      const certificate = cert[0];
+
+      // Verificar vigencia
+      const now = new Date();
+      const validFrom = new Date(certificate.validFrom);
+      const validUntil = new Date(certificate.validUntil);
+
+      if (now < validFrom || now > validUntil) {
+        throw new Error('Certificado no vigente');
+      }
+
+      // Importar módulo de firma digital
+      const { generateDigitalSignature } = await import('../_core/digitalSignature');
+
+      // Convertir contenido de base64 a Buffer
+      const documentBuffer = Buffer.from(input.documentContent, 'base64');
+
+      // Generar firma digital
+      const signatureResult = await generateDigitalSignature(documentBuffer, {
+        certificatePath: certificate.certificatePath,
+        keyPath: certificate.keyPath,
+        password: certificate.passwordEncrypted, // En producción, descifrar primero
+        serialNumber: certificate.serialNumber || 'N/A',
+        issuer: certificate.issuer || 'SAT',
+      });
+
+      return {
+        success: true,
+        xmlSignature: signatureResult.xmlSignature,
+        signatureValue: signatureResult.signatureValue,
+        digestValue: signatureResult.digestValue,
+        signedAt: signatureResult.signedAt,
+        certificateInfo: {
+          name: certificate.certificateName,
+          issuer: certificate.issuer,
+          serialNumber: certificate.serialNumber,
+        },
+      };
+    }),
 });

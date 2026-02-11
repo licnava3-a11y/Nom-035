@@ -9658,3 +9658,72 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Checkpoint Final
 - [x] Guardar checkpoint con todas las funcionalidades implementadas
 - [x] Documentar sistema completo
+
+
+## FASE 195: Sellos Digitales XML, Evaluaciones en Línea y Notificaciones Automáticas
+
+### Esquema de Base de Datos
+- [x] Crear tabla `assessments` (evaluaciones/exámenes)
+- [x] Crear tabla `exam_questions` (banco de preguntas)
+- [x] Crear tabla `exam_question_options` (opciones de respuesta)
+- [x] Crear tabla `exam_attempts` (intentos de examen por empleado)
+- [x] Crear tabla `exam_answers` (respuestas de empleados)
+- [x] Crear tabla `notification_templates` (plantillas de notificaciones)
+- [x] Crear tabla `notification_queue` (cola de notificaciones)
+- [x] Crear tabla `notification_logs` (historial de notificaciones enviadas)
+- [x] Generar migraciones SQL y aplicar con webdev_execute_sql
+
+### Generación de Sellos Digitales XML
+- [x] Crear función `generateDigitalSignature` en server/_core/digitalSignature.ts
+- [x] Implementar lectura de certificados .cer y .key desde S3
+- [x] Implementar generación de hash SHA-256 del documento
+- [x] Implementar firma RSA del hash con clave privada
+- [x] Implementar generación de XML con estructura de sello digital SAT
+- [x] Crear procedimiento tRPC `signDocument` en digitalCertificates router
+- [ ] Integrar firma digital en generación de certificados PDF (pendiente UI)
+- [ ] Agregar botón "Firmar con e.firma" en página de certificados (pendiente UI)
+
+### Módulo de Evaluaciones y Exámenes
+- [x] Crear router tRPC `assessments` con procedimientos CRUD completos
+- [x] Procedimientos para banco de preguntas integrados en assessments router
+- [x] Implementar procedimiento `startAttempt` para iniciar examen
+- [x] Implementar procedimiento `submitAnswers` para calificar automáticamente
+- [x] Implementar procedimiento `getAttemptResults` para ver resultados
+- [ ] Crear página AssessmentsManagement.tsx para administración
+- [ ] Crear página QuestionBank.tsx para gestión de preguntas
+- [ ] Crear página TakeExam.tsx para aplicación de exámenes
+- [ ] Crear página ExamResults.tsx para ver resultados y estadísticas
+- [ ] Implementar timer de examen con límite de tiempo
+- [ ] Implementar validación de respuestas y cálculo de calificación
+- [ ] Generar constancia automática al aprobar examen
+- [ ] Vincular constancias con certificados de capacitación
+
+### Sistema de Notificaciones Automáticas
+- [ ] Crear router tRPC `notifications` con procedimientos de envío
+- [ ] Implementar integración con servicio de correo electrónico (SMTP/SendGrid)
+- [ ] Implementar integración con servicio de SMS (Twilio/similar)
+- [ ] Crear job automático para verificar certificados próximos a vencer
+- [ ] Crear job automático para recordatorios de capacitación obligatoria
+- [ ] Implementar procedimiento `sendEmailNotification`
+- [ ] Implementar procedimiento `sendSMSNotification`
+- [ ] Crear plantillas de correo para diferentes tipos de alertas
+- [ ] Crear página NotificationsDashboard.tsx para gestión
+- [ ] Crear página NotificationTemplates.tsx para editar plantillas
+- [ ] Implementar configuración de umbrales de alertas (30, 60, 90 días)
+- [ ] Agregar historial de notificaciones enviadas
+- [ ] Agregar estadísticas de entregas exitosas/fallidas
+
+### Pruebas y Validación
+- [ ] Probar generación de sellos digitales XML
+- [ ] Verificar firma de documentos con e.firma SAT
+- [ ] Probar creación y edición de evaluaciones
+- [ ] Probar aplicación de exámenes con timer
+- [ ] Verificar calificación automática
+- [ ] Probar generación de constancias vinculadas
+- [ ] Probar envío de notificaciones por correo
+- [ ] Probar envío de notificaciones por SMS
+- [ ] Verificar jobs automáticos de alertas
+
+### Checkpoint Final
+- [ ] Guardar checkpoint con todas las funcionalidades implementadas
+- [ ] Documentar sistema completo

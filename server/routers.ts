@@ -57,7 +57,8 @@ import { alertThresholdsRouter } from "./routers/alertThresholds";
 import { notificationHistoryRouter } from "./routers/notificationHistory";
 import { recruitmentRouter } from "./routers/recruitment";
 import { committeeMinutesRouter } from "./routers/committeeMinutes";
-import { digitalCertificatesRouter } from "./routers/digitalCertificates";
+import { digitalCertificatesRouter } from './routers/digitalCertificates';
+import { assessmentsRouter } from './routers/assessments';
 import { trainingDashboardRouter } from "./routers/trainingDashboard";
 
 // Admin-only procedure
@@ -132,6 +133,7 @@ export const appRouter = router({
   recruitment: recruitmentRouter,
   committeeMinutes: committeeMinutesRouter,
   digitalCertificates: digitalCertificatesRouter,
+  assessments: assessmentsRouter,
   trainingDashboard: trainingDashboardRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
