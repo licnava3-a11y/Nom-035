@@ -223,7 +223,7 @@ export default function NotificationsDashboard() {
 
               <div className="space-y-4">
                 {templates && templates.length > 0 ? (
-                  templates.map((template) => (
+                  templates.map((template: any) => (
                     <Card key={template.id}>
                       <CardHeader>
                         <div className="flex justify-between items-start">
@@ -284,7 +284,7 @@ export default function NotificationsDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {logsData && logsData.logs.length > 0 ? (
-                  logsData.logs.map((log) => (
+                  logsData.logs.map((log: any) => (
                     <Card key={log.id}>
                       <CardHeader>
                         <div className="flex justify-between items-start">

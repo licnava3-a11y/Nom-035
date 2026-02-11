@@ -408,7 +408,7 @@ export default function TrainingCertificates() {
               <div className="text-center py-8 text-muted-foreground">Cargando...</div>
             ) : certificateHistory.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {certificateHistory.slice(0, 10).map((cert) => (
+                {certificateHistory.slice(0, 10).map((cert: any) => (
                   <div
                     key={cert.id}
                     className="border rounded-lg p-4 hover:bg-accent/50 transition-colors"
@@ -462,7 +462,7 @@ export default function TrainingCertificates() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {certificateHistory.map((cert) => (
+                {certificateHistory.map((cert: any) => (
                   <TableRow key={cert.id}>
                     <TableCell className="font-mono text-sm">{cert.folio}</TableCell>
                     <TableCell>{cert.titulo}</TableCell>

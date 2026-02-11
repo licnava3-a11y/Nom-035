@@ -36,7 +36,7 @@ export async function runAgreementsAlertsJob() {
         dueDate: committeeMinuteAgreements.dueDate,
         priority: committeeMinuteAgreements.priority,
         minuteId: committeeMinuteAgreements.minuteId,
-        numeroSesion: committeeMinutes.numeroSesion,
+        sessionNumber: committeeMinutes.sessionNumber,
       })
       .from(committeeMinuteAgreements)
       .innerJoin(committeeMinutes, eq(committeeMinuteAgreements.minuteId, committeeMinutes.id))
@@ -56,7 +56,7 @@ export async function runAgreementsAlertsJob() {
         dueDate: committeeMinuteAgreements.dueDate,
         priority: committeeMinuteAgreements.priority,
         minuteId: committeeMinuteAgreements.minuteId,
-        numeroSesion: committeeMinutes.numeroSesion,
+        sessionNumber: committeeMinutes.sessionNumber,
       })
       .from(committeeMinuteAgreements)
       .innerJoin(committeeMinutes, eq(committeeMinuteAgreements.minuteId, committeeMinutes.id))

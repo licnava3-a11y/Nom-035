@@ -9763,6 +9763,63 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar con datos de prueba
 
 ### Checkpoint y Documentación
-- [ ] Guardar checkpoint con correcciones
-- [ ] Documentar errores encontrados y corregidos
-- [ ] Proponer plan de acción para siguientes pasos
+- [x] Guardar checkpoint con correcciones (FASE 196)
+- [x] Documentar errores encontrados y corregidos
+- [x] Proponer plan de acción para siguientes pasos
+
+## FASE 197: Continuación de Auditoría Profunda y Correcciones Críticas
+
+### Corrección de Errores TypeScript Restantes (Prioridad URGENTE)
+- [x] Analizar los 62 errores TypeScript restantes
+- [x] Eliminar duplicación de notificationsRouter en routers.ts
+- [x] Corregir numeroSesion por sessionNumber en agreementsAlerts.ts
+- [x] Agregar tipos explícitos any en NotificationsDashboard.tsx
+- [x] Agregar tipos explícitos any en TrainingCertificates.tsx
+- [x] Reducir errores de 62 a 55 (7 errores corregidos)
+- [ ] Corregir errores restantes en compliance.ts (líneas 1010-1021)
+- [ ] Agregar procedimiento getReportHistory en compliance router
+- [ ] Corregir tipo de SignatureCanvas callback en CommitteeMinutesManagement.tsx
+- [ ] Validar compilación limpia con tsc --noEmit
+
+### Implementación de Rutas Faltantes (Prioridad CRÍTICA)
+- [ ] Crear página Surveys.tsx para /surveys
+- [ ] Crear página SurveysDashboard.tsx para /surveys/dashboard
+- [ ] Crear página SurveyDetail.tsx para /surveys/:id
+- [ ] Crear página Prevention.tsx para /prevention
+- [ ] Crear página Compliance.tsx para /compliance
+- [ ] Crear página ComplianceChecklist.tsx para /compliance/checklist
+- [ ] Crear página Documents.tsx para /documents
+- [ ] Crear página DocumentsHistory.tsx para /documents/history
+- [ ] Crear página ApplicationSuccess.tsx para /application-success
+- [ ] Crear página NOM035Questionnaire.tsx para /nom035/questionnaire
+- [ ] Crear página NOM035Results.tsx para /nom035/results
+- [ ] Agregar todas las rutas en App.tsx
+
+### Resolución de Errores Fáciles
+- [ ] Corregir imports incorrectos en archivos
+- [ ] Resolver warnings de consola del navegador
+- [ ] Eliminar código duplicado
+- [ ] Optimizar queries innecesarias
+- [ ] Corregir errores SMTP en logs
+
+### Creación de Datos de Prueba (Protocolo de Calidad)
+- [ ] Insertar 10+ empleados de prueba
+- [ ] Insertar 5+ evaluaciones de prueba
+- [ ] Insertar 5+ certificados de capacitación
+- [ ] Insertar 5+ plantillas de notificaciones
+- [ ] Insertar 3+ minutas de comité
+- [ ] Validar todas las funcionalidades con datos de prueba
+
+### Pruebas Funcionales Exhaustivas
+- [ ] Probar flujo completo de evaluaciones
+- [ ] Probar generación de certificados PDF
+- [ ] Probar firma digital con e.firma SAT
+- [ ] Probar sistema de notificaciones
+- [ ] Probar dashboard de capacitación
+- [ ] Verificar navegación completa sin errores 404
+
+### Optimización y Checkpoint Final
+- [ ] Optimizar rendimiento del sistema
+- [ ] Reiniciar servidor para validar estabilidad
+- [ ] Guardar checkpoint final con todas las correcciones
+- [ ] Documentar tareas pendientes para próximas fases
