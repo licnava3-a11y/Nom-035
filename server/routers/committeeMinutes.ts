@@ -63,14 +63,14 @@ export const committeeMinutesRouter = router({
         .select()
         .from(committeeMinuteAgendaItems)
         .where(eq(committeeMinuteAgendaItems.minuteId, input.id))
-        .orderBy(committeeMinuteAgendaItems.orden);
+        .orderBy(committeeMinuteAgendaItems.order);
 
       // Obtener acuerdos
       const agreements = await db
         .select()
         .from(committeeMinuteAgreements)
         .where(eq(committeeMinuteAgreements.minuteId, input.id))
-        .orderBy(committeeMinuteAgreements.numero);
+        .orderBy(committeeMinuteAgreements.number);
 
       // Obtener historial
       const history = await db
@@ -126,14 +126,13 @@ export const committeeMinutesRouter = router({
       const [newMinute] = await db
         .insert(committeeMinutes)
         .values({
-          numeroSesion: input.numeroSesion,
-          tipoReunion: input.tipoReunion,
-          fecha: input.fecha,
-          hora: input.hora,
-          lugar: input.lugar,
-          desarrollo: input.desarrollo || null,
-          observaciones: input.observaciones || null,
-          status: input.status,
+          folio: `MC-${String(input.numeroSesion).padStart(3, '0')}/${new Date().getFullYear()}`,
+          sessionNumber: input.numeroSesion,
+          meetingDate: input.fecha,
+          meetingTime: input.hora,
+          meetingPlace: input.lugar,
+          meetingType: input.tipoReunion || 'ordinaria',
+          status: input.status || 'borrador',
           createdBy: ctx.user.id,
           createdByName: ctx.user.name || 'Usuario',
         })

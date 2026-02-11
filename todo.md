@@ -10274,3 +10274,28 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 ### Checkpoint
 - [ ] Guardar checkpoint con sistema de notificaciones implementado
+
+
+## FASE 211: Corrección de Errores TypeScript y Protección de Rutas por Rol ⏳ EN PROGRESO
+
+### Corrección de Errores TypeScript
+- [x] Identificar archivos con errores de documentFormats (fechaVersion faltante)
+- [x] Corregir error en compliance.ts línea 1364 (agregar fechaVersion)
+- [x] Reducir errores TypeScript de 25 a 24
+- [ ] Corregir 24 errores TypeScript restantes en committeeMinutes.ts:
+  - Línea 66: Propiedad 'order' no existe en committeeMinuteAgendaItems
+  - Línea 73: Propiedad 'number' no existe en committeeMinuteAgreements
+  - Línea 128-137: Nombres de columnas incorrectos en insert de committeeMinutes
+  - Múltiples errores de schema en todo el archivo committeeMinutes.ts
+- [ ] Verificar compilación TypeScript limpia (0 errores)
+
+### Protección de Rutas por Rol (Frontend)
+- [ ] Analizar estructura actual de rutas en App.tsx
+- [ ] Implementar HOC o componente ProtectedRoute para validación de roles
+- [ ] Aplicar protección de rutas en todas las secciones del sistema
+- [ ] Configurar redirección automática para usuarios sin permisos
+- [ ] Ocultar elementos de navegación según rol del usuario (sidebar, menús)
+- [ ] Probar acceso con diferentes roles (admin, user)
+
+### Checkpoint
+- [ ] Guardar checkpoint con correcciones TypeScript y protección de rutas implementada

@@ -1365,6 +1365,7 @@ export const complianceRouter = router({
           codigo: 'CERT',
           nombre: 'Certificado de Capacitación',
           version: '1.0',
+          fechaVersion: new Date('2024-01-15'),
           consecutivoActual: 0,
         });
         format = await db
