@@ -1,0 +1,31 @@
+      // Obtener datos de la minuta desde la base de datos
+      const minute = await db
+        .select()
+        .from(committeeMinutes)
+        .where(eq(committeeMinutes.id, input.minuteId))
+        .limit(1);
+
+      if (!minute || minute.length === 0) {
+        throw new Error('Minuta no encontrada');
+      }
+
+      const minuteData = minute[0];
+
+      // Obtener asistentes de la minuta
+      const attendees = await db
+        .select()
+        .from(committeeMinuteAttendees)
+        .where(eq(committeeMinuteAttendees.minuteId, input.minuteId));
+
+      // Obtener orden del día
+      const agendaItems = await db
+        .select()
+        .from(committeeMinuteAgendaItems)
+        .where(eq(committeeMinuteAgendaItems.minuteId, input.minuteId))
+        .orderBy(committeeMinuteAgendaItems.orderIndex);
+
+      // Obtener acuerdos
+      const agreements = await db
+        .select()
+        .from(committeeMinuteAgreements)
+        .where(eq(committeeMinuteAgreements.minuteId, input.minuteId));

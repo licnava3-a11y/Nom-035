@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog, reportTemplates, employees } from "../../drizzle/schema";
+import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog, reportTemplates, employees, committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements } from "../../drizzle/schema";
 import { eq, sql, desc, and } from "drizzle-orm";
 import { generatePDFFromTemplate, generateQRCode } from '../utils/pdfGenerator.js';
 
@@ -1077,16 +1077,37 @@ export const complianceRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
-      // TODO: Obtener datos de la minuta desde la base de datos
-      // Por ahora usaremos datos de ejemplo
-      const minuteData = {
-        id: input.minuteId,
-        numeroSesion: 'S-001',
-        tipoReunion: 'Reunión Ordinaria',
-        fecha: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-        hora: '10:00 AM',
-        lugar: 'Sala de Juntas Principal',
-      };
+      // Obtener datos de la minuta desde la base de datos
+      const minute = await db
+        .select()
+        .from(committeeMinutes)
+        .where(eq(committeeMinutes.id, input.minuteId))
+        .limit(1);
+
+      if (!minute || minute.length === 0) {
+        throw new Error('Minuta no encontrada');
+      }
+
+      const minuteData = minute[0];
+
+      // Obtener asistentes de la minuta
+      const attendees = await db
+        .select()
+        .from(committeeMinuteAttendees)
+        .where(eq(committeeMinuteAttendees.minuteId, input.minuteId));
+
+      // Obtener orden del día
+      const agendaItems = await db
+        .select()
+        .from(committeeMinuteAgendaItems)
+        .where(eq(committeeMinuteAgendaItems.minuteId, input.minuteId))
+        .orderBy(committeeMinuteAgendaItems.orderIndex);
+
+      // Obtener acuerdos
+      const agreements = await db
+        .select()
+        .from(committeeMinuteAgreements)
+        .where(eq(committeeMinuteAgreements.minuteId, input.minuteId));
 
       // Obtener datos de la empresa
       const companyData = await db
@@ -1134,27 +1155,32 @@ export const complianceRouter = router({
       // Generar UUID único para el reporte (NOM-151)
       const reportUuid = crypto.randomUUID();
 
-      // Datos de ejemplo para la minuta
-      const asistentes = [
-        { nombre: 'Juan Pérez García', cargo: 'Director General', rolComite: 'Presidente', asistencia: 'Presente', asistenciaClass: 'presente' },
-        { nombre: 'María López Hernández', cargo: 'Gerente de RH', rolComite: 'Secretaria', asistencia: 'Presente', asistenciaClass: 'presente' },
-        { nombre: 'Carlos Ramírez Soto', cargo: 'Jefe de Seguridad', rolComite: 'Vocal', asistencia: 'Presente', asistenciaClass: 'presente' },
-        { nombre: 'Ana Martínez Cruz', cargo: 'Representante Sindical', rolComite: 'Vocal', asistencia: 'Ausente', asistenciaClass: 'ausente' }
-      ];
+      // Preparar datos de asistentes desde la BD
+      const asistentes = attendees.map(att => ({
+        nombre: att.name,
+        cargo: att.position || 'Sin cargo',
+        rolComite: att.role || 'Participante',
+        asistencia: att.attended ? 'Presente' : 'Ausente',
+        asistenciaClass: att.attended ? 'presente' : 'ausente',
+        firma: att.signatureUrl || '',
+        foto: att.photoUrl || ''
+      }));
 
-      const ordenDia = [
-        { tema: 'Verificación de quórum', descripcion: 'Confirmación de asistencia de miembros del comité' },
-        { tema: 'Lectura y aprobación del acta anterior', descripcion: 'Revisión de minuta de sesión anterior' },
-        { tema: 'Análisis de casos reportados', descripcion: 'Revisión de casos de riesgo psicosocial identificados en el último mes' },
-        { tema: 'Propuesta de acciones preventivas', descripcion: 'Discusión de medidas para mitigar factores de riesgo' },
-        { tema: 'Asuntos generales', descripcion: '' }
-      ];
+      const ordenDia = agendaItems.map(item => ({
+        tema: item.topic,
+        descripcion: item.description || '',
+        presentador: item.presenter || '',
+        duracion: item.duration ? `${item.duration} min` : ''
+      }));
 
-      const acuerdos = [
-        { numero: 1, descripcion: 'Implementar programa de capacitación en manejo de estrés para el área de producción', responsable: 'María López', fechaCompromiso: '15/03/2026', estado: 'Pendiente', estadoClass: 'pendiente' },
-        { numero: 2, descripcion: 'Realizar evaluación de clima laboral en departamento de ventas', responsable: 'Carlos Ramírez', fechaCompromiso: '28/02/2026', estado: 'En Proceso', estadoClass: 'proceso' },
-        { numero: 3, descripcion: 'Actualizar política de prevención de riesgos psicosociales', responsable: 'Juan Pérez', fechaCompromiso: '10/03/2026', estado: 'Pendiente', estadoClass: 'pendiente' }
-      ];
+      const acuerdos = agreements.map((agr, idx) => ({
+        numero: idx + 1,
+        descripcion: agr.description,
+        responsable: agr.responsibleName || 'Sin asignar',
+        fechaCompromiso: agr.dueDate ? new Date(agr.dueDate).toLocaleDateString('es-MX') : 'Sin fecha',
+        estado: agr.status === 'completado' ? 'Completado' : agr.status === 'en_proceso' ? 'En Proceso' : agr.status === 'cancelado' ? 'Cancelado' : 'Pendiente',
+        estadoClass: agr.status
+      }));
 
       const seguimientoAcuerdos = [
         { acuerdo: 'Capacitación en comunicación asertiva para líderes', responsable: 'María López', estatus: 'Completado', estatusClass: 'completado' },

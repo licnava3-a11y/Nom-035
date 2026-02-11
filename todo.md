@@ -9450,3 +9450,39 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Probar generación de PDF de análisis de riesgos mejorado
 - [x] Verificar estado del proyecto (0 errores críticos)
 - [ ] Guardar checkpoint final
+
+
+## FASE 190 - Completar Sistema de Minutas de Comité
+
+### 1. Completar Procedimiento generateCommitteeMinutesPDF
+- [x] Reemplazar datos de ejemplo (TODO línea 1080)
+- [x] Consultar tabla committeeMinutes por minuteId
+- [x] Agregar join para obtener asistentes desde committeeMinuteAttendees
+- [x] Agregar join para obtener orden del día desde committeeMinuteAgendaItems
+- [x] Agregar join para obtener acuerdos desde committeeMinuteAgreements
+- [x] Preparar templateData con datos reales
+- [x] Probar generación de PDF con datos completos
+
+### 2. Agregar Enlace en Sidebar
+- [x] Modificar DashboardLayout.tsx
+- [x] Agregar enlace "Gestión de Minutas" en submenú de Comité
+- [x] Apuntar a ruta /committee-minutes-management
+- [x] Verificar navegación funcional
+
+### 3. Expandir Formularios de Minutas
+- [x] Crear sección dinámica de asistentes con array de inputs
+- [x] Agregar campos: nombre, puesto, rol, asistencia
+- [x] Crear sección dinámica de orden del día
+- [x] Agregar campos: tema, descripción, presentador, duración
+- [x] Crear sección dinámica de acuerdos
+- [x] Agregar campos: descripción, responsable, fecha de cumplimiento, prioridad
+- [x] Implementar botones para agregar/eliminar items dinámicamente
+- [x] Integrar con procedimientos tRPC de creación/actualización
+- [x] Agregar select para tipo de reunión con 7 opciones
+
+### Pruebas y Checkpoint
+- [x] Probar generación de PDF con datos reales
+- [x] Probar navegación desde sidebar
+- [x] Probar formularios dinámicos completos
+- [x] Verificar compilación exitosa (0 errores TypeScript)
+- [ ] Guardar checkpoint final

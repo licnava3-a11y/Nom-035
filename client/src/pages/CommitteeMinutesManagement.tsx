@@ -5,17 +5,40 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Plus, Edit, Trash2, Download, Eye } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileText, Plus, Edit, Trash2, Download, Eye, X, UserPlus, ClipboardList, CheckSquare } from "lucide-react";
+
+// Tipos para secciones dinámicas
+interface Attendee {
+  name: string;
+  position: string;
+  role: string;
+  attended: boolean;
+}
+
+interface AgendaItem {
+  topic: string;
+  description: string;
+  presenter: string;
+  duration: number;
+}
+
+interface Agreement {
+  description: string;
+  responsibleName: string;
+  dueDate: string;
+  priority: 'baja' | 'media' | 'alta' | 'urgente';
+}
 
 export default function CommitteeMinutesManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'published'>('all');
 
-  // Form state
+  // Form state básico
   const [formData, setFormData] = useState({
     numeroSesion: "",
-    tipoReunion: "",
+    tipoReunion: "reunion_ordinaria",
     fecha: "",
     hora: "",
     lugar: "",
@@ -23,6 +46,19 @@ export default function CommitteeMinutesManagement() {
     observaciones: "",
     status: "draft" as 'draft' | 'published',
   });
+
+  // Estados para secciones dinámicas
+  const [attendees, setAttendees] = useState<Attendee[]>([
+    { name: "", position: "", role: "", attended: true }
+  ]);
+
+  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([
+    { topic: "", description: "", presenter: "", duration: 0 }
+  ]);
+
+  const [agreements, setAgreements] = useState<Agreement[]>([
+    { description: "", responsibleName: "", dueDate: "", priority: "media" }
+  ]);
 
   // Queries
   const { data: minutesData, refetch } = trpc.committeeMinutes.list.useQuery({
@@ -74,7 +110,6 @@ export default function CommitteeMinutesManagement() {
 
   const generatePDFMutation = trpc.compliance.generateCommitteeMinutesPDF.useMutation({
     onSuccess: (data) => {
-      // Convertir base64 a blob y descargar
       const byteCharacters = atob(data.pdfBase64);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -95,10 +130,55 @@ export default function CommitteeMinutesManagement() {
     },
   });
 
+  // Funciones para manejar asistentes
+  const addAttendee = () => {
+    setAttendees([...attendees, { name: "", position: "", role: "", attended: true }]);
+  };
+
+  const removeAttendee = (index: number) => {
+    setAttendees(attendees.filter((_, i) => i !== index));
+  };
+
+  const updateAttendee = (index: number, field: keyof Attendee, value: string | boolean) => {
+    const updated = [...attendees];
+    updated[index] = { ...updated[index], [field]: value };
+    setAttendees(updated);
+  };
+
+  // Funciones para manejar orden del día
+  const addAgendaItem = () => {
+    setAgendaItems([...agendaItems, { topic: "", description: "", presenter: "", duration: 0 }]);
+  };
+
+  const removeAgendaItem = (index: number) => {
+    setAgendaItems(agendaItems.filter((_, i) => i !== index));
+  };
+
+  const updateAgendaItem = (index: number, field: keyof AgendaItem, value: string | number) => {
+    const updated = [...agendaItems];
+    updated[index] = { ...updated[index], [field]: value };
+    setAgendaItems(updated);
+  };
+
+  // Funciones para manejar acuerdos
+  const addAgreement = () => {
+    setAgreements([...agreements, { description: "", responsibleName: "", dueDate: "", priority: "media" }]);
+  };
+
+  const removeAgreement = (index: number) => {
+    setAgreements(agreements.filter((_, i) => i !== index));
+  };
+
+  const updateAgreement = (index: number, field: keyof Agreement, value: string) => {
+    const updated = [...agreements];
+    updated[index] = { ...updated[index], [field]: value };
+    setAgreements(updated);
+  };
+
   const resetForm = () => {
     setFormData({
       numeroSesion: "",
-      tipoReunion: "",
+      tipoReunion: "reunion_ordinaria",
       fecha: "",
       hora: "",
       lugar: "",
@@ -106,20 +186,27 @@ export default function CommitteeMinutesManagement() {
       observaciones: "",
       status: "draft",
     });
-    setEditingId(null);
+    setAttendees([{ name: "", position: "", role: "", attended: true }]);
+    setAgendaItems([{ topic: "", description: "", presenter: "", duration: 0 }]);
+    setAgreements([{ description: "", responsibleName: "", dueDate: "", priority: "media" }]);
     setShowForm(false);
+    setEditingId(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const minuteData = {
+      ...formData,
+      attendees: attendees.filter(a => a.name.trim() !== ""),
+      agendaItems: agendaItems.filter(a => a.topic.trim() !== ""),
+      agreements: agreements.filter(a => a.description.trim() !== ""),
+    };
+
     if (editingId) {
-      updateMutation.mutate({
-        id: editingId,
-        ...formData,
-      });
+      updateMutation.mutate({ id: editingId, data: minuteData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(minuteData);
     }
   };
 
@@ -145,7 +232,7 @@ export default function CommitteeMinutesManagement() {
   };
 
   const handlePublish = (id: number) => {
-    if (confirm('¿Está seguro de publicar esta minuta? No podrá revertirse a borrador.')) {
+    if (confirm('¿Está seguro de publicar esta minuta? No podrá editarla después.')) {
       publishMutation.mutate({ id });
     }
   };
@@ -159,29 +246,56 @@ export default function CommitteeMinutesManagement() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Gestión de Minutas de Comité</h1>
-          <p className="text-muted-foreground mt-2">
-            Administración completa de minutas de reuniones del Comité NOM-035
-          </p>
+          <p className="text-muted-foreground">CRUD completo con borradores, historial y exportación PDF</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {showForm ? 'Cancelar' : 'Nueva Minuta'}
+        <Button onClick={() => setShowForm(!showForm)}>
+          {showForm ? <X className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+          {showForm ? "Cancelar" : "Nueva Minuta"}
         </Button>
       </div>
 
+      {/* Filtros */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <Button 
+              variant={filterStatus === 'all' ? 'default' : 'outline'}
+              onClick={() => setFilterStatus('all')}
+            >
+              Todas
+            </Button>
+            <Button 
+              variant={filterStatus === 'draft' ? 'default' : 'outline'}
+              onClick={() => setFilterStatus('draft')}
+            >
+              Borradores
+            </Button>
+            <Button 
+              variant={filterStatus === 'published' ? 'default' : 'outline'}
+              onClick={() => setFilterStatus('published')}
+            >
+              Publicadas
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Formulario */}
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingId ? 'Editar Minuta' : 'Nueva Minuta'}</CardTitle>
-            <CardDescription>
-              Complete los datos de la minuta de reunión
-            </CardDescription>
+            <CardTitle>{editingId ? "Editar Minuta" : "Nueva Minuta"}</CardTitle>
+            <CardDescription>Complete los datos de la minuta del comité</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Información Básica */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="numeroSesion">Número de Sesión *</Label>
+                  <Label htmlFor="numeroSesion">Número de Sesión</Label>
                   <Input
                     id="numeroSesion"
                     value={formData.numeroSesion}
@@ -191,17 +305,27 @@ export default function CommitteeMinutesManagement() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tipoReunion">Tipo de Reunión *</Label>
-                  <Input
-                    id="tipoReunion"
+                  <Label htmlFor="tipoReunion">Tipo de Reunión</Label>
+                  <Select
                     value={formData.tipoReunion}
-                    onChange={(e) => setFormData({ ...formData, tipoReunion: e.target.value })}
-                    placeholder="Reunión Ordinaria"
-                    required
-                  />
+                    onValueChange={(value) => setFormData({ ...formData, tipoReunion: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reunion_ordinaria">Reunión Ordinaria</SelectItem>
+                      <SelectItem value="reunion_extraordinaria">Reunión Extraordinaria</SelectItem>
+                      <SelectItem value="junta_trabajo">Junta de Trabajo</SelectItem>
+                      <SelectItem value="taller">Taller</SelectItem>
+                      <SelectItem value="capacitacion">Capacitación</SelectItem>
+                      <SelectItem value="seminario">Seminario</SelectItem>
+                      <SelectItem value="foro">Foro</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <Label htmlFor="fecha">Fecha *</Label>
+                  <Label htmlFor="fecha">Fecha</Label>
                   <Input
                     id="fecha"
                     type="date"
@@ -211,7 +335,7 @@ export default function CommitteeMinutesManagement() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="hora">Hora *</Label>
+                  <Label htmlFor="hora">Hora</Label>
                   <Input
                     id="hora"
                     type="time"
@@ -220,57 +344,251 @@ export default function CommitteeMinutesManagement() {
                     required
                   />
                 </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="lugar">Lugar *</Label>
-                <Input
-                  id="lugar"
-                  value={formData.lugar}
-                  onChange={(e) => setFormData({ ...formData, lugar: e.target.value })}
-                  placeholder="Sala de Juntas Principal"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="desarrollo">Desarrollo de la Reunión</Label>
-                <Textarea
-                  id="desarrollo"
-                  value={formData.desarrollo}
-                  onChange={(e) => setFormData({ ...formData, desarrollo: e.target.value })}
-                  placeholder="Descripción del desarrollo de la reunión..."
-                  rows={4}
-                />
+                <div className="col-span-2">
+                  <Label htmlFor="lugar">Lugar</Label>
+                  <Input
+                    id="lugar"
+                    value={formData.lugar}
+                    onChange={(e) => setFormData({ ...formData, lugar: e.target.value })}
+                    placeholder="Sala de Juntas Principal"
+                    required
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="observaciones">Observaciones</Label>
-                <Textarea
-                  id="observaciones"
-                  value={formData.observaciones}
-                  onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
-                  placeholder="Observaciones adicionales..."
-                  rows={3}
-                />
+              {/* Sección de Asistentes */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <UserPlus className="h-5 w-5" />
+                    Asistentes
+                  </h3>
+                  <Button type="button" size="sm" onClick={addAttendee}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Agregar Asistente
+                  </Button>
+                </div>
+                {attendees.map((attendee, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div>
+                        <Label>Nombre Completo</Label>
+                        <Input
+                          value={attendee.name}
+                          onChange={(e) => updateAttendee(index, 'name', e.target.value)}
+                          placeholder="Juan Pérez García"
+                        />
+                      </div>
+                      <div>
+                        <Label>Cargo</Label>
+                        <Input
+                          value={attendee.position}
+                          onChange={(e) => updateAttendee(index, 'position', e.target.value)}
+                          placeholder="Director General"
+                        />
+                      </div>
+                      <div>
+                        <Label>Rol en Comité</Label>
+                        <Input
+                          value={attendee.role}
+                          onChange={(e) => updateAttendee(index, 'role', e.target.value)}
+                          placeholder="Presidente"
+                        />
+                      </div>
+                      <div className="flex items-end gap-2">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={attendee.attended}
+                            onChange={(e) => updateAttendee(index, 'attended', e.target.checked)}
+                          />
+                          Asistió
+                        </label>
+                        {attendees.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeAttendee(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
 
-              <div>
-                <Label htmlFor="status">Estado</Label>
-                <select
-                  id="status"
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="draft">Borrador</option>
-                  <option value="published">Publicado</option>
-                </select>
+              {/* Sección de Orden del Día */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5" />
+                    Orden del Día
+                  </h3>
+                  <Button type="button" size="sm" onClick={addAgendaItem}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Agregar Tema
+                  </Button>
+                </div>
+                {agendaItems.map((item, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div>
+                        <Label>Tema</Label>
+                        <Input
+                          value={item.topic}
+                          onChange={(e) => updateAgendaItem(index, 'topic', e.target.value)}
+                          placeholder="Verificación de quórum"
+                        />
+                      </div>
+                      <div>
+                        <Label>Descripción</Label>
+                        <Input
+                          value={item.description}
+                          onChange={(e) => updateAgendaItem(index, 'description', e.target.value)}
+                          placeholder="Confirmación de asistencia"
+                        />
+                      </div>
+                      <div>
+                        <Label>Presentador</Label>
+                        <Input
+                          value={item.presenter}
+                          onChange={(e) => updateAgendaItem(index, 'presenter', e.target.value)}
+                          placeholder="Juan Pérez"
+                        />
+                      </div>
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Label>Duración (min)</Label>
+                          <Input
+                            type="number"
+                            value={item.duration}
+                            onChange={(e) => updateAgendaItem(index, 'duration', parseInt(e.target.value) || 0)}
+                            placeholder="15"
+                          />
+                        </div>
+                        {agendaItems.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeAgendaItem(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
 
-              <div className="flex gap-2">
+              {/* Sección de Acuerdos */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <CheckSquare className="h-5 w-5" />
+                    Acuerdos
+                  </h3>
+                  <Button type="button" size="sm" onClick={addAgreement}>
+                    <Plus className="h-4 w-4 mr-1" />
+                    Agregar Acuerdo
+                  </Button>
+                </div>
+                {agreements.map((agreement, index) => (
+                  <Card key={index} className="p-4">
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="col-span-2">
+                        <Label>Descripción del Acuerdo</Label>
+                        <Textarea
+                          value={agreement.description}
+                          onChange={(e) => updateAgreement(index, 'description', e.target.value)}
+                          placeholder="Implementar programa de capacitación..."
+                          rows={2}
+                        />
+                      </div>
+                      <div>
+                        <Label>Responsable</Label>
+                        <Input
+                          value={agreement.responsibleName}
+                          onChange={(e) => updateAgreement(index, 'responsibleName', e.target.value)}
+                          placeholder="María López"
+                        />
+                      </div>
+                      <div>
+                        <Label>Fecha de Cumplimiento</Label>
+                        <Input
+                          type="date"
+                          value={agreement.dueDate}
+                          onChange={(e) => updateAgreement(index, 'dueDate', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Prioridad</Label>
+                        <Select
+                          value={agreement.priority}
+                          onValueChange={(value) => updateAgreement(index, 'priority', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="baja">Baja</SelectItem>
+                            <SelectItem value="media">Media</SelectItem>
+                            <SelectItem value="alta">Alta</SelectItem>
+                            <SelectItem value="urgente">Urgente</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="col-span-3"></div>
+                      <div className="flex justify-end">
+                        {agreements.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeAgreement(index)}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Eliminar
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desarrollo y Observaciones */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="desarrollo">Desarrollo de la Reunión</Label>
+                  <Textarea
+                    id="desarrollo"
+                    value={formData.desarrollo}
+                    onChange={(e) => setFormData({ ...formData, desarrollo: e.target.value })}
+                    placeholder="Descripción del desarrollo de la reunión..."
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="observaciones">Observaciones</Label>
+                  <Textarea
+                    id="observaciones"
+                    value={formData.observaciones}
+                    onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
+                    placeholder="Observaciones adicionales..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex gap-4">
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                  {editingId ? 'Actualizar' : 'Crear'} Minuta
+                  {editingId ? "Actualizar" : "Guardar"} Borrador
                 </Button>
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancelar
@@ -281,123 +599,63 @@ export default function CommitteeMinutesManagement() {
         </Card>
       )}
 
+      {/* Lista de Minutas */}
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Minutas Registradas</CardTitle>
-              <CardDescription>
-                {minutesData?.total || 0} minutas encontradas
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={filterStatus === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('all')}
-              >
-                Todas
-              </Button>
-              <Button
-                variant={filterStatus === 'draft' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('draft')}
-              >
-                Borradores
-              </Button>
-              <Button
-                variant={filterStatus === 'published' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('published')}
-              >
-                Publicadas
-              </Button>
-            </div>
-          </div>
+          <CardTitle>Minutas Registradas</CardTitle>
+          <CardDescription>
+            {minutesData?.length || 0} minutas encontradas
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Sesión</th>
-                  <th className="text-left p-2">Tipo</th>
-                  <th className="text-left p-2">Fecha</th>
-                  <th className="text-left p-2">Lugar</th>
-                  <th className="text-left p-2">Estado</th>
-                  <th className="text-left p-2">Creado por</th>
-                  <th className="text-right p-2">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {minutesData?.minutes.map((minute: any) => (
-                  <tr key={minute.id} className="border-b hover:bg-muted/50">
-                    <td className="p-2 font-medium">{minute.numeroSesion}</td>
-                    <td className="p-2">{minute.tipoReunion}</td>
-                    <td className="p-2">{minute.fecha}</td>
-                    <td className="p-2">{minute.lugar}</td>
-                    <td className="p-2">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        minute.status === 'published' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {minute.status === 'published' ? 'Publicado' : 'Borrador'}
-                      </span>
-                    </td>
-                    <td className="p-2 text-sm text-muted-foreground">{minute.createdByName}</td>
-                    <td className="p-2">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEdit(minute)}
-                          title="Editar"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        {minute.status === 'draft' && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handlePublish(minute.id)}
-                            title="Publicar"
-                          >
+          <div className="space-y-4">
+            {minutesData && minutesData.length > 0 ? (
+              minutesData.map((minute: any) => (
+                <Card key={minute.id} className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg">{minute.numeroSesion} - {minute.tipoReunion}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {minute.fecha} a las {minute.hora} - {minute.lugar}
+                      </p>
+                      <p className="text-sm mt-2">
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          minute.status === 'published' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {minute.status === 'published' ? 'Publicada' : 'Borrador'}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      {minute.status === 'draft' && (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(minute)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => handlePublish(minute.id)}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleGeneratePDF(minute.id)}
-                          title="Generar PDF"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDelete(minute.id)}
-                          title="Eliminar"
-                          className="text-destructive"
-                        >
+                        </>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => handleGeneratePDF(minute.id)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      {minute.status === 'draft' && (
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(minute.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {(!minutesData?.minutes || minutesData.minutes.length === 0) && (
-                  <tr>
-                    <td colSpan={7} className="text-center p-8 text-muted-foreground">
-                      <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>No hay minutas registradas</p>
-                      <p className="text-sm">Cree una nueva minuta para comenzar</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8">
+                No hay minutas registradas. Cree una nueva minuta para comenzar.
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

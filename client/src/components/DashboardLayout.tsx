@@ -128,6 +128,7 @@ const hierarchicalMenuItems = [
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento formal de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },
+          { label: "Gestión de Minutas", path: "/committee-minutes-management", description: "CRUD completo de minutas de comité con borradores, historial y exportación PDF" },
         ]
       },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar factores de riesgo identificados" },
