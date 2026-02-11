@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Award, Download, FileText, Search, Calendar } from 'lucide-react';
+import { Award, Download, FileText, Search, Calendar, PenTool } from 'lucide-react';
+import SignatureCanvas from '@/components/SignatureCanvas';
 // import { useToast } from '@/hooks/use-toast';
 
 export default function TrainingCertificates() {
@@ -23,6 +24,8 @@ export default function TrainingCertificates() {
   const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showInstructorSignature, setShowInstructorSignature] = useState(false);
+  const [showRepresentativeSignature, setShowRepresentativeSignature] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -70,6 +73,46 @@ export default function TrainingCertificates() {
       setIsGenerating(false);
     },
   });
+
+  // Mutation para subir firmas
+  const uploadSignature = trpc.compliance.uploadSignature.useMutation({
+    onSuccess: (data, variables) => {
+      // Determinar si es firma de instructor o representante
+      if (variables.signerName === formData.instructorName) {
+        setFormData({ ...formData, instructorSignatureUrl: data.signatureUrl });
+        setShowInstructorSignature(false);
+      } else if (variables.signerName === formData.representativeName) {
+        setFormData({ ...formData, representativeSignatureUrl: data.signatureUrl });
+        setShowRepresentativeSignature(false);
+      }
+      alert('Firma guardada exitosamente');
+    },
+    onError: (error) => {
+      alert(`Error al guardar firma: ${error.message}`);
+    },
+  });
+
+  const handleSaveInstructorSignature = (signatureDataUrl: string) => {
+    if (!formData.instructorName) {
+      alert('Ingresa el nombre del instructor primero');
+      return;
+    }
+    uploadSignature.mutate({
+      signatureDataUrl,
+      signerName: formData.instructorName,
+    });
+  };
+
+  const handleSaveRepresentativeSignature = (signatureDataUrl: string) => {
+    if (!formData.representativeName) {
+      alert('Ingresa el nombre del representante primero');
+      return;
+    }
+    uploadSignature.mutate({
+      signatureDataUrl,
+      signerName: formData.representativeName,
+    });
+  };
 
   const handleGenerateCertificate = () => {
     if (!selectedEmployee) {
@@ -254,13 +297,34 @@ export default function TrainingCertificates() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="instructorSignature">URL de Firma (opcional)</Label>
-                          <Input
-                            id="instructorSignature"
-                            value={formData.instructorSignatureUrl}
-                            onChange={(e) => setFormData({ ...formData, instructorSignatureUrl: e.target.value })}
-                            placeholder="https://..."
-                          />
+                          <Label>Firma Digital</Label>
+                          {formData.instructorSignatureUrl ? (
+                            <div className="space-y-2">
+                              <div className="border rounded-lg p-2 bg-gray-50">
+                                <img src={formData.instructorSignatureUrl} alt="Firma instructor" className="h-20 mx-auto" />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setShowInstructorSignature(true)}
+                              >
+                                <PenTool className="mr-2 h-4 w-4" />
+                                Cambiar Firma
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => setShowInstructorSignature(true)}
+                            >
+                              <PenTool className="mr-2 h-4 w-4" />
+                              Capturar Firma Digital
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -278,13 +342,34 @@ export default function TrainingCertificates() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="representativeSignature">URL de Firma (opcional)</Label>
-                          <Input
-                            id="representativeSignature"
-                            value={formData.representativeSignatureUrl}
-                            onChange={(e) => setFormData({ ...formData, representativeSignatureUrl: e.target.value })}
-                            placeholder="https://..."
-                          />
+                          <Label>Firma Digital</Label>
+                          {formData.representativeSignatureUrl ? (
+                            <div className="space-y-2">
+                              <div className="border rounded-lg p-2 bg-gray-50">
+                                <img src={formData.representativeSignatureUrl} alt="Firma representante" className="h-20 mx-auto" />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setShowRepresentativeSignature(true)}
+                              >
+                                <PenTool className="mr-2 h-4 w-4" />
+                                Cambiar Firma
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => setShowRepresentativeSignature(true)}
+                            >
+                              <PenTool className="mr-2 h-4 w-4" />
+                              Capturar Firma Digital
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -401,6 +486,26 @@ export default function TrainingCertificates() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de firma del instructor */}
+      {showInstructorSignature && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <SignatureCanvas
+            onSave={handleSaveInstructorSignature}
+            onCancel={() => setShowInstructorSignature(false)}
+          />
+        </div>
+      )}
+
+      {/* Modal de firma del representante */}
+      {showRepresentativeSignature && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <SignatureCanvas
+            onSave={handleSaveRepresentativeSignature}
+            onCancel={() => setShowRepresentativeSignature(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

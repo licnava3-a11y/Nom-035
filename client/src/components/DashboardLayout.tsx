@@ -126,6 +126,8 @@ const hierarchicalMenuItems = [
           { label: "Miembros del Comité", path: "/committee", description: "Gestión de miembros del comité NOM-035" },
           { label: "Programa de Capacitación", path: "/committee/training", description: "Gestión de programas de capacitación del comité (presencial y en línea)" },
           { label: "Certificados de Capacitación", path: "/training-certificates", description: "Generación de certificados oficiales con cumplimiento STPS y RED CONOCER" },
+          { label: "Certificados e.firma SAT", path: "/efirma-sat", description: "Gestión de certificados digitales del SAT para firma electrónica avanzada" },
+          { label: "Dashboard de Capacitación", path: "/training-dashboard", description: "Estadísticas, métricas y alertas de certificados de capacitación" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento formal de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento formal de aceptación de cargo con responsabilidades" },

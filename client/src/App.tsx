@@ -115,6 +115,8 @@ import RiskAnalysis from "./pages/RiskAnalysis";
 import CommitteeMinutesManagement from "./pages/CommitteeMinutesManagement";
 import AgreementsDashboard from "./pages/AgreementsDashboard";
 import TrainingCertificates from "./pages/TrainingCertificates";
+import EfirmaSAT from "./pages/EfirmaSAT";
+import TrainingDashboard from "./pages/TrainingDashboard";
 
 function Router() {
   return (
@@ -291,6 +293,16 @@ function Router() {
       <Route path="/training-certificates">
         <DashboardLayout>
           <TrainingCertificates />
+        </DashboardLayout>
+      </Route>
+      <Route path="/efirma-sat">
+        <DashboardLayout>
+          <EfirmaSAT />
+        </DashboardLayout>
+      </Route>
+      <Route path="/training-dashboard">
+        <DashboardLayout>
+          <TrainingDashboard />
         </DashboardLayout>
       </Route>
       <Route path={"/meeting-minutes"}>

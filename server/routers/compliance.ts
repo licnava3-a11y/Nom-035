@@ -1499,4 +1499,33 @@ export const complianceRouter = router({
       };
     }),
 
+  // Subir firma digital a S3
+  uploadSignature: protectedProcedure
+    .input(
+      z.object({
+        signatureDataUrl: z.string(),
+        signerName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not available');
+
+      // Decodificar data URL a buffer
+      const base64Data = input.signatureDataUrl.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Generar nombre único para el archivo
+      const timestamp = Date.now();
+      const fileName = `signatures/${ctx.user.id}/${input.signerName.replace(/\s+/g, '_')}_${timestamp}.png`;
+
+      // Subir a S3
+      const { url } = await storagePut(fileName, buffer, 'image/png');
+
+      return {
+        success: true,
+        signatureUrl: url,
+      };
+    }),
+
 });

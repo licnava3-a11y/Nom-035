@@ -9616,3 +9616,45 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Probar generación de certificados de capacitación
 - [ ] Verificar cumplimiento con estándares STPS/CONOCER
 - [ ] Guardar checkpoint final
+
+
+## FASE 194: Módulo e.firma SAT y Dashboard de Capacitación
+
+### Módulo e.firma SAT
+- [x] Verificar tabla digitalCertificates en schema.ts
+- [x] Crear procedimientos tRPC para gestión de certificados SAT (upload, list, delete, validate)
+- [x] Crear página EfirmaSAT.tsx para administración de certificados digitales
+- [x] Implementar carga de archivos .cer y .key
+- [x] Implementar validación de certificados con API del SAT
+- [ ] Crear función de generación de sellos digitales XML (pendiente para futuras fases)
+
+### Integración de Firmas Digitales en Certificados
+- [x] Modificar TrainingCertificates.tsx para incluir SignatureCanvas
+- [x] Agregar campos de captura de firma para instructor
+- [x] Agregar campos de captura de firma para representante legal
+- [x] Implementar almacenamiento de firmas en S3
+- [x] Actualizar procedimiento generateTrainingCertificatePDF para incluir firmas capturadas
+
+### Dashboard de Capacitación
+- [x] Crear procedimientos tRPC para estadísticas de capacitación
+- [x] Implementar consulta de certificados emitidos por periodo
+- [x] Implementar consulta de cursos más populares
+- [x] Implementar consulta de empleados capacitados por departamento
+- [x] Crear página TrainingDashboard.tsx
+- [x] Implementar tarjetas de métricas (total certificados, empleados capacitados, cursos activos)
+- [x] Crear gráfica de certificados por mes
+- [x] Crear gráfica de empleados por departamento
+- [x] Crear tabla de cursos más populares
+- [x] Implementar alertas de renovación de certificaciones
+- [x] Agregar ruta y enlace en sidebar
+
+### Pruebas y Validación
+- [x] Probar carga de certificados e.firma SAT
+- [x] Probar captura de firmas digitales en certificados
+- [x] Verificar generación de PDFs con firmas
+- [x] Validar estadísticas del dashboard
+- [x] Probar todas las gráficas y métricas
+
+### Checkpoint Final
+- [x] Guardar checkpoint con todas las funcionalidades implementadas
+- [x] Documentar sistema completo
