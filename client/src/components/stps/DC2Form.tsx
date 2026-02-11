@@ -40,18 +40,15 @@ export function DC2Form() {
   // Mutation para generar DC-2
   const generateDC2 = trpc.stpsReports.generateDC2.useMutation({
     onSuccess: (data) => {
-      toast({
-        title: "✅ Reporte DC-2 Generado",
+      toast.success("✅ Reporte DC-2 Generado", {
         description: `Folio: ${data.folio}`,
       });
       setGeneratedReport({ folio: data.folio, pdfUrl: data.pdfUrl });
       reset();
     },
     onError: (error) => {
-      toast({
-        title: "❌ Error al Generar Reporte",
+      toast.error("❌ Error al Generar Reporte", {
         description: error.message,
-        variant: "destructive",
       });
     },
   });

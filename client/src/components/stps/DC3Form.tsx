@@ -44,8 +44,7 @@ export function DC3Form() {
   // Mutation para generar DC-3
   const generateDC3 = trpc.stpsReports.generateDC3.useMutation({
     onSuccess: (data) => {
-      toast({
-        title: "✅ Reporte DC-3 Generado",
+      toast.success("✅ Reporte DC-3 Generado", {
         description: `Folio: ${data.folio}`,
       });
       setGeneratedReport({ folio: data.folio, pdfUrl: data.pdfUrl });
@@ -53,10 +52,8 @@ export function DC3Form() {
       setSkills([]);
     },
     onError: (error) => {
-      toast({
-        title: "❌ Error al Generar Reporte",
+      toast.error("❌ Error al Generar Reporte", {
         description: error.message,
-        variant: "destructive",
       });
     },
   });
@@ -81,10 +78,8 @@ export function DC3Form() {
 
   const onSubmit = (data: DC3FormData) => {
     if (skills.length === 0) {
-      toast({
-        title: "❌ Error de Validación",
+      toast.error("❌ Error de Validación", {
         description: "Debe agregar al menos una habilidad adquirida",
-        variant: "destructive",
       });
       return;
     }
@@ -99,10 +94,8 @@ export function DC3Form() {
 
   const addSkill = () => {
     if (newSkill.trim() === "") {
-      toast({
-        title: "⚠️ Campo Vacío",
+      toast.error("⚠️ Campo Vacío", {
         description: "Escriba una habilidad antes de agregar",
-        variant: "destructive",
       });
       return;
     }

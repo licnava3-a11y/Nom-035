@@ -10198,13 +10198,36 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Verificar navegación correcta a /stps-reports
 
 ### Corrección de Errores TypeScript
-- [ ] Corregir 13 errores en compliance.ts
-- [ ] Corregir 9 errores en committeeMinutes.ts
-- [ ] Corregir 3 errores en assessments.ts
-- [ ] Corregir 30 errores en páginas frontend
+- [x] Corregir 3 errores en compliance.ts (import departments/positions)
+- [x] Corregir 7 errores en committeeMinutes.ts (status, responsible, enum types)
+- [ ] Corregir 51 errores TypeScript restantes en otros módulos
 - [ ] Lograr compilación TypeScript limpia (0 errores)
 
 ### Validación y Checkpoint
 - [ ] Probar generación de DC-2, DC-3 y DC-4 con plantillas HTML
 - [ ] Verificar PDFs generados con formato profesional
 - [ ] Guardar checkpoint final con sistema completo
+
+
+## FASE 207: Pruebas End-to-End de Reportes STPS, Corrección de Errores TypeScript y Tarjetas de Acceso Rápido
+
+### Pruebas de Generación de Reportes STPS
+- [ ] Probar acceso a la página /stps-reports y verificar carga de componentes
+- [ ] Validar generación de DC-2 con datos de prueba y verificar PDF descargable
+- [ ] Validar generación de DC-3 con datos de prueba y verificar PDF descargable
+- [ ] Validar generación de DC-4 con datos de prueba y verificar PDF descargable
+- [ ] Verificar folios únicos y códigos QR funcionales en PDFs generados
+
+### Corrección de Errores TypeScript
+- [ ] Corregir 51 errores TypeScript restantes en otros módulos
+- [ ] Lograr compilación TypeScript limpia (0 errores)
+
+### Mejoras de UX en Dashboard
+- [ ] Agregar tarjeta de acceso rápido "Generar DC-2" en dashboard principal
+- [ ] Agregar tarjeta de acceso rápido "Generar DC-3" en dashboard principal
+- [ ] Agregar tarjeta de acceso rápido "Generar DC-4" en dashboard principal
+- [ ] Verificar navegación correcta desde tarjetas a formularios específicos
+
+### Validación y Checkpoint Final
+- [ ] Realizar pruebas exhaustivas de todas las funcionalidades implementadas
+- [ ] Guardar checkpoint final con documentación detallada

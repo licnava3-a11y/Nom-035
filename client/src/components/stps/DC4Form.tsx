@@ -65,8 +65,7 @@ export function DC4Form() {
   // Mutation para generar DC-4
   const generateDC4 = trpc.stpsReports.generateDC4.useMutation({
     onSuccess: (data) => {
-      toast({
-        title: "✅ Reporte DC-4 Generado",
+      toast.success("✅ Reporte DC-4 Generado", {
         description: `Folio: ${data.folio}`,
       });
       setGeneratedReport({ folio: data.folio, pdfUrl: data.pdfUrl });
@@ -74,10 +73,8 @@ export function DC4Form() {
       setCertificates([]);
     },
     onError: (error) => {
-      toast({
-        title: "❌ Error al Generar Reporte",
+      toast.error("❌ Error al Generar Reporte", {
         description: error.message,
-        variant: "destructive",
       });
     },
   });
@@ -102,10 +99,8 @@ export function DC4Form() {
 
   const onSubmit = (data: DC4FormData) => {
     if (certificates.length === 0) {
-      toast({
-        title: "❌ Error de Validación",
+      toast.error("❌ Error de Validación", {
         description: "Debe agregar al menos un certificado a la lista",
-        variant: "destructive",
       });
       return;
     }
@@ -114,10 +109,8 @@ export function DC4Form() {
 
   const addCertificate = () => {
     if (!newCert.employeeName || !newCert.courseTitle || !newCert.folio) {
-      toast({
-        title: "⚠️ Campos Incompletos",
+      toast.error("⚠️ Campos Incompletos", {
         description: "Complete todos los campos requeridos antes de agregar",
-        variant: "destructive",
       });
       return;
     }
@@ -144,8 +137,7 @@ export function DC4Form() {
       folio: "",
     });
 
-    toast({
-      title: "✅ Certificado Agregado",
+    toast.success("✅ Certificado Agregado", {
       description: `${newCert.employeeName} - ${newCert.courseTitle}`,
     });
   };
