@@ -16,8 +16,8 @@ export default function AgreementsDashboard() {
   // Obtener acuerdos
   const { data: agreements, isLoading, refetch } = trpc.committeeMinutes.getAgreements.useQuery({
     responsible: responsibleFilter || undefined,
-    priority: priorityFilter !== "all" ? priorityFilter : undefined,
-    status: statusFilter !== "all" ? statusFilter : undefined,
+    priority: priorityFilter !== "all" ? (priorityFilter as "baja" | "media" | "alta" | "urgente") : undefined,
+    status: statusFilter !== "all" ? (statusFilter as "completado" | "pendiente" | "en_proceso" | "cancelado") : undefined,
   });
 
   // Mutación para actualizar estado de acuerdo
@@ -29,7 +29,7 @@ export default function AgreementsDashboard() {
   });
 
   const handleStatusChange = (agreementId: number, newStatus: string) => {
-    updateStatusMutation.mutate({ agreementId, status: newStatus });
+    updateStatusMutation.mutate({ agreementId, status: newStatus as "completado" | "pendiente" | "en_proceso" | "cancelado" });
   };
 
   // Calcular indicadores
@@ -199,7 +199,7 @@ export default function AgreementsDashboard() {
                       <TableCell className="font-medium max-w-md">
                         {agreement.description}
                       </TableCell>
-                      <TableCell>{agreement.responsible}</TableCell>
+                      <TableCell>{agreement.responsibleName || 'Sin asignar'}</TableCell>
                       <TableCell>
                         {agreement.dueDate
                           ? new Date(agreement.dueDate).toLocaleDateString("es-MX")

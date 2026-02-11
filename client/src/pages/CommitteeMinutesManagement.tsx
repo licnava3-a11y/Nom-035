@@ -37,7 +37,7 @@ interface Agreement {
 export default function CommitteeMinutesManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'published'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'borrador' | 'finalizada' | 'archivada'>('all');
 
   // Form state básico
   const [formData, setFormData] = useState({

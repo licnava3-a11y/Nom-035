@@ -10370,3 +10370,23 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Reducir errores TypeScript de 21 a 16 (5 errores corregidos)
 - [ ] Implementar procedimientos tRPC faltantes en backend
 - [ ] Guardar checkpoint con correcciones completadas
+
+
+## FASE 215: Implementación de Procedimientos tRPC Faltantes para Eliminar 16 Errores TypeScript ⏳ EN PROGRESO
+
+### Implementación en notifications router
+- [ ] Implementar procedimiento deleteTemplate para eliminar plantillas de notificaciones
+- [ ] Implementar procedimiento updateTemplate para actualizar plantillas de notificaciones
+- [ ] Implementar procedimiento retryNotification para reintentar envío de notificaciones fallidas
+
+### Implementación en compliance router
+- [ ] Implementar procedimiento getReportHistory para obtener historial de reportes
+
+### Corrección de Errores Restantes
+- [ ] Identificar y corregir errores en CommitteeMinutesManagement.tsx (4 errores)
+- [ ] Identificar y corregir errores en AgreementsDashboard.tsx (4 errores)
+- [ ] Corregir tipo de parámetro 'cert' en TrainingCertificates.tsx
+
+### Verificación Final
+- [ ] Ejecutar TypeScript check y verificar 0 errores
+- [ ] Guardar checkpoint con compilación TypeScript limpia (0 errores)
