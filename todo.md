@@ -10299,3 +10299,25 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 
 ### Checkpoint
 - [ ] Guardar checkpoint con correcciones TypeScript y protección de rutas implementada
+
+
+## FASE 212: Corrección de 24 Errores TypeScript en committeeMinutes.ts ⏳ PARCIALMENTE COMPLETADA
+
+### Revisión de Schemas
+- [x] Revisar schema de committeeMinutes para identificar nombres correctos de columnas
+- [x] Revisar schema de committeeMinuteAgendaItems (orderIndex) para identificar nombres correctos
+- [x] Revisar schema de committeeMinuteAgreements (agreementNumber) para identificar nombres correctos
+
+### Corrección de Errores
+- [x] Corregir línea 66: committeeMinuteAgendaItems.order → orderIndex
+- [x] Corregir línea 73: committeeMinuteAgreements.number → agreementNumber
+- [x] Agregar import de zod faltante en committeeMinutes.ts
+- [x] Reducir errores TypeScript de 24 a 22
+- [ ] Corregir 22 errores TypeScript restantes en committeeMinutes.ts:
+  - Línea 129: Insert de committeeMinutes con propiedades no reconocidas
+  - Múltiples errores de schema en procedimientos de committeeMinutes.ts
+  - Requiere revisión completa y profunda de todos los procedimientos
+
+### Verificación
+- [ ] Ejecutar TypeScript check y verificar 0 errores
+- [ ] Guardar checkpoint con compilación TypeScript limpia
