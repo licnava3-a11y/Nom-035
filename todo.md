@@ -9921,3 +9921,47 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Verificar navegación completa sin errores
 - [ ] Guardar checkpoint final con todas las optimizaciones
 - [ ] Documentar mejoras implementadas
+
+
+## FASE 200: Datos de Prueba, Mejoras de UX y Checkpoint Final
+
+### Creación de Datos de Prueba (50+ registros)
+- [x] Crear script SQL completo con 62+ registros (insert_test_data.sql)
+- [x] Incluir 10 empleados de prueba con diferentes departamentos y puestos
+- [x] Incluir 5 evaluaciones de prueba con descripciones
+- [x] Incluir 5 plantillas de notificaciones de prueba
+- [x] Incluir 3 representantes legales
+- [x] Incluir 3 minutas de comité de prueba
+- [ ] Aplicar migraciones de Drizzle para crear tablas faltantes (workers, assessments, etc.)
+- [ ] Ejecutar script SQL insert_test_data.sql
+- [ ] Validar inserción correcta de todos los registros
+
+### Implementación de Mejoras de UX Críticas
+- [ ] Agregar validaciones en tiempo real en formulario de empleados (CURP, RFC, email)
+- [ ] Agregar validaciones en tiempo real en formulario de evaluaciones
+- [ ] Agregar validaciones en tiempo real en formulario de certificados
+- [ ] Implementar mensajes de error claros con instrucciones específicas
+- [ ] Agregar confirmaciones antes de eliminar empleados
+- [ ] Agregar confirmaciones antes de eliminar evaluaciones
+- [ ] Agregar confirmaciones antes de eliminar certificados
+- [ ] Agregar confirmaciones antes de eliminar minutas
+- [ ] Implementar tooltips explicativos en campos complejos (CURP, RFC, folio)
+- [ ] Agregar skeletons de carga en tablas grandes
+- [ ] Implementar paginación en tablas de empleados
+- [ ] Implementar paginación en tablas de evaluaciones
+- [ ] Implementar paginación en tablas de certificados
+
+### Validación Funcional con Datos de Prueba
+- [ ] Probar flujo completo de evaluaciones con datos de prueba
+- [ ] Probar generación de certificados PDF con datos de prueba
+- [ ] Probar firma digital con e.firma SAT
+- [ ] Probar sistema de notificaciones con datos de prueba
+- [ ] Probar dashboard de capacitación con datos de prueba
+- [ ] Verificar navegación completa sin errores 404
+- [ ] Validar todas las gráficas con datos de prueba
+
+### Checkpoint Final y Documentación
+- [ ] Actualizar todo.md con estado final del proyecto
+- [ ] Documentar todas las funcionalidades implementadas
+- [ ] Crear lista de tareas pendientes para próximas fases
+- [ ] Guardar checkpoint final con documentación completa
