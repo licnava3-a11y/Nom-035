@@ -65,8 +65,13 @@ export function DC4Form() {
   // Mutation para generar DC-4
   const generateDC4 = trpc.stpsReports.generateDC4.useMutation({
     onSuccess: (data) => {
-      toast.success("✅ Reporte DC-4 Generado", {
-        description: `Folio: ${data.folio}`,
+      toast.success("✅ Reporte DC-4 Generado Exitosamente", {
+        description: `Folio: ${data.folio}. El PDF está disponible para descarga.`,
+        action: {
+          label: "Descargar PDF",
+          onClick: () => window.open(data.pdfUrl, "_blank"),
+        },
+        duration: 10000, // 10 segundos
       });
       setGeneratedReport({ folio: data.folio, pdfUrl: data.pdfUrl });
       reset();

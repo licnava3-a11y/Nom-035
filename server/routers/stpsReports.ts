@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { employees, complianceReports, formatCatalog } from "../../drizzle/schema";
+import { employees, complianceReports, formatCatalog, notifications } from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
 import Handlebars from "handlebars";
@@ -167,6 +167,21 @@ export const stpsReportsRouter = router({
     // Actualizar reporte con URL del PDF
     await db.update(complianceReports).set({ data: { ...JSON.parse(JSON.stringify(templateData)), pdfUrl } }).where(eq(complianceReports.id, reportId));
 
+    // Crear notificación para el usuario
+    try {
+      await db.insert(notifications).values({
+        userId: ctx.user.id,
+        type: "system",
+        title: `Reporte ${folio.split('-')[0]} generado exitosamente`,
+        message: `El reporte ${folio} para ${employee.firstName} ${employee.lastName} ha sido generado correctamente.`,
+        relatedEntityType: "compliance_report",
+        relatedEntityId: reportId,
+        isRead: false,
+      } as any);
+    } catch (err) {
+      console.error("[STPS Reports] Error al crear notificación:", err);
+    }
+
     return {
       success: true,
       reportId,
@@ -267,6 +282,21 @@ export const stpsReportsRouter = router({
     // Actualizar reporte con URL del PDF
     await db.update(complianceReports).set({ data: { ...JSON.parse(JSON.stringify(templateData)), pdfUrl } }).where(eq(complianceReports.id, reportId));
 
+    // Crear notificación para el usuario
+    try {
+      await db.insert(notifications).values({
+        userId: ctx.user.id,
+        type: "system",
+        title: `Reporte ${folio.split('-')[0]} generado exitosamente`,
+        message: `El reporte ${folio} para ${employee.firstName} ${employee.lastName} ha sido generado correctamente.`,
+        relatedEntityType: "compliance_report",
+        relatedEntityId: reportId,
+        isRead: false,
+      } as any);
+    } catch (err) {
+      console.error("[STPS Reports] Error al crear notificación:", err);
+    }
+
     return {
       success: true,
       reportId,
@@ -355,6 +385,21 @@ export const stpsReportsRouter = router({
 
     // Actualizar reporte con URL del PDF
     await db.update(complianceReports).set({ data: { ...JSON.parse(JSON.stringify(templateData)), pdfUrl } }).where(eq(complianceReports.id, reportId));
+
+    // Crear notificación para el usuario
+    try {
+      await db.insert(notifications).values({
+        userId: ctx.user.id,
+        type: "system",
+        title: `Reporte ${folio.split('-')[0]} generado exitosamente`,
+        message: `El reporte ${folio} (${input.reportTitle}) con ${input.certificates.length} certificados ha sido generado correctamente.`,
+        relatedEntityType: "compliance_report",
+        relatedEntityId: reportId,
+        isRead: false,
+      } as any);
+    } catch (err) {
+      console.error("[STPS Reports] Error al crear notificación:", err);
+    }
 
     return {
       success: true,

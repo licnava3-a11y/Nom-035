@@ -44,8 +44,13 @@ export function DC3Form() {
   // Mutation para generar DC-3
   const generateDC3 = trpc.stpsReports.generateDC3.useMutation({
     onSuccess: (data) => {
-      toast.success("✅ Reporte DC-3 Generado", {
-        description: `Folio: ${data.folio}`,
+      toast.success("✅ Reporte DC-3 Generado Exitosamente", {
+        description: `Folio: ${data.folio}. El PDF está disponible para descarga.`,
+        action: {
+          label: "Descargar PDF",
+          onClick: () => window.open(data.pdfUrl, "_blank"),
+        },
+        duration: 10000, // 10 segundos
       });
       setGeneratedReport({ folio: data.folio, pdfUrl: data.pdfUrl });
       reset();
