@@ -10187,15 +10187,15 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ## FASE 206: Plantillas HTML Profesionales STPS, Enlace en Sidebar y Corrección de Errores TypeScript
 
 ### Plantillas HTML Profesionales
-- [ ] Crear plantilla HTML para DC-2 (Constancia de Competencias) con formato oficial STPS
-- [ ] Crear plantilla HTML para DC-3 (Constancia de Habilidades) con formato oficial STPS
-- [ ] Crear plantilla HTML para DC-4 (Lista de Constancias) con formato oficial STPS
-- [ ] Incluir logotipos, firmas digitales, tablas de datos y códigos QR en plantillas
-- [ ] Validar cumplimiento normativo STPS en diseño de plantillas
+- [x] Crear plantilla HTML para DC-2 (Constancia de Competencias) con formato oficial STPS
+- [x] Crear plantilla HTML para DC-3 (Constancia de Habilidades) con formato oficial STPS
+- [x] Crear plantilla HTML para DC-4 (Lista de Constancias) con formato oficial STPS
+- [x] Incluir logotipos, firmas digitales, tablas de datos y códigos QR en plantillas
+- [x] Validar cumplimiento normativo STPS en diseño de plantillas
 
 ### Navegación y UX
-- [ ] Agregar enlace "Reportes STPS" en sidebar del dashboard
-- [ ] Verificar navegación correcta a /stps-reports
+- [x] Agregar enlace "Reportes STPS" en sidebar del dashboard
+- [x] Verificar navegación correcta a /stps-reports
 
 ### Corrección de Errores TypeScript
 - [ ] Corregir 13 errores en compliance.ts

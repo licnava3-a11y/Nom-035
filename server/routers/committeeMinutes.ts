@@ -391,7 +391,7 @@ export const committeeMinutesRouter = router({
 
       await db
         .update(committeeMinutes)
-        .set({ status: 'published' })
+        .set({ status: 'finalizada' })
         .where(eq(committeeMinutes.id, input.id));
 
       // Registrar en historial
@@ -477,8 +477,8 @@ export const committeeMinutesRouter = router({
   getAgreements: protectedProcedure
     .input(z.object({
       responsible: z.string().optional(),
-      priority: z.string().optional(),
-      status: z.string().optional(),
+      priority: z.enum(["baja", "media", "alta", "urgente"]).optional(),
+      status: z.enum(["pendiente", "en_proceso", "completado", "cancelado"]).optional(),
     }))
     .query(async ({ input }) => {
       const db = await getDb();
@@ -491,7 +491,7 @@ export const committeeMinutesRouter = router({
       // Aplicar filtros
       const conditions = [];
       if (input.responsible) {
-        conditions.push(like(committeeMinuteAgreements.responsible, `%${input.responsible}%`));
+        conditions.push(like(committeeMinuteAgreements.responsibleName, `%${input.responsible}%`));
       }
       if (input.priority) {
         conditions.push(eq(committeeMinuteAgreements.priority, input.priority));
@@ -512,7 +512,7 @@ export const committeeMinutesRouter = router({
   updateAgreementStatus: protectedProcedure
     .input(z.object({
       agreementId: z.number(),
-      status: z.string(),
+      status: z.enum(["pendiente", "en_proceso", "completado", "cancelado"]),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();

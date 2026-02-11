@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog, reportTemplates, employees, committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements } from "../../drizzle/schema";
+import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog, reportTemplates, employees, departments, positions, committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements } from "../../drizzle/schema";
 import { eq, sql, desc, and } from "drizzle-orm";
 import { generatePDFFromTemplate, generateQRCode } from '../utils/pdfGenerator.js';
 import { storagePut } from '../storage';
