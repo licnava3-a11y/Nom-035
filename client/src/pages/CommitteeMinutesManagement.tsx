@@ -48,7 +48,7 @@ export default function CommitteeMinutesManagement() {
     lugar: "",
     desarrollo: "",
     observaciones: "",
-    status: "draft" as 'draft' | 'published',
+    status: "borrador" as 'borrador' | 'finalizada' | 'archivada',
   });
 
   // Estados para secciones dinámicas
@@ -163,28 +163,24 @@ export default function CommitteeMinutesManagement() {
     setAttendees(updated);
   };
 
-  const handleSignatureSave = async (signatureBlob: Blob) => {
+  const handleSignatureSave = async (signatureDataUrl: string) => {
     if (currentAttendeeIndex === null) return;
 
     try {
-      // Convertir blob a base64
-      const reader = new FileReader();
-      reader.readAsDataURL(signatureBlob);
-      reader.onloadend = async () => {
-        const base64data = reader.result as string;
-        
-        // Subir firma a S3
-        const result = await uploadSignatureMutation.mutateAsync({ signatureDataUrl: base64data, attendeeName: attendees[currentAttendeeIndex].name });
-        
-        // Actualizar asistente con URL de firma
-        updateAttendee(currentAttendeeIndex, 'signatureUrl', result.signatureUrl);
-        
-        // Cerrar modal
-        setSignatureModalOpen(false);
-        setCurrentAttendeeIndex(null);
-        
-        alert('Firma guardada exitosamente');
-      };
+      // signatureDataUrl ya es base64
+      const base64data = signatureDataUrl;
+      
+      // Subir firma a S3
+      const result = await uploadSignatureMutation.mutateAsync({ signatureDataUrl: base64data, attendeeName: attendees[currentAttendeeIndex].name });
+      
+      // Actualizar asistente con URL de firma
+      updateAttendee(currentAttendeeIndex, 'signatureUrl', result.signatureUrl);
+      
+      // Cerrar modal
+      setSignatureModalOpen(false);
+      setCurrentAttendeeIndex(null);
+      
+      alert('Firma guardada exitosamente');
     } catch (error) {
       alert('Error al guardar firma');
       console.error(error);
@@ -235,7 +231,7 @@ export default function CommitteeMinutesManagement() {
       lugar: "",
       desarrollo: "",
       observaciones: "",
-      status: "draft",
+      status: "borrador",
     });
     setAttendees([{ name: "", position: "", role: "", attended: true }]);
     setAgendaItems([{ topic: "", description: "", presenter: "", duration: 0 }]);
@@ -249,10 +245,24 @@ export default function CommitteeMinutesManagement() {
     
     const minuteData = {
       ...formData,
-      ...documentation,
-      attendees: attendees.filter(a => a.name.trim() !== ""),
-      agendaItems: agendaItems.filter(a => a.topic.trim() !== ""),
-      agreements: agreements.filter(a => a.description.trim() !== ""),
+      attendees: attendees.filter(a => a.name.trim() !== "").map(a => ({
+        nombre: a.name,
+        cargo: a.position,
+        rolComite: a.role,
+        asistencia: (a.attended ? "presente" : "ausente") as "presente" | "ausente" | "justificado"
+      })),
+      agendaItems: agendaItems.filter(a => a.topic.trim() !== "").map((a, index) => ({
+        orden: index + 1,
+        tema: a.topic,
+        descripcion: a.description
+      })),
+      agreements: agreements.filter(a => a.description.trim() !== "").map((a, index) => ({
+        numero: index + 1,
+        descripcion: a.description,
+        responsable: a.responsibleName,
+        fechaCompromiso: a.dueDate,
+        estado: 'pendiente' as 'pendiente' | 'en_proceso' | 'completado' | 'cancelado'
+      })),
     };
 
     if (editingId) {
@@ -320,16 +330,16 @@ export default function CommitteeMinutesManagement() {
               Todas
             </Button>
             <Button 
-              variant={filterStatus === 'draft' ? 'default' : 'outline'}
-              onClick={() => setFilterStatus('draft')}
+              variant={filterStatus === 'borrador' ? 'default' : 'outline'}
+              onClick={() => setFilterStatus('borrador')}
             >
               Borradores
             </Button>
             <Button 
-              variant={filterStatus === 'published' ? 'default' : 'outline'}
-              onClick={() => setFilterStatus('published')}
+              variant={filterStatus === 'finalizada' ? 'default' : 'outline'}
+              onClick={() => setFilterStatus('finalizada')}
             >
-              Publicadas
+              Finalizadas
             </Button>
           </div>
         </CardContent>
@@ -797,7 +807,7 @@ export default function CommitteeMinutesManagement() {
               )}
             </DialogDescription>
           </DialogHeader>
-          <SignatureCanvas onSave={handleSignatureSave} />
+          <SignatureCanvas onSave={handleSignatureSave} onCancel={() => setSignatureModalOpen(false)} />
         </DialogContent>
       </Dialog>
     </div>

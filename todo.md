@@ -10390,3 +10390,60 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 ### Verificación Final
 - [ ] Ejecutar TypeScript check y verificar 0 errores
 - [ ] Guardar checkpoint con compilación TypeScript limpia (0 errores)
+
+
+## FASE 216: Protección de Rutas y Botones por Rol ✅ COMPLETADA
+
+### Componente ProtectedRoute
+- [x] Crear componente ProtectedRoute.tsx con validación de roles
+- [x] Implementar redirección a login si no está autenticado
+- [x] Implementar página de acceso denegado para roles no autorizados
+- [x] Agregar loading state durante verificación de autenticación
+- [x] Documentar uso del componente con ejemplos
+
+### Protección de Botones de Acción en Tablas (PENDIENTE)
+- [ ] Implementar protección de botones de acción en todas las tablas del sistema
+- [ ] Ocultar botones de crear para usuarios sin permisos de escritura
+- [ ] Ocultar botones de editar para usuarios sin permisos de escritura
+- [ ] Ocultar botones de eliminar para usuarios sin permisos de eliminación
+- [ ] Aplicar en todas las páginas principales:
+  - [ ] Empresas (CompanySettings.tsx)
+  - [ ] Trabajadores (Employees.tsx, EmployeeProfile.tsx)
+  - [ ] Departamentos (Departments.tsx)
+  - [ ] Puestos (Positions.tsx)
+  - [ ] Evaluaciones (AssessmentsManagement.tsx)
+  - [ ] Capacitación (Courses.tsx, TrainingDashboard.tsx)
+  - [ ] Casos (Cases.tsx, CaseDetail.tsx)
+  - [ ] Comité (Committee.tsx, CommitteeMinutesManagement.tsx)
+  - [ ] Documentos (Documents.tsx, DocumentFormats.tsx)
+  - [ ] Encuestas NOM-035 (SurveysAdminPanel.tsx, Nom035AdminPanel.tsx)
+  - [ ] Reportes STPS (STPSReports.tsx)
+  - [ ] Buzón (Mailbox.tsx)
+  - [ ] Notificaciones (NotificationsDashboard.tsx)
+  - [ ] Acuerdos (AgreementsDashboard.tsx)
+  - [ ] Alertas (EarlyWarnings.tsx, SecurityAlerts.tsx)
+
+### Implementación de Lógica de Permisos
+- [ ] Crear hook usePermissions() para verificar permisos del usuario
+- [ ] Definir matriz de permisos por rol (admin, user)
+- [ ] Implementar permisos granulares:
+  - [ ] can_create: Crear nuevos registros
+  - [ ] can_edit: Editar registros existentes
+  - [ ] can_delete: Eliminar registros
+  - [ ] can_view: Ver detalles de registros
+  - [ ] can_export: Exportar datos
+  - [ ] can_approve: Aprobar/rechazar solicitudes
+
+### Componentes Auxiliares
+- [ ] Crear componente ProtectedButton para botones con validación de permisos
+- [ ] Crear componente ProtectedAction para acciones con validación de permisos
+- [ ] Implementar tooltip informativo cuando acción no está permitida
+
+### Pruebas
+- [ ] Probar acceso con usuario admin (todos los permisos)
+- [ ] Probar acceso con usuario regular (permisos limitados)
+- [ ] Verificar que botones se ocultan correctamente según rol
+- [ ] Verificar que tooltips informativos se muestran correctamente
+- [ ] Probar redirecciones a página de acceso denegado
+
+**FASE 216: ✅ PARCIALMENTE COMPLETADA - ProtectedRoute implementado, protección de botones pendiente**
