@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import ProtectedButton from "@/components/ProtectedButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -234,9 +235,15 @@ export function DC2Form() {
           </div>
         </Card>
 
-        {/* Botón de envío */}
+        {/* Botón de generación */}
         <div className="flex justify-end">
-          <Button type="submit" disabled={generateDC2.isPending} size="lg">
+          <ProtectedButton
+            type="submit"
+            className="w-full"
+            disabled={generateDC2.isPending}
+            requiredPermission="can_create"
+            fallbackMessage="Solo los administradores pueden generar reportes STPS"
+          >
             {generateDC2.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -248,7 +255,7 @@ export function DC2Form() {
                 Generar DC-2
               </>
             )}
-          </Button>
+          </ProtectedButton>
         </div>
       </form>
 

@@ -10401,14 +10401,27 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Agregar loading state durante verificación de autenticación
 - [x] Documentar uso del componente con ejemplos
 
-### Protección de Botones de Acción en Tablas (PENDIENTE)
-- [ ] Implementar protección de botones de acción en todas las tablas del sistema
-- [ ] Ocultar botones de crear para usuarios sin permisos de escritura
-- [ ] Ocultar botones de editar para usuarios sin permisos de escritura
-- [ ] Ocultar botones de eliminar para usuarios sin permisos de eliminación
-- [ ] Aplicar en todas las páginas principales:
+### Implementación de Lógica de Permisos
+- [x] Crear hook usePermissions() para verificar permisos del usuario
+- [x] Definir matriz de permisos por rol (admin, user, instructor, committee)
+- [x] Implementar permisos granulares:
+  - [x] can_create: Crear nuevos registros
+  - [x] can_edit: Editar registros existentes
+  - [x] can_delete: Eliminar registros
+  - [x] can_view: Ver detalles de registros
+  - [x] can_export: Exportar datos
+  - [x] can_approve: Aprobar/rechazar solicitudes
+
+### Componentes Auxiliares
+- [x] Crear componente ProtectedButton para botones con validación de permisos
+- [x] Implementar tooltip informativo cuando acción no está permitida
+- [x] Crear documentación completa en PATRON_PROTECCION_BOTONES.md
+
+### Protección de Botones Implementada (Ejemplos)
+- [x] Employees.tsx - Botones de crear, desactivar y reactivar
+- [x] DC2Form.tsx - Botón de generar reporte
+- [ ] Aplicar patrón en 13 páginas restantes (ver PATRON_PROTECCION_BOTONES.md):
   - [ ] Empresas (CompanySettings.tsx)
-  - [ ] Trabajadores (Employees.tsx, EmployeeProfile.tsx)
   - [ ] Departamentos (Departments.tsx)
   - [ ] Puestos (Positions.tsx)
   - [ ] Evaluaciones (AssessmentsManagement.tsx)
@@ -10417,32 +10430,21 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
   - [ ] Comité (Committee.tsx, CommitteeMinutesManagement.tsx)
   - [ ] Documentos (Documents.tsx, DocumentFormats.tsx)
   - [ ] Encuestas NOM-035 (SurveysAdminPanel.tsx, Nom035AdminPanel.tsx)
-  - [ ] Reportes STPS (STPSReports.tsx)
   - [ ] Buzón (Mailbox.tsx)
   - [ ] Notificaciones (NotificationsDashboard.tsx)
   - [ ] Acuerdos (AgreementsDashboard.tsx)
   - [ ] Alertas (EarlyWarnings.tsx, SecurityAlerts.tsx)
 
-### Implementación de Lógica de Permisos
-- [ ] Crear hook usePermissions() para verificar permisos del usuario
-- [ ] Definir matriz de permisos por rol (admin, user)
-- [ ] Implementar permisos granulares:
-  - [ ] can_create: Crear nuevos registros
-  - [ ] can_edit: Editar registros existentes
-  - [ ] can_delete: Eliminar registros
-  - [ ] can_view: Ver detalles de registros
-  - [ ] can_export: Exportar datos
-  - [ ] can_approve: Aprobar/rechazar solicitudes
-
-### Componentes Auxiliares
-- [ ] Crear componente ProtectedButton para botones con validación de permisos
-- [ ] Crear componente ProtectedAction para acciones con validación de permisos
-- [ ] Implementar tooltip informativo cuando acción no está permitida
+### Mejoras de UX
+- [x] Agregar tarjeta de acceso rápido a Reportes STPS en dashboard
+- [x] Tarjeta destacada con borde azul y icono Award
+- [x] Enlace directo a /stps-reports para generar DC-2, DC-3 y DC-4
 
 ### Pruebas
 - [ ] Probar acceso con usuario admin (todos los permisos)
 - [ ] Probar acceso con usuario regular (permisos limitados)
 - [ ] Verificar que botones se ocultan correctamente según rol
+- [ ] Probar generación end-to-end de reportes STPS con login
 - [ ] Verificar que tooltips informativos se muestran correctamente
 - [ ] Probar redirecciones a página de acceso denegado
 

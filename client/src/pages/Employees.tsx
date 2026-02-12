@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import ProtectedButton from "@/components/ProtectedButton";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,10 +99,14 @@ export default function Employees() {
           </p>
         </div>
         <Link href="/employees/new">
-          <Button>
+          <ProtectedButton
+            requiredPermission="can_create"
+            fallbackMessage="Solo los administradores pueden agregar trabajadores"
+            hideIfNoPermission
+          >
             <Plus className="mr-2 h-4 w-4" />
             Agregar Trabajador
-          </Button>
+          </ProtectedButton>
         </Link>
       </div>
 
@@ -273,23 +278,29 @@ export default function Employees() {
                     </Button>
                   </Link>
                   {employee.isActive ? (
-                    <Button
+                    <ProtectedButton
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeactivate(employee.id, `${employee.firstName} ${employee.lastName}`)}
                       disabled={deactivateMutation.isPending}
+                      requiredPermission="can_edit"
+                      fallbackMessage="Solo los administradores pueden desactivar trabajadores"
+                      hideIfNoPermission
                     >
                       Desactivar
-                    </Button>
+                    </ProtectedButton>
                   ) : (
-                    <Button
+                    <ProtectedButton
                       variant="ghost"
                       size="sm"
                       onClick={() => handleReactivate(employee.id, `${employee.firstName} ${employee.lastName}`)}
                       disabled={reactivateMutation.isPending}
+                      requiredPermission="can_edit"
+                      fallbackMessage="Solo los administradores pueden reactivar trabajadores"
+                      hideIfNoPermission
                     >
                       Reactivar
-                    </Button>
+                    </ProtectedButton>
                   )}
                 </div>
               </CardContent>
