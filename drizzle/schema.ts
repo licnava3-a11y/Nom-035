@@ -2697,3 +2697,77 @@ export const notificationLogs = mysqlTable("notification_logs", {
 
 export type NotificationLog = typeof notificationLogs.$inferSelect;
 export type InsertNotificationLog = typeof notificationLogs.$inferInsert;
+
+/**
+ * Invoices - Facturas
+ */
+export const invoices = mysqlTable("invoices", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(),
+  clienteNombre: varchar("cliente_nombre", { length: 255 }).notNull(),
+  clienteRFC: varchar("cliente_rfc", { length: 13 }),
+  monto: decimal("monto", { precision: 10, scale: 2 }).notNull(),
+  moneda: mysqlEnum("moneda", ["MXN", "USD", "EUR"]).notNull().default("MXN"),
+  fechaEmision: date("fecha_emision").notNull(),
+  fechaVencimiento: date("fecha_vencimiento").notNull(),
+  estado: mysqlEnum("estado", ["pendiente", "pagada", "vencida", "cancelada"]).notNull().default("pendiente"),
+  archivoUrl: varchar("archivo_url", { length: 500 }),
+  notas: text("notas"),
+  createdBy: int("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = typeof invoices.$inferInsert;
+
+/**
+ * Purchase Orders - Órdenes de Compra
+ */
+export const purchaseOrders = mysqlTable("purchase_orders", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(),
+  proveedor: varchar("proveedor", { length: 255 }).notNull(),
+  proveedorRFC: varchar("proveedor_rfc", { length: 13 }),
+  monto: decimal("monto", { precision: 10, scale: 2 }).notNull(),
+  moneda: mysqlEnum("moneda", ["MXN", "USD", "EUR"]).notNull().default("MXN"),
+  fecha: date("fecha").notNull(),
+  fechaEntregaEstimada: date("fecha_entrega_estimada"),
+  estado: mysqlEnum("estado", ["borrador", "enviada", "recibida", "cancelada"]).notNull().default("borrador"),
+  descripcion: text("descripcion"),
+  archivoUrl: varchar("archivo_url", { length: 500 }),
+  createdBy: int("created_by").references(() => users.id),
+  approvedBy: int("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+export type InsertPurchaseOrder = typeof purchaseOrders.$inferInsert;
+
+/**
+ * Expense Requests - Solicitudes de Gasto
+ */
+export const expenseRequests = mysqlTable("expense_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 50 }).notNull().unique(),
+  solicitanteId: int("solicitante_id").references(() => users.id).notNull(),
+  monto: decimal("monto", { precision: 10, scale: 2 }).notNull(),
+  moneda: mysqlEnum("moneda", ["MXN", "USD", "EUR"]).notNull().default("MXN"),
+  concepto: varchar("concepto", { length: 255 }).notNull(),
+  descripcion: text("descripcion"),
+  categoria: mysqlEnum("categoria", ["viaje", "materiales", "servicios", "capacitacion", "otro"]).notNull(),
+  fechaSolicitud: date("fecha_solicitud").notNull(),
+  fechaRequerida: date("fecha_requerida"),
+  estado: mysqlEnum("estado", ["pendiente", "aprobada", "rechazada", "pagada"]).notNull().default("pendiente"),
+  aprobadorId: int("aprobador_id").references(() => users.id),
+  fechaAprobacion: timestamp("fecha_aprobacion"),
+  comentariosAprobador: text("comentarios_aprobador"),
+  archivoUrl: varchar("archivo_url", { length: 500 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ExpenseRequest = typeof expenseRequests.$inferSelect;
+export type InsertExpenseRequest = typeof expenseRequests.$inferInsert;

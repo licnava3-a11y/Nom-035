@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations, mailbox, mailboxResponses, notifications, caseAssignments } from "../drizzle/schema";
+import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations, mailbox, mailboxResponses, notifications, caseAssignments, invoices, purchaseOrders, expenseRequests } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -550,4 +550,79 @@ export async function getCommitteeMemberAssignments(committeeMemberId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(caseAssignments).where(eq(caseAssignments.committeeMemberId, committeeMemberId));
+}
+
+
+// ==================== FINANCIAL QUERIES ====================
+
+/**
+ * Get invoices summary for dashboard
+ */
+export async function getInvoicesSummary() {
+  const db = await getDb();
+  if (!db) return { total: 0, pendientes: 0, vencidas: 0, montoTotal: 0 };
+  
+  const allInvoices = await db.select().from(invoices);
+  const total = allInvoices.length;
+  const pendientes = allInvoices.filter(inv => inv.estado === 'pendiente').length;
+  const vencidas = allInvoices.filter(inv => inv.estado === 'vencida').length;
+  const montoTotal = allInvoices.reduce((sum, inv) => sum + parseFloat(inv.monto.toString()), 0);
+  
+  return { total, pendientes, vencidas, montoTotal };
+}
+
+/**
+ * Get purchase orders summary for dashboard
+ */
+export async function getPurchaseOrdersSummary() {
+  const db = await getDb();
+  if (!db) return { total: 0, montoTotal: 0 };
+  
+  const allOrders = await db.select().from(purchaseOrders);
+  const total = allOrders.length;
+  const montoTotal = allOrders.reduce((sum, order) => sum + parseFloat(order.monto.toString()), 0);
+  
+  return { total, montoTotal };
+}
+
+/**
+ * Get expense requests summary for dashboard
+ */
+export async function getExpenseRequestsSummary() {
+  const db = await getDb();
+  if (!db) return { total: 0, pendientes: 0, montoTotal: 0 };
+  
+  const allRequests = await db.select().from(expenseRequests);
+  const total = allRequests.length;
+  const pendientes = allRequests.filter(req => req.estado === 'pendiente').length;
+  const montoTotal = allRequests.reduce((sum, req) => sum + parseFloat(req.monto.toString()), 0);
+  
+  return { total, pendientes, montoTotal };
+}
+
+/**
+ * Get all invoices
+ */
+export async function getAllInvoices() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(invoices);
+}
+
+/**
+ * Get all purchase orders
+ */
+export async function getAllPurchaseOrders() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(purchaseOrders);
+}
+
+/**
+ * Get all expense requests
+ */
+export async function getAllExpenseRequests() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(expenseRequests);
 }

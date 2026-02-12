@@ -48,6 +48,7 @@ import { investigationsRouter } from "./routers/investigations";
 import { workplaceViolenceRouter } from "./routers/workplaceViolence";
 import { committeeTrainingRouter } from "./routers/committeeTraining";
 import { massiveImportRouter } from "./routers/massiveImport";
+import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
 import { departmentsRouter } from "./routers/departments";
 import { positionsRouter } from "./routers/positions";
@@ -143,6 +144,7 @@ export const appRouter = router({
   training: trainingRouter,
   dashboard: dashboardRouter,
   administrative: administrativeRouter,
+  financial: financialRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

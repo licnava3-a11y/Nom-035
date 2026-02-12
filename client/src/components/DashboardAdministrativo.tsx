@@ -19,8 +19,8 @@ import {
 export default function DashboardAdministrativo() {
   const { data: stats, isLoading } = trpc.administrative.getFinancialStats.useQuery();
   const { data: pendingPayments } = trpc.administrative.getPendingPayments.useQuery();
-  const { data: purchaseOrders } = trpc.administrative.getPurchaseOrders.useQuery({ status: 'pending' });
-  const { data: expenseRequests } = trpc.administrative.getExpenseRequests.useQuery({ status: 'pending' });
+  const { data: purchaseOrders } = trpc.administrative.getPurchaseOrders.useQuery({ status: 'borrador' });
+  const { data: expenseRequests } = trpc.administrative.getExpenseRequests.useQuery({ status: 'pendiente' });
 
   if (isLoading) {
     return (

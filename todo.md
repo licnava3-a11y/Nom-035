@@ -10910,3 +10910,44 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 1. Aplicar validación gradualmente en routers críticos usando la guía
 2. Validar con usuarios de prueba después de cada router
 3. Crear dashboard de auditoría de permisos
+
+
+## FASE 230: Implementar Tablas Financieras para DashboardAdministrativo
+
+### Diseño de Schema de Tablas Financieras
+- [x] Diseñar tabla `invoices` (facturas) con campos: id, folio, cliente_id, monto, fecha_emision, fecha_vencimiento, estado, archivo_url
+- [x] Diseñar tabla `purchase_orders` (órdenes de compra) con campos: id, folio, proveedor, monto, fecha, estado, descripcion
+- [x] Diseñar tabla `expense_requests` (solicitudes de gasto) con campos: id, folio, solicitante_id, monto, concepto, fecha_solicitud, estado, aprobador_id
+
+### Implementación en Drizzle Schema
+- [x] Agregar definiciones de tablas en drizzle/schema.ts
+- [x] Generar migración SQL con `pnpm drizzle-kit generate`
+- [x] Aplicar migración con webdev_execute_sql
+
+### Implementación de Queries en server/db.ts
+- [x] Crear query `getInvoicesSummary()` - total facturas, pendientes, vencidas
+- [x] Crear query `getPurchaseOrdersSummary()` - total órdenes, monto total
+- [x] Crear query `getExpenseRequestsSummary()` - total solicitudes, pendientes aprobación
+
+### Implementación de Procedures en server/routers.ts
+- [x] Crear router `financial` con procedures para invoices, purchase_orders, expense_requests
+- [x] Implementar procedures de lectura (getAll, getSummary)
+- [x] Aplicar validación de permisos backend (can_view)
+
+### Actualización de DashboardAdministrativo
+- [x] Reemplazar datos mock con queries reales en administrative.ts
+- [x] Insertar 15 registros de prueba (5 facturas, 5 órdenes, 5 solicitudes)
+- [ ] Actualizar componente DashboardAdministrativo.tsx para usar queries reales
+- [ ] Agregar manejo de estados de carga y error
+
+### Tests Unitarios
+- [ ] Crear tests para queries financieras en server/financial.test.ts
+- [ ] Crear tests para procedures del router financial
+- [ ] Verificar que todos los tests pasen
+
+### Checkpoint
+- [ ] Verificar compilación TypeScript sin errores
+- [ ] Probar funcionalidad con datos de prueba
+- [ ] Actualizar todo.md y guardar checkpoint
+
+**FASE 230: 🔄 EN PROGRESO - Tablas financieras creadas, queries implementadas, router configurado, datos de prueba insertados**
