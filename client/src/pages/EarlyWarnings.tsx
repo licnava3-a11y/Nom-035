@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Clock, FileText, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Link } from "wouter";
+import ProtectedButton from "@/components/ProtectedButton";
 
 export default function EarlyWarnings() {
   const [activeTab, setActiveTab] = useState("summary");
@@ -310,9 +311,14 @@ export default function EarlyWarnings() {
                           <td className="py-2 px-4">{getPriorityBadge(caso.priority, caso.priorityColor)}</td>
                           <td className="py-2 px-4">
                             <Link href={`/cases/${caso.id}`}>
-                              <Button size="sm" variant="outline">
+                              <ProtectedButton 
+                                size="sm" 
+                                variant="outline"
+                                requiredPermission="can_view"
+                                fallbackMessage="No tienes permisos para ver detalles"
+                              >
                                 Ver Detalle
-                              </Button>
+                              </ProtectedButton>
                             </Link>
                           </td>
                         </tr>
@@ -369,9 +375,14 @@ export default function EarlyWarnings() {
                           <td className="py-2 px-4">{getPriorityBadge(survey.priority, survey.priorityColor)}</td>
                           <td className="py-2 px-4">
                             <Link href={`/surveys/${survey.id}`}>
-                              <Button size="sm" variant="outline">
+                              <ProtectedButton 
+                                size="sm" 
+                                variant="outline"
+                                requiredPermission="can_view"
+                                fallbackMessage="No tienes permisos para ver detalles"
+                              >
                                 Ver Detalle
-                              </Button>
+                              </ProtectedButton>
                             </Link>
                           </td>
                         </tr>
@@ -430,9 +441,14 @@ export default function EarlyWarnings() {
                           <td className="py-2 px-4">{getPriorityBadge(action.alertPriority, action.priorityColor)}</td>
                           <td className="py-2 px-4">
                             <Link href={`/surveys/corrective-actions`}>
-                              <Button size="sm" variant="outline">
+                              <ProtectedButton 
+                                size="sm" 
+                                variant="outline"
+                                requiredPermission="can_view"
+                                fallbackMessage="No tienes permisos para ver detalles"
+                              >
                                 Ver Detalle
-                              </Button>
+                              </ProtectedButton>
                             </Link>
                           </td>
                         </tr>
@@ -494,12 +510,17 @@ export default function EarlyWarnings() {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <Link href={`/surveys/${alert.surveyId}`}>
-                          <Button variant="outline" size="sm">
-                            <FileText className="h-4 w-4 mr-2" />
-                            Ver Encuesta
-                          </Button>
-                        </Link>
+                          <Link href={`/surveys/${alert.surveyId}`}>
+                            <ProtectedButton 
+                              variant="outline" 
+                              size="sm"
+                              requiredPermission="can_view"
+                              fallbackMessage="No tienes permisos para ver encuestas"
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              Ver Encuesta
+                            </ProtectedButton>
+                          </Link>
                       </div>
                     </div>
                   ))}

@@ -10,6 +10,7 @@ import { FileText, Plus, Edit, Trash2, Download, Eye, X, UserPlus, ClipboardList
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import SignatureCanvas from "@/components/SignatureCanvas";
 import FileUpload from "@/components/FileUpload";
+import ProtectedButton from "@/components/ProtectedButton";
 
 // Tipos para secciones dinámicas
 interface Attendee {
@@ -310,10 +311,15 @@ export default function CommitteeMinutesManagement() {
           <h1 className="text-3xl font-bold">Gestión de Minutas de Comité</h1>
           <p className="text-muted-foreground">CRUD completo con borradores, historial y exportación PDF</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
+        <ProtectedButton 
+          onClick={() => setShowForm(!showForm)}
+          requiredPermission="can_create"
+          fallbackMessage="Solo los administradores pueden crear minutas"
+          hideIfNoPermission
+        >
           {showForm ? <X className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
           {showForm ? "Cancelar" : "Nueva Minuta"}
-        </Button>
+        </ProtectedButton>
       </div>
 
       {/* Filtros */}
@@ -425,10 +431,16 @@ export default function CommitteeMinutesManagement() {
                     <UserPlus className="h-5 w-5" />
                     Asistentes
                   </h3>
-                  <Button type="button" size="sm" onClick={addAttendee}>
+                  <ProtectedButton 
+                    type="button" 
+                    size="sm" 
+                    onClick={addAttendee}
+                    requiredPermission="can_edit"
+                    fallbackMessage="No tienes permisos para agregar asistentes"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     Agregar Asistente
-                  </Button>
+                  </ProtectedButton>
                 </div>
                 {attendees.map((attendee, index) => (
                   <Card key={index} className="p-4">
@@ -467,24 +479,28 @@ export default function CommitteeMinutesManagement() {
                           Asistió
                         </label>
                         <div className="flex gap-2">
-                          <Button
+                          <ProtectedButton
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={() => openSignatureModal(index)}
+                            requiredPermission="can_edit"
+                            fallbackMessage="No tienes permisos para capturar firmas"
                           >
                             <PenTool className="h-4 w-4 mr-1" />
                             {attendee.signatureUrl ? 'Ver Firma' : 'Capturar Firma'}
-                          </Button>
+                          </ProtectedButton>
                           {attendees.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeAttendee(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
+                          <ProtectedButton
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeAttendee(index)}
+                            requiredPermission="can_edit"
+                            fallbackMessage="No tienes permisos para eliminar asistentes"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </ProtectedButton>
                           )}
                         </div>
                         {attendee.signatureUrl && (
@@ -507,10 +523,16 @@ export default function CommitteeMinutesManagement() {
                     <ClipboardList className="h-5 w-5" />
                     Orden del Día
                   </h3>
-                  <Button type="button" size="sm" onClick={addAgendaItem}>
+                  <ProtectedButton 
+                    type="button" 
+                    size="sm" 
+                    onClick={addAgendaItem}
+                    requiredPermission="can_edit"
+                    fallbackMessage="No tienes permisos para agregar temas"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     Agregar Tema
-                  </Button>
+                  </ProtectedButton>
                 </div>
                 {agendaItems.map((item, index) => (
                   <Card key={index} className="p-4">
@@ -550,14 +572,16 @@ export default function CommitteeMinutesManagement() {
                           />
                         </div>
                         {agendaItems.length > 1 && (
-                          <Button
+                          <ProtectedButton
                             type="button"
                             variant="destructive"
                             size="sm"
                             onClick={() => removeAgendaItem(index)}
+                            requiredPermission="can_edit"
+                            fallbackMessage="No tienes permisos para eliminar temas"
                           >
-                            <X className="h-4 w-4" />
-                          </Button>
+                            <Trash2 className="h-4 w-4" />
+                          </ProtectedButton>
                         )}
                       </div>
                     </div>
@@ -572,10 +596,16 @@ export default function CommitteeMinutesManagement() {
                     <CheckSquare className="h-5 w-5" />
                     Acuerdos
                   </h3>
-                  <Button type="button" size="sm" onClick={addAgreement}>
+                  <ProtectedButton 
+                    type="button" 
+                    size="sm" 
+                    onClick={addAgreement}
+                    requiredPermission="can_edit"
+                    fallbackMessage="No tienes permisos para agregar acuerdos"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     Agregar Acuerdo
-                  </Button>
+                  </ProtectedButton>
                 </div>
                 {agreements.map((agreement, index) => (
                   <Card key={index} className="p-4">
@@ -625,15 +655,16 @@ export default function CommitteeMinutesManagement() {
                       <div className="col-span-3"></div>
                       <div className="flex justify-end">
                         {agreements.length > 1 && (
-                          <Button
+                          <ProtectedButton
                             type="button"
                             variant="destructive"
                             size="sm"
                             onClick={() => removeAgreement(index)}
+                            requiredPermission="can_edit"
+                            fallbackMessage="No tienes permisos para eliminar acuerdos"
                           >
-                            <X className="h-4 w-4 mr-1" />
-                            Eliminar
-                          </Button>
+                            <Trash2 className="h-4 w-4" />
+                          </ProtectedButton>
                         )}
                       </div>
                     </div>
@@ -723,9 +754,15 @@ export default function CommitteeMinutesManagement() {
 
               {/* Botones de acción */}
               <div className="flex gap-4">
-                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                <ProtectedButton 
+                  type="submit" 
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  requiredPermissions={["can_create", "can_edit"]}
+                  requireAll={false}
+                  fallbackMessage="No tienes permisos para guardar minutas"
+                >
                   {editingId ? "Actualizar" : "Guardar"} Borrador
-                </Button>
+                </ProtectedButton>
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancelar
                 </Button>
@@ -767,21 +804,45 @@ export default function CommitteeMinutesManagement() {
                     <div className="flex gap-2">
                       {minute.status === 'draft' && (
                         <>
-                          <Button size="sm" variant="outline" onClick={() => handleEdit(minute)}>
+                          <ProtectedButton 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => handleEdit(minute)}
+                            requiredPermission="can_edit"
+                            fallbackMessage="No tienes permisos para editar minutas"
+                          >
                             <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => handlePublish(minute.id)}>
+                          </ProtectedButton>
+                          <ProtectedButton 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => handlePublish(minute.id)}
+                            requiredPermission="can_approve"
+                            fallbackMessage="No tienes permisos para publicar minutas"
+                          >
                             <Eye className="h-4 w-4" />
-                          </Button>
+                          </ProtectedButton>
                         </>
                       )}
-                      <Button size="sm" variant="outline" onClick={() => handleGeneratePDF(minute.id)}>
+                      <ProtectedButton 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleGeneratePDF(minute.id)}
+                        requiredPermission="can_export"
+                        fallbackMessage="No tienes permisos para descargar PDFs"
+                      >
                         <Download className="h-4 w-4" />
-                      </Button>
+                      </ProtectedButton>
                       {minute.status === 'draft' && (
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(minute.id)}>
+                        <ProtectedButton 
+                          size="sm" 
+                          variant="destructive" 
+                          onClick={() => handleDelete(minute.id)}
+                          requiredPermission="can_delete"
+                          fallbackMessage="No tienes permisos para eliminar minutas"
+                        >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </ProtectedButton>
                       )}
                     </div>
                   </div>

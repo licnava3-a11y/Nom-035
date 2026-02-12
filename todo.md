@@ -10767,3 +10767,65 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Guardar checkpoint con usuarios de prueba y guía de validación
 
 **FASE 225: ✅ COMPLETADA - Usuarios de prueba creados, guía de validación documentada en GUIA_PRUEBAS_PERMISOS.md**
+
+
+## FASE 226: Aplicar Protección de Botones en 9 Páginas Restantes
+
+### CommitteeMinutesManagement.tsx (17 botones)
+- [x] Botón "Nueva Minuta" → can_create (oculto)
+- [x] Botón "Agregar Asistente" → can_edit
+- [x] Botón "Agregar Tema" → can_edit
+- [x] Botón "Agregar Acuerdo" → can_edit
+- [x] Botón "Capturar Firma" → can_edit
+- [x] Botón "Eliminar Asistente" → can_edit
+- [x] Botón "Eliminar Tema" → can_edit
+- [x] Botón "Eliminar Acuerdo" → can_edit
+- [x] Botón "Guardar Borrador" → can_create O can_edit
+- [x] Botón "Editar" (minuta) → can_edit
+- [x] Botón "Publicar/Finalizar" → can_approve
+- [x] Botón "Descargar PDF" → can_export
+- [x] Botón "Eliminar" (minuta) → can_delete
+
+### Documents.tsx (1 botón)
+- [x] Botón "Ver Historial" → can_view
+
+### DocumentFormats.tsx (4 botones)
+- [x] Botón "Nuevo Formato" → can_create (oculto)
+- [x] Botón "Editar" → can_edit
+- [x] Botón "Eliminar" → can_delete
+- [x] Botón "Guardar Formato" → can_create O can_edit
+
+### SurveysAdminPanel.tsx (1 botón)
+- [x] Botón "Exportar a Excel" → can_export
+
+### Nom035AdminPanel.tsx (2 botones)
+- [x] Botón "Exportar a Excel" → can_export
+- [x] Botón "Exportar a PDF" → can_export
+
+### Mailbox.tsx (1 botón)
+- [x] Botón "Ver Detalle" → can_view
+
+### NotificationsDashboard.tsx (3 botones)
+- [x] Botón "Marcar todas como leídas" → can_edit
+- [x] Botón "Marcar como leída" (individual) → can_edit
+- [x] Botón "Eliminar" → can_delete
+
+### AgreementsDashboard.tsx
+- [x] Verificado: No tiene botones que requieran protección
+
+### EarlyWarnings.tsx (4 botones)
+- [x] Botón "Ver Detalle" (casos) → can_view
+- [x] Botón "Ver Detalle" (encuestas pendientes) → can_view
+- [x] Botón "Ver Detalle" (acciones correctivas) → can_view
+- [x] Botón "Ver Encuesta" (alertas de cobertura) → can_view
+
+### Resumen
+- [x] Total de páginas protegidas: 16/16 (100%)
+- [x] Total de botones protegidos: 33 botones en 9 páginas + 42 botones en 7 páginas previas = 75 botones
+- [x] Compilación TypeScript: 0 errores
+- [x] Patrón documentado en PATRON_PROTECCION_BOTONES.md
+
+### Checkpoint
+- [x] Guardar checkpoint con protección completa de botones en todas las páginas
+
+**FASE 226: ✅ COMPLETADA - Protección de botones aplicada en las 9 páginas restantes, sistema 100% protegido**

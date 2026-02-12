@@ -8,6 +8,7 @@ import { Badge } from "../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { BarChart3, TrendingUp, AlertTriangle, CheckCircle2, Users, FileText } from "lucide-react";
 import { toast } from "sonner";
+import ProtectedButton from "@/components/ProtectedButton";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -315,22 +316,26 @@ export default function Nom035AdminPanel() {
 
           {/* Botones de Exportación */}
           <div className="flex gap-2">
-            <Button
+            <ProtectedButton
               variant="outline"
               onClick={() => handleExportExcel()}
-              disabled={!stats || stats.total === 0}
+              disabled={exportExcelMutation.isPending}
+              requiredPermission="can_export"
+              fallbackMessage="No tienes permisos para exportar datos"
             >
-              <FileText className="h-4 w-4 mr-2" />
+              <FileText className="mr-2 h-4 w-4" />
               Exportar a Excel
-            </Button>
-            <Button
+            </ProtectedButton>
+            <ProtectedButton
               variant="outline"
               onClick={() => handleExportPDF()}
-              disabled={!stats || stats.total === 0}
+              disabled={exportPDFMutation.isPending}
+              requiredPermission="can_export"
+              fallbackMessage="No tienes permisos para exportar PDFs"
             >
               <FileText className="h-4 w-4 mr-2" />
               Exportar a PDF
-            </Button>
+            </ProtectedButton>
           </div>
         </div>
       </div>

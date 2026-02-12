@@ -24,6 +24,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { toast } from "sonner";
 import { FileDown, Search, Calendar, Filter, Eye } from "lucide-react";
 import * as XLSX from "xlsx";
+import ProtectedButton from "@/components/ProtectedButton";
 
 type SurveyType = 'guia_i' | 'guia_ii' | 'guia_iii' | 'all';
 type StatusFilter = 'completed' | 'in_progress' | 'all';
@@ -254,10 +255,15 @@ export default function SurveysAdminPanel() {
             Gestión consolidada de respuestas de encuestas NOM-035
           </p>
         </div>
-        <Button onClick={handleExport} disabled={exportMutation.isFetching}>
+        <ProtectedButton 
+          onClick={handleExport} 
+          disabled={exportMutation.isFetching}
+          requiredPermission="can_export"
+          fallbackMessage="No tienes permisos para exportar datos"
+        >
           <FileDown className="mr-2 h-4 w-4" />
           {exportMutation.isFetching ? "Exportando..." : "Exportar a Excel"}
-        </Button>
+        </ProtectedButton>
       </div>
 
       {/* Statistics Cards */}

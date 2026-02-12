@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Search, Filter, Eye, FileText, MessageSquare, ThumbsUp, GraduationCap } from "lucide-react";
 import { Link } from "wouter";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import ProtectedButton from "@/components/ProtectedButton";
 
 export default function Mailbox() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -230,10 +231,15 @@ export default function Mailbox() {
                     <TableCell>{getStatusBadge(item.status)}</TableCell>
                     <TableCell>
                       <Link href={`/mailbox/${item.id}`}>
-                        <Button variant="ghost" size="sm">
+                        <ProtectedButton 
+                          variant="ghost" 
+                          size="sm"
+                          requiredPermission="can_view"
+                          fallbackMessage="No tienes permisos para ver detalles"
+                        >
                           <Eye className="h-4 w-4 mr-1" />
                           Ver Detalle
-                        </Button>
+                        </ProtectedButton>
                       </Link>
                     </TableCell>
                   </TableRow>

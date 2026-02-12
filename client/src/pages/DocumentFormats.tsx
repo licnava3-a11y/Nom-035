@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Edit, Trash2, FileText, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import ProtectedButton from "@/components/ProtectedButton";
 
 export default function DocumentFormats() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -137,10 +138,15 @@ export default function DocumentFormats() {
             Gestión de nomenclatura de folios para documentos del sistema de gestión
           </p>
         </div>
-        <Button onClick={() => handleOpenDialog()}>
+        <ProtectedButton 
+          onClick={() => handleOpenDialog()}
+          requiredPermission="can_create"
+          fallbackMessage="No tienes permisos para crear formatos"
+          hideIfNoPermission
+        >
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Formato
-        </Button>
+        </ProtectedButton>
       </div>
 
       <Card>
@@ -211,21 +217,25 @@ export default function DocumentFormats() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
+                        <ProtectedButton
                           variant="ghost"
                           size="sm"
                           onClick={() => handleOpenDialog(format)}
+                          requiredPermission="can_edit"
+                          fallbackMessage="No tienes permisos para editar formatos"
                         >
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
+                        </ProtectedButton>
+                        <ProtectedButton
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(format.id)}
                           className="text-red-600 hover:text-red-700"
+                          requiredPermission="can_delete"
+                          fallbackMessage="No tienes permisos para eliminar formatos"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </ProtectedButton>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -336,9 +346,15 @@ export default function DocumentFormats() {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              <ProtectedButton 
+                type="submit" 
+                disabled={createMutation.isPending || updateMutation.isPending}
+                requiredPermissions={["can_create", "can_edit"]}
+                requireAll={false}
+                fallbackMessage="No tienes permisos para guardar formatos"
+              >
                 {editingFormat ? "Actualizar" : "Crear"} Formato
-              </Button>
+              </ProtectedButton>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bell, CheckCircle, Trash2 } from 'lucide-react';
+import ProtectedButton from '@/components/ProtectedButton';
 
 export default function NotificationsDashboard() {
   const [limit, setLimit] = useState(50);
@@ -94,10 +95,15 @@ export default function NotificationsDashboard() {
             {unreadCount?.count || 0} sin leer
           </Badge>
           {(unreadCount?.count || 0) > 0 && (
-            <Button onClick={handleMarkAllAsRead} variant="outline">
+            <ProtectedButton 
+              onClick={handleMarkAllAsRead} 
+              variant="outline"
+              requiredPermission="can_edit"
+              fallbackMessage="No tienes permisos para marcar notificaciones"
+            >
               <CheckCircle className="w-4 h-4 mr-2" />
               Marcar todas como leídas
-            </Button>
+            </ProtectedButton>
           )}
         </div>
       </div>
@@ -149,21 +155,25 @@ export default function NotificationsDashboard() {
                   </div>
                   <div className="flex gap-2">
                     {!notification.isRead && (
-                      <Button
+                      <ProtectedButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleMarkAsRead(notification.id)}
+                        requiredPermission="can_edit"
+                        fallbackMessage="No tienes permisos para marcar notificaciones"
                       >
                         <CheckCircle className="w-4 h-4" />
-                      </Button>
+                      </ProtectedButton>
                     )}
-                    <Button
+                    <ProtectedButton
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(notification.id)}
+                      requiredPermission="can_delete"
+                      fallbackMessage="No tienes permisos para eliminar notificaciones"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </Button>
+                    </ProtectedButton>
                   </div>
                 </div>
               </CardHeader>

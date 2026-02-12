@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Plus, Calendar, Users, ClipboardCheck } from "lucide-react";
 import { Link } from "wouter";
+import ProtectedButton from "@/components/ProtectedButton";
 
 export default function Documents() {
   const { user } = useAuth();
@@ -61,10 +62,13 @@ export default function Documents() {
           </p>
         </div>
         <Link href="/documents/history">
-          <Button>
+          <ProtectedButton
+            requiredPermission="can_view"
+            fallbackMessage="No tienes permisos para ver el historial"
+          >
             <FileText className="h-4 w-4 mr-2" />
             Ver Historial
-          </Button>
+          </ProtectedButton>
         </Link>
       </div>
 
