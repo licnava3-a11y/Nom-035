@@ -54,14 +54,19 @@ export default function DashboardConsolidated() {
   const { user } = useAuth();
 
   // Renderizar dashboard personalizado según rol
-  // committee_coordinator (coordinador del comité) tiene vista gerencial
-  if (user?.role === 'committee_coordinator') {
+  // Gerente y coordinador del comité tienen vista gerencial
+  if (user?.role === 'gerente' || user?.role === 'committee_coordinator') {
     return <DashboardGerente />;
   }
 
-  // committee y committee_member pueden ver dashboard de instructor/capacitación
-  if (user?.role === 'committee' || user?.role === 'committee_member') {
+  // Instructor, committee y committee_member pueden ver dashboard de capacitación
+  if (user?.role === 'instructor' || user?.role === 'committee' || user?.role === 'committee_member') {
     return <DashboardInstructor />;
+  }
+
+  // Administrativo tiene vista de finanzas y facturación
+  if (user?.role === 'administrativo') {
+    return <DashboardAdministrativo />;
   }
 
   // Dashboard por defecto para admin y otros roles

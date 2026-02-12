@@ -38,6 +38,19 @@ const PERMISSIONS_MATRIX: Record<string, Permission[]> = {
     'can_view',
     'can_approve',
   ],
+  administrativo: [
+    'can_view',
+    'can_export',
+    'can_approve',
+  ],
+  gerente: [
+    'can_create',
+    'can_edit',
+    'can_delete',
+    'can_view',
+    'can_export',
+    'can_approve',
+  ],
 };
 
 /**
