@@ -1,0 +1,40 @@
+{
+  "query": "\n-- Crear usuarios de prueba con diferentes roles válidos\nINSERT INTO users (openId, name, email, role, createdAt, updatedAt) VALUES\n('test_gerente_001', 'Gerente Prueba', 'gerente.prueba@test.com', 'gerente', NOW(), NOW()),\n('test_instructor_001', 'Instructor Prueba', 'instructor.prueba@test.com', 'instructor', NOW(), NOW()),\n('test_administrativo_001', 'Administrativo Prueba', 'administrativo.prueba@test.com', 'administrativo', NOW(), NOW()),\n('test_committee_001', 'Committee Prueba', 'committee.prueba@test.com', 'committee', NOW(), NOW()),\n('test_student_001', 'Student Prueba', 'student.prueba@test.com', 'student', NOW(), NOW())\nON DUPLICATE KEY UPDATE updatedAt = NOW();\n\n-- Verificar usuarios creados\nSELECT openId, name, email, role FROM users WHERE email LIKE '%prueba@test.com%';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute \n-- Crear usuarios de prueba con diferentes roles válidos\nINSERT INTO users (openId, name, email, role, createdAt, updatedAt) VALUES\n('test_gerente_001', 'Gerente Prueba', 'gerente.prueba@test.com', 'gerente', NOW(), NOW()),\n('test_instructor_001', 'Instructor Prueba', 'instructor.prueba@test.com', 'instructor', NOW(), NOW()),\n('test_administrativo_001', 'Administrativo Prueba', 'administrativo.prueba@test.com', 'administrativo', NOW(), NOW()),\n('test_committee_001', 'Committee Prueba', 'committee.prueba@test.com', 'committee', NOW(), NOW()),\n('test_student_001', 'Student Prueba', 'student.prueba@test.com', 'student', NOW(), NOW())\nON DUPLICATE KEY UPDATE updatedAt = NOW();\n\n-- Verificar usuarios creados\nSELECT openId, name, email, role FROM users WHERE email LIKE '%prueba@test.com%';\n",
+  "rows": [
+    {
+      "openId": "test_gerente_001",
+      "name": "Gerente Prueba",
+      "email": "gerente.prueba@test.com",
+      "role": "gerente"
+    },
+    {
+      "openId": "test_instructor_001",
+      "name": "Instructor Prueba",
+      "email": "instructor.prueba@test.com",
+      "role": "instructor"
+    },
+    {
+      "openId": "test_administrativo_001",
+      "name": "Administrativo Prueba",
+      "email": "administrativo.prueba@test.com",
+      "role": "administrativo"
+    },
+    {
+      "openId": "test_committee_001",
+      "name": "Committee Prueba",
+      "email": "committee.prueba@test.com",
+      "role": "committee"
+    },
+    {
+      "openId": "test_student_001",
+      "name": "Student Prueba",
+      "email": "student.prueba@test.com",
+      "role": "student"
+    }
+  ],
+  "messages": [],
+  "stdout": "openId\tname\temail\trole\ntest_gerente_001\tGerente Prueba\tgerente.prueba@test.com\tgerente\ntest_instructor_001\tInstructor Prueba\tinstructor.prueba@test.com\tinstructor\ntest_administrativo_001\tAdministrativo Prueba\tadministrativo.prueba@test.com\tadministrativo\ntest_committee_001\tCommittee Prueba\tcommittee.prueba@test.com\tcommittee\ntest_student_001\tStudent Prueba\tstudent.prueba@test.com\tstudent\n",
+  "stderr": "",
+  "execution_time_ms": 99
+}

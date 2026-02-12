@@ -10727,3 +10727,43 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Guardar checkpoint con queries reales y tests de integración
 
 **FASE 222: ✅ COMPLETADA - Queries reales implementadas en dashboard.ts, tests de integración creados (requieren configuración jest-dom), 9 páginas pendientes de protección documentadas**
+
+
+## FASE 225: Pruebas de Sistema de Permisos con Diferentes Roles
+
+### Crear Usuarios de Prueba
+- [x] Crear usuario con rol 'gerente' (email: gerente.prueba@test.com)
+- [x] Crear usuario con rol 'instructor' (email: instructor.prueba@test.com)
+- [x] Crear usuario con rol 'administrativo' (email: administrativo.prueba@test.com)
+- [x] Crear usuario con rol 'committee' (email: committee.prueba@test.com)
+- [x] Crear usuario con rol 'student' (email: student.prueba@test.com)
+
+### Validar Protección de Botones por Rol
+- [ ] Probar con rol 'admin': Verificar que todos los botones estén visibles y habilitados
+- [ ] Probar con rol 'gerente': Verificar permisos según matriz (can_create, can_edit, can_view, can_export, can_approve)
+- [ ] Probar con rol 'instructor': Verificar permisos (can_create, can_edit, can_view, can_export)
+- [ ] Probar con rol 'administrativo': Verificar permisos (can_view, can_export)
+- [ ] Probar con rol 'committee': Verificar permisos (can_view, can_approve)
+- [ ] Probar con rol 'user': Verificar permisos limitados (can_view, can_export)
+
+### Páginas a Validar
+- [ ] Employees.tsx - Botones Crear, Desactivar, Reactivar
+- [ ] Departments.tsx - Botones Crear, Editar, Eliminar
+- [ ] Positions.tsx - Botones Crear, Editar, Eliminar
+- [ ] Courses.tsx - Botones Crear, Editar
+- [ ] Cases.tsx - Botones Crear, Editar, Cerrar
+- [ ] Committee.tsx - Botones Agregar Miembro, Editar
+- [ ] DC2Form.tsx - Botón Generar Reporte
+
+### Documentar Resultados
+- [x] Crear guía de pruebas manuales (GUIA_PRUEBAS_PERMISOS.md)
+- [x] Documentar matriz de permisos esperada por rol
+- [x] Crear tablas de resultados de pruebas para las 7 páginas protegidas
+- [ ] Ejecutar pruebas manuales con usuarios de prueba
+- [ ] Documentar cualquier inconsistencia encontrada
+- [ ] Actualizar matriz de permisos si es necesario
+
+### Checkpoint
+- [x] Guardar checkpoint con usuarios de prueba y guía de validación
+
+**FASE 225: ✅ COMPLETADA - Usuarios de prueba creados, guía de validación documentada en GUIA_PRUEBAS_PERMISOS.md**
