@@ -12,11 +12,9 @@ import { eq, desc, sql } from "drizzle-orm";
 export const trainingRouter = router({
   // Estadísticas del instructor
   getInstructorStats: protectedProcedure.query(async ({ ctx }) => {
-    // TODO: Implementar queries reales cuando se agreguen campos instructorId, status, dates a tabla courses
-    // Por ahora retornamos datos mock para que el dashboard funcione
-    
-    // Contar cursos publicados como proxy temporal
     const db = await getDb();
+    
+    // Contar cursos publicados (completados)
     const publishedCourses = db
       ? await db
           .select({ count: sql<number>`count(*)` })
@@ -24,53 +22,58 @@ export const trainingRouter = router({
           .where(eq(courses.isPublished, true))
       : [{ count: 0 }];
 
+    // Contar cursos no publicados (pendientes)
+    const unpublishedCourses = db
+      ? await db
+          .select({ count: sql<number>`count(*)` })
+          .from(courses)
+          .where(eq(courses.isPublished, false))
+      : [{ count: 0 }];
+
+    // Contar total de cursos
+    const totalCourses = db
+      ? await db
+          .select({ count: sql<number>`count(*)` })
+          .from(courses)
+      : [{ count: 0 }];
+
     return {
       completedCourses: Number(publishedCourses[0]?.count || 0),
-      pendingCourses: 3,
-      pendingConfirmations: 1,
-      averageRating: 4.5,
-      recentEvaluations: [
-        {
-          courseName: "Fundamentos NOM-035",
-          rating: 5,
-          comment: "Excelente instructor, muy claro en sus explicaciones",
-          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        },
-        {
-          courseName: "Prevención de Riesgos Psicosociales",
-          rating: 4,
-          comment: "Buen contenido, me gustaría más ejemplos prácticos",
-          date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-        },
-      ],
+      pendingCourses: Number(unpublishedCourses[0]?.count || 0),
+      pendingConfirmations: 0, // TODO: Implementar cuando se agregue tabla de confirmaciones
+      averageRating: 4.5, // TODO: Implementar cuando se agregue tabla de evaluaciones
+      recentEvaluations: [], // TODO: Implementar cuando se agregue tabla de evaluaciones
     };
   }),
 
   // Cursos próximos a impartir
   getInstructorUpcomingCourses: protectedProcedure.query(async ({ ctx }) => {
-    // TODO: Implementar query real cuando se agreguen campos de fechas e instructor
-    const today = new Date();
-    const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const nextMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const db = await getDb();
+    
+    // Obtener cursos publicados más recientes
+    const upcomingCourses = db
+      ? await db
+          .select({
+            id: courses.id,
+            courseName: courses.title,
+            duration: courses.duration,
+          })
+          .from(courses)
+          .where(eq(courses.isPublished, true))
+          .orderBy(desc(courses.createdAt))
+          .limit(5)
+      : [];
 
-    return [
-      {
-        id: 1,
-        courseName: "Identificación de Factores de Riesgo Psicosocial",
-        startDate: nextWeek,
-        endDate: nextWeek,
-        duration: 120,
-        participants: 25,
-      },
-      {
-        id: 2,
-        courseName: "Manejo del Estrés Laboral",
-        startDate: nextMonth,
-        endDate: nextMonth,
-        duration: 180,
-        participants: 30,
-      },
-    ];
+    // Mapear a formato esperado con fechas mock (hasta que se agreguen campos de fechas)
+    const today = new Date();
+    return upcomingCourses.map((course, index) => ({
+      id: course.id,
+      courseName: course.courseName,
+      startDate: new Date(today.getTime() + (index + 1) * 7 * 24 * 60 * 60 * 1000), // Mock: próximas semanas
+      endDate: new Date(today.getTime() + (index + 1) * 7 * 24 * 60 * 60 * 1000),
+      duration: course.duration || 120,
+      participants: 0, // TODO: Implementar cuando se agregue tabla de inscripciones
+    }));
   }),
 
   // Confirmaciones pendientes
