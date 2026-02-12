@@ -177,6 +177,37 @@ import ProtectedButton from "@/components/ProtectedButton";
 </ProtectedButton>
 ```
 
+### 3. Componente `ProtectedAction`
+
+Ubicación: `client/src/components/ProtectedAction.tsx`
+
+Protege enlaces, acciones y elementos que no son botones.
+
+**Props:** (mismas que ProtectedButton)
+
+**Ejemplo:**
+```tsx
+import ProtectedAction from "@/components/ProtectedAction";
+import { Link } from "wouter";
+
+// Ocultar enlace si no tiene permisos
+<ProtectedAction
+  requiredPermission="can_create"
+  fallbackMessage="Solo administradores pueden crear"
+  hideIfNoPermission
+>
+  <Link href="/create">Crear Nuevo</Link>
+</ProtectedAction>
+
+// Deshabilitar enlace con tooltip
+<ProtectedAction
+  requiredPermission="can_edit"
+  fallbackMessage="No tienes permisos para editar"
+>
+  <a href="/edit" className="text-blue-500">Editar</a>
+</ProtectedAction>
+```
+
 ## Páginas Implementadas
 
 ✅ **Employees.tsx** - Gestión de Trabajadores
@@ -187,22 +218,34 @@ import ProtectedButton from "@/components/ProtectedButton";
 ✅ **DC2Form.tsx** - Generación de Reporte DC-2
 - Botón "Generar DC-2" (can_create, deshabilitado con tooltip)
 
+✅ **Departments.tsx** - Gestión de Departamentos
+- Botón "Nuevo Departamento" (can_create, oculto)
+- Botones "Editar" y "Eliminar" (can_edit, can_delete, ocultos)
+
+✅ **Positions.tsx** - Gestión de Puestos
+- Botón "Nuevo Puesto" (can_create, oculto)
+- Botones "Editar" y "Eliminar" (can_edit, can_delete, ocultos)
+
+✅ **Courses.tsx** - Gestión de Cursos
+- Botón "Crear Curso" (can_create O can_edit, oculto)
+- Botón "Editar" (can_create O can_edit, oculto)
+
+✅ **Cases.tsx** - Gestión de Casos
+- Botón "Registrar Caso" (can_create, oculto)
+- Botones "Editar" y "Seguimiento" (can_edit, ocultos)
+
 ## Páginas Pendientes de Implementación
 
 Aplicar el mismo patrón en las siguientes páginas:
 
 ### Gestión de Talento
-- [ ] **Departments.tsx** - Botones: Crear, Editar, Eliminar
-- [ ] **Positions.tsx** - Botones: Crear, Editar, Eliminar
 - [ ] **EmployeeProfile.tsx** - Botones: Editar, Desactivar
 
 ### Capacitación y Desarrollo
-- [ ] **Courses.tsx** - Botones: Crear, Editar, Eliminar, Publicar
 - [ ] **AssessmentsManagement.tsx** - Botones: Crear, Editar, Eliminar
 - [ ] **TrainingCertificates.tsx** - Botones: Generar, Descargar
 
 ### Casos y Comité
-- [ ] **Cases.tsx** - Botones: Crear, Editar, Cerrar
 - [ ] **CaseDetail.tsx** - Botones: Agregar Seguimiento, Cambiar Estado
 - [ ] **Committee.tsx** - Botones: Agregar Miembro, Editar, Eliminar
 - [ ] **CommitteeMinutesManagement.tsx** - Botones: Crear, Editar, Finalizar

@@ -37,7 +37,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Search, Users, Building2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Briefcase, Users } from "lucide-react";
+import ProtectedButton from "@/components/ProtectedButton";
 import { toast } from "sonner";
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -175,10 +176,15 @@ export default function Positions() {
             Gestión de puestos organizacionales
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <ProtectedButton
+          onClick={() => setIsCreateOpen(true)}
+          requiredPermission="can_create"
+          fallbackMessage="Solo los administradores pueden crear puestos"
+          hideIfNoPermission
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Puesto
-        </Button>
+        </ProtectedButton>
       </div>
 
       {/* Filtros */}
@@ -224,7 +230,7 @@ export default function Positions() {
               <TableHead>Código</TableHead>
               <TableHead>Título</TableHead>
               <TableHead>
-                <Building2 className="inline h-4 w-4 mr-1" />
+                <Briefcase className="inline h-4 w-4 mr-1" />
                 Departamento
               </TableHead>
               <TableHead>Nivel</TableHead>
@@ -263,20 +269,26 @@ export default function Positions() {
                     {pos.employeeCount}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
+                    <ProtectedButton
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(pos)}
+                      requiredPermission="can_edit"
+                      fallbackMessage="Solo los administradores pueden editar puestos"
+                      hideIfNoPermission
                     >
                       <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
+                    </ProtectedButton>
+                    <ProtectedButton
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(pos)}
+                      requiredPermission="can_delete"
+                      fallbackMessage="Solo los administradores pueden eliminar puestos"
+                      hideIfNoPermission
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    </ProtectedButton>
                   </TableCell>
                 </TableRow>
               ))

@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, Search, Users, Network } from "lucide-react";
+import ProtectedButton from "@/components/ProtectedButton";
 import {
   Select,
   SelectContent,
@@ -151,10 +152,15 @@ export default function Departments() {
             Gestión de departamentos organizacionales
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <ProtectedButton
+          onClick={() => setIsCreateOpen(true)}
+          requiredPermission="can_create"
+          fallbackMessage="Solo los administradores pueden crear departamentos"
+          hideIfNoPermission
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nuevo Departamento
-        </Button>
+        </ProtectedButton>
       </div>
 
       {/* Búsqueda */}
@@ -213,20 +219,26 @@ export default function Departments() {
                     {dept.employeeCount}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
+                    <ProtectedButton
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(dept)}
+                      requiredPermission="can_edit"
+                      fallbackMessage="Solo los administradores pueden editar departamentos"
+                      hideIfNoPermission
                     >
                       <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
+                    </ProtectedButton>
+                    <ProtectedButton
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(dept)}
+                      requiredPermission="can_delete"
+                      fallbackMessage="Solo los administradores pueden eliminar departamentos"
+                      hideIfNoPermission
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    </ProtectedButton>
                   </TableCell>
                 </TableRow>
               ))

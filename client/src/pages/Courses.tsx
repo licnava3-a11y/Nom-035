@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { BookOpen, Clock, Play, Plus, Edit } from "lucide-react";
+import ProtectedButton from "@/components/ProtectedButton";
 import { trpc } from "@/lib/trpc";
 import { CourseDialog } from "@/components/CourseDialog";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -99,12 +100,16 @@ export default function Courses() {
             Programas de capacitación sobre riesgos psicosociales
           </p>
         </div>
-        {(user?.role === "admin" || user?.role === "instructor") && (
-          <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-2" />
-            Crear Curso
-          </Button>
-        )}
+        <ProtectedButton
+          onClick={handleCreate}
+          requiredPermissions={["can_create", "can_edit"]}
+          requireAll={false}
+          fallbackMessage="Solo administradores e instructores pueden crear cursos"
+          hideIfNoPermission
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Crear Curso
+        </ProtectedButton>
       </div>
 
       {/* Courses Grid */}
@@ -140,12 +145,17 @@ export default function Courses() {
                   <Play className="h-4 w-4 mr-2" />
                   Ver Curso
                 </Button>
-                {(user?.role === "admin" || user?.role === "instructor") && (
-                  <Button variant="outline" onClick={() => handleEdit(course)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                )}
+                <ProtectedButton
+                  variant="outline"
+                  onClick={() => handleEdit(course)}
+                  requiredPermissions={["can_create", "can_edit"]}
+                  requireAll={false}
+                  fallbackMessage="Solo administradores e instructores pueden editar cursos"
+                  hideIfNoPermission
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </ProtectedButton>
               </CardFooter>
             </Card>
           ))}
@@ -158,12 +168,16 @@ export default function Courses() {
             <p className="text-sm text-muted-foreground text-center mb-4">
               Aún no se han publicado cursos de capacitación.
             </p>
-            {(user?.role === "admin" || user?.role === "instructor") && (
-              <Button onClick={handleCreate}>
-                <Plus className="h-4 w-4 mr-2" />
-                Crear Primer Curso
-              </Button>
-            )}
+            <ProtectedButton
+              onClick={handleCreate}
+              requiredPermissions={["can_create", "can_edit"]}
+              requireAll={false}
+              fallbackMessage="Solo administradores e instructores pueden crear cursos"
+              hideIfNoPermission
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Primer Curso
+            </ProtectedButton>
           </CardContent>
         </Card>
       )}

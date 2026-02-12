@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertCircle, Plus, Eye, Edit, FileText } from "lucide-react";
+import ProtectedButton from "@/components/ProtectedButton";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { format } from "date-fns";
@@ -158,10 +159,15 @@ export default function Cases() {
             Seguimiento y atención de casos de riesgo psicosocial
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
+        <ProtectedButton
+          onClick={() => setCreateDialogOpen(true)}
+          requiredPermission="can_create"
+          fallbackMessage="Solo los administradores pueden registrar casos"
+          hideIfNoPermission
+        >
           <Plus className="h-4 w-4 mr-2" />
           Registrar Caso
-        </Button>
+        </ProtectedButton>
       </div>
 
       {/* Stats */}
@@ -251,14 +257,28 @@ export default function Cases() {
                             Ver Detalle
                           </Button>
                         </Link>
-                        <Button variant="outline" size="sm" onClick={() => handleEditCase(caseItem)}>
+                        <ProtectedButton
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditCase(caseItem)}
+                          requiredPermission="can_edit"
+                          fallbackMessage="Solo los administradores pueden editar casos"
+                          hideIfNoPermission
+                        >
                           <Edit className="h-4 w-4 mr-2" />
                           Editar
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleAddFollowUp(caseItem)}>
+                        </ProtectedButton>
+                        <ProtectedButton
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAddFollowUp(caseItem)}
+                          requiredPermission="can_edit"
+                          fallbackMessage="Solo los administradores pueden agregar seguimiento"
+                          hideIfNoPermission
+                        >
                           <FileText className="h-4 w-4 mr-2" />
                           Seguimiento
-                        </Button>
+                        </ProtectedButton>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -272,10 +292,15 @@ export default function Cases() {
               <p className="text-sm text-muted-foreground text-center mb-4">
                 Aún no se han reportado casos de riesgo psicosocial.
               </p>
-              <Button onClick={() => setCreateDialogOpen(true)}>
+              <ProtectedButton
+                onClick={() => setCreateDialogOpen(true)}
+                requiredPermission="can_create"
+                fallbackMessage="Solo los administradores pueden registrar casos"
+                hideIfNoPermission
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Registrar Primer Caso
-              </Button>
+              </ProtectedButton>
             </div>
           )}
         </CardContent>
