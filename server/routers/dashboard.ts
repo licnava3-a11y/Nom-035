@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { users, cases } from "../../drizzle/schema";
+import { users, cases, surveys, surveyResponses, employees } from "../../drizzle/schema";
 import { eq, and, sql, gte } from "drizzle-orm";
 
 /**
@@ -37,15 +37,37 @@ export const dashboardRouter = router({
           .where(eq(cases.status, "investigating"))
       : [{ count: 0 }];
 
+    // Total de empleados activos
+    const activeEmployees = db
+      ? await db
+          .select({ count: sql<number>`count(*)` })
+          .from(employees)
+          .where(eq(employees.isActive, true))
+      : [{ count: 0 }];
+
+    // Total de respuestas de encuestas NOM-035
+    const totalSurveyResponses = db
+      ? await db
+          .select({ count: sql<number>`count(DISTINCT employee_id)` })
+          .from(surveyResponses)
+      : [{ count: 0 }];
+
+    // Calcular cumplimiento NOM-035 (% de empleados que han respondido encuestas)
+    const activeEmployeesCount = Number(activeEmployees[0]?.count || 0);
+    const respondedEmployeesCount = Number(totalSurveyResponses[0]?.count || 0);
+    const nom035Compliance = activeEmployeesCount > 0 
+      ? Math.round((respondedEmployeesCount / activeEmployeesCount) * 100)
+      : 0;
+
     return {
-      activeEmployees: Number(totalUsers[0]?.count || 0),
-      newEmployeesThisMonth: 2, // TODO: Implementar cuando se agregue campo createdAt o similar
-      nom035Compliance: 92, // TODO: Calcular basado en evaluaciones completadas
-      nom035Trend: "up" as const,
-      nom035Change: 3,
+      activeEmployees: activeEmployeesCount,
+      newEmployeesThisMonth: 0, // TODO: Implementar cuando employees tenga campo createdAt
+      nom035Compliance,
+      nom035Trend: "up" as const, // TODO: Calcular comparando con mes anterior
+      nom035Change: 0, // TODO: Calcular diferencia con mes anterior
       openCases: Number(openCases[0]?.count || 0),
       casesInInvestigation: Number(casesInInvestigation[0]?.count || 0),
-      overallPerformance: 88, // TODO: Calcular basado en métricas de capacitación y evaluaciones
+      overallPerformance: nom035Compliance, // Usar cumplimiento NOM-035 como métrica general
     };
   }),
 
