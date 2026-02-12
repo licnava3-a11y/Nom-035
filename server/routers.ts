@@ -61,6 +61,9 @@ import { digitalCertificatesRouter } from './routers/digitalCertificates';
 import { assessmentsRouter } from './routers/assessments';
 import { trainingDashboardRouter } from "./routers/trainingDashboard";
 import { stpsReportsRouter } from "./routers/stpsReports";
+import { trainingRouter } from "./routers/training";
+import { dashboardRouter } from "./routers/dashboard";
+import { administrativeRouter } from "./routers/administrative";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -137,6 +140,9 @@ export const appRouter = router({
   assessments: assessmentsRouter,
   trainingDashboard: trainingDashboardRouter,
   stpsReports: stpsReportsRouter,
+  training: trainingRouter,
+  dashboard: dashboardRouter,
+  administrative: administrativeRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

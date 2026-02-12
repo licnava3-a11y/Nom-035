@@ -18,7 +18,9 @@ import { Bar, Line } from 'react-chartjs-2';
 export default function DashboardGerente() {
   const { data: stats, isLoading } = trpc.dashboard.getManagerStats.useQuery();
   const { data: teamPerformance } = trpc.dashboard.getTeamPerformance.useQuery();
-  const { data: openCases } = trpc.cases.getOpenCases.useQuery({ limit: 5 });
+  // TODO: Implementar cases.getOpenCases procedure
+  // const { data: openCases } = trpc.cases.getOpenCases.useQuery({ limit: 5 });
+  const openCases = [];
   const { data: complianceMetrics } = trpc.dashboard.getNOM035Compliance.useQuery();
 
   if (isLoading) {

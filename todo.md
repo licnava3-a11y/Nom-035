@@ -10562,3 +10562,50 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [ ] Guardar checkpoint con protección completa de botones y dashboard personalizado
 
 **FASE 218: ⏳ EN PROGRESO - Protección de Committee completada, testing frontend configurado, dashboards personalizados creados (pendiente integración)**
+
+
+## FASE 219: Procedures tRPC para Dashboards Personalizados e Integración
+
+### Crear Procedures tRPC para Training Router
+- [x] Crear server/routers/training.ts si no existe
+- [x] Implementar training.getInstructorStats - Estadísticas de instructor (cursos completados, pendientes, confirmaciones, calificación promedio)
+- [x] Implementar training.getInstructorUpcomingCourses - Cursos próximos a impartir
+- [x] Implementar training.getInstructorPendingConfirmations - Confirmaciones pendientes
+- [x] Agregar router training a server/routers.ts
+
+### Crear Procedures tRPC para Dashboard Router
+- [x] Crear server/routers/dashboard.ts si no existe
+- [x] Implementar dashboard.getManagerStats - Estadísticas de gerente (empleados activos, cumplimiento NOM-035, casos abiertos, rendimiento general)
+- [x] Implementar dashboard.getTeamPerformance - Tendencia de cumplimiento de capacitación
+- [x] Implementar dashboard.getNOM035Compliance - Métricas de cumplimiento NOM-035 por categoría
+- [x] Agregar router dashboard a server/routers.ts
+
+### Crear Procedures tRPC para Administrative Router
+- [x] Crear server/routers/administrative.ts si no existe
+- [x] Implementar administrative.getFinancialStats - Estadísticas financieras (pagos pendientes, órdenes de compra, cursos pagados, viáticos)
+- [x] Implementar administrative.getPendingPayments - Pagos pendientes con detalles
+- [x] Implementar administrative.getPurchaseOrders - Órdenes de compra por estado
+- [x] Implementar administrative.getExpenseRequests - Solicitudes de viáticos por estado
+- [x] Agregar router administrative a server/routers.ts
+
+### Integrar Dashboards en Dashboard.tsx
+- [x] Importar DashboardInstructor, DashboardGerente, DashboardAdministrativo
+- [x] Agregar lógica condicional para renderizar según user.role
+- [x] Mantener dashboard actual como fallback para roles no especificados
+- [x] Verificar que la navegación funciona correctamente
+
+### Aplicar Protección de Botones en 9 Páginas Restantes
+- [ ] CommitteeMinutesManagement.tsx - Botones: Crear, Editar, Finalizar minuta
+- [ ] Documents.tsx - Botones: Generar, Descargar, Eliminar documento
+- [ ] DocumentFormats.tsx - Botones: Crear, Editar, Eliminar formato
+- [ ] SurveysAdminPanel.tsx - Botones: Crear Periodo, Enviar Encuestas
+- [ ] Nom035AdminPanel.tsx - Botones: Generar Reporte, Exportar
+- [ ] Mailbox.tsx - Botones: Responder, Archivar, Eliminar
+- [ ] NotificationsDashboard.tsx - Botones: Enviar, Eliminar notificación
+- [ ] AgreementsDashboard.tsx - Botones: Crear, Editar, Completar acuerdo
+- [ ] EarlyWarnings.tsx - Botones: Crear Alerta, Resolver
+
+### Checkpoint
+- [ ] Guardar checkpoint con dashboards personalizados completamente funcionales
+
+**FASE 219: ✅ COMPLETADA - Procedures tRPC creados (training, dashboard, administrative) y dashboards personalizados integrados con enrutamiento por rol**

@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { trpc } from '@/lib/trpc';
+import DashboardInstructor from '@/components/DashboardInstructor';
+import DashboardGerente from '@/components/DashboardGerente';
+import DashboardAdministrativo from '@/components/DashboardAdministrativo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
@@ -49,6 +52,19 @@ ChartJS.register(
 
 export default function DashboardConsolidated() {
   const { user } = useAuth();
+
+  // Renderizar dashboard personalizado según rol
+  // committee_coordinator (coordinador del comité) tiene vista gerencial
+  if (user?.role === 'committee_coordinator') {
+    return <DashboardGerente />;
+  }
+
+  // committee y committee_member pueden ver dashboard de instructor/capacitación
+  if (user?.role === 'committee' || user?.role === 'committee_member') {
+    return <DashboardInstructor />;
+  }
+
+  // Dashboard por defecto para admin y otros roles
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | undefined>(undefined);
 
   const filters = useMemo(() => {
