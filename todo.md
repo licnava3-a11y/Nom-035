@@ -10829,3 +10829,14 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Guardar checkpoint con protección completa de botones en todas las páginas
 
 **FASE 226: ✅ COMPLETADA - Protección de botones aplicada en las 9 páginas restantes, sistema 100% protegido**
+
+
+## FASE 227: Crear Guía de Pruebas Detallada para Validación de Permisos
+
+- [x] Crear estructura de la guía con matriz de permisos y usuarios de prueba
+- [x] Documentar casos de prueba para páginas de gestión (7 páginas)
+- [x] Documentar casos de prueba para páginas de reportes y alertas (9 páginas)
+- [x] Crear plantillas de registro de resultados y checklist de validación
+- [x] Guardar checkpoint y entregar guía al usuario
+
+**FASE 227: ✅ COMPLETADA - Guía de validación detallada creada con 75 casos de prueba para 16 páginas**
