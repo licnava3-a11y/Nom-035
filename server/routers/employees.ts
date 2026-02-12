@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
+import { requirePermission, requireDelete, requireAnyPermission } from "../permissions";
 import { validateCURP, validateRFC, validateNSS, validateEmail, validateHireDate, validateAge } from "../../shared/validators";
 import { getAddressByPostalCode } from "../lib/postal-code-api";
 
@@ -75,6 +76,7 @@ export const employeesRouter = router({
    * Create new employee
    */
   create: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(
       z.object({
         firstName: z.string().min(1, "Nombre es requerido"),
@@ -93,14 +95,8 @@ export const employeesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Only admin can create employees
-      if (ctx.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Solo administradores pueden crear empleados",
-        });
-      }
-
+      if (!ctx.user) throw new Error('User not authenticated');
+      
       // Validar CURP si se proporciona
       if (input.curp) {
         const curpValidation = validateCURP(input.curp);
@@ -221,6 +217,7 @@ export const employeesRouter = router({
    * Update employee
    */
   update: protectedProcedure
+    .use(requirePermission('can_edit'))
     .input(
       z.object({
         id: z.number(),
@@ -237,14 +234,6 @@ export const employeesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // Only admin can update employees
-      if (ctx.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Solo administradores pueden actualizar empleados",
-        });
-      }
-
       const { id, ...updateData } = input;
 
       // Check if employee exists
@@ -282,20 +271,22 @@ export const employeesRouter = router({
    * Deactivate employee
    */
   deactivate: protectedProcedure
+    .use(requireDelete())
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      // Only admin can deactivate employees
-      if (ctx.user.role !== "admin") {
+      const employee = await employeesDb.getEmployeeById(input.id);
+      if (!employee) {
         throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Solo administradores pueden desactivar empleados",
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado",
         });
       }
 
-      const employee = await employeesDb.deactivateEmployee(input.id);
+      await employeesDb.deactivateEmployee(input.id);
+
       return {
         success: true,
-        employee,
+        message: "Empleado desactivado exitosamente",
       };
     }),
 

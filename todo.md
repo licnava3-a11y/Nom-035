@@ -10840,3 +10840,29 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Guardar checkpoint y entregar guía al usuario
 
 **FASE 227: ✅ COMPLETADA - Guía de validación detallada creada con 75 casos de prueba para 16 páginas**
+
+
+## FASE 228: Implementar Validación de Permisos en Backend (tRPC Procedures)
+
+- [x] Crear middleware de validación de permisos para tRPC procedures
+- [x] Aplicar validación en router employees (create, update, deactivate)
+- [x] Crear tests unitarios para validación de permisos backend (24 tests pasando)
+- [x] Crear documentación completa de implementación (GUIA_IMPLEMENTACION_PERMISOS_BACKEND.md)
+- [x] Actualizar todo.md, verificar compilación y guardar checkpoint
+
+**FASE 228: ✅ COMPLETADA - Sistema de validación de permisos backend implementado con middleware, tests y documentación completa**
+
+### Archivos Creados
+- `server/permissions.ts` - Middleware de validación con 6 permisos y 17 roles
+- `server/permissions.test.ts` - 24 tests unitarios (100% pasando)
+- `GUIA_IMPLEMENTACION_PERMISOS_BACKEND.md` - Documentación completa con ejemplos
+
+### Routers Implementados
+- ✅ `employees.ts` - create, update, deactivate
+
+### Routers Pendientes (Documentados en Guía)
+- 📋 committeeMinutes.ts - create, update, delete, publish
+- 📋 documentFormats.ts - create, update, delete
+- 📋 notifications.ts - create, markAsRead, markAllAsRead, delete
+- 📋 surveys.ts, surveysAdmin.ts, investigations.ts, correctiveActions.ts, training.ts
+- 📋 documents.ts, signatures.ts, hiring.ts, jobProfiles.ts, departments.ts, positions.ts
