@@ -20,7 +20,7 @@ export default function DashboardGerente() {
   const { data: teamPerformance } = trpc.dashboard.getTeamPerformance.useQuery();
   // TODO: Implementar cases.getOpenCases procedure
   // const { data: openCases } = trpc.cases.getOpenCases.useQuery({ limit: 5 });
-  const openCases = [];
+  const openCases: any[] = [];
   const { data: complianceMetrics } = trpc.dashboard.getNOM035Compliance.useQuery();
 
   if (isLoading) {

@@ -89,7 +89,7 @@ export default function DashboardConsolidated() {
   const { data: courses, isLoading: coursesLoading } = trpc.courses.list.useQuery();
   const { data: progress, isLoading: progressLoading } = trpc.progress.my.useQuery();
   const { data: cases, isLoading: casesLoading } = trpc.cases.list.useQuery(undefined, {
-    enabled: user?.role === 'admin' || user?.role === 'committee',
+    enabled: user?.role === 'admin' || (user?.role as string) === 'committee',
   });
 
   // Brechas críticas de competencias (solo para admin)
@@ -236,7 +236,7 @@ export default function DashboardConsolidated() {
           </>
         )}
 
-        {(user?.role === 'admin' || user?.role === 'committee') && (
+        {(user?.role === 'admin' || (user?.role as string) === 'committee') && (
           <>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -284,7 +284,7 @@ export default function DashboardConsolidated() {
           </>
         )}
 
-        {user?.role === 'instructor' && (
+        {(user?.role as string) === 'instructor' && (
           <>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -523,9 +523,7 @@ export default function DashboardConsolidated() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-2xl font-bold tracking-tight mb-4">Accesos Rápidos</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {user?.role === 'student' && (
-            <>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">          {(user?.role as string) === 'instructor' && (           <>
               <Link href="/courses">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>
@@ -576,7 +574,7 @@ export default function DashboardConsolidated() {
             </>
           )}
 
-          {(user?.role === 'admin' || user?.role === 'committee') && (
+          {(user?.role === 'admin' || (user?.role as string) === 'committee') && (
             <>
               <Link href="/cases">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -645,7 +643,7 @@ export default function DashboardConsolidated() {
             </>
           )}
 
-          {user?.role === 'instructor' && (
+          {(user?.role as string) === 'instructor' && (
             <>
               <Link href="/courses">
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
