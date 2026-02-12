@@ -7,6 +7,7 @@ import { Users, Mail, Phone, Shield, Plus, Edit, Eye } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import ProtectedButton from "@/components/ProtectedButton";
 
 export default function Committee() {
   const { user } = useAuth();
@@ -59,12 +60,15 @@ export default function Committee() {
             Gestión de miembros del comité de atención de casos psicosociales
           </p>
         </div>
-        {user?.role === "admin" && (
-          <Button onClick={() => setLocation("/committee/new")}>
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar Miembro
-          </Button>
-        )}
+        <ProtectedButton
+          requiredPermission="can_create"
+          fallbackMessage="Solo los administradores pueden agregar miembros"
+          hideIfNoPermission
+          onClick={() => setLocation("/committee/new")}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Agregar Miembro
+        </ProtectedButton>
       </div>
 
       {/* Stats */}
@@ -135,28 +139,27 @@ export default function Committee() {
                     )}
 
                   </div>
-                  {user?.role === "admin" && (
-                    <div className="flex gap-2 pt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => setLocation(`/committee/${member.id}/edit`)}
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Editar
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => setLocation(`/committee/${member.id}`)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Ver Perfil
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex gap-2 pt-2">
+                    <ProtectedButton
+                      variant="outline"
+                      size="sm"
+                      requiredPermission="can_edit"
+                      fallbackMessage="Solo los administradores pueden editar miembros"
+                      hideIfNoPermission
+                      onClick={() => setLocation(`/committee/edit/${member.id}`)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Editar
+                    </ProtectedButton>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setLocation(`/committee/profile/${member.id}`)}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Ver Perfil
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -165,15 +168,16 @@ export default function Committee() {
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
               <p>No hay miembros del comité registrados.</p>
-              {user?.role === "admin" && (
-                <Button 
-                  className="mt-4" 
-                  onClick={() => setLocation("/committee/new")}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Primer Miembro
-                </Button>
-              )}
+              <ProtectedButton
+                className="mt-4"
+                requiredPermission="can_create"
+                fallbackMessage="Solo los administradores pueden agregar miembros"
+                hideIfNoPermission
+                onClick={() => setLocation("/committee/new")}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Primer Miembro
+              </ProtectedButton>
             </CardContent>
           </Card>
         )}

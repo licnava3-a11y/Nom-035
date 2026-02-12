@@ -13,7 +13,15 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "node",
-    include: ["server/**/*.test.ts", "server/**/*.spec.ts"],
+    environment: "happy-dom",
+    include: [
+      "server/**/*.test.ts",
+      "server/**/*.spec.ts",
+      "client/**/*.test.ts",
+      "client/**/*.test.tsx",
+      "client/**/*.spec.ts",
+      "client/**/*.spec.tsx",
+    ],
+    setupFiles: ["./vitest.setup.ts"],
   },
 });

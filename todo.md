@@ -10501,3 +10501,64 @@ Porcentaje_Trabajadores_Riesgo = (N° trabajadores con IRPG ≥ 2.0 / Total trab
 - [x] Guardar checkpoint con protección completa de botones y tests implementados
 
 **FASE 217: ✅ COMPLETADA - Protección de botones implementada en 6 páginas principales, ProtectedAction creado, tests de usePermissions listos**
+
+
+## FASE 218: Protección Completa de Botones y Dashboard Personalizado por Rol
+
+### Aplicar Protección de Botones en 10 Páginas Restantes
+- [x] Committee.tsx - Botones: Agregar Miembro, Editar, Eliminar
+- [ ] CommitteeMinutesManagement.tsx - Botones: Crear, Editar, Finalizar minuta
+- [ ] Documents.tsx - Botones: Generar, Descargar, Eliminar documento
+- [ ] DocumentFormats.tsx - Botones: Crear, Editar, Eliminar formato
+- [ ] SurveysAdminPanel.tsx - Botones: Crear Periodo, Enviar Encuestas
+- [ ] Nom035AdminPanel.tsx - Botones: Generar Reporte, Exportar
+- [ ] Mailbox.tsx - Botones: Responder, Archivar, Eliminar
+- [ ] NotificationsDashboard.tsx - Botones: Enviar, Eliminar notificación
+- [ ] AgreementsDashboard.tsx - Botones: Crear, Editar, Completar acuerdo
+- [ ] EarlyWarnings.tsx - Botones: Crear Alerta, Resolver
+- [ ] SecurityAlerts.tsx - Botones: Marcar como Revisado
+
+### Configurar Entorno de Testing Frontend
+- [x] Instalar jsdom para entorno de testing de navegador
+- [x] Instalar @testing-library/react para tests de componentes
+- [x] Instalar @testing-library/jest-dom para matchers adicionales
+- [x] Instalar @testing-library/user-event para simulación de eventos
+- [x] Actualizar vitest.config.ts para incluir tests de cliente
+- [x] Configurar environment: 'happy-dom' en vitest.config
+- [x] Agregar vitest.setup.ts para configuración global
+
+### Crear Tests de ProtectedButton
+- [ ] Crear archivo client/src/components/ProtectedButton.test.tsx
+- [ ] Test: ProtectedButton se oculta cuando hideIfNoPermission=true y no tiene permisos
+- [ ] Test: ProtectedButton se deshabilita cuando hideIfNoPermission=false y no tiene permisos
+- [ ] Test: ProtectedButton muestra tooltip cuando está deshabilitado
+- [ ] Test: ProtectedButton se muestra normal cuando tiene permisos
+- [ ] Test: ProtectedButton con múltiples permisos (requireAll=true)
+- [ ] Test: ProtectedButton con múltiples permisos (requireAll=false)
+- [ ] Ejecutar tests con pnpm test y verificar cobertura
+
+### Implementar Dashboard Personalizado por Rol
+- [x] Crear componente DashboardInstructor.tsx
+  - [x] Calendario de cursos completados
+  - [x] Cursos asignados pendientes de impartir
+  - [x] Cursos confirmados y pendientes de confirmar
+  - [x] Estadísticas de evaluaciones recibidas
+- [x] Crear componente DashboardGerente.tsx
+  - [x] Vista general del rendimiento del equipo
+  - [x] Métricas de cumplimiento NOM-035
+  - [x] Casos abiertos y en investigación
+  - [x] Reportes y análisis de tendencias
+- [x] Crear componente DashboardAdministrativo.tsx (en progreso)
+  - [x] Situación de facturación
+  - [x] Pendientes de pago
+  - [x] Órdenes de compra y confirmaciones
+  - [x] Cursos pagados y entrega de documentos
+  - [x] Solicitud de viáticos
+- [ ] Actualizar Dashboard.tsx para renderizar componente según rol
+- [ ] Agregar lógica de enrutamiento por rol en App.tsx
+- [ ] Crear procedures tRPC para datos de dashboards personalizados
+
+### Checkpoint
+- [ ] Guardar checkpoint con protección completa de botones y dashboard personalizado
+
+**FASE 218: ⏳ EN PROGRESO - Protección de Committee completada, testing frontend configurado, dashboards personalizados creados (pendiente integración)**
