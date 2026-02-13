@@ -1,5 +1,32 @@
 # TODO - Plataforma NOM-035 STPS 2018
 
+## FASE 96: Corrección de Errores TypeScript y Mejoras al Dashboard Financiero
+
+### Corrección de Errores TypeScript
+- [x] Corregir 10 errores TypeScript en investigations.ts y surveys.ts
+- [x] Agregar tipos explícitos para parámetros 'input' en investigations.ts
+- [x] Corregir error 'publicProcedure is not defined' en investigations.ts
+- [x] Agregar non-null assertion para ctx.user en surveys.ts línea 302
+
+### Dashboard Financiero - Filtros Avanzados
+- [x] Agregar filtro por departamento en DashboardAdministrativo.tsx
+- [x] Agregar filtro por categoría (facturas, órdenes, solicitudes)
+- [x] Implementar selector de rango de fechas personalizado
+- [x] Actualizar gráfico Chart.js con datos filtrados
+
+### Dashboard Financiero - Exportación
+- [x] Implementar exportación a Excel del dashboard financiero
+- [x] Implementar exportación a PDF del dashboard financiero
+- [x] Agregar botones de exportación en la interfaz
+- [x] Incluir datos de KPIs y gráfico en exportación
+
+### Documentación de Pruebas Manuales
+- [x] Documentar proceso de pruebas manuales de permisos
+- [x] Crear checklist de validación para 5 usuarios de prueba
+- [x] Agregar instrucciones de login para cada usuario
+- [x] Documentar páginas críticas a validar
+
+
 ## FASE 68: AUDITORÍA COMPLETA Y CORRECCIÓN DE ERRORES
 
 ### CRÍTICO: Corrección de Error de Login

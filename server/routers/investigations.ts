@@ -1,4 +1,4 @@
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
@@ -36,7 +36,7 @@ export const investigationsRouter = router({
         employeeId: input.employeeId,
         accessToken,
         expiresAt,
-        createdBy: ctx.user.id,
+        createdBy: ctx.user!.id,
       });
 
       // Si se solicita envío por correo, enviar correo

@@ -299,7 +299,7 @@ export const surveysRouter = router({
         .from(surveyResponses)
         .where(and(
           eq(surveyResponses.surveyId, input.surveyId),
-          eq(surveyResponses.userId, ctx.user.id)
+          eq(surveyResponses.userId, ctx.user!.id)
         ))
         .limit(1);
       

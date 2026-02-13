@@ -256,7 +256,7 @@ export const correctiveActionsRouter = router({
               description: previousAction.description,
               oldStatus: previousAction.status,
               newStatus: input.status,
-              changedBy: ctx.user.name || ctx.user.email || 'Sistema',
+              changedBy: ctx.user!.name || ctx.user!.email || 'Sistema',
               actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${input.id}`,
             });
           } catch (error) {

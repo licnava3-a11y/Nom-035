@@ -7,27 +7,151 @@ import { DollarSign, ShoppingCart, Receipt, TrendingUp } from "lucide-react";
 import Chart from "chart.js/auto";
 
 export default function DashboardAdministrativo() {
-  const [periodo, setPeriodo] = useState<"mes" | "trimestre" | "año">("mes");
+  const [periodo, setPeriodo] = useState<"mes" | "trimestre" | "áo">("mes");
+  const [departamento, setDepartamento] = useState<string>("todos");
+  const [categoria, setCategoria] = useState<string>("todos");
+  const [fechaInicio, setFechaInicio] = useState<string>("");
+  const [fechaFin, setFechaFin] = useState<string>("");
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+
+  // Funciones de exportación
+  const exportToExcel = () => {
+    // Preparar datos para Excel
+    const data = [
+      ["Dashboard Administrativo Financiero"],
+      [""],
+      ["KPIs Generales"],
+      ["Métrica", "Cantidad", "Monto Total"],
+      ["Facturas Registradas", totalInvoices, `$${totalInvoiceAmount.toFixed(2)}`],
+      ["Órdenes de Compra", totalPurchaseOrders, `$${totalPurchaseAmount.toFixed(2)}`],
+      ["Solicitudes de Gasto", totalExpenseRequests, `$${totalExpenseAmount.toFixed(2)}`],
+      [""],
+      ["Facturas Detalle"],
+      ["Folio", "Proveedor", "Monto", "Fecha", "Estado"],
+      ...filteredInvoices.map(inv => [inv.folio, inv.proveedor, inv.monto, inv.fecha, inv.estado]),
+      [""],
+      ["Órdenes de Compra Detalle"],
+      ["Folio", "Proveedor", "Monto", "Fecha", "Estado"],
+      ...filteredPurchaseOrders.map(po => [po.folio, po.proveedor, po.monto, po.fecha, po.estado]),
+      [""],
+      ["Solicitudes de Gasto Detalle"],
+      ["Folio", "Concepto", "Monto", "Categoría", "Estado"],
+      ...filteredExpenseRequests.map(exp => [exp.folio, exp.concepto, exp.monto, exp.categoria, exp.estado]),
+    ];
+
+    // Convertir a CSV
+    const csv = data.map(row => row.join(",")).join("\n");
+    const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `dashboard-financiero-${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+  };
+
+  const exportToPDF = () => {
+    // Capturar gráfico como imagen
+    const canvas = chartRef.current;
+    if (!canvas) return;
+
+    const chartImage = canvas.toDataURL("image/png");
+
+    // Crear contenido HTML para PDF
+    const content = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Dashboard Financiero</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #000; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .kpi { display: inline-block; margin: 10px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+          img { max-width: 100%; height: auto; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <h1>Dashboard Administrativo Financiero</h1>
+        <p>Fecha: ${new Date().toLocaleDateString("es-MX")}</p>
+        
+        <h2>KPIs Generales</h2>
+        <div class="kpi">
+          <strong>Facturas Registradas:</strong> ${totalInvoices}<br>
+          <strong>Total:</strong> $${totalInvoiceAmount.toFixed(2)}
+        </div>
+        <div class="kpi">
+          <strong>Órdenes de Compra:</strong> ${totalPurchaseOrders}<br>
+          <strong>Total:</strong> $${totalPurchaseAmount.toFixed(2)}
+        </div>
+        <div class="kpi">
+          <strong>Solicitudes de Gasto:</strong> ${totalExpenseRequests}<br>
+          <strong>Total:</strong> $${totalExpenseAmount.toFixed(2)}
+        </div>
+        
+        <h2>Tendencias Financieras</h2>
+        <img src="${chartImage}" alt="Gráfico de Tendencias" />
+      </body>
+      </html>
+    `;
+
+    // Abrir en nueva ventana para imprimir
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(content);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
+  };
 
   // Queries
   const { data: invoices } = trpc.financial.getAllInvoices.useQuery();
   const { data: purchaseOrders } = trpc.financial.getAllPurchaseOrders.useQuery();
   const { data: expenseRequests } = trpc.financial.getAllExpenseRequests.useQuery();
 
-  // Calcular KPIs
-  const totalInvoices = invoices?.length || 0;
-  const totalPurchaseOrders = purchaseOrders?.length || 0;
-  const totalExpenseRequests = expenseRequests?.length || 0;
+  // Función de filtrado
+  const filterData = (data: any[] | undefined, type: string) => {
+    if (!data) return [];
+    
+    return data.filter((item) => {
+      // Filtro por departamento
+      if (departamento !== "todos" && item.departamento !== departamento) return false;
+      
+      // Filtro por categoría (solo para solicitudes de gasto)
+      if (categoria !== "todos" && type === "expenses" && item.categoria !== categoria) return false;
+      
+      // Filtro por rango de fechas
+      if (fechaInicio || fechaFin) {
+        const itemDate = new Date(item.fecha || item.fechaSolicitud);
+        if (fechaInicio && itemDate < new Date(fechaInicio)) return false;
+        if (fechaFin && itemDate > new Date(fechaFin)) return false;
+      }
+      
+      return true;
+    });
+  };
 
-  const totalInvoiceAmount = invoices?.reduce((sum, inv) => sum + parseFloat(inv.monto), 0) || 0;
-  const totalPurchaseAmount = purchaseOrders?.reduce((sum, po) => sum + parseFloat(po.monto), 0) || 0;
-  const totalExpenseAmount = expenseRequests?.reduce((sum, exp) => sum + parseFloat(exp.monto), 0) || 0;
+  // Aplicar filtros
+  const filteredInvoices = filterData(invoices, "invoices");
+  const filteredPurchaseOrders = filterData(purchaseOrders, "purchaseOrders");
+  const filteredExpenseRequests = filterData(expenseRequests, "expenses");
+
+  // Calcular KPIs con datos filtrados
+  const totalInvoices = filteredInvoices.length;
+  const totalPurchaseOrders = filteredPurchaseOrders.length;
+  const totalExpenseRequests = filteredExpenseRequests.length;
+
+  const totalInvoiceAmount = filteredInvoices.reduce((sum, inv) => sum + parseFloat(inv.monto), 0);
+  const totalPurchaseAmount = filteredPurchaseOrders.reduce((sum, po) => sum + parseFloat(po.monto), 0);
+  const totalExpenseAmount = filteredExpenseRequests.reduce((sum, exp) => sum + parseFloat(exp.monto), 0);
 
   // Preparar datos para gráfico de tendencias
   useEffect(() => {
-    if (!chartRef.current || !invoices || !purchaseOrders || !expenseRequests) return;
+    if (!chartRef.current || !filteredInvoices || !filteredPurchaseOrders || !filteredExpenseRequests) return;
 
     // Destruir gráfico anterior si existe
     if (chartInstance.current) {
@@ -53,9 +177,9 @@ export default function DashboardAdministrativo() {
       });
     };
 
-    processData(invoices, "invoices");
-    processData(purchaseOrders, "purchaseOrders");
-    processData(expenseRequests, "expenseRequests");
+    processData(filteredInvoices, "invoices");
+    processData(filteredPurchaseOrders, "purchaseOrders");
+    processData(filteredExpenseRequests, "expenseRequests");
 
     // Ordenar por fecha y obtener últimos N meses según periodo
     const sortedMonths = Array.from(monthlyData.keys()).sort();
@@ -159,7 +283,7 @@ export default function DashboardAdministrativo() {
         chartInstance.current.destroy();
       }
     };
-  }, [invoices, purchaseOrders, expenseRequests, periodo]);
+  }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests, periodo]);
 
   return (
     <div className="container mx-auto py-6">
@@ -170,21 +294,97 @@ export default function DashboardAdministrativo() {
         ]}
       />
 
-      <div className="flex justify-between items-center mb-6 mt-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Administrativo Financiero</h1>
-          <p className="text-muted-foreground mt-2">Resumen y tendencias de facturas, órdenes de compra y solicitudes de gasto</p>
+      <div className="mb-6 mt-6">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard Administrativo Financiero</h1>
+            <p className="text-muted-foreground mt-2">Resumen y tendencias de facturas, órdenes de compra y solicitudes de gasto</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={exportToExcel}
+              className="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+            >
+              Exportar Excel
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+            >
+              Exportar PDF
+            </button>
+          </div>
         </div>
-        <Select value={periodo} onValueChange={(value: any) => setPeriodo(value)}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="mes">Últimos 6 meses</SelectItem>
-            <SelectItem value="trimestre">Último año</SelectItem>
-            <SelectItem value="año">Últimos 2 años</SelectItem>
-          </SelectContent>
-        </Select>
+        
+        {/* Filtros Avanzados */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-muted/50 rounded-lg">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Periodo</label>
+            <Select value={periodo} onValueChange={(value: any) => setPeriodo(value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mes">Últimos 6 meses</SelectItem>
+                <SelectItem value="trimestre">Último año</SelectItem>
+                <SelectItem value="año">Últimos 2 años</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Departamento</label>
+            <Select value={departamento} onValueChange={setDepartamento}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="Recursos Humanos">Recursos Humanos</SelectItem>
+                <SelectItem value="Administración">Administración</SelectItem>
+                <SelectItem value="Operaciones">Operaciones</SelectItem>
+                <SelectItem value="Capacitación">Capacitación</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Categoría</label>
+            <Select value={categoria} onValueChange={setCategoria}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas</SelectItem>
+                <SelectItem value="materiales">Materiales</SelectItem>
+                <SelectItem value="servicios">Servicios</SelectItem>
+                <SelectItem value="capacitacion">Capacitación</SelectItem>
+                <SelectItem value="viaje">Viaje</SelectItem>
+                <SelectItem value="otro">Otro</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Fecha Inicio</label>
+            <input
+              type="date"
+              value={fechaInicio}
+              onChange={(e) => setFechaInicio(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium mb-2 block">Fecha Fin</label>
+            <input
+              type="date"
+              value={fechaFin}
+              onChange={(e) => setFechaFin(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
       </div>
 
       {/* KPI Cards */}
