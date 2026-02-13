@@ -39,7 +39,7 @@ export default function CustomPermissions() {
     role: undefined,
     search: "",
     page: 1,
-    pageSize: 1000,
+    limit: 1000,
   });
 
   // Mutation: Actualizar permisos personalizados
