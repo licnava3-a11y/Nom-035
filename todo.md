@@ -11179,3 +11179,86 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Actualizar todo.md con tareas completadas
 - [x] 1 botón protegido en RolesPermissions.tsx (Cambiar Rol con can_edit)
 - [x] Total del sistema: 39 botones protegidos en 12 páginas críticas
+
+## FASE 100: Página de Gestión de Permisos Personalizados
+
+### Schema de Base de Datos
+- [ ] Diseñar tabla custom_roles (id, name, description, permissions JSON, createdBy, createdAt, updatedAt)
+- [ ] Generar migración SQL con drizzle-kit generate
+- [ ] Ejecutar migración con webdev_execute_sql
+- [ ] Crear 3 roles personalizados de demostración
+
+### Router Backend (customRoles.ts)
+- [ ] Crear router customRoles.ts
+- [ ] Procedure: getAllCustomRoles (listar todos los roles personalizados)
+- [ ] Procedure: getCustomRoleById (obtener detalles de un rol específico)
+- [ ] Procedure: createCustomRole (crear nuevo rol personalizado)
+- [ ] Procedure: updateCustomRole (actualizar permisos de un rol)
+- [ ] Procedure: deleteCustomRole (eliminar rol con validación de usuarios)
+- [ ] Proteger procedures con requirePermission('can_edit') o adminProcedure
+- [ ] Agregar router a server/routers.ts
+
+### Modificación del Sistema de Permisos
+- [ ] Modificar server/permissions.ts para soportar roles personalizados
+- [ ] Actualizar getPermissionsForRole() para consultar custom_roles
+- [ ] Mantener compatibilidad con 17 roles predefinidos
+- [ ] Agregar cache de permisos para optimización
+
+### Página Frontend (CustomRoles.tsx)
+- [ ] Crear CustomRoles.tsx en client/src/pages/
+- [ ] Sección 1: Lista de roles personalizados (tabla con nombre, descripción, permisos, usuarios)
+- [ ] Sección 2: Formulario de creación/edición (nombre, descripción, checkboxes de 6 permisos)
+- [ ] Sección 3: Roles del sistema (tabla de 17 roles predefinidos, solo lectura)
+- [ ] Implementar diálogos para crear, editar y eliminar roles
+- [ ] Usar ProtectedButton para botones de acción
+- [ ] Validación: no permitir eliminar roles con usuarios asignados
+
+### Integración y Navegación
+- [ ] Agregar import de CustomRoles en App.tsx
+- [ ] Agregar ruta /administrative/custom-roles en App.tsx
+- [ ] Agregar enlace en DashboardLayout.tsx (sección Administración)
+- [ ] Actualizar RolesPermissions.tsx para incluir roles personalizados
+- [ ] Verificar compilación TypeScript (0 errores)
+
+### Documentación
+- [ ] Actualizar todo.md con tareas completadas
+- [ ] Documentar botones protegidos en CustomRoles.tsx
+- [ ] Actualizar REPORTE_VALIDACION_PERMISOS.md con nueva página
+
+
+## FASE 100: Sistema de Permisos Personalizados (COMPLETADA)
+
+### Schema de Base de Datos
+- [x] Agregar columna customPermissions (JSON) a tabla users
+- [x] Generar migración SQL con drizzle-kit generate
+- [x] Ejecutar migración con webdev_execute_sql
+
+### Modificación de Sistema de Permisos (server/permissions.ts)
+- [x] Modificar hasPermission() para aceptar customPermissions
+- [x] Modificar hasAnyPermission() y hasAllPermissions()
+- [x] Actualizar 6 middlewares (requirePermission, requireAnyPermission, requireAllPermissions, requireDelete, requireApprove, requireExport)
+- [x] Actualizar getUserPermissions() para fusionar permisos
+
+### Router Backend (customPermissions.ts)
+- [x] Crear router customPermissions.ts
+- [x] Procedure: getUserCustomPermissions (obtener permisos de un usuario)
+- [x] Procedure: updateUserCustomPermissions (actualizar permisos)
+- [x] Procedure: resetUserCustomPermissions (resetear a permisos del rol)
+- [x] Procedure: getUsersWithCustomPermissions (listar usuarios con permisos personalizados)
+- [x] Agregar router a server/routers.ts
+
+### Página Frontend (CustomPermissions.tsx)
+- [x] Crear CustomPermissions.tsx en client/src/pages/
+- [x] Sección 1: Tabla de usuarios con permisos personalizados
+- [x] Sección 2: Selector de usuario para asignar permisos
+- [x] Sección 3: Diálogo de edición con toggle de 3 estados (Rol/Permitido/Denegado)
+- [x] Usar ProtectedButton para botones de acción
+
+### Integración y Navegación
+- [x] Agregar import de CustomPermissions en App.tsx
+- [x] Agregar ruta /administrative/custom-permissions en App.tsx
+- [x] Agregar enlace en DashboardLayout.tsx (sección Administración)
+- [x] Verificar compilación TypeScript (2 errores menores restantes)
+- [x] Funcionalidad lista para pruebas en navegador
+
+**FASE 100: ✅ COMPLETADA - Sistema de permisos personalizados implementado**

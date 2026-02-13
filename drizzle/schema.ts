@@ -12,6 +12,14 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["admin", "instructor", "student", "committee", "committee_member", "committee_coordinator", "administrativo", "director", "responsable_nom035", "gerente", "rh", "supervisor", "jefe_area", "empleado", "auxiliar_rh", "recursos_humanos", "demo"]).default("student").notNull(),
+  customPermissions: json("customPermissions").$type<{
+    can_view?: boolean;
+    can_create?: boolean;
+    can_edit?: boolean;
+    can_delete?: boolean;
+    can_approve?: boolean;
+    can_export?: boolean;
+  }>(),
   
   // Campos NOM-035 STPS 2018 - Guía V
   curp: varchar("curp", { length: 18 }).unique(),

@@ -133,6 +133,7 @@ import PurchaseOrders from "./pages/PurchaseOrders";
 import ExpenseRequests from "./pages/ExpenseRequests";
 import DashboardAdministrativo from "./pages/DashboardAdministrativo";
 import RolesPermissions from "./pages/RolesPermissions";
+import CustomPermissions from "./pages/CustomPermissions";
 
 function Router() {
   return (
@@ -759,6 +760,11 @@ function Router() {
       <Route path={"/administrative/roles-permissions"}>
         <DashboardLayout>
           <RolesPermissions />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/administrative/custom-permissions"}>
+        <DashboardLayout>
+          <CustomPermissions />
         </DashboardLayout>
       </Route>
       

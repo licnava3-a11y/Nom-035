@@ -54,12 +54,24 @@ export const rolePermissions: Record<string, Permission[]> = {
 
 /**
  * Verifica si un usuario tiene un permiso específico
+ * Fusiona permisos del rol base con permisos personalizados del usuario
  * 
  * @param userRole - Rol del usuario
  * @param requiredPermission - Permiso requerido
+ * @param customPermissions - Permisos personalizados del usuario (opcional)
  * @returns true si el usuario tiene el permiso, false en caso contrario
  */
-export function hasPermission(userRole: string, requiredPermission: Permission): boolean {
+export function hasPermission(
+  userRole: string, 
+  requiredPermission: Permission, 
+  customPermissions?: Record<string, boolean> | null
+): boolean {
+  // 1. Verificar permisos personalizados primero (tienen prioridad)
+  if (customPermissions && requiredPermission in customPermissions) {
+    return customPermissions[requiredPermission] === true;
+  }
+  
+  // 2. Si no hay permisos personalizados, usar permisos del rol
   const permissions = rolePermissions[userRole] || [];
   return permissions.includes(requiredPermission);
 }
@@ -69,10 +81,15 @@ export function hasPermission(userRole: string, requiredPermission: Permission):
  * 
  * @param userRole - Rol del usuario
  * @param requiredPermissions - Lista de permisos requeridos (OR lógico)
+ * @param customPermissions - Permisos personalizados del usuario (opcional)
  * @returns true si el usuario tiene al menos uno de los permisos
  */
-export function hasAnyPermission(userRole: string, requiredPermissions: Permission[]): boolean {
-  return requiredPermissions.some(permission => hasPermission(userRole, permission));
+export function hasAnyPermission(
+  userRole: string, 
+  requiredPermissions: Permission[],
+  customPermissions?: Record<string, boolean> | null
+): boolean {
+  return requiredPermissions.some(permission => hasPermission(userRole, permission, customPermissions));
 }
 
 /**
@@ -80,10 +97,15 @@ export function hasAnyPermission(userRole: string, requiredPermissions: Permissi
  * 
  * @param userRole - Rol del usuario
  * @param requiredPermissions - Lista de permisos requeridos (AND lógico)
+ * @param customPermissions - Permisos personalizados del usuario (opcional)
  * @returns true si el usuario tiene todos los permisos
  */
-export function hasAllPermissions(userRole: string, requiredPermissions: Permission[]): boolean {
-  return requiredPermissions.every(permission => hasPermission(userRole, permission));
+export function hasAllPermissions(
+  userRole: string, 
+  requiredPermissions: Permission[],
+  customPermissions?: Record<string, boolean> | null
+): boolean {
+  return requiredPermissions.every(permission => hasPermission(userRole, permission, customPermissions));
 }
 
 /**
@@ -117,8 +139,9 @@ export function requirePermission(requiredPermission: Permission) {
     }
     
     const userRole = ctx.user.role;
+    const customPermissions = ctx.user.customPermissions as Record<string, boolean> | null | undefined;
     
-    if (!hasPermission(userRole, requiredPermission)) {
+    if (!hasPermission(userRole, requiredPermission, customPermissions)) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `No tienes permisos para realizar esta acción. Se requiere: ${requiredPermission}`,
@@ -160,8 +183,9 @@ export function requireAnyPermission(requiredPermissions: Permission[]) {
     }
     
     const userRole = ctx.user.role;
+    const customPermissions = ctx.user.customPermissions as Record<string, boolean> | null | undefined;
     
-    if (!hasAnyPermission(userRole, requiredPermissions)) {
+    if (!hasAnyPermission(userRole, requiredPermissions, customPermissions)) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `No tienes permisos para realizar esta acción. Se requiere al menos uno de: ${requiredPermissions.join(', ')}`,
@@ -203,8 +227,9 @@ export function requireAllPermissions(requiredPermissions: Permission[]) {
     }
     
     const userRole = ctx.user.role;
+    const customPermissions = ctx.user.customPermissions as Record<string, boolean> | null | undefined;
     
-    if (!hasAllPermissions(userRole, requiredPermissions)) {
+    if (!hasAllPermissions(userRole, requiredPermissions, customPermissions)) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `No tienes permisos para realizar esta acción. Se requieren todos: ${requiredPermissions.join(', ')}`,
@@ -243,8 +268,9 @@ export function requireDelete() {
     }
     
     const userRole = ctx.user.role;
+    const customPermissions = ctx.user.customPermissions as Record<string, boolean> | null | undefined;
     
-    if (!hasPermission(userRole, 'can_delete')) {
+    if (!hasPermission(userRole, 'can_delete', customPermissions)) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: 'Solo los gerentes pueden eliminar registros',
@@ -283,8 +309,9 @@ export function requireApprove() {
     }
     
     const userRole = ctx.user.role;
+    const customPermissions = ctx.user.customPermissions as Record<string, boolean> | null | undefined;
     
-    if (!hasPermission(userRole, 'can_approve')) {
+    if (!hasPermission(userRole, 'can_approve', customPermissions)) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: 'Solo los gerentes y miembros del comité pueden aprobar documentos',
@@ -323,8 +350,9 @@ export function requireExport() {
     }
     
     const userRole = ctx.user.role;
+    const customPermissions = ctx.user.customPermissions as Record<string, boolean> | null | undefined;
     
-    if (!hasPermission(userRole, 'can_export')) {
+    if (!hasPermission(userRole, 'can_export', customPermissions)) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: 'No tienes permisos para exportar datos',
@@ -337,13 +365,44 @@ export function requireExport() {
 
 /**
  * Obtiene la lista de permisos de un usuario
+ * Fusiona permisos del rol base con permisos personalizados
  * Útil para debugging y auditoría
  * 
  * @param userRole - Rol del usuario
+ * @param customPermissions - Permisos personalizados del usuario (opcional)
  * @returns Lista de permisos del usuario
  */
-export function getUserPermissions(userRole: string): Permission[] {
-  return rolePermissions[userRole] || [];
+export function getUserPermissions(
+  userRole: string,
+  customPermissions?: Record<string, boolean> | null
+): Permission[] {
+  // 1. Obtener permisos del rol base
+  const basePermissions = rolePermissions[userRole] || [];
+  
+  // 2. Si no hay permisos personalizados, retornar permisos del rol
+  if (!customPermissions) {
+    return basePermissions;
+  }
+  
+  // 3. Fusionar permisos: customPermissions sobrescribe basePermissions
+  const allPermissions: Permission[] = ['can_view', 'can_create', 'can_edit', 'can_delete', 'can_approve', 'can_export'];
+  const finalPermissions: Permission[] = [];
+  
+  for (const permission of allPermissions) {
+    // Si el permiso está en customPermissions, usar ese valor
+    if (permission in customPermissions) {
+      if (customPermissions[permission] === true) {
+        finalPermissions.push(permission);
+      }
+    } else {
+      // Si no está en customPermissions, usar el valor del rol base
+      if (basePermissions.includes(permission)) {
+        finalPermissions.push(permission);
+      }
+    }
+  }
+  
+  return finalPermissions;
 }
 
 /**
