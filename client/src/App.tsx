@@ -128,6 +128,9 @@ import Surveys from "./pages/Surveys";
 import Prevention from "./pages/Prevention";
 import Compliance from "./pages/Compliance";
 import STPSReports from "./pages/STPSReports";
+import Payments from "./pages/Payments";
+import PurchaseOrders from "./pages/PurchaseOrders";
+import ExpenseRequests from "./pages/ExpenseRequests";
 
 function Router() {
   return (
@@ -726,6 +729,23 @@ function Router() {
       <Route path={"/equality/committee"}>
         <DashboardLayout>
           <EqualityCommittee />
+        </DashboardLayout>
+      </Route>
+      
+      {/* Rutas Financieras */}
+      <Route path={"/administrative/payments"}>
+        <DashboardLayout>
+          <Payments />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/administrative/purchase-orders"}>
+        <DashboardLayout>
+          <PurchaseOrders />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/administrative/expenses"}>
+        <DashboardLayout>
+          <ExpenseRequests />
         </DashboardLayout>
       </Route>
       
