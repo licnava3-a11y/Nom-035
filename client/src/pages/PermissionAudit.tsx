@@ -76,6 +76,19 @@ export default function PermissionAudit() {
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            const clickedType = stats[index].changeType;
+            // Si ya está filtrado por este tipo, limpiar filtro
+            if (changeType === clickedType) {
+              setChangeType(undefined);
+            } else {
+              setChangeType(clickedType);
+            }
+            setPage(1); // Resetear a página 1
+          }
+        },
         plugins: {
           legend: {
             position: "bottom",
@@ -95,7 +108,7 @@ export default function PermissionAudit() {
         pieChartInstanceRef.current.destroy();
       }
     };
-  }, [stats]);
+  }, [stats, changeType]);
 
   // Renderizar gráfico Chart.js cuando cambien los datos
   useEffect(() => {
@@ -326,9 +339,19 @@ export default function PermissionAudit() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Distribución de Cambios</CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Haz clic en un segmento para filtrar la tabla
+                {changeType && (
+                  <Badge variant="secondary" className="ml-2">
+                    Filtrado: {changeType === "role_change" && "Cambios de Rol"}
+                    {changeType === "custom_permission_update" && "Actualizaciones"}
+                    {changeType === "custom_permission_reset" && "Resets"}
+                  </Badge>
+                )}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <canvas ref={pieChartRef} style={{ maxHeight: "200px" }}></canvas>
+              <canvas ref={pieChartRef} style={{ maxHeight: "200px", cursor: "pointer" }}></canvas>
             </CardContent>
           </Card>
         </div>

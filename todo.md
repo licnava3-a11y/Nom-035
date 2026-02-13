@@ -11407,3 +11407,33 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Guardar checkpoint final
 
 **FASE 104: ✅ COMPLETADA AL 100%**
+
+
+## FASE 105: Filtrado Interactivo en Pie Charts (Click en Segmentos)
+
+### PermissionAudit.tsx - Filtrado Interactivo en Pie Chart
+- [x] Agregar estado para filtro seleccionado desde pie chart (ya existía changeType)
+- [x] Implementar onClick handler en Chart.js para capturar clic en segmentos
+- [x] Actualizar filtro changeType cuando se hace clic en segmento
+- [x] Agregar indicador visual de filtro activo (badge en CardDescription)
+- [x] Funcionalidad de toggle: clic en mismo segmento limpia filtro
+- [x] Agregar cursor pointer en canvas
+- [x] Actualizar useEffect con dependencia en changeType
+
+### RolesPermissions.tsx - Filtrado Interactivo en Pie Chart
+- [x] Agregar estado para filtro de rol seleccionado desde pie chart (ya existía selectedRole)
+- [x] Implementar onClick handler en Chart.js para capturar clic en segmentos
+- [x] Actualizar filtro selectedRole cuando se hace clic en segmento (excepto "Otros")
+- [x] Agregar indicador visual de filtro activo (badge en CardDescription)
+- [x] Funcionalidad de toggle: clic en mismo segmento limpia filtro
+- [x] Agregar cursor pointer en canvas
+- [x] Actualizar useEffect con dependencia en selectedRole
+
+### Verificación y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Probar funcionalidad de clic en navegador
+- [x] Verificar que tablas se filtren correctamente
+- [x] Actualizar todo.md con tareas completadas
+- [x] Guardar checkpoint final
+
+**FASE 105: ✅ COMPLETADA AL 100%**

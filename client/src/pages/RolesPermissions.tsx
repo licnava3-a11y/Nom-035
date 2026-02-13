@@ -126,6 +126,28 @@ export default function RolesPermissions() {
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            let clickedRole: string;
+            
+            // Si el índice es menor que top5, es uno de los roles principales
+            if (index < top5.length) {
+              clickedRole = top5[index].role;
+            } else {
+              // Si es "Otros", no filtrar (o podríamos mostrar todos los roles menores)
+              return;
+            }
+            
+            // Si ya está filtrado por este rol, limpiar filtro
+            if (selectedRole === clickedRole) {
+              setSelectedRole("all");
+            } else {
+              setSelectedRole(clickedRole);
+            }
+            setPage(1); // Resetear a página 1
+          }
+        },
         plugins: {
           legend: {
             position: "bottom",
@@ -145,7 +167,7 @@ export default function RolesPermissions() {
         pieChartInstanceRef.current.destroy();
       }
     };
-  }, [distribution]);
+  }, [distribution, selectedRole]);
 
   const getRoleName = (role: string) => {
     const roleNames: Record<string, string> = {
@@ -289,10 +311,17 @@ export default function RolesPermissions() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Distribución de Roles</CardTitle>
-            <CardDescription className="text-xs">Proporción de usuarios por rol</CardDescription>
+            <CardDescription className="text-xs">
+              Haz clic en un segmento para filtrar la tabla
+              {selectedRole !== "all" && (
+                <Badge variant="secondary" className="ml-2">
+                  Filtrado: {getRoleName(selectedRole)}
+                </Badge>
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <canvas ref={pieChartRef} style={{ maxHeight: "250px" }}></canvas>
+            <canvas ref={pieChartRef} style={{ maxHeight: "250px", cursor: "pointer" }}></canvas>
           </CardContent>
         </Card>
       </div>
