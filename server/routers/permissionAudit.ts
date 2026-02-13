@@ -172,4 +172,131 @@ export const permissionAuditRouter = router({
 
       return trends;
     }),
+
+  /**
+   * Get monthly changes count (KPI)
+   */
+  getMonthlyChangesCount: protectedProcedure
+    .use(requirePermission("can_view"))
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Cambios del mes actual
+      const currentMonth = new Date();
+      currentMonth.setDate(1);
+      currentMonth.setHours(0, 0, 0, 0);
+
+      // Cambios del mes anterior
+      const previousMonth = new Date(currentMonth);
+      previousMonth.setMonth(previousMonth.getMonth() - 1);
+
+      const [currentMonthData] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(permissionChangeHistory)
+        .where(and(
+          gte(permissionChangeHistory.createdAt, currentMonth),
+          eq(permissionChangeHistory.changeType, "role_change")
+        ));
+
+      const [previousMonthData] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(permissionChangeHistory)
+        .where(and(
+          gte(permissionChangeHistory.createdAt, previousMonth),
+          lte(permissionChangeHistory.createdAt, currentMonth),
+          eq(permissionChangeHistory.changeType, "role_change")
+        ));
+
+      const currentCount = Number(currentMonthData?.count || 0);
+      const previousCount = Number(previousMonthData?.count || 0);
+      const trend = currentCount > previousCount ? "up" : currentCount < previousCount ? "down" : "stable";
+
+      return { currentCount, previousCount, trend };
+    }),
+
+  /**
+   * Get users with custom permissions count (KPI)
+   */
+  getUsersWithCustomPermissionsCount: protectedProcedure
+    .use(requirePermission("can_view"))
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(sql`${users.customPermissions} IS NOT NULL`);
+
+      return Number(count);
+    }),
+
+  /**
+   * Get top administrators (most active)
+   */
+  getTopAdministrators: protectedProcedure
+    .use(requirePermission("can_view"))
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Últimos 30 días
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const topAdmins = await db
+        .select({
+          adminId: permissionChangeHistory.changedBy,
+          adminName: sql<string>`admin_user.name`,
+          adminEmail: sql<string>`admin_user.email`,
+          changeCount: sql<number>`count(*)`,
+        })
+        .from(permissionChangeHistory)
+        .leftJoin(
+          sql`users AS admin_user`,
+          sql`${permissionChangeHistory.changedBy} = admin_user.id`
+        )
+        .where(gte(permissionChangeHistory.createdAt, thirtyDaysAgo))
+        .groupBy(permissionChangeHistory.changedBy, sql`admin_user.name`, sql`admin_user.email`)
+        .orderBy(desc(sql`count(*)`))
+        .limit(5);
+
+      return topAdmins;
+    }),
+
+  /**
+   * Get recent critical changes (last 24 hours)
+   */
+  getRecentCriticalChanges: protectedProcedure
+    .use(requirePermission("can_view"))
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Últimas 24 horas
+      const twentyFourHoursAgo = new Date();
+      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(permissionChangeHistory)
+        .where(gte(permissionChangeHistory.createdAt, twentyFourHoursAgo));
+
+      const recentChanges = await db
+        .select({
+          id: permissionChangeHistory.id,
+          userId: permissionChangeHistory.userId,
+          userName: users.name,
+          changeType: permissionChangeHistory.changeType,
+          createdAt: permissionChangeHistory.createdAt,
+        })
+        .from(permissionChangeHistory)
+        .leftJoin(users, eq(permissionChangeHistory.userId, users.id))
+        .where(gte(permissionChangeHistory.createdAt, twentyFourHoursAgo))
+        .orderBy(desc(permissionChangeHistory.createdAt))
+        .limit(5);
+
+      return { count: Number(count), recentChanges };
+    }),
 });

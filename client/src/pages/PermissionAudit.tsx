@@ -34,6 +34,10 @@ export default function PermissionAudit() {
   const { data: stats } = trpc.permissionAudit.getStatistics.useQuery();
 
   const { data: trendsData } = trpc.permissionAudit.getChangesTrends.useQuery({ months: trendMonths });
+  const { data: monthlyChanges } = trpc.permissionAudit.getMonthlyChangesCount.useQuery();
+  const { data: customPermissionsCount } = trpc.permissionAudit.getUsersWithCustomPermissionsCount.useQuery();
+  const { data: topAdmins } = trpc.permissionAudit.getTopAdministrators.useQuery();
+  const { data: criticalChanges } = trpc.permissionAudit.getRecentCriticalChanges.useQuery();
 
   // Renderizar gráfico Chart.js cuando cambien los datos
   useEffect(() => {
@@ -158,6 +162,88 @@ export default function PermissionAudit() {
         <p className="text-muted-foreground">
           Historial completo de cambios de roles y permisos personalizados
         </p>
+      </div>
+
+      {/* KPIs Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Cambios de Rol por Mes */}
+        {monthlyChanges && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Cambios de Rol (Mes Actual)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold">{monthlyChanges.currentCount}</div>
+                {monthlyChanges.trend === "up" && (
+                  <Badge className="bg-green-600">↑ {monthlyChanges.currentCount - monthlyChanges.previousCount}</Badge>
+                )}
+                {monthlyChanges.trend === "down" && (
+                  <Badge className="bg-red-600">↓ {monthlyChanges.previousCount - monthlyChanges.currentCount}</Badge>
+                )}
+                {monthlyChanges.trend === "stable" && (
+                  <Badge variant="secondary">→ Sin cambios</Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Mes anterior: {monthlyChanges.previousCount}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* KPI 2: Usuarios con Permisos Personalizados */}
+        {customPermissionsCount !== undefined && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Usuarios con Permisos Personalizados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{customPermissionsCount}</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Usuarios con permisos específicos
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* KPI 3: Administradores Más Activos */}
+        {topAdmins && topAdmins.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Administrador Más Activo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold truncate">{topAdmins[0].adminName}</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {topAdmins[0].changeCount} cambios (últimos 30 días)
+                {Number(topAdmins[0].changeCount) > 10 && (
+                  <Badge className="ml-2 bg-red-600">Alta actividad</Badge>
+                )}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* KPI 4: Cambios Críticos (24 horas) */}
+        {criticalChanges && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Cambios Recientes (24h)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2">
+                <div className="text-2xl font-bold">{criticalChanges.count}</div>
+                {criticalChanges.count > 0 && (
+                  <Badge className="bg-red-600">Nuevos</Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Últimas 24 horas
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Statistics Cards */}
