@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { publicProcedure, protectedProcedure, router } from '../_core/trpc';
+import { requirePermission, requireDelete } from '../permissions';
 import * as db from '../db';
 import { sendActionAssignmentNotification, sendActionStatusChangeNotification } from '../lib/corrective-actions-email-service';
 import { storagePut } from '../storage';
@@ -10,6 +11,7 @@ import PDFDocument from 'pdfkit';
 export const correctiveActionsRouter = router({
   // Crear nueva acción correctiva
   create: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       description: z.string().min(1, "La descripción es requerida"),
       riskLevel: z.enum(['nulo', 'bajo', 'medio', 'alto', 'muy_alto']),
@@ -149,6 +151,7 @@ export const correctiveActionsRouter = router({
 
   // Actualizar acción correctiva
   update: protectedProcedure
+    .use(requirePermission('can_edit'))
     .input(z.object({
       id: z.number(),
       description: z.string().min(1).optional(),
@@ -200,6 +203,7 @@ export const correctiveActionsRouter = router({
 
   // Actualizar estado de acción correctiva
   updateStatus: protectedProcedure
+    .use(requirePermission('can_edit'))
     .input(z.object({
       id: z.number(),
       status: z.enum(['pendiente', 'en_proceso', 'completada', 'cancelada']),
@@ -586,6 +590,7 @@ export const correctiveActionsRouter = router({
 
   // Eliminar acción correctiva
   delete: protectedProcedure
+    .use(requireDelete())
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const dbInstance = await db.getDb();

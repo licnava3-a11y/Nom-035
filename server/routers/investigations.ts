@@ -1,5 +1,6 @@
-import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
+import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
+import { requirePermission } from "../permissions";
 import { getDb } from "../db";
 import { investigationQuestionnaires, nom035Cases, employees } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -9,6 +10,7 @@ import { sendQuestionnaireEmail } from "../services/questionnaireEmailService";
 export const investigationsRouter = router({
   // Crear y enviar cuestionario de investigación
   sendQuestionnaire: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(
       z.object({
         caseId: z.number(),

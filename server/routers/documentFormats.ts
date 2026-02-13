@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
+import { requirePermission, requireDelete } from "../permissions";
 import { documentFormats } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
@@ -38,6 +39,7 @@ export const documentFormatsRouter = router({
 
   // Crear nuevo formato
   create: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       codigo: z.string().min(1).max(20),
       nombre: z.string().min(1).max(255),
@@ -69,6 +71,7 @@ export const documentFormatsRouter = router({
 
   // Actualizar formato existente
   update: protectedProcedure
+    .use(requirePermission('can_edit'))
     .input(z.object({
       id: z.number(),
       codigo: z.string().min(1).max(20).optional(),
@@ -105,6 +108,7 @@ export const documentFormatsRouter = router({
 
   // Eliminar formato
   delete: protectedProcedure
+    .use(requireDelete())
     .input(z.object({
       id: z.number(),
     }))

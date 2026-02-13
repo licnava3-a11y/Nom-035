@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
+import { requirePermission } from "../permissions";
 import { getDb } from "../db";
 import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, surveyNotifications, users, cases } from "../../drizzle/schema";
 import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
@@ -108,6 +109,7 @@ export const surveysRouter = router({
 
   // Generar token único para responder encuesta (para enlaces y QR)
   generateToken: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       surveyId: z.number(),
       userId: z.number(),
@@ -277,6 +279,7 @@ export const surveysRouter = router({
 
   // Enviar respuesta de encuesta
   submitResponse: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       surveyId: z.number(),
       answers: z.array(z.object({
@@ -310,7 +313,7 @@ export const surveysRouter = router({
       // Crear respuesta
       await db.insert(surveyResponses).values({
         surveyId: input.surveyId,
-        userId: ctx.user.id,
+        userId: ctx.user!.id,
         curp: input.curp || null,
         token: responseToken,
         completedAt: new Date(),
@@ -375,14 +378,14 @@ export const surveysRouter = router({
         
         // Crear caso automáticamente si se detecta ATS
         if (atsDetected) {
-          const caseNumber = `ATS-${Date.now()}-${ctx.user.id}`;
+          const caseNumber = `ATS-${Date.now()}-${ctx.user!.id}`;
           await db.insert(cases).values({
             caseNumber,
-            reporterName: ctx.user.name || 'Anónimo',
-            reporterEmail: ctx.user.email || '',
+            reporterName: ctx.user!.name || 'Anónimo',
+            reporterEmail: ctx.user!.email || '',
             isAnonymous: false,
             caseType: 'other',
-            description: `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${ctx.user.name || ctx.user.email}. Se requiere investigación y dictamen por parte del comité.`,
+            description: `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${ctx.user!.name || ctx.user!.email}. Se requiere investigación y dictamen por parte del comité.`,
             status: 'open',
             priority: 'critical',
             createdAt: new Date(),
@@ -652,6 +655,7 @@ export const surveysRouter = router({
 
   // Generar reporte individual PDF
   generateIndividualPDF: protectedProcedure
+    .use(requirePermission('can_export'))
     .input(z.number()) // responseId
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -753,6 +757,7 @@ export const surveysRouter = router({
 
   // Generar reporte agregado PDF
   generateAggregatedPDF: protectedProcedure
+    .use(requirePermission('can_export'))
     .input(z.number()) // surveyId
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -1051,6 +1056,7 @@ export const surveysRouter = router({
 
   // Generar PDF de trabajadores pendientes
   generatePendingWorkersPDF: protectedProcedure
+    .use(requirePermission('can_export'))
     .input(z.number()) // surveyId
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -1674,6 +1680,7 @@ export const surveysRouter = router({
 
   // Generar token único para un empleado por CURP
   generateTokenByCURP: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       curp: z.string().length(18),
       surveyId: z.number(),
@@ -1808,6 +1815,7 @@ export const surveysRouter = router({
 
   // Generar tokens para todos los empleados
   generateTokensForAllEmployees: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       surveyId: z.number(),
       expiresInDays: z.number().default(30),
@@ -2124,6 +2132,7 @@ export const surveysRouter = router({
 
   // Generar reporte PDF consolidado NOM-035
   generateConsolidatedReport: protectedProcedure
+    .use(requirePermission('can_export'))
     .input(z.object({
       surveyIds: z.array(z.number()).optional(), // Si no se especifica, incluye todas las encuestas
       includeMultilevelAnalysis: z.boolean().default(true),

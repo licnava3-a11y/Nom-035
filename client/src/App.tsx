@@ -131,6 +131,7 @@ import STPSReports from "./pages/STPSReports";
 import Payments from "./pages/Payments";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import ExpenseRequests from "./pages/ExpenseRequests";
+import DashboardAdministrativo from "./pages/DashboardAdministrativo";
 
 function Router() {
   return (
@@ -732,7 +733,13 @@ function Router() {
         </DashboardLayout>
       </Route>
       
-      {/* Rutas Financieras */}
+      {/* Rutas Administrativas y Financieras */}
+      <Route path={"/administrative"}>
+        <DashboardLayout>
+          <DashboardAdministrativo />
+        </DashboardLayout>
+      </Route>
+      
       <Route path={"/administrative/payments"}>
         <DashboardLayout>
           <Payments />

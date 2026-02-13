@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
+import { requirePermission, requireDelete } from "../permissions";
 import { committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteHistory } from "../../drizzle/schema";
 import { eq, desc, and, like } from "drizzle-orm";
 
@@ -90,6 +91,7 @@ export const committeeMinutesRouter = router({
 
   // Crear nueva minuta
   create: protectedProcedure
+    .use(requirePermission('can_create'))
     .input(z.object({
       numeroSesion: z.string(),
       tipoReunion: z.string(),
@@ -133,7 +135,7 @@ export const committeeMinutesRouter = router({
           meetingPlace: input.lugar,
           meetingType: (input.tipoReunion as 'ordinaria' | 'extraordinaria' | 'urgente' | 'seguimiento') || 'ordinaria',
           status: input.status,
-          createdBy: ctx.user.id,
+          createdBy: ctx.user!.id,
         })
         .$returningId();
 
@@ -183,7 +185,7 @@ export const committeeMinutesRouter = router({
         minuteId,
         version: 1,
         changeDescription: 'Creación inicial de la minuta',
-        changedBy: ctx.user.id,
+        changedBy: ctx.user!.id,
         snapshot: {},
       });
 
@@ -196,6 +198,7 @@ export const committeeMinutesRouter = router({
 
   // Actualizar minuta existente
   update: protectedProcedure
+    .use(requirePermission('can_edit'))
     .input(z.object({
       id: z.number(),
       numeroSesion: z.string().optional(),
@@ -331,7 +334,7 @@ export const committeeMinutesRouter = router({
         minuteId: input.id,
         version: newVersion,
         changeDescription: input.cambios || 'Actualización de la minuta',
-        changedBy: ctx.user.id,
+        changedBy: ctx.user!.id,
         snapshot: {},
       });
 
@@ -344,6 +347,7 @@ export const committeeMinutesRouter = router({
 
   // Eliminar minuta
   delete: protectedProcedure
+    .use(requireDelete())
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -382,6 +386,7 @@ export const committeeMinutesRouter = router({
 
   // Publicar borrador
   publish: protectedProcedure
+    .use(requirePermission('can_approve'))
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -404,7 +409,7 @@ export const committeeMinutesRouter = router({
         minuteId: input.id,
         version: newVersion,
         changeDescription: 'Minuta publicada',
-        changedBy: ctx.user.id,
+        changedBy: ctx.user!.id,
         snapshot: {},
       });
 

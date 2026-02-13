@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
+import { requirePermission } from "../permissions";
 import { notifications } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { emitNotification } from "../websocket";
@@ -20,7 +21,7 @@ export const notificationsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const conditions = [eq(notifications.userId, ctx.user.id)];
+      const conditions = [eq(notifications.userId, ctx.user!.id)];
       if (input.unreadOnly) {
         conditions.push(eq(notifications.isRead, false));
       }
@@ -47,7 +48,7 @@ export const notificationsRouter = router({
       .from(notifications)
       .where(
         and(
-          eq(notifications.userId, ctx.user.id),
+          eq(notifications.userId, ctx.user!.id),
           eq(notifications.isRead, false)
         )
       );
@@ -59,6 +60,7 @@ export const notificationsRouter = router({
    * Mark notification as read
    */
   markAsRead: protectedProcedure
+    .use(requirePermission('can_edit'))
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -70,7 +72,7 @@ export const notificationsRouter = router({
         .where(
           and(
             eq(notifications.id, input.id),
-            eq(notifications.userId, ctx.user.id)
+            eq(notifications.userId, ctx.user!.id)
           )
         );
 
@@ -80,7 +82,9 @@ export const notificationsRouter = router({
   /**
    * Mark all notifications as read
    */
-  markAllAsRead: protectedProcedure.mutation(async ({ ctx }) => {
+  markAllAsRead: protectedProcedure
+    .use(requirePermission('can_edit'))
+    .mutation(async ({ ctx }) => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
@@ -89,7 +93,7 @@ export const notificationsRouter = router({
       .set({ isRead: true })
       .where(
         and(
-          eq(notifications.userId, ctx.user.id),
+          eq(notifications.userId, ctx.user!.id),
           eq(notifications.isRead, false)
         )
       );
@@ -172,6 +176,7 @@ export const notificationsRouter = router({
    * Delete notification
    */
   delete: protectedProcedure
+    .use(requirePermission('can_delete'))
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -182,7 +187,7 @@ export const notificationsRouter = router({
         .where(
           and(
             eq(notifications.id, input.id),
-            eq(notifications.userId, ctx.user.id)
+            eq(notifications.userId, ctx.user!.id)
           )
         );
 
