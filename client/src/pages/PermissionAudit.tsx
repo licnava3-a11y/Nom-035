@@ -21,6 +21,8 @@ export default function PermissionAudit() {
   const [trendMonths, setTrendMonths] = useState(6);
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
+  const pieChartRef = useRef<HTMLCanvasElement>(null);
+  const pieChartInstanceRef = useRef<Chart | null>(null);
 
   const { data: historyData, isLoading } = trpc.permissionAudit.getHistory.useQuery({
     userId,
@@ -38,6 +40,62 @@ export default function PermissionAudit() {
   const { data: customPermissionsCount } = trpc.permissionAudit.getUsersWithCustomPermissionsCount.useQuery();
   const { data: topAdmins } = trpc.permissionAudit.getTopAdministrators.useQuery();
   const { data: criticalChanges } = trpc.permissionAudit.getRecentCriticalChanges.useQuery();
+
+  // Renderizar pie chart de distribución de tipos de cambios
+  useEffect(() => {
+    if (!stats || !pieChartRef.current) return;
+
+    // Destruir gráfico anterior si existe
+    if (pieChartInstanceRef.current) {
+      pieChartInstanceRef.current.destroy();
+    }
+
+    const ctx = pieChartRef.current.getContext("2d");
+    if (!ctx) return;
+
+    const labels = stats.map((stat) => {
+      if (stat.changeType === "role_change") return "Cambios de Rol";
+      if (stat.changeType === "custom_permission_update") return "Actualizaciones";
+      return "Resets";
+    });
+    const data = stats.map((stat) => Number(stat.count));
+
+    pieChartInstanceRef.current = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: ["#10b981", "#1e3a8a", "#dc2626"],
+            borderWidth: 2,
+            borderColor: "#ffffff",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              font: {
+                size: 11,
+              },
+              padding: 10,
+            },
+          },
+        },
+      },
+    });
+
+    return () => {
+      if (pieChartInstanceRef.current) {
+        pieChartInstanceRef.current.destroy();
+      }
+    };
+  }, [stats]);
 
   // Renderizar gráfico Chart.js cuando cambien los datos
   useEffect(() => {
@@ -246,23 +304,33 @@ export default function PermissionAudit() {
         )}
       </div>
 
-      {/* Statistics Cards */}
+      {/* Statistics Cards and Pie Chart */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stats.map((stat) => (
-            <Card key={stat.changeType}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.changeType === "role_change" && "Cambios de Rol"}
-                  {stat.changeType === "custom_permission_update" && "Actualizaciones de Permisos"}
-                  {stat.changeType === "custom_permission_reset" && "Resets de Permisos"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.count}</div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {stats.map((stat) => (
+              <Card key={stat.changeType}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {stat.changeType === "role_change" && "Cambios de Rol"}
+                    {stat.changeType === "custom_permission_update" && "Actualizaciones de Permisos"}
+                    {stat.changeType === "custom_permission_reset" && "Resets de Permisos"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.count}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Distribución de Cambios</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <canvas ref={pieChartRef} style={{ maxHeight: "200px" }}></canvas>
+            </CardContent>
+          </Card>
         </div>
       )}
 

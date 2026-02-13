@@ -15,6 +15,8 @@ export default function DashboardAdministrativo() {
   const [fechaFin, setFechaFin] = useState<string>("");
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const barChartRef = useRef<HTMLCanvasElement>(null);
+  const barChartInstance = useRef<Chart | null>(null);
 
   // Funciones de exportación
   const exportToExcel = () => {
@@ -286,6 +288,131 @@ export default function DashboardAdministrativo() {
     };
   }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests, periodo]);
 
+  // Preparar datos para bar chart comparativo por departamento
+  useEffect(() => {
+    if (!barChartRef.current || !filteredInvoices || !filteredPurchaseOrders || !filteredExpenseRequests) return;
+
+    // Destruir gráfico anterior si existe
+    if (barChartInstance.current) {
+      barChartInstance.current.destroy();
+    }
+
+    // Agrupar datos por departamento
+    const departmentData = new Map<string, { invoices: number; purchaseOrders: number; expenseRequests: number }>();
+
+    const processByDepartment = (items: any[], key: string) => {
+      items.forEach((item) => {
+        const dept = item.departamento || "Sin departamento";
+        
+        if (!departmentData.has(dept)) {
+          departmentData.set(dept, { invoices: 0, purchaseOrders: 0, expenseRequests: 0 });
+        }
+        
+        const current = departmentData.get(dept)!;
+        const amount = parseFloat(item.monto || 0);
+        if (key === "invoices") current.invoices += amount;
+        if (key === "purchaseOrders") current.purchaseOrders += amount;
+        if (key === "expenseRequests") current.expenseRequests += amount;
+      });
+    };
+
+    processByDepartment(filteredInvoices, "invoices");
+    processByDepartment(filteredPurchaseOrders, "purchaseOrders");
+    processByDepartment(filteredExpenseRequests, "expenseRequests");
+
+    const departments = Array.from(departmentData.keys());
+    const invoicesAmounts = departments.map((dept) => departmentData.get(dept)?.invoices || 0);
+    const purchaseOrdersAmounts = departments.map((dept) => departmentData.get(dept)?.purchaseOrders || 0);
+    const expenseRequestsAmounts = departments.map((dept) => departmentData.get(dept)?.expenseRequests || 0);
+
+    // Crear bar chart con Chart.js
+    const ctx = barChartRef.current.getContext("2d");
+    if (!ctx) return;
+
+    barChartInstance.current = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: departments,
+        datasets: [
+          {
+            label: "Facturas",
+            data: invoicesAmounts,
+            backgroundColor: "#10b981", // Verde
+            borderColor: "#10b981",
+            borderWidth: 1,
+          },
+          {
+            label: "Órdenes de Compra",
+            data: purchaseOrdersAmounts,
+            backgroundColor: "#1e3a8a", // Azul marino
+            borderColor: "#1e3a8a",
+            borderWidth: 1,
+          },
+          {
+            label: "Solicitudes de Gasto",
+            data: expenseRequestsAmounts,
+            backgroundColor: "#dc2626", // Rojo
+            borderColor: "#dc2626",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+            labels: {
+              color: "#000000",
+              font: {
+                size: 12,
+                weight: 500,
+              },
+            },
+          },
+          title: {
+            display: true,
+            text: "Comparativo de Montos por Departamento",
+            color: "#000000",
+            font: {
+              size: 16,
+              weight: "bold" as const,
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: "#000000",
+              callback: function(value) {
+                return "$" + value.toLocaleString();
+              },
+            },
+            grid: {
+              color: "rgba(0, 0, 0, 0.1)",
+            },
+          },
+          x: {
+            ticks: {
+              color: "#000000",
+            },
+            grid: {
+              display: false,
+            },
+          },
+        },
+      },
+    });
+
+    return () => {
+      if (barChartInstance.current) {
+        barChartInstance.current.destroy();
+      }
+    };
+  }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests]);
+
   return (
     <div className="container mx-auto py-6">
       <Breadcrumb
@@ -445,6 +572,21 @@ export default function DashboardAdministrativo() {
         <CardContent>
           <div className="h-[400px]">
             <canvas ref={chartRef}></canvas>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Gráfico Comparativo por Departamento */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShoppingCart className="w-5 h-5" />
+            Comparativo por Departamento
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[350px]">
+            <canvas ref={barChartRef}></canvas>
           </div>
         </CardContent>
       </Card>

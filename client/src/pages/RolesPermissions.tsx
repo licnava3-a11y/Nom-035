@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -24,6 +24,9 @@ import ProtectedButton from "@/components/ProtectedButton";
 import { Button } from "@/components/ui/button";
 import { Shield, Users, Check, X, Search, Edit, FileDown, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 export default function RolesPermissions() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,6 +35,8 @@ export default function RolesPermissions() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [newRole, setNewRole] = useState<string>("");
+  const pieChartRef = useRef<HTMLCanvasElement>(null);
+  const pieChartInstanceRef = useRef<Chart | null>(null);
 
   const utils = trpc.useUtils();
 
@@ -78,6 +83,69 @@ export default function RolesPermissions() {
       newRole: newRole as any,
     });
   };
+
+  // Renderizar pie chart de distribución de roles
+  useEffect(() => {
+    if (!distribution || distribution.length === 0 || !pieChartRef.current) return;
+
+    // Destruir gráfico anterior si existe
+    if (pieChartInstanceRef.current) {
+      pieChartInstanceRef.current.destroy();
+    }
+
+    const ctx = pieChartRef.current.getContext("2d");
+    if (!ctx) return;
+
+    // Tomar top 5 roles + agrupar el resto como "Otros"
+    const top5 = distribution.slice(0, 5);
+    const othersCount = distribution.slice(5).reduce((sum, item) => sum + Number(item.count), 0);
+    
+    const labels = top5.map((item) => getRoleName(item.role));
+    const data = top5.map((item) => Number(item.count));
+    
+    if (othersCount > 0) {
+      labels.push("Otros");
+      data.push(othersCount);
+    }
+
+    const colors = ["#10b981", "#1e3a8a", "#dc2626", "#f59e0b", "#8b5cf6", "#6b7280"];
+
+    pieChartInstanceRef.current = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: colors,
+            borderWidth: 2,
+            borderColor: "#ffffff",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              font: {
+                size: 11,
+              },
+              padding: 10,
+            },
+          },
+        },
+      },
+    });
+
+    return () => {
+      if (pieChartInstanceRef.current) {
+        pieChartInstanceRef.current.destroy();
+      }
+    };
+  }, [distribution]);
 
   const getRoleName = (role: string) => {
     const roleNames: Record<string, string> = {
@@ -199,23 +267,34 @@ export default function RolesPermissions() {
         </div>
       </div>
 
-      {/* Role Distribution Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {distribution.slice(0, 5).map((item) => (
-          <Card key={item.role}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {getRoleName(item.role)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">{item.count}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Role Distribution Stats and Pie Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {distribution.slice(0, 5).map((item) => (
+            <Card key={item.role}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {getRoleName(item.role)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-2xl font-bold">{item.count}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Distribución de Roles</CardTitle>
+            <CardDescription className="text-xs">Proporción de usuarios por rol</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <canvas ref={pieChartRef} style={{ maxHeight: "250px" }}></canvas>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Permissions Matrix */}

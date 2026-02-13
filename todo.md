@@ -11378,3 +11378,32 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Verificar compilación TypeScript (0 errores)
 - [ ] Actualizar todo.md con tareas completadas
 - [ ] Guardar checkpoint final
+
+
+## FASE 104: Visualizaciones Avanzadas en Dashboards (Pie Charts y Bar Charts)
+
+### PermissionAudit.tsx - Pie Chart de Distribución de Tipos de Cambios
+- [x] Agregar pie chart con Chart.js para mostrar distribución de tipos de cambios
+- [x] Usar datos de stats (role_change, custom_permission_update, custom_permission_reset)
+- [x] Aplicar paleta de colores: verde (#10b981), azul marino (#1e3a8a), rojo (#dc2626)
+- [x] Posicionar gráfico en sección de estadísticas
+
+### RolesPermissions.tsx - Pie Chart de Distribución de Roles
+- [x] Agregar pie chart con Chart.js para mostrar distribución de roles
+- [x] Usar datos de getRoleDistribution (top 5 roles + "Otros")
+- [x] Aplicar paleta de colores variada y profesional
+- [x] Posicionar gráfico junto a tarjetas de estadísticas
+
+### DashboardAdministrativo.tsx - Bar Chart Comparativo por Departamento
+- [x] Agregar bar chart con Chart.js para comparar montos por departamento
+- [x] Mostrar 3 barras por departamento (facturas, órdenes, solicitudes)
+- [x] Aplicar paleta de colores: verde, azul marino, rojo
+- [x] Posicionar gráfico debajo del gráfico de tendencias
+
+### Verificación y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Probar visualizaciones en navegador
+- [x] Actualizar todo.md con tareas completadas
+- [x] Guardar checkpoint final
+
+**FASE 104: ✅ COMPLETADA AL 100%**
