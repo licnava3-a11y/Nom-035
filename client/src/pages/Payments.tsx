@@ -25,7 +25,7 @@ export default function Payments() {
   const [estado, setEstado] = useState<"pendiente" | "pagada" | "vencida">("pendiente");
 
   // Queries
-  const { data: invoices, refetch } = trpc.financial.getInvoices.useQuery();
+  const { data: invoices, refetch } = trpc.financial.getAllInvoices.useQuery();
 
   // Mutations
   const createMutation = trpc.financial.createInvoice.useMutation({
@@ -79,10 +79,10 @@ export default function Payments() {
 
     createMutation.mutate({
       folio,
-      clienteId: parseInt(clienteId),
-      monto: parseFloat(monto),
-      fechaEmision: new Date(fechaEmision),
-      fechaVencimiento: new Date(fechaVencimiento),
+      clienteNombre: clienteId, // TODO: Cambiar a nombre de cliente
+      monto: monto,
+      fechaEmision: fechaEmision,
+      fechaVencimiento: fechaVencimiento,
       estado,
     });
   };
@@ -92,8 +92,10 @@ export default function Payments() {
     setFolio(invoice.folio);
     setClienteId(invoice.clienteId.toString());
     setMonto(invoice.monto.toString());
-    setFechaEmision(invoice.fechaEmision.toISOString().split("T")[0]);
-    setFechaVencimiento(invoice.fechaVencimiento.toISOString().split("T")[0]);
+    const emisionDate = invoice.fechaEmision instanceof Date ? invoice.fechaEmision : new Date(invoice.fechaEmision);
+    const vencimientoDate = invoice.fechaVencimiento instanceof Date ? invoice.fechaVencimiento : new Date(invoice.fechaVencimiento);
+    setFechaEmision(emisionDate.toISOString().split("T")[0]);
+    setFechaVencimiento(vencimientoDate.toISOString().split("T")[0]);
     setEstado(invoice.estado);
     setEditDialogOpen(true);
   };
@@ -104,10 +106,10 @@ export default function Payments() {
     updateMutation.mutate({
       id: selectedInvoice.id,
       folio,
-      clienteId: parseInt(clienteId),
-      monto: parseFloat(monto),
-      fechaEmision: new Date(fechaEmision),
-      fechaVencimiento: new Date(fechaVencimiento),
+      clienteNombre: clienteId, // TODO: Cambiar a nombre de cliente
+      monto: monto,
+      fechaEmision: fechaEmision,
+      fechaVencimiento: fechaVencimiento,
       estado,
     });
   };
@@ -170,7 +172,7 @@ export default function Payments() {
                 </tr>
               </thead>
               <tbody>
-                {invoices?.map((invoice) => (
+                {invoices?.map((invoice: any) => (
                   <tr key={invoice.id} className="border-b">
                     <td className="p-4">{invoice.folio}</td>
                     <td className="p-4">{invoice.clienteId}</td>
