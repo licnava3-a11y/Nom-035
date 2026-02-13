@@ -10951,3 +10951,54 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Actualizar todo.md y guardar checkpoint
 
 **FASE 230: ✅ COMPLETADA - Sistema financiero completo con tablas, queries, router, UI y tests (12/12 pasando)**
+
+
+## FASE 231: Implementar Sistema Completo de Gestión Financiera
+
+### 1. CRUD Completo en Router Financial
+- [x] Implementar createInvoice con validación can_create
+- [x] Implementar updateInvoice con validación can_edit
+- [x] Implementar deleteInvoice con validación can_delete
+- [x] Implementar createPurchaseOrder con validación can_create
+- [x] Implementar updatePurchaseOrder con validación can_edit
+- [x] Implementar deletePurchaseOrder con validación can_delete
+- [x] Implementar createExpenseRequest con validación can_create
+- [x] Implementar updateExpenseRequest con validación can_edit
+- [x] Implementar deleteExpenseRequest con validación can_delete
+- [x] Implementar approveExpenseRequest con validación can_approve
+
+### 2. Páginas de Gestión Financiera
+- [ ] Crear página /administrative/payments con listado de facturas - PENDIENTE: Recrear sin toast
+- [ ] Crear formulario de creación/edición de facturas - PENDIENTE: Recrear sin toast
+- [ ] Crear página /administrative/purchase-orders con listado de órdenes - PENDIENTE: Recrear sin toast
+- [ ] Crear formulario de creación/edición de órdenes de compra - PENDIENTE: Recrear sin toast
+- [ ] Crear página /administrative/expenses con listado de solicitudes - PENDIENTE: Recrear sin toast
+- [ ] Crear formulario de creación/edición de solicitudes de gasto - PENDIENTE: Recrear sin toast
+- [ ] Implementar flujo de aprobación de solicitudes de gasto - PENDIENTE: Recrear sin toast
+- [ ] Agregar protección de botones con ProtectedButton (requiredPermission, hideIfNoPermission)
+- [x] Agregar rutas en App.tsx (/administrative/payments, /administrative/purchase-orders, /administrative/expenses)
+
+**NOTA CRÍTICA**: Las páginas fueron creadas inicialmente pero tienen errores de sintaxis. Deben recrearse usando:
+- **SIN useToast** (no existe en el proyecto - usar alert() o console.log())
+- **ProtectedButton** con props correctas: `requiredPermission` (NO `permission`) y `hideIfNoPermission` (NO `hideWhenDenied`)
+- Referencia: Ver otros componentes que usan ProtectedButton correctamente (EmployeeProfile.tsx, CommitteeMinutesManagement.tsx)
+
+### 3. Gráficos de Tendencias Financieras
+- [ ] Implementar query para obtener datos mensuales de facturas
+- [ ] Implementar query para obtener datos mensuales de órdenes
+- [ ] Implementar query para obtener datos mensuales de solicitudes
+- [ ] Agregar Chart.js a DashboardAdministrativo
+- [ ] Crear gráfico de tendencias de facturas (monto, cantidad)
+- [ ] Crear gráfico de tendencias de órdenes de compra
+- [ ] Crear gráfico de tendencias de solicitudes de gasto
+- [ ] Implementar filtros temporales (mes, trimestre, año)
+
+### 4. Tests y Validación
+- [ ] Crear tests para procedures CRUD de invoices
+- [ ] Crear tests para procedures CRUD de purchase_orders
+- [ ] Crear tests para procedures CRUD de expense_requests
+- [ ] Verificar compilación TypeScript sin errores
+- [ ] Probar funcionalidad completa con datos de prueba
+- [ ] Actualizar todo.md y guardar checkpoint
+
+**FASE 231: 🔄 EN PROGRESO - Implementación de sistema completo de gestión financiera**
