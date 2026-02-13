@@ -67,6 +67,7 @@ import { dashboardRouter } from "./routers/dashboard";
 import { administrativeRouter } from "./routers/administrative";
 import { rolesPermissionsRouter } from "./routers/rolesPermissions";
 import { customPermissionsRouter } from "./routers/customPermissions";
+import { permissionAuditRouter } from "./routers/permissionAudit";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -96,6 +97,7 @@ export const appRouter = router({
   system: systemRouter,
   rolesPermissions: rolesPermissionsRouter,
   customPermissions: customPermissionsRouter,
+  permissionAudit: permissionAuditRouter,
   signatures: signaturesRouter,
   documents: documentsRouter,
   import: importRouter,

@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Checkbox } from "../components/ui/checkbox";
 import { Badge } from "../components/ui/badge";
 import { toast } from "sonner";
-import { Shield, RefreshCw, Settings, CheckCircle, XCircle } from "lucide-react";
+import { Shield, RefreshCw, Settings, CheckCircle, XCircle, FileDown, FileText } from "lucide-react";
 import ProtectedButton from "../components/ProtectedButton";
 
 interface CustomPermissions {
@@ -116,6 +116,52 @@ export default function CustomPermissions() {
     }
   };
 
+  const exportToExcel = () => {
+    if (!usersData || usersData.users.length === 0) {
+      toast.error("No hay datos para exportar");
+      return;
+    }
+
+    const permissionLabels: Record<string, string> = {
+      can_view: "Ver",
+      can_create: "Crear",
+      can_edit: "Editar",
+      can_delete: "Eliminar",
+      can_approve: "Aprobar",
+      can_export: "Exportar",
+    };
+
+    let csv = "Usuario,Email,Rol," + Object.values(permissionLabels).join(",") + "\n";
+
+    usersData.users.forEach((user) => {
+      const perms = user.customPermissions as CustomPermissions;
+      const row = [
+        user.name,
+        user.email,
+        user.role,
+        perms?.can_view === undefined ? "Rol" : perms.can_view ? "Sí" : "No",
+        perms?.can_create === undefined ? "Rol" : perms.can_create ? "Sí" : "No",
+        perms?.can_edit === undefined ? "Rol" : perms.can_edit ? "Sí" : "No",
+        perms?.can_delete === undefined ? "Rol" : perms.can_delete ? "Sí" : "No",
+        perms?.can_approve === undefined ? "Rol" : perms.can_approve ? "Sí" : "No",
+        perms?.can_export === undefined ? "Rol" : perms.can_export ? "Sí" : "No",
+      ];
+      csv += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `permisos-personalizados-${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    toast.success("Permisos personalizados exportados a Excel");
+  };
+
+  const exportToPDF = () => {
+    window.print();
+    toast.success("Abriendo ventana de impresión para guardar como PDF");
+  };
+
   return (
     <div className="container mx-auto py-8 space-y-6">
       {/* Header */}
@@ -128,6 +174,28 @@ export default function CustomPermissions() {
           <p className="text-muted-foreground mt-2">
             Gestiona permisos específicos por usuario que sobrescriben los permisos del rol base
           </p>
+        </div>
+        <div className="flex gap-2">
+          <ProtectedButton
+            requiredPermission="can_export"
+            hideIfNoPermission
+            variant="outline"
+            className="bg-green-600 text-white hover:bg-green-700"
+            onClick={() => exportToExcel()}
+          >
+            <FileDown className="h-4 w-4 mr-2" />
+            Exportar Excel
+          </ProtectedButton>
+          <ProtectedButton
+            requiredPermission="can_export"
+            hideIfNoPermission
+            variant="outline"
+            className="bg-red-600 text-white hover:bg-red-700"
+            onClick={() => exportToPDF()}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Exportar PDF
+          </ProtectedButton>
         </div>
       </div>
 

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, Check, X, Search, Edit } from "lucide-react";
+import { Shield, Users, Check, X, Search, Edit, FileDown, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RolesPermissions() {
@@ -114,6 +114,44 @@ export default function RolesPermissions() {
     );
   };
 
+  const exportToExcel = () => {
+    const permissionLabels: Record<string, string> = {
+      can_view: "Ver",
+      can_create: "Crear",
+      can_edit: "Editar",
+      can_delete: "Eliminar",
+      can_approve: "Aprobar",
+      can_export: "Exportar",
+    };
+
+    let csv = "Rol," + Object.values(permissionLabels).join(",") + "\n";
+
+    roles.forEach((role) => {
+      const row = [
+        getRoleName(role.role),
+        role.permissions.can_view ? "Sí" : "No",
+        role.permissions.can_create ? "Sí" : "No",
+        role.permissions.can_edit ? "Sí" : "No",
+        role.permissions.can_delete ? "Sí" : "No",
+        role.permissions.can_approve ? "Sí" : "No",
+        role.permissions.can_export ? "Sí" : "No",
+      ];
+      csv += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `matriz-permisos-${new Date().toISOString().split("T")[0]}.csv`;
+    link.click();
+    toast.success("Matriz de permisos exportada a Excel");
+  };
+
+  const exportToPDF = () => {
+    window.print();
+    toast.success("Abriendo ventana de impresión para guardar como PDF");
+  };
+
   if (rolesLoading || distributionLoading) {
     return (
       <div className="p-6">
@@ -130,11 +168,35 @@ export default function RolesPermissions() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Administración de Roles y Permisos</h1>
-        <p className="text-muted-foreground">
-          Gestiona los roles de usuario y visualiza la matriz de permisos del sistema
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Administración de Roles y Permisos</h1>
+          <p className="text-muted-foreground">
+            Gestiona los roles de usuario y visualiza la matriz de permisos del sistema
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <ProtectedButton
+            requiredPermission="can_export"
+            hideIfNoPermission
+            variant="outline"
+            className="bg-green-600 text-white hover:bg-green-700"
+            onClick={() => exportToExcel()}
+          >
+            <FileDown className="h-4 w-4 mr-2" />
+            Exportar Excel
+          </ProtectedButton>
+          <ProtectedButton
+            requiredPermission="can_export"
+            hideIfNoPermission
+            variant="outline"
+            className="bg-red-600 text-white hover:bg-red-700"
+            onClick={() => exportToPDF()}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Exportar PDF
+          </ProtectedButton>
+        </div>
       </div>
 
       {/* Role Distribution Stats */}

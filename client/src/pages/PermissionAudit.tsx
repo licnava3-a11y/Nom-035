@@ -1,0 +1,256 @@
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
+
+export default function PermissionAudit() {
+  const [page, setPage] = useState(1);
+  const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [changeType, setChangeType] = useState<"role_change" | "custom_permission_update" | "custom_permission_reset" | undefined>(undefined);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const { data: historyData, isLoading } = trpc.permissionAudit.getHistory.useQuery({
+    userId,
+    changeType,
+    startDate,
+    endDate,
+    page,
+    limit: 20,
+  });
+
+  const { data: stats } = trpc.permissionAudit.getStatistics.useQuery();
+
+  const getChangeTypeBadge = (type: string) => {
+    switch (type) {
+      case "role_change":
+        return <Badge variant="default">Cambio de Rol</Badge>;
+      case "custom_permission_update":
+        return <Badge variant="secondary">Actualización de Permisos</Badge>;
+      case "custom_permission_reset":
+        return <Badge variant="outline">Reset de Permisos</Badge>;
+      default:
+        return <Badge>{type}</Badge>;
+    }
+  };
+
+  const formatChange = (oldValue: any, newValue: any, type: string) => {
+    if (type === "role_change") {
+      return (
+        <div className="text-sm">
+          <span className="text-muted-foreground">{oldValue?.role || "N/A"}</span>
+          {" → "}
+          <span className="font-medium">{newValue?.role || "N/A"}</span>
+        </div>
+      );
+    } else {
+      return (
+        <div className="text-sm">
+          <span className="text-muted-foreground">Permisos modificados</span>
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-8 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Auditoría de Permisos</h1>
+        <p className="text-muted-foreground">
+          Historial completo de cambios de roles y permisos personalizados
+        </p>
+      </div>
+
+      {/* Statistics Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {stats.map((stat) => (
+            <Card key={stat.changeType}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.changeType === "role_change" && "Cambios de Rol"}
+                  {stat.changeType === "custom_permission_update" && "Actualizaciones de Permisos"}
+                  {stat.changeType === "custom_permission_reset" && "Resets de Permisos"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.count}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filtros
+          </CardTitle>
+          <CardDescription>Filtrar historial por usuario, tipo de cambio o fecha</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="userId">ID de Usuario</Label>
+              <Input
+                id="userId"
+                type="number"
+                placeholder="Ej: 123"
+                value={userId || ""}
+                onChange={(e) => setUserId(e.target.value ? parseInt(e.target.value) : undefined)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="changeType">Tipo de Cambio</Label>
+              <Select
+                value={changeType || "all"}
+                onValueChange={(value) =>
+                  setChangeType(value === "all" ? undefined : value as any)
+                }
+              >
+                <SelectTrigger id="changeType">
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="role_change">Cambio de Rol</SelectItem>
+                  <SelectItem value="custom_permission_update">Actualización de Permisos</SelectItem>
+                  <SelectItem value="custom_permission_reset">Reset de Permisos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Fecha Inicio</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endDate">Fecha Fin</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setUserId(undefined);
+                setChangeType(undefined);
+                setStartDate("");
+                setEndDate("");
+                setPage(1);
+              }}
+            >
+              Limpiar Filtros
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* History Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Historial de Cambios</CardTitle>
+          <CardDescription>
+            {historyData?.pagination.total || 0} cambios registrados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Cargando historial...</div>
+          ) : !historyData || historyData.history.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No se encontraron cambios con los filtros seleccionados
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Usuario Afectado</TableHead>
+                    <TableHead>Tipo de Cambio</TableHead>
+                    <TableHead>Cambio</TableHead>
+                    <TableHead>Modificado Por</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {historyData.history.map((entry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell className="whitespace-nowrap">
+                        {new Date(entry.createdAt).toLocaleString("es-MX")}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{entry.userName || "Usuario desconocido"}</div>
+                          <div className="text-sm text-muted-foreground">{entry.userEmail}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{getChangeTypeBadge(entry.changeType)}</TableCell>
+                      <TableCell>{formatChange(entry.oldValue, entry.newValue, entry.changeType)}</TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{entry.changedByName || "Sistema"}</div>
+                          <div className="text-sm text-muted-foreground">{entry.changedByEmail}</div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              {historyData.pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4">
+                  <div className="text-sm text-muted-foreground">
+                    Página {historyData.pagination.page} de {historyData.pagination.totalPages}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Anterior
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => p + 1)}
+                      disabled={page >= historyData.pagination.totalPages}
+                    >
+                      Siguiente
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
