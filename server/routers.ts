@@ -65,6 +65,7 @@ import { stpsReportsRouter } from "./routers/stpsReports";
 import { trainingRouter } from "./routers/training";
 import { dashboardRouter } from "./routers/dashboard";
 import { administrativeRouter } from "./routers/administrative";
+import { rolesPermissionsRouter } from "./routers/rolesPermissions";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -92,6 +93,7 @@ const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
 
 export const appRouter = router({
   system: systemRouter,
+  rolesPermissions: rolesPermissionsRouter,
   signatures: signaturesRouter,
   documents: documentsRouter,
   import: importRouter,

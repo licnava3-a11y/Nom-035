@@ -11141,3 +11141,41 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Verificar compilación TypeScript (0 errores)
 - [x] Actualizar REPORTE_VALIDACION_PERMISOS.md con nuevas páginas
 - [x] Documentar total de botones protegidos: 38 botones en 11 páginas
+
+## FASE 99: Página de Administración de Roles y Permisos
+
+### Schema de Base de Datos
+- [x] Analizar schema actual de users (campo role)
+- [x] Decidir si extender tabla users o crear tabla roles separada (no necesario, usar enum existente)
+- [x] Generar migración SQL para cambios en schema (no necesario)
+- [x] Ejecutar migración con webdev_execute_sql (no necesario)
+
+### Router Backend (rolesPermissions.ts)
+- [x] Crear router rolesPermissions.ts
+- [x] Procedure: getAllRoles (listar todos los roles disponibles)
+- [x] Procedure: getRolePermissions (matriz completa de permisos por rol)
+- [x] Procedure: updateUserRole (cambiar rol de un usuario)
+- [x] Procedure: getUsersByRole (listar usuarios por rol con paginación)
+- [x] Procedure: getRoleDistribution (estadísticas de distribución)
+- [x] Proteger procedures con requirePermission('can_view', 'can_edit')
+- [x] Agregar router a server/routers.ts
+
+### Página Frontend (RolesPermissions.tsx)
+- [x] Crear RolesPermissions.tsx en client/src/pages/
+- [x] Sección 1: Estadísticas de roles (5 tarjetas con top 5 roles)
+- [x] Sección 2: Matriz de permisos (tabla 17 roles vs 6 permisos)
+- [x] Sección 3: Gestión de usuarios (tabla con filtros, búsqueda, paginación)
+- [x] Usar ProtectedButton para botón "Cambiar Rol"
+- [x] Implementar diálogo para cambiar rol de usuario con validación
+
+### Integración y Navegación
+- [x] Agregar import de RolesPermissions en App.tsx
+- [x] Agregar ruta /administrative/roles-permissions en App.tsx
+- [x] Agregar enlace en DashboardLayout.tsx (sección Administración)
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Funcionalidad lista para pruebas en navegador
+
+### Documentación
+- [x] Actualizar todo.md con tareas completadas
+- [x] 1 botón protegido en RolesPermissions.tsx (Cambiar Rol con can_edit)
+- [x] Total del sistema: 39 botones protegidos en 12 páginas críticas

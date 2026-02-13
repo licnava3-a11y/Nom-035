@@ -191,6 +191,7 @@ const hierarchicalMenuItems = [
     roles: ["admin"],
     submenu: [
       { label: "Usuarios", path: "/users", description: "Gestión de usuarios y permisos" },
+      { label: "Roles y Permisos", path: "/administrative/roles-permissions", description: "Administración de roles y matriz de permisos" },
       { label: "Configuración", path: "/settings", description: "Configuración general del sistema" },
       { label: "Catálogo de Formatos", path: "/document-formats", description: "Nomenclatura de folios para documentos" },
       { label: "Plantillas de Reportes", path: "/report-templates", description: "Plantillas personalizables HTML/CSS" },

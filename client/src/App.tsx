@@ -132,6 +132,7 @@ import Payments from "./pages/Payments";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import ExpenseRequests from "./pages/ExpenseRequests";
 import DashboardAdministrativo from "./pages/DashboardAdministrativo";
+import RolesPermissions from "./pages/RolesPermissions";
 
 function Router() {
   return (
@@ -753,6 +754,11 @@ function Router() {
       <Route path={"/administrative/expenses"}>
         <DashboardLayout>
           <ExpenseRequests />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/administrative/roles-permissions"}>
+        <DashboardLayout>
+          <RolesPermissions />
         </DashboardLayout>
       </Route>
       
