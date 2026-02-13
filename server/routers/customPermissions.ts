@@ -8,7 +8,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { users } from "../../drizzle/schema";
+import { users, permissionChangeHistory } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { requirePermission } from "../permissions";
 
@@ -73,6 +73,10 @@ export const customPermissionsRouter = router({
         throw new Error('No puedes modificar tus propios permisos');
       }
       
+      // Obtener usuario antes de actualizar
+      const [user] = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
+      if (!user) throw new Error('Usuario no encontrado');
+
       // Actualizar permisos personalizados
       await db.update(users)
         .set({
@@ -81,6 +85,16 @@ export const customPermissionsRouter = router({
         })
         .where(eq(users.id, input.userId));
       
+      // Registrar cambio en auditoría
+      await db.insert(permissionChangeHistory).values({
+        userId: input.userId,
+        changedBy: ctx.user!.id,
+        changeType: "custom_permission_update",
+        oldValue: { customPermissions: user.customPermissions as any },
+        newValue: { customPermissions: input.customPermissions as any },
+        reason: null,
+      });
+
       return {
         success: true,
         message: 'Permisos personalizados actualizados correctamente',
@@ -104,6 +118,10 @@ export const customPermissionsRouter = router({
         throw new Error('No puedes resetear tus propios permisos');
       }
       
+      // Obtener usuario antes de resetear
+      const [user] = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
+      if (!user) throw new Error('Usuario no encontrado');
+
       // Resetear permisos personalizados (establecer a null)
       await db.update(users)
         .set({
@@ -112,6 +130,16 @@ export const customPermissionsRouter = router({
         })
         .where(eq(users.id, input.userId));
       
+      // Registrar cambio en auditoría
+      await db.insert(permissionChangeHistory).values({
+        userId: input.userId,
+        changedBy: ctx.user!.id,
+        changeType: "custom_permission_reset",
+        oldValue: { customPermissions: user.customPermissions as any },
+        newValue: { customPermissions: undefined },
+        reason: null,
+      });
+
       return {
         success: true,
         message: 'Permisos personalizados reseteados. El usuario ahora usa los permisos de su rol.',

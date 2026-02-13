@@ -11262,3 +11262,40 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Funcionalidad lista para pruebas en navegador
 
 **FASE 100: ✅ COMPLETADA - Sistema de permisos personalizados implementado**
+
+
+## FASE 101: Auditoría de Permisos y Exportación Excel/PDF
+
+### Sistema de Auditoría de Cambios de Permisos
+- [x] Crear tabla permission_change_history en drizzle/schema.ts
+- [x] Generar migración SQL con drizzle-kit generate
+- [x] Ejecutar migración con webdev_execute_sql
+- [x] Modificar rolesPermissions.ts para registrar cambios de rol
+- [x] Modificar customPermissions.ts para registrar cambios de permisos personalizados
+- [ ] Crear router permissionAudit.ts con procedures de consulta
+- [ ] Crear página PermissionAudit.tsx para visualizar historial
+- [ ] Agregar filtros por usuario, tipo de cambio, fecha
+- [ ] Implementar paginación en historial
+
+### Exportación Excel/PDF en RolesPermissions.tsx
+- [ ] Agregar botón "Exportar Excel" en RolesPermissions.tsx
+- [ ] Implementar función exportToExcel() con matriz de permisos
+- [ ] Agregar botón "Exportar PDF" en RolesPermissions.tsx
+- [ ] Implementar función exportToPDF() con matriz de permisos
+- [ ] Proteger botones con ProtectedButton (can_export)
+
+### Exportación Excel/PDF en CustomPermissions.tsx
+- [ ] Agregar botón "Exportar Excel" en CustomPermissions.tsx
+- [ ] Implementar función exportToExcel() con usuarios y permisos personalizados
+- [ ] Agregar botón "Exportar PDF" en CustomPermissions.tsx
+- [ ] Implementar función exportToPDF() con usuarios y permisos personalizados
+- [ ] Proteger botones con ProtectedButton (can_export)
+
+### Integración y Pruebas
+- [ ] Agregar ruta /administrative/permission-audit en App.tsx
+- [ ] Agregar enlace en DashboardLayout.tsx (sección Administración)
+- [ ] Verificar compilación TypeScript (0 errores)
+- [ ] Probar registro de auditoría al cambiar roles
+- [ ] Probar registro de auditoría al cambiar permisos personalizados
+- [ ] Probar exportación Excel/PDF en ambas páginas
+- [ ] Actualizar REPORTE_VALIDACION_PERMISOS.md

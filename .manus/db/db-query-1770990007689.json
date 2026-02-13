@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `permission_change_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`user_id` int NOT NULL,\n\t`changed_by` int NOT NULL,\n\t`change_type` enum('role_change','custom_permission_update','custom_permission_reset') NOT NULL,\n\t`old_value` json,\n\t`new_value` json,\n\t`reason` text,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `permission_change_history_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `permission_change_history` ADD CONSTRAINT `permission_change_history_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `permission_change_history` ADD CONSTRAINT `permission_change_history_changed_by_users_id_fk` FOREIGN KEY (`changed_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `permission_change_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`user_id` int NOT NULL,\n\t`changed_by` int NOT NULL,\n\t`change_type` enum('role_change','custom_permission_update','custom_permission_reset') NOT NULL,\n\t`old_value` json,\n\t`new_value` json,\n\t`reason` text,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `permission_change_history_id` PRIMARY KEY(`id`)\n);\nALTER TABLE `permission_change_history` ADD CONSTRAINT `permission_change_history_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;\nALTER TABLE `permission_change_history` ADD CONSTRAINT `permission_change_history_changed_by_users_id_fk` FOREIGN KEY (`changed_by`) REFERENCES `users`(`id`) ON DELETE no action ON UPDATE no action;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1840
+}

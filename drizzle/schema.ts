@@ -2779,3 +2779,40 @@ export const expenseRequests = mysqlTable("expense_requests", {
 
 export type ExpenseRequest = typeof expenseRequests.$inferSelect;
 export type InsertExpenseRequest = typeof expenseRequests.$inferInsert;
+
+/**
+ * Permission Change History - Auditoría de Cambios de Permisos
+ */
+export const permissionChangeHistory = mysqlTable("permission_change_history", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").references(() => users.id).notNull(), // Usuario cuyo permiso fue modificado
+  changedBy: int("changed_by").references(() => users.id).notNull(), // Usuario que realizó el cambio
+  changeType: mysqlEnum("change_type", ["role_change", "custom_permission_update", "custom_permission_reset"]).notNull(),
+  oldValue: json("old_value").$type<{
+    role?: string;
+    customPermissions?: {
+      can_view?: boolean;
+      can_create?: boolean;
+      can_edit?: boolean;
+      can_delete?: boolean;
+      can_approve?: boolean;
+      can_export?: boolean;
+    };
+  }>(),
+  newValue: json("new_value").$type<{
+    role?: string;
+    customPermissions?: {
+      can_view?: boolean;
+      can_create?: boolean;
+      can_edit?: boolean;
+      can_delete?: boolean;
+      can_approve?: boolean;
+      can_export?: boolean;
+    };
+  }>(),
+  reason: text("reason"), // Motivo del cambio (opcional)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type PermissionChangeHistory = typeof permissionChangeHistory.$inferSelect;
+export type InsertPermissionChangeHistory = typeof permissionChangeHistory.$inferInsert;

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
-import { users } from "../../drizzle/schema";
+import { users, permissionChangeHistory } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -305,6 +305,16 @@ export const rolesPermissionsRouter = router({
 
       // Update user role
       await db.update(users).set({ role: newRole }).where(eq(users.id, userId));
+
+      // Register change in audit history
+      await db.insert(permissionChangeHistory).values({
+        userId: userId,
+        changedBy: ctx.user!.id,
+        changeType: "role_change",
+        oldValue: { role: user.role },
+        newValue: { role: newRole },
+        reason: null,
+      });
 
       return {
         success: true,
