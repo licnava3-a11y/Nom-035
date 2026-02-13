@@ -1,0 +1,50 @@
+{
+  "query": "SELECT id, name, email, role, departamento, puesto \nFROM users \nWHERE email IN ('gerente.test@example.com', 'instructor.test@example.com', 'admin.test@example.com', 'committee.test@example.com', 'student.test@example.com')\nORDER BY \n  CASE role\n    WHEN 'gerente' THEN 1\n    WHEN 'instructor' THEN 2\n    WHEN 'administrativo' THEN 3\n    WHEN 'committee' THEN 4\n    WHEN 'student' THEN 5\n  END;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, name, email, role, departamento, puesto \nFROM users \nWHERE email IN ('gerente.test@example.com', 'instructor.test@example.com', 'admin.test@example.com', 'committee.test@example.com', 'student.test@example.com')\nORDER BY \n  CASE role\n    WHEN 'gerente' THEN 1\n    WHEN 'instructor' THEN 2\n    WHEN 'administrativo' THEN 3\n    WHEN 'committee' THEN 4\n    WHEN 'student' THEN 5\n  END;",
+  "rows": [
+    {
+      "id": "3300002",
+      "name": "Gerente Test",
+      "email": "gerente.test@example.com",
+      "role": "gerente",
+      "departamento": "Dirección General",
+      "puesto": "Gerente General"
+    },
+    {
+      "id": "3300003",
+      "name": "Instructor Test",
+      "email": "instructor.test@example.com",
+      "role": "instructor",
+      "departamento": "Capacitación",
+      "puesto": "Instructor de Capacitación"
+    },
+    {
+      "id": "3300004",
+      "name": "Admin Test",
+      "email": "admin.test@example.com",
+      "role": "administrativo",
+      "departamento": "Administración",
+      "puesto": "Administrador del Sistema"
+    },
+    {
+      "id": "3300005",
+      "name": "Comité Test",
+      "email": "committee.test@example.com",
+      "role": "committee",
+      "departamento": "Comité NOM-035",
+      "puesto": "Miembro del Comité"
+    },
+    {
+      "id": "3300006",
+      "name": "Estudiante Test",
+      "email": "student.test@example.com",
+      "role": "student",
+      "departamento": "Operaciones",
+      "puesto": "Estudiante/Trabajador"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tdepartamento\tpuesto\n3300002\tGerente Test\tgerente.test@example.com\tgerente\tDirección General\tGerente General\n3300003\tInstructor Test\tinstructor.test@example.com\tinstructor\tCapacitación\tInstructor de Capacitación\n3300004\tAdmin Test\tadmin.test@example.com\tadministrativo\tAdministración\tAdministrador del Sistema\n3300005\tComité Test\tcommittee.test@example.com\tcommittee\tComité NOM-035\tMiembro del Comité\n3300006\tEstudiante Test\tstudent.test@example.com\tstudent\tOperaciones\tEstudiante/Trabajador\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

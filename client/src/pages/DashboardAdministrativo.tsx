@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import ProtectedButton from "@/components/ProtectedButton";
 import { DollarSign, ShoppingCart, Receipt, TrendingUp } from "lucide-react";
 import Chart from "chart.js/auto";
 
@@ -301,18 +302,22 @@ export default function DashboardAdministrativo() {
             <p className="text-muted-foreground mt-2">Resumen y tendencias de facturas, órdenes de compra y solicitudes de gasto</p>
           </div>
           <div className="flex gap-2">
-            <button
+            <ProtectedButton
               onClick={exportToExcel}
-              className="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+              requiredPermission="can_export"
+              fallbackMessage="No tienes permisos para exportar datos"
+              className="bg-green-600 hover:bg-green-700"
             >
               Exportar Excel
-            </button>
-            <button
+            </ProtectedButton>
+            <ProtectedButton
               onClick={exportToPDF}
-              className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              requiredPermission="can_export"
+              fallbackMessage="No tienes permisos para exportar datos"
+              className="bg-red-600 hover:bg-red-700"
             >
               Exportar PDF
-            </button>
+            </ProtectedButton>
           </div>
         </div>
         

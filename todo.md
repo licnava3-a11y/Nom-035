@@ -11084,3 +11084,30 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Verificar códigos QR
 
 **FASE 233: 🔄 EN PROGRESO - Implementación de sistema de tokens de acceso anónimo**
+
+## FASE 97: Validación de Permisos (Revisión de Código)
+
+### Validación Frontend
+- [x] CommitteeMinutesManagement.tsx (11 botones protegidos)
+- [x] DocumentFormats.tsx (4 botones protegidos)
+- [x] Payments.tsx (3 botones protegidos)
+- [x] PurchaseOrders.tsx (3 botones protegidos)
+- [x] ExpenseRequests.tsx (4 botones protegidos)
+- [x] DashboardAdministrativo.tsx (2 botones corregidos y protegidos)
+- [x] Total: 27 botones protegidos con ProtectedButton
+
+### Validación Backend
+- [x] committeeMinutes.ts (4 procedures protegidos)
+- [x] documentFormats.ts (3 procedures protegidos)
+- [x] notifications.ts (3 procedures protegidos)
+- [x] surveys.ts (8 procedures protegidos)
+- [x] investigations.ts (1 procedure protegido)
+- [x] correctiveActions.ts (4 procedures protegidos)
+- [x] Total: 23 procedures protegidos con requirePermission()
+
+### Documentación de Resultados
+- [x] Crear reporte final de validación (REPORTE_VALIDACION_PERMISOS.md)
+- [x] Documentar 27 botones protegidos en frontend
+- [x] Documentar 23 procedures protegidos en backend
+- [x] Documentar corrección de DashboardAdministrativo.tsx
+- [x] Crear usuarios de prueba en base de datos (5 usuarios)
