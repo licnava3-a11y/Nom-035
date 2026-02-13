@@ -1,6 +1,7 @@
 import { Bell, Check, CheckCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import ProtectedButton from "@/components/ProtectedButton";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
@@ -145,16 +146,18 @@ export default function Notifications() {
                           </p>
                         </div>
                       </div>
-                      <Button
+                      <ProtectedButton
                         variant="ghost"
                         size="icon"
                         onClick={(e) => {
                           e.stopPropagation();
                           markAsRead.mutate({ id: notification.id });
                         }}
+                        requiredPermission="can_edit"
+                        fallbackMessage="No tienes permisos para marcar notificaciones como leídas"
                       >
                         <Check className="h-4 w-4" />
-                      </Button>
+                      </ProtectedButton>
                     </div>
                   </CardHeader>
                 </Card>

@@ -196,10 +196,13 @@ export default function Employees() {
             </p>
             {!search && !departmentFilter && (
               <Link href="/employees/new">
-                <Button>
+                <ProtectedButton
+                  requiredPermission="can_create"
+                  fallbackMessage="Solo los administradores pueden agregar trabajadores"
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Agregar Trabajador
-                </Button>
+                </ProtectedButton>
               </Link>
             )}
           </CardContent>
@@ -273,9 +276,15 @@ export default function Employees() {
                     </Button>
                   </Link>
                   <Link href={`/employees/${employee.id}/edit`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">
+                    <ProtectedButton 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      requiredPermission="can_edit"
+                      fallbackMessage="No tienes permisos para editar trabajadores"
+                    >
                       Editar
-                    </Button>
+                    </ProtectedButton>
                   </Link>
                   {employee.isActive ? (
                     <ProtectedButton

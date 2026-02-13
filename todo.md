@@ -11111,3 +11111,33 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Documentar 23 procedures protegidos en backend
 - [x] Documentar corrección de DashboardAdministrativo.tsx
 - [x] Crear usuarios de prueba en base de datos (5 usuarios)
+
+## FASE 98: Extensión de Validación de Permisos a 4 Páginas Adicionales
+
+### Notifications.tsx
+- [x] Revisar botones de acción existentes (1 botón encontrado)
+- [x] Identificar botones sin protección (botón "Marcar como leída")
+- [x] Agregar import de ProtectedButton
+- [x] Reemplazar botones por ProtectedButton con permisos adecuados (can_edit)
+
+### SurveysAdminPanel.tsx
+- [x] Revisar botones de acción existentes (1 botón encontrado)
+- [x] Identificar botones sin protección (ya protegido correctamente)
+- [x] Botón "Exportar a Excel" ya usa ProtectedButton con can_export
+
+### Cases.tsx
+- [x] Revisar botones de acción existentes (4 botones encontrados)
+- [x] Identificar botones sin protección (todos ya protegidos correctamente)
+- [x] Botones "Registrar Caso", "Editar", "Seguimiento" ya usan ProtectedButton
+
+### Employees.tsx
+- [x] Revisar botones de acción existentes (5 botones encontrados)
+- [x] Identificar botones sin protección (2 botones sin protección)
+- [x] Agregar import de ProtectedButton (ya existía)
+- [x] Proteger botón "Agregar Trabajador" (empty state) con can_create
+- [x] Proteger botón "Editar" con can_edit
+
+### Verificación y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Actualizar REPORTE_VALIDACION_PERMISOS.md con nuevas páginas
+- [x] Documentar total de botones protegidos: 38 botones en 11 páginas
