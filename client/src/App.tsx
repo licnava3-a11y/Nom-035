@@ -76,6 +76,7 @@ import PublicSurvey from "./pages/surveys/PublicSurvey";
 import ActionPlan from "./pages/surveys/ActionPlan";
 import SampleSize from "./pages/surveys/SampleSize";
 import TokensDashboard from "./pages/surveys/TokensDashboard";
+import TokenManagement from "./pages/TokenManagement";
 import SurveysAdminPanel from "./pages/SurveysAdminPanel";
 import SurveyPeriodsManager from "./pages/SurveyPeriodsManager";
 import Nom035AdminPanel from "./pages/Nom035AdminPanel";
@@ -566,6 +567,11 @@ function Router() {
       <Route path={"/surveys/tokens-dashboard"}>
         <DashboardLayout>
           <TokensDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path={"/surveys/token-management"}>
+        <DashboardLayout>
+          <TokenManagement />
         </DashboardLayout>
       </Route>
       <Route path={"/surveys/mass-email"}>
