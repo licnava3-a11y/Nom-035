@@ -38,8 +38,8 @@ export default function TokenManagement() {
 
   // Queries
   const { data: users } = trpc.users.list.useQuery() as any;
-  const { data: periods } = trpc.surveyPeriods.list.useQuery();
-  const { data: surveys } = trpc.surveysAdmin.getStats.useQuery({ surveyType: "all" });
+  const { data: periods } = trpc.surveyPeriods.list.useQuery({});
+  const { data: surveys } = trpc.surveys.getAll.useQuery();
   const { data: activeTokens, refetch: refetchTokens } = trpc.surveyTokensAdvanced.getActiveTokens.useQuery({
     periodId: filterPeriodId,
   });
