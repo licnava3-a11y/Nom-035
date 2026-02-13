@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, TrendingUp } from "lucide-react";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 export default function PermissionAudit() {
   const [page, setPage] = useState(1);
@@ -15,6 +18,9 @@ export default function PermissionAudit() {
   const [changeType, setChangeType] = useState<"role_change" | "custom_permission_update" | "custom_permission_reset" | undefined>(undefined);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [trendMonths, setTrendMonths] = useState(6);
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
 
   const { data: historyData, isLoading } = trpc.permissionAudit.getHistory.useQuery({
     userId,

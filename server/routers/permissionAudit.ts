@@ -138,4 +138,38 @@ export const permissionAuditRouter = router({
 
       return recentChanges;
     }),
+
+  /**
+   * Get changes trends by month (for Chart.js)
+   */
+  getChangesTrends: protectedProcedure
+    .use(requirePermission("can_view"))
+    .input(
+      z.object({
+        months: z.number().default(6), // Últimos 6 meses por defecto
+      })
+    )
+    .query(async ({ input }) => {
+      const { months } = input;
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Calcular fecha de inicio (hace N meses)
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - months);
+
+      // Obtener datos agrupados por mes y tipo de cambio
+      const trends = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`,
+          changeType: permissionChangeHistory.changeType,
+          count: sql<number>`count(*)`,
+        })
+        .from(permissionChangeHistory)
+        .where(gte(permissionChangeHistory.createdAt, startDate))
+        .groupBy(sql`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`, permissionChangeHistory.changeType)
+        .orderBy(sql`DATE_FORMAT(${permissionChangeHistory.createdAt}, '%Y-%m')`);
+
+      return trends;
+    }),
 });

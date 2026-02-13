@@ -11298,3 +11298,35 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Probar registro de auditoría al cambiar permisos personalizados
 - [ ] Probar exportación Excel/PDF en ambas páginas
 - [ ] Actualizar REPORTE_VALIDACION_PERMISOS.md
+
+
+## FASE 102: Gráficos de Tendencias, Notificaciones y Configuración SMTP
+
+### Gráficos de Tendencias en PermissionAudit.tsx
+- [x] Agregar procedure getChangesTrends en permissionAudit.ts (datos mensuales)
+- [x] Instalar Chart.js si no está instalado (ya instalado)
+- [ ] Agregar gráfico de líneas con 3 series (cambios de rol, actualizaciones, resets)
+- [ ] Usar paleta de colores: verde (cambios rol), azul marino (actualizaciones), rojo (resets)
+- [ ] Agregar selector de periodo (últimos 6 meses, último año, últimos 2 años)
+
+### Notificaciones Automáticas por Correo
+- [ ] Modificar rolesPermissions.ts para enviar correo en updateUserRole
+- [ ] Modificar customPermissions.ts para enviar correo en updateUserCustomPermissions
+- [ ] Crear plantilla de correo HTML para cambios de permisos
+- [ ] Incluir en correo: quién hizo el cambio, qué cambió, cuándo
+- [ ] Manejar errores SMTP gracefully (no bloquear operación si falla correo)
+
+### Página de Configuración SMTP
+- [ ] Crear tabla smtp_config en drizzle/schema.ts
+- [ ] Generar migración SQL y ejecutar
+- [ ] Crear router smtpConfig.ts con procedures (get, update, test)
+- [ ] Crear página SMTPConfig.tsx con formulario de configuración
+- [ ] Campos: host, port, secure, user, password, from
+- [ ] Botón "Probar Conexión" para validar configuración
+- [ ] Agregar ruta /administrative/smtp-config en App.tsx
+- [ ] Agregar enlace en DashboardLayout.tsx (sección Administración)
+
+### Verificación y Documentación
+- [ ] Verificar compilación TypeScript (0 errores)
+- [ ] Actualizar todo.md con tareas completadas
+- [ ] Guardar checkpoint final
