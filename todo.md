@@ -11002,3 +11002,58 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Actualizar todo.md y guardar checkpoint
 
 **FASE 231: 🔄 EN PROGRESO - Implementación de sistema completo de gestión financiera**
+
+
+## FASE 232: Completar Funcionalidades de Acciones Correctivas
+
+### Filtros y Búsqueda
+- [x] Implementar filtro por nivel de riesgo (Bajo, Medio, Alto, Muy Alto)
+- [x] Implementar paginación en tabla de acciones
+- [x] Agregar enlace en menú de Encuestas NOM-035 a /surveys/corrective-actions
+
+### Gráficas y Estadísticas
+- [x] Implementar gráfica de distribución por estado (barras de progreso HTML/CSS)
+- [x] Implementar gráfica de cumplimiento por departamento
+- [x] Mostrar próximas acciones a vencer en dashboard
+
+### Modal de Edición
+- [x] Crear modal de edición de acciones correctivas
+- [x] Agregar botón de eliminar con confirmación
+- [x] Conectar con procedures tRPC update y delete
+
+### Pruebas
+- [ ] Probar flujo completo de registro y seguimiento
+- [ ] Verificar que todas las acciones funcionan correctamente
+- [ ] Probar todas las acciones rápidas
+
+**FASE 232: ✅ COMPLETADA - Todas las funcionalidades de Acciones Correctivas implementadas, pendiente pruebas manuales**
+
+
+## FASE 233: Sistema de Tokens de Acceso Anónimo para Encuestas
+
+### Backend - Gestión de Tokens
+- [x] Crear tabla survey_tokens en drizzle/schema.ts (YA EXISTÍA)
+- [x] Generar migración SQL para tabla de tokens (YA EXISTÍA)
+- [x] Implementar procedimiento para generar token único (generateToken)
+- [x] Crear procedimiento para validar token y expiración (getTokenInfo - YA EXISTÍA)
+- [x] Implementar procedimiento para generar tokens masivos (generateBulkTokens)
+- [x] Crear procedimiento para listar tokens activos (getActiveTokens)
+
+### Frontend - Interfaz de Tokens
+- [ ] Crear componente TokenManagement.tsx para gestión de tokens
+- [ ] Implementar formulario de generación de token único
+- [ ] Crear interfaz para generación masiva de tokens
+- [ ] Implementar exportación a Excel de tokens
+- [ ] Agregar generación de códigos QR para tokens
+- [ ] Crear página pública de acceso con token (sin login)
+- [ ] Agregar rutas en App.tsx
+
+### Pruebas
+- [ ] Probar generación de token único
+- [ ] Verificar validación de token y expiración
+- [ ] Probar generación masiva de tokens
+- [ ] Validar exportación a Excel
+- [ ] Probar acceso anónimo con token
+- [ ] Verificar códigos QR
+
+**FASE 233: 🔄 EN PROGRESO - Implementación de sistema de tokens de acceso anónimo**

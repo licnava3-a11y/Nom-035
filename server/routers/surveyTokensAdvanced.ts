@@ -326,6 +326,114 @@ export const surveyTokensAdvancedRouter = router({
 
       return { success: true, newToken };
     }),
+
+  /**
+   * Generar token único para un usuario y periodo específico
+   */
+  generateToken: protectedProcedure
+    .input(z.object({
+      userId: z.number(),
+      periodId: z.number(),
+      surveyId: z.number(),
+      expiresInDays: z.number().default(30),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Generar token único
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
+
+      // Insertar token en la base de datos
+      await db.insert(surveyTokens).values({
+        userId: input.userId,
+        periodId: input.periodId,
+        surveyId: input.surveyId,
+        token,
+        expiresAt,
+        usedAt: null,
+        sentVia: null,
+        sentAt: null,
+      });
+
+      return { token, expiresAt };
+    }),
+
+  /**
+   * Generar tokens masivos para múltiples usuarios
+   */
+  generateBulkTokens: protectedProcedure
+    .input(z.object({
+      userIds: z.array(z.number()),
+      periodId: z.number(),
+      surveyId: z.number(),
+      expiresInDays: z.number().default(30),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
+
+      const tokensToInsert = input.userIds.map(userId => ({
+        userId,
+        periodId: input.periodId,
+        surveyId: input.surveyId,
+        token: crypto.randomBytes(32).toString('hex'),
+        expiresAt,
+        usedAt: null,
+        sentVia: null,
+        sentAt: null,
+      }));
+
+      await db.insert(surveyTokens).values(tokensToInsert);
+
+      return { count: tokensToInsert.length, tokens: tokensToInsert };
+    }),
+
+  /**
+   * Obtener lista de tokens activos (no usados y no expirados)
+   */
+  getActiveTokens: protectedProcedure
+    .input(z.object({
+      periodId: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const conditions = [
+        sql`${surveyTokens.usedAt} IS NULL`,
+        sql`${surveyTokens.expiresAt} > NOW()`,
+      ];
+
+      if (input.periodId) {
+        conditions.push(eq(surveyTokens.periodId, input.periodId));
+      }
+
+      const tokens = await db
+        .select({
+          id: surveyTokens.id,
+          token: surveyTokens.token,
+          userId: surveyTokens.userId,
+          periodId: surveyTokens.periodId,
+          expiresAt: surveyTokens.expiresAt,
+          createdAt: surveyTokens.createdAt,
+          userName: users.name,
+          userEmail: users.email,
+          periodName: surveyPeriods.name,
+        })
+        .from(surveyTokens)
+        .leftJoin(users, eq(surveyTokens.userId, users.id))
+        .leftJoin(surveyPeriods, eq(surveyTokens.periodId, surveyPeriods.id))
+        .where(and(...conditions));
+
+      return tokens;
+    }),
+
 });
 
 /**
