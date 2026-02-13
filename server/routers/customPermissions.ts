@@ -11,6 +11,7 @@ import { getDb } from "../db";
 import { users, permissionChangeHistory } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { requirePermission } from "../permissions";
+import { sendEmail } from "../lib/email-sender";
 
 export const customPermissionsRouter = router({
   /**
@@ -95,6 +96,28 @@ export const customPermissionsRouter = router({
         reason: null,
       });
 
+      // Enviar notificación por correo al usuario afectado
+      try {
+        if (user.email) {
+          await sendEmail({
+            to: user.email,
+            subject: "Actualización de Permisos Personalizados - Plataforma NOM-035",
+            html: `
+              <h2>Actualización de Permisos Personalizados</h2>
+              <p>Hola ${user.name},</p>
+              <p>Tus permisos personalizados en la Plataforma de Capacitación NOM-035 han sido modificados.</p>
+              <p><strong>Modificado por:</strong> ${ctx.user!.name} (${ctx.user!.email})</p>
+              <p>Los nuevos permisos sobrescriben los permisos de tu rol base.</p>
+              <p>Si tienes alguna pregunta, por favor contacta al administrador del sistema.</p>
+            `,
+            text: `Hola ${user.name}, tus permisos personalizados han sido actualizados por ${ctx.user!.name}.`,
+          });
+        }
+      } catch (error) {
+        console.error("Error al enviar correo de notificación:", error);
+        // No lanzar error, solo registrar en consola
+      }
+
       return {
         success: true,
         message: 'Permisos personalizados actualizados correctamente',
@@ -139,6 +162,28 @@ export const customPermissionsRouter = router({
         newValue: { customPermissions: undefined },
         reason: null,
       });
+
+      // Enviar notificación por correo al usuario afectado
+      try {
+        if (user.email) {
+          await sendEmail({
+            to: user.email,
+            subject: "Reset de Permisos Personalizados - Plataforma NOM-035",
+            html: `
+              <h2>Reset de Permisos Personalizados</h2>
+              <p>Hola ${user.name},</p>
+              <p>Tus permisos personalizados en la Plataforma de Capacitación NOM-035 han sido reseteados.</p>
+              <p><strong>Modificado por:</strong> ${ctx.user!.name} (${ctx.user!.email})</p>
+              <p>Ahora estás usando los permisos predeterminados de tu rol: <strong>${user.role}</strong></p>
+              <p>Si tienes alguna pregunta, por favor contacta al administrador del sistema.</p>
+            `,
+            text: `Hola ${user.name}, tus permisos personalizados han sido reseteados por ${ctx.user!.name}. Ahora usas los permisos de tu rol ${user.role}.`,
+          });
+        }
+      } catch (error) {
+        console.error("Error al enviar correo de notificación:", error);
+        // No lanzar error, solo registrar en consola
+      }
 
       return {
         success: true,

@@ -33,6 +33,93 @@ export default function PermissionAudit() {
 
   const { data: stats } = trpc.permissionAudit.getStatistics.useQuery();
 
+  const { data: trendsData } = trpc.permissionAudit.getChangesTrends.useQuery({ months: trendMonths });
+
+  // Renderizar gráfico Chart.js cuando cambien los datos
+  useEffect(() => {
+    if (!trendsData || !chartRef.current) return;
+
+    // Destruir gráfico anterior si existe
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+
+    // Preparar datos para Chart.js
+    const months = Array.from(new Set(trendsData.map((t) => t.month))).sort();
+    const roleChanges = months.map((month) => {
+      const item = trendsData.find((t) => t.month === month && t.changeType === "role_change");
+      return item ? Number(item.count) : 0;
+    });
+    const permissionUpdates = months.map((month) => {
+      const item = trendsData.find((t) => t.month === month && t.changeType === "custom_permission_update");
+      return item ? Number(item.count) : 0;
+    });
+    const permissionResets = months.map((month) => {
+      const item = trendsData.find((t) => t.month === month && t.changeType === "custom_permission_reset");
+      return item ? Number(item.count) : 0;
+    });
+
+    // Crear gráfico
+    const ctx = chartRef.current.getContext("2d");
+    if (!ctx) return;
+
+    chartInstanceRef.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: months,
+        datasets: [
+          {
+            label: "Cambios de Rol",
+            data: roleChanges,
+            borderColor: "#10b981", // Verde
+            backgroundColor: "rgba(16, 185, 129, 0.1)",
+            tension: 0.4,
+          },
+          {
+            label: "Actualizaciones de Permisos",
+            data: permissionUpdates,
+            borderColor: "#1e3a8a", // Azul marino
+            backgroundColor: "rgba(30, 58, 138, 0.1)",
+            tension: 0.4,
+          },
+          {
+            label: "Resets de Permisos",
+            data: permissionResets,
+            borderColor: "#dc2626", // Rojo
+            backgroundColor: "rgba(220, 38, 38, 0.1)",
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+          title: {
+            display: false,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+            },
+          },
+        },
+      },
+    });
+
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+    };
+  }, [trendsData]);
+
   const getChangeTypeBadge = (type: string) => {
     switch (type) {
       case "role_change":
@@ -92,6 +179,36 @@ export default function PermissionAudit() {
           ))}
         </div>
       )}
+
+      {/* Gráfico de Tendencias */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Tendencias de Cambios de Permisos
+              </CardTitle>
+              <CardDescription>Evolución mensual de cambios de roles y permisos</CardDescription>
+            </div>
+            <Select value={trendMonths.toString()} onValueChange={(value) => setTrendMonths(Number(value))}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="6">Últimos 6 meses</SelectItem>
+                <SelectItem value="12">Último año</SelectItem>
+                <SelectItem value="24">Últimos 2 años</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div style={{ height: "400px" }}>
+            <canvas ref={chartRef}></canvas>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Filters */}
       <Card>

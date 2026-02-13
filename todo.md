@@ -11330,3 +11330,20 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Verificar compilación TypeScript (0 errores)
 - [ ] Actualizar todo.md con tareas completadas
 - [ ] Guardar checkpoint final
+
+
+## FASE 102 (Continuación): Completar Gráfico y Notificaciones
+
+### Gráfico de Tendencias en PermissionAudit.tsx
+- [ ] Agregar query trpc.permissionAudit.getChangesTrends.useQuery()
+- [ ] Agregar useEffect para renderizar Chart.js con datos de tendencias
+- [ ] Configurar 3 líneas en gráfico (verde: role_change, azul marino: custom_permission_update, rojo: custom_permission_reset)
+- [ ] Agregar selector de periodo (6 meses, 1 año, 2 años)
+- [ ] Agregar sección de gráfico en UI de PermissionAudit.tsx
+
+### Notificaciones Automáticas por Correo
+- [ ] Modificar rolesPermissions.ts updateUserRole para enviar correo al usuario afectado
+- [ ] Modificar customPermissions.ts updateUserCustomPermissions para enviar correo
+- [ ] Modificar customPermissions.ts resetUserCustomPermissions para enviar correo
+- [ ] Usar función sendEmail() existente del sistema
+- [ ] Incluir detalles del cambio y quién lo realizó en el correo

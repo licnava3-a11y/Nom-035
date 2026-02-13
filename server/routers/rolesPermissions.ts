@@ -5,6 +5,7 @@ import { getDb } from "../db";
 import { users, permissionChangeHistory } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { sendEmail } from "../lib/email-sender";
 
 /**
  * Router for managing roles and permissions
@@ -315,6 +316,29 @@ export const rolesPermissionsRouter = router({
         newValue: { role: newRole },
         reason: null,
       });
+
+      // Enviar notificación por correo al usuario afectado
+      try {
+        if (user.email) {
+          await sendEmail({
+            to: user.email,
+          subject: "Cambio de Rol en Plataforma NOM-035",
+          html: `
+            <h2>Cambio de Rol</h2>
+            <p>Hola ${user.name},</p>
+            <p>Tu rol en la Plataforma de Capacitación NOM-035 ha sido modificado.</p>
+            <p><strong>Rol anterior:</strong> ${user.role}</p>
+            <p><strong>Nuevo rol:</strong> ${newRole}</p>
+            <p><strong>Modificado por:</strong> ${ctx.user!.name} (${ctx.user!.email})</p>
+            <p>Si tienes alguna pregunta, por favor contacta al administrador del sistema.</p>
+          `,
+            text: `Hola ${user.name}, tu rol ha sido cambiado de ${user.role} a ${newRole} por ${ctx.user!.name}.`,
+          });
+        }
+      } catch (error) {
+        console.error("Error al enviar correo de notificación:", error);
+        // No lanzar error, solo registrar en consola
+      }
 
       return {
         success: true,
