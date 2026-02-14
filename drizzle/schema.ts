@@ -2913,3 +2913,44 @@ export const nineBoxAssessments = mysqlTable("nine_box_assessments", {
 export type NineBoxAssessment = typeof nineBoxAssessments.$inferSelect;
 export type InsertNineBoxAssessment = typeof nineBoxAssessments.$inferInsert;
 
+/**
+ * Skills Matrix Snapshots
+ * Manual snapshots of the skills matrix for temporal comparison
+ */
+export const skillsMatrixSnapshots = mysqlTable("skills_matrix_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(), // User-defined name for the snapshot
+  description: text("description"), // Optional description
+  snapshotDate: date("snapshot_date").notNull(), // Date of the snapshot
+  departmentId: int("department_id").references(() => departments.id), // Optional: filter by department
+  data: json("data").notNull().$type<{
+    employees: Array<{
+      id: number;
+      firstName: string;
+      lastName: string;
+      departmentName: string;
+      positionName: string;
+      competencies: Array<{
+        competencyId: number;
+        competencyName: string;
+        currentLevel: number;
+        requiredLevel: number;
+        gap: number;
+      }>;
+      averageLevel: number;
+      totalGap: number;
+    }>;
+    summary: {
+      totalEmployees: number;
+      totalCompetencies: number;
+      averageCompetencyLevel: number;
+      totalGaps: number;
+      criticalGaps: number;
+    };
+  }>(), // Complete snapshot data
+  createdBy: int("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SkillsMatrixSnapshot = typeof skillsMatrixSnapshots.$inferSelect;
+export type InsertSkillsMatrixSnapshot = typeof skillsMatrixSnapshots.$inferInsert;

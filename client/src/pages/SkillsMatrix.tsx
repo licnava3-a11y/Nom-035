@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Download, Upload, Filter, TrendingUp, AlertCircle, Sparkles } from "lucide-react";
+import { Download, Upload, Filter, TrendingUp, AlertCircle, Sparkles, Camera, History } from "lucide-react";
+import { Link } from "wouter";
 import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { HeatmapExport } from "@/components/HeatmapExport";
@@ -70,6 +71,9 @@ export default function SkillsMatrix() {
   
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [snapshotDialogOpen, setSnapshotDialogOpen] = useState(false);
+  const [snapshotName, setSnapshotName] = useState("");
+  const [snapshotDescription, setSnapshotDescription] = useState("");
 
   // Queries
   const { data: matrixData, isLoading, refetch } = trpc.skillsMatrix.getMatrix.useQuery(filters);
@@ -112,6 +116,18 @@ export default function SkillsMatrix() {
     },
   });
 
+  const saveSnapshotMutation = trpc.skillsMatrixSnapshots.saveSnapshot.useMutation({
+    onSuccess: () => {
+      toast.success("Snapshot guardado", { description: "El snapshot se guardó exitosamente" });
+      setSnapshotDialogOpen(false);
+      setSnapshotName("");
+      setSnapshotDescription("");
+    },
+    onError: (error: { message: string }) => {
+      toast.error("Error", { description: error.message });
+    },
+  });
+
   const handleUpdateSkill = (employeeId: number, competencyId: number, level: SkillLevel) => {
     updateSkillMutation.mutate({ employeeId, competencyId, level });
   };
@@ -122,6 +138,19 @@ export default function SkillsMatrix() {
         departmentId: filters.departmentId,
       });
     }
+  };
+
+  const handleSaveSnapshot = () => {
+    if (!snapshotName.trim()) {
+      toast.error("Error", { description: "El nombre del snapshot es requerido" });
+      return;
+    }
+    
+    saveSnapshotMutation.mutate({
+      name: snapshotName,
+      description: snapshotDescription || undefined,
+      departmentId: filters.departmentId,
+    });
   };
 
   const handleExport = async () => {
@@ -427,6 +456,16 @@ export default function SkillsMatrix() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Link href="/talent/skills-matrix/snapshots">
+            <Button variant="outline" size="sm">
+              <History className="mr-2 h-4 w-4" />
+              Ver Snapshots
+            </Button>
+          </Link>
+          <Button onClick={() => setSnapshotDialogOpen(true)} variant="outline" size="sm">
+            <Camera className="mr-2 h-4 w-4" />
+            Guardar Snapshot
+          </Button>
           <BulkHeatmapExport companyName="Plataforma NOM-035" />
           <HeatmapExport 
             targetElementId="skills-matrix-table" 
@@ -669,6 +708,51 @@ export default function SkillsMatrix() {
               </Select>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Snapshot Dialog */}
+      <Dialog open={snapshotDialogOpen} onOpenChange={setSnapshotDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Guardar Snapshot de Matriz de Habilidades</DialogTitle>
+            <DialogDescription>
+              Guarda el estado actual de la matriz para comparación temporal
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="snapshot-name">Nombre del Snapshot *</Label>
+              <Input
+                id="snapshot-name"
+                placeholder="Ej: Evaluación Q1 2026"
+                value={snapshotName}
+                onChange={(e) => setSnapshotName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="snapshot-description">Descripción (opcional)</Label>
+              <Input
+                id="snapshot-description"
+                placeholder="Ej: Evaluación trimestral del primer trimestre"
+                value={snapshotDescription}
+                onChange={(e) => setSnapshotDescription(e.target.value)}
+              />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {filters.departmentId 
+                ? "Se guardará solo el departamento filtrado" 
+                : "Se guardará toda la organización"}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSnapshotDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveSnapshot} disabled={saveSnapshotMutation.isPending}>
+              {saveSnapshotMutation.isPending ? "Guardando..." : "Guardar Snapshot"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

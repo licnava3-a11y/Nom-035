@@ -74,6 +74,7 @@ import { notificationPreferencesRouter } from "./routers/notificationPreferences
 import { predictiveAlertsRouter } from "./routers/predictiveAlerts";
 import { nineBoxGridRouter } from "./routers/nineBoxGrid";
 import { notificationLogsRouter } from "./routers/notificationLogs";
+import { skillsMatrixSnapshotsRouter } from "./routers/skillsMatrixSnapshots";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -954,6 +955,7 @@ export const appRouter = router({
   predictiveAlerts: predictiveAlertsRouter,
   nineBoxGrid: nineBoxGridRouter,
   notificationLogs: notificationLogsRouter,
+  skillsMatrixSnapshots: skillsMatrixSnapshotsRouter,
 });
 
 export type AppRouter = typeof appRouter;

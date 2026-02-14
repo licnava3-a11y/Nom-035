@@ -498,6 +498,13 @@
       "when": 1771084436357,
       "tag": "0070_perpetual_eddie_brock",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "5",
+      "when": 1771092506696,
+      "tag": "0071_violet_dragon_lord",
+      "breakpoints": true
     }
   ]
 }
