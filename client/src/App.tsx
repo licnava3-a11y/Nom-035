@@ -86,7 +86,7 @@ const SampleSize = lazy(() => import("./pages/surveys/SampleSize"));
 const TokensDashboard = lazy(() => import("./pages/surveys/TokensDashboard"));
 const AnonymousTokens = lazy(() => import("./pages/surveys/AnonymousTokens"));
 const AnonymousSurveyAccess = lazy(() => import("./pages/surveys/AnonymousSurveyAccess"));
-const TokenManagement = lazy(() => import("./pages/TokenManagement"));
+const TokenManagement = lazy(() => import("./pages/surveys/TokenManagement"));
 const SurveysAdminPanel = lazy(() => import("./pages/SurveysAdminPanel"));
 const SurveyPeriodsManager = lazy(() => import("./pages/SurveyPeriodsManager"));
 const Nom035AdminPanel = lazy(() => import("./pages/Nom035AdminPanel"));
