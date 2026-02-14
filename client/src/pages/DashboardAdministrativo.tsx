@@ -360,6 +360,19 @@ export default function DashboardAdministrativo() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            const clickedDepartment = departments[index];
+            
+            // Si ya está filtrado por este departamento, limpiar filtro
+            if (departamento === clickedDepartment) {
+              setDepartamento("todos");
+            } else {
+              setDepartamento(clickedDepartment);
+            }
+          }
+        },
         plugins: {
           legend: {
             position: "top",
@@ -411,7 +424,7 @@ export default function DashboardAdministrativo() {
         barChartInstance.current.destroy();
       }
     };
-  }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests]);
+  }, [filteredInvoices, filteredPurchaseOrders, filteredExpenseRequests, departamento]);
 
   return (
     <div className="container mx-auto py-6">
@@ -583,10 +596,18 @@ export default function DashboardAdministrativo() {
             <ShoppingCart className="w-5 h-5" />
             Comparativo por Departamento
           </CardTitle>
+          <p className="text-sm text-muted-foreground mt-2">
+            Haz clic en una barra para filtrar datos por departamento
+            {departamento !== "todos" && (
+              <span className="ml-2 inline-flex items-center rounded-md bg-secondary px-2 py-1 text-xs font-medium">
+                Filtrado: {departamento}
+              </span>
+            )}
+          </p>
         </CardHeader>
         <CardContent>
           <div className="h-[350px]">
-            <canvas ref={barChartRef}></canvas>
+            <canvas ref={barChartRef} style={{ cursor: "pointer" }}></canvas>
           </div>
         </CardContent>
       </Card>

@@ -11437,3 +11437,26 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Guardar checkpoint final
 
 **FASE 105: ✅ COMPLETADA AL 100%**
+
+
+## FASE 106: Filtrado Interactivo en Bar Chart de DashboardAdministrativo.tsx
+
+### Implementación de Filtrado Interactivo
+- [x] Agregar estado para departamento seleccionado desde bar chart (ya existía)
+- [x] Implementar onClick handler en Chart.js para capturar clic en barras
+- [x] Identificar departamento clicado mediante index (departments[index])
+- [x] Actualizar filtro de departamento cuando se hace clic en barra
+- [x] Funcionalidad de toggle: clic en mismo departamento limpia filtro (setDepartamento("todos"))
+- [x] Agregar indicador visual de filtro activo (span con bg-secondary)
+- [x] Agregar cursor pointer en canvas
+- [x] Actualizar useEffect con dependencia en departamento
+- [x] Filtrar datos de tablas según departamento seleccionado (filtro ya existía)
+
+### Verificación y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Probar funcionalidad de clic en navegador
+- [x] Verificar que datos se filtren correctamente
+- [x] Actualizar todo.md con tareas completadas
+- [x] Guardar checkpoint final
+
+**FASE 106: ✅ COMPLETADA AL 100%**
