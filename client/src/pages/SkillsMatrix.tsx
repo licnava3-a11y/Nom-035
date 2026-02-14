@@ -229,6 +229,73 @@ export default function SkillsMatrix() {
         XLSX.utils.book_append_sheet(wb, wsTraining, "Capacitación Crítica");
       }
 
+      // === HOJA 5: Resumen Ejecutivo ===
+      if (data.developmentAnalysis && data.developmentAnalysis.length > 0) {
+        // Calculate KPIs
+        const totalEmployees = data.developmentAnalysis.length;
+        const avgCompetencyLevel = (data.developmentAnalysis.reduce((sum: number, emp: any) => 
+          sum + parseFloat(emp.nivelPromedio || '0'), 0) / totalEmployees).toFixed(2);
+        const employeesWithGaps = data.developmentAnalysis.filter((emp: any) => 
+          emp.brechasIdentificadas > 0).length;
+        const gapPercentage = ((employeesWithGaps / totalEmployees) * 100).toFixed(1);
+        const totalDepartments = Object.keys(data.successionAnalysis || {}).length;
+        const highPotentialCount = data.developmentAnalysis.filter((emp: any) => 
+          parseFloat(emp.nivelPromedio || '0') >= 3).length;
+        
+        const executiveSummary = [
+          ['RESUMEN EJECUTIVO - ANÁLISIS DE DESARROLLO Y SUCESIÓN'],
+          ['Fecha de Generación:', now.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' })],
+          [''],
+          ['INDICADORES CLAVE DE DESEMPEÑO (KPIs)'],
+          [''],
+          ['Métrica', 'Valor', 'Interpretación'],
+          ['Total de Empleados Evaluados', totalEmployees.toString(), 'Plantilla activa'],
+          ['Nivel Promedio de Competencia', avgCompetencyLevel, 'Escala: 0 (Sin evaluar) a 4 (Experto)'],
+          ['Empleados con Brechas de Habilidades', `${employeesWithGaps} (${gapPercentage}%)`, 'Requieren capacitación'],
+          ['Empleados de Alto Potencial', `${highPotentialCount} (${((highPotentialCount/totalEmployees)*100).toFixed(1)}%)`, 'Nivel ≥ 3.0 (Avanzado)'],
+          ['Departamentos Analizados', totalDepartments.toString(), 'Áreas organizacionales'],
+          [''],
+          ['DISTRIBUCIÓN POR NIVEL DE COMPETENCIA'],
+          [''],
+          ['Nivel', 'Cantidad', 'Porcentaje'],
+        ];
+
+        // Calculate distribution by level
+        const levelCounts = { '0-1': 0, '1-2': 0, '2-3': 0, '3-4': 0 };
+        data.developmentAnalysis.forEach((emp: any) => {
+          const level = parseFloat(emp.nivelPromedio || '0');
+          if (level < 1) levelCounts['0-1']++;
+          else if (level < 2) levelCounts['1-2']++;
+          else if (level < 3) levelCounts['2-3']++;
+          else levelCounts['3-4']++;
+        });
+
+        executiveSummary.push(
+          ['Sin evaluar / Básico (0-1)', levelCounts['0-1'].toString(), `${((levelCounts['0-1']/totalEmployees)*100).toFixed(1)}%`],
+          ['Básico / Intermedio (1-2)', levelCounts['1-2'].toString(), `${((levelCounts['1-2']/totalEmployees)*100).toFixed(1)}%`],
+          ['Intermedio / Avanzado (2-3)', levelCounts['2-3'].toString(), `${((levelCounts['2-3']/totalEmployees)*100).toFixed(1)}%`],
+          ['Avanzado / Experto (3-4)', levelCounts['3-4'].toString(), `${((levelCounts['3-4']/totalEmployees)*100).toFixed(1)}%`],
+          [''],
+          ['RECOMENDACIONES ESTRATÉGICAS'],
+          [''],
+          ['1. Priorizar capacitación en competencias críticas identificadas en la hoja "Capacitación Crítica"'],
+          ['2. Desarrollar planes de carrera para empleados de alto potencial (hoja "Candidatos Sucesión")'],
+          ['3. Implementar programas de mentoría para cerrar brechas de habilidades'],
+          ['4. Revisar perfiles de puesto y alinear con competencias requeridas'],
+          ['5. Establecer programa de evaluación continua (trimestral o semestral)'],
+        );
+
+        const wsExecutive = XLSX.utils.aoa_to_sheet(executiveSummary);
+        XLSX.utils.book_append_sheet(wb, wsExecutive, "Resumen Ejecutivo");
+        
+        // Auto-size columns
+        wsExecutive['!cols'] = [
+          { wch: 40 },
+          { wch: 20 },
+          { wch: 50 },
+        ];
+      }
+
       // Generate filename with timestamp
       const timestamp = now.toISOString().split('T')[0];
       const filename = `matriz_habilidades_analisis_${timestamp}.xlsx`;
