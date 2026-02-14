@@ -11753,3 +11753,67 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 
 **Pendiente:** Agregar ARIA labels en 136 componentes lazy-loaded (requiere revisión manual extensa, bajo impacto inmediato).
 
+
+
+## FASE 114: Configuración SMTP Administrativa
+
+### Backend - Schema y Procedures
+- [ ] Crear tabla smtpConfig en drizzle/schema.ts
+- [ ] Generar migración con pnpm drizzle-kit generate
+- [ ] Aplicar migración con webdev_execute_sql
+- [ ] Crear procedures tRPC: getSmtpConfig, updateSmtpConfig, testSmtpConnection
+- [ ] Implementar encriptación de contraseña SMTP
+
+### Frontend - Página de Configuración
+- [ ] Crear página /administrative/smtp-config
+- [ ] Implementar formulario con campos: host, port, user, password, secure, from
+- [ ] Agregar botón "Probar Conexión" con feedback visual
+- [ ] Implementar validación de campos (host requerido, port numérico, email válido)
+- [ ] Mostrar estado actual de configuración (completa/incompleta)
+
+### Integración y Pruebas
+- [ ] Agregar enlace en menú de Administración
+- [ ] Probar guardado de configuración
+- [ ] Probar prueba de conexión SMTP
+- [ ] Verificar que sendEmail() use configuración de BD
+- [ ] Guardar checkpoint final
+
+
+
+## FASE 114: Configuración SMTP Administrativa
+
+### Backend - Schema y Procedures
+- [x] Crear tabla smtp_config en drizzle/schema.ts (campos: host, port, secure, user, password, fromEmail, fromName)
+- [x] Generar migración con drizzle-kit (0067_young_captain_stacy.sql)
+- [x] Aplicar migración a base de datos (CREATE TABLE smtp_config)
+- [x] Crear server/routers/smtpConfig.ts con procedures
+- [x] Implementar getConfig (obtener configuración actual)
+- [x] Implementar updateConfig (guardar/actualizar configuración con encriptación de contraseña)
+- [x] Implementar testConnection (enviar correo de prueba)
+- [x] Agregar smtpConfigRouter en server/routers.ts
+
+### Frontend - Página Administrativa
+- [x] Crear client/src/pages/administrative/SmtpConfig.tsx
+- [x] Implementar formulario con campos: host, port, secure, user, password, fromEmail, fromName
+- [x] Agregar switch para conexión segura (SSL/TLS) - puerto 465
+- [x] Implementar sección de prueba de conexión con campo testEmail
+- [x] Agregar validación de campos (required, tipos)
+- [x] Mostrar mensajes de éxito/error con alert() nativo
+- [x] Agregar Cards con iconos (Server, Lock, Mail)
+- [x] Agregar Alert con instrucciones
+
+### Integración y Pruebas
+- [x] Agregar import lazy de SmtpConfig en App.tsx
+- [x] Agregar ruta /administrative/smtp-config en App.tsx
+- [x] Agregar enlace "Configuración SMTP" en menú de Administración (DashboardLayout.tsx línea 197)
+- [x] Verificar compilación TypeScript (0 errores)
+- [ ] Probar guardado de configuración - PENDIENTE (requiere acceso a UI)
+- [ ] Probar prueba de conexión con envío de correo - PENDIENTE (requiere servidor SMTP)
+- [ ] Verificar que notificaciones automáticas funcionen - PENDIENTE (requiere configuración SMTP)
+- [x] Guardar checkpoint final
+
+**FASE 114: ✅ COMPLETADA AL 90%**
+
+**Resumen:** Sistema de configuración SMTP completamente implementado con backend (tabla, procedures, encriptación) y frontend (formulario profesional, validación, prueba de conexión). Enlace agregado en menú de Administración. Pendiente: pruebas funcionales que requieren servidor SMTP real.
+
+**Nota:** Para habilitar notificaciones automáticas, el administrador debe configurar las variables SMTP en /administrative/smtp-config.

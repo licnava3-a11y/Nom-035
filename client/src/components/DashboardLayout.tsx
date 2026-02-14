@@ -194,6 +194,7 @@ const hierarchicalMenuItems = [
       { label: "Roles y Permisos", path: "/administrative/roles-permissions", description: "Administración de roles y matriz de permisos" },
       { label: "Permisos Personalizados", path: "/administrative/custom-permissions", description: "Asignar permisos específicos por usuario" },
       { label: "Auditoría de Permisos", path: "/administrative/permission-audit", description: "Historial de cambios de roles y permisos" },
+      { label: "Configuración SMTP", path: "/administrative/smtp-config", description: "Configurar servidor de correo electrónico" },
       { label: "Configuración", path: "/settings", description: "Configuración general del sistema" },
       { label: "Catálogo de Formatos", path: "/document-formats", description: "Nomenclatura de folios para documentos" },
       { label: "Plantillas de Reportes", path: "/report-templates", description: "Plantillas personalizables HTML/CSS" },

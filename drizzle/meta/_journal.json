@@ -470,6 +470,13 @@
       "when": 1770989990643,
       "tag": "0066_luxuriant_pete_wisdom",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "5",
+      "when": 1771057633106,
+      "tag": "0067_young_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

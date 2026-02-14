@@ -2816,3 +2816,25 @@ export const permissionChangeHistory = mysqlTable("permission_change_history", {
 
 export type PermissionChangeHistory = typeof permissionChangeHistory.$inferSelect;
 export type InsertPermissionChangeHistory = typeof permissionChangeHistory.$inferInsert;
+
+
+/**
+ * SMTP Configuration table
+ * Stores email server configuration for sending notifications
+ */
+export const smtpConfig = mysqlTable("smtp_config", {
+  id: int("id").autoincrement().primaryKey(),
+  host: varchar("host", { length: 255 }).notNull(),
+  port: int("port").notNull().default(587),
+  secure: boolean("secure").notNull().default(false), // true for 465, false for other ports
+  user: varchar("user", { length: 255 }).notNull(),
+  password: text("password").notNull(), // Encrypted
+  fromEmail: varchar("from_email", { length: 320 }).notNull(),
+  fromName: varchar("from_name", { length: 255 }).notNull().default("Sistema NOM-035"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SmtpConfig = typeof smtpConfig.$inferSelect;
+export type InsertSmtpConfig = typeof smtpConfig.$inferInsert;

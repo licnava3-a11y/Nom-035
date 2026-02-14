@@ -48,6 +48,7 @@ import { investigationsRouter } from "./routers/investigations";
 import { workplaceViolenceRouter } from "./routers/workplaceViolence";
 import { committeeTrainingRouter } from "./routers/committeeTraining";
 import { massiveImportRouter } from "./routers/massiveImport";
+import { smtpConfigRouter } from "./routers/smtpConfig";
 import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
 import { departmentsRouter } from "./routers/departments";
@@ -134,6 +135,7 @@ export const appRouter = router({
   workplaceViolence: workplaceViolenceRouter,
   committeeTraining: committeeTrainingRouter,
   massiveImport: massiveImportRouter,
+  smtpConfig: smtpConfigRouter,
   nom035: nom035Router,
   departments: departmentsRouter,
   positions: positionsRouter,
