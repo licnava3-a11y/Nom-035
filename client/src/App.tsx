@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/sonner";
+import { Suspense, lazy } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
@@ -6,792 +6,1056 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
-import Courses from "./pages/Courses";
-import Cases from "./pages/Cases";
-import Resources from "./pages/Resources";
-import Evaluations from "./pages/Evaluations";
-import TakeEvaluation from "./pages/TakeEvaluation";
-import CaseDetail from "./pages/CaseDetail";
-import Committee from "./pages/Committee";
-import CommitteeMemberProfile from "./pages/CommitteeMemberProfile";
-import CommitteeMemberEdit from "./pages/CommitteeMemberEdit";
-import CommitteeMemberNew from './pages/CommitteeMemberNew';
-import PositionAcceptance from './pages/committee/PositionAcceptance';
-import ConstitutiveAct from './pages/committee/ConstitutiveAct';
-import OperatingRules from './pages/committee/OperatingRules';
-import CommitteeTraining from './pages/committee/CommitteeTraining';
-import TrendsCharts from './pages/TrendsCharts';
-import SignatureTest from './pages/SignatureTest';
-import JobPositions from "./pages/JobPositions";
-import Reports from "./pages/Reports";
-import AlertHistory from "./pages/AlertHistory";
-import AlertReportsConfig from "./pages/AlertReportsConfig";
-import AlertMetricsDashboard from "./pages/AlertMetricsDashboard";
-import AlertThresholdsConfig from "./pages/AlertThresholdsConfig";
-import NotificationHistory from "./pages/NotificationHistory";
-import Users from "./pages/Users";
-import Profile from "./pages/Profile";
-import Notifications from "./pages/Notifications";
-import Mailbox from "./pages/Mailbox";
-import MailboxForm from "./pages/MailboxForm";
-import MailboxDetail from "./pages/MailboxDetail";
-import Employees from "./pages/Employees";
-import EmployeeNew from "./pages/EmployeeNew";
-import EmployeeEdit from "./pages/EmployeeEdit";
-import EmployeeProfile from "./pages/EmployeeProfile";
-import EmployeeDocuments from "./pages/EmployeeDocuments";
-import EmployeeTrainingNeeds from "./pages/EmployeeTrainingNeeds";
-import EmployeeTermination from "./pages/EmployeeTermination";
-import TurnoverDashboard from "./pages/TurnoverDashboard";
-import CompetenciesDashboard from "./pages/CompetenciesDashboard";
-import SkillsMatrix from "./pages/SkillsMatrix";
-import EmployeeCompetencyEvaluation from "./pages/EmployeeCompetencyEvaluation";
-import DNCDashboard from "./pages/DNCDashboard";
-import OrganizationalCompetenciesManager from "./pages/OrganizationalCompetenciesManager";
-import MeetingMinutes from "./pages/MeetingMinutes";
-import MeetingMinuteForm from "./pages/MeetingMinuteForm";
-import Documents from "./pages/Documents";
-import CaseAssignment from "./pages/CaseAssignment";
-import DocumentActaConstitutiva from "./pages/DocumentActaConstitutiva";
-import DocumentFuncionesComite from "./pages/DocumentFuncionesComite";
-import DocumentAceptacionCargo from "./pages/DocumentAceptacionCargo";
-import DocumentActaRecorridoNOM019 from "./pages/DocumentActaRecorridoNOM019";
-import DocumentActaFinalResultados from "./pages/DocumentActaFinalResultados";
-import DocumentsHistory from "./pages/DocumentsHistory";
-import DocumentGallery from "./pages/DocumentGallery";
-import GuideI from "./pages/surveys/GuideI";
-import ComplianceChecklist from "./pages/ComplianceChecklist";
-import ComplianceDashboard from "./pages/ComplianceDashboard";
-import NumeralsVerification from "./pages/NumeralsVerification";
-import GuideII from "./pages/surveys/GuideII";
-import GuideIII from "./pages/surveys/GuideIII";
-import SurveysDashboard from "./pages/surveys/Dashboard";
-import SurveysTracking from "./pages/surveys/Tracking";
-import CorrectiveActions from "./pages/surveys/CorrectiveActions";
-import SurveyResults from "./pages/surveys/SurveyResults";
-import SurveyAdmin from "./pages/surveys/SurveyAdmin";
-import SurveySend from "./pages/SurveySend";
-import PublicSurvey from "./pages/surveys/PublicSurvey";
-import ActionPlan from "./pages/surveys/ActionPlan";
-import SampleSize from "./pages/surveys/SampleSize";
-import TokensDashboard from "./pages/surveys/TokensDashboard";
-import TokenManagement from "./pages/TokenManagement";
-import SurveysAdminPanel from "./pages/SurveysAdminPanel";
-import SurveyPeriodsManager from "./pages/SurveyPeriodsManager";
-import Nom035AdminPanel from "./pages/Nom035AdminPanel";
-import Policies from "./pages/nom035/Policies";
-import EvidenceFolder from "./pages/nom035/EvidenceFolder";
-import SurveyApply from "./pages/SurveyApply";
-import Settings from "./pages/Settings";
-import CompanySettings from "./pages/company/CompanySettings";
-import EqualityPolicy from "./pages/equality/Policy";
-import NOM035Questionnaire from "./pages/NOM035Questionnaire";
-import NOM035Results from "./pages/NOM035Results";
-import Departments from "./pages/Departments";
-import Positions from "./pages/Positions";
-import OrganizationDashboard from "./pages/OrganizationDashboard";
-import OrganizationChart from "./pages/OrganizationChart";
-import OrganizationalChanges from "./pages/OrganizationalChanges";
-import EqualitySalaryGap from "./pages/equality/SalaryGap";
-import EqualityAffirmativeActions from "./pages/equality/AffirmativeActions";
-import MassiveImport from "./pages/MassiveImport";
-import EqualityComplaints from "./pages/equality/Complaints";
-import EqualityCommittee from "./pages/equality/Committee";
+import SkeletonLoader from "./components/SkeletonLoader";
 
-import RegulatoryReports from "./pages/RegulatoryReports";
-import MassSurveyEmail from "./pages/surveys/MassSurveyEmail";
-import JobApplication from "./pages/JobApplication";
-import ApplicationSuccess from "./pages/ApplicationSuccess";
-import EarlyWarnings from "./pages/EarlyWarnings";
-import Investigations from "./pages/cases/Investigations";
-import WorkplaceViolenceProtocol from "./pages/cases/WorkplaceViolenceProtocol";
-import QuestionnairePublic from "./pages/public/QuestionnairePublic";
-import VerifyReport from "./pages/VerifyReport";
-import DocumentFormats from "./pages/DocumentFormats";
-import ReportsHistory from "./pages/ReportsHistory";
-import DocumentAudit from "./pages/DocumentAudit";
-import SecurityAlerts from "./pages/SecurityAlerts";
-import ReportTemplates from "./pages/ReportTemplates";
-import RiskAnalysis from "./pages/RiskAnalysis";
-import CommitteeMinutesManagement from "./pages/CommitteeMinutesManagement";
-import AgreementsDashboard from "./pages/AgreementsDashboard";
-import TrainingCertificates from "./pages/TrainingCertificates";
-import EfirmaSAT from "./pages/EfirmaSAT";
-import TrainingDashboard from "./pages/TrainingDashboard";
-import AssessmentsManagement from "./pages/AssessmentsManagement";
-import QuestionBank from "./pages/QuestionBank";
-import TakeExam from "./pages/TakeExam";
-import ExamResults from "./pages/ExamResults";
-import NotificationsDashboard from "./pages/NotificationsDashboard";
-import Surveys from "./pages/Surveys";
-import Prevention from "./pages/Prevention";
-import Compliance from "./pages/Compliance";
-import STPSReports from "./pages/STPSReports";
-import Payments from "./pages/Payments";
-import PurchaseOrders from "./pages/PurchaseOrders";
-import ExpenseRequests from "./pages/ExpenseRequests";
-import DashboardAdministrativo from "./pages/DashboardAdministrativo";
-import RolesPermissions from "./pages/RolesPermissions";
-import CustomPermissions from "./pages/CustomPermissions";
-import PermissionAudit from "./pages/PermissionAudit";
+// Lazy load all page components
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Courses = lazy(() => import("./pages/Courses"));
+const Cases = lazy(() => import("./pages/Cases"));
+const Resources = lazy(() => import("./pages/Resources"));
+const Evaluations = lazy(() => import("./pages/Evaluations"));
+const TakeEvaluation = lazy(() => import("./pages/TakeEvaluation"));
+const CaseDetail = lazy(() => import("./pages/CaseDetail"));
+const Committee = lazy(() => import("./pages/Committee"));
+const CommitteeMemberProfile = lazy(() => import("./pages/CommitteeMemberProfile"));
+const CommitteeMemberEdit = lazy(() => import("./pages/CommitteeMemberEdit"));
+const CommitteeMemberNew = lazy(() => import('./pages/CommitteeMemberNew'));
+const PositionAcceptance = lazy(() => import('./pages/committee/PositionAcceptance'));
+const ConstitutiveAct = lazy(() => import('./pages/committee/ConstitutiveAct'));
+const OperatingRules = lazy(() => import('./pages/committee/OperatingRules'));
+const CommitteeTraining = lazy(() => import('./pages/committee/CommitteeTraining'));
+const TrendsCharts = lazy(() => import('./pages/TrendsCharts'));
+const SignatureTest = lazy(() => import('./pages/SignatureTest'));
+const JobPositions = lazy(() => import("./pages/JobPositions"));
+const Reports = lazy(() => import("./pages/Reports"));
+const AlertHistory = lazy(() => import("./pages/AlertHistory"));
+const AlertReportsConfig = lazy(() => import("./pages/AlertReportsConfig"));
+const AlertMetricsDashboard = lazy(() => import("./pages/AlertMetricsDashboard"));
+const AlertThresholdsConfig = lazy(() => import("./pages/AlertThresholdsConfig"));
+const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
+const Users = lazy(() => import("./pages/Users"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const Mailbox = lazy(() => import("./pages/Mailbox"));
+const MailboxForm = lazy(() => import("./pages/MailboxForm"));
+const MailboxDetail = lazy(() => import("./pages/MailboxDetail"));
+const Employees = lazy(() => import("./pages/Employees"));
+const EmployeeNew = lazy(() => import("./pages/EmployeeNew"));
+const EmployeeEdit = lazy(() => import("./pages/EmployeeEdit"));
+const EmployeeProfile = lazy(() => import("./pages/EmployeeProfile"));
+const EmployeeDocuments = lazy(() => import("./pages/EmployeeDocuments"));
+const EmployeeTrainingNeeds = lazy(() => import("./pages/EmployeeTrainingNeeds"));
+const EmployeeTermination = lazy(() => import("./pages/EmployeeTermination"));
+const TurnoverDashboard = lazy(() => import("./pages/TurnoverDashboard"));
+const CompetenciesDashboard = lazy(() => import("./pages/CompetenciesDashboard"));
+const SkillsMatrix = lazy(() => import("./pages/SkillsMatrix"));
+const EmployeeCompetencyEvaluation = lazy(() => import("./pages/EmployeeCompetencyEvaluation"));
+const DNCDashboard = lazy(() => import("./pages/DNCDashboard"));
+const OrganizationalCompetenciesManager = lazy(() => import("./pages/OrganizationalCompetenciesManager"));
+const MeetingMinutes = lazy(() => import("./pages/MeetingMinutes"));
+const MeetingMinuteForm = lazy(() => import("./pages/MeetingMinuteForm"));
+const Documents = lazy(() => import("./pages/Documents"));
+const CaseAssignment = lazy(() => import("./pages/CaseAssignment"));
+const DocumentActaConstitutiva = lazy(() => import("./pages/DocumentActaConstitutiva"));
+const DocumentFuncionesComite = lazy(() => import("./pages/DocumentFuncionesComite"));
+const DocumentAceptacionCargo = lazy(() => import("./pages/DocumentAceptacionCargo"));
+const DocumentActaRecorridoNOM019 = lazy(() => import("./pages/DocumentActaRecorridoNOM019"));
+const DocumentActaFinalResultados = lazy(() => import("./pages/DocumentActaFinalResultados"));
+const DocumentsHistory = lazy(() => import("./pages/DocumentsHistory"));
+const DocumentGallery = lazy(() => import("./pages/DocumentGallery"));
+const GuideI = lazy(() => import("./pages/surveys/GuideI"));
+const ComplianceChecklist = lazy(() => import("./pages/ComplianceChecklist"));
+const ComplianceDashboard = lazy(() => import("./pages/ComplianceDashboard"));
+const NumeralsVerification = lazy(() => import("./pages/NumeralsVerification"));
+const GuideII = lazy(() => import("./pages/surveys/GuideII"));
+const GuideIII = lazy(() => import("./pages/surveys/GuideIII"));
+const SurveysDashboard = lazy(() => import("./pages/surveys/Dashboard"));
+const SurveysTracking = lazy(() => import("./pages/surveys/Tracking"));
+const CorrectiveActions = lazy(() => import("./pages/surveys/CorrectiveActions"));
+const SurveyResults = lazy(() => import("./pages/surveys/SurveyResults"));
+const SurveyAdmin = lazy(() => import("./pages/surveys/SurveyAdmin"));
+const SurveySend = lazy(() => import("./pages/SurveySend"));
+const PublicSurvey = lazy(() => import("./pages/surveys/PublicSurvey"));
+const ActionPlan = lazy(() => import("./pages/surveys/ActionPlan"));
+const SampleSize = lazy(() => import("./pages/surveys/SampleSize"));
+const TokensDashboard = lazy(() => import("./pages/surveys/TokensDashboard"));
+const TokenManagement = lazy(() => import("./pages/TokenManagement"));
+const SurveysAdminPanel = lazy(() => import("./pages/SurveysAdminPanel"));
+const SurveyPeriodsManager = lazy(() => import("./pages/SurveyPeriodsManager"));
+const Nom035AdminPanel = lazy(() => import("./pages/Nom035AdminPanel"));
+const Policies = lazy(() => import("./pages/nom035/Policies"));
+const EvidenceFolder = lazy(() => import("./pages/nom035/EvidenceFolder"));
+const SurveyApply = lazy(() => import("./pages/SurveyApply"));
+const Settings = lazy(() => import("./pages/Settings"));
+const CompanySettings = lazy(() => import("./pages/company/CompanySettings"));
+const EqualityPolicy = lazy(() => import("./pages/equality/Policy"));
+const NOM035Questionnaire = lazy(() => import("./pages/NOM035Questionnaire"));
+const NOM035Results = lazy(() => import("./pages/NOM035Results"));
+const Departments = lazy(() => import("./pages/Departments"));
+const Positions = lazy(() => import("./pages/Positions"));
+const OrganizationDashboard = lazy(() => import("./pages/OrganizationDashboard"));
+const OrganizationChart = lazy(() => import("./pages/OrganizationChart"));
+const OrganizationalChanges = lazy(() => import("./pages/OrganizationalChanges"));
+const EqualitySalaryGap = lazy(() => import("./pages/equality/SalaryGap"));
+const EqualityAffirmativeActions = lazy(() => import("./pages/equality/AffirmativeActions"));
+const MassiveImport = lazy(() => import("./pages/MassiveImport"));
+const EqualityComplaints = lazy(() => import("./pages/equality/Complaints"));
+const EqualityCommittee = lazy(() => import("./pages/equality/Committee"));
+const RegulatoryReports = lazy(() => import("./pages/RegulatoryReports"));
+const MassSurveyEmail = lazy(() => import("./pages/surveys/MassSurveyEmail"));
+const JobApplication = lazy(() => import("./pages/JobApplication"));
+const ApplicationSuccess = lazy(() => import("./pages/ApplicationSuccess"));
+const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
+const Investigations = lazy(() => import("./pages/cases/Investigations"));
+const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
+const QuestionnairePublic = lazy(() => import("./pages/public/QuestionnairePublic"));
+const VerifyReport = lazy(() => import("./pages/VerifyReport"));
+const DocumentFormats = lazy(() => import("./pages/DocumentFormats"));
+const ReportsHistory = lazy(() => import("./pages/ReportsHistory"));
+const DocumentAudit = lazy(() => import("./pages/DocumentAudit"));
+const SecurityAlerts = lazy(() => import("./pages/SecurityAlerts"));
+const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
+const RiskAnalysis = lazy(() => import("./pages/RiskAnalysis"));
+const CommitteeMinutesManagement = lazy(() => import("./pages/CommitteeMinutesManagement"));
+const AgreementsDashboard = lazy(() => import("./pages/AgreementsDashboard"));
+const TrainingCertificates = lazy(() => import("./pages/TrainingCertificates"));
+const EfirmaSAT = lazy(() => import("./pages/EfirmaSAT"));
+const TrainingDashboard = lazy(() => import("./pages/TrainingDashboard"));
+const AssessmentsManagement = lazy(() => import("./pages/AssessmentsManagement"));
+const QuestionBank = lazy(() => import("./pages/QuestionBank"));
+const TakeExam = lazy(() => import("./pages/TakeExam"));
+const ExamResults = lazy(() => import("./pages/ExamResults"));
+const NotificationsDashboard = lazy(() => import("./pages/NotificationsDashboard"));
+const Surveys = lazy(() => import("./pages/Surveys"));
+const Prevention = lazy(() => import("./pages/Prevention"));
+const Compliance = lazy(() => import("./pages/Compliance"));
+const STPSReports = lazy(() => import("./pages/STPSReports"));
+const Payments = lazy(() => import("./pages/Payments"));
+const PurchaseOrders = lazy(() => import("./pages/PurchaseOrders"));
+const ExpenseRequests = lazy(() => import("./pages/ExpenseRequests"));
+const DashboardAdministrativo = lazy(() => import("./pages/DashboardAdministrativo"));
+const RolesPermissions = lazy(() => import("./pages/RolesPermissions"));
+const CustomPermissions = lazy(() => import("./pages/CustomPermissions"));
+const PermissionAudit = lazy(() => import("./pages/PermissionAudit"));
+
+// Loading fallback component - usa SkeletonLoader para mejor UX
+const PageLoader = () => (
+  <div className="container py-6">
+    <SkeletonLoader variant="dashboard" rows={3} />
+  </div>
+);
 
 function Router() {
   return (
-    <Switch>
-      <Route path={"/"}>
-        <DashboardLayout>
-          <Dashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/courses"}>
-        <DashboardLayout>
-          <Courses />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/cases"}>
-        <DashboardLayout>
-          <Cases />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/resources"}>
-        <DashboardLayout>
-          <Resources />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/evaluations"}>
-        <DashboardLayout>
-          <Evaluations />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/evaluations/:id/take"}>
-        <DashboardLayout>
-          <TakeEvaluation />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/cases/investigations"}>
-        <DashboardLayout>
-          <Investigations />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/cases/workplace-violence"}>
-        <DashboardLayout>
-          <WorkplaceViolenceProtocol />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/cases/:id"}>
-        <DashboardLayout>
-          <CaseDetail />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/committee"}>
-        <DashboardLayout>
-          <Committee />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/committee/:id"}>
-        <DashboardLayout>
-          <CommitteeMemberProfile />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/committee/:id/edit"}>
-        <DashboardLayout>
-          <CommitteeMemberEdit />
-        </DashboardLayout>
-      </Route>
-       <Route path="/committee/new">
-        <DashboardLayout>
-          <CommitteeMemberNew />
-        </DashboardLayout>
-      </Route>
-      <Route path="/committee/position-acceptance">
-        <DashboardLayout>
-          <PositionAcceptance />
-        </DashboardLayout>
-      </Route>
-      <Route path="/committee/constitutive-act">
-        <DashboardLayout>
-          <ConstitutiveAct />
-        </DashboardLayout>
-      </Route>
-      <Route path="/committee/operating-rules">
-        <DashboardLayout>
-          <OperatingRules />
-        </DashboardLayout>
-      </Route>
-      <Route path="/committee/training">
-        <DashboardLayout>
-          <CommitteeTraining />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/signature-test"}>
-        <DashboardLayout>
-          <SignatureTest />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/job-positions"}>
-        <DashboardLayout>
-          <JobPositions />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/reports"}>
-        <DashboardLayout>
-          <Reports />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/reports/regulatory"}>
-        <DashboardLayout>
-          <RegulatoryReports />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/alert-history"}>
-        <DashboardLayout>
-          <AlertHistory />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/alert-reports-config"}>
-        <DashboardLayout>
-          <AlertReportsConfig />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/alert-metrics"}>
-        <DashboardLayout>
-          <AlertMetricsDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/alert-thresholds"}>
-        <DashboardLayout>
-          <AlertThresholdsConfig />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/notification-history"}>
-        <DashboardLayout>
-          <NotificationHistory />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/competencies-dashboard"}>
-        <DashboardLayout>
-          <CompetenciesDashboard />
-        </DashboardLayout>
-      </Route>      <Route path={"/skills-matrix"}>
-        <DashboardLayout>
-          <SkillsMatrix />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/competency-evaluation"}>
-        <DashboardLayout>
-          <EmployeeCompetencyEvaluation />
-        </DashboardLayout>
-      </Route>
-      <Route path="/dnc-dashboard">
-        <DashboardLayout>
-          <DNCDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path="/competencies-manager">
-        <DashboardLayout>
-          <OrganizationalCompetenciesManager />
-        </DashboardLayout>
-      </Route>
-      <Route path="/risk-analysis">
-        <DashboardLayout>
-          <RiskAnalysis />
-        </DashboardLayout>
-      </Route>
-      <Route path="/committee-minutes-management">
-        <DashboardLayout>
-          <CommitteeMinutesManagement />
-        </DashboardLayout>
-      </Route>
-      <Route path="/agreements-dashboard">
-        <DashboardLayout>
-          <AgreementsDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path="/training-certificates">
-        <DashboardLayout>
-          <TrainingCertificates />
-        </DashboardLayout>
-      </Route>
-      <Route path="/efirma-sat">
-        <DashboardLayout>
-          <EfirmaSAT />
-        </DashboardLayout>
-      </Route>      <Route path={"/training-dashboard"}>
-        <DashboardLayout>
-          <TrainingDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/stps-reports"}>
-        <DashboardLayout>
-          <STPSReports />
-        </DashboardLayout>
-      </Route>      <Route path="/assessments">
-        <DashboardLayout>
-          <AssessmentsManagement />
-        </DashboardLayout>
-      </Route>
-      <Route path="/assessments/:id/questions">
-        <DashboardLayout>
-          <QuestionBank />
-        </DashboardLayout>
-      </Route>
-      <Route path="/exams/:id/take">
-        <DashboardLayout>
-          <TakeExam />
-        </DashboardLayout>
-      </Route>
-      <Route path="/exams/:assessmentId/results/:attemptId">
-        <DashboardLayout>
-          <ExamResults />
-        </DashboardLayout>
-      </Route>
-      <Route path="/notifications-dashboard">
-        <DashboardLayout>
-          <NotificationsDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path="/surveys">
-        <Surveys />
-      </Route>
-      <Route path="/prevention">
-        <Prevention />
-      </Route>
-      <Route path="/compliance">
-        <Compliance />
-      </Route>
-      <Route path={"/meeting-minutes"}>
-        <DashboardLayout>
-          <MeetingMinutes />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/meeting-minutes/new"}>
-        <DashboardLayout>
-          <MeetingMinuteForm />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/trends"}>
-        <DashboardLayout>
-          <TrendsCharts />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/users"}>
-        <DashboardLayout>
-          <Users />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/settings"}>
-        <DashboardLayout>
-          <Settings />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/profile"}>
-        <DashboardLayout>
-          <Profile />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/notifications"}>
-        <DashboardLayout>
-          <Notifications />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/mailbox"}>
-        <DashboardLayout>
-          <Mailbox />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/mailbox/form"}>
-        <DashboardLayout>
-          <MailboxForm />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/mailbox/:id"}>
-        <DashboardLayout>
-          <MailboxDetail />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees"}>
-        <DashboardLayout>
-          <Employees />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/new"}>
-        <DashboardLayout>
-          <EmployeeNew />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/:id/edit"}>
-        <DashboardLayout>
-          <EmployeeEdit />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/:id"}>
-        <DashboardLayout>
-          <EmployeeProfile />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/:id/documents"}>
-        <DashboardLayout>
-          <EmployeeDocuments />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/:id/training-needs"}>
-        <DashboardLayout>
-          <EmployeeTrainingNeeds />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/terminate"}>
-        <DashboardLayout>
-          <EmployeeTermination />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/employees/turnover"}>
-        <DashboardLayout>
-          <TurnoverDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents"}>
-        <DashboardLayout>
-          <Documents />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/cases/assign"}>
-        <DashboardLayout>
-          <CaseAssignment />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/acta-constitutiva"}>
-        <DashboardLayout>
-          <DocumentActaConstitutiva />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/funciones-comite"}>
-        <DashboardLayout>
-          <DocumentFuncionesComite />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/aceptacion-cargo"}>
-        <DashboardLayout>
-          <DocumentAceptacionCargo />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/acta-recorrido-nom019"}>
-        <DashboardLayout>
-          <DocumentActaRecorridoNOM019 />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/acta-final-resultados"}>
-        <DashboardLayout>
-          <DocumentActaFinalResultados />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/history"}>
-        <DashboardLayout>
-          <DocumentsHistory />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/documents/gallery"}>
-        <DashboardLayout>
-          <DocumentGallery />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/dashboard"}>
-        <DashboardLayout>
-          <SurveysDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/send"}>
-        <DashboardLayout>
-          <SurveySend />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/guide-i"}>
-        <DashboardLayout>
-          <GuideI />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/guide-ii"}>
-        <DashboardLayout>
-          <GuideII />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/guide-iii"}>
-        <DashboardLayout>
-          <GuideIII />
-        </DashboardLayout>
-      </Route>
-
-      <Route path={"/surveys/tracking"}>
-        <DashboardLayout>
-          <SurveysTracking />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/corrective-actions"}>
-        <DashboardLayout>
-          <CorrectiveActions />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/results/:responseId"}>
-        <DashboardLayout>
-          <SurveyResults />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/admin"}>
-        <DashboardLayout>
-          <SurveyAdmin />
-        </DashboardLayout>
-      </Route>
-      {/* Ruta pública para responder encuestas sin autenticación */}
-      <Route path={"/survey/public/:token"}>
-        <PublicSurvey />
-      </Route>
-      {/* Ruta pública para responder cuestionarios de investigación (mobbing/burnout) */}
-      <Route path={"/questionnaire/:token"}>
-        <QuestionnairePublic />
-      </Route>
-      {/* Ruta pública para verificar autenticidad de reportes (NOM-151) */}
-      <Route path={"/verify/:uuid"}>
-        <VerifyReport />
-      </Route>
-      {/* Ruta pública para postulación a vacantes */}
-      <Route path={"/apply/:jobId"}>
-        <JobApplication />
-      </Route>
-      {/* Ruta pública de confirmación de postulación */}
-      <Route path={"/application-success"}>
-        <ApplicationSuccess />
-      </Route>
-      <Route path={"/surveys/action-plan/:surveyId"}>
-        <DashboardLayout>
-          <ActionPlan />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/sample-size"}>
-        <DashboardLayout>
-          <SampleSize />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/tokens-dashboard"}>
-        <DashboardLayout>
-          <TokensDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/token-management"}>
-        <DashboardLayout>
-          <TokenManagement />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/mass-email"}>
-        <DashboardLayout>
-          <MassSurveyEmail />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/admin-panel"}>
-        <DashboardLayout>
-          <SurveysAdminPanel />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/periods"}>
-        <DashboardLayout>
-          <SurveyPeriodsManager />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/surveys/nom035-admin"}>
-        <DashboardLayout>
-          <Nom035AdminPanel />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/nom035/policies"}>
-        <DashboardLayout>
-          <Policies />
-        </DashboardLayout>
-      </Route>
-        <Route path={"/nom035/evidences"}>
-        <DashboardLayout>
-          <EvidenceFolder />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/nom035/questionnaire"}>
-        <DashboardLayout>
-          <NOM035Questionnaire />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/nom035/results"}>
-        <DashboardLayout>
-          <NOM035Results />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/departments"}>
-        <DashboardLayout>
-          <Departments />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/positions"}>
-        <DashboardLayout>
-          <Positions />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/organization/dashboard"}>
-        <DashboardLayout>
-          <OrganizationDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/organization/chart"}>
-        <DashboardLayout>
-          <OrganizationChart />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/organization/changes"}>
-        <DashboardLayout>
-          <OrganizationalChanges />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/alerts"}>
-        <DashboardLayout>
-          <EarlyWarnings />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/compliance"}>
-        <DashboardLayout>
-          <ComplianceDashboard />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/compliance/checklist"}>
-        <DashboardLayout>
-          <ComplianceChecklist />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/compliance/numerals"}>
-        <DashboardLayout>
-          <NumeralsVerification />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/document-formats"}>
-        <DashboardLayout>
-          <DocumentFormats />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/report-templates"}>
-        <DashboardLayout>
-          <ReportTemplates />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/compliance/reports-history"}>
-        <DashboardLayout>
-          <ReportsHistory />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/document-audit"}>
-        <DashboardLayout>
-          <DocumentAudit />
-        </DashboardLayout>
-      </Route>
-
-      <Route path={"/security-alerts"}>
-        <DashboardLayout>
-          <SecurityAlerts />
-        </DashboardLayout>
-      </Route>
-      {/* Ruta pública de aplicación de encuestas */}
-      <Route path="/survey/apply" component={SurveyApply} />
-      
-      {/* Ruta de Importación Masiva */}
-      <Route path={"/admin/import"}>
-        <DashboardLayout>
-          <MassiveImport />
-        </DashboardLayout>
-      </Route>
-
-      {/* Ruta de Empresa (Consolidada) */}
-      <Route path={"/company"}>
-        <DashboardLayout>
-          <CompanySettings />
-        </DashboardLayout>
-      </Route>
-
-      {/* Rutas de Igualdad Laboral NMX-025 */}
-      <Route path={"/equality/policy"}>
-        <DashboardLayout>
-          <EqualityPolicy />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/equality/salary-gap"}>
-        <DashboardLayout>
-          <EqualitySalaryGap />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/equality/affirmative-actions"}>
-        <DashboardLayout>
-          <EqualityAffirmativeActions />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/equality/complaints"}>
-        <DashboardLayout>
-          <EqualityComplaints />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/equality/committee"}>
-        <DashboardLayout>
-          <EqualityCommittee />
-        </DashboardLayout>
-      </Route>
-      
-      {/* Rutas Administrativas y Financieras */}
-      <Route path={"/administrative"}>
-        <DashboardLayout>
-          <DashboardAdministrativo />
-        </DashboardLayout>
-      </Route>
-      
-      <Route path={"/administrative/payments"}>
-        <DashboardLayout>
-          <Payments />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/administrative/purchase-orders"}>
-        <DashboardLayout>
-          <PurchaseOrders />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/administrative/expenses"}>
-        <DashboardLayout>
-          <ExpenseRequests />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/administrative/roles-permissions"}>
-        <DashboardLayout>
-          <RolesPermissions />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/administrative/custom-permissions"}>
-        <DashboardLayout>
-          <CustomPermissions />
-        </DashboardLayout>
-      </Route>
-      <Route path={"/administrative/permission-audit"}>
-        <DashboardLayout>
-          <PermissionAudit />
-        </DashboardLayout>
-      </Route>
-      
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<PageLoader />}>
+      <Switch>
+        <Route path={"/"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Dashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/courses"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Courses />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/cases"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Cases />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/resources"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Resources />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/evaluations"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Evaluations />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/evaluations/:id/take"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TakeEvaluation />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/cases/investigations"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Investigations />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/cases/workplace-violence"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <WorkplaceViolenceProtocol />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/cases/:id"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CaseDetail />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Committee />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/:id"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeMemberProfile />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/:id/edit"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeMemberEdit />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/new"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeMemberNew />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/position-acceptance"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PositionAcceptance />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/constitutive-act"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ConstitutiveAct />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/operating-rules"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OperatingRules />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/training"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeTraining />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/trends"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TrendsCharts />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/signature-test"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SignatureTest />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/job-positions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <JobPositions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/reports"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Reports />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alert-history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alert-reports-config"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertReportsConfig />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alert-metrics"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertMetricsDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alert-thresholds"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertThresholdsConfig />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/notification-history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NotificationHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/users"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Users />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/profile"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Profile />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/notifications"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Notifications />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/mailbox"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Mailbox />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/mailbox/new"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MailboxForm />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/mailbox/:id"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MailboxDetail />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Employees />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/new"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeNew />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/:id/edit"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeEdit />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/:id"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeProfile />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/:id/documents"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeDocuments />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/:id/training-needs"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeTrainingNeeds />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/:id/termination"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeTermination />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/turnover-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TurnoverDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/competencies-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CompetenciesDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/skills-matrix"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SkillsMatrix />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/:id/competency-evaluation"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeCompetencyEvaluation />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/dnc-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DNCDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organizational-competencies"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationalCompetenciesManager />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/meeting-minutes"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MeetingMinutes />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/meeting-minutes/new"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MeetingMinuteForm />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/meeting-minutes/:id/edit"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MeetingMinuteForm />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Documents />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/cases/assignment"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CaseAssignment />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents/acta-constitutiva"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentActaConstitutiva />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents/funciones-comite"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentFuncionesComite />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents/aceptacion-cargo"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentAceptacionCargo />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents/acta-recorrido-nom019"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentActaRecorridoNOM019 />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents/acta-final-resultados"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentActaFinalResultados />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/documents-history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentsHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/document-gallery"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentGallery />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/guide-i"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <GuideI />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/compliance-checklist"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ComplianceChecklist />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/compliance-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ComplianceDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/numerals-verification"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NumeralsVerification />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/guide-ii"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <GuideII />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/guide-iii"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <GuideIII />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveysDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/tracking"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveysTracking />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/corrective-actions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CorrectiveActions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/results"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveyResults />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/admin"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveyAdmin />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/send"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveySend />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/public/:token"}>
+          <Suspense fallback={<PageLoader />}>
+            <PublicSurvey />
+          </Suspense>
+        </Route>
+        <Route path={"/surveys/action-plan"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ActionPlan />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/sample-size"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SampleSize />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/tokens"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TokensDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/token-management"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TokenManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys-admin-panel"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveysAdminPanel />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/survey-periods"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveyPeriodsManager />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nom035-admin"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Nom035AdminPanel />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nom035/policies"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Policies />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nom035/evidence"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EvidenceFolder />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/survey-apply/:token"}>
+          <Suspense fallback={<PageLoader />}>
+            <SurveyApply />
+          </Suspense>
+        </Route>
+        <Route path={"/settings"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Settings />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/company/settings"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CompanySettings />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/equality/policy"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EqualityPolicy />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nom035-questionnaire"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NOM035Questionnaire />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nom035-results"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NOM035Results />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/departments"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Departments />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/positions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Positions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organization-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organization-chart"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationChart />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organizational-changes"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationalChanges />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/equality/salary-gap"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EqualitySalaryGap />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/equality/affirmative-actions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EqualityAffirmativeActions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/massive-import"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MassiveImport />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/equality/complaints"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EqualityComplaints />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/equality/committee"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EqualityCommittee />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/regulatory-reports"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RegulatoryReports />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/mass-email"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MassSurveyEmail />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/job-application"}>
+          <Suspense fallback={<PageLoader />}>
+            <JobApplication />
+          </Suspense>
+        </Route>
+        <Route path={"/application-success"}>
+          <Suspense fallback={<PageLoader />}>
+            <ApplicationSuccess />
+          </Suspense>
+        </Route>
+        <Route path={"/early-warnings"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EarlyWarnings />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/questionnaire/:token"}>
+          <Suspense fallback={<PageLoader />}>
+            <QuestionnairePublic />
+          </Suspense>
+        </Route>
+        <Route path={"/verify-report/:id"}>
+          <Suspense fallback={<PageLoader />}>
+            <VerifyReport />
+          </Suspense>
+        </Route>
+        <Route path={"/document-formats"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentFormats />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/reports-history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ReportsHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/document-audit"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DocumentAudit />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/security-alerts"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SecurityAlerts />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/report-templates"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ReportTemplates />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/risk-analysis"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RiskAnalysis />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee-minutes"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeMinutesManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/agreements-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AgreementsDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/training-certificates"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TrainingCertificates />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/efirma-sat"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EfirmaSAT />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/training-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TrainingDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/assessments"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AssessmentsManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/question-bank"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <QuestionBank />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/take-exam/:id"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TakeExam />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/exam-results/:id"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ExamResults />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/notifications-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NotificationsDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys-list"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Surveys />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/prevention"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Prevention />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/compliance"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Compliance />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/stps-reports"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <STPSReports />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/payments"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Payments />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/purchase-orders"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PurchaseOrders />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/expense-requests"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ExpenseRequests />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DashboardAdministrativo />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/roles-permissions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RolesPermissions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/custom-permissions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CustomPermissions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/administrative/permission-audit"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PermissionAudit />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route>
+          <NotFound />
+        </Route>
+      </Switch>
+    </Suspense>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <Toaster />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
 }
-
-export default App;
