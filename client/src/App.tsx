@@ -7,6 +7,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SkeletonLoader from "./components/SkeletonLoader";
+import SkipLink from "./components/SkipLink";
+import { useShortcutsHelp } from "./hooks/useKeyboardShortcuts";
 
 // Lazy load all page components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -1049,10 +1051,14 @@ function Router() {
 }
 
 export default function App() {
+  // Hook para ayuda de atajos de teclado (Ctrl+/)
+  useShortcutsHelp();
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          <SkipLink />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
