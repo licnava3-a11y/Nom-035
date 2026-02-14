@@ -492,7 +492,7 @@ export const skillsMatrixRouter = router({
         name: departments.name,
       })
         .from(departments)
-        .innerJoin(employees, eq(employees.departamento, departments.id))
+        .innerJoin(employees, eq(employees.departmentId, departments.id))
         .groupBy(departments.id, departments.name)
         .orderBy(departments.name);
       
@@ -510,13 +510,21 @@ export const skillsMatrixRouter = router({
       // Get employees in this department
       const employeesList = await db.select({
         id: employees.id,
-        name: employees.fullName,
+        firstName: employees.firstName,
+        lastName: employees.lastName,
         position: positions.title,
       })
         .from(employees)
         .leftJoin(positions, eq(employees.positionId, positions.id))
         .where(eq(employees.departmentId, input.departmentId))
-        .orderBy(employees.fullName);
+        .orderBy(employees.firstName);
+      
+      // Combine firstName and lastName into name
+      const employeesWithName = employeesList.map(emp => ({
+        id: emp.id,
+        name: `${emp.firstName} ${emp.lastName}`,
+        position: emp.position,
+      }));
       
       if (employeesList.length === 0) {
         return {
@@ -543,7 +551,7 @@ export const skillsMatrixRouter = router({
         .where(eq(departments.id, input.departmentId));
       
       return {
-        employees: employeesList,
+        employees: employeesWithName,
         competencies: competenciesList,
         matrix: matrixData,
         departmentName: dept?.name || "Departamento Desconocido",
