@@ -2893,3 +2893,23 @@ export const userNotificationPreferences = mysqlTable("user_notification_prefere
 export type UserNotificationPreference = typeof userNotificationPreferences.$inferSelect;
 export type InsertUserNotificationPreference = typeof userNotificationPreferences.$inferInsert;
 
+/**
+ * Nine Box Grid Assessments
+ * Stores talent assessment data combining performance and potential
+ */
+export const nineBoxAssessments = mysqlTable("nine_box_assessments", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull().references(() => employees.id, { onDelete: "cascade" }),
+  performanceScore: int("performance_score").notNull(), // 1-3 (Low, Medium, High)
+  potentialScore: int("potential_score").notNull(), // 1-3 (Low, Medium, High)
+  quadrant: varchar("quadrant", { length: 50 }).notNull(), // e.g., "High Potential - High Performance"
+  assessmentDate: date("assessment_date").notNull(),
+  assessedBy: int("assessed_by").references(() => users.id), // Who performed the assessment
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NineBoxAssessment = typeof nineBoxAssessments.$inferSelect;
+export type InsertNineBoxAssessment = typeof nineBoxAssessments.$inferInsert;
+

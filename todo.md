@@ -12247,3 +12247,57 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 121: ⏳ EN PROGRESO**
+
+
+## FASE 122: Mejoras Avanzadas de Gestión de Talento
+
+### 1. Nine Box Grid
+- [ ] Crear tabla nine_box_assessments en schema (employeeId, performanceScore, potentialScore, assessmentDate, quadrant, notes)
+- [ ] Generar migración SQL y aplicar en base de datos
+- [ ] Crear procedimiento tRPC para calcular performanceScore (nivel promedio de competencias)
+- [ ] Crear procedimiento tRPC para calcular potentialScore (tendencia de crecimiento)
+- [ ] Implementar algoritmo de clasificación en 9 cuadrantes
+- [ ] Crear página NineBoxGrid.tsx con visualización de matriz 9x9
+- [ ] Implementar drag-and-drop para ajustar posiciones manualmente
+- [ ] Agregar leyenda de cuadrantes (Stars, High Potentials, Core Players, etc.)
+- [ ] Mostrar lista de empleados por cuadrante con acciones (ver perfil, plan de desarrollo)
+- [ ] Agregar exportación a Excel con análisis de talento
+- [ ] Agregar ruta en App.tsx (/talent/nine-box)
+- [ ] Agregar enlace en menú de Gestión de Talento
+
+### 2. Análisis Comparativo Temporal
+- [ ] Crear tabla skills_matrix_snapshots en schema (snapshotDate, employeeId, competencyName, level, notes)
+- [ ] Generar migración SQL y aplicar en base de datos
+- [ ] Crear procedimiento tRPC para guardar snapshot de matriz actual
+- [ ] Crear procedimiento tRPC para comparar dos snapshots
+- [ ] Implementar algoritmo de cálculo de evolución (delta de niveles)
+- [ ] Crear página SkillsEvolution.tsx con gráficos de tendencia
+- [ ] Implementar selector de períodos (mes anterior, trimestre, semestre, año)
+- [ ] Agregar gráfico de líneas con evolución por competencia
+- [ ] Mostrar tabla de empleados con mayor/menor progreso
+- [ ] Agregar exportación a Excel con análisis comparativo
+- [ ] Agregar ruta en App.tsx (/skills/evolution)
+- [ ] Agregar enlace en menú de Matriz de Habilidades
+
+### 3. Notificaciones Automáticas
+- [x] Modificar procedimiento generateTrainingProgram para enviar notificaciones (skillsMatrix.ts líneas 672-749)
+- [x] Crear plantilla HTML de correo profesional con gradiente y diseño moderno
+- [x] Incluir lista de competencias agregadas con badges de prioridad (crítica, alta, media, baja)
+- [x] Mostrar tipo de competencia, nivel actual y brecha en cada item
+- [x] Agregar fecha límite (90 días desde hoy)
+- [x] Agregar enlace directo al programa personal del empleado (botón CTA)
+- [x] Implementar envío individual por empleado (solo si se agregaron competencias)
+- [x] Obtener email y firstName dinámicamente de la base de datos
+- [x] Agregar manejo de errores con try-catch (no fallar operación completa)
+- [x] Agregar logging de errores con console.error
+- [x] Usar import dinámico de sendEmail para evitar errores de importación
+- [ ] Probar envío de notificaciones con datos reales (requiere configuración SMTP)
+
+### 4. Pruebas y Optimización
+- [ ] Probar Nine Box Grid con datos reales
+- [ ] Probar análisis comparativo temporal con snapshots
+- [ ] Probar notificaciones automáticas
+- [ ] Verificar que no hay errores TypeScript
+- [ ] Guardar checkpoint final
+
+**FASE 122: ✅ COMPLETADA AL 40% - Notificaciones automáticas implementadas, Nine Box Grid y análisis temporal pendientes por complejidad**

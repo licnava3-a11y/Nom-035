@@ -668,6 +668,85 @@ export const skillsMatrixRouter = router({
           employeeName: data.name,
           competenciesAdded,
         });
+
+        // Enviar notificación por correo si se agregaron competencias
+        if (competenciesAdded > 0) {
+          try {
+            // Obtener email del empleado
+            const employee = await db
+              .select({ email: employees.email, firstName: employees.firstName })
+              .from(employees)
+              .where(eq(employees.id, employeeId))
+              .limit(1);
+
+            if (employee.length > 0 && employee[0].email) {
+              const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+    .competency-item { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #667eea; border-radius: 5px; }
+    .priority-badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .priority-critica { background: #ef4444; color: white; }
+    .priority-alta { background: #f97316; color: white; }
+    .priority-media { background: #eab308; color: white; }
+    .priority-baja { background: #22c55e; color: white; }
+    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Nuevas Competencias en tu Programa de Capacitación</h1>
+    </div>
+    <div class="content">
+      <p>Hola <strong>${employee[0].firstName}</strong>,</p>
+      <p>Se han agregado <strong>${competenciesAdded} nuevas competencias</strong> a tu programa personal de capacitación basadas en el análisis de desarrollo de la Matriz de Habilidades.</p>
+      
+      <h3>📚 Competencias Agregadas:</h3>
+      ${data.gaps.map(gap => `
+        <div class="competency-item">
+          <strong>${gap.competencyName}</strong>
+          <span class="priority-badge priority-${gap.priority}">${gap.priority.toUpperCase()}</span>
+          <br>
+          <small>Tipo: ${gap.competencyType} | Nivel actual: ${gap.currentLevel} | Brecha: ${gap.gap} niveles</small>
+        </div>
+      `).join('')}
+      
+      <p><strong>Fecha límite:</strong> 90 días desde hoy</p>
+      <p>Te recomendamos revisar tu programa de capacitación y comenzar a trabajar en estas competencias prioritarias para alcanzar el nivel avanzado requerido.</p>
+      
+      <a href="${process.env.VITE_OAUTH_PORTAL_URL || 'https://app.manus.im'}/training/my-program" class="btn">
+        Ver Mi Programa de Capacitación
+      </a>
+    </div>
+    <div class="footer">
+      <p>Este correo fue generado automáticamente por el sistema de Gestión de Talento.</p>
+      <p>Si tienes alguna pregunta, contacta a tu coordinador de capacitación.</p>
+    </div>
+  </div>
+</body>
+</html>
+              `;
+
+              // Importar sendEmail dinámicamente para evitar errores de importación
+              const { sendEmail } = await import("../_core/email-sender");
+              await sendEmail({
+                to: employee[0].email,
+                subject: `🎯 ${competenciesAdded} Nuevas Competencias en tu Programa de Capacitación`,
+                html: emailHtml,
+              });
+            }
+          } catch (emailError) {
+            console.error(`Error al enviar notificación a empleado ${employeeId}:`, emailError);
+            // No fallar la operación completa si falla el envío de correo
+          }
+        }
       }
 
       return {

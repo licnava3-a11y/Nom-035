@@ -491,6 +491,13 @@
       "when": 1771070290624,
       "tag": "0069_sloppy_johnny_blaze",
       "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "5",
+      "when": 1771084436357,
+      "tag": "0070_perpetual_eddie_brock",
+      "breakpoints": true
     }
   ]
 }
