@@ -29,6 +29,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 export default function SkillsMatrixSnapshots() {
   const [snapshot1Id, setSnapshot1Id] = useState<number | undefined>();
   const [snapshot2Id, setSnapshot2Id] = useState<number | undefined>();
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | undefined>();
 
   // Queries
   const { data: snapshotsData, refetch } = trpc.skillsMatrixSnapshots.getAll.useQuery({
@@ -36,7 +37,11 @@ export default function SkillsMatrixSnapshots() {
     offset: 0,
   });
 
-  const { data: trendData } = trpc.skillsMatrixSnapshots.getTrendData.useQuery({});
+  const { data: trendData } = trpc.skillsMatrixSnapshots.getTrendData.useQuery({
+    departmentId: selectedDepartmentId,
+  });
+
+  const { data: departmentsData } = trpc.departments.getAll.useQuery({});
 
   const { data: comparisonData, isLoading: isComparing } = trpc.skillsMatrixSnapshots.compareSnapshots.useQuery(
     {
@@ -282,13 +287,44 @@ export default function SkillsMatrixSnapshots() {
         </Link>
       </div>
 
+      {/* Department Filter for Trends */}
+      {trendData && trendData.labels.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Filtrar Gráficos de Tendencia</CardTitle>
+            <CardDescription>Selecciona un departamento para ver su evolución temporal</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-md">
+              <label className="text-sm font-medium mb-2 block">Departamento</label>
+              <Select
+                value={selectedDepartmentId?.toString() || "all"}
+                onValueChange={(value) => setSelectedDepartmentId(value === "all" ? undefined : Number(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los departamentos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los departamentos</SelectItem>
+                  {departmentsData?.departments.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id.toString()}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Trend Charts */}
       {trendData && trendData.labels.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Average Level Trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Evolución del Nivel Promedio</CardTitle>
+              <CardTitle className="text-lg">Evolución del Nivel Promedio{selectedDepartmentId && departmentsData ? ` - ${departmentsData.departments.find(d => d.id === selectedDepartmentId)?.name}` : " - Todos los departamentos"}</CardTitle>
               <CardDescription>Tendencia del nivel de competencias a lo largo del tiempo</CardDescription>
             </CardHeader>
             <CardContent>

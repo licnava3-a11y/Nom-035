@@ -505,6 +505,20 @@
       "when": 1771092506696,
       "tag": "0071_violet_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "5",
+      "when": 1771101709807,
+      "tag": "0072_public_wolverine",
+      "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "5",
+      "when": 1771101778293,
+      "tag": "0073_great_grandmaster",
+      "breakpoints": true
     }
   ]
 }

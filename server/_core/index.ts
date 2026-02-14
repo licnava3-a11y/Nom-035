@@ -19,6 +19,8 @@ import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
 import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
 import { runPredictiveAlertsJob } from "../jobs/predictiveAlertsJob";
+import { generateMonthlySnapshots } from "../jobs/autoSnapshotsJob";
+import { detectCompetencyRegressions } from "../jobs/competencyRegressionAlertsJob";
 import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -130,6 +132,24 @@ async function startServer() {
       const now = new Date();
       if (now.getHours() === 8 && now.getMinutes() === 0) {
         runPredictiveAlertsJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
+
+    // Schedule automatic snapshots job (monthly on 1st at 00:00)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getDate() === 1 && now.getHours() === 0 && now.getMinutes() === 0) {
+        console.log("[Auto Snapshots Job] Triggering monthly snapshots generation");
+        generateMonthlySnapshots().catch(console.error);
+      }
+    }, 60000); // Check every minute
+
+    // Schedule competency regression alerts job (daily at 9:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 9 && now.getMinutes() === 0) {
+        console.log("[Competency Regression Job] Triggering regression detection");
+        detectCompetencyRegressions().catch(console.error);
       }
     }, 60000); // Check every minute
     

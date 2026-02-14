@@ -2954,3 +2954,28 @@ export const skillsMatrixSnapshots = mysqlTable("skills_matrix_snapshots", {
 
 export type SkillsMatrixSnapshot = typeof skillsMatrixSnapshots.$inferSelect;
 export type InsertSkillsMatrixSnapshot = typeof skillsMatrixSnapshots.$inferInsert;
+
+
+/**
+ * Competency Regression Alerts
+ * Tracks significant drops in employee competency levels
+ */
+export const competencyRegressionAlerts = mysqlTable("competency_regression_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull().references(() => employees.id),
+  snapshotId: int("snapshot_id").notNull(),
+  previousSnapshotId: int("prev_snapshot_id").notNull(),
+  competencyId: int("competency_id").notNull().references(() => organizationalCompetencies.id),
+  previousLevel: int("previous_level").notNull(), // 0-4
+  currentLevel: int("current_level").notNull(), // 0-4
+  levelDrop: int("level_drop").notNull(), // Negative number indicating drop
+  alertDate: timestamp("alert_date").defaultNow().notNull(),
+  notificationSent: boolean("notification_sent").default(false).notNull(),
+  resolvedAt: timestamp("resolved_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CompetencyRegressionAlert = typeof competencyRegressionAlerts.$inferSelect;
+export type InsertCompetencyRegressionAlert = typeof competencyRegressionAlerts.$inferInsert;
