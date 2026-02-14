@@ -34,6 +34,9 @@ export default function AnonymousSurveyAccess() {
       });
       setIsValidating(false);
       
+      // Guardar token en sessionStorage para que los formularios lo detecten
+      sessionStorage.setItem('anonymousToken', token);
+      
       // Redirect to appropriate survey after 2 seconds
       setTimeout(() => {
         const surveyPaths: Record<string, string> = {

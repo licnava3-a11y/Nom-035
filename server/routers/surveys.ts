@@ -278,8 +278,7 @@ export const surveysRouter = router({
     }),
 
   // Enviar respuesta de encuesta
-  submitResponse: protectedProcedure
-    .use(requirePermission('can_create'))
+  submitResponse: publicProcedure
     .input(z.object({
       surveyId: z.number(),
       answers: z.array(z.object({
@@ -288,23 +287,65 @@ export const surveysRouter = router({
       })),
       responseToken: z.string().optional(), // Token opcional para validar
       curp: z.string().optional(), // Para trabajadores no registrados
+      anonymousToken: z.string().optional(), // Token anónimo para acceso sin login
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      // Verificar si ya respondió
-      const [existingResponse] = await db
-        .select()
-        .from(surveyResponses)
-        .where(and(
-          eq(surveyResponses.surveyId, input.surveyId),
-          eq(surveyResponses.userId, ctx.user!.id)
-        ))
-        .limit(1);
+      // Determinar userId según el contexto
+      let userId: number | null = null;
       
-      if (existingResponse) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Ya has respondido esta encuesta" });
+      if (input.anonymousToken) {
+        // Acceso anónimo - no requiere userId
+        // Validar que el token anónimo no haya sido usado
+        const { surveyAnonymousTokens } = await import('../../drizzle/schema');
+        const [tokenRecord] = await db
+          .select()
+          .from(surveyAnonymousTokens)
+          .where(eq(surveyAnonymousTokens.token, input.anonymousToken))
+          .limit(1);
+        
+        if (!tokenRecord) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Token anónimo no encontrado" });
+        }
+        
+        if (tokenRecord.usedAt) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Este token ya fue utilizado" });
+        }
+        
+        if (tokenRecord.isRevoked) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Este token ha sido revocado" });
+        }
+        
+        if (new Date() > tokenRecord.expiresAt) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Este token ha expirado" });
+        }
+        
+        // Marcar token anónimo como usado
+        await db
+          .update(surveyAnonymousTokens)
+          .set({ usedAt: new Date() })
+          .where(eq(surveyAnonymousTokens.token, input.anonymousToken));
+      } else if (ctx.user) {
+        // Usuario autenticado
+        userId = ctx.user.id;
+        
+        // Verificar si ya respondió
+        const [existingResponse] = await db
+          .select()
+          .from(surveyResponses)
+          .where(and(
+            eq(surveyResponses.surveyId, input.surveyId),
+            eq(surveyResponses.userId, userId)
+          ))
+          .limit(1);
+        
+        if (existingResponse) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Ya has respondido esta encuesta" });
+        }
+      } else {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Debes iniciar sesión o proporcionar un token anónimo" });
       }
       
       // Generar token único para esta respuesta
@@ -313,7 +354,7 @@ export const surveysRouter = router({
       // Crear respuesta
       await db.insert(surveyResponses).values({
         surveyId: input.surveyId,
-        userId: ctx.user!.id,
+        userId: userId, // Puede ser null para respuestas anónimas
         curp: input.curp || null,
         token: responseToken,
         completedAt: new Date(),

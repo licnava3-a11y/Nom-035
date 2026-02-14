@@ -17,9 +17,10 @@ interface SurveyFormProps {
   description: string;
   instructions: string;
   icon?: 'shield' | 'building' | 'file';
+  anonymousToken?: string; // Token para acceso anónimo (opcional)
 }
 
-export default function SurveyForm({ surveyId, title, description, instructions, icon = 'file' }: SurveyFormProps) {
+export default function SurveyForm({ surveyId, title, description, instructions, icon = 'file', anonymousToken }: SurveyFormProps) {
   const [, setLocation] = useLocation();
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,6 +102,7 @@ export default function SurveyForm({ surveyId, title, description, instructions,
     submitSurvey.mutate({
       surveyId,
       answers: formattedAnswers,
+      anonymousToken, // Incluir token si está presente
     });
   };
 

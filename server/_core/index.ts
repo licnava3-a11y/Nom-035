@@ -17,6 +17,7 @@ import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
 import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
+import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
 import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -122,6 +123,28 @@ async function startServer() {
     startSecurityAlertsJob();
     startAgreementsAlertsJob();
     startCorrectiveActionsRemindersJob();
+    
+    // Job de notificaciones de expiración de tokens anónimos (diario a las 9:00 AM)
+    const scheduleTokenExpirationJob = () => {
+      const now = new Date();
+      const next9AM = new Date(now);
+      next9AM.setHours(9, 0, 0, 0);
+      
+      if (now > next9AM) {
+        next9AM.setDate(next9AM.getDate() + 1);
+      }
+      
+      const msUntilNext9AM = next9AM.getTime() - now.getTime();
+      
+      setTimeout(() => {
+        runTokenExpirationJob();
+        setInterval(runTokenExpirationJob, 24 * 60 * 60 * 1000); // Cada 24 horas
+      }, msUntilNext9AM);
+      
+      console.log(`[Token Expiration Job] First execution scheduled for ${next9AM.toLocaleString('es-MX')}`);
+    };
+    
+    scheduleTokenExpirationJob();
   });
 }
 

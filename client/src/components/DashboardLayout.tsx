@@ -100,6 +100,7 @@ const hierarchicalMenuItems = [
       { label: "Tamaño de Muestra", path: "/surveys/sample-size", description: "Cálculo del tamaño de muestra" },
       { label: "Dashboard Tokens", path: "/surveys/tokens-dashboard", description: "Gestión de tokens de acceso" },
       { label: "Gestión de Tokens", path: "/surveys/token-management", description: "Generación y administración de tokens anónimos" },
+      { label: "Tokens Anónimos", path: "/surveys/anonymous-tokens", description: "Generación masiva de tokens para acceso sin login" },
       { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación" },
       { label: "Envío Masivo", path: "/surveys/mass-email", description: "Envío masivo de invitaciones" },
       { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo de encuestas" },
