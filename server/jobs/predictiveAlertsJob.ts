@@ -33,13 +33,13 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
     .select({
       id: alertHistory.id,
       alertType: alertHistory.alertType,
-      createdAt: alertHistory.createdAt,
+      createdAt: alertHistory.triggeredAt,
     })
     .from(alertHistory)
     .where(
-      sql`${alertHistory.alertType} = ${alertType} AND ${alertHistory.createdAt} >= ${sixMonthsAgo}`
+      sql`${alertHistory.alertType} = ${alertType} AND ${alertHistory.triggeredAt} >= ${sixMonthsAgo}`
     )
-    .orderBy(desc(alertHistory.createdAt));
+    .orderBy(desc(alertHistory.triggeredAt));
 
   if (alerts.length < 3) {
     return null; // Insufficient data

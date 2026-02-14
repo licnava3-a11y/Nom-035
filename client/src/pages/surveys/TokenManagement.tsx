@@ -23,15 +23,15 @@ export default function TokenManagement() {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
 
   // Queries
-  const { data: tokensData, refetch: refetchTokens } = trpc.surveyTokens.getAll.useQuery({
+  const { data: tokensData, refetch: refetchTokens } = trpc.surveyAnonymousTokens.getAll.useQuery({
     page: 1,
     limit: 50,
   });
 
-  const { data: statsData } = trpc.surveyTokens.getStats.useQuery();
+  const { data: statsData } = trpc.surveyAnonymousTokens.getStats.useQuery();
 
   // Mutations
-  const generateBulkMutation = trpc.surveyTokens.generateBatch.useMutation({
+  const generateBulkMutation = trpc.surveyAnonymousTokens.generateBatch.useMutation({
     onSuccess: () => {
       alert(`✅ ${quantity} tokens generados exitosamente`);
       refetchTokens();
@@ -43,7 +43,7 @@ export default function TokenManagement() {
     },
   });
 
-  const revokeMutation = trpc.surveyTokens.revokeToken.useMutation({
+  const revokeMutation = trpc.surveyAnonymousTokens.revokeToken.useMutation({
     onSuccess: () => {
       alert("✅ Token revocado exitosamente");
       refetchTokens();

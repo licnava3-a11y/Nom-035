@@ -44,11 +44,11 @@ export async function generateMonthlySnapshots() {
             departmentId: employees.departmentId,
             departmentName: departments.name,
             positionId: employees.positionId,
-            positionName: positions.name,
+            positionName: positions.title,
             competencyId: skillsMatrix.competencyId,
-            competencyName: organizationalCompetencies.name,
-            currentLevel: skillsMatrix.currentLevel,
-            requiredLevel: skillsMatrix.requiredLevel,
+            competencyName: organizationalCompetencies.competencyName,
+            currentLevel: skillsMatrix.level,
+            requiredLevel: organizationalCompetencies.requiredLevel,
           })
           .from(skillsMatrix)
           .innerJoin(employees, eq(skillsMatrix.employeeId, employees.id))
@@ -102,8 +102,12 @@ export async function generateMonthlySnapshots() {
             let empCriticalGaps = 0;
 
             for (const row of empData) {
-              empTotalLevel += row.currentLevel || 0;
-              const gap = (row.requiredLevel || 0) - (row.currentLevel || 0);
+              // Convert level strings to numbers
+              const levelMap: Record<string, number> = { 'Sin evaluar': 0, 'sin_evaluar': 0, 'basico': 1, 'Básico': 1, 'intermedio': 2, 'Intermedio': 2, 'avanzado': 3, 'Avanzado': 3, 'experto': 4, 'Experto': 4 };
+              const currentLevelNum = typeof row.currentLevel === 'string' ? (levelMap[row.currentLevel] || 0) : (row.currentLevel || 0);
+              const requiredLevelNum = typeof row.requiredLevel === 'string' ? (levelMap[row.requiredLevel] || 0) : (row.requiredLevel || 0);
+              empTotalLevel += currentLevelNum;
+              const gap = requiredLevelNum - currentLevelNum;
               if (gap > 0) {
                 empTotalGaps++;
                 if (gap >= 2) {
@@ -167,11 +171,11 @@ export async function generateMonthlySnapshots() {
           departmentId: employees.departmentId,
           departmentName: departments.name,
           positionId: employees.positionId,
-          positionName: positions.name,
+          positionName: positions.title,
           competencyId: skillsMatrix.competencyId,
-          competencyName: organizationalCompetencies.name,
-          currentLevel: skillsMatrix.currentLevel,
-          requiredLevel: skillsMatrix.requiredLevel,
+          competencyName: organizationalCompetencies.competencyName,
+          currentLevel: skillsMatrix.level,
+          requiredLevel: organizationalCompetencies.requiredLevel,
         })
         .from(skillsMatrix)
         .innerJoin(employees, eq(skillsMatrix.employeeId, employees.id))
@@ -218,8 +222,12 @@ export async function generateMonthlySnapshots() {
             let empCriticalGaps = 0;
 
             for (const row of empData) {
-              empTotalLevel += row.currentLevel || 0;
-              const gap = (row.requiredLevel || 0) - (row.currentLevel || 0);
+              // Convert level strings to numbers
+              const levelMap: Record<string, number> = { 'Sin evaluar': 0, 'sin_evaluar': 0, 'basico': 1, 'Básico': 1, 'intermedio': 2, 'Intermedio': 2, 'avanzado': 3, 'Avanzado': 3, 'experto': 4, 'Experto': 4 };
+              const currentLevelNum = typeof row.currentLevel === 'string' ? (levelMap[row.currentLevel] || 0) : (row.currentLevel || 0);
+              const requiredLevelNum = typeof row.requiredLevel === 'string' ? (levelMap[row.requiredLevel] || 0) : (row.requiredLevel || 0);
+              empTotalLevel += currentLevelNum;
+              const gap = requiredLevelNum - currentLevelNum;
               if (gap > 0) {
                 empTotalGaps++;
                 if (gap >= 2) {

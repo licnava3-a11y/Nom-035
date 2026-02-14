@@ -111,7 +111,7 @@ export async function detectCompetencyRegressions() {
       // Detect regressions (level drops of 1 or more)
       const regressions: RegressionAlert[] = [];
 
-      for (const [key, current] of currentCompetencies.entries()) {
+      for (const [key, current] of Array.from(currentCompetencies.entries())) {
         const previous = previousCompetencies.get(key);
         if (!previous) continue;
 
@@ -203,11 +203,11 @@ async function sendRegressionNotifications(
   }
 
   // Send email notification for each department
-  for (const [deptName, deptRegressions] of byDepartment.entries()) {
+  for (const [deptName, deptRegressions] of Array.from(byDepartment.entries())) {
     const subject = `🚨 Alerta: Retrocesos de Competencias Detectados - ${deptName}`;
 
     const employeeList = deptRegressions
-      .map(r => `
+      .map((r: RegressionAlert) => `
         <tr>
           <td style="padding: 8px; border: 1px solid #ddd;">${r.employeeName}</td>
           <td style="padding: 8px; border: 1px solid #ddd;">${r.competencyName}</td>

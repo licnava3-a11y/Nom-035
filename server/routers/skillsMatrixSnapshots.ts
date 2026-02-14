@@ -34,11 +34,11 @@ export const skillsMatrixSnapshotsRouter = router({
           departmentId: employees.departmentId,
           departmentName: departments.name,
           positionId: employees.positionId,
-          positionName: positions.name,
+          positionName: positions.title,
           competencyId: skillsMatrix.competencyId,
-          competencyName: organizationalCompetencies.name,
-          currentLevel: skillsMatrix.currentLevel,
-          requiredLevel: skillsMatrix.requiredLevel,
+          competencyName: organizationalCompetencies.competencyName,
+          currentLevel: skillsMatrix.level,
+          requiredLevel: organizationalCompetencies.requiredLevel,
         })
         .from(skillsMatrix)
         .innerJoin(employees, eq(skillsMatrix.employeeId, employees.id))
@@ -69,7 +69,11 @@ export const skillsMatrixSnapshotsRouter = router({
         }
 
         const employee = employeeMap.get(row.employeeId);
-        const gap = (row.requiredLevel || 0) - (row.currentLevel || 0);
+        // Convert level strings to numbers for gap calculation
+        const levelMap: Record<string, number> = { 'Sin evaluar': 0, 'sin_evaluar': 0, 'basico': 1, 'Básico': 1, 'intermedio': 2, 'Intermedio': 2, 'avanzado': 3, 'Avanzado': 3, 'experto': 4, 'Experto': 4 };
+        const currentLevelNum = typeof row.currentLevel === 'string' ? (levelMap[row.currentLevel] || 0) : (row.currentLevel || 0);
+        const requiredLevelNum = typeof row.requiredLevel === 'string' ? (levelMap[row.requiredLevel] || 0) : (row.requiredLevel || 0);
+        const gap = requiredLevelNum - currentLevelNum;
         
         employee.competencies.push({
           competencyId: row.competencyId,
