@@ -346,4 +346,57 @@ export const skillsMatrixSnapshotsRouter = router({
         message: "Snapshot eliminado exitosamente",
       };
     }),
+
+  /**
+   * Get trend data for all snapshots
+   */
+  getTrendData: protectedProcedure
+    .input(z.object({
+      departmentId: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Get all snapshots ordered by date
+      let query = db
+        .select()
+        .from(skillsMatrixSnapshots)
+        .orderBy(skillsMatrixSnapshots.snapshotDate);
+
+      if (input.departmentId) {
+        query = query.where(eq(skillsMatrixSnapshots.departmentId, input.departmentId)) as any;
+      }
+
+      const snapshots = await query;
+
+      // Extract trend data
+      const labels = snapshots.map(s => {
+        const date = new Date(s.snapshotDate);
+        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      });
+
+      const data = snapshots.map(s => {
+        const snapshotData = s.data as any;
+        return {
+          name: s.name,
+          date: s.snapshotDate,
+          totalEmployees: snapshotData.summary.totalEmployees,
+          averageLevel: snapshotData.summary.averageCompetencyLevel,
+          totalGaps: snapshotData.summary.totalGaps,
+          criticalGaps: snapshotData.summary.criticalGaps,
+        };
+      });
+
+      return {
+        labels,
+        datasets: {
+          totalEmployees: data.map(d => d.totalEmployees),
+          averageLevel: data.map(d => d.averageLevel),
+          totalGaps: data.map(d => d.totalGaps),
+          criticalGaps: data.map(d => d.criticalGaps),
+        },
+        snapshots: data,
+      };
+    }),
 });

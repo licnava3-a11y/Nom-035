@@ -12431,3 +12431,43 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Guardar checkpoint final
 
 **FASE 124: ✅ COMPLETADA AL 100% - Nine Box Grid simplificado y Snapshots Manuales de Matriz de Habilidades implementados completamente**
+
+
+## FASE 125: Gráficos de Tendencia Temporal y Exportación PDF de Snapshots
+
+### 1. Procedimiento tRPC para Datos de Tendencia
+- [x] Crear procedimiento getTrendData en skillsMatrixSnapshots.ts
+- [x] Obtener todos los snapshots ordenados por fecha
+- [x] Calcular métricas por snapshot: nivel promedio, brechas totales, brechas críticas, total empleados
+- [x] Retornar datos estructurados para Chart.js (labels y datasets)
+
+### 2. Gráficos de Tendencia Temporal con Chart.js
+- [x] Agregar gráfico de línea para evolución de nivel promedio (verde)
+- [x] Agregar gráfico de línea para evolución de brechas totales (rojo)
+- [x] Agregar gráfico de línea para evolución de brechas críticas (rojo oscuro)
+- [x] Agregar gráfico de línea para evolución de total de empleados (azul)
+- [x] Usar colores consistentes con la paleta del sistema
+- [x] Agregar tooltips informativos en cada punto
+- [x] Grid de 2 columnas responsive
+
+### 3. Exportación a PDF del Reporte de Comparación
+- [x] Implementar función handleExportPDF con jsPDF y jspdf-autotable
+- [x] Incluir encabezado con título del reporte y nombres de snapshots
+- [x] Incluir sección de KPIs con los 4 indicadores principales (tabla)
+- [x] Incluir tabla "Top 10 Empleados con Mayor Mejora" con colores
+- [x] Incluir tabla "Empleados que Requieren Atención" (si existen)
+- [x] Agregar sección de recomendaciones automáticas basadas en los datos
+- [x] Agregar pie de página con fecha de generación y derechos reservados en todas las páginas
+- [x] Implementar botón "Exportar a PDF" en la página de comparación (azul)
+- [x] Mostrar toast de confirmación al generar PDF
+- [x] Instalar dependencias jspdf y jspdf-autotable
+
+### 4. Pruebas y Validación
+- [x] Probar gráficos de tendencia con múltiples snapshots
+- [x] Verificar que los datos se visualizan correctamente
+- [x] Probar exportación a PDF con diferentes comparaciones
+- [x] Validar formato y contenido del PDF generado
+- [x] Verificar que no hay errores TypeScript (solo errores pre-existentes en predictiveAlertsJob.ts)
+- [x] Guardar checkpoint final
+
+**FASE 125: ✅ COMPLETADA AL 100% - Gráficos de tendencia temporal con Chart.js y exportación a PDF implementados**
