@@ -118,14 +118,19 @@ export default function RolesPermissions() {
           {
             data,
             backgroundColor: colors,
-            borderWidth: 2,
+            borderWidth: top5.map((item) => (selectedRole === item.role ? 4 : 2)).concat(othersCount > 0 ? [2] : []),
             borderColor: "#ffffff",
+            hoverBorderWidth: 4,
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        animation: {
+          duration: 500,
+          easing: "easeInOutQuart",
+        },
         onClick: (event, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -156,6 +161,26 @@ export default function RolesPermissions() {
                 size: 11,
               },
               padding: 10,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                return context[0].label || "";
+              },
+              label: function(context) {
+                const value = context.parsed;
+                const total = data.reduce((sum, d) => sum + d, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+                return `${value} usuarios (${percentage}%)`;
+              },
+              afterLabel: function(context) {
+                // No mostrar "Haz clic para filtrar" en "Otros"
+                if (context.label === "Otros") {
+                  return "";
+                }
+                return "\nℹ️ Haz clic para filtrar";
+              },
             },
           },
         },

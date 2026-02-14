@@ -337,29 +337,33 @@ export default function DashboardAdministrativo() {
           {
             label: "Facturas",
             data: invoicesAmounts,
-            backgroundColor: "#10b981", // Verde
+            backgroundColor: departments.map((dept) => dept === departamento ? "#059669" : "#10b981"), // Verde más intenso si filtrado
             borderColor: "#10b981",
-            borderWidth: 1,
+            borderWidth: departments.map((dept) => dept === departamento ? 3 : 1),
           },
           {
             label: "Órdenes de Compra",
             data: purchaseOrdersAmounts,
-            backgroundColor: "#1e3a8a", // Azul marino
+            backgroundColor: departments.map((dept) => dept === departamento ? "#1e3a8a" : "rgba(30, 58, 138, 0.8)"), // Azul más intenso si filtrado
             borderColor: "#1e3a8a",
-            borderWidth: 1,
+            borderWidth: departments.map((dept) => dept === departamento ? 3 : 1),
           },
           {
             label: "Solicitudes de Gasto",
             data: expenseRequestsAmounts,
-            backgroundColor: "#dc2626", // Rojo
+            backgroundColor: departments.map((dept) => dept === departamento ? "#b91c1c" : "#dc2626"), // Rojo más intenso si filtrado
             borderColor: "#dc2626",
-            borderWidth: 1,
+            borderWidth: departments.map((dept) => dept === departamento ? 3 : 1),
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 500,
+          easing: "easeInOutQuart",
+        },
         onClick: (event, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -391,6 +395,21 @@ export default function DashboardAdministrativo() {
             font: {
               size: 16,
               weight: "bold" as const,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                return context[0].label || "";
+              },
+              label: function(context) {
+                const value = context.parsed.y || 0;
+                const datasetLabel = context.dataset.label || "";
+                return `${datasetLabel}: $${value.toLocaleString()}`;
+              },
+              afterBody: function() {
+                return "\nℹ️ Haz clic para filtrar por departamento";
+              },
             },
           },
         },

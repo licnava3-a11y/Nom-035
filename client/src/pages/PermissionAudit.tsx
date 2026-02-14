@@ -66,16 +66,21 @@ export default function PermissionAudit() {
         labels,
         datasets: [
           {
-            data,
+            data: stats.map((s) => s.count),
             backgroundColor: ["#10b981", "#1e3a8a", "#dc2626"],
-            borderWidth: 2,
+            borderWidth: stats.map((s) => (changeType === s.changeType ? 4 : 2)),
             borderColor: "#ffffff",
+            hoverBorderWidth: 4,
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: true,
+        animation: {
+          duration: 500,
+          easing: "easeInOutQuart",
+        },
         onClick: (event, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -97,6 +102,22 @@ export default function PermissionAudit() {
                 size: 11,
               },
               padding: 10,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                return context[0].label || "";
+              },
+              label: function(context) {
+                const value = context.parsed;
+                const total = stats.reduce((sum, s) => sum + s.count, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+                return `${value} cambios (${percentage}%)`;
+              },
+              afterLabel: function() {
+                return "\nℹ️ Haz clic para filtrar";
+              },
             },
           },
         },
