@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Download, Upload, Filter, TrendingUp, AlertCircle } from "lucide-react";
+import { Download, Upload, Filter, TrendingUp, AlertCircle, Sparkles } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { HeatmapExport } from "@/components/HeatmapExport";
@@ -101,8 +101,27 @@ export default function SkillsMatrix() {
     },
   });
 
+  const generateTrainingProgramMutation = trpc.skillsMatrix.generateTrainingProgram.useMutation({
+    onSuccess: (result) => {
+      toast.success("¡Programa de Capacitación Generado!", {
+        description: `${result.totalCompetenciesAdded} competencias agregadas para ${result.totalEmployees} empleados`,
+      });
+    },
+    onError: (error: { message: string }) => {
+      toast.error("Error al generar programa", { description: error.message });
+    },
+  });
+
   const handleUpdateSkill = (employeeId: number, competencyId: number, level: SkillLevel) => {
     updateSkillMutation.mutate({ employeeId, competencyId, level });
+  };
+
+  const handleGenerateTrainingProgram = () => {
+    if (window.confirm("¿Deseas generar automáticamente el programa de capacitación basado en las brechas de habilidades identificadas?\n\nEsto agregará las competencias prioritarias al programa personal de cada empleado.")) {
+      generateTrainingProgramMutation.mutate({
+        departmentId: filters.departmentId,
+      });
+    }
   };
 
   const handleExport = async () => {
@@ -421,6 +440,10 @@ export default function SkillsMatrix() {
           <Button onClick={() => fileInputRef.current?.click()} variant="outline">
             <Upload className="mr-2 h-4 w-4" />
             Importar Excel
+          </Button>
+          <Button onClick={handleGenerateTrainingProgram} variant="default" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Generar Programa de Capacitación
           </Button>
           <input
             ref={fileInputRef}

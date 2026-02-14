@@ -12198,3 +12198,52 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 120: ✅ COMPLETADA AL 95% - 5 hojas implementadas con análisis completo, falta prueba final**
+
+
+## FASE 121: Mejoras Avanzadas de Matriz de Habilidades
+
+### 1. Integración Automática con Programa de Capacitación
+- [x] Crear procedimiento tRPC generateTrainingProgram en skillsMatrix.ts (líneas 562-677)
+- [x] Implementar algoritmo de cálculo de brechas (nivel requerido: Avanzado, escala 0-4)
+- [x] Determinar prioridad automática (crítica: gap>=3, alta: gap>=2, media: gap>=1)
+- [x] Implementar botón "Generar Programa de Capacitación" en SkillsMatrix.tsx (línea 425)
+- [x] Agregar confirmación con window.confirm antes de generar
+- [x] Validar que no se dupliquen competencias ya existentes (status pendiente/en_proceso)
+- [x] Insertar necesidades de capacitación con dueDate 90 días desde hoy
+- [x] Mostrar resumen con toast: total empleados y competencias agregadas
+- [x] Agregar import de Sparkles icon y mutation tRPC
+- [x] Corregir errores TypeScript (imports de trainingNeeds, employeeCompetencies, or)
+- [x] Corregir nombre de columna currentLevel en employeeCompetencies
+- [ ] Enviar notificación al empleado sobre nuevas competencias en su programa
+
+### 2. Visualización Nine Box Grid
+- [ ] Crear tabla nine_box_assessments en schema (employeeId, performanceScore, potentialScore, assessmentDate)
+- [ ] Generar migración SQL y aplicar en base de datos
+- [ ] Crear procedimiento tRPC para calcular scores de desempeño y potencial
+- [ ] Implementar página NineBoxGrid.tsx con visualización de matriz 9x9
+- [ ] Calcular desempeño basado en nivel promedio de competencias
+- [ ] Calcular potencial basado en tendencia de crecimiento y brechas
+- [ ] Clasificar empleados en 9 categorías (Stars, High Performers, etc.)
+- [ ] Agregar filtros por departamento y período
+- [ ] Implementar exportación de Nine Box a PNG/PDF
+- [ ] Agregar ruta en App.tsx y enlace en menú
+
+### 3. Análisis Comparativo Temporal
+- [ ] Crear tabla skills_matrix_snapshots en schema para almacenar históricos
+- [ ] Implementar procedimiento para guardar snapshot de matriz actual
+- [ ] Crear procedimiento tRPC para comparar dos períodos
+- [ ] Implementar página SkillsEvolution.tsx con gráficos de evolución
+- [ ] Mostrar evolución de competencias por empleado (línea de tiempo)
+- [ ] Calcular tasa de crecimiento promedio por departamento
+- [ ] Identificar competencias con mayor/menor progreso
+- [ ] Agregar gráfico de distribución de niveles (antes vs después)
+- [ ] Implementar exportación de análisis comparativo a Excel
+- [ ] Agregar ruta en App.tsx y enlace en menú
+
+### 4. Pruebas y Optimización
+- [ ] Probar integración con Programa de Capacitación
+- [ ] Validar cálculos de Nine Box Grid
+- [ ] Verificar análisis comparativo con datos históricos
+- [ ] Guardar checkpoint final
+
+**FASE 121: ⏳ EN PROGRESO**

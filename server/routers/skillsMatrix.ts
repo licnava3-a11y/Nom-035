@@ -1,8 +1,8 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { competencies, skillsMatrix, skillsMatrixImports, employees, departments, positions } from "../../drizzle/schema";
-import { eq, and, inArray, sql } from "drizzle-orm";
+import { competencies, skillsMatrix, skillsMatrixImports, employees, departments, positions, trainingNeeds, employeeCompetencies } from "../../drizzle/schema";
+import { eq, and, inArray, sql, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const skillsMatrixRouter = router({
@@ -557,4 +557,125 @@ export const skillsMatrixRouter = router({
         departmentName: dept?.name || "Departamento Desconocido",
       };
     }),
+
+  // Generar programa de capacitación automáticamente desde análisis de desarrollo
+  generateTrainingProgram: protectedProcedure
+    .input(z.object({
+      departmentId: z.number().optional(),
+      employeeIds: z.array(z.number()).optional(), // Si se especifica, solo para estos empleados
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener análisis de desarrollo
+      const matrixData = await db
+        .select({
+          employeeId: employeeCompetencies.employeeId,
+          employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          competencyName: employeeCompetencies.competencyName,
+          competencyType: employeeCompetencies.competencyType,
+          currentLevel: employeeCompetencies.currentLevel,
+        })
+        .from(employeeCompetencies)
+        .innerJoin(employees, eq(employeeCompetencies.employeeId, employees.id))
+        .where(
+          and(
+            input.departmentId ? eq(employees.departmentId, input.departmentId) : undefined,
+            input.employeeIds ? sql`${employeeCompetencies.employeeId} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})` : undefined
+          )
+        );
+
+      // Agrupar por empleado y calcular brechas
+      const employeeGaps: Record<number, { name: string; gaps: Array<{ competencyName: string; competencyType: string; currentLevel: string; gap: number; priority: string }> }> = {};
+      
+      matrixData.forEach((row) => {
+        if (!employeeGaps[row.employeeId]) {
+          employeeGaps[row.employeeId] = { name: row.employeeName, gaps: [] };
+        }
+
+        // Calcular brecha (nivel requerido: Avanzado = 3, nivel actual en escala 0-4)
+        const levelMap: Record<string, number> = { "ninguno": 0, "basico": 1, "intermedio": 2, "avanzado": 3, "experto": 4 };
+        const currentLevelNum = levelMap[row.currentLevel] || 0;
+        const requiredLevelNum = 3; // Avanzado
+        const gap = Math.max(0, requiredLevelNum - currentLevelNum);
+
+        if (gap > 0) {
+          // Determinar prioridad basada en brecha
+          let priority: "baja" | "media" | "alta" | "critica" = "baja";
+          if (gap >= 3) priority = "critica";
+          else if (gap >= 2) priority = "alta";
+          else if (gap >= 1) priority = "media";
+
+          employeeGaps[row.employeeId].gaps.push({
+            competencyName: row.competencyName,
+            competencyType: row.competencyType as "tecnica" | "transversal" | "conocimiento",
+            currentLevel: row.currentLevel,
+            gap,
+            priority,
+          });
+        }
+      });
+
+      // Insertar necesidades de capacitación (evitando duplicados)
+      let totalAdded = 0;
+      const results: Array<{ employeeId: number; employeeName: string; competenciesAdded: number }> = [];
+
+      for (const [employeeIdStr, data] of Object.entries(employeeGaps)) {
+        const employeeId = parseInt(employeeIdStr);
+        let competenciesAdded = 0;
+
+        for (const gap of data.gaps) {
+          // Verificar si ya existe esta necesidad
+          const existing = await db
+            .select()
+            .from(trainingNeeds)
+            .where(
+              and(
+                eq(trainingNeeds.employeeId, employeeId),
+                eq(trainingNeeds.competencyName, gap.competencyName),
+                or(
+                  eq(trainingNeeds.status, "pendiente"),
+                  eq(trainingNeeds.status, "en_proceso")
+                )
+              )
+            )
+            .limit(1);
+
+          if (existing.length === 0) {
+            // Insertar nueva necesidad de capacitación
+            await db.insert(trainingNeeds).values({
+              employeeId,
+              competencyName: gap.competencyName,
+              competencyType: gap.competencyType as "tecnica" | "transversal" | "conocimiento",
+              currentLevel: gap.currentLevel as "ninguno" | "basico" | "intermedio" | "avanzado" | "experto",
+              requiredLevel: "avanzado",
+              gap: gap.gap,
+              priority: gap.priority as "baja" | "media" | "alta" | "critica",
+              status: "pendiente",
+              dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 días desde hoy
+              notes: "Generado automáticamente desde Análisis de Desarrollo de Matriz de Habilidades",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+            competenciesAdded++;
+            totalAdded++;
+          }
+        }
+
+        results.push({
+          employeeId,
+          employeeName: data.name,
+          competenciesAdded,
+        });
+      }
+
+      return {
+        success: true,
+        totalEmployees: Object.keys(employeeGaps).length,
+        totalCompetenciesAdded: totalAdded,
+        details: results,
+      };
+    }),
 });
+
