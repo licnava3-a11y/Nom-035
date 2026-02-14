@@ -72,6 +72,7 @@ import { permissionAuditRouter } from "./routers/permissionAudit";
 import { surveyAnonymousTokensRouter } from "./routers/surveyAnonymousTokens";
 import { notificationPreferencesRouter } from "./routers/notificationPreferences";
 import { predictiveAlertsRouter } from "./routers/predictiveAlerts";
+import { notificationLogsRouter } from "./routers/notificationLogs";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -950,6 +951,7 @@ export const appRouter = router({
   surveyAnonymousTokens: surveyAnonymousTokensRouter,
   notificationPreferences: notificationPreferencesRouter,
   predictiveAlerts: predictiveAlertsRouter,
+  notificationLogs: notificationLogsRouter,
 });
 
 export type AppRouter = typeof appRouter;

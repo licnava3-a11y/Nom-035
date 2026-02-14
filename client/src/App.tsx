@@ -35,7 +35,7 @@ const AlertReportsConfig = lazy(() => import("./pages/AlertReportsConfig"));
 const AlertMetricsDashboard = lazy(() => import("./pages/AlertMetricsDashboard"));
 const AlertThresholdsConfig = lazy(() => import("./pages/AlertThresholdsConfig"));
 const PredictiveDashboard = lazy(() => import("./pages/alerts/PredictiveDashboard"));
-const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
+const NotificationHistory = lazy(() => import("./pages/notifications/NotificationHistory"));
 const Users = lazy(() => import("./pages/Users"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));

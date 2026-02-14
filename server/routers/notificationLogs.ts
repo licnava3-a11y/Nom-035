@@ -61,7 +61,9 @@ export const notificationLogsRouter = router({
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       // Get total count
-      const countResult = await db
+      const db1 = await getDb();
+      if (!db1) throw new Error("Database connection failed");
+      const countResult = await db1
         .select({ count: sql<number>`count(*)` })
         .from(notificationLogs)
         .where(whereClause);
@@ -69,7 +71,9 @@ export const notificationLogsRouter = router({
       const total = Number(countResult[0]?.count || 0);
 
       // Get paginated logs
-      const logs = await db
+      const db2 = await getDb();
+      if (!db2) throw new Error("Database connection failed");
+      const logs = await db2
         .select({
           id: notificationLogs.id,
           queueId: notificationLogs.queueId,
@@ -130,8 +134,10 @@ export const notificationLogsRouter = router({
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      // Get total counts by status
-      const stats = await db
+       // Get stats by status
+      const db3 = await getDb();
+      if (!db3) throw new Error("Database connection failed");
+      const stats = await db3
         .select({
           status: notificationLogs.status,
           count: sql<number>`count(*)`,
@@ -140,13 +146,15 @@ export const notificationLogsRouter = router({
         .where(whereClause)
         .groupBy(notificationLogs.status);
 
-      const totalSent = stats.find((s) => s.status === "sent")?.count || 0;
-      const totalFailed = stats.find((s) => s.status === "failed")?.count || 0;
-      const totalBounced = stats.find((s) => s.status === "bounced")?.count || 0;
+      const totalSent = stats.find((s: { status: string | null; count: number }) => s.status === "sent")?.count || 0;
+      const totalFailed = stats.find((s: { status: string | null; count: number }) => s.status === "failed")?.count || 0;
+      const totalBounced = stats.find((s: { status: string | null; count: number }) => s.status === "bounced")?.count || 0;
       const total = Number(totalSent) + Number(totalFailed) + Number(totalBounced);
 
       // Get counts by type
-      const byType = await db
+      const db4 = await getDb();
+      if (!db4) throw new Error("Database connection failed");
+      const byType = await db4
         .select({
           type: notificationLogs.templateCode,
           count: sql<number>`count(*)`,
@@ -173,6 +181,7 @@ export const notificationLogsRouter = router({
    */
   getRecipients: protectedProcedure.query(async () => {
     const db = await getDb();
+    if (!db) throw new Error("Database connection failed");
 
     const recipients = await db
       .selectDistinct({
