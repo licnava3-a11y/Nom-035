@@ -81,6 +81,8 @@ const PublicSurvey = lazy(() => import("./pages/surveys/PublicSurvey"));
 const ActionPlan = lazy(() => import("./pages/surveys/ActionPlan"));
 const SampleSize = lazy(() => import("./pages/surveys/SampleSize"));
 const TokensDashboard = lazy(() => import("./pages/surveys/TokensDashboard"));
+const AnonymousTokens = lazy(() => import("./pages/surveys/AnonymousTokens"));
+const AnonymousSurveyAccess = lazy(() => import("./pages/surveys/AnonymousSurveyAccess"));
 const TokenManagement = lazy(() => import("./pages/TokenManagement"));
 const SurveysAdminPanel = lazy(() => import("./pages/SurveysAdminPanel"));
 const SurveyPeriodsManager = lazy(() => import("./pages/SurveyPeriodsManager"));
@@ -640,6 +642,11 @@ function Router() {
             <PublicSurvey />
           </Suspense>
         </Route>
+        <Route path={"/survey/anonymous/:token"}>
+          <Suspense fallback={<PageLoader />}>
+            <AnonymousSurveyAccess />
+          </Suspense>
+        </Route>
         <Route path={"/surveys/action-plan"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -658,6 +665,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <TokensDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/anonymous-tokens"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AnonymousTokens />
             </Suspense>
           </DashboardLayout>
         </Route>

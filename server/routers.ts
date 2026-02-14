@@ -69,6 +69,7 @@ import { administrativeRouter } from "./routers/administrative";
 import { rolesPermissionsRouter } from "./routers/rolesPermissions";
 import { customPermissionsRouter } from "./routers/customPermissions";
 import { permissionAuditRouter } from "./routers/permissionAudit";
+import { surveyAnonymousTokensRouter } from "./routers/surveyAnonymousTokens";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -942,6 +943,9 @@ export const appRouter = router({
   executiveDashboard: executiveDashboardRouter,
   menuCounters: menuCountersRouter,
   reports: reportsRouter,
+
+  // Survey Anonymous Tokens (NOM-035 anonymous access)
+  surveyAnonymousTokens: surveyAnonymousTokensRouter,
 });
 
 export type AppRouter = typeof appRouter;

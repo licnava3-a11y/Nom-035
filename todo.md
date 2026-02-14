@@ -221,30 +221,48 @@
 ## FASE 74: Sistema de Tokens de Acceso Anónimo
 
 ### Backend - Generación de Tokens
-- [ ] Crear tabla survey_tokens en schema
-- [ ] Implementar procedimiento para generar tokens únicos
-- [ ] Crear procedimiento para validar tokens
-- [ ] Asociar tokens a encuestas específicas
-- [ ] Implementar expiración de tokens
+- [x] Crear tabla survey_anonymous_tokens en schema (con campos: token, surveyType, department, expiresAt, usedAt, isRevoked, generatedBy, notes)
+- [x] Generar migración SQL y aplicar en base de datos
+- [x] Implementar procedimiento para generar tokens únicos (generateBatch - hasta 1000 tokens por lote)
+- [x] Crear procedimiento para validar tokens (validateToken - valida y marca como usado)
+- [x] Asociar tokens a encuestas específicas (guia_i, guia_ii, guia_iii)
+- [x] Implementar expiración de tokens (configurable de 1 a 365 días)
+- [x] Crear procedimiento para revocar tokens (revokeToken)
+- [x] Implementar procedimiento de estadísticas (getStats - total, activos, usados, expirados, revocados)
+- [x] Crear procedimiento para listar tokens con filtros y paginación (getAll)
+- [x] Implementar procedimiento de exportación (exportTokens)
 
 ### Frontend - Acceso Anónimo
-- [ ] Crear página de acceso con token
+- [x] Crear página de acceso con token (/survey/anonymous/:token)
+- [x] Implementar validación de token en frontend (AnonymousSurveyAccess.tsx)
+- [x] Mostrar estado del token (válido, usado, expirado, revocado)
+- [x] Redirigir automáticamente a la encuesta correspondiente
+- [x] Diseñar interfaz profesional con feedback visual
 - [ ] Modificar SurveyForm para aceptar tokens
-- [ ] Implementar validación de token en frontend
 - [ ] Guardar respuestas con token en lugar de userId
 - [ ] Mostrar mensaje de confirmación sin identificación
 
 ### Gestión de Tokens
-- [ ] Crear interfaz para generar tokens masivos
-- [ ] Implementar exportación de tokens a Excel
-- [ ] Agregar vista de tokens activos/usados
-- [ ] Implementar revocación de tokens
+- [x] Crear interfaz para generar tokens masivos (AnonymousTokens.tsx)
+- [x] Implementar formulario de generación con validaciones
+- [x] Agregar vista de tokens activos/usados con filtros (por tipo, estado, departamento)
+- [x] Implementar paginación (50 tokens por página)
+- [x] Agregar dashboard de estadísticas (5 tarjetas de KPIs)
+- [x] Implementar exportación de tokens a CSV
+- [x] Agregar generación de códigos QR para cada token
+- [x] Implementar revocación de tokens con confirmación
+- [x] Agregar ruta en App.tsx (/surveys/anonymous-tokens)
 
 ### Pruebas
-- [ ] Probar generación de tokens
+- [ ] Probar generación de tokens (1, 10, 100, 1000)
 - [ ] Verificar acceso anónimo con token
 - [ ] Validar que respuestas se guardan correctamente
 - [ ] Probar expiración de tokens
+- [ ] Verificar revocación de tokens
+- [ ] Probar exportación CSV
+- [ ] Validar códigos QR
+
+**FASE 74: ✅ COMPLETADA AL 85% - Backend y páginas principales implementadas, falta integración con formularios de encuestas**
 
 
 ## FASE 74: Corrección de Error en Buzón - Ver Detalle
@@ -11817,3 +11835,51 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 **Resumen:** Sistema de configuración SMTP completamente implementado con backend (tabla, procedures, encriptación) y frontend (formulario profesional, validación, prueba de conexión). Enlace agregado en menú de Administración. Pendiente: pruebas funcionales que requieren servidor SMTP real.
 
 **Nota:** Para habilitar notificaciones automáticas, el administrador debe configurar las variables SMTP en /administrative/smtp-config.
+
+
+## FASE 115: Sistema Completo de Tokens Anónimos para Encuestas NOM-035
+
+### Backend - Schema y Procedures
+- [ ] Crear tabla survey_tokens en drizzle/schema.ts (token, surveyType, expiresAt, usedAt, department, metadata)
+- [ ] Generar migración con drizzle-kit
+- [ ] Aplicar migración a base de datos
+- [ ] Crear server/routers/surveyTokens.ts con procedures
+- [ ] Implementar generateToken (generar token único)
+- [ ] Implementar generateBulkTokens (generación masiva con cantidad y departamento)
+- [ ] Implementar validateToken (validar token y expiración)
+- [ ] Implementar listTokens (listar tokens activos/usados con filtros)
+- [ ] Implementar revokeToken (revocar token)
+- [ ] Agregar surveyTokensRouter en server/routers.ts
+
+### Frontend - Gestión de Tokens
+- [ ] Crear client/src/pages/surveys/TokenManagement.tsx
+- [ ] Implementar formulario de generación de token único
+- [ ] Implementar formulario de generación masiva (cantidad, departamento, tipo de encuesta, expiración)
+- [ ] Implementar tabla de tokens con filtros (activos, usados, expirados)
+- [ ] Agregar exportación a Excel de tokens
+- [ ] Implementar generación de códigos QR para cada token
+- [ ] Agregar botón de revocación de tokens
+- [ ] Agregar ruta en App.tsx
+
+### Frontend - Acceso Público con Token
+- [ ] Crear client/src/pages/surveys/PublicSurveyAccess.tsx (sin autenticación)
+- [ ] Implementar formulario de ingreso de token
+- [ ] Validar token y mostrar encuesta correspondiente
+- [ ] Redirigir a SurveyForm con token en URL
+- [ ] Agregar ruta pública en App.tsx (sin DashboardLayout)
+
+### Modificación de SurveyForm
+- [ ] Modificar SurveyForm.tsx para aceptar token como parámetro
+- [ ] Guardar respuestas con token en lugar de userId cuando aplique
+- [ ] Marcar token como usado al completar encuesta
+- [ ] Mostrar mensaje de confirmación sin identificación personal
+
+### Integración y Pruebas
+- [ ] Agregar enlace "Gestión de Tokens" en menú de Encuestas NOM-035
+- [ ] Probar generación de token único
+- [ ] Probar generación masiva de tokens
+- [ ] Probar exportación a Excel con códigos QR
+- [ ] Probar acceso público con token válido
+- [ ] Verificar que respuestas se guardan correctamente
+- [ ] Probar expiración y revocación de tokens
+- [ ] Guardar checkpoint final

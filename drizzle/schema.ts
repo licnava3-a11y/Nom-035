@@ -2838,3 +2838,25 @@ export const smtpConfig = mysqlTable("smtp_config", {
 
 export type SmtpConfig = typeof smtpConfig.$inferSelect;
 export type InsertSmtpConfig = typeof smtpConfig.$inferInsert;
+
+
+
+/**
+ * Survey Anonymous Tokens table
+ * Stores anonymous access tokens for NOM-035 surveys (no user association)
+ */
+export const surveyAnonymousTokens = mysqlTable("survey_anonymous_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  token: varchar("token", { length: 64 }).notNull().unique(), // Unique token string
+  surveyType: varchar("survey_type", { length: 50 }).notNull(), // 'guia_i', 'guia_ii', 'guia_iii'
+  department: varchar("department", { length: 255 }), // Optional department filter
+  expiresAt: timestamp("expires_at").notNull(), // Token expiration date
+  usedAt: timestamp("used_at"), // When the token was used (null if unused)
+  isRevoked: boolean("is_revoked").notNull().default(false), // Manual revocation
+  generatedBy: int("generated_by").references(() => users.id), // Admin who generated the token
+  notes: text("notes"), // Optional notes
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SurveyAnonymousToken = typeof surveyAnonymousTokens.$inferSelect;
+export type InsertSurveyAnonymousToken = typeof surveyAnonymousTokens.$inferInsert;
