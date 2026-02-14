@@ -12026,3 +12026,62 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 116: ✅ COMPLETADA AL 95% - Todas las funcionalidades implementadas, falta ejecutar pruebas finales**
+
+
+## FASE 117: Mejoras Avanzadas de Auditoría, Exportación Masiva y Automatización
+
+### 1. Dashboard de Historial de Notificaciones
+- [ ] Crear tabla notification_logs en schema (id, userId, type, subject, content, recipientEmail, status, sentAt, errorMessage)
+- [ ] Generar migración SQL y aplicar en base de datos
+- [ ] Crear router tRPC notificationLogs con procedimientos (getAll, getStats)
+- [ ] Implementar página NotificationHistory.tsx con tabla de historial
+- [ ] Agregar filtros por tipo de notificación (alertas, encuestas, capacitación, casos, cumplimiento, sistema)
+- [ ] Implementar filtro por rango de fechas personalizado
+- [ ] Agregar filtro por destinatario (email o nombre de usuario)
+- [ ] Implementar filtro por estado (enviado, fallido, pendiente)
+- [ ] Agregar dashboard de estadísticas (total enviadas, tasa de éxito, fallidas)
+- [ ] Implementar paginación (50 notificaciones por página)
+- [ ] Agregar exportación a CSV del historial filtrado
+- [ ] Agregar ruta en App.tsx (/notifications/history)
+- [ ] Agregar enlace en menú de Administración
+
+### 2. Exportación Masiva de Heatmaps
+- [ ] Crear procedimiento tRPC para obtener lista de departamentos activos
+- [ ] Crear procedimiento tRPC para obtener datos de matriz por departamento
+- [ ] Implementar función de generación de múltiples heatmaps en servidor
+- [ ] Instalar librería JSZip para crear archivos ZIP
+- [ ] Crear endpoint para exportación masiva (por departamento)
+- [ ] Crear endpoint para exportación masiva (por período trimestral)
+- [ ] Implementar generación de PNG para cada departamento
+- [ ] Agregar archivo README.txt en ZIP con metadatos
+- [ ] Integrar botón de exportación masiva en SkillsMatrix.tsx
+- [ ] Mostrar progreso de generación con barra de progreso
+- [ ] Implementar descarga automática del archivo ZIP
+
+### 3. Alertas Predictivas Automáticas
+- [x] Crear job programado predictiveAlertsJob.ts con análisis completo
+- [x] Implementar función analyzeAlertHistory (180 días históricos)
+- [x] Calcular intervalos promedio, desviación estándar y nivel de confianza
+- [x] Detectar tendencias (creciente, estable, decreciente)
+- [x] Implementar función para detectar alertas urgentes (próximos 7 días con confianza media/alta)
+- [x] Crear plantilla HTML de correo profesional con tabla de alertas
+- [x] Incluir detalles: tipo de alerta, días hasta predicción, nivel de confianza, intervalo promedio, tendencia
+- [x] Agregar badges de color por urgencia y confianza
+- [x] Incluir recomendaciones y enlace al dashboard predictivo
+- [x] Implementar envío automático a todos los administradores
+- [x] Configurar ejecución diaria a las 8:00 AM (setInterval cada minuto)
+- [x] Registrar job en server/_core/index.ts con import
+- [x] Agregar logging de alertas enviadas y errores
+- [x] Implementar manejo de errores con try-catch
+
+### Pruebas y Optimización
+- [ ] Probar dashboard de historial de notificaciones
+- [ ] Verificar filtros y exportación CSV
+- [ ] Probar exportación masiva de heatmaps (5+ departamentos)
+- [ ] Verificar contenido del archivo ZIP
+- [ ] Probar job de alertas predictivas (simular fecha)
+- [ ] Verificar correos de alertas predictivas
+- [ ] Ejecutar tests existentes
+- [ ] Guardar checkpoint final
+
+**FASE 117: ⏳ EN PROGRESO**

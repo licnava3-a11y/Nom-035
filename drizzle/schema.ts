@@ -2892,3 +2892,4 @@ export const userNotificationPreferences = mysqlTable("user_notification_prefere
 
 export type UserNotificationPreference = typeof userNotificationPreferences.$inferSelect;
 export type InsertUserNotificationPreference = typeof userNotificationPreferences.$inferInsert;
+

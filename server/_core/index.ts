@@ -18,6 +18,7 @@ import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
 import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
 import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
+import { runPredictiveAlertsJob } from "../jobs/predictiveAlertsJob";
 import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -123,6 +124,14 @@ async function startServer() {
     startSecurityAlertsJob();
     startAgreementsAlertsJob();
     startCorrectiveActionsRemindersJob();
+    
+    // Schedule predictive alerts job (daily at 8:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 8 && now.getMinutes() === 0) {
+        runPredictiveAlertsJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
     
     // Job de notificaciones de expiración de tokens anónimos (diario a las 9:00 AM)
     const scheduleTokenExpirationJob = () => {
