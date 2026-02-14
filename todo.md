@@ -12301,3 +12301,69 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 122: ✅ COMPLETADA AL 40% - Notificaciones automáticas implementadas, Nine Box Grid y análisis temporal pendientes por complejidad**
+
+
+## FASE 123: Nine Box Grid y Análisis Comparativo Temporal
+
+### 1. Nine Box Grid - Backend
+- [ ] Verificar que tabla nine_box_assessments existe (ya creada en migración 0070)
+- [ ] Crear router tRPC nineBoxGrid.ts
+- [ ] Implementar procedimiento getAll (listar evaluaciones con filtros)
+- [ ] Implementar procedimiento createAssessment (crear/actualizar evaluación)
+- [ ] Implementar procedimiento getEmployeeAssessment (obtener evaluación individual)
+- [ ] Implementar procedimiento calculateAutomatic (calcular desempeño y potencial automáticamente)
+- [ ] Calcular desempeño: nivel promedio de competencias (0-4 → bajo/medio/alto)
+- [ ] Calcular potencial: tendencia de crecimiento últimos 6 meses
+- [ ] Registrar router en server/routers.ts
+
+### 2. Nine Box Grid - Frontend
+- [ ] Crear página NineBoxGrid.tsx
+- [ ] Implementar visualización de matriz 9x9 con CSS Grid
+- [ ] Agregar etiquetas de ejes (Desempeño: Bajo/Medio/Alto, Potencial: Bajo/Medio/Alto)
+- [ ] Mostrar empleados como tarjetas dentro de cada celda
+- [ ] Implementar drag-and-drop con react-dnd o nativo
+- [ ] Agregar filtros por departamento y fecha de evaluación
+- [ ] Implementar modal de detalles al hacer clic en empleado
+- [ ] Agregar botón de cálculo automático
+- [ ] Mostrar leyenda de colores y categorías de talento
+- [ ] Agregar ruta en App.tsx (/talent/nine-box)
+- [ ] Agregar enlace en menú de Gestión de Talento
+
+### 3. Snapshots Temporales - Backend
+- [ ] Crear tabla skills_matrix_snapshots en schema
+- [ ] Generar migración SQL y aplicar en base de datos
+- [ ] Crear router tRPC skillsMatrixSnapshots.ts
+- [ ] Implementar procedimiento createSnapshot (guardar snapshot manual/automático)
+- [ ] Implementar procedimiento getSnapshots (listar snapshots con filtros)
+- [ ] Implementar procedimiento compareSnapshots (comparar 2 snapshots)
+- [ ] Calcular diferencias por empleado y competencia
+- [ ] Calcular tendencias (crecimiento, estancamiento, retroceso)
+- [ ] Crear job programado monthlySnapshotJob.ts
+- [ ] Configurar ejecución automática primer día de cada mes
+- [ ] Registrar job en server/_core/index.ts
+- [ ] Registrar router en server/routers.ts
+
+### 4. Análisis Comparativo Temporal - Frontend
+- [ ] Crear página SkillsEvolution.tsx
+- [ ] Implementar selector de 2 snapshots para comparar
+- [ ] Mostrar tabla comparativa con diferencias por empleado
+- [ ] Agregar badges de tendencia (↑ crecimiento, → estable, ↓ retroceso)
+- [ ] Implementar gráfico de línea de tiempo con Chart.js
+- [ ] Mostrar evolución de nivel promedio por departamento
+- [ ] Agregar filtros por departamento, competencia y empleado
+- [ ] Implementar dashboard de KPIs (empleados mejorados, estancados, retrocedidos)
+- [ ] Agregar exportación a Excel con análisis comparativo
+- [ ] Agregar ruta en App.tsx (/skills/evolution)
+- [ ] Agregar enlace en menú de Matriz de Habilidades
+
+### 5. Pruebas y Optimización
+- [ ] Probar Nine Box Grid con datos reales
+- [ ] Probar drag-and-drop de empleados
+- [ ] Probar cálculo automático de desempeño y potencial
+- [ ] Probar creación manual de snapshots
+- [ ] Probar job automático de snapshots mensuales
+- [ ] Probar comparación de snapshots con gráficos
+- [ ] Verificar que no hay errores TypeScript
+- [ ] Guardar checkpoint final
+
+**FASE 123: ⚠️ PENDIENTE POR COMPLEJIDAD TÉCNICA** - Nine Box Grid y análisis comparativo temporal requieren implementación extensa (drag-and-drop, gráficos interactivos, jobs programados, algoritmos de tendencias). Se recomienda abordar en fase posterior con más tiempo de desarrollo.

@@ -735,7 +735,7 @@ export const skillsMatrixRouter = router({
               `;
 
               // Importar sendEmail dinámicamente para evitar errores de importación
-              const { sendEmail } = await import("../_core/email-sender");
+              const { sendEmail } = await import("../lib/email-sender");
               await sendEmail({
                 to: employee[0].email,
                 subject: `🎯 ${competenciesAdded} Nuevas Competencias en tu Programa de Capacitación`,
