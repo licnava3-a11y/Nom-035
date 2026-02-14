@@ -25,6 +25,7 @@ import { Download, Upload, Filter, TrendingUp, AlertCircle } from "lucide-react"
 import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { HeatmapExport } from "@/components/HeatmapExport";
+import { BulkHeatmapExport } from "@/components/BulkHeatmapExport";
 import {
   Dialog,
   DialogContent,
@@ -340,6 +341,7 @@ export default function SkillsMatrix() {
           </p>
         </div>
         <div className="flex gap-2">
+          <BulkHeatmapExport companyName="Plataforma NOM-035" />
           <HeatmapExport 
             targetElementId="skills-matrix-table" 
             filename="matriz_habilidades"

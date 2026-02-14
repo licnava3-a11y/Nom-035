@@ -478,4 +478,75 @@ export const skillsMatrixRouter = router({
         .orderBy(sql`${skillsMatrixImports.createdAt} DESC`)
         .limit(20);
     }),
+
+  // ============ Bulk Export for Heatmaps ============
+  
+  getActiveDepartments: protectedProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Get departments that have at least one employee
+      const depts = await db.select({
+        id: departments.id,
+        name: departments.name,
+      })
+        .from(departments)
+        .innerJoin(employees, eq(employees.departamento, departments.id))
+        .groupBy(departments.id, departments.name)
+        .orderBy(departments.name);
+      
+      return depts;
+    }),
+
+  getMatrixByDepartment: protectedProcedure
+    .input(z.object({
+      departmentId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Get employees in this department
+      const employeesList = await db.select({
+        id: employees.id,
+        name: employees.fullName,
+        position: positions.title,
+      })
+        .from(employees)
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .where(eq(employees.departmentId, input.departmentId))
+        .orderBy(employees.fullName);
+      
+      if (employeesList.length === 0) {
+        return {
+          employees: [],
+          competencies: [],
+          matrix: [],
+          departmentName: "",
+        };
+      }
+      
+      // Get all competencies
+      const competenciesList = await db.select()
+        .from(competencies)
+        .orderBy(competencies.name);
+      
+      // Get skills matrix data for these employees
+      const matrixData = await db.select()
+        .from(skillsMatrix)
+        .where(inArray(skillsMatrix.employeeId, employeesList.map(e => e.id)));
+      
+      // Get department name
+      const [dept] = await db.select({ name: departments.name })
+        .from(departments)
+        .where(eq(departments.id, input.departmentId));
+      
+      return {
+        employees: employeesList,
+        competencies: competenciesList,
+        matrix: matrixData,
+        departmentName: dept?.name || "Departamento Desconocido",
+      };
+    }),
 });

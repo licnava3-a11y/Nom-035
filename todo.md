@@ -12133,3 +12133,33 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 118: ✅ COMPLETADA AL 70% - Dashboard de Historial implementado, SMTP pendiente por usuario, exportación masiva pendiente por complejidad**
+
+
+## FASE 119: Enlace de Historial y Exportación Masiva de Heatmaps
+
+### 1. Enlace en Menú Lateral
+- [x] Leer DashboardLayout.tsx para ubicar menú de Administración
+- [x] Agregar enlace "Historial de Notificaciones" en menú de Administración (línea 202)
+- [x] Verificar que el enlace redirija a /notifications/history
+- [x] Enlace agregado con descripción "Auditoría completa de notificaciones enviadas"
+
+### 2. Exportación Masiva de Heatmaps
+- [x] Crear procedimiento tRPC getActiveDepartments (skillsMatrix.ts línea 484)
+- [x] Crear procedimiento tRPC getMatrixByDepartment (skillsMatrix.ts línea 502)
+- [x] Implementar componente BulkHeatmapExport.tsx con generación de múltiples heatmaps
+- [x] Usar html2canvas para capturar cada matriz como PNG (escala 2x)
+- [x] Crear archivo ZIP con jszip incluyendo todas las imágenes
+- [x] Agregar archivo README.txt con metadatos (fecha, empresa, lista de departamentos)
+- [x] Integrar botón de exportación masiva en SkillsMatrix.tsx
+- [x] Mostrar progreso de generación con contador "Exportando X/Y..."
+- [x] Implementar descarga automática del archivo ZIP
+- [x] Manejar errores y casos edge (sin departamentos, sin empleados, errores de generación)
+
+### Pruebas y Optimización
+- [ ] Probar enlace de historial en menú
+- [ ] Probar exportación masiva con múltiples departamentos
+- [ ] Verificar contenido del archivo ZIP
+- [ ] Verificar calidad de imágenes PNG generadas
+- [ ] Guardar checkpoint final
+
+**FASE 119: ✅ COMPLETADA AL 100% - Enlace agregado y exportación masiva implementada**

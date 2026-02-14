@@ -199,6 +199,7 @@ const hierarchicalMenuItems = [
       { label: "Configuración SMTP", path: "/administrative/smtp-config", description: "Configurar servidor de correo electrónico" },
       { label: "Configuración", path: "/settings", description: "Configuración general del sistema" },
       { label: "Preferencias de Notificaciones", path: "/settings/notifications", description: "Personalizar tipos y frecuencia de notificaciones" },
+      { label: "Historial de Notificaciones", path: "/notifications/history", description: "Auditoría completa de notificaciones enviadas" },
       { label: "Catálogo de Formatos", path: "/document-formats", description: "Nomenclatura de folios para documentos" },
       { label: "Plantillas de Reportes", path: "/report-templates", description: "Plantillas personalizables HTML/CSS" },
       { label: "Auditoría de Documentos", path: "/document-audit", description: "Registro de accesos y descargas" },
