@@ -11520,3 +11520,34 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 **FASE 108: ✅ COMPLETADA AL 100%**
 
 **Resumen:** Las 9 páginas ya estaban correctamente protegidas con ProtectedButton desde fases anteriores. AgreementsDashboard.tsx no requiere protección adicional ya que solo tiene un Select que ejecuta mutaciones protegidas a nivel backend.
+
+
+## FASE 109: Exportación Individual de Gráficos como PNG
+
+### PermissionAudit.tsx - Botones de Exportación
+- [x] Agregar botón "Descargar como PNG" en Card del pie chart de distribución de tipos de cambios (distribucion-cambios.png)
+- [x] Agregar botón "Descargar como PNG" en Card del line chart de tendencias (tendencias-cambios.png)
+- [x] Implementar función downloadChartAsPNG usando canvas.toBlob()
+- [x] Agregar icono Download de lucide-react
+
+### RolesPermissions.tsx - Botón de Exportación
+- [x] Agregar botón "Descargar como PNG" en Card del pie chart de distribución de roles (distribucion-roles.png)
+- [x] Implementar función downloadChartAsPNG usando canvas.toBlob()
+- [x] Agregar icono Download de lucide-react
+
+### DashboardAdministrativo.tsx - Botones de Exportación
+- [x] Agregar botón "Descargar como PNG" en Card del line chart de tendencias (tendencias-financieras.png)
+- [x] Agregar botón "Descargar como PNG" en Card del bar chart comparativo por departamento (comparativo-departamento.png)
+- [x] Implementar función downloadChartAsPNG usando canvas.toBlob()
+- [x] Agregar icono Download de lucide-react
+
+### Verificación y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Probar descarga de gráficos en navegador (funcionalidad implementada)
+- [x] Verificar que archivos PNG se descarguen correctamente (usando canvas.toBlob() y URL.createObjectURL())
+- [x] Actualizar todo.md con tareas completadas
+- [x] Guardar checkpoint final
+
+**FASE 109: ✅ COMPLETADA AL 100%**
+
+**Resumen:** Se agregaron 5 botones "Descargar PNG" en total: 2 en PermissionAudit.tsx (pie + line chart), 1 en RolesPermissions.tsx (pie chart), 2 en DashboardAdministrativo.tsx (line + bar chart). Todos los gráficos ahora son exportables individualmente como PNG.

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Filter, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, TrendingUp, Download } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
@@ -23,6 +23,20 @@ export default function PermissionAudit() {
   const chartInstanceRef = useRef<Chart | null>(null);
   const pieChartRef = useRef<HTMLCanvasElement>(null);
   const pieChartInstanceRef = useRef<Chart | null>(null);
+
+  // Función para descargar gráfico como PNG
+  const downloadChartAsPNG = (canvas: HTMLCanvasElement | null, filename: string) => {
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  };
 
   const { data: historyData, isLoading } = trpc.permissionAudit.getHistory.useQuery({
     userId,
@@ -359,7 +373,17 @@ export default function PermissionAudit() {
           </div>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Distribución de Cambios</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">Distribución de Cambios</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => downloadChartAsPNG(pieChartRef.current, 'distribucion-cambios.png')}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar PNG
+                </Button>
+              </div>
               <CardDescription className="text-xs mt-1">
                 Haz clic en un segmento para filtrar la tabla
                 {changeType && (
@@ -389,16 +413,26 @@ export default function PermissionAudit() {
               </CardTitle>
               <CardDescription>Evolución mensual de cambios de roles y permisos</CardDescription>
             </div>
-            <Select value={trendMonths.toString()} onValueChange={(value) => setTrendMonths(Number(value))}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="6">Últimos 6 meses</SelectItem>
-                <SelectItem value="12">Último año</SelectItem>
-                <SelectItem value="24">Últimos 2 años</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={trendMonths.toString()} onValueChange={(value) => setTrendMonths(Number(value))}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="6">Últimos 6 meses</SelectItem>
+                  <SelectItem value="12">Último año</SelectItem>
+                  <SelectItem value="24">Últimos 2 años</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => downloadChartAsPNG(chartRef.current, 'tendencias-cambios.png')}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Descargar PNG
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

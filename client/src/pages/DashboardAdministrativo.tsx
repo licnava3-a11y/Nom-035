@@ -3,8 +3,9 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { Button } from "@/components/ui/button";
 import ProtectedButton from "@/components/ProtectedButton";
-import { DollarSign, ShoppingCart, Receipt, TrendingUp } from "lucide-react";
+import { DollarSign, ShoppingCart, Receipt, TrendingUp, Download } from "lucide-react";
 import Chart from "chart.js/auto";
 
 export default function DashboardAdministrativo() {
@@ -17,6 +18,20 @@ export default function DashboardAdministrativo() {
   const chartInstance = useRef<Chart | null>(null);
   const barChartRef = useRef<HTMLCanvasElement>(null);
   const barChartInstance = useRef<Chart | null>(null);
+
+  // Función para descargar gráfico como PNG
+  const downloadChartAsPNG = (canvas: HTMLCanvasElement | null, filename: string) => {
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  };
 
   // Funciones de exportación
   const exportToExcel = () => {
@@ -596,10 +611,20 @@ export default function DashboardAdministrativo() {
       {/* Gráfico de Tendencias */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Tendencias Financieras
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Tendencias Financieras
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadChartAsPNG(chartRef.current, 'tendencias-financieras.png')}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Descargar PNG
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[400px]">
@@ -611,10 +636,20 @@ export default function DashboardAdministrativo() {
       {/* Gráfico Comparativo por Departamento */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5" />
-            Comparativo por Departamento
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              Comparativo por Departamento
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadChartAsPNG(barChartRef.current, 'comparativo-departamento.png')}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Descargar PNG
+            </Button>
+          </div>
           <p className="text-sm text-muted-foreground mt-2">
             Haz clic en una barra para filtrar datos por departamento
             {departamento !== "todos" && (

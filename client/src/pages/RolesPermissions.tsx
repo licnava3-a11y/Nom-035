@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Button } from "@/components/ui/button";
-import { Shield, Users, Check, X, Search, Edit, FileDown, FileText } from "lucide-react";
+import { Shield, Users, Check, X, Search, Edit, FileDown, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Chart, registerables } from "chart.js";
 
@@ -37,6 +37,20 @@ export default function RolesPermissions() {
   const [newRole, setNewRole] = useState<string>("");
   const pieChartRef = useRef<HTMLCanvasElement>(null);
   const pieChartInstanceRef = useRef<Chart | null>(null);
+
+  // Función para descargar gráfico como PNG
+  const downloadChartAsPNG = (canvas: HTMLCanvasElement | null, filename: string) => {
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  };
 
   const utils = trpc.useUtils();
 
@@ -335,7 +349,17 @@ export default function RolesPermissions() {
         </div>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Distribución de Roles</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium">Distribución de Roles</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => downloadChartAsPNG(pieChartRef.current, 'distribucion-roles.png')}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Descargar PNG
+              </Button>
+            </div>
             <CardDescription className="text-xs">
               Haz clic en un segmento para filtrar la tabla
               {selectedRole !== "all" && (
