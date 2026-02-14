@@ -11684,3 +11684,32 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 
 **Resumen:** Todas las funcionalidades del Panel de Acciones Correctivas ya estaban implementadas desde la FASE 69 original. El sistema incluye filtros completos, paginación, gráficas de distribución, modal de edición, eliminación con confirmación, y enlace en menú.
 
+
+
+## FASE 112: Completar Sistema de Notificaciones Automáticas (FASE 70 Continuación)
+
+### Tarea Programada para Recordatorios
+- [x] Crear archivo corrective-actions-reminders-job.ts para cron job de recordatorios
+- [x] Implementar función runCorrectiveActionsRemindersCheck() que se ejecuta diariamente a las 8:00 AM
+- [x] Enviar recordatorios automáticos a responsables (7 días antes y día del vencimiento)
+- [x] Registrar logs de envíos exitosos y fallidos con console.log
+- [x] Manejo robusto de errores (responsables sin asignar, fechas null, emails inválidos)
+
+### Notificación al Coordinador
+- [x] Implementar función sendCoordinatorWeeklySummary() para notificación al coordinador
+- [x] Crear resumen semanal de acciones vencidas con HTML profesional
+- [x] Configurar frecuencia: cada lunes a las 9:00 AM
+- [x] Incluir detalles de cada acción vencida (descripción, departamento, días de retraso, nivel de riesgo)
+
+### Pruebas y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Job iniciado automáticamente en server/_core/index.ts
+- [x] Documentar configuración de tareas programadas en código
+- [x] Guardar checkpoint final
+
+**FASE 112 (FASE 70 Continuación): ✅ COMPLETADA AL 100%**
+
+**Resumen:** Sistema de notificaciones automáticas implementado con 2 jobs programados: (1) Recordatorios diarios a las 8:00 AM (7 días antes + día del vencimiento), (2) Resumen semanal al coordinador cada lunes a las 9:00 AM. Incluye HTML profesional, manejo de errores robusto y logs detallados.
+
+**Nota:** Para habilitar envío de correos, es necesario configurar variables SMTP en la página de configuración administrativa (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS).
+
