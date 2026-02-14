@@ -70,6 +70,8 @@ import { rolesPermissionsRouter } from "./routers/rolesPermissions";
 import { customPermissionsRouter } from "./routers/customPermissions";
 import { permissionAuditRouter } from "./routers/permissionAudit";
 import { surveyAnonymousTokensRouter } from "./routers/surveyAnonymousTokens";
+import { notificationPreferencesRouter } from "./routers/notificationPreferences";
+import { predictiveAlertsRouter } from "./routers/predictiveAlerts";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -946,6 +948,8 @@ export const appRouter = router({
 
   // Survey Anonymous Tokens (NOM-035 anonymous access)
   surveyAnonymousTokens: surveyAnonymousTokensRouter,
+  notificationPreferences: notificationPreferencesRouter,
+  predictiveAlerts: predictiveAlertsRouter,
 });
 
 export type AppRouter = typeof appRouter;

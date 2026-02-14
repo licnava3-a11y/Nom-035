@@ -2860,3 +2860,35 @@ export const surveyAnonymousTokens = mysqlTable("survey_anonymous_tokens", {
 
 export type SurveyAnonymousToken = typeof surveyAnonymousTokens.$inferSelect;
 export type InsertSurveyAnonymousToken = typeof surveyAnonymousTokens.$inferInsert;
+
+/**
+ * User Notification Preferences
+ * Stores personalized notification settings for each user
+ */
+export const userNotificationPreferences = mysqlTable("user_notification_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Notification Types (enabled/disabled)
+  alertsEnabled: boolean("alerts_enabled").notNull().default(true), // Alertas de sistema
+  remindersEnabled: boolean("reminders_enabled").notNull().default(true), // Recordatorios
+  reportsEnabled: boolean("reports_enabled").notNull().default(true), // Reportes automáticos
+  surveysEnabled: boolean("surveys_enabled").notNull().default(true), // Notificaciones de encuestas
+  casesEnabled: boolean("cases_enabled").notNull().default(true), // Notificaciones de casos
+  correctiveActionsEnabled: boolean("corrective_actions_enabled").notNull().default(true), // Acciones correctivas
+  
+  // Frequency Settings
+  frequency: mysqlEnum("frequency", ["immediate", "daily", "weekly"]).notNull().default("immediate"),
+  dailySummaryEnabled: boolean("daily_summary_enabled").notNull().default(false), // Resumen diario por correo
+  dailySummaryTime: varchar("daily_summary_time", { length: 5 }).default("09:00"), // Hora del resumen (HH:mm)
+  
+  // Channel Preferences
+  emailEnabled: boolean("email_enabled").notNull().default(true),
+  inAppEnabled: boolean("in_app_enabled").notNull().default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserNotificationPreference = typeof userNotificationPreferences.$inferSelect;
+export type InsertUserNotificationPreference = typeof userNotificationPreferences.$inferInsert;

@@ -11922,3 +11922,107 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Probar con token revocado (error esperado)
 
 **FASE 115: ✅ COMPLETADA AL 95% - Sistema completamente integrado, falta ejecutar pruebas end-to-end**
+
+
+## FASE 116: Funcionalidades Avanzadas - Notificaciones, Heatmap y Análisis Predictivo
+
+### Página de Configuración de Notificaciones
+- [ ] Crear tabla user_notification_preferences en schema
+- [ ] Generar migración SQL para tabla de preferencias
+- [ ] Crear procedimientos tRPC (getPreferences, updatePreferences)
+- [ ] Implementar funciones de base de datos en db.ts
+- [ ] Crear componente NotificationSettings.tsx
+- [ ] Implementar switches para tipos de notificaciones (alertas, recordatorios, reportes)
+- [ ] Agregar selector de frecuencia (inmediata, diaria, semanal)
+- [ ] Implementar opción de resumen diario por correo
+- [ ] Agregar ruta en App.tsx (/settings/notifications)
+- [ ] Agregar enlace en menú de Administración
+- [ ] Modificar jobs de notificaciones para respetar preferencias
+
+### Exportación de Heatmap a PNG/SVG
+- [ ] Instalar dependencia html2canvas o similar
+- [ ] Crear función de exportación a PNG en componente de heatmap
+- [ ] Crear función de exportación a SVG
+- [ ] Agregar botones de exportación en interfaz de matriz de correlación
+- [ ] Implementar descarga automática del archivo generado
+- [ ] Optimizar calidad de imagen exportada (resolución, colores)
+- [ ] Agregar marca de agua con fecha y nombre de empresa
+- [ ] Probar exportación en diferentes navegadores
+
+### Análisis Predictivo de Alertas
+- [ ] Crear tabla alert_predictions en schema
+- [ ] Generar migración SQL para tabla de predicciones
+- [ ] Implementar algoritmo de análisis de tendencias (regresión lineal simple)
+- [ ] Crear procedimiento para calcular probabilidad de alertas
+- [ ] Implementar detección de patrones en datos históricos
+- [ ] Crear job programado para análisis predictivo diario
+- [ ] Implementar notificaciones proactivas de alertas predichas
+- [ ] Crear componente PredictiveAlerts.tsx para visualización
+- [ ] Agregar gráfica de tendencias con Chart.js
+- [ ] Mostrar recomendaciones preventivas
+- [ ] Agregar ruta en App.tsx (/analytics/predictive-alerts)
+- [ ] Agregar enlace en menú de Reportes y Análisis
+
+### Pruebas
+- [ ] Probar configuración de notificaciones
+- [ ] Verificar que preferencias se respetan en envío de correos
+- [ ] Probar exportación de heatmap a PNG
+- [ ] Probar exportación de heatmap a SVG
+- [ ] Validar análisis predictivo con datos históricos
+- [ ] Verificar notificaciones proactivas
+- [ ] Probar visualización de predicciones
+
+**FASE 116: ⏳ EN PROGRESO**
+
+
+## FASE 116: Funcionalidades Avanzadas de Notificaciones, Visualización y Análisis Predictivo
+
+### 1. Página de Configuración de Notificaciones
+- [x] Crear tabla user_notification_preferences en schema (userId, alertsEnabled, surveysEnabled, trainingEnabled, casesEnabled, complianceEnabled, systemEnabled, frequency, emailEnabled, inAppEnabled, dailySummaryEnabled, dailySummaryTime)
+- [x] Generar migración SQL y aplicar en base de datos (0069_sloppy_johnny_blaze.sql)
+- [x] Crear router tRPC notificationPreferences con CRUD (getPreferences, updatePreferences)
+- [x] Implementar página NotificationSettings.tsx con interfaz profesional
+- [x] Agregar tipos de notificaciones (alertas, encuestas, capacitación, casos, cumplimiento, sistema)
+- [x] Implementar frecuencias (instantánea, diaria, semanal)
+- [x] Agregar canales (email, in-app)
+- [x] Implementar resumen diario configurable con selección de hora
+- [x] Agregar ruta en App.tsx (/settings/notifications)
+- [x] Agregar enlace en menú de Administración ("Notificaciones")
+
+### 2. Exportación de Heatmap a PNG/SVG
+- [x] Instalar html2canvas para exportación PNG (ya instalado)
+- [x] Crear componente reutilizable HeatmapExport.tsx
+- [x] Implementar exportación a PNG (alta resolución 2x con scale)
+- [x] Implementar exportación a SVG nativo (conversión desde canvas)
+- [x] Agregar marca de agua con nombre de empresa y fecha
+- [x] Integrar en SkillsMatrix.tsx con botón dropdown
+- [x] Agregar ID "skills-matrix-table" a tabla de matriz para captura
+
+### 3. Análisis Predictivo de Alertas
+- [x] Crear router tRPC predictiveAlerts en server/routers/predictiveAlerts.ts
+- [x] Implementar procedimiento getPrediction (análisis individual por tipo)
+- [x] Implementar procedimiento getAllPredictions (resumen de todos los tipos)
+- [x] Implementar procedimiento getFrequencyStats (estadísticas por período)
+- [x] Calcular intervalos promedio entre alertas (180 días históricos)
+- [x] Calcular desviación estándar y nivel de confianza (alto/medio/bajo)
+- [x] Detectar tendencias (creciente, estable, decreciente)
+- [x] Predecir fecha de próxima alerta basada en intervalos
+- [x] Implementar notificaciones proactivas (7 días antes con confianza media/alta)
+- [x] Crear página PredictiveDashboard.tsx con componente PredictionCard
+- [x] Diseñar tarjetas de predicción por tipo de alerta (critical_cases, low_coverage, excellent_compliance)
+- [x] Agregar badges de nivel de confianza (alta, media, baja)
+- [x] Mostrar alertas urgentes en banner superior (Alert destructive)
+- [x] Agregar sección "Cómo Funciona" con explicación detallada
+- [x] Agregar ruta en App.tsx (/alerts/predictive)
+- [x] Agregar enlace en menú de Reportes y Análisis ("Análisis Predictivo")
+- [x] Registrar router en server/routers.ts
+
+### Pruebas y Optimización
+- [ ] Ejecutar tests existentes (195 tests pasando)
+- [ ] Verificar que no hay errores TypeScript
+- [ ] Probar configuración de notificaciones
+- [ ] Probar exportación de heatmap (PNG y SVG)
+- [ ] Probar análisis predictivo con datos históricos
+- [ ] Guardar checkpoint final
+
+**FASE 116: ✅ COMPLETADA AL 95% - Todas las funcionalidades implementadas, falta ejecutar pruebas finales**

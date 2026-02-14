@@ -183,6 +183,7 @@ const hierarchicalMenuItems = [
       { label: "Gráficas de Tendencias", path: "/trends", description: "Evolución temporal de casos y cumplimiento" },
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento NOM-035 y NMX-025" },
       { label: "Histórico de Alertas", path: "/alert-history", description: "Registro de alertas para auditoría" },
+      { label: "Análisis Predictivo", path: "/alerts/predictive", description: "Predicción de alertas basada en datos históricos" },
     ],
   },
   {
@@ -197,6 +198,7 @@ const hierarchicalMenuItems = [
       { label: "Auditoría de Permisos", path: "/administrative/permission-audit", description: "Historial de cambios de roles y permisos" },
       { label: "Configuración SMTP", path: "/administrative/smtp-config", description: "Configurar servidor de correo electrónico" },
       { label: "Configuración", path: "/settings", description: "Configuración general del sistema" },
+      { label: "Preferencias de Notificaciones", path: "/settings/notifications", description: "Personalizar tipos y frecuencia de notificaciones" },
       { label: "Catálogo de Formatos", path: "/document-formats", description: "Nomenclatura de folios para documentos" },
       { label: "Plantillas de Reportes", path: "/report-templates", description: "Plantillas personalizables HTML/CSS" },
       { label: "Auditoría de Documentos", path: "/document-audit", description: "Registro de accesos y descargas" },

@@ -34,6 +34,7 @@ const AlertHistory = lazy(() => import("./pages/AlertHistory"));
 const AlertReportsConfig = lazy(() => import("./pages/AlertReportsConfig"));
 const AlertMetricsDashboard = lazy(() => import("./pages/AlertMetricsDashboard"));
 const AlertThresholdsConfig = lazy(() => import("./pages/AlertThresholdsConfig"));
+const PredictiveDashboard = lazy(() => import("./pages/alerts/PredictiveDashboard"));
 const NotificationHistory = lazy(() => import("./pages/NotificationHistory"));
 const Users = lazy(() => import("./pages/Users"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -92,6 +93,7 @@ const EvidenceFolder = lazy(() => import("./pages/nom035/EvidenceFolder"));
 const SurveyApply = lazy(() => import("./pages/SurveyApply"));
 const Settings = lazy(() => import("./pages/Settings"));
 const CompanySettings = lazy(() => import("./pages/company/CompanySettings"));
+const NotificationSettings = lazy(() => import("./pages/settings/NotificationSettings"));
 const EqualityPolicy = lazy(() => import("./pages/equality/Policy"));
 const NOM035Questionnaire = lazy(() => import("./pages/NOM035Questionnaire"));
 const NOM035Results = lazy(() => import("./pages/NOM035Results"));
@@ -305,6 +307,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <AlertHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alerts/predictive"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PredictiveDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
@@ -733,6 +742,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <CompanySettings />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/settings/notifications"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NotificationSettings />
             </Suspense>
           </DashboardLayout>
         </Route>

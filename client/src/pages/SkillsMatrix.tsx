@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { Download, Upload, Filter, TrendingUp, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { HeatmapExport } from "@/components/HeatmapExport";
 import {
   Dialog,
   DialogContent,
@@ -339,6 +340,11 @@ export default function SkillsMatrix() {
           </p>
         </div>
         <div className="flex gap-2">
+          <HeatmapExport 
+            targetElementId="skills-matrix-table" 
+            filename="matriz_habilidades"
+            companyName="Plataforma NOM-035"
+          />
           <Button onClick={handleExport} variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Exportar Excel
@@ -469,7 +475,7 @@ export default function SkillsMatrix() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <Table>
+            <Table id="skills-matrix-table">
               <TableHeader>
                 <TableRow>
                   <TableHead className="sticky left-0 bg-background z-10 min-w-[200px]">
