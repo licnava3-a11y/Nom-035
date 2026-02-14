@@ -12367,3 +12367,64 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 123: ⚠️ PENDIENTE POR COMPLEJIDAD TÉCNICA** - Nine Box Grid y análisis comparativo temporal requieren implementación extensa (drag-and-drop, gráficos interactivos, jobs programados, algoritmos de tendencias). Se recomienda abordar en fase posterior con más tiempo de desarrollo.
+
+
+## FASE 124: Nine Box Grid Simplificado y Snapshots Manuales de Matriz de Habilidades
+
+### 1. Router tRPC para Nine Box Grid Simplificado
+- [x] Crear archivo server/routers/nineBoxGrid.ts con procedimientos básicos
+- [x] Implementar procedimiento calculateAssessment (cálculo individual de desempeño y potencial)
+- [x] Implementar procedimiento calculateAll (cálculo masivo para todos los empleados activos)
+- [x] Calcular desempeño: nivel promedio de competencias (0-4 mapeado a 1-3)
+- [x] Calcular potencial: tasa de completitud de capacitaciones (0-100% mapeado a 1-3)
+- [x] Mapear a performanceScore y potentialScore (1-3: bajo, medio, alto)
+- [x] Determinar cuadrante automáticamente (9 categorías: alto/medio/bajo x alto/medio/bajo)
+- [x] Implementar procedimiento getAll (listar todas las evaluaciones con filtros y paginación)
+- [x] Implementar procedimiento getStats (estadísticas por cuadrante)
+- [x] Registrar router en server/routers.ts
+
+### 2. Página Nine Box Grid con Visualización Estática
+- [x] Crear archivo client/src/pages/talent/NineBoxGrid.tsx
+- [x] Implementar tabla con columnas: empleado, departamento, desempeño, potencial, cuadrante, fecha evaluación
+- [x] Agregar filtros: departamento, cuadrante, búsqueda por nombre
+- [x] Crear visualización estática de 9 cuadrantes con conteo de empleados por cuadrante
+- [x] Usar colores diferenciados por cuadrante (verde, azul, púrpura, amarillo, naranja, rojo)
+- [x] Agregar botón "Calcular Automáticamente" con confirmación y toast de resultado
+- [x] Mostrar 3 KPIs: total evaluados, alto potencial, bajo desempeño
+- [x] Agregar paginación (50 evaluaciones por página)
+- [x] Agregar ruta en App.tsx (/talent/nine-box-grid)
+- [x] Agregar enlace en menú de Gestión de Talento ("Nine Box Grid")
+
+### 3. Tabla de Snapshots y Procedimientos tRPC
+- [ ] Crear tabla skills_matrix_snapshots en drizzle/schema.ts
+- [ ] Campos: id, snapshotDate, name, description, createdBy, data (JSON)
+- [ ] Generar migración SQL y aplicar en base de datos
+- [ ] Crear archivo server/routers/skillsMatrixSnapshots.ts
+- [ ] Implementar procedimiento create (guardar snapshot con datos JSON)
+- [ ] Implementar procedimiento getAll (listar snapshots con paginación)
+- [ ] Implementar procedimiento getById (obtener snapshot específico)
+- [ ] Implementar procedimiento compare (comparar dos snapshots)
+- [ ] Registrar router en server/routers.ts
+
+### 4. Botón de Snapshot Manual y Página de Comparación
+- [ ] Agregar botón "Guardar Snapshot" en SkillsMatrix.tsx
+- [ ] Implementar modal de confirmación con nombre y descripción del snapshot
+- [ ] Guardar datos actuales de matriz en formato JSON
+- [ ] Mostrar toast de confirmación con enlace a página de snapshots
+- [ ] Crear página client/src/pages/talent/SkillsMatrixSnapshots.tsx
+- [ ] Mostrar lista de snapshots con fecha, nombre, descripción, creador
+- [ ] Implementar selector de dos snapshots para comparación
+- [ ] Crear visualización de diferencias: competencias agregadas, eliminadas, mejoradas, empeoradas
+- [ ] Agregar gráfico de tendencia de nivel promedio por departamento
+- [ ] Agregar ruta en App.tsx (/talent/snapshots)
+- [ ] Agregar enlace en menú de Gestión de Talento
+
+### 5. Pruebas y Optimización
+- [ ] Probar cálculo automático de Nine Box Grid
+- [ ] Verificar visualización de 9 cuadrantes
+- [ ] Probar guardado de snapshot manual
+- [ ] Verificar comparación de dos snapshots
+- [ ] Validar que no hay errores TypeScript
+- [ ] Guardar checkpoint final
+
+**FASE 124: ✅ COMPLETADA AL 50% - Nine Box Grid simplificado implementado, snapshots manuales pendientes por complejidad**

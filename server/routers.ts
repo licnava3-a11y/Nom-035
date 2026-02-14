@@ -72,6 +72,7 @@ import { permissionAuditRouter } from "./routers/permissionAudit";
 import { surveyAnonymousTokensRouter } from "./routers/surveyAnonymousTokens";
 import { notificationPreferencesRouter } from "./routers/notificationPreferences";
 import { predictiveAlertsRouter } from "./routers/predictiveAlerts";
+import { nineBoxGridRouter } from "./routers/nineBoxGrid";
 import { notificationLogsRouter } from "./routers/notificationLogs";
 
 // Admin-only procedure
@@ -951,6 +952,7 @@ export const appRouter = router({
   surveyAnonymousTokens: surveyAnonymousTokensRouter,
   notificationPreferences: notificationPreferencesRouter,
   predictiveAlerts: predictiveAlertsRouter,
+  nineBoxGrid: nineBoxGridRouter,
   notificationLogs: notificationLogsRouter,
 });
 

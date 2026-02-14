@@ -82,6 +82,7 @@ const hierarchicalMenuItems = [
       { label: "Notificaciones Automáticas", path: "/notifications-dashboard", description: "Gestión de plantillas y envío automático" },
       { label: "Competencias", path: "/competencies-dashboard", description: "Dashboard de competencias por trabajador" },
       { label: "Matriz de Habilidades", path: "/skills-matrix", description: "Matriz de habilidades del personal" },
+      { label: "Nine Box Grid", path: "/talent/nine-box-grid", description: "Matriz 9-box de evaluación de talento" },
       { label: "Evaluación de Competencias", path: "/competency-evaluation", description: "Evaluación de competencias y desempeño" },
       { label: "DNC Consolidada", path: "/dnc-dashboard", description: "Detección de Necesidades de Capacitación" },
       { label: "Catálogo de Competencias", path: "/competencies-manager", description: "Administración del catálogo de competencias" },
