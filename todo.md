@@ -11492,3 +11492,31 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Guardar checkpoint final
 
 **FASE 107: ✅ COMPLETADA AL 100%**
+
+
+## FASE 108: Protección de Botones en 9 Páginas Pendientes
+
+### Grupo 1: Gestión de Comité y Documentos
+- [x] CommitteeMinutesManagement.tsx - YA PROTEGIDO (13 ProtectedButton: crear, editar, publicar, eliminar, exportar PDF, agregar/eliminar asistentes, agenda, acuerdos)
+- [x] Documents.tsx - YA PROTEGIDO (3 ProtectedButton)
+- [x] DocumentFormats.tsx - YA PROTEGIDO (9 ProtectedButton: crear, editar, eliminar formatos)
+
+### Grupo 2: Encuestas NOM-035 y Buzón
+- [x] SurveysAdminPanel.tsx - YA PROTEGIDO (3 ProtectedButton: crear periodo, enviar encuestas)
+- [x] Nom035AdminPanel.tsx - YA PROTEGIDO (5 ProtectedButton: generar reporte, exportar)
+- [x] Mailbox.tsx - YA PROTEGIDO (3 ProtectedButton: responder, archivar, eliminar)
+
+### Grupo 3: Notificaciones y Alertas
+- [x] NotificationsDashboard.tsx - YA PROTEGIDO (7 ProtectedButton: enviar, eliminar notificaciones)
+- [x] AgreementsDashboard.tsx - NO REQUIERE PROTECCIÓN (solo tiene Select para cambiar estado, protección a nivel backend)
+- [x] EarlyWarnings.tsx - YA PROTEGIDO (9 ProtectedButton: crear alerta, resolver, editar)
+
+### Verificación y Documentación
+- [x] Verificar compilación TypeScript (0 errores)
+- [x] Verificar que todas las páginas estén protegidas correctamente
+- [x] Actualizar todo.md con tareas completadas
+- [x] Guardar checkpoint final
+
+**FASE 108: ✅ COMPLETADA AL 100%**
+
+**Resumen:** Las 9 páginas ya estaban correctamente protegidas con ProtectedButton desde fases anteriores. AgreementsDashboard.tsx no requiere protección adicional ya que solo tiene un Select que ejecuta mutaciones protegidas a nivel backend.
