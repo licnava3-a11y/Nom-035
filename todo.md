@@ -13034,12 +13034,13 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Integrar con sistema de notificaciones existente
 
 #### 1.3 Frontend - Página de Reconocimientos
-- [ ] Crear página client/src/pages/talent/Recognitions.tsx
-- [ ] Formulario de envío de reconocimiento (selector de empleado, categoría, mensaje)
-- [ ] Buzón de reconocimientos recibidos con filtros
-- [ ] Buzón de reconocimientos enviados
-- [ ] Muro público de reconocimientos (solo públicos)
-- [ ] Agregar ruta en App.tsx
+- [x] Crear página client/src/pages/talent/Recognitions.tsx
+- [x] Formulario de envío de reconocimiento (selector de empleado, categoría, mensaje)
+- [x] Buzón de reconocimientos recibidos con filtros
+- [x] Buzón de reconocimientos enviados
+- [x] Muro público de reconocimientos (solo públicos)
+- [x] Agregar ruta en App.tsx
+- [x] Sistema de reacciones (likes, aplausos, corazones, estrellas)
 
 #### 1.4 Frontend - Dashboard y Reportes
 - [ ] Card de "Reconocimientos del Mes" en dashboard principal

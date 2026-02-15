@@ -54,6 +54,7 @@ const CompetenciesDashboard = lazy(() => import("./pages/CompetenciesDashboard")
 const SkillsMatrix = lazy(() => import("./pages/SkillsMatrix"));
 const SkillsMatrixSnapshots = lazy(() => import("./pages/talent/SkillsMatrixSnapshots"));
 const NineBoxGrid = lazy(() => import("./pages/talent/NineBoxGrid"));
+const Recognitions = lazy(() => import("./pages/talent/Recognitions"));
 const EmployeeCompetencyEvaluation = lazy(() => import("./pages/EmployeeCompetencyEvaluation"));
 const DNCDashboard = lazy(() => import("./pages/DNCDashboard"));
 const OrganizationalCompetenciesManager = lazy(() => import("./pages/OrganizationalCompetenciesManager"));
@@ -471,6 +472,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <NineBoxGrid />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/talent/recognitions"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Recognitions />
             </Suspense>
           </DashboardLayout>
         </Route>
