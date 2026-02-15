@@ -118,13 +118,20 @@ export default function RecognitionsCard() {
     doc.setTextColor(0, 0, 0);
     doc.text(`Total de reconocimientos: ${report.total}`, 25, 58);
     
+    // Agregar gráfico de categorías
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      const imgData = canvas.toDataURL('image/png');
+      doc.addImage(imgData, 'PNG', 20, 65, 80, 80);
+    }
+    
     // Tabla de categorías
     doc.setFontSize(14);
     doc.setTextColor(22, 101, 52);
-    doc.text("Distribución por Categoría", 20, 70);
+    doc.text("Distribución por Categoría", 20, 155);
     
     autoTable(doc, {
-      startY: 75,
+      startY: 160,
       head: [['Categoría', 'Cantidad', 'Porcentaje']],
       body: report.byCategory.map(c => [
         c.categoryName,

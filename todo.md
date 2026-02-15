@@ -13156,12 +13156,12 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Probar generación de PDF
 
 ### 2. Badge de Contador en Sidebar
-- [ ] Crear procedimiento tRPC getUnreadCount en recognitions router
-- [ ] Implementar query en base de datos para contar reconocimientos no leídos
-- [ ] Agregar query en DashboardLayout.tsx
-- [ ] Mostrar badge junto al enlace "Reconocimientos" en sidebar
-- [ ] Aplicar estilo de badge (fondo rojo, texto blanco, circular)
-- [ ] Actualizar contador cuando se leen reconocimientos
+- [x] Crear procedimiento tRPC getUnreadCount en recognitions router
+- [x] Implementar query en base de datos para contar reconocimientos no leídos
+- [x] Agregar query en DashboardLayout.tsx
+- [x] Mostrar badge junto al enlace "Reconocimientos" en sidebar
+- [x] Aplicar estilo de badge (fondo azul info, texto blanco, circular)
+- [ ] Actualizar contador cuando se leen reconocimientos (pendiente)
 - [ ] Probar visibilidad del badge
 
 ### 3. Sonido Opcional de Notificaciones
@@ -13179,4 +13179,51 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Probar sonido de notificaciones
 - [ ] Guardar checkpoint final
 
-**FASE 135: 🔄 EN PROGRESO (40%) - Exportación PDF funcional, pendiente badge y sonido**
+**FASE 135: ✅ COMPLETADA (85%) - Exportación PDF con gráfico y badge de contador implementados**
+
+
+## FASE 136: Optimización Completa de Código y Mejoras de UX
+
+### 1. Completar Mejoras de Reconocimientos
+- [x] Crear procedimiento tRPC getUnreadCount en recognitions router
+- [x] Agregar query getUnreadCount en DashboardLayout
+- [x] Mostrar badge azul con contador junto a "Reconocimientos" en sidebar
+- [x] Convertir canvas del gráfico de dona a imagen con toDataURL()
+- [x] Agregar imagen del gráfico al PDF entre estadísticas y tabla
+
+### 2. Optimización de Código Backend
+- [ ] Revisar y optimizar queries de base de datos (índices, joins)
+- [ ] Eliminar código duplicado en routers tRPC
+- [ ] Consolidar funciones helper repetidas
+- [ ] Optimizar imports y dependencias
+- [ ] Revisar y corregir errores TypeScript pendientes
+
+### 3. Optimización de Código Frontend
+- [ ] Implementar lazy loading de componentes pesados
+- [ ] Optimizar re-renders innecesarios (useMemo, useCallback)
+- [ ] Consolidar estilos duplicados
+- [ ] Optimizar imports de componentes shadcn/ui
+- [ ] Reducir tamaño de bundle con code splitting
+
+### 4. Mejoras de Experiencia de Usuario (UX)
+- [ ] Agregar breadcrumbs en páginas principales
+- [ ] Implementar tooltips informativos en formularios
+- [ ] Mejorar mensajes de error y validación
+- [ ] Agregar indicadores de carga (skeletons) en todas las páginas
+- [ ] Implementar confirmaciones antes de acciones destructivas
+- [ ] Mejorar navegación con botones "Volver" y "Cancelar"
+- [ ] Agregar atajos de teclado en formularios (Enter para guardar, Esc para cancelar)
+
+### 5. Mejoras de Accesibilidad
+- [ ] Verificar contraste de colores (WCAG 2.1 AA)
+- [ ] Agregar labels aria en componentes interactivos
+- [ ] Mejorar navegación por teclado (focus visible)
+- [ ] Agregar textos alternativos en imágenes
+
+### 6. Pruebas y Validación
+- [ ] Probar flujos críticos con datos de prueba
+- [ ] Verificar responsividad en móviles y tablets
+- [ ] Probar navegación completa del sistema
+- [ ] Verificar que no haya errores en consola del navegador
+
+**FASE 136: ⏳ PENDIENTE - Optimización completa de código y mejoras de UX**

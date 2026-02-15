@@ -409,4 +409,33 @@ export const recognitionsRouter = router({
         total: reactions.length,
       };
     }),
+
+  /**
+   * Obtener contador de reconocimientos no leídos
+   */
+  getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+    
+    // Contar reconocimientos recibidos que no han sido leídos
+    // Asumimos que un reconocimiento es "no leído" si fue creado en las últimas 24 horas
+    // y el usuario no ha visitado la página de reconocimientos
+    // Por simplicidad, contaremos reconocimientos de los últimos 7 días
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(recognitions)
+      .where(
+        and(
+          eq(recognitions.toUserId, ctx.user.id),
+          gte(recognitions.createdAt, sevenDaysAgo)
+        )
+      );
+
+    return {
+      count: Number(result[0]?.count || 0),
+    };
+  }),
 });

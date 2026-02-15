@@ -309,6 +309,11 @@ function DashboardLayoutContent({
   const { data: counters } = trpc.menuCounters.getAll.useQuery(undefined, {
     refetchInterval: 60000, // Actualizar cada minuto
   });
+  
+  // Obtener contador de reconocimientos no leídos
+  const { data: recognitionsCount } = trpc.recognitions.getUnreadCount.useQuery(undefined, {
+    refetchInterval: 60000, // Actualizar cada minuto
+  });
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
@@ -512,6 +517,9 @@ function DashboardLayoutContent({
                                   )}
                                   {subItem.label === "Buzón" && counters?.mailbox && (
                                     <MenuBadge count={counters.mailbox.pending} variant="danger" />
+                                  )}
+                                  {subItem.label === "Reconocimientos" && recognitionsCount && recognitionsCount.count > 0 && (
+                                    <MenuBadge count={recognitionsCount.count} variant="info" />
                                   )}
                                   {hasNestedSubmenu && (
                                     <div className="ml-auto">
