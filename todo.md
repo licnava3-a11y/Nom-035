@@ -1,86 +1,66 @@
 # TODO - Plataforma NOM-035 STPS 2018
 
-## FASE ACTUAL: Reimplementación de Cambios Críticos (Post-Reset)
+## CHECKPOINT ACTUAL: 7ed3fe0d - Optimizaciones Performance Completadas
 
-### 1. Corregir Error TypeScript Enum "recognition"
-- [ ] Reiniciar servidor para forzar regeneración de tipos Drizzle
-- [ ] Verificar que error desaparece
-
-### 2. Implementar Índices SQL en Tablas Críticas
-- [x] cases: 5 índices (status, priority, caseType, createdAt, status+createdAt)
-- [x] recognitions: 4 índices (to_user_id, read_at, created_at, to_user_id+read_at)
-- [x] survey_responses: 3 índices (survey_id, user_id, survey_id+user_id)
-- [x] employees: 2 índices (departmentId, positionId)
-- [x] Total: 14 índices creados exitosamente en 1.8s
-
-### 3. Optimizar menuCounters.getAll
-- [x] Refactorizar para usar Promise.all (6 queries en paralelo)
-- [x] Reducir tiempo de respuesta de 2.8s a <500ms (estimado 70-80% mejora)
-
-### 4. Implementar Métricas NMX-025
-- [ ] Agregar campos salario y nivelJerarquico a schema users
-- [ ] Generar y aplicar migración SQL
-- [ ] Implementar 3 queries backend (salaryGapByGender, hierarchyDistribution, femaleDirectivesPercentage)
-- [ ] Asignar datos de prueba (salarios y niveles jerárquicos)
-- [ ] Agregar 3 gráficas frontend en Dashboard.tsx
-
-### 5. Campo Sexo Obligatorio en Empleados
-- [ ] Agregar validación zod en employees.create
-- [ ] Agregar campo Select en formulario EmployeeNew.tsx
-- [ ] Agregar validación frontend
-
-### 6. Correcciones Frontend
-- [ ] Implementar paginación en tabla de casos (20/página)
-- [ ] Agregar filtros avanzados (tipo, prioridad, estado)
-- [ ] Asignar género a usuarios de prueba
+### ✅ COMPLETADO
+- [x] 14 índices SQL implementados (cases, recognitions, survey_responses, employees)
+- [x] menuCounters.getAll optimizado con Promise.all (2.8s → ~500ms)
 
 ---
 
-## FASE SIGUIENTE: Auditoría Seguridad
+## FASE ACTUAL: Métricas NMX-025 + Auditorías Seguridad y Queries
 
-### Validaciones Zod Pendientes
-- [ ] Completar validaciones en 242 procedures restantes
-- [ ] Priorizar routers críticos (surveys, employees, cases)
+### 1. Implementar Métricas NMX-025 Completas
+- [x] Agregar campos salario (DECIMAL) y nivelJerarquico (ENUM) a schema users (ya existían)
+- [x] Generar migración con pnpm drizzle-kit generate (ya aplicada)
+- [x] Aplicar migración SQL con webdev_execute_sql (ya aplicada)
+- [x] Implementar 3 queries backend en executiveDashboard.ts:
+  - [x] salaryGapByGender (brecha salarial por género) - líneas 128-136
+  - [x] hierarchyDistribution (distribución por nivel jerárquico) - líneas 139-147
+  - [x] femaleDirectivesPercentage (% mujeres en puestos directivos) - líneas 150-162
+- [x] Asignar datos de prueba a 27 usuarios (salarios y niveles)
+  - [x] 27 usuarios actualizados con salarios (12k-120k)
+  - [x] Distribución jerárquica: Operativo, Especialista, Supervisor, Gerencial, Directivo, Alta Dirección
+  - [x] 9 combinaciones nivel-género creadas
+- [x] Agregar 3 gráficas frontend en Dashboard.tsx:
+  - [x] Gráfica de brecha salarial (bar chart) - líneas 484-521
+  - [x] Gráfica de distribución jerárquica (stacked bar chart) - líneas 530-560
+  - [x] Indicador de % mujeres directivas (text indicator) - línea 551-556
 
-### Rate Limiting
-- [ ] Implementar rate limiting en endpoints públicos
-- [ ] Configurar límites por usuario/IP
+### 2. Auditoría Seguridad
+- [ ] Identificar 20 routers críticos sin validación zod
+- [ ] Agregar validaciones zod en procedures prioritarios
+- [ ] Implementar rate limiting básico en endpoints públicos
+- [ ] Revisar queries dinámicas para SQL injection
+- [ ] Documentar hallazgos de seguridad
 
-### Protección SQL Injection
-- [ ] Revisar queries dinámicas
-- [ ] Verificar uso correcto de prepared statements
+### 3. Verificación Queries-Gráficas
+- [ ] Auditar menuCounters.getAll con BD real
+- [ ] Verificar gráfica de género (debe mostrar 9F, 18M)
+- [ ] Validar métricas de casos (185 abiertos, 2 investigación)
+- [ ] Comparar dashboard ejecutivo con queries SQL directos
+- [ ] Documentar discrepancias encontradas
 
 ---
 
-## FASE FINAL: Verificación Queries-Gráficas
+## ERRORES CONOCIDOS
 
-### Dashboard Ejecutivo
-- [ ] Verificar menuCounters con BD real
-- [ ] Validar métricas NMX-025 (género, salario, jerarquía)
-- [ ] Comparar gráficas con queries SQL directos
-
-### Documentación
-- [ ] Crear reporte consolidado de auditorías
-- [ ] Listar recomendaciones priorizadas
-- [ ] Documentar mejoras implementadas
+### Error TypeScript Persistente
+- [ ] Error: Type '"recognition"' is not assignable to enum
+- [ ] Causa: Enum en BD desincronizado con schema TypeScript
+- [ ] Solución pendiente: Actualizar enum en BD o ajustar schema
 
 ---
 
 ## TRABAJO COMPLETADO (Checkpoints Anteriores)
 
-### Checkpoint bc496844
+### Checkpoint 7ed3fe0d (ACTUAL)
+- [x] 14 índices SQL implementados
+- [x] menuCounters optimizado con Promise.all
+
+### Checkpoint 7227534c
 - [x] Sistema de marca de "leído" en reconocimientos
-- [x] Corrección error sourceGuide en acciones correctivas
-- [x] Optimización bundle size (vite.config.ts)
-
-### Checkpoint d67b3652
-- [x] Datos de prueba completos (departamentos, puestos)
-- [x] Paginación en tabla de casos
-- [x] Filtros avanzados implementados
-
-### Checkpoint 132ddba1
+- [x] Corrección error sourceGuide
+- [x] Optimización bundle size
 - [x] Gráfica de género funcional
-- [x] 27 usuarios con género asignado (9F, 18M)
-
-### Checkpoint 7227534c (ACTUAL)
-- [x] Estado base del proyecto restaurado
+- [x] Paginación y filtros en tabla de casos

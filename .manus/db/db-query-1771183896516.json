@@ -1,0 +1,18 @@
+{
+  "query": "-- Total directivos y mujeres directivas\nSELECT \n  'Total Directivos' as categoria,\n  COUNT(*) as cantidad\nFROM users \nWHERE nivelJerarquico IN ('Directivo', 'Gerencial', 'Alta Dirección')\n\nUNION ALL\n\nSELECT \n  'Mujeres Directivas' as categoria,\n  COUNT(*) as cantidad\nFROM users \nWHERE nivelJerarquico IN ('Directivo', 'Gerencial', 'Alta Dirección') \nAND sexo = 'Femenino';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute -- Total directivos y mujeres directivas\nSELECT \n  'Total Directivos' as categoria,\n  COUNT(*) as cantidad\nFROM users \nWHERE nivelJerarquico IN ('Directivo', 'Gerencial', 'Alta Dirección')\n\nUNION ALL\n\nSELECT \n  'Mujeres Directivas' as categoria,\n  COUNT(*) as cantidad\nFROM users \nWHERE nivelJerarquico IN ('Directivo', 'Gerencial', 'Alta Dirección') \nAND sexo = 'Femenino';",
+  "rows": [
+    {
+      "categoria": "Mujeres Directivas",
+      "cantidad": "0"
+    },
+    {
+      "categoria": "Total Directivos",
+      "cantidad": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "categoria\tcantidad\nMujeres Directivas\t0\nTotal Directivos\t5\n",
+  "stderr": "",
+  "execution_time_ms": 68
+}

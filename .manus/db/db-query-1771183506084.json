@@ -1,0 +1,64 @@
+{
+  "query": "-- Asignar salarios y niveles jerárquicos a usuarios\n-- Distribución realista: mayoría Operativo/Especialista, pocos Directivos\n\nUPDATE users SET \n  salario = CASE \n    WHEN id % 5 = 0 THEN 85000 + (RAND() * 35000) -- Alta Dirección/Directivo (20%)\n    WHEN id % 4 = 0 THEN 45000 + (RAND() * 25000) -- Gerencial (25%)\n    WHEN id % 3 = 0 THEN 25000 + (RAND() * 15000) -- Supervisor (33%)\n    WHEN id % 2 = 0 THEN 18000 + (RAND() * 8000)  -- Especialista (50%)\n    ELSE 12000 + (RAND() * 6000)                   -- Operativo (resto)\n  END,\n  nivelJerarquico = CASE \n    WHEN id % 15 = 0 THEN 'Alta Dirección'\n    WHEN id % 10 = 0 THEN 'Directivo'\n    WHEN id % 6 = 0 THEN 'Gerencial'\n    WHEN id % 4 = 0 THEN 'Supervisor'\n    WHEN id % 2 = 0 THEN 'Especialista'\n    ELSE 'Operativo'\n  END\nWHERE id > 0;\n\n-- Verificar distribución\nSELECT \n  nivelJerarquico, \n  sexo,\n  COUNT(*) as cantidad,\n  ROUND(AVG(salario), 2) as salario_promedio\nFROM users \nWHERE salario IS NOT NULL \nGROUP BY nivelJerarquico, sexo \nORDER BY \n  FIELD(nivelJerarquico, 'Operativo', 'Especialista', 'Supervisor', 'Gerencial', 'Directivo', 'Alta Dirección'),\n  sexo;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute -- Asignar salarios y niveles jerárquicos a usuarios\n-- Distribución realista: mayoría Operativo/Especialista, pocos Directivos\n\nUPDATE users SET \n  salario = CASE \n    WHEN id % 5 = 0 THEN 85000 + (RAND() * 35000) -- Alta Dirección/Directivo (20%)\n    WHEN id % 4 = 0 THEN 45000 + (RAND() * 25000) -- Gerencial (25%)\n    WHEN id % 3 = 0 THEN 25000 + (RAND() * 15000) -- Supervisor (33%)\n    WHEN id % 2 = 0 THEN 18000 + (RAND() * 8000)  -- Especialista (50%)\n    ELSE 12000 + (RAND() * 6000)                   -- Operativo (resto)\n  END,\n  nivelJerarquico = CASE \n    WHEN id % 15 = 0 THEN 'Alta Dirección'\n    WHEN id % 10 = 0 THEN 'Directivo'\n    WHEN id % 6 = 0 THEN 'Gerencial'\n    WHEN id % 4 = 0 THEN 'Supervisor'\n    WHEN id % 2 = 0 THEN 'Especialista'\n    ELSE 'Operativo'\n  END\nWHERE id > 0;\n\n-- Verificar distribución\nSELECT \n  nivelJerarquico, \n  sexo,\n  COUNT(*) as cantidad,\n  ROUND(AVG(salario), 2) as salario_promedio\nFROM users \nWHERE salario IS NOT NULL \nGROUP BY nivelJerarquico, sexo \nORDER BY \n  FIELD(nivelJerarquico, 'Operativo', 'Especialista', 'Supervisor', 'Gerencial', 'Directivo', 'Alta Dirección'),\n  sexo;",
+  "rows": [
+    {
+      "nivelJerarquico": "Operativo",
+      "sexo": "Masculino",
+      "cantidad": "9",
+      "salario_promedio": "50340.62"
+    },
+    {
+      "nivelJerarquico": "Operativo",
+      "sexo": "Femenino",
+      "cantidad": "4",
+      "salario_promedio": "15314.05"
+    },
+    {
+      "nivelJerarquico": "Especialista",
+      "sexo": "Masculino",
+      "cantidad": "3",
+      "salario_promedio": "21747.59"
+    },
+    {
+      "nivelJerarquico": "Especialista",
+      "sexo": "Femenino",
+      "cantidad": "1",
+      "salario_promedio": "23793.91"
+    },
+    {
+      "nivelJerarquico": "Supervisor",
+      "sexo": "Masculino",
+      "cantidad": "1",
+      "salario_promedio": "52606.73"
+    },
+    {
+      "nivelJerarquico": "Supervisor",
+      "sexo": "Femenino",
+      "cantidad": "4",
+      "salario_promedio": "55796.34"
+    },
+    {
+      "nivelJerarquico": "Gerencial",
+      "sexo": "Masculino",
+      "cantidad": "3",
+      "salario_promedio": "35799.77"
+    },
+    {
+      "nivelJerarquico": "Directivo",
+      "sexo": "Masculino",
+      "cantidad": "1",
+      "salario_promedio": "116564.76"
+    },
+    {
+      "nivelJerarquico": "Alta Dirección",
+      "sexo": "Masculino",
+      "cantidad": "1",
+      "salario_promedio": "103459.32"
+    }
+  ],
+  "messages": [],
+  "stdout": "nivelJerarquico\tsexo\tcantidad\tsalario_promedio\nOperativo\tMasculino\t9\t50340.62\nOperativo\tFemenino\t4\t15314.05\nEspecialista\tMasculino\t3\t21747.59\nEspecialista\tFemenino\t1\t23793.91\nSupervisor\tMasculino\t1\t52606.73\nSupervisor\tFemenino\t4\t55796.34\nGerencial\tMasculino\t3\t35799.77\nDirectivo\tMasculino\t1\t116564.76\nAlta Dirección\tMasculino\t1\t103459.32\n",
+  "stderr": "",
+  "execution_time_ms": 63
+}

@@ -1,0 +1,26 @@
+{
+  "query": "-- Total empleados, casos abiertos y cerrados\nSELECT 'Total Empleados' as metrica, COUNT(*) as valor FROM users\nUNION ALL\nSELECT 'Casos Abiertos', COUNT(*) FROM cases WHERE status = 'open'\nUNION ALL\nSELECT 'Casos Cerrados', COUNT(*) FROM cases WHERE status = 'closed'\nUNION ALL\nSELECT 'Total Casos', COUNT(*) FROM cases;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute -- Total empleados, casos abiertos y cerrados\nSELECT 'Total Empleados' as metrica, COUNT(*) as valor FROM users\nUNION ALL\nSELECT 'Casos Abiertos', COUNT(*) FROM cases WHERE status = 'open'\nUNION ALL\nSELECT 'Casos Cerrados', COUNT(*) FROM cases WHERE status = 'closed'\nUNION ALL\nSELECT 'Total Casos', COUNT(*) FROM cases;",
+  "rows": [
+    {
+      "metrica": "Total Empleados",
+      "valor": "27"
+    },
+    {
+      "metrica": "Total Casos",
+      "valor": "188"
+    },
+    {
+      "metrica": "Casos Cerrados",
+      "valor": "1"
+    },
+    {
+      "metrica": "Casos Abiertos",
+      "valor": "185"
+    }
+  ],
+  "messages": [],
+  "stdout": "metrica\tvalor\nTotal Empleados\t27\nTotal Casos\t188\nCasos Cerrados\t1\nCasos Abiertos\t185\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

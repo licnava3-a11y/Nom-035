@@ -1,0 +1,55 @@
+{
+  "query": "SELECT \n  nivelJerarquico, \n  sexo,\n  COUNT(*) as count\nFROM users \nWHERE nivelJerarquico IS NOT NULL\nGROUP BY nivelJerarquico, sexo\nORDER BY \n  FIELD(nivelJerarquico, 'Operativo', 'Especialista', 'Supervisor', 'Gerencial', 'Directivo', 'Alta Dirección'),\n  sexo;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT \n  nivelJerarquico, \n  sexo,\n  COUNT(*) as count\nFROM users \nWHERE nivelJerarquico IS NOT NULL\nGROUP BY nivelJerarquico, sexo\nORDER BY \n  FIELD(nivelJerarquico, 'Operativo', 'Especialista', 'Supervisor', 'Gerencial', 'Directivo', 'Alta Dirección'),\n  sexo;",
+  "rows": [
+    {
+      "nivelJerarquico": "Operativo",
+      "sexo": "Masculino",
+      "count": "9"
+    },
+    {
+      "nivelJerarquico": "Operativo",
+      "sexo": "Femenino",
+      "count": "4"
+    },
+    {
+      "nivelJerarquico": "Especialista",
+      "sexo": "Masculino",
+      "count": "3"
+    },
+    {
+      "nivelJerarquico": "Especialista",
+      "sexo": "Femenino",
+      "count": "1"
+    },
+    {
+      "nivelJerarquico": "Supervisor",
+      "sexo": "Masculino",
+      "count": "1"
+    },
+    {
+      "nivelJerarquico": "Supervisor",
+      "sexo": "Femenino",
+      "count": "4"
+    },
+    {
+      "nivelJerarquico": "Gerencial",
+      "sexo": "Masculino",
+      "count": "3"
+    },
+    {
+      "nivelJerarquico": "Directivo",
+      "sexo": "Masculino",
+      "count": "1"
+    },
+    {
+      "nivelJerarquico": "Alta Dirección",
+      "sexo": "Masculino",
+      "count": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "nivelJerarquico\tsexo\tcount\nOperativo\tMasculino\t9\nOperativo\tFemenino\t4\nEspecialista\tMasculino\t3\nEspecialista\tFemenino\t1\nSupervisor\tMasculino\t1\nSupervisor\tFemenino\t4\nGerencial\tMasculino\t3\nDirectivo\tMasculino\t1\nAlta Dirección\tMasculino\t1\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

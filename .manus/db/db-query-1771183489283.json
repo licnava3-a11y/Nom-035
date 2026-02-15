@@ -1,0 +1,15 @@
+{
+  "query": "SELECT \n  COUNT(*) as total_usuarios,\n  SUM(CASE WHEN salario IS NOT NULL AND salario > 0 THEN 1 ELSE 0 END) as con_salario,\n  SUM(CASE WHEN nivelJerarquico IS NOT NULL THEN 1 ELSE 0 END) as con_nivel\nFROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT \n  COUNT(*) as total_usuarios,\n  SUM(CASE WHEN salario IS NOT NULL AND salario > 0 THEN 1 ELSE 0 END) as con_salario,\n  SUM(CASE WHEN nivelJerarquico IS NOT NULL THEN 1 ELSE 0 END) as con_nivel\nFROM users;",
+  "rows": [
+    {
+      "total_usuarios": "27",
+      "con_salario": "27",
+      "con_nivel": "27"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_usuarios\tcon_salario\tcon_nivel\n27\t27\t27\n",
+  "stderr": "",
+  "execution_time_ms": 146
+}

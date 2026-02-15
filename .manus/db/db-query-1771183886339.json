@@ -1,0 +1,20 @@
+{
+  "query": "SELECT \n  sexo, \n  ROUND(AVG(CAST(salario AS DECIMAL(10,2))), 2) as avgSalary,\n  COUNT(*) as count\nFROM users \nWHERE salario IS NOT NULL AND salario > 0\nGROUP BY sexo;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT \n  sexo, \n  ROUND(AVG(CAST(salario AS DECIMAL(10,2))), 2) as avgSalary,\n  COUNT(*) as count\nFROM users \nWHERE salario IS NOT NULL AND salario > 0\nGROUP BY sexo;",
+  "rows": [
+    {
+      "sexo": "Femenino",
+      "avgSalary": "34248.39",
+      "count": "9"
+    },
+    {
+      "sexo": "Masculino",
+      "avgSalary": "49907.69",
+      "count": "18"
+    }
+  ],
+  "messages": [],
+  "stdout": "sexo\tavgSalary\tcount\nFemenino\t34248.39\t9\nMasculino\t49907.69\t18\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}
