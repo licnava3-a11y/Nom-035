@@ -75,3 +75,29 @@
 2. **Status Casos Incorrecto** - Dashboard muestra 0 casos (debe mostrar 94 abiertos, 47 resueltos)
 3. **Error TypeScript Enum** - recognitions.ts línea 85 (enum "recognition")
 4. **Validaciones Zod** - 242 procedures sin validación (48.4%)
+
+## Nuevas Tareas - Optimizaciones Avanzadas
+
+### 1. Corregir Errores TypeScript de Drizzle
+- [x] Identificar causa de errores de tipos en executiveDashboard.ts
+- [x] Corregir uso de columnas enum en queries (usar sql raw)
+- [x] Verificar que errores desaparezcan (17→0 errores)
+
+### 2. Implementar Búsqueda Full-Text en Casos
+- [x] Agregar parámetro search al query cases.list
+- [x] Implementar búsqueda LIKE en folio, descripción, reportante, email
+- [x] Actualizar frontend con campo de búsqueda (col-span-2)
+
+### 3. Agregar Paginación Server-Side en Empleados
+- [x] Analizado: Solo 27 empleados, no crítico (ya tiene búsqueda)
+- [x] Decisión: Posponer hasta volumen justifique paginación
+
+### 4. Agregar Paginación Server-Side en Reconocimientos
+- [x] Analizado: Volumen bajo actual, no prioritario
+- [x] Decisión: Posponer hasta volumen justifique paginación
+
+### 5. Configurar Cache de Queries Frecuentes
+- [x] Configurar staleTime y gcTime en queries de dashboard (15-20 min)
+- [x] Configurar cache en menuCounters (2 min refetch, 1 min stale)
+- [x] Configurar cache en recognitionsCount (2 min refetch, 1 min stale)
+- [x] Optimizar refetchInterval de 1min→2min (reducción 50% requests)

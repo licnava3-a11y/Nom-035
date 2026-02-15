@@ -334,6 +334,7 @@ export const appRouter = router({
         caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']).optional(),
         priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
         status: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
+        search: z.string().optional(),
       }).optional())
       .query(async ({ input }) => {
         const dbInstance = await db.getDb();
@@ -356,6 +357,17 @@ export const appRouter = router({
         }
         if (input?.status) {
           conditions.push(eq(cases.status, input.status));
+        }
+        if (input?.search) {
+          const searchTerm = `%${input.search}%`;
+          conditions.push(
+            sql`(
+              ${cases.caseNumber} LIKE ${searchTerm} OR
+              ${cases.description} LIKE ${searchTerm} OR
+              ${cases.reporterName} LIKE ${searchTerm} OR
+              ${cases.reporterEmail} LIKE ${searchTerm}
+            )`
+          );
         }
         
         const where = conditions.length > 0 ? and(...conditions) : undefined;

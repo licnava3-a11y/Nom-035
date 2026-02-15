@@ -85,6 +85,8 @@ export default function DashboardConsolidated() {
   // Métricas ejecutivas (solo para admin)
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery(filters, {
     enabled: user?.role === 'admin',
+    staleTime: 15 * 60 * 1000, // 15 minutos - métricas ejecutivas cambian poco
+    gcTime: 30 * 60 * 1000, // 30 minutos en cache
   });
 
   // Métricas por rol
@@ -97,7 +99,11 @@ export default function DashboardConsolidated() {
   // Brechas críticas de competencias (solo para admin)
   const { data: criticalGaps, isLoading: gapsLoading } = trpc.trainingNeeds.getCriticalGaps.useQuery(
     undefined,
-    { enabled: user?.role === 'admin' }
+    { 
+      enabled: user?.role === 'admin',
+      staleTime: 20 * 60 * 1000, // 20 minutos - brechas críticas cambian poco
+      gcTime: 40 * 60 * 1000, // 40 minutos en cache
+    }
   );
 
   const getRoleLabel = (role: string) => {

@@ -307,12 +307,16 @@ function DashboardLayoutContent({
   
   // Obtener contadores dinámicos para badges
   const { data: counters } = trpc.menuCounters.getAll.useQuery(undefined, {
-    refetchInterval: 60000, // Actualizar cada minuto
+    refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
+    staleTime: 1 * 60 * 1000, // 1 minuto - contadores cambian frecuentemente
+    gcTime: 5 * 60 * 1000, // 5 minutos en cache
   });
   
   // Obtener contador de reconocimientos no leídos
   const { data: recognitionsCount } = trpc.recognitions.getUnreadCount.useQuery(undefined, {
-    refetchInterval: 60000, // Actualizar cada minuto
+    refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
+    staleTime: 1 * 60 * 1000, // 1 minuto - reconocimientos cambian frecuentemente
+    gcTime: 5 * 60 * 1000, // 5 minutos en cache
   });
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";

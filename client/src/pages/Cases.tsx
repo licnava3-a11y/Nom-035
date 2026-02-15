@@ -34,6 +34,7 @@ export default function Cases() {
   const [filterType, setFilterType] = useState<string>("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const ITEMS_PER_PAGE = 20;
   
   // Preparar filtros para query server-side
@@ -60,8 +61,12 @@ export default function Cases() {
       params.status = filterStatus as any;
     }
     
+    if (searchTerm.trim()) {
+      params.search = searchTerm.trim();
+    }
+    
     return params;
-  }, [dateRange, currentPage, filterType, filterPriority, filterStatus]);
+  }, [dateRange, currentPage, filterType, filterPriority, filterStatus, searchTerm]);
   
   const { data: casesResponse, isLoading } = trpc.cases.list.useQuery(queryParams, {
     enabled: user?.role === "admin" || user?.role === "committee",
@@ -75,6 +80,7 @@ export default function Cases() {
     setFilterType("all");
     setFilterPriority("all");
     setFilterStatus("all");
+    setSearchTerm("");
     setCurrentPage(1);
   };
 
@@ -210,7 +216,17 @@ export default function Cases() {
           <CardTitle>Filtros</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium">Buscar</label>
+              <input
+                type="text"
+                placeholder="Buscar por folio, descripción, reportante..."
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Tipo de Caso</label>
               <select

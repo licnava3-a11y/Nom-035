@@ -70,12 +70,12 @@ export const executiveDashboardRouter = router({
       const [casesOpen] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(cases)
-        .where(eq(cases.status, 'abierto'));
+        .where(sql`${cases.status} = 'open'`);
 
       const [casesClosed] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(cases)
-        .where(eq(cases.status, 'resuelto'));
+        .where(sql`${cases.status} = 'resolved'`);
 
       // Cobertura de encuestas (%)
       const [totalSurveysSent] = await db
@@ -322,7 +322,7 @@ export const executiveDashboardRouter = router({
         .groupBy(sql`DATE(${surveyResponses.completedAt})`);
 
       // === DISTRIBUCIÓN DE NIVELES DE PRIORIDAD ===
-      const riskLevels = await db
+      const casesByRisk = await db
         .select({
           riskLevel: cases.priority,
           count: sql<number>`COUNT(*)`,
@@ -334,8 +334,7 @@ export const executiveDashboardRouter = router({
             sql`DATE(${cases.createdAt}) <= ${endDateStr}`
           )
         )
-        .groupBy(cases.priority);
-
+        .groupBy(sql`${cases.priority}`);
       return {
         period: input.period,
         dateRange: { start: startDateStr, end: endDateStr },
@@ -353,7 +352,7 @@ export const executiveDashboardRouter = router({
           date: s.date,
           completed: Number(s.completed),
         })),
-        riskDistribution: riskLevels.map(r => ({
+        riskDistribution: casesByRisk.map((r: any) => ({
           level: r.riskLevel || 'No especificado',
           count: Number(r.count),
         })),
@@ -396,7 +395,7 @@ export const executiveDashboardRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.status, 'open'),
+            sql`${cases.status} = 'open'`,
             sql`DATE(${cases.createdAt}) >= ${currentStartStr}`,
             sql`DATE(${cases.createdAt}) <= ${currentEndStr}`
           )
@@ -407,7 +406,7 @@ export const executiveDashboardRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.status, 'closed'),
+            sql`${cases.status} = 'closed'`,
             sql`DATE(${cases.closedAt}) >= ${currentStartStr}`,
             sql`DATE(${cases.closedAt}) <= ${currentEndStr}`
           )
@@ -418,8 +417,8 @@ export const executiveDashboardRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.priority, 'critical'),
-            eq(cases.status, 'open'),
+            sql`${cases.priority} = 'critical'`,
+            sql`${cases.status} = 'open'`,
             sql`DATE(${cases.createdAt}) >= ${currentStartStr}`,
             sql`DATE(${cases.createdAt}) <= ${currentEndStr}`
           )
@@ -431,7 +430,7 @@ export const executiveDashboardRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.status, 'open'),
+            sql`${cases.status} = 'open'`,
             sql`DATE(${cases.createdAt}) >= ${lastStartStr}`,
             sql`DATE(${cases.createdAt}) <= ${lastEndStr}`
           )
@@ -442,7 +441,7 @@ export const executiveDashboardRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.status, 'closed'),
+            sql`${cases.status} = 'closed'`,
             sql`DATE(${cases.closedAt}) >= ${lastStartStr}`,
             sql`DATE(${cases.closedAt}) <= ${lastEndStr}`
           )
@@ -453,8 +452,8 @@ export const executiveDashboardRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.priority, 'critical'),
-            eq(cases.status, 'open'),
+            sql`${cases.priority} = 'critical'`,
+            sql`${cases.status} = 'open'`,
             sql`DATE(${cases.createdAt}) >= ${lastStartStr}`,
             sql`DATE(${cases.createdAt}) <= ${lastEndStr}`
           )
