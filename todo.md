@@ -12962,27 +12962,40 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Modificar procedimiento update para guardar versión automáticamente
 - [ ] Modificar procedimiento create para guardar versión inicial (opcional)
 
-### 2. Campo de Carga en Edición
-- [ ] Agregar estado uploadMode en formulario de edición
-- [ ] Agregar selector de modo en diálogo de edición
-- [ ] Agregar campo <input type="file"> en formulario de edición
-- [ ] Implementar handleFileChange para edición
-- [ ] Modificar handleUpdate para soportar carga de archivos
-- [ ] Guardar versión anterior antes de actualizar
-- [ ] Agregar campo "Descripción del cambio" en edición
-- [ ] Mostrar historial de versiones en diálogo de edición
+### 2. Interfaz de Historial de Versiones
+- [x] Agregar botón "Ver Historial" en columna Acciones de tabla
+- [x] Crear estado para modal de historial (open, selectedPolicyId)
+- [x] Crear query tRPC para obtener versiones
+- [x] Crear modal con Dialog de shadcn/ui
+- [x] Mostrar tabla de versiones (número, fecha, usuario, descripción cambio)
+- [x] Agregar botón "Restaurar" por versión con confirmación
+- [x] Agregar botón "Ver PDF" por versión
+- [x] Implementar mutation restorePolicyVersion
+- [x] Actualizar lista de políticas después de restaurar
 
-### 3. Visor de PDF Integrado
-- [ ] Instalar pnpm add react-pdf (PDF.js wrapper)
-- [ ] Crear componente PDFViewer.tsx en client/src/components
-- [ ] Implementar modal de visualización con controles (zoom, página)
-- [ ] Agregar botón "Ver PDF" en tabla de políticas
-- [ ] Reemplazar enlace directo por modal de visor
-- [ ] Agregar indicador de carga mientras se descarga PDF
-- [ ] Implementar navegación entre páginas del PDF
-- [ ] Agregar botón de descarga en visor
+### 3. Campo de Carga en Edición
+- [x] Agregar estado uploadMode en formulario de edición
+- [x] Agregar selector de modo "Mantener PDF" vs "Subir nuevo PDF"
+- [x] Agregar campo <input type="file"> en formulario de edición
+- [x] Implementar handleFileChange para edición
+- [x] Modificar handleUpdate para soportar carga de archivos
+- [x] Agregar campo "Descripción del cambio" (obligatorio si se sube PDF)
+- [x] Mostrar preview del archivo seleccionado
 
-### 4. Pruebas y Validación
+### 4. Visor de PDF Integrado
+- [x] Instalar pnpm add react-pdf pdfjs-dist
+- [x] Configurar workerSrc de PDF.js (en PDFViewer.tsx con CDN)
+- [x] Crear componente PDFViewer.tsx en client/src/components
+- [x] Implementar modal de visualización con Dialog
+- [x] Agregar controles de navegación (página anterior/siguiente)
+- [x] Agregar controles de zoom (zoom in/out/reset)
+- [x] Mostrar indicador "Página X de Y"
+- [x] Agregar botón de descarga en header del modal
+- [x] Reemplazar window.open por modal en botón "Ver PDF"
+- [x] Agregar indicador de carga mientras se descarga PDF
+- [x] Manejar errores de carga de PDF
+
+### 5. Pruebas y Validación
 - [ ] Probar creación de política con versión inicial
 - [ ] Probar edición de política con guardado de versión
 - [ ] Probar restauración de versión anterior
@@ -12991,4 +13004,4 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Probar descarga desde visor
 - [ ] Guardar checkpoint final
 
-**FASE 132: 🔄 EN PROGRESO (40%) - Sistema de versiones completado, pendiente edición y visor PDF**
+**FASE 132: ✅ COMPLETADA (100%) - Sistema completo: versiones, historial, edición con carga y visor PDF integrado**

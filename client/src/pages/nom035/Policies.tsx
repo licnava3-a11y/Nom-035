@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Plus, Download, Edit, Trash2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import PDFViewer from "@/components/PDFViewer";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -20,7 +21,13 @@ export default function Policies() {
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
+  const [selectedPolicyId, setSelectedPolicyId] = useState<number | null>(null);
+  
+  const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false);
+  const [pdfViewerUrl, setPdfViewerUrl] = useState<string>("");
+  const [pdfViewerTitle, setPdfViewerTitle] = useState<string>("");
   
   const [formData, setFormData] = useState({
     nombre: "",
@@ -32,10 +39,18 @@ export default function Policies() {
   const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  
+  const [editUploadMode, setEditUploadMode] = useState<'keep' | 'upload'>('keep');
+  const [editSelectedFile, setEditSelectedFile] = useState<File | null>(null);
+  const [changeDescription, setChangeDescription] = useState("");
 
   // Queries
   const { data: policies, isLoading } = trpc.nom035Policies.list.useQuery();
   const { data: activeRepresentatives, isLoading: isLoadingReps } = trpc.company.legalRepresentative.listActive.useQuery();
+  const { data: policyVersions, isLoading: isLoadingVersions } = trpc.nom035Policies.getPolicyVersions.useQuery(
+    { policyId: selectedPolicyId! },
+    { enabled: !!selectedPolicyId && isHistoryDialogOpen }
+  );
 
   // Mutations
   const uploadFileMutation = trpc.nom035Policies.uploadPolicyFile.useMutation({
@@ -88,6 +103,18 @@ export default function Policies() {
     },
   });
 
+  const restoreVersionMutation = trpc.nom035Policies.restorePolicyVersion.useMutation({
+    onSuccess: () => {
+      alert("Versión restaurada exitosamente");
+      utils.nom035Policies.list.invalidate();
+      utils.nom035Policies.getPolicyVersions.invalidate();
+      setIsHistoryDialogOpen(false);
+    },
+    onError: (error) => {
+      alert(`Error al restaurar versión: ${error.message}`);
+    },
+  });
+
   const generatePDFMutation = trpc.nom035Policies.generatePDF.useMutation({
     onSuccess: (data) => {
       alert("PDF generado exitosamente");
@@ -110,6 +137,9 @@ export default function Policies() {
     setUploadMode('generate');
     setSelectedFile(null);
     setIsUploading(false);
+    setEditUploadMode('keep');
+    setEditSelectedFile(null);
+    setChangeDescription("");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +163,9 @@ export default function Policies() {
   };
 
   const handleUploadFile = async (policyId: number) => {
-    if (!selectedFile) {
+    const fileToUpload = editSelectedFile || selectedFile;
+    
+    if (!fileToUpload) {
       alert('Por favor seleccione un archivo PDF');
       return;
     }
@@ -150,11 +182,11 @@ export default function Policies() {
         await uploadFileMutation.mutateAsync({
           id: policyId,
           fileBase64: base64Data,
-          fileName: selectedFile.name,
-          fileSize: selectedFile.size,
+          fileName: fileToUpload.name,
+          fileSize: fileToUpload.size,
         });
       };
-      reader.readAsDataURL(selectedFile);
+      reader.readAsDataURL(fileToUpload);
     } catch (error) {
       console.error('Error al cargar archivo:', error);
       setIsUploading(false);
@@ -182,12 +214,46 @@ export default function Policies() {
     }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!selectedPolicy) return;
-    updateMutation.mutate({
-      id: selectedPolicy.id,
-      ...formData,
-    });
+    
+    if (editUploadMode === 'upload') {
+      // Validar que se haya seleccionado un archivo
+      if (!editSelectedFile) {
+        alert("Por favor seleccione un archivo PDF");
+        return;
+      }
+      
+      // Validar descripción del cambio
+      if (!changeDescription.trim()) {
+        alert("Por favor ingrese una descripción del cambio");
+        return;
+      }
+      
+      setIsUploading(true);
+      
+      try {
+        // Actualizar política con descripción del cambio
+        await updateMutation.mutateAsync({
+          id: selectedPolicy.id,
+          ...formData,
+          changeDescription,
+        });
+        
+        // Subir nuevo archivo
+        await handleUploadFile(selectedPolicy.id);
+      } catch (error) {
+        console.error("Error al actualizar:", error);
+        setIsUploading(false);
+      }
+    } else {
+      // Modo: Mantener PDF actual
+      updateMutation.mutate({
+        id: selectedPolicy.id,
+        ...formData,
+        changeDescription: changeDescription.trim() || undefined,
+      });
+    }
   };
 
   const handleEdit = (policy: any) => {
@@ -418,7 +484,11 @@ export default function Policies() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => policy.pdfUrl && window.open(policy.pdfUrl, '_blank')}
+                          onClick={() => {
+                            setPdfViewerUrl(policy.pdfUrl!);
+                            setPdfViewerTitle(policy.nombre);
+                            setIsPDFViewerOpen(true);
+                          }}
                         >
                           <FileText className="h-4 w-4 mr-2" />
                           Ver PDF
@@ -437,6 +507,17 @@ export default function Policies() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedPolicyId(policy.id);
+                            setIsHistoryDialogOpen(true);
+                          }}
+                          title="Ver Historial de Versiones"
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -497,6 +578,67 @@ export default function Policies() {
                 onChange={(e) => setFormData({ ...formData, fechaPublicacion: e.target.value })}
               />
             </div>
+            
+            {/* Selector de modo de PDF */}
+            <div className="space-y-2">
+              <Label>Archivo PDF</Label>
+              <Select value={editUploadMode} onValueChange={(value: 'keep' | 'upload') => setEditUploadMode(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="keep">Mantener PDF actual</SelectItem>
+                  <SelectItem value="upload">Subir nuevo PDF</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Campo de carga de archivo (solo si modo = upload) */}
+            {editUploadMode === 'upload' && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-file-upload">Archivo PDF * (máximo 10MB)</Label>
+                <Input
+                  id="edit-file-upload"
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.type !== 'application/pdf') {
+                        alert('Solo se permiten archivos PDF');
+                        e.target.value = '';
+                        return;
+                      }
+                      if (file.size > 10 * 1024 * 1024) {
+                        alert('El archivo no debe superar los 10MB');
+                        e.target.value = '';
+                        return;
+                      }
+                      setEditSelectedFile(file);
+                    }
+                  }}
+                />
+                {editSelectedFile && (
+                  <p className="text-sm text-muted-foreground">
+                    Archivo seleccionado: {editSelectedFile.name} ({(editSelectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                )}
+              </div>
+            )}
+            
+            {/* Campo de descripción del cambio */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-changeDescription">
+                Descripción del cambio {editUploadMode === 'upload' && '*'}
+              </Label>
+              <Textarea
+                id="edit-changeDescription"
+                value={changeDescription}
+                onChange={(e) => setChangeDescription(e.target.value)}
+                placeholder="Describa brevemente los cambios realizados..."
+                rows={3}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
@@ -508,6 +650,99 @@ export default function Policies() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Historial de Versiones */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Historial de Versiones</DialogTitle>
+            <DialogDescription>
+              Versiones anteriores de la política. Puede restaurar cualquier versión anterior.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {isLoadingVersions ? (
+            <div className="text-center py-8 text-muted-foreground">Cargando historial...</div>
+          ) : !policyVersions || policyVersions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No hay versiones anteriores de esta política.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Versión</TableHead>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Descripción del Cambio</TableHead>
+                  <TableHead>PDF</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {policyVersions.map((version) => (
+                  <TableRow key={version.id}>
+                    <TableCell className="font-medium">
+                      <Badge variant="outline">v{version.versionNumber}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {format(new Date(version.createdAt), "d 'de' MMMM 'de' yyyy, HH:mm", { locale: es })}
+                    </TableCell>
+                    <TableCell>
+                      {version.changeDescription || "Sin descripción"}
+                    </TableCell>
+                    <TableCell>
+                      {version.pdfUrl ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setPdfViewerUrl(version.pdfUrl!);
+                            setPdfViewerTitle(`${selectedPolicy?.nombre || 'Política'} - Versión ${version.versionNumber}`);
+                            setIsPDFViewerOpen(true);
+                          }}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Ver PDF
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Sin PDF</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm(`¿Está seguro de restaurar la versión ${version.versionNumber}? La versión actual se guardará como una nueva versión.`)) {
+                            restoreVersionMutation.mutate({ versionId: version.id });
+                          }
+                        }}
+                        disabled={restoreVersionMutation.isPending}
+                      >
+                        {restoreVersionMutation.isPending ? "Restaurando..." : "Restaurar"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsHistoryDialogOpen(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Visor de PDF */}
+      <PDFViewer
+        open={isPDFViewerOpen}
+        onOpenChange={setIsPDFViewerOpen}
+        pdfUrl={pdfViewerUrl}
+        title={pdfViewerTitle}
+      />
     </div>
   );
 }
