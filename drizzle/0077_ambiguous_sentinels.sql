@@ -1,0 +1,1 @@
+ALTER TABLE `recognitions` ADD `read_at` timestamp;

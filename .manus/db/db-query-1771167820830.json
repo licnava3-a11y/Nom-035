@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM correctiveActions LIKE '%guide%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SHOW COLUMNS FROM correctiveActions LIKE '%guide%';",
+  "rows": [
+    {
+      "Field": "source_guide",
+      "Type": "enum('guia_i','guia_ii','guia_iii')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nsource_guide\tenum('guia_i','guia_ii','guia_iii')\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

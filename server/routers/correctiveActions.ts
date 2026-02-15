@@ -740,7 +740,7 @@ export const correctiveActionsRouter = router({
   generateMultiLevelActions: protectedProcedure
     .input(z.object({
       surveyPeriodId: z.number(),
-      sourceGuide: z.enum(['guia_i', 'guia_ii', 'guia_iii']),
+      source_guide: z.enum(['guia_i', 'guia_ii', 'guia_iii']),
     }))
     .mutation(async ({ input, ctx }) => {
       const dbInstance = await db.getDb();
@@ -776,7 +776,7 @@ export const correctiveActionsRouter = router({
             actionLevel: 'individual',
             targetScope: result.employeeId,
             atsDetected: false,
-            sourceGuide: input.sourceGuide,
+            source_guide: input.source_guide,
             title: `Acción Individual - Riesgo ${riskLevel}`,
             description: `Seguimiento personalizado para trabajador con nivel de riesgo ${riskLevel}. Evaluar factores específicos y proporcionar apoyo.`,
             priority: riskLevel === 'muy_alto' ? 'high' : 'medium',
@@ -811,7 +811,7 @@ export const correctiveActionsRouter = router({
             actionLevel: 'grupal',
             targetScope: dept.departmentId,
             atsDetected: false,
-            sourceGuide: input.sourceGuide,
+            source_guide: input.source_guide,
             title: `Acción Grupal - Departamento ${dept.departmentId}`,
             description: `Implementar intervenciones grupales en departamento. Riesgo promedio: ${dept.avgRisk.toFixed(2)}. Trabajadores: ${dept.count}.`,
             priority: dept.avgRisk >= 4 ? 'high' : 'medium',
@@ -841,7 +841,7 @@ export const correctiveActionsRouter = router({
           actionLevel: 'organizacional',
           targetScope: null,
           atsDetected: false,
-          sourceGuide: input.sourceGuide,
+          source_guide: input.source_guide,
           title: 'Acción Organizacional - Riesgo General Elevado',
           description: `Implementar políticas y programas organizacionales para reducir factores de riesgo psicosocial. Riesgo general: ${overallRisk[0].avgRisk.toFixed(2)}/5.`,
           priority: 'high',
@@ -883,7 +883,7 @@ export const correctiveActionsRouter = router({
           actionLevel: correctiveActions.actionLevel,
           targetScope: correctiveActions.targetScope,
           atsDetected: correctiveActions.atsDetected,
-          sourceGuide: correctiveActions.sourceGuide,
+          source_guide: correctiveActions.source_guide,
           status: correctiveActions.status,
           priority: correctiveActions.priority,
           departamento: correctiveActions.departamento,

@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE `correctiveActions` ADD `source_guide` enum('guia_i','guia_ii','guia_iii');\nUPDATE `correctiveActions` SET `source_guide` = `sourceGuide` WHERE `sourceGuide` IS NOT NULL;\nALTER TABLE `correctiveActions` DROP COLUMN `sourceGuide`;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute ALTER TABLE `correctiveActions` ADD `source_guide` enum('guia_i','guia_ii','guia_iii');\nUPDATE `correctiveActions` SET `source_guide` = `sourceGuide` WHERE `sourceGuide` IS NOT NULL;\nALTER TABLE `correctiveActions` DROP COLUMN `sourceGuide`;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'sourceguide' in 'where clause'"
+  ]
+}

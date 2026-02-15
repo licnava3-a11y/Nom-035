@@ -143,6 +143,7 @@ export const recognitionsRouter = router({
           message: recognitions.message,
           isPublic: recognitions.isPublic,
           status: recognitions.status,
+          readAt: recognitions.readAt,
           createdAt: recognitions.createdAt,
         })
         .from(recognitions)
@@ -417,20 +418,14 @@ export const recognitionsRouter = router({
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
     
-    // Contar reconocimientos recibidos que no han sido leídos
-    // Asumimos que un reconocimiento es "no leído" si fue creado en las últimas 24 horas
-    // y el usuario no ha visitado la página de reconocimientos
-    // Por simplicidad, contaremos reconocimientos de los últimos 7 días
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
+    // Contar reconocimientos recibidos que no han sido leídos (readAt IS NULL)
     const result = await db
       .select({ count: sql<number>`count(*)` })
       .from(recognitions)
       .where(
         and(
           eq(recognitions.toUserId, ctx.user.id),
-          gte(recognitions.createdAt, sevenDaysAgo)
+          sql`${recognitions.readAt} IS NULL`
         )
       );
 
@@ -438,4 +433,45 @@ export const recognitionsRouter = router({
       count: Number(result[0]?.count || 0),
     };
   }),
+
+  /**
+   * Marcar reconocimiento como leído
+   */
+  markAsRead: protectedProcedure
+    .input(z.object({ recognitionId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Verificar que el reconocimiento existe y pertenece al usuario actual
+      const recognition = await db
+        .select()
+        .from(recognitions)
+        .where(eq(recognitions.id, input.recognitionId))
+        .limit(1);
+
+      if (recognition.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Reconocimiento no encontrado",
+        });
+      }
+
+      if (recognition[0].toUserId !== ctx.user.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "No tienes permiso para marcar este reconocimiento como leído",
+        });
+      }
+
+      // Marcar como leído si aún no lo está
+      if (!recognition[0].readAt) {
+        await db
+          .update(recognitions)
+          .set({ readAt: new Date() })
+          .where(eq(recognitions.id, input.recognitionId));
+      }
+
+      return { success: true };
+    }),
 });

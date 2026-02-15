@@ -70,6 +70,14 @@ export default function Recognitions() {
     },
   });
 
+  const markAsReadMutation = trpc.recognitions.markAsRead.useMutation({
+    onSuccess: () => {
+      recognitionsQuery.refetch();
+      // Invalidar el contador de no leídos para actualizar el badge
+      trpc.useUtils().recognitions.getUnreadCount.invalidate();
+    },
+  });
+
   const resetForm = () => {
     setToUserId("");
     setCategoryId("");
@@ -267,9 +275,21 @@ export default function Recognitions() {
                           <CardDescription>{formatDate(recognition.createdAt)}</CardDescription>
                         </div>
                       </div>
-                      <Badge variant="secondary">
-                        {recognition.categoryIcon} {recognition.categoryName}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="secondary">
+                          {recognition.categoryIcon} {recognition.categoryName}
+                        </Badge>
+                        {selectedTab === "received" && !recognition.readAt && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => markAsReadMutation.mutate({ recognitionId: recognition.id })}
+                            disabled={markAsReadMutation.isPending}
+                          >
+                            Marcar como leído
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>

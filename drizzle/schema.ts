@@ -929,7 +929,7 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   actionLevel: mysqlEnum("actionLevel", ["organizacional", "grupal", "individual"]).notNull(), // Nivel de la acción
   targetScope: int("targetScope"), // null para organizacional, departmentId para grupal, employeeId para individual
   atsDetected: boolean("atsDetected").default(false), // Acontecimientos Traumáticos Severos detectados
-  sourceGuide: mysqlEnum("sourceGuide", ["guia_i", "guia_ii", "guia_iii"]), // Guía de origen
+  source_guide: mysqlEnum("source_guide", ["guia_i", "guia_ii", "guia_iii"]), // Guía de origen
   
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -3040,6 +3040,7 @@ export const recognitions = mysqlTable("recognitions", {
   approvedBy: int("approved_by").references(() => users.id),
   approvedAt: timestamp("approved_at"),
   rejectionReason: text("rejection_reason"),
+  readAt: timestamp("read_at"), // Marca de tiempo cuando el destinatario leyó el reconocimiento
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
