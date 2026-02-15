@@ -1,0 +1,82 @@
+{
+  "common": {
+    "welcome": "Bienvenido",
+    "dashboard": "Dashboard",
+    "employees": "Empleados",
+    "courses": "Cursos",
+    "cases": "Casos",
+    "surveys": "Encuestas",
+    "reports": "Reportes",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "actions": "Acciones",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "confirm": "Confirmar",
+    "close": "Cerrar"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "openCases": "Casos Abiertos",
+    "inInvestigation": "En Investigación",
+    "totalCases": "Total de Casos",
+    "activeCourses": "Cursos Activos",
+    "totalEmployees": "Total Empleados",
+    "surveyCoverage": "Cobertura Encuestas",
+    "compliance": "Cumplimiento NOM-035"
+  },
+  "employees": {
+    "title": "Gestión de Empleados",
+    "addEmployee": "Agregar Empleado",
+    "employeeList": "Lista de Empleados",
+    "employeeDetails": "Detalles del Empleado",
+    "name": "Nombre",
+    "email": "Correo Electrónico",
+    "department": "Departamento",
+    "position": "Puesto",
+    "hireDate": "Fecha de Contratación",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "cases": {
+    "title": "Gestión de Casos",
+    "addCase": "Registrar Caso",
+    "caseList": "Lista de Casos",
+    "caseDetails": "Detalles del Caso",
+    "caseType": "Tipo de Caso",
+    "severity": "Gravedad",
+    "reportedBy": "Reportado Por",
+    "assignedTo": "Asignado A",
+    "createdAt": "Fecha de Creación",
+    "updatedAt": "Última Actualización",
+    "followUp": "Seguimiento",
+    "addComment": "Agregar Comentario"
+  },
+  "surveys": {
+    "title": "Encuestas NOM-035",
+    "guideI": "Guía I",
+    "guideII": "Guía II",
+    "guideIII": "Guía III",
+    "takeSurvey": "Responder Encuesta",
+    "surveyResults": "Resultados",
+    "riskLevel": "Nivel de Riesgo",
+    "recommendations": "Recomendaciones",
+    "coverage": "Cobertura"
+  },
+  "language": {
+    "select": "Seleccionar Idioma",
+    "spanish": "Español",
+    "english": "English",
+    "french": "Français"
+  }
+}

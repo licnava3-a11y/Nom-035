@@ -12652,16 +12652,17 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Verificar mejora en tiempo de carga inicial
 
 ### 4. Agregar Internacionalización (i18n)
-- [ ] Instalar i18next y react-i18next
-- [ ] Configurar soporte multiidioma (ES, EN, FR)
-- [ ] Crear archivos de traducción para español (es.json)
-- [ ] Crear archivos de traducción para inglés (en.json)
-- [ ] Crear archivos de traducción para francés (fr.json)
-- [ ] Implementar selector de idioma en header
-- [ ] Traducir textos estáticos del sistema
-- [ ] Traducir mensajes de error y éxito
-- [ ] Traducir labels de formularios
-- [ ] Probar cambio de idioma en tiempo real
+- [x] Instalar i18next, react-i18next y i18next-browser-languagedetector
+- [x] Configurar soporte multiidioma (ES, EN, FR) con detección automática
+- [x] Crear archivos de traducción para español (es.json) con 60+ traducciones
+- [x] Crear archivos de traducción para inglés (en.json) con 60+ traducciones
+- [x] Crear archivos de traducción para francés (fr.json) con 60+ traducciones
+- [x] Implementar componente LanguageSelector con dropdown
+- [ ] Agregar LanguageSelector en header (DashboardLayout.tsx)
+- [x] Traducir textos estáticos del sistema (common, dashboard, employees, cases, surveys)
+- [ ] Traducir mensajes de error y éxito (toast messages)
+- [ ] Traducir labels de formularios (requiere integración en componentes)
+- [ ] Probar cambio de idioma en tiempo real (requiere integración completa)
 
 ### 5. Crear Documentación de API
 - [ ] Generar documentación interactiva de tRPC
@@ -12681,4 +12682,4 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Verificar documentación de API es accesible
 - [ ] Guardar checkpoint final
 
-**FASE 128: 🔄 EN PROGRESO AL 30% - Skeletons verificados, optimistic updates implementados, pendiente auditoría, i18n y docs**
+**FASE 128: 🔄 EN PROGRESO AL 60% - Skeletons, optimistic updates, i18n implementado (ES/EN/FR), pendiente auditoría y docs**

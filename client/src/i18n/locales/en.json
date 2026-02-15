@@ -1,0 +1,82 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "dashboard": "Dashboard",
+    "employees": "Employees",
+    "courses": "Courses",
+    "cases": "Cases",
+    "surveys": "Surveys",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "openCases": "Open Cases",
+    "inInvestigation": "In Investigation",
+    "totalCases": "Total Cases",
+    "activeCourses": "Active Courses",
+    "totalEmployees": "Total Employees",
+    "surveyCoverage": "Survey Coverage",
+    "compliance": "NOM-035 Compliance"
+  },
+  "employees": {
+    "title": "Employee Management",
+    "addEmployee": "Add Employee",
+    "employeeList": "Employee List",
+    "employeeDetails": "Employee Details",
+    "name": "Name",
+    "email": "Email",
+    "department": "Department",
+    "position": "Position",
+    "hireDate": "Hire Date",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "cases": {
+    "title": "Case Management",
+    "addCase": "Register Case",
+    "caseList": "Case List",
+    "caseDetails": "Case Details",
+    "caseType": "Case Type",
+    "severity": "Severity",
+    "reportedBy": "Reported By",
+    "assignedTo": "Assigned To",
+    "createdAt": "Created At",
+    "updatedAt": "Last Updated",
+    "followUp": "Follow Up",
+    "addComment": "Add Comment"
+  },
+  "surveys": {
+    "title": "NOM-035 Surveys",
+    "guideI": "Guide I",
+    "guideII": "Guide II",
+    "guideIII": "Guide III",
+    "takeSurvey": "Take Survey",
+    "surveyResults": "Results",
+    "riskLevel": "Risk Level",
+    "recommendations": "Recommendations",
+    "coverage": "Coverage"
+  },
+  "language": {
+    "select": "Select Language",
+    "spanish": "Español",
+    "english": "English",
+    "french": "Français"
+  }
+}

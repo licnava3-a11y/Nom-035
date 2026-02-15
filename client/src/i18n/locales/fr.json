@@ -1,0 +1,82 @@
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "dashboard": "Tableau de bord",
+    "employees": "Employés",
+    "courses": "Cours",
+    "cases": "Cas",
+    "surveys": "Enquêtes",
+    "reports": "Rapports",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "actions": "Actions",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "close": "Fermer"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "openCases": "Cas ouverts",
+    "inInvestigation": "En enquête",
+    "totalCases": "Total des cas",
+    "activeCourses": "Cours actifs",
+    "totalEmployees": "Total des employés",
+    "surveyCoverage": "Couverture des enquêtes",
+    "compliance": "Conformité NOM-035"
+  },
+  "employees": {
+    "title": "Gestion des employés",
+    "addEmployee": "Ajouter un employé",
+    "employeeList": "Liste des employés",
+    "employeeDetails": "Détails de l'employé",
+    "name": "Nom",
+    "email": "Email",
+    "department": "Département",
+    "position": "Poste",
+    "hireDate": "Date d'embauche",
+    "status": "Statut",
+    "active": "Actif",
+    "inactive": "Inactif"
+  },
+  "cases": {
+    "title": "Gestion des cas",
+    "addCase": "Enregistrer un cas",
+    "caseList": "Liste des cas",
+    "caseDetails": "Détails du cas",
+    "caseType": "Type de cas",
+    "severity": "Gravité",
+    "reportedBy": "Signalé par",
+    "assignedTo": "Assigné à",
+    "createdAt": "Créé le",
+    "updatedAt": "Dernière mise à jour",
+    "followUp": "Suivi",
+    "addComment": "Ajouter un commentaire"
+  },
+  "surveys": {
+    "title": "Enquêtes NOM-035",
+    "guideI": "Guide I",
+    "guideII": "Guide II",
+    "guideIII": "Guide III",
+    "takeSurvey": "Répondre à l'enquête",
+    "surveyResults": "Résultats",
+    "riskLevel": "Niveau de risque",
+    "recommendations": "Recommandations",
+    "coverage": "Couverture"
+  },
+  "language": {
+    "select": "Sélectionner la langue",
+    "spanish": "Español",
+    "english": "English",
+    "french": "Français"
+  }
+}
