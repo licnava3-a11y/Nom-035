@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE employees SET departmentId = 1, positionId = 1 WHERE employeeNumber IN ('EMP001', 'EMP002', 'EMP003', 'EMP004');\nUPDATE employees SET departmentId = 2, positionId = 2 WHERE employeeNumber IN ('EMP005', 'EMP006', 'EMP007');\nUPDATE employees SET departmentId = 3, positionId = 3 WHERE employeeNumber IN ('EMP008', 'EMP009', 'EMP010');\nUPDATE employees SET departmentId = 4, positionId = 4 WHERE employeeNumber IN ('EMP011', 'EMP012', 'EMP013');\nUPDATE employees SET departmentId = 5, positionId = 5 WHERE employeeNumber IN ('EMP014', 'EMP015');\nUPDATE employees SET departmentId = 1, positionId = 6 WHERE employeeNumber IN ('EMP-TEST-001', 'EMP-RH-002', 'EMP-PROD-003', 'EMP-TEC-004');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute UPDATE employees SET departmentId = 1, positionId = 1 WHERE employeeNumber IN ('EMP001', 'EMP002', 'EMP003', 'EMP004');\nUPDATE employees SET departmentId = 2, positionId = 2 WHERE employeeNumber IN ('EMP005', 'EMP006', 'EMP007');\nUPDATE employees SET departmentId = 3, positionId = 3 WHERE employeeNumber IN ('EMP008', 'EMP009', 'EMP010');\nUPDATE employees SET departmentId = 4, positionId = 4 WHERE employeeNumber IN ('EMP011', 'EMP012', 'EMP013');\nUPDATE employees SET departmentId = 5, positionId = 5 WHERE employeeNumber IN ('EMP014', 'EMP015');\nUPDATE employees SET departmentId = 1, positionId = 6 WHERE employeeNumber IN ('EMP-TEST-001', 'EMP-RH-002', 'EMP-PROD-003', 'EMP-TEC-004');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 697
+}

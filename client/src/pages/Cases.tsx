@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, Plus, Eye, Edit, FileText } from "lucide-react";
+import { AlertCircle, Plus, Eye, Edit, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -30,6 +30,8 @@ export default function Cases() {
   const [followUpDialogOpen, setFollowUpDialogOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
   
   // Preparar filtros
   const filters = useMemo(() => {
@@ -220,6 +222,7 @@ export default function Cases() {
         </CardHeader>
         <CardContent>
           {cases && cases.length > 0 ? (
+            <>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -232,7 +235,7 @@ export default function Cases() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cases.map((caseItem) => (
+                {cases.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((caseItem) => (
                   <TableRow key={caseItem.id}>
                     <TableCell className="font-medium">{caseItem.caseNumber}</TableCell>
                     <TableCell>{getCaseTypeLabel(caseItem.caseType)}</TableCell>
@@ -285,6 +288,38 @@ export default function Cases() {
                 ))}
               </TableBody>
             </Table>
+            {/* Pagination Controls */}
+            {cases && cases.length > ITEMS_PER_PAGE && (
+              <div className="flex items-center justify-between px-2 py-4 border-t">
+                <div className="text-sm text-muted-foreground">
+                  Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} a {Math.min(currentPage * ITEMS_PER_PAGE, cases.length)} de {cases.length} casos
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Anterior
+                  </Button>
+                  <div className="text-sm font-medium">
+                    Página {currentPage} de {Math.ceil(cases.length / ITEMS_PER_PAGE)}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(cases.length / ITEMS_PER_PAGE), prev + 1))}
+                    disabled={currentPage >= Math.ceil(cases.length / ITEMS_PER_PAGE)}
+                  >
+                    Siguiente
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center py-12">
               <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
