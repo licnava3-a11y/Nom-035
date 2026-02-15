@@ -12784,3 +12784,128 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final con documentación completa
 
 **FASE 129: ✅ COMPLETADA (80%) - LanguageSelector integrado, datos poblados, documentación completa creada en PENDING-FEATURES.md**
+
+
+## FASE 130: Guía II NOM-035, Optimización de Bundle y Validación CURP/RFC
+
+**Objetivo:** Implementar sistema completo de análisis Guía II NOM-035, optimizar bundle size y validación inteligente de CURP/RFC.
+
+### 1. Implementación de Guía II NOM-035 (Prioridad P0)
+
+#### 1.1 Backend - Cálculo de Dominios
+- [ ] Investigar algoritmo oficial de calificación Guía II NOM-035
+- [ ] Crear tabla guide_ii_results en schema para almacenar resultados
+- [ ] Implementar función calculateGuideIIDomains en db.ts
+- [ ] Crear procedimiento tRPC calculateGuideII en surveys router
+- [ ] Implementar cálculo de 5 dominios:
+  * Dominio 1: Ambiente de trabajo
+  * Dominio 2: Factores propios de la actividad
+  * Dominio 3: Organización del tiempo de trabajo
+  * Dominio 4: Liderazgo y relaciones en el trabajo
+  * Dominio 5: Entorno organizacional
+- [ ] Clasificar nivel de riesgo por dominio (nulo, bajo, medio, alto, muy alto)
+- [ ] Calcular nivel de riesgo general
+
+#### 1.2 Frontend - Dashboard de Resultados Guía II
+- [ ] Crear página GuideIIResults.tsx
+- [ ] Implementar gráfico de radar con 5 dominios (Chart.js)
+- [ ] Crear tarjetas de KPI por dominio con nivel de riesgo
+- [ ] Implementar tabla de áreas de atención prioritaria
+- [ ] Agregar filtros por departamento y período
+- [ ] Implementar exportación a PDF con gráficos
+- [ ] Agregar ruta /surveys/guide-ii-results en App.tsx
+
+#### 1.3 Recomendaciones Automáticas
+- [ ] Crear función generateGuideIIRecommendations en db.ts
+- [ ] Implementar lógica de recomendaciones por dominio y nivel de riesgo
+- [ ] Crear sección de recomendaciones en dashboard
+- [ ] Implementar plan de acción sugerido
+- [ ] Agregar asignación de responsables
+- [ ] Implementar seguimiento de implementación
+
+### 2. Optimización de Bundle Size (Prioridad P1)
+
+#### 2.1 Análisis de Dependencias
+- [ ] Ejecutar `pnpm why chart.js` para analizar duplicados
+- [ ] Ejecutar `pnpm why react` para verificar versiones
+- [ ] Ejecutar `pnpm why drizzle-orm` para analizar tamaño
+- [ ] Identificar dependencias pesadas (>100KB)
+- [ ] Crear reporte de análisis en BUNDLE-ANALYSIS.md
+
+#### 2.2 Lazy Loading de Bibliotecas Pesadas
+- [ ] Implementar lazy loading de Chart.js (solo cargar en páginas con gráficos)
+- [ ] Implementar lazy loading de D3.js (solo cargar en visualizaciones complejas)
+- [ ] Implementar lazy loading de QRCode (solo cargar en TokenManagement)
+- [ ] Implementar lazy loading de XLSX (solo cargar en exportaciones)
+- [ ] Implementar lazy loading de jsPDF (solo cargar en generación de PDFs)
+- [ ] Implementar lazy loading de jspdf-autotable
+
+#### 2.3 Optimización de Imports
+- [ ] Reemplazar imports completos por imports específicos
+- [ ] Ejemplo: `import { Chart } from 'chart.js'` en lugar de `import Chart from 'chart.js'`
+- [ ] Revisar imports de lucide-react (usar imports específicos)
+- [ ] Revisar imports de @/components/ui (verificar tree shaking)
+
+#### 2.4 Verificación de Mejoras
+- [ ] Ejecutar `pnpm build` después de optimizaciones
+- [ ] Verificar reducción de bundle size (objetivo: <1MB inicial)
+- [ ] Verificar tiempo de build (objetivo: <60 segundos)
+- [ ] Probar que todas las funcionalidades siguen operativas
+
+### 3. Validación de CURP/RFC (Prioridad P1)
+
+#### 3.1 Algoritmos de Validación
+- [ ] Implementar algoritmo de validación de CURP
+- [ ] Implementar algoritmo de validación de RFC
+- [ ] Crear funciones validateCURP y validateRFC en utils
+- [ ] Implementar extracción de datos de CURP (fecha nacimiento, sexo, estado)
+- [ ] Implementar extracción de datos de RFC (fecha nacimiento, homoclave)
+
+#### 3.2 Autocompletado Inteligente
+- [ ] Crear componente CURPInput con validación en tiempo real
+- [ ] Crear componente RFCInput con validación en tiempo real
+- [ ] Implementar autocompletado de fecha de nacimiento desde CURP
+- [ ] Implementar autocompletado de sexo desde CURP
+- [ ] Implementar autocompletado de estado de nacimiento desde CURP
+- [ ] Implementar validación de coherencia CURP-RFC
+
+#### 3.3 Integración en Formularios
+- [ ] Integrar CURPInput en EmployeeNew.tsx
+- [ ] Integrar CURPInput en EmployeeEdit.tsx
+- [ ] Integrar RFCInput en formularios financieros
+- [ ] Agregar indicadores visuales de validación (✓ válido, ✗ inválido)
+- [ ] Implementar mensajes de error descriptivos
+- [ ] Probar autocompletado en todos los formularios
+
+#### 3.4 Detección de Duplicados
+- [ ] Implementar procedimiento checkDuplicateCURP en backend
+- [ ] Implementar procedimiento checkDuplicateRFC en backend
+- [ ] Mostrar alerta si CURP ya existe en sistema
+- [ ] Mostrar alerta si RFC ya existe en sistema
+- [ ] Ofrecer opción de ver registro existente
+
+### 4. Pruebas y Checkpoint Final
+- [ ] Probar cálculo de Guía II con datos de prueba
+- [ ] Verificar dashboard de resultados
+- [ ] Probar recomendaciones automáticas
+- [ ] Verificar reducción de bundle size
+- [ ] Probar validación de CURP/RFC
+- [ ] Probar autocompletado en formularios
+- [ ] Ejecutar todas las pruebas del sistema
+- [ ] Guardar checkpoint con todas las mejoras
+
+**FASE 130: ❌ PENDIENTE - Guía II NOM-035, optimización de bundle y validación CURP/RFC**
+
+
+## ACTUALIZACIÓN FASE 130 - 2026-02-14 22:58
+
+### ✅ Guía II NOM-035 COMPLETADA (100%)
+- ✅ Backend: Calculadora oficial con algoritmo NOM-035 (8 dominios, 4 categorías)
+- ✅ Backend: 3 procedimientos tRPC (calculateGuideII, getGuideIIResults, getGuideIIAggregatedResults)
+- ✅ Frontend: Dashboard completo con gráficos de radar y barras (Recharts)
+- ✅ Frontend: Panel de recomendaciones automáticas por nivel de riesgo
+- ✅ Ruta: /surveys/guide-ii-results/:responseId agregada en App.tsx
+- ✅ Compilación: 0 errores TypeScript
+
+### 🔄 Pendiente: Optimización Bundle Size y Validación CURP/RFC
+

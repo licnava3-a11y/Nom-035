@@ -8,6 +8,7 @@ import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
 import * as scoring from "../lib/nom035-scoring";
+import { calculateGuideIIResults, validateGuideIIAnswers } from "../guideIICalculator";
 import { calculateSampleSize } from "../lib/sample-size-calculator";
 import { sendSurveyTokensNotification } from "../lib/email-sender";
 import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
@@ -2539,6 +2540,195 @@ export const surveysRouter = router({
         .orderBy(desc(nom035Results.completedAt));
 
       return results;
+    }),
+
+  // Calcular resultados de Guía II NOM-035
+  calculateGuideII: protectedProcedure
+    .input(z.object({
+      responseId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Obtener respuesta de encuesta
+      const [response] = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.id, input.responseId));
+
+      if (!response) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta de encuesta no encontrada" });
+      }
+
+      // Obtener respuestas individuales
+      const answers = await db
+        .select()
+        .from(surveyAnswers)
+        .where(eq(surveyAnswers.responseId, input.responseId));
+
+      if (answers.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No se encontraron respuestas para calcular" });
+      }
+
+      // Convertir respuestas a formato requerido por calculadora
+      const answersMap: Record<number, string> = {};
+      for (const answer of answers) {
+        // Obtener número de pregunta
+        const [question] = await db
+          .select()
+          .from(surveyQuestions)
+          .where(eq(surveyQuestions.id, answer.questionId));
+        
+        if (question) {
+          answersMap[question.order] = answer.answerValue;
+        }
+      }
+
+      // Validar respuestas
+      const validation = validateGuideIIAnswers(answersMap);
+      if (!validation.valid) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Respuestas inválidas: ${validation.errors.join(', ')}`
+        });
+      }
+
+      // Calcular resultados
+      const results = calculateGuideIIResults(answersMap);
+
+      // Guardar resultados en campo results de surveyResponses
+      await db
+        .update(surveyResponses)
+        .set({
+          results: JSON.stringify(results),
+        })
+        .where(eq(surveyResponses.id, input.responseId));
+
+      return {
+        success: true,
+        results,
+      };
+    }),
+
+  // Obtener resultados calculados de Guía II
+  getGuideIIResults: protectedProcedure
+    .input(z.object({
+      responseId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [response] = await db
+        .select()
+        .from(surveyResponses)
+        .where(eq(surveyResponses.id, input.responseId));
+
+      if (!response) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta de encuesta no encontrada" });
+      }
+
+      if (!response.results) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Resultados no calculados. Ejecute calculateGuideII primero." });
+      }
+
+      try {
+        const results = JSON.parse(response.results);
+        return results;
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al parsear resultados" });
+      }
+    }),
+
+  // Obtener resultados agregados de Guía II por departamento
+  getGuideIIAggregatedResults: protectedProcedure
+    .input(z.object({
+      departmentId: z.number().optional(),
+      periodId: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Construir query con filtros
+      const whereConditions = [
+        sql`${surveyResponses.completedAt} IS NOT NULL`,
+        sql`${surveyResponses.results} IS NOT NULL`
+      ];
+
+      if (input.periodId) {
+        whereConditions.push(eq(surveyResponses.periodId, input.periodId));
+      }
+
+      const responses = await db
+        .select()
+        .from(surveyResponses)
+        .where(and(...whereConditions));
+
+      // Filtrar por departamento si se especifica
+      let filteredResponses = responses;
+      if (input.departmentId) {
+        const userIds = await db
+          .select({ id: users.id })
+          .from(users)
+          .where(sql`${users.departamento} = ${input.departmentId}`);
+        
+        const userIdSet = new Set(userIds.map(u => u.id));
+        filteredResponses = responses.filter(r => r.userId && userIdSet.has(r.userId));
+      }
+
+      // Parsear resultados y agregar
+      const parsedResults = filteredResponses
+        .map(r => {
+          try {
+            return JSON.parse(r.results!);
+          } catch {
+            return null;
+          }
+        })
+        .filter(r => r !== null);
+
+      if (parsedResults.length === 0) {
+        return {
+          totalResponses: 0,
+          averageFinalScore: 0,
+          riskDistribution: {},
+          domainAverages: {},
+          categoryAverages: {},
+        };
+      }
+
+      // Calcular promedios
+      const averageFinalScore = parsedResults.reduce((sum, r) => sum + r.finalScore, 0) / parsedResults.length;
+
+      // Distribución de niveles de riesgo
+      const riskDistribution: Record<string, number> = {};
+      for (const result of parsedResults) {
+        riskDistribution[result.finalRiskLevel] = (riskDistribution[result.finalRiskLevel] || 0) + 1;
+      }
+
+      // Promedios por dominio
+      const domainAverages: Record<string, number> = {};
+      const domainKeys = Object.keys(parsedResults[0].domainScores);
+      for (const key of domainKeys) {
+        domainAverages[key] = parsedResults.reduce((sum, r) => sum + r.domainScores[key], 0) / parsedResults.length;
+      }
+
+      // Promedios por categoría
+      const categoryAverages: Record<string, number> = {};
+      const categoryKeys = Object.keys(parsedResults[0].categoryScores);
+      for (const key of categoryKeys) {
+        categoryAverages[key] = parsedResults.reduce((sum, r) => sum + r.categoryScores[key], 0) / parsedResults.length;
+      }
+
+      return {
+        totalResponses: parsedResults.length,
+        averageFinalScore,
+        riskDistribution,
+        domainAverages,
+        categoryAverages,
+      };
     }),
 
 });

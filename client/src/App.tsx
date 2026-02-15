@@ -78,6 +78,7 @@ const SurveysDashboard = lazy(() => import("./pages/surveys/Dashboard"));
 const SurveysTracking = lazy(() => import("./pages/surveys/Tracking"));
 const CorrectiveActions = lazy(() => import("./pages/surveys/CorrectiveActions"));
 const SurveyResults = lazy(() => import("./pages/surveys/SurveyResults"));
+const GuideIIResults = lazy(() => import("./pages/surveys/GuideIIResults"));
 const SurveyAdmin = lazy(() => import("./pages/surveys/SurveyAdmin"));
 const SurveySend = lazy(() => import("./pages/SurveySend"));
 const PublicSurvey = lazy(() => import("./pages/surveys/PublicSurvey"));
@@ -638,6 +639,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <CorrectiveActions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/guide-ii-results/:responseId"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <GuideIIResults />
             </Suspense>
           </DashboardLayout>
         </Route>
