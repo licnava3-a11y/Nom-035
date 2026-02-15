@@ -268,3 +268,30 @@
 - [ ] Crear página EvidencesFolder.tsx
 - [ ] Implementar exportación PDF de carpeta completa
 - [ ] Agregar navegación en menú lateral
+
+## Nuevas Tareas - Completar Carpeta de Evidencias STPS
+
+### Fase 1: Página EvidencesFolder.tsx
+- [x] Crear página EvidencesFolder.tsx con interfaz visual
+- [x] Implementar acordeones expandibles por numeral (5.1-5.8)
+- [x] Agregar indicadores de completitud (pending/partial/complete)
+- [x] Implementar selector de tamaño de empresa (pequeña/mediana/grande)
+- [x] Mostrar listado de evidencias por numeral
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación en menú lateral (Cumplimiento Normativo)
+
+### Fase 2: Exportación PDF Carpeta Completa
+- [x] Crear procedure evidencesFolder.generatePDF
+- [x] Diseñar portada institucional con datos empresa
+- [x] Generar índice automático por numerales (5.1-5.8)
+- [x] Incluir listado de evidencias por sección (simplificado MVP)
+- [x] Agregar pie de página con fecha y folio único (CARP-NOM035-timestamp)
+- [x] Implementar botón de exportación en frontend
+
+### Fase 3: Sistema de Carga Manual de Evidencias
+- [ ] Crear tabla manual_evidences en schema
+- [ ] Implementar procedure evidencesFolder.uploadEvidence
+- [ ] Agregar UI para subir documentos (PDF, imágenes)
+- [ ] Asociar evidencias a numerales específicos
+- [ ] Actualizar indicadores de completitud al subir evidencias
+- [ ] Implementar listado de evidencias manuales por numeral

@@ -161,7 +161,7 @@ const hierarchicalMenuItems = [
       { label: "Verificación Numerales 7 y 8", path: "/compliance/numerals", description: "Verificación automática de obligaciones" },
       { label: "Historial de Reportes", path: "/compliance/reports-history", description: "Consulta y re-descarga de reportes" },
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos" },
-      { label: "Carpeta de Evidencias", path: "/nom035/evidences", description: "Repositorio de documentación" },
+      { label: "Carpeta de Evidencias STPS", path: "/evidences-folder", description: "Carpeta de evidencias NOM-035 organizada por numerales" },
       { label: "Informe Numeral 7.5", path: "/reports/regulatory", description: "Informe de identificación y análisis" },
     ],
   },

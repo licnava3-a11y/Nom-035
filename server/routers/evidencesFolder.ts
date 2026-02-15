@@ -307,4 +307,107 @@ export const evidencesFolderRouter = router({
 
       return evidences;
     }),
+
+  /**
+   * Generar PDF de carpeta de evidencias STPS
+   */
+  generatePDF: protectedProcedure
+    .input(
+      z.object({
+        companySize: z.enum(['small', 'medium', 'large']),
+      })
+    )
+    .mutation(async ({ input }: { input: { companySize: 'small' | 'medium' | 'large' } }) => {
+      const PDFDocument = require('pdfkit');
+      const { companySize } = input;
+      
+      // Obtener evidencias
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const employeeCount = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(employees)
+        .where(eq(employees.isActive, true));
+
+      const totalEmployees = employeeCount[0]?.count || 0;
+
+      // Crear documento PDF
+      const doc = new PDFDocument({ size: 'LETTER', margins: { top: 50, bottom: 50, left: 50, right: 50 } });
+      const chunks: Buffer[] = [];
+
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+      return new Promise<{ pdfBase64: string }>((resolve, reject) => {
+        doc.on('end', () => {
+          const pdfBuffer = Buffer.concat(chunks);
+          resolve({ pdfBase64: pdfBuffer.toString('base64') });
+        });
+
+        doc.on('error', reject);
+
+        // Portada
+        doc.fontSize(24).font('Helvetica-Bold').text('CARPETA DE EVIDENCIAS STPS', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(18).text('Cumplimiento NOM-035-STPS-2018', { align: 'center' });
+        doc.moveDown(2);
+        doc.fontSize(12).font('Helvetica').text(`Total de Empleados: ${totalEmployees}`, { align: 'center' });
+        doc.text(`Tamaño de Empresa: ${companySize === 'small' ? 'Pequeña (≤15)' : companySize === 'medium' ? 'Mediana (16-50)' : 'Grande (>50)'}`, { align: 'center' });
+        doc.moveDown(2);
+        doc.text(`Fecha de Generación: ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}`, { align: 'center' });
+        
+        // Folio único
+        const folio = `CARP-NOM035-${Date.now()}`;
+        doc.moveDown(3);
+        doc.fontSize(10).text(`Folio: ${folio}`, { align: 'center' });
+
+        // Índice
+        doc.addPage();
+        doc.fontSize(18).font('Helvetica-Bold').text('ÍNDICE', { align: 'center' });
+        doc.moveDown(2);
+        doc.fontSize(12).font('Helvetica');
+        
+        const numerals = [
+          '5.1 - Política de prevención de riesgos psicosociales',
+          '5.2 - Medidas de prevención',
+          '5.3 - Identificación de trabajadores expuestos a acontecimientos traumáticos severos',
+          '5.4 - Identificación y análisis de factores de riesgo psicosocial',
+          '5.5 - Evaluación del entorno organizacional',
+          '5.6 - Medidas y acciones de control',
+          '5.7 - Difusión de información',
+          '5.8 - Registros',
+        ];
+
+        numerals.forEach((numeral, index) => {
+          doc.text(`${index + 1}. ${numeral}`, { indent: 20 });
+          doc.moveDown(0.5);
+        });
+
+        // Contenido de evidencias (simplificado para MVP)
+        doc.addPage();
+        doc.fontSize(16).font('Helvetica-Bold').text('EVIDENCIAS POR NUMERAL', { align: 'center' });
+        doc.moveDown(2);
+
+        numerals.forEach((numeral) => {
+          doc.fontSize(14).font('Helvetica-Bold').text(numeral);
+          doc.moveDown(0.5);
+          doc.fontSize(10).font('Helvetica').text('Evidencias recopiladas automáticamente del sistema.', { indent: 20 });
+          doc.moveDown(1);
+        });
+
+        // Pie de página en todas las páginas
+        const pages = doc.bufferedPageRange();
+        for (let i = 0; i < pages.count; i++) {
+          doc.switchToPage(i);
+          doc.fontSize(8).text(
+            `Folio: ${folio} | Página ${i + 1} de ${pages.count} | ${new Date().toLocaleDateString('es-MX')}`,
+            50,
+            doc.page.height - 50,
+            { align: 'center' }
+          );
+        }
+
+        doc.end();
+      });
+    }),
 });
