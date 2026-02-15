@@ -25,7 +25,7 @@ export default function TokenManagement() {
   // Queries
   const { data: tokensData, refetch: refetchTokens } = trpc.surveyAnonymousTokens.getAll.useQuery({
     page: 1,
-    limit: 50,
+    pageSize: 50,
   });
 
   const { data: statsData } = trpc.surveyAnonymousTokens.getStats.useQuery();

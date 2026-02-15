@@ -67,7 +67,7 @@ export async function detectCompetencyRegressions() {
     }
 
     // Process each department
-    for (const [deptId, deptSnapshots] of snapshotsByDept.entries()) {
+    for (const [deptId, deptSnapshots] of Array.from(snapshotsByDept.entries())) {
       if (deptSnapshots.length < 2) {
         console.log(`[Competency Regression Job] Skipping department ${deptId} - not enough snapshots`);
         continue;

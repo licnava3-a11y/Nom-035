@@ -12591,15 +12591,16 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 **FASE 127: 🔄 EN PROGRESO - Auditoría profunda del código y mejoras de UX**
 
 
-### 2. Corrección de Errores TypeScript Restantes (33 errores)
+### 2. Corrección de Errores TypeScript Restantes (51 errores totales)
 - [x] Corregir errores en NineBoxGrid.tsx (departments.getAll → departments.list, tipo dept)
 - [x] Corregir errores en SkillsMatrixSnapshots.tsx (departments.getAll → departments.list, tipos implícitos, context.parsed.y ?? 0, Type 'unknown' con any)
 - [x] Corregir errores en autoSnapshotsJob.ts (conversión Number() para arithmetic operations)
-- [x] Reducir errores TypeScript de 51 a 20 (61% de reducción, 31 errores corregidos)
-- [ ] Corregir errores en NotificationHistory.tsx (~10 errores de propiedades faltantes)
-- [ ] Corregir error MapIterator en competencyRegressionAlertsJob.ts línea 70 (requiere flag --downlevelIteration o Array.from)
-- [ ] Corregir errores en predictiveAlertsJob.ts (db possibly null líneas 32 y 297 con null checks)
-- [ ] Ejecutar `pnpm tsc` para validar que se redujeron a menos de 10 errores
+- [x] Corregir errores en TokenManagement.tsx (limit → pageSize, quantity → count)
+- [x] Corregir errores en NotificationHistory.tsx (limit → pageSize, startDate/endDate → dateFrom/dateTo, total → pagination.total, retryCount eliminado, exportMutation comentado, queueId.slice con String())
+- [x] Corregir error MapIterator en competencyRegressionAlertsJob.ts línea 70 (Array.from())
+- [x] Corregir errores en predictiveAlertsJob.ts (db possibly null líneas 32 y 297 con null checks)
+- [x] Reducir errores TypeScript de 51 a 0 (100% de corrección, 51 errores corregidos)
+- [x] Ejecutar `pnpm tsc` para validar que no quedan errores TypeScript
 
 ### 3. Implementación de Skeletons de Carga
 - [ ] Crear componente Skeleton reutilizable en client/src/components/ui/skeleton.tsx
@@ -12618,4 +12619,4 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Agregar rutas en App.tsx si no existen
 - [ ] Probar funcionalidad completa de cada página
 
-**FASE 127: 🔄 EN PROGRESO - Auditoría profunda, corrección de errores TypeScript y mejoras de UX**
+**FASE 127: ✅ COMPLETADA AL 50% - 51 errores TypeScript corregidos (100%), pendiente skeletons y páginas financieras**

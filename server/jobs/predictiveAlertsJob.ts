@@ -24,6 +24,10 @@ const alertTypeLabels: Record<string, string> = {
  */
 async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert | null> {
   const db = await getDb();
+  if (!db) {
+    console.error('[Predictive Alerts] Database connection not available');
+    return null;
+  }
   
   // Get last 180 days of alerts
   const sixMonthsAgo = new Date();
@@ -294,6 +298,10 @@ export async function runPredictiveAlertsJob(): Promise<void> {
 
       // Get admin users
       const db = await getDb();
+      if (!db) {
+        console.error('[Predictive Alerts Job] Database connection not available for admin lookup');
+        return;
+      }
       const admins = await db
         .select({
           id: users.id,

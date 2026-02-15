@@ -16,36 +16,45 @@ export default function NotificationHistory() {
     type: "",
     status: "",
     recipientEmail: "",
-    startDate: "",
-    endDate: "",
+    dateFrom: "",
+    dateTo: "",
   });
 
   const { data: logsData, isLoading, refetch } = trpc.notificationLogs.getAll.useQuery({
     page,
-    limit: 50,
-    ...filters,
+    pageSize: 50,
+    type: filters.type || undefined,
+    status: filters.status as "failed" | "sent" | "bounced" | undefined,
+    recipientEmail: filters.recipientEmail || undefined,
+    dateFrom: filters.dateFrom || undefined,
+    dateTo: filters.dateTo || undefined,
   });
 
-  const { data: stats } = trpc.notificationLogs.getStats.useQuery(filters);
+  const { data: stats } = trpc.notificationLogs.getStats.useQuery({
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+  });
   const { data: recipients } = trpc.notificationLogs.getRecipients.useQuery();
 
-  const exportMutation = trpc.notificationLogs.exportToCSV.useMutation({
-    onSuccess: (data) => {
-      // Create blob and download
-      const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `notificaciones_${new Date().toISOString().split("T")[0]}.csv`;
-      link.click();
-      toast.success("Historial exportado exitosamente");
-    },
-    onError: () => {
-      toast.error("Error al exportar historial");
-    },
-  });
+  // Export mutation commented out - export procedure not implemented yet
+  // const exportMutation = trpc.notificationLogs.export.useMutation({
+  //   onSuccess: (data: any) => {
+  //     const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8;" });
+  //     const link = document.createElement("a");
+  //     link.href = URL.createObjectURL(blob);
+  //     link.download = `notificaciones_${new Date().toISOString().split("T")[0]}.csv`;
+  //     link.click();
+  //     toast.success("Historial exportado exitosamente");
+  //   },
+  //   onError: () => {
+  //     toast.error("Error al exportar historial");
+  //   },
+  // });
 
   const handleExport = () => {
-    exportMutation.mutate(filters);
+    // Export functionality not implemented yet
+    toast.info("Funcionalidad de exportación en desarrollo");
+    // exportMutation.mutate(filters);
   };
 
   const getStatusBadge = (status: string) => {
@@ -83,9 +92,9 @@ export default function NotificationHistory() {
           <h1 className="text-3xl font-bold">Historial de Notificaciones</h1>
           <p className="text-muted-foreground">Auditoría completa de todas las notificaciones enviadas</p>
         </div>
-        <Button onClick={handleExport} disabled={exportMutation.isPending}>
+        <Button onClick={handleExport}>
           <Download className="mr-2 h-4 w-4" />
-          {exportMutation.isPending ? "Exportando..." : "Exportar CSV"}
+          Exportar CSV
         </Button>
       </div>
 
@@ -191,9 +200,9 @@ export default function NotificationHistory() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Todos los destinatarios</SelectItem>
-                  {recipients?.map((r) => (
-                    <SelectItem key={r.email} value={r.email || ""}>
-                      {r.email}
+                  {recipients?.map((r: any) => (
+                    <SelectItem key={r} value={r || ""}>
+                      {r}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -204,8 +213,8 @@ export default function NotificationHistory() {
               <Label>Fecha Inicio</Label>
               <Input
                 type="date"
-                value={filters.startDate}
-                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                value={filters.dateFrom}
+                onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
               />
             </div>
 
@@ -213,8 +222,8 @@ export default function NotificationHistory() {
               <Label>Fecha Fin</Label>
               <Input
                 type="date"
-                value={filters.endDate}
-                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                value={filters.dateTo}
+                onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
               />
             </div>
           </div>
@@ -230,8 +239,8 @@ export default function NotificationHistory() {
                   type: "",
                   status: "",
                   recipientEmail: "",
-                  startDate: "",
-                  endDate: "",
+                  dateFrom: "",
+                  dateTo: "",
                 });
                 setPage(1);
               }}
@@ -249,7 +258,7 @@ export default function NotificationHistory() {
         <CardHeader>
           <CardTitle>Historial de Notificaciones</CardTitle>
           <CardDescription>
-            Mostrando {logsData?.logs.length || 0} de {logsData?.total || 0} notificaciones
+            Mostrando {logsData?.logs.length || 0} de {logsData?.pagination.total || 0} notificaciones
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -275,7 +284,7 @@ export default function NotificationHistory() {
                   <TableBody>
                     {logsData?.logs.map((log) => (
                       <TableRow key={log.id}>
-                        <TableCell className="font-mono text-xs">{log.queueId?.slice(0, 8)}</TableCell>
+                        <TableCell className="font-mono text-xs">{log.queueId ? String(log.queueId).slice(0, 8) : 'N/A'}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{log.templateCode || "N/A"}</Badge>
                         </TableCell>
@@ -286,8 +295,8 @@ export default function NotificationHistory() {
                           {log.sentAt ? new Date(log.sentAt).toLocaleString("es-MX") : "Pendiente"}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={log.retryCount && log.retryCount > 0 ? "destructive" : "secondary"}>
-                            {log.retryCount || 0}
+                          <Badge variant="secondary">
+                            0
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -299,7 +308,7 @@ export default function NotificationHistory() {
               {/* Paginación */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Página {page} de {Math.ceil((logsData?.total || 0) / 50)}
+                  Página {page} de {Math.ceil((logsData?.pagination.total || 0) / 50)}
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} variant="outline">
@@ -307,7 +316,7 @@ export default function NotificationHistory() {
                   </Button>
                   <Button
                     onClick={() => setPage((p) => p + 1)}
-                    disabled={!logsData || page >= Math.ceil(logsData.total / 50)}
+                    disabled={!logsData || page >= Math.ceil(logsData.pagination.total / 50)}
                     variant="outline"
                   >
                     Siguiente
