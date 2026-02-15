@@ -687,6 +687,171 @@ export const appRouter = router({
         
         return { success: true };
       }),
+    autoAssign: committeeProcedure
+      .input(z.object({
+        caseId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases, caseAssignments, caseFollowUps, notifications, committeeMembers, users } = await import('../drizzle/schema');
+        const { eq, sql, and } = await import('drizzle-orm');
+        
+        // 1. Obtener miembros activos del comité con JOIN a users para obtener nombre
+        const activeMembers = await dbInstance
+          .select({
+            userId: committeeMembers.userId,
+            name: users.name,
+          })
+          .from(committeeMembers)
+          .innerJoin(users, eq(committeeMembers.userId, users.id))
+          .where(eq(committeeMembers.isActive, true));
+        
+        if (activeMembers.length === 0) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'No hay miembros activos en el comité' });
+        }
+        
+        // 2. Calcular workload de cada miembro (casos abiertos asignados)
+        const workloadPromises = activeMembers.map(async (member) => {
+          const workload = await dbInstance.execute(sql`
+            SELECT COUNT(*) as count
+            FROM ${cases}
+            WHERE ${cases.assignedTo} = ${member.userId}
+            AND ${cases.status} IN ('open', 'investigating')
+          `);
+          
+          return {
+            userId: member.userId,
+            name: member.name || 'Sin nombre',
+            workload: Number((workload as any).rows?.[0]?.count || 0),
+          };
+        });
+        
+        const workloads = await Promise.all(workloadPromises);
+        
+        // 3. Algoritmo de balanceo: asignar al miembro con menor workload
+        const sortedByWorkload = workloads.sort((a, b) => a.workload - b.workload);
+        const selectedMember = sortedByWorkload[0];
+        
+        // 4. Asignar caso al miembro seleccionado
+        await dbInstance.update(cases).set({ assignedTo: selectedMember.userId }).where(eq(cases.id, input.caseId));
+        
+        // 5. Crear registro de asignación
+        await dbInstance.insert(caseAssignments).values({
+          caseId: input.caseId,
+          committeeMemberId: selectedMember.userId,
+          role: 'lead' as any,
+          assignedBy: ctx.user.id,
+        });
+        
+        // 6. Agregar seguimiento
+        await dbInstance.insert(caseFollowUps).values({
+          caseId: input.caseId,
+          userId: ctx.user.id,
+          action: `Caso asignado automáticamente a ${selectedMember.name} (workload: ${selectedMember.workload} casos)`,
+        });
+        
+        // 7. Crear notificación para el miembro asignado
+        const caseData = await dbInstance.select().from(cases).where(eq(cases.id, input.caseId)).limit(1);
+        await dbInstance.insert(notifications).values({
+          userId: selectedMember.userId,
+          title: 'Nuevo caso asignado automáticamente',
+          message: `Se te ha asignado automáticamente el caso ${caseData[0]?.caseNumber}`,
+          type: 'case_assigned' as any,
+          isRead: false,
+        });
+        
+        return {
+          success: true,
+          assignedTo: {
+            userId: selectedMember.userId,
+            name: selectedMember.name,
+            workload: selectedMember.workload,
+          },
+        };
+      }),
+    getMetrics: committeeProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases } = await import('../drizzle/schema');
+        const { sql } = await import('drizzle-orm');
+        
+        // Filtros de fecha opcionales
+        const conditions = [];
+        if (input?.startDate) {
+          conditions.push(sql`DATE(${cases.createdAt}) >= ${input.startDate.split('T')[0]}`);
+        }
+        if (input?.endDate) {
+          conditions.push(sql`DATE(${cases.createdAt}) <= ${input.endDate.split('T')[0]}`);
+        }
+        const whereClause = conditions.length > 0 ? sql`WHERE ${sql.join(conditions, sql` AND `)}` : sql``;
+        
+        // 1. Casos por mes (últimos 12 meses)
+        const casesByMonth = await dbInstance.execute(sql`
+          SELECT 
+            DATE_FORMAT(${cases.createdAt}, '%Y-%m') as month,
+            COUNT(*) as count
+          FROM ${cases}
+          ${whereClause}
+          GROUP BY DATE_FORMAT(${cases.createdAt}, '%Y-%m')
+          ORDER BY month DESC
+          LIMIT 12
+        `);
+        
+        // 2. Distribución por tipo
+        const casesByType = await dbInstance.execute(sql`
+          SELECT 
+            ${cases.caseType} as type,
+            COUNT(*) as count
+          FROM ${cases}
+          ${whereClause}
+          GROUP BY ${cases.caseType}
+        `);
+        
+        // 3. Tiempo promedio de resolución (en días)
+        const avgResolutionTime = await dbInstance.execute(sql`
+          SELECT 
+            AVG(DATEDIFF(${cases.closedAt}, ${cases.createdAt})) as avgDays
+          FROM ${cases}
+          WHERE ${cases.closedAt} IS NOT NULL
+          ${conditions.length > 0 ? sql`AND ${sql.join(conditions, sql` AND `)}` : sql``}
+        `);
+        
+        // 4. Distribución por prioridad
+        const casesByPriority = await dbInstance.execute(sql`
+          SELECT 
+            ${cases.priority} as priority,
+            COUNT(*) as count
+          FROM ${cases}
+          ${whereClause}
+          GROUP BY ${cases.priority}
+        `);
+        
+        // 5. Distribución por estado
+        const casesByStatus = await dbInstance.execute(sql`
+          SELECT 
+            ${cases.status} as status,
+            COUNT(*) as count
+          FROM ${cases}
+          ${whereClause}
+          GROUP BY ${cases.status}
+        `);
+        
+        return {
+          casesByMonth: (casesByMonth as any).rows || [],
+          casesByType: (casesByType as any).rows || [],
+          avgResolutionTime: ((avgResolutionTime as any).rows?.[0]?.avgDays || 0),
+          casesByPriority: (casesByPriority as any).rows || [],
+          casesByStatus: (casesByStatus as any).rows || [],
+        };
+      }),
   }),
 
   // Committee members

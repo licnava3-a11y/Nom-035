@@ -137,3 +137,36 @@
 - [x] Detectar casos críticos abiertos >3 días (prioridad alta)
 - [x] Enviar notificaciones a miembros del comité (type: new_case, deadline_approaching)
 - [x] Inicializar job en server startup (cada 24 horas)
+
+## Nuevas Tareas - Dashboard Métricas, Asignación Automática y Reportes PDF
+
+### 1. Implementar Dashboard de Métricas de Casos
+- [x] Crear queries backend para métricas (casos por mes, tiempo promedio resolución, distribución por tipo)
+- [x] Agregar procedure cases.getMetrics con agregaciones SQL (5 métricas)
+- [x] Crear página CasesMetrics.tsx con gráficos Chart.js
+- [x] Implementar gráfico de tendencias (casos por mes - línea)
+- [x] Implementar gráfico de distribución por tipo (pie chart)
+- [x] Implementar gráficos de distribución por prioridad y estado (bar charts)
+- [x] Agregar métrica destacada: tiempo promedio de resolución
+- [x] Agregar navegación en menú lateral (Prevención de Riesgos > Métricas de Casos)
+
+### 2. Implementar Sistema de Asignación Automática de Casos
+- [x] Verificar tabla case_assignments en schema (ya existe)
+- [x] Implementar algoritmo de balanceo de carga en backend
+- [x] Considerar workload actual de cada miembro del comité (casos abiertos/investigando)
+- [x] Agregar procedure cases.autoAssign con lógica de asignación
+- [x] Algoritmo: asignar al miembro con menor workload
+- [x] Agregar botón "Asignar Auto" en lista de casos (solo si no asignado)
+- [x] Crear notificación automática al miembro asignado
+- [x] Agregar seguimiento en historial del caso
+
+### 3. Implementar Reportes PDF Automatizados
+- [x] Verificar librería de generación PDF (pdfkit ya instalado)
+- [x] Crear procedure reports.generateCasesPDF
+- [x] Incluir estadísticas mensuales/trimestrales (8 métricas)
+- [x] Agregar distribución por tipo de caso
+- [x] Incluir recomendaciones automáticas basadas en análisis de datos
+- [x] Crear UI para seleccionar período de reporte (Select mensual/trimestral)
+- [x] Agregar botón "Generar Reporte PDF" en CasesMetrics.tsx
+- [x] Validar rango de fechas antes de generar
+- [x] Descarga automática de archivo PDF

@@ -39,6 +39,8 @@ export default function Cases() {
   const ITEMS_PER_PAGE = 20;
   
   const exportMutation = trpc.cases.exportToExcel.useMutation();
+  const autoAssignMutation = trpc.cases.autoAssign.useMutation();
+  const utils = trpc.useUtils();
   
   // Preparar filtros para query server-side
   const queryParams = useMemo(() => {
@@ -137,6 +139,21 @@ export default function Cases() {
   const handleAddFollowUp = (caseData: any) => {
     setSelectedCase(caseData);
     setFollowUpDialogOpen(true);
+  };
+
+  const handleAutoAssign = async (caseId: number) => {
+    try {
+      const result = await autoAssignMutation.mutateAsync({ caseId });
+      
+      // Invalidar query para refrescar lista
+      await utils.cases.list.invalidate();
+      
+      // Mostrar mensaje de éxito
+      alert(`Caso asignado automáticamente a ${result.assignedTo.name} (${result.assignedTo.workload} casos activos)`);
+    } catch (error: any) {
+      console.error('Error al asignar automáticamente:', error);
+      alert(error.message || 'Error al asignar caso automáticamente');
+    }
   };
 
   const getStatusLabel = (status: string) => {
@@ -463,6 +480,18 @@ export default function Cases() {
                           <FileText className="h-4 w-4 mr-2" />
                           Seguimiento
                         </ProtectedButton>
+                        {!caseItem.assignedTo && (
+                          <ProtectedButton
+                            variant="default"
+                            size="sm"
+                            onClick={() => handleAutoAssign(caseItem.id)}
+                            requiredPermission="can_edit"
+                            fallbackMessage="Solo los administradores pueden asignar casos"
+                            hideIfNoPermission
+                          >
+                            Asignar Auto
+                          </ProtectedButton>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

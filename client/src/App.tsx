@@ -14,6 +14,7 @@ import { useShortcutsHelp } from "./hooks/useKeyboardShortcuts";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Courses = lazy(() => import("./pages/Courses"));
 const Cases = lazy(() => import("./pages/Cases"));
+const CasesMetrics = lazy(() => import("./pages/CasesMetrics"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Evaluations = lazy(() => import("./pages/Evaluations"));
 const TakeEvaluation = lazy(() => import("./pages/TakeEvaluation"));
@@ -167,14 +168,21 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/courses"}>
+        <Route path={"/cases"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <Courses />
+              <Cases />
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/cases"}>
+        <Route path={"/cases/metrics"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CasesMetrics />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/cases/assignment"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <Cases />

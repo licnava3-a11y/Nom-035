@@ -116,6 +116,7 @@ const hierarchicalMenuItems = [
     roles: ["admin", "committee"],
     submenu: [
       { label: "Gestión de Casos", path: "/cases", description: "Seguimiento de casos de riesgo psicosocial" },
+      { label: "Métricas de Casos", path: "/cases/metrics", description: "Análisis y tendencias de casos" },
       { label: "Investigación", path: "/cases/investigations", description: "Cuestionarios de mobbing y burnout" },
       { label: "Protocolo de Violencia Laboral", path: "/cases/workplace-violence", description: "Gestión de casos de violencia laboral" },
       { label: "Buzón de Quejas", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },

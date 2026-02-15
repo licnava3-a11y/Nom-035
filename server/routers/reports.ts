@@ -245,4 +245,134 @@ export const reportsRouter = router({
 
       return signers;
     }),
+
+  /**
+   * Generar Reporte PDF de Casos
+   * Incluye estadísticas mensuales/trimestrales y recomendaciones
+   */
+  generateCasesPDF: protectedProcedure
+    .input(z.object({
+      period: z.enum(['monthly', 'quarterly']),
+      startDate: z.string(),
+      endDate: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const PDFDocument = (await import('pdfkit')).default;
+      const db = await getDb();
+      if (!db) throw new Error('Database connection failed');
+
+      // 1. Obtener métricas de casos
+      const metricsQuery = await db.execute(sql`
+        SELECT 
+          COUNT(*) as totalCases,
+          SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as openCases,
+          SUM(CASE WHEN status = 'investigating' THEN 1 ELSE 0 END) as investigatingCases,
+          SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) as resolvedCases,
+          SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closedCases,
+          SUM(CASE WHEN priority = 'critical' THEN 1 ELSE 0 END) as criticalCases,
+          SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as highCases,
+          AVG(CASE WHEN closed_at IS NOT NULL THEN DATEDIFF(closed_at, created_at) ELSE NULL END) as avgResolutionDays
+        FROM cases
+        WHERE DATE(created_at) >= ${input.startDate.split('T')[0]}
+        AND DATE(created_at) <= ${input.endDate.split('T')[0]}
+      `);
+
+      const metrics = (metricsQuery as any).rows?.[0] || {};
+
+      // 2. Distribución por tipo
+      const typeDistQuery = await db.execute(sql`
+        SELECT case_type, COUNT(*) as count
+        FROM cases
+        WHERE DATE(created_at) >= ${input.startDate.split('T')[0]}
+        AND DATE(created_at) <= ${input.endDate.split('T')[0]}
+        GROUP BY case_type
+      `);
+
+      const typeDistribution = (typeDistQuery as any).rows || [];
+
+      // 3. Crear PDF
+      const doc = new PDFDocument({ margin: 50 });
+      const chunks: Buffer[] = [];
+
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+      // Título
+      doc.fontSize(20).text('Reporte de Casos NOM-035', { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(12).text(`Período: ${input.period === 'monthly' ? 'Mensual' : 'Trimestral'}`, { align: 'center' });
+      doc.text(`Del ${input.startDate.split('T')[0]} al ${input.endDate.split('T')[0]}`, { align: 'center' });
+      doc.moveDown(2);
+
+      // Estadísticas Generales
+      doc.fontSize(16).text('Estadísticas Generales');
+      doc.moveDown();
+      doc.fontSize(12);
+      doc.text(`Total de Casos: ${metrics.totalCases || 0}`);
+      doc.text(`Casos Abiertos: ${metrics.openCases || 0}`);
+      doc.text(`Casos en Investigación: ${metrics.investigatingCases || 0}`);
+      doc.text(`Casos Resueltos: ${metrics.resolvedCases || 0}`);
+      doc.text(`Casos Cerrados: ${metrics.closedCases || 0}`);
+      doc.moveDown();
+      doc.text(`Casos Críticos: ${metrics.criticalCases || 0}`);
+      doc.text(`Casos de Alta Prioridad: ${metrics.highCases || 0}`);
+      doc.text(`Tiempo Promedio de Resolución: ${Math.round(metrics.avgResolutionDays || 0)} días`);
+      doc.moveDown(2);
+
+      // Distribución por Tipo
+      doc.fontSize(16).text('Distribución por Tipo de Caso');
+      doc.moveDown();
+      doc.fontSize(12);
+      const typeLabels: Record<string, string> = {
+        mobbing: 'Mobbing',
+        burnout: 'Burnout',
+        violence: 'Violencia',
+        stress: 'Estrés',
+        other: 'Otro',
+      };
+      typeDistribution.forEach((item: any) => {
+        doc.text(`${typeLabels[item.case_type] || item.case_type}: ${item.count}`);
+      });
+      doc.moveDown(2);
+
+      // Recomendaciones
+      doc.fontSize(16).text('Recomendaciones');
+      doc.moveDown();
+      doc.fontSize(12);
+
+      const recommendations = [];
+      if (Number(metrics.criticalCases || 0) > 0) {
+        recommendations.push(`Se detectaron ${metrics.criticalCases} casos críticos. Se recomienda priorizar su atención inmediata.`);
+      }
+      if (Number(metrics.avgResolutionDays || 0) > 14) {
+        recommendations.push(`El tiempo promedio de resolución (${Math.round(metrics.avgResolutionDays)} días) excede el estándar recomendado de 14 días. Se sugiere revisar procesos de atención.`);
+      }
+      if (Number(metrics.openCases || 0) > Number(metrics.totalCases || 1) * 0.5) {
+        recommendations.push(`Más del 50% de los casos están abiertos. Se recomienda asignar más recursos al comité.`);
+      }
+      if (recommendations.length === 0) {
+        recommendations.push('El sistema de atención de casos muestra un desempeño adecuado. Continuar con el monitoreo periódico.');
+      }
+
+      recommendations.forEach((rec, idx) => {
+        doc.text(`${idx + 1}. ${rec}`);
+        doc.moveDown();
+      });
+
+      doc.end();
+
+      // 4. Convertir a base64
+      const pdfBuffer = await new Promise<Buffer>((resolve) => {
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+      });
+
+      const base64 = pdfBuffer.toString('base64');
+      const filename = `reporte-casos-${input.period}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+      return {
+        success: true,
+        data: base64,
+        filename,
+        totalCases: Number(metrics.totalCases || 0),
+      };
+    }),
 });
