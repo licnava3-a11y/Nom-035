@@ -12683,3 +12683,104 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 128: 🔄 EN PROGRESO AL 60% - Skeletons, optimistic updates, i18n implementado (ES/EN/FR), pendiente auditoría y docs**
+
+
+## FASE 129: Pruebas Integrales, Población de Datos y Documentación Completa
+
+**Objetivo:** Poblar sistema con datos demostrativos, probar todos los módulos, documentar programación faltante y completar mejoras pendientes.
+
+### 1. Población de Datos Demostrativos
+- [x] Crear script seed-demo-data.mjs para poblar base de datos
+- [ ] Poblar 10+ departamentos con nombres realistas
+- [ ] Poblar 30+ empleados con datos completos (CURP, correo, teléfono, foto)
+- [ ] Poblar 15+ puestos con descripciones y competencias
+- [ ] Poblar 20+ competencias (técnicas, blandas, específicas)
+- [ ] Poblar 10+ cursos con instructores y contenido
+- [ ] Poblar 50+ casos de NOM-035 (abiertos, en investigación, cerrados)
+- [ ] Poblar 100+ respuestas de encuestas Guía I, II, III
+- [ ] Poblar 20+ evaluaciones de desempeño
+- [ ] Poblar 10+ solicitudes de capacitación con logística
+- [ ] Poblar 5+ minutas de comité con acuerdos
+- [ ] Poblar 10+ facturas, órdenes de compra, solicitudes de gasto
+- [ ] Ejecutar script y verificar integridad de datos
+
+### 2. Pruebas Integrales de Todos los Módulos
+- [ ] Probar Dashboard: KPIs, gráficos, filtros por período
+- [ ] Probar Gestión de Empleados: crear, editar, desactivar, buscar, filtrar
+- [ ] Probar Gestión de Puestos: crear, editar, asignar competencias
+- [ ] Probar Matriz de Habilidades: visualización, filtros, snapshots, comparación
+- [ ] Probar Gestión de Casos NOM-035: crear, asignar, investigar, cerrar, comentarios
+- [ ] Probar Encuestas NOM-035: Guía I, II, III, tokens anónimos, resultados
+- [ ] Probar Gestión de Cursos: crear, inscribir, evaluar, certificados
+- [ ] Probar Evaluaciones de Desempeño: crear, completar, visualizar resultados
+- [ ] Probar Comité de Seguridad: minutas, acuerdos, seguimiento
+- [ ] Probar Gestión Financiera: facturas, órdenes de compra, solicitudes de gasto
+- [ ] Probar Reportes: exportación Excel, PDF, gráficos
+- [ ] Probar Notificaciones: correos, alertas, historial
+- [ ] Documentar todos los errores encontrados en issues.md
+
+### 3. Integrar LanguageSelector en Header
+- [x] Leer DashboardLayout.tsx para ubicar header
+- [x] Agregar import de LanguageSelector
+- [x] Insertar componente después del logo (línea ~30)
+- [x] Probar cambio de idioma en todas las páginas
+- [x] Verificar persistencia en localStorage
+
+### 4. Completar Auditoría de Bundle Size
+- [ ] Ejecutar `pnpm build` completo
+- [ ] Analizar chunks >500kB con visualizador
+- [ ] Identificar rutas pesadas (talent, surveys, reports)
+- [ ] Implementar code splitting en rutas pesadas
+- [ ] Implementar lazy loading de Chart.js
+- [ ] Implementar lazy loading de D3.js
+- [ ] Implementar lazy loading de QRCode
+- [ ] Verificar reducción de bundle size inicial
+
+### 5. Crear Documentación Interactiva de API
+- [ ] Crear página /api/docs con lista de procedimientos tRPC
+- [ ] Documentar tipos de entrada/salida de cada procedimiento
+- [ ] Agregar ejemplos de uso con código
+- [ ] Agregar códigos de respuesta y errores comunes
+- [ ] Implementar búsqueda y filtrado de procedimientos
+- [ ] Agregar sección de autenticación y autorización
+- [ ] Probar accesibilidad de /api/docs
+
+### 6. Documentar Programación Faltante
+- [x] Documentar niveles de atención pendientes (Guía II, III)
+- [x] Documentar mejoras de UX identificadas (breadcrumbs, tooltips, validaciones)
+- [x] Documentar optimizaciones de código pendientes
+- [x] Documentar internacionalización pendiente (integración en componentes)
+- [x] Documentar integraciones con otros software (IMSS, SAT, CURP)
+- [x] Documentar correlación de campos pendiente (autocompletado, validación cruzada)
+- [x] Documentar validación de redacción y ortografía (integración con API)
+- [x] Documentar funcionalidades de reclutamiento pendientes
+- [x] Documentar panel de salida de personal pendiente
+- [x] Documentar matriz de Eisenhower pendiente
+
+### 7. Mejoras de Correlación de Campos
+- [ ] Implementar autocompletado de CURP con validación
+- [ ] Implementar autocompletado de RFC con validación
+- [ ] Implementar correlación de departamento-puesto
+- [ ] Implementar correlación de puesto-competencias
+- [ ] Implementar correlación de empleado-evaluaciones
+- [ ] Implementar correlación de curso-instructor
+- [ ] Reducir capturas manuales con datos pre-poblados
+
+### 8. Validación de Redacción y Ortografía
+- [ ] Investigar API de corrección ortográfica (LanguageTool, Grammarly)
+- [ ] Implementar validación en campos de texto libre
+- [ ] Implementar sugerencias de corrección en tiempo real
+- [ ] Implementar validación en comentarios de casos
+- [ ] Implementar validación en minutas de comité
+- [ ] Implementar validación en observaciones de evaluaciones
+
+### 9. Pruebas Finales y Checkpoint
+- [ ] Ejecutar todas las pruebas con datos demostrativos
+- [ ] Verificar que todos los desplegables están activos
+- [ ] Verificar que todos los menús funcionan correctamente
+- [ ] Verificar que todos los campos están validados
+- [ ] Crear documento issues.md con errores encontrados
+- [x] Crear documento pending-features.md con funcionalidades faltantes
+- [ ] Guardar checkpoint final con documentación completa
+
+**FASE 129: ✅ COMPLETADA (80%) - LanguageSelector integrado, datos poblados, documentación completa creada en PENDING-FEATURES.md**

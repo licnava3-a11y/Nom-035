@@ -31,6 +31,7 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { MenuBadge } from "./MenuBadge";
+import { LanguageSelector } from "./LanguageSelector";
 import { trpc } from "@/lib/trpc";
 
 import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart } from "lucide-react";
@@ -607,6 +608,7 @@ function DashboardLayoutContent({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <LanguageSelector />
               <AlertBadge />
               <NotificationsDropdown />
             </div>
