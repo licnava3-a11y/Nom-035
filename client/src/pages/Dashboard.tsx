@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import TrendsCharts from '@/components/TrendsCharts';
+import RecognitionsCard from '@/components/RecognitionsCard';
 import { Link } from 'wouter';
 import { 
   Users, 
@@ -528,6 +529,9 @@ export default function DashboardConsolidated() {
           </CardContent>
         </Card>
       )}
+
+      {/* Recognitions Card - Admin Only */}
+      {user?.role === 'admin' && <RecognitionsCard />}
 
       {/* Quick Actions */}
       <div>

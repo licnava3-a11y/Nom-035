@@ -64,6 +64,7 @@ const hierarchicalMenuItems = [
       { label: "Organigrama", path: "/organization/chart", description: "Visualización de la estructura organizacional" },
       { label: "Cambios Organizacionales", path: "/organization/changes", description: "Historial de cambios organizacionales" },
       { label: "Dashboard de Rotación", path: "/employees/turnover", description: "Análisis de rotación de personal" },
+      { label: "Reconocimientos", path: "/talent/recognitions", description: "Sistema de reconocimientos y felicitaciones corporativas" },
       { label: "Importación Masiva", path: "/admin/import", description: "Importar datos desde Excel" },
     ],
   },

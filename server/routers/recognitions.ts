@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
-import { getDb } from "../db";
+import { getDb, createNotification } from "../db";
 import { recognitions, recognitionCategories, recognitionReactions, users } from "../../drizzle/schema";
 import { eq, and, or, desc, sql, gte, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -79,7 +79,20 @@ export const recognitionsRouter = router({
         status: "approved", // Por defecto aprobado, se puede cambiar a "pending" si se requiere moderación
       });
 
-      // TODO: Enviar notificación al usuario destino
+      // Enviar notificación al usuario destino
+      try {
+        await createNotification({
+          userId: input.toUserId,
+          type: "recognition",
+          title: "¡Has recibido un reconocimiento!",
+          message: `${ctx.user.name} te ha enviado un reconocimiento en la categoría "${category[0].name}": ${input.message.substring(0, 100)}${input.message.length > 100 ? '...' : ''}`,
+          relatedEntityType: "recognition",
+          relatedEntityId: Number((result as any)[0]?.insertId || 0),
+        });
+      } catch (error) {
+        console.error("[Recognitions] Error al enviar notificación:", error);
+        // No lanzar error, la notificación es secundaria
+      }
 
       return { success: true };
     }),
