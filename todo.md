@@ -13005,3 +13005,101 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 132: ✅ COMPLETADA (100%) - Sistema completo: versiones, historial, edición con carga y visor PDF integrado**
+
+
+## FASE 133: Sistema de Reconocimientos, Exportación Masiva, Notificaciones y Firma Digital
+
+### 1. Sistema de Reconocimientos y Felicitaciones Corporativas
+
+#### 1.1 Backend - Schema y Tablas
+- [x] Crear tabla `recognitions` en drizzle/schema.ts
+- [x] Campos: id, fromUserId, toUserId, type (reconocimiento/felicitación), category, message, isPublic, status, createdAt
+- [x] Crear tabla `recognition_categories` para tipos de reconocimiento
+- [x] Crear tabla `recognition_reactions` para reacciones (like, applause, heart, star)
+- [x] Generar migración con pnpm drizzle-kit generate
+- [x] Aplicar migración con webdev_execute_sql
+- [x] Poblar 10 categorías predefinidas
+
+#### 1.2 Backend - Procedimientos tRPC
+- [x] Crear router recognitions.ts en server/routers
+- [x] Procedimiento `getCategories` - Obtener categorías activas
+- [x] Procedimiento `create` - Crear reconocimiento con validaciones
+- [x] Procedimiento `list` - Listar reconocimientos (filtros: recibidos, enviados, públicos, todos)
+- [x] Procedimiento `getById` - Obtener reconocimiento por ID
+- [x] Procedimiento `getMonthlyReport` - Reporte mensual completo
+- [x] Procedimiento `addReaction` - Agregar/actualizar reacción
+- [x] Procedimiento `removeReaction` - Eliminar reacción
+- [x] Procedimiento `getReactions` - Obtener reacciones con contadores
+- [x] Registrar router en server/routers.ts
+- [ ] Integrar con sistema de notificaciones existente
+
+#### 1.3 Frontend - Página de Reconocimientos
+- [ ] Crear página client/src/pages/talent/Recognitions.tsx
+- [ ] Formulario de envío de reconocimiento (selector de empleado, categoría, mensaje)
+- [ ] Buzón de reconocimientos recibidos con filtros
+- [ ] Buzón de reconocimientos enviados
+- [ ] Muro público de reconocimientos (solo públicos)
+- [ ] Agregar ruta en App.tsx
+
+#### 1.4 Frontend - Dashboard y Reportes
+- [ ] Card de "Reconocimientos del Mes" en dashboard principal
+- [ ] Gráfico de reconocimientos por categoría (Chart.js)
+- [ ] Top 10 empleados más reconocidos del mes
+- [ ] Botón "Exportar Reporte Mensual" (PDF)
+
+### 2. Exportación Masiva de Políticas
+
+#### 2.1 Backend
+- [ ] Crear procedimiento tRPC `exportAllPolicies` en nom035Policies router
+- [ ] Implementar generación de archivo ZIP con todos los PDFs
+- [ ] Usar biblioteca `archiver` o `jszip`
+- [ ] Subir ZIP a S3 y retornar URL temporal
+
+#### 2.2 Frontend
+- [ ] Agregar botón "Exportar Todo" en página de Políticas
+- [ ] Mostrar indicador de progreso durante generación
+- [ ] Descargar archivo ZIP automáticamente
+
+### 3. Notificaciones de Vencimiento de Políticas
+
+#### 3.1 Backend - Job Automático
+- [ ] Crear archivo server/jobs/policyExpirationCheck.ts
+- [ ] Implementar lógica de verificación (fechaPublicacion + 1 año - 30 días)
+- [ ] Integrar con sistema de notificaciones existente
+- [ ] Enviar correo a administradores y representantes legales
+- [ ] Programar ejecución diaria con cron
+
+#### 3.2 Frontend - Alertas
+- [ ] Agregar badge de "Próximas a vencer" en página de Políticas
+- [ ] Filtro para mostrar solo políticas próximas a vencer
+- [ ] Notificación en dashboard si hay políticas por vencer
+
+### 4. Firma Digital de Políticas
+
+#### 4.1 Backend
+- [ ] Agregar campo `signatureImageUrl` en tabla nom035_policies
+- [ ] Agregar campo `signedBy` y `signedAt` en tabla nom035_policies
+- [ ] Crear procedimiento tRPC `signPolicy` en nom035Policies router
+- [ ] Subir imagen de firma a S3
+
+#### 4.2 Frontend - Canvas de Firma
+- [ ] Instalar pnpm add react-signature-canvas
+- [ ] Crear componente SignaturePad.tsx
+- [ ] Agregar modal de firma en página de Políticas
+- [ ] Botón "Firmar Política" (solo para representantes legales)
+- [ ] Mostrar firma en PDF generado
+
+#### 4.3 Integración con Versiones
+- [ ] Guardar firma en versiones de políticas
+- [ ] Mostrar firma en historial de versiones
+- [ ] Validar que solo representante legal pueda firmar
+
+### 5. Pruebas y Validación
+- [ ] Probar envío de reconocimientos
+- [ ] Probar exportación masiva de políticas
+- [ ] Probar notificaciones de vencimiento
+- [ ] Probar firma digital de políticas
+- [ ] Verificar reportes mensuales
+- [ ] Guardar checkpoint final
+
+**FASE 133: 🔄 EN PROGRESO (30%) - Backend de reconocimientos completado, pendiente frontend y otras funcionalidades**

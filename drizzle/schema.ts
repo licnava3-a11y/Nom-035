@@ -3002,3 +3002,60 @@ export const competencyRegressionAlerts = mysqlTable("competency_regression_aler
 
 export type CompetencyRegressionAlert = typeof competencyRegressionAlerts.$inferSelect;
 export type InsertCompetencyRegressionAlert = typeof competencyRegressionAlerts.$inferInsert;
+
+
+// ============================================================
+// SISTEMA DE RECONOCIMIENTOS Y FELICITACIONES CORPORATIVAS
+// ============================================================
+
+/**
+ * Categorías de reconocimientos predefinidas
+ */
+export const recognitionCategories = mysqlTable("recognition_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 50 }), // Nombre del icono de lucide-react
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RecognitionCategory = typeof recognitionCategories.$inferSelect;
+export type InsertRecognitionCategory = typeof recognitionCategories.$inferInsert;
+
+/**
+ * Reconocimientos y felicitaciones entre empleados
+ */
+export const recognitions = mysqlTable("recognitions", {
+  id: int("id").autoincrement().primaryKey(),
+  fromUserId: int("from_user_id").notNull().references(() => users.id),
+  toUserId: int("to_user_id").notNull().references(() => users.id),
+  categoryId: int("category_id").notNull().references(() => recognitionCategories.id),
+  type: mysqlEnum("type", ["reconocimiento", "felicitacion"]).notNull(),
+  message: text("message").notNull(),
+  isPublic: boolean("is_public").default(false).notNull(), // Visible en muro público
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("approved").notNull(),
+  approvedBy: int("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Recognition = typeof recognitions.$inferSelect;
+export type InsertRecognition = typeof recognitions.$inferInsert;
+
+/**
+ * Reacciones a reconocimientos (likes, aplausos, etc.)
+ */
+export const recognitionReactions = mysqlTable("recognition_reactions", {
+  id: int("id").autoincrement().primaryKey(),
+  recognitionId: int("recognition_id").notNull().references(() => recognitions.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id),
+  reactionType: mysqlEnum("reaction_type", ["like", "applause", "heart", "star"]).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type RecognitionReaction = typeof recognitionReactions.$inferSelect;
+export type InsertRecognitionReaction = typeof recognitionReactions.$inferInsert;

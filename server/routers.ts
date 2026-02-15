@@ -75,6 +75,7 @@ import { predictiveAlertsRouter } from "./routers/predictiveAlerts";
 import { nineBoxGridRouter } from "./routers/nineBoxGrid";
 import { notificationLogsRouter } from "./routers/notificationLogs";
 import { skillsMatrixSnapshotsRouter } from "./routers/skillsMatrixSnapshots";
+import { recognitionsRouter } from "./routers/recognitions";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -159,6 +160,7 @@ export const appRouter = router({
   dashboard: dashboardRouter,
   administrative: administrativeRouter,
   financial: financialRouter,
+  recognitions: recognitionsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
