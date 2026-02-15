@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { nom035Policies } from "../../drizzle/schema";
+import { nom035Policies, nom035PolicyVersions } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateNom035PolicyPDF } from "../pdfGenerators/nom035Policy";
@@ -93,12 +93,48 @@ export const nom035PoliciesRouter = router({
         fechaPublicacion: z.string(),
         representanteLegalId: z.number().optional(),
         activo: z.boolean().optional(),
+        changeDescription: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
+      // Get current policy data to save as version
+      const [currentPolicy] = await db
+        .select()
+        .from(nom035Policies)
+        .where(eq(nom035Policies.id, input.id))
+        .limit(1);
+
+      if (!currentPolicy) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Política no encontrada",
+        });
+      }
+
+      // Get next version number
+      const versions = await db
+        .select()
+        .from(nom035PolicyVersions)
+        .where(eq(nom035PolicyVersions.policyId, input.id));
+      const nextVersionNumber = versions.length + 1;
+
+      // Save current state as version
+      await db.insert(nom035PolicyVersions).values({
+        policyId: currentPolicy.id,
+        versionNumber: nextVersionNumber,
+        nombre: currentPolicy.nombre,
+        descripcion: currentPolicy.descripcion,
+        fechaPublicacion: currentPolicy.fechaPublicacion,
+        representanteLegalId: currentPolicy.representanteLegalId,
+        pdfUrl: currentPolicy.pdfUrl,
+        changeDescription: input.changeDescription || `Actualización de política`,
+        createdBy: ctx.user.id,
+      });
+
+      // Update policy
       await db
         .update(nom035Policies)
         .set({
@@ -264,6 +300,99 @@ export const nom035PoliciesRouter = router({
         success: true,
         pdfUrl,
         message: "Archivo PDF cargado exitosamente",
+      };
+    }),
+
+  /**
+   * Get policy version history
+   */
+  getPolicyVersions: protectedProcedure
+    .input(z.object({ policyId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const versions = await db
+        .select()
+        .from(nom035PolicyVersions)
+        .where(eq(nom035PolicyVersions.policyId, input.policyId))
+        .orderBy(desc(nom035PolicyVersions.versionNumber));
+
+      return versions;
+    }),
+
+  /**
+   * Restore policy to a previous version
+   */
+  restorePolicyVersion: protectedProcedure
+    .input(z.object({ versionId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Get version data
+      const [version] = await db
+        .select()
+        .from(nom035PolicyVersions)
+        .where(eq(nom035PolicyVersions.id, input.versionId))
+        .limit(1);
+
+      if (!version) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Versión no encontrada",
+        });
+      }
+
+      // Get current policy to save as new version
+      const [currentPolicy] = await db
+        .select()
+        .from(nom035Policies)
+        .where(eq(nom035Policies.id, version.policyId))
+        .limit(1);
+
+      if (!currentPolicy) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Política no encontrada",
+        });
+      }
+
+      // Get next version number
+      const versions = await db
+        .select()
+        .from(nom035PolicyVersions)
+        .where(eq(nom035PolicyVersions.policyId, version.policyId));
+      const nextVersionNumber = versions.length + 1;
+
+      // Save current state as new version
+      await db.insert(nom035PolicyVersions).values({
+        policyId: currentPolicy.id,
+        versionNumber: nextVersionNumber,
+        nombre: currentPolicy.nombre,
+        descripcion: currentPolicy.descripcion,
+        fechaPublicacion: currentPolicy.fechaPublicacion,
+        representanteLegalId: currentPolicy.representanteLegalId,
+        pdfUrl: currentPolicy.pdfUrl,
+        changeDescription: `Restauración desde versión ${version.versionNumber}`,
+        createdBy: ctx.user.id,
+      });
+
+      // Restore version data to main policy
+      await db
+        .update(nom035Policies)
+        .set({
+          nombre: version.nombre,
+          descripcion: version.descripcion,
+          fechaPublicacion: version.fechaPublicacion,
+          representanteLegalId: version.representanteLegalId,
+          pdfUrl: version.pdfUrl,
+        })
+        .where(eq(nom035Policies.id, version.policyId));
+
+      return {
+        success: true,
+        message: `Política restaurada a versión ${version.versionNumber}`,
       };
     }),
 });

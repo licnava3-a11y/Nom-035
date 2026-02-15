@@ -12948,3 +12948,47 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 131: ✅ COMPLETADA (90%) - Carga de archivos PDF propios implementada, pendiente pruebas**
+
+
+## FASE 132: Sistema de Versiones, Edición y Visor de PDF en Políticas
+
+### 1. Sistema de Versiones de Políticas
+- [x] Crear tabla nom035_policy_versions en drizzle/schema.ts
+- [x] Campos: id, policyId, versionNumber, nombre, descripcion, pdfUrl, uploadedFileName, fileSize, representanteLegalId, changeDescription, createdBy, createdAt
+- [x] Generar migración con pnpm drizzle-kit generate
+- [x] Aplicar migración con webdev_execute_sql
+- [x] Crear procedimiento tRPC getPolicyVersions en nom035Policies router
+- [x] Crear procedimiento tRPC restorePolicyVersion en nom035Policies router
+- [x] Modificar procedimiento update para guardar versión automáticamente
+- [ ] Modificar procedimiento create para guardar versión inicial (opcional)
+
+### 2. Campo de Carga en Edición
+- [ ] Agregar estado uploadMode en formulario de edición
+- [ ] Agregar selector de modo en diálogo de edición
+- [ ] Agregar campo <input type="file"> en formulario de edición
+- [ ] Implementar handleFileChange para edición
+- [ ] Modificar handleUpdate para soportar carga de archivos
+- [ ] Guardar versión anterior antes de actualizar
+- [ ] Agregar campo "Descripción del cambio" en edición
+- [ ] Mostrar historial de versiones en diálogo de edición
+
+### 3. Visor de PDF Integrado
+- [ ] Instalar pnpm add react-pdf (PDF.js wrapper)
+- [ ] Crear componente PDFViewer.tsx en client/src/components
+- [ ] Implementar modal de visualización con controles (zoom, página)
+- [ ] Agregar botón "Ver PDF" en tabla de políticas
+- [ ] Reemplazar enlace directo por modal de visor
+- [ ] Agregar indicador de carga mientras se descarga PDF
+- [ ] Implementar navegación entre páginas del PDF
+- [ ] Agregar botón de descarga en visor
+
+### 4. Pruebas y Validación
+- [ ] Probar creación de política con versión inicial
+- [ ] Probar edición de política con guardado de versión
+- [ ] Probar restauración de versión anterior
+- [ ] Probar visor de PDF con documentos de varias páginas
+- [ ] Verificar que historial de versiones se muestra correctamente
+- [ ] Probar descarga desde visor
+- [ ] Guardar checkpoint final
+
+**FASE 132: 🔄 EN PROGRESO (40%) - Sistema de versiones completado, pendiente edición y visor PDF**

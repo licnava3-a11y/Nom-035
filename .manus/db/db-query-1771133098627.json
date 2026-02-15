@@ -1,0 +1,32 @@
+{
+  "query": "SHOW CREATE TABLE nom035_policy_versions;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SHOW CREATE TABLE nom035_policy_versions;",
+  "rows": [
+    {
+      "Table": "nom035_policy_versions",
+      "Create Table": "CREATE TABLE `nom035_policy_versions` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `policy_id` int(11) NOT NULL,",
+    "  `version_number` int(11) NOT NULL,",
+    "  `nombre` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `descripcion` text COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `fecha_publicacion` date NOT NULL,",
+    "  `representante_legal_id` int(11) DEFAULT NULL,",
+    "  `pdf_url` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `uploaded_file_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `file_size` int(11) DEFAULT NULL,",
+    "  `change_description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,",
+    "  `created_by` int(11) NOT NULL,",
+    "  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  KEY `nom035_policy_versions_policy_id_nom035_policies_id_fk` (`policy_id`),",
+    "  CONSTRAINT `nom035_policy_versions_policy_id_nom035_policies_id_fk` FOREIGN KEY (`policy_id`) REFERENCES `32dY4kSxNgo2w8qLnKHR6H`.`nom035_policies` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\nnom035_policy_versions\tCREATE TABLE `nom035_policy_versions` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `policy_id` int(11) NOT NULL,\n  `version_number` int(11) NOT NULL,\n  `nombre` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `descripcion` text COLLATE utf8mb4_unicode_ci NOT NULL,\n  `fecha_publicacion` date NOT NULL,\n  `representante_legal_id` int(11) DEFAULT NULL,\n  `pdf_url` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `uploaded_file_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `file_size` int(11) DEFAULT NULL,\n  `change_description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `created_by` int(11) NOT NULL,\n  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  KEY `nom035_policy_versions_policy_id_nom035_policies_id_fk` (`policy_id`),\n  CONSTRAINT `nom035_policy_versions_policy_id_nom035_policies_id_fk` FOREIGN KEY (`policy_id`) REFERENCES `32dY4kSxNgo2w8qLnKHR6H`.`nom035_policies` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

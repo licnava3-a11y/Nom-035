@@ -1694,6 +1694,29 @@ export type Nom035Policy = typeof nom035Policies.$inferSelect;
 export type InsertNom035Policy = typeof nom035Policies.$inferInsert;
 
 /**
+ * NOM-035 Policy Versions table
+ * Stores version history of policies for audit trail
+ */
+export const nom035PolicyVersions = mysqlTable("nom035_policy_versions", {
+  id: int("id").autoincrement().primaryKey(),
+  policyId: int("policy_id").references(() => nom035Policies.id, { onDelete: 'cascade' }).notNull(),
+  versionNumber: int("version_number").notNull(),
+  nombre: varchar("nombre", { length: 255 }).notNull(),
+  descripcion: text("descripcion").notNull(),
+  fechaPublicacion: date("fecha_publicacion").notNull(),
+  representanteLegalId: int("representante_legal_id").references(() => companyLegalRepresentative.id),
+  pdfUrl: text("pdf_url"),
+  uploadedFileName: varchar("uploaded_file_name", { length: 255 }),
+  fileSize: int("file_size"),
+  changeDescription: text("change_description"),
+  createdBy: int("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Nom035PolicyVersion = typeof nom035PolicyVersions.$inferSelect;
+export type InsertNom035PolicyVersion = typeof nom035PolicyVersions.$inferInsert;
+
+/**
  * NOM-035 Evidence Folder table
  * Centralized repository for all NOM-035 compliance documentation
  */

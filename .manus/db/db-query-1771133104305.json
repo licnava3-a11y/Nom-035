@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `nom035_policy_versions` \nADD CONSTRAINT `policy_versions_rep_legal_fk` FOREIGN KEY (`representante_legal_id`) REFERENCES `company_legal_representative`(`id`),\nADD CONSTRAINT `policy_versions_created_by_fk` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute ALTER TABLE `nom035_policy_versions` \nADD CONSTRAINT `policy_versions_rep_legal_fk` FOREIGN KEY (`representante_legal_id`) REFERENCES `company_legal_representative`(`id`),\nADD CONSTRAINT `policy_versions_created_by_fk` FOREIGN KEY (`created_by`) REFERENCES `users`(`id`);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1700
+}
