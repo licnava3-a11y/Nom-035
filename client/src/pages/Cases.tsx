@@ -31,6 +31,9 @@ export default function Cases() {
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterPriority, setFilterPriority] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const ITEMS_PER_PAGE = 20;
   
   // Preparar filtros
@@ -42,9 +45,27 @@ export default function Cases() {
     };
   }, [dateRange]);
   
-  const { data: cases, isLoading } = trpc.cases.list.useQuery(filters, {
+  const { data: casesData, isLoading } = trpc.cases.list.useQuery(filters, {
     enabled: user?.role === "admin" || user?.role === "committee",
   });
+
+  // Aplicar filtros locales
+  const cases = useMemo(() => {
+    if (!casesData) return [];
+    return casesData.filter(c => {
+      if (filterType !== "all" && c.caseType !== filterType) return false;
+      if (filterPriority !== "all" && c.priority !== filterPriority) return false;
+      if (filterStatus !== "all" && c.status !== filterStatus) return false;
+      return true;
+    });
+  }, [casesData, filterType, filterPriority, filterStatus]);
+
+  const clearFilters = () => {
+    setFilterType("all");
+    setFilterPriority("all");
+    setFilterStatus("all");
+    setCurrentPage(1);
+  };
 
   const handleEditCase = (caseData: any) => {
     setSelectedCase(caseData);
@@ -171,6 +192,69 @@ export default function Cases() {
           Registrar Caso
         </ProtectedButton>
       </div>
+
+      {/* Filtros Avanzados */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tipo de Caso</label>
+              <select
+                value={filterType}
+                onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="all">Todos</option>
+                <option value="mobbing">Mobbing</option>
+                <option value="burnout">Burnout</option>
+                <option value="violence">Violencia Laboral</option>
+                <option value="stress">Estrés Laboral</option>
+                <option value="other">Otro</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Prioridad</label>
+              <select
+                value={filterPriority}
+                onChange={(e) => { setFilterPriority(e.target.value); setCurrentPage(1); }}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="all">Todas</option>
+                <option value="low">Baja</option>
+                <option value="medium">Media</option>
+                <option value="high">Alta</option>
+                <option value="critical">Crítica</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Estado</label>
+              <select
+                value={filterStatus}
+                onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="all">Todos</option>
+                <option value="open">Abierto</option>
+                <option value="investigating">En Investigación</option>
+                <option value="resolved">Resuelto</option>
+                <option value="closed">Cerrado</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className="w-full"
+              >
+                Limpiar Filtros
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
