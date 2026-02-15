@@ -112,8 +112,8 @@ export default function DashboardConsolidated() {
 
   const completedCourses = progress?.filter((p) => p.status === 'completed').length || 0;
   const inProgressCourses = progress?.filter((p) => p.status === 'in_progress').length || 0;
-  const openCases = cases?.filter((c) => c.status === 'open').length || 0;
-  const investigatingCases = cases?.filter((c) => c.status === 'investigating').length || 0;
+  const openCases = cases?.cases?.filter((c) => c.status === 'open').length || 0;
+  const investigatingCases = cases?.cases?.filter((c) => c.status === 'investigating').length || 0;
 
   // Preparar datos para gráficas (solo para admin)
   const departmentChartData = metrics ? {

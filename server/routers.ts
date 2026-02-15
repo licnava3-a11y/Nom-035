@@ -329,10 +329,59 @@ export const appRouter = router({
       .input(z.object({
         startDate: z.string().optional(),
         endDate: z.string().optional(),
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(20),
+        caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']).optional(),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+        status: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
       }).optional())
       .query(async ({ input }) => {
-        // TODO: Implementar filtros de fecha en getAllCases
-        return await db.getAllCases();
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases } = await import('../drizzle/schema');
+        const { eq, and, sql, desc } = await import('drizzle-orm');
+        
+        const page = input?.page || 1;
+        const pageSize = input?.pageSize || 20;
+        const offset = (page - 1) * pageSize;
+        
+        // Build where conditions
+        const conditions = [];
+        if (input?.caseType) {
+          conditions.push(eq(cases.caseType, input.caseType));
+        }
+        if (input?.priority) {
+          conditions.push(eq(cases.priority, input.priority));
+        }
+        if (input?.status) {
+          conditions.push(eq(cases.status, input.status));
+        }
+        
+        const where = conditions.length > 0 ? and(...conditions) : undefined;
+        
+        // Get total count
+        const [{ count: totalCount }] = await dbInstance
+          .select({ count: sql<number>`count(*)` })
+          .from(cases)
+          .where(where);
+        
+        // Get paginated cases
+        const casesList = await dbInstance
+          .select()
+          .from(cases)
+          .where(where)
+          .orderBy(desc(cases.createdAt))
+          .limit(pageSize)
+          .offset(offset);
+        
+        return {
+          cases: casesList,
+          totalCount: Number(totalCount),
+          totalPages: Math.ceil(Number(totalCount) / pageSize),
+          currentPage: page,
+          pageSize,
+        };
       }),
     getById: committeeProcedure
       .input(z.object({ id: z.number() }))

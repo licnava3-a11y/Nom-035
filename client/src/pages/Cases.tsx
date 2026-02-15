@@ -36,29 +36,40 @@ export default function Cases() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const ITEMS_PER_PAGE = 20;
   
-  // Preparar filtros
-  const filters = useMemo(() => {
-    if (!dateRange) return undefined;
-    return {
-      startDate: dateRange.from.toISOString(),
-      endDate: dateRange.to.toISOString(),
+  // Preparar filtros para query server-side
+  const queryParams = useMemo(() => {
+    const params: any = {
+      page: currentPage,
+      pageSize: ITEMS_PER_PAGE,
     };
-  }, [dateRange]);
+    
+    if (dateRange) {
+      params.startDate = dateRange.from.toISOString();
+      params.endDate = dateRange.to.toISOString();
+    }
+    
+    if (filterType !== "all") {
+      params.caseType = filterType as any;
+    }
+    
+    if (filterPriority !== "all") {
+      params.priority = filterPriority as any;
+    }
+    
+    if (filterStatus !== "all") {
+      params.status = filterStatus as any;
+    }
+    
+    return params;
+  }, [dateRange, currentPage, filterType, filterPriority, filterStatus]);
   
-  const { data: casesData, isLoading } = trpc.cases.list.useQuery(filters, {
+  const { data: casesResponse, isLoading } = trpc.cases.list.useQuery(queryParams, {
     enabled: user?.role === "admin" || user?.role === "committee",
   });
-
-  // Aplicar filtros locales
-  const cases = useMemo(() => {
-    if (!casesData) return [];
-    return casesData.filter(c => {
-      if (filterType !== "all" && c.caseType !== filterType) return false;
-      if (filterPriority !== "all" && c.priority !== filterPriority) return false;
-      if (filterStatus !== "all" && c.status !== filterStatus) return false;
-      return true;
-    });
-  }, [casesData, filterType, filterPriority, filterStatus]);
+  
+  const cases = casesResponse?.cases || [];
+  const totalCount = casesResponse?.totalCount || 0;
+  const totalPages = casesResponse?.totalPages || 1;
 
   const clearFilters = () => {
     setFilterType("all");
@@ -263,37 +274,40 @@ export default function Cases() {
             <CardTitle className="text-sm font-medium">Total de Casos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{cases?.length || 0}</div>
+            <div className="text-2xl font-bold">{totalCount}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Abiertos</CardTitle>
+            <CardTitle className="text-sm font-medium">Página Actual</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {cases?.filter((c) => c.status === "open").length || 0}
+            <div className="text-2xl font-bold text-blue-600">
+              {cases.length}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">de {totalCount} totales</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">En Investigación</CardTitle>
+            <CardTitle className="text-sm font-medium">Filtros Activos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {cases?.filter((c) => c.status === "investigating").length || 0}
+            <div className="text-2xl font-bold text-purple-600">
+              {[filterType !== "all", filterPriority !== "all", filterStatus !== "all"].filter(Boolean).length}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">aplicados</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Resueltos</CardTitle>
+            <CardTitle className="text-sm font-medium">Páginas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {cases?.filter((c) => c.status === "resolved").length || 0}
+              {currentPage} / {totalPages}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">navegación</p>
           </CardContent>
         </Card>
       </div>
@@ -319,7 +333,7 @@ export default function Cases() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cases.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((caseItem) => (
+                {cases.map((caseItem) => (
                   <TableRow key={caseItem.id}>
                     <TableCell className="font-medium">{caseItem.caseNumber}</TableCell>
                     <TableCell>{getCaseTypeLabel(caseItem.caseType)}</TableCell>
@@ -373,10 +387,10 @@ export default function Cases() {
               </TableBody>
             </Table>
             {/* Pagination Controls */}
-            {cases && cases.length > ITEMS_PER_PAGE && (
+            {totalPages > 1 && (
               <div className="flex items-center justify-between px-2 py-4 border-t">
                 <div className="text-sm text-muted-foreground">
-                  Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} a {Math.min(currentPage * ITEMS_PER_PAGE, cases.length)} de {cases.length} casos
+                  Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} a {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} de {totalCount} casos
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -389,13 +403,13 @@ export default function Cases() {
                     Anterior
                   </Button>
                   <div className="text-sm font-medium">
-                    Página {currentPage} de {Math.ceil(cases.length / ITEMS_PER_PAGE)}
+                    Página {currentPage} de {totalPages}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(cases.length / ITEMS_PER_PAGE), prev + 1))}
-                    disabled={currentPage >= Math.ceil(cases.length / ITEMS_PER_PAGE)}
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage >= totalPages}
                   >
                     Siguiente
                     <ChevronRight className="h-4 w-4" />

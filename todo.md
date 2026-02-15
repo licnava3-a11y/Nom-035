@@ -4,7 +4,7 @@
 
 ---
 
-## FASE ACTUAL: Corrección Errores 404 + Validaciones Críticas
+## FASE ACTUAL: Optimizaciones Finales (Warning TypeScript + Validaciones Zod + Paginación Server-Side)
 
 ### 1. Localizar y Corregir Errores 404
 - [x] Revisar logs de navegador para identificar rutas 404 (0 errores encontrados)
@@ -19,17 +19,22 @@
 - [ ] Verificar que dashboard muestre 94 casos abiertos (requiere prueba en navegador)
 - [ ] Verificar que dashboard muestre 47 casos resueltos (requiere prueba en navegador)
 
-### 3. Resolver Error TypeScript Enum "recognition"
-- [ ] Verificar enum actual en base de datos MySQL
-- [ ] Ejecutar ALTER TABLE para agregar 'recognition' al enum
-- [ ] Regenerar tipos de Drizzle
-- [ ] Verificar que error desaparece en recognitions.ts línea 85
+### 3. Resolver Warning TypeScript Enum "recognition"
+- [ ] Regenerar tipos de Drizzle con drizzle-kit generate
+- [ ] Reiniciar servidor TypeScript para aplicar nuevos tipos
+- [ ] Verificar que warning desaparece en recognitions.ts línea 85
 
-### 4. Completar Validaciones Zod en 20 Routers Críticos
+### 4. Completar Validaciones Zod en Routers Críticos (Coverage >90%)
 - [ ] Identificar 20 routers críticos sin validación
-- [ ] Priorizar: auth, payments, cases, surveys
+- [ ] Priorizar: auth, payments, cases, surveys, compliance
 - [ ] Agregar validación zod a procedures sin .input()
-- [ ] Verificar coverage de validación >80%
+- [ ] Verificar coverage de validación >90%
+
+### 5. Implementar Paginación Server-Side en Casos
+- [x] Modificar query cases.list para aceptar offset/limit
+- [x] Agregar validación zod para parámetros de paginación (page, pageSize, filtros)
+- [x] Actualizar frontend Cases.tsx para usar paginación server-side
+- [x] Verificar reducción de transferencia de datos (188→20 registros)
 
 ---
 
