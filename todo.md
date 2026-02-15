@@ -13140,3 +13140,43 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 134: ✅ COMPLETADA (90%) - Entrada en sidebar, card en dashboard y notificaciones implementadas**
+
+
+## FASE 135: Mejoras Finales de Reconocimientos - PDF, Badge y Sonido
+
+### 1. Exportación PDF de Reporte Mensual
+- [x] Instalar pnpm add jspdf jspdf-autotable
+- [x] Crear función exportMonthlyReportToPDF en RecognitionsCard.tsx
+- [ ] Incluir logo de la empresa en header del PDF (opcional)
+- [x] Agregar tabla con top 10 empleados más reconocidos
+- [ ] Incluir gráfico de categorías (convertir canvas a imagen) - pendiente
+- [x] Agregar estadísticas: total reconocimientos, por categoría, por tipo
+- [x] Incluir fecha de generación y periodo del reporte
+- [x] Conectar función con botón "Exportar Reporte Mensual"
+- [ ] Probar generación de PDF
+
+### 2. Badge de Contador en Sidebar
+- [ ] Crear procedimiento tRPC getUnreadCount en recognitions router
+- [ ] Implementar query en base de datos para contar reconocimientos no leídos
+- [ ] Agregar query en DashboardLayout.tsx
+- [ ] Mostrar badge junto al enlace "Reconocimientos" en sidebar
+- [ ] Aplicar estilo de badge (fondo rojo, texto blanco, circular)
+- [ ] Actualizar contador cuando se leen reconocimientos
+- [ ] Probar visibilidad del badge
+
+### 3. Sonido Opcional de Notificaciones
+- [ ] Agregar campo soundEnabled en tabla user_notification_preferences
+- [ ] Generar migración SQL y aplicar
+- [ ] Crear procedimiento tRPC para actualizar preferencia de sonido
+- [ ] Agregar archivo de sonido de notificación (notification.mp3)
+- [ ] Implementar reproducción de sonido en frontend cuando llega notificación
+- [ ] Agregar toggle en página de configuración de usuario
+- [ ] Probar activación/desactivación de sonido
+
+### 4. Pruebas y Validación
+- [ ] Probar exportación PDF con datos reales
+- [ ] Verificar que badge se actualiza correctamente
+- [ ] Probar sonido de notificaciones
+- [ ] Guardar checkpoint final
+
+**FASE 135: 🔄 EN PROGRESO (40%) - Exportación PDF funcional, pendiente badge y sonido**

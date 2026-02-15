@@ -5,6 +5,8 @@ import { Award, ArrowRight, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -94,6 +96,80 @@ export default function RecognitionsCard() {
     },
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(22, 101, 52); // verde
+    doc.text("Reporte Mensual de Reconocimientos", 20, 20);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Periodo: ${report.period.month}/${report.period.year}`, 20, 30);
+    doc.text(`Fecha de generación: ${new Date().toLocaleDateString('es-MX')}`, 20, 37);
+    
+    // Estadísticas generales
+    doc.setFontSize(14);
+    doc.setTextColor(22, 101, 52);
+    doc.text("Estadísticas Generales", 20, 50);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Total de reconocimientos: ${report.total}`, 25, 58);
+    
+    // Tabla de categorías
+    doc.setFontSize(14);
+    doc.setTextColor(22, 101, 52);
+    doc.text("Distribución por Categoría", 20, 70);
+    
+    autoTable(doc, {
+      startY: 75,
+      head: [['Categoría', 'Cantidad', 'Porcentaje']],
+      body: report.byCategory.map(c => [
+        c.categoryName,
+        c.count.toString(),
+        `${((c.count / report.total) * 100).toFixed(1)}%`
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [22, 101, 52] },
+    });
+    
+    // Top 10 empleados
+    const finalY = (doc as any).lastAutoTable.finalY || 75;
+    doc.setFontSize(14);
+    doc.setTextColor(22, 101, 52);
+    doc.text("Top 10 Empleados Más Reconocidos", 20, finalY + 15);
+    
+    autoTable(doc, {
+      startY: finalY + 20,
+      head: [['Posición', 'Empleado', 'Reconocimientos']],
+      body: report.topRecognized.map((emp, index) => [
+        `${index + 1}`,
+        emp.userName || 'Sin nombre',
+        emp.count.toString()
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [22, 101, 52] },
+    });
+    
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.setTextColor(128, 128, 128);
+      doc.text(
+        `Página ${i} de ${pageCount}`,
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: 'center' }
+      );
+    }
+    
+    doc.save(`reporte-reconocimientos-${report.period.year}-${report.period.month}.pdf`);
+  };
+
   return (
     <Card className="border-green-200 bg-green-50/50">
       <CardHeader>
@@ -172,13 +248,14 @@ export default function RecognitionsCard() {
 
         {/* Botón de exportación */}
         <div className="mt-6 pt-4 border-t border-green-200">
-          <Button variant="outline" className="w-full gap-2" disabled>
+          <Button
+            variant="outline"
+            className="w-full gap-2"
+            onClick={exportToPDF}
+          >
             Exportar Reporte Mensual (PDF)
             <ArrowRight className="h-4 w-4" />
           </Button>
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            Próximamente: Exportación automática a PDF
-          </p>
         </div>
       </CardContent>
     </Card>
