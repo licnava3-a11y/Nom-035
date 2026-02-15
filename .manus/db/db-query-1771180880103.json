@@ -1,0 +1,26 @@
+{
+  "query": "-- Índices para tabla cases (5 índices)\nCREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status);\nCREATE INDEX IF NOT EXISTS idx_cases_priority ON cases(priority);\nCREATE INDEX IF NOT EXISTS idx_cases_case_type ON cases(caseType);\nCREATE INDEX IF NOT EXISTS idx_cases_created_at ON cases(createdAt);\nCREATE INDEX IF NOT EXISTS idx_cases_status_created_at ON cases(status, createdAt);\n\n-- Índices para tabla recognitions (4 índices)\nCREATE INDEX IF NOT EXISTS idx_recognitions_to_user_id ON recognitions(to_user_id);\nCREATE INDEX IF NOT EXISTS idx_recognitions_read_at ON recognitions(read_at);\nCREATE INDEX IF NOT EXISTS idx_recognitions_created_at ON recognitions(created_at);\nCREATE INDEX IF NOT EXISTS idx_recognitions_to_user_read ON recognitions(to_user_id, read_at);\n\n-- Índices para tabla survey_responses (3 índices)\nCREATE INDEX IF NOT EXISTS idx_survey_responses_survey_id ON survey_responses(survey_id);\nCREATE INDEX IF NOT EXISTS idx_survey_responses_user_id ON survey_responses(user_id);\nCREATE INDEX IF NOT EXISTS idx_survey_responses_survey_user ON survey_responses(survey_id, user_id);\n\n-- Índices para tabla employees (2 índices)\nCREATE INDEX IF NOT EXISTS idx_employees_department_id ON employees(departmentId);\nCREATE INDEX IF NOT EXISTS idx_employees_position_id ON employees(positionId);\n\n-- Verificar índices creados\nSELECT 'cases' as tabla, COUNT(*) as indices FROM information_schema.statistics WHERE table_name = 'cases' AND table_schema = DATABASE()\nUNION ALL\nSELECT 'recognitions', COUNT(*) FROM information_schema.statistics WHERE table_name = 'recognitions' AND table_schema = DATABASE()\nUNION ALL\nSELECT 'survey_responses', COUNT(*) FROM information_schema.statistics WHERE table_name = 'survey_responses' AND table_schema = DATABASE()\nUNION ALL\nSELECT 'employees', COUNT(*) FROM information_schema.statistics WHERE table_name = 'employees' AND table_schema = DATABASE();",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute -- Índices para tabla cases (5 índices)\nCREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status);\nCREATE INDEX IF NOT EXISTS idx_cases_priority ON cases(priority);\nCREATE INDEX IF NOT EXISTS idx_cases_case_type ON cases(caseType);\nCREATE INDEX IF NOT EXISTS idx_cases_created_at ON cases(createdAt);\nCREATE INDEX IF NOT EXISTS idx_cases_status_created_at ON cases(status, createdAt);\n\n-- Índices para tabla recognitions (4 índices)\nCREATE INDEX IF NOT EXISTS idx_recognitions_to_user_id ON recognitions(to_user_id);\nCREATE INDEX IF NOT EXISTS idx_recognitions_read_at ON recognitions(read_at);\nCREATE INDEX IF NOT EXISTS idx_recognitions_created_at ON recognitions(created_at);\nCREATE INDEX IF NOT EXISTS idx_recognitions_to_user_read ON recognitions(to_user_id, read_at);\n\n-- Índices para tabla survey_responses (3 índices)\nCREATE INDEX IF NOT EXISTS idx_survey_responses_survey_id ON survey_responses(survey_id);\nCREATE INDEX IF NOT EXISTS idx_survey_responses_user_id ON survey_responses(user_id);\nCREATE INDEX IF NOT EXISTS idx_survey_responses_survey_user ON survey_responses(survey_id, user_id);\n\n-- Índices para tabla employees (2 índices)\nCREATE INDEX IF NOT EXISTS idx_employees_department_id ON employees(departmentId);\nCREATE INDEX IF NOT EXISTS idx_employees_position_id ON employees(positionId);\n\n-- Verificar índices creados\nSELECT 'cases' as tabla, COUNT(*) as indices FROM information_schema.statistics WHERE table_name = 'cases' AND table_schema = DATABASE()\nUNION ALL\nSELECT 'recognitions', COUNT(*) FROM information_schema.statistics WHERE table_name = 'recognitions' AND table_schema = DATABASE()\nUNION ALL\nSELECT 'survey_responses', COUNT(*) FROM information_schema.statistics WHERE table_name = 'survey_responses' AND table_schema = DATABASE()\nUNION ALL\nSELECT 'employees', COUNT(*) FROM information_schema.statistics WHERE table_name = 'employees' AND table_schema = DATABASE();",
+  "rows": [
+    {
+      "tabla": "cases",
+      "indices": "9"
+    },
+    {
+      "tabla": "recognitions",
+      "indices": "11"
+    },
+    {
+      "tabla": "survey_responses",
+      "indices": "10"
+    },
+    {
+      "tabla": "employees",
+      "indices": "8"
+    }
+  ],
+  "messages": [],
+  "stdout": "tabla\tindices\ncases\t9\nrecognitions\t11\nsurvey_responses\t10\nemployees\t8\n",
+  "stderr": "",
+  "execution_time_ms": 1808
+}
