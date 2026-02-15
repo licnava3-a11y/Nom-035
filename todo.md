@@ -227,3 +227,44 @@
 - [ ] Agregar sistema de alertas tempranas (umbrales configurables)
 - [ ] Crear notificaciones automáticas para áreas de alto riesgo
 - [ ] Agregar navegación en menú lateral
+
+## Nuevas Tareas - Panel Tendencias, Encuestas Post-Caso, Cumplimiento Normativo y Carpeta Evidencias STPS
+
+### Fase 1: Panel de Tendencias Departamentales
+- [ ] Crear router departmentalTrends con queries de agregación
+- [ ] Implementar query getTrends (casos por departamento, niveles de riesgo)
+- [ ] Crear página DepartmentalTrends.tsx
+- [ ] Implementar heat map de riesgo por departamento
+- [ ] Agregar sistema de umbrales configurables
+- [ ] Implementar alertas automáticas cuando área supera umbral
+- [ ] Agregar navegación en menú lateral
+
+### Fase 2: Sistema de Encuestas Post-Caso
+- [ ] Crear tabla postCaseSurveys en schema
+- [ ] Crear tabla postCaseSurveyResponses en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear job post-case-surveys-job.ts
+- [ ] Implementar lógica de envío automático (30/60/90 días)
+- [ ] Crear router postCaseSurveys
+- [ ] Crear página PostCaseSurveys.tsx para responder
+- [ ] Registrar job en server/_core/index.ts
+
+### Fase 3: Dashboard de Cumplimiento Normativo NOM-035
+- [ ] Crear router complianceNOM035
+- [ ] Implementar queries de cumplimiento por numeral
+- [ ] Crear página ComplianceNOM035.tsx
+- [ ] Implementar indicadores visuales por requisito
+- [ ] Agregar alertas de vencimientos de evaluaciones
+- [ ] Calcular porcentaje global de cumplimiento
+- [ ] Agregar navegación en menú lateral
+
+### Fase 4: Carpeta de Evidencias STPS
+- [x] Investigar numerales NOM-035 por tamaño de empresa (hasta 15, 16-50, >50)
+- [x] Crear router evidencesFolder con queries de evidencias
+- [x] Implementar query getEvidences organizado por 8 numerales (5.1-5.8)
+- [x] Organizar evidencias según numerales NOM-035 y tamaño empresa
+- [x] Incluir: políticas, evaluaciones NOM-035, cursos, casos traumáticos
+- [x] Registrar router en appRouter
+- [ ] Crear página EvidencesFolder.tsx
+- [ ] Implementar exportación PDF de carpeta completa
+- [ ] Agregar navegación en menú lateral
