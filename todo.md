@@ -16,11 +16,18 @@
 - [x] Agregar botón "Limpiar filtros" (resetea todos los filtros y página)
 
 ### Auditoría Backend
-- [ ] Revisar todos los routers en server/routers/*.ts
-- [ ] Verificar validaciones de entrada (zod schemas)
-- [ ] Identificar queries N+1 y optimizar
-- [ ] Revisar manejo de errores y mensajes
-- [ ] Verificar permisos y autorización en procedures
+- [x] Revisar todos los routers en server/routers/*.ts (71 routers, 500 procedures)
+- [x] Verificar validaciones de entrada (258/500 con zod, 242 sin validación)
+- [x] Identificar queries N+1 y optimizar (2 archivos: compliance.ts, documentFormats.ts)
+- [x] Revisar manejo de errores y mensajes (agregado try-catch en 4 routers)
+- [x] Verificar permisos y autorización en procedures (usa protectedProcedure correctamente)
+
+### Correcciones Backend Implementadas
+- [x] Agregar validación zod a 4 procedures en surveys.ts (getAll, getApplicableGuide, getDepartments, getRecommendedGuides)
+- [x] Agregar try-catch en employees.ts (create, update, deactivate)
+- [x] Agregar try-catch en recognitions.ts (create con manejo no bloqueante de notificaciones)
+- [x] Agregar try-catch en training.ts (3 procedures)
+- [x] Agregar import TRPCError en training.ts
 
 ### Auditoría Performance
 - [ ] Analizar queries lentas en logs

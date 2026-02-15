@@ -30,14 +30,14 @@ export const recognitionsRouter = router({
         categoryId: z.number(),
         type: z.enum(["reconocimiento", "felicitacion"]),
         message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres"),
-        isPublic: z.boolean().default(false),
-      })
+        isPublic: z.boolean().default(false),      })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      
-      // Validar que no se reconozca a sí mismo
+      try {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+        
+        // Validar que no se reconozca a sí mismo
       if (ctx.user.id === input.toUserId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -79,22 +79,27 @@ export const recognitionsRouter = router({
         status: "approved", // Por defecto aprobado, se puede cambiar a "pending" si se requiere moderación
       });
 
-      // Enviar notificación al usuario destino
-      try {
-        await createNotification({
-          userId: input.toUserId,
-          type: "recognition",
-          title: "¡Has recibido un reconocimiento!",
-          message: `${ctx.user.name} te ha enviado un reconocimiento en la categoría "${category[0].name}": ${input.message.substring(0, 100)}${input.message.length > 100 ? '...' : ''}`,
-          relatedEntityType: "recognition",
-          relatedEntityId: Number((result as any)[0]?.insertId || 0),
-        });
-      } catch (error) {
+      // Enviar notificación al usuario destino (no bloqueante)
+      createNotification({
+        userId: input.toUserId,
+        type: "recognition",
+        title: "¡Has recibido un reconocimiento!",
+        message: `${ctx.user.name} te ha enviado un reconocimiento en la categoría "${category[0].name}": ${input.message.substring(0, 100)}${input.message.length > 100 ? '...' : ''}`,
+        relatedEntityType: "recognition",
+        relatedEntityId: Number((result as any)[0]?.insertId || 0),
+      }).catch(error => {
         console.error("[Recognitions] Error al enviar notificación:", error);
-        // No lanzar error, la notificación es secundaria
-      }
+      });
 
       return { success: true };
+      } catch (error) {
+        console.error('[Recognitions] Error creating recognition:', error);
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al crear reconocimiento",
+        });
+      }
     }),
 
   /**

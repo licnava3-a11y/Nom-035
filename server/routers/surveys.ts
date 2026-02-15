@@ -38,7 +38,9 @@ function detectATS(answers: Array<{ questionId: number; answerValue: string }>):
 
 export const surveysRouter = router({
   // Obtener todas las encuestas disponibles
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
     
@@ -77,7 +79,9 @@ export const surveysRouter = router({
     }),
 
   // Determinar qué guía aplicar según número de trabajadores
-  getApplicableGuide: protectedProcedure.query(async () => {
+  getApplicableGuide: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
     
@@ -1637,7 +1641,9 @@ export const surveysRouter = router({
     }),
 
   // Obtener departamentos disponibles
-  getDepartments: protectedProcedure.query(async () => {
+  getDepartments: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
@@ -2469,7 +2475,9 @@ export const surveysRouter = router({
     }),
 
   // Obtener guías recomendadas según cantidad de trabajadores
-  getRecommendedGuides: protectedProcedure.query(async ({ ctx }) => {
+  getRecommendedGuides: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async ({ ctx }) => {
     const db = await getDb();  
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 

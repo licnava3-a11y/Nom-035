@@ -95,9 +95,10 @@ export const employeesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user) throw new Error('User not authenticated');
-      
-      // Validar CURP si se proporciona
+      try {
+        if (!ctx.user) throw new Error('User not authenticated');
+        
+        // Validar CURP si se proporciona
       if (input.curp) {
         const curpValidation = validateCURP(input.curp);
         if (!curpValidation.valid) {
@@ -211,6 +212,14 @@ export const employeesRouter = router({
         isReentry,
         reentryCount,
       };
+      } catch (error) {
+        console.error('[Employees] Error creating employee:', error);
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al crear empleado",
+        });
+      }
     }),
 
   /**
@@ -234,9 +243,10 @@ export const employeesRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { id, ...updateData } = input;
+      try {
+        const { id, ...updateData } = input;
 
-      // Check if employee exists
+        // Check if employee exists
       const existing = await employeesDb.getEmployeeById(id);
       if (!existing) {
         throw new TRPCError({
@@ -265,6 +275,14 @@ export const employeesRouter = router({
         success: true,
         employee: updated,
       };
+      } catch (error) {
+        console.error('[Employees] Error updating employee:', error);
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al actualizar empleado",
+        });
+      }
     }),
 
   /**
@@ -274,7 +292,8 @@ export const employeesRouter = router({
     .use(requireDelete())
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input, ctx }) => {
-      const employee = await employeesDb.getEmployeeById(input.id);
+      try {
+        const employee = await employeesDb.getEmployeeById(input.id);
       if (!employee) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -288,6 +307,14 @@ export const employeesRouter = router({
         success: true,
         message: "Empleado desactivado exitosamente",
       };
+      } catch (error) {
+        console.error('[Employees] Error deactivating employee:', error);
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al desactivar empleado",
+        });
+      }
     }),
 
   /**

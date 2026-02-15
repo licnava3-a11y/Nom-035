@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { courses } from "../../drizzle/schema";
 import { eq, desc, sql } from "drizzle-orm";
@@ -12,7 +13,8 @@ import { eq, desc, sql } from "drizzle-orm";
 export const trainingRouter = router({
   // Estadísticas del instructor
   getInstructorStats: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
+    try {
+      const db = await getDb();
     
     // Contar cursos publicados (completados)
     const publishedCourses = db
@@ -44,11 +46,16 @@ export const trainingRouter = router({
       averageRating: 4.5, // TODO: Implementar cuando se agregue tabla de evaluaciones
       recentEvaluations: [], // TODO: Implementar cuando se agregue tabla de evaluaciones
     };
+    } catch (error) {
+      console.error('[Training] Error getting instructor stats:', error);
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al obtener estadísticas" });
+    }
   }),
 
   // Cursos próximos a impartir
   getInstructorUpcomingCourses: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
+    try {
+      const db = await getDb();
     
     // Obtener cursos publicados más recientes
     const upcomingCourses = db
@@ -74,11 +81,16 @@ export const trainingRouter = router({
       duration: course.duration || 120,
       participants: 0, // TODO: Implementar cuando se agregue tabla de inscripciones
     }));
+    } catch (error) {
+      console.error('[Training] Error getting upcoming courses:', error);
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al obtener cursos próximos" });
+    }
   }),
 
   // Confirmaciones pendientes
   getInstructorPendingConfirmations: protectedProcedure.query(async ({ ctx }) => {
-    // TODO: Implementar query real cuando se agregue gestión de confirmaciones
+    try {
+      // TODO: Implementar query real cuando se agregue gestión de confirmaciones
     const proposedDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
     return [
@@ -89,5 +101,9 @@ export const trainingRouter = router({
         duration: 240,
       },
     ];
+    } catch (error) {
+      console.error('[Training] Error getting pending confirmations:', error);
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al obtener confirmaciones pendientes" });
+    }
   }),
 });
