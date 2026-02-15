@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Receipt, Plus, Edit, Trash2, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ExpenseRequests() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -29,45 +30,45 @@ export default function ExpenseRequests() {
   // Mutations
   const createMutation = trpc.financial.createExpenseRequest.useMutation({
     onSuccess: () => {
-      alert("Solicitud de gasto creada exitosamente");
+      toast.success("Solicitud de gasto creada exitosamente");
       setCreateDialogOpen(false);
       resetForm();
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const updateMutation = trpc.financial.updateExpenseRequest.useMutation({
     onSuccess: () => {
-      alert("Solicitud de gasto actualizada exitosamente");
+      toast.success("Solicitud de gasto actualizada exitosamente");
       setEditDialogOpen(false);
       setSelectedRequest(null);
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const deleteMutation = trpc.financial.deleteExpenseRequest.useMutation({
     onSuccess: () => {
-      alert("Solicitud de gasto eliminada exitosamente");
+      toast.success("Solicitud de gasto eliminada exitosamente");
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const approveMutation = trpc.financial.approveExpenseRequest.useMutation({
     onSuccess: () => {
-      alert("Solicitud de gasto aprobada exitosamente");
+      toast.success("Solicitud de gasto aprobada exitosamente");
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 

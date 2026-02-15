@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
 import { ShoppingCart, Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PurchaseOrders() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -30,35 +31,35 @@ export default function PurchaseOrders() {
   // Mutations
   const createMutation = trpc.financial.createPurchaseOrder.useMutation({
     onSuccess: () => {
-      alert("Orden de compra creada exitosamente");
+      toast.success("Orden de compra creada exitosamente");
       setCreateDialogOpen(false);
       resetForm();
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const updateMutation = trpc.financial.updatePurchaseOrder.useMutation({
     onSuccess: () => {
-      alert("Orden de compra actualizada exitosamente");
+      toast.success("Orden de compra actualizada exitosamente");
       setEditDialogOpen(false);
       setSelectedOrder(null);
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const deleteMutation = trpc.financial.deletePurchaseOrder.useMutation({
     onSuccess: () => {
-      alert("Orden de compra eliminada exitosamente");
+      toast.success("Orden de compra eliminada exitosamente");
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
@@ -73,7 +74,7 @@ export default function PurchaseOrders() {
 
   const handleCreate = () => {
     if (!folio || !proveedor || !monto || !fecha) {
-      alert("Por favor completa todos los campos obligatorios");
+      toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
 

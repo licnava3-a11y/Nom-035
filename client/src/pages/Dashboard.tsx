@@ -5,6 +5,7 @@ import DashboardInstructor from '@/components/DashboardInstructor';
 import DashboardGerente from '@/components/DashboardGerente';
 import DashboardAdministrativo from '@/components/DashboardAdministrativo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import TrendsCharts from '@/components/TrendsCharts';
@@ -218,7 +219,11 @@ export default function DashboardConsolidated() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
+                {coursesLoading ? (
+                  <Skeleton className="h-8 w-16" />
+                ) : (
+                  <div className="text-2xl font-bold">{courses?.length || 0}</div>
+                )}
                 <p className="text-xs text-muted-foreground">Total de cursos</p>
               </CardContent>
             </Card>
@@ -292,7 +297,11 @@ export default function DashboardConsolidated() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
+                {coursesLoading ? (
+                  <Skeleton className="h-8 w-16" />
+                ) : (
+                  <div className="text-2xl font-bold">{courses?.length || 0}</div>
+                )}
                 <p className="text-xs text-muted-foreground">Total de cursos</p>
               </CardContent>
             </Card>

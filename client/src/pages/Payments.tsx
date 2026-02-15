@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
 import { DollarSign, Plus, Edit, Trash2, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Payments() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -30,35 +31,35 @@ export default function Payments() {
   // Mutations
   const createMutation = trpc.financial.createInvoice.useMutation({
     onSuccess: () => {
-      alert("Factura creada exitosamente");
+      toast.success("Factura creada exitosamente");
       setCreateDialogOpen(false);
       resetForm();
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const updateMutation = trpc.financial.updateInvoice.useMutation({
     onSuccess: () => {
-      alert("Factura actualizada exitosamente");
+      toast.success("Factura actualizada exitosamente");
       setEditDialogOpen(false);
       setSelectedInvoice(null);
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
   const deleteMutation = trpc.financial.deleteInvoice.useMutation({
     onSuccess: () => {
-      alert("Factura eliminada exitosamente");
+      toast.success("Factura eliminada exitosamente");
       refetch();
     },
     onError: (error) => {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     },
   });
 
