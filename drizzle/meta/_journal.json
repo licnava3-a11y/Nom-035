@@ -561,6 +561,13 @@
       "when": 1771176192331,
       "tag": "0079_cloudy_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "5",
+      "when": 1771193918559,
+      "tag": "0080_yellow_luminals",
+      "breakpoints": true
     }
   ]
 }

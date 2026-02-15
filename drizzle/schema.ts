@@ -818,6 +818,22 @@ export const surveyTokens = mysqlTable('survey_tokens', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+// Resultados calculados de encuestas NOM-035 (con nivel de riesgo)
+export const surveyResults = mysqlTable('survey_results', {
+  id: int('id').primaryKey().autoincrement(),
+  responseId: int('response_id').notNull().unique().references(() => surveyResponses.id),
+  userId: int('user_id').references(() => users.id),
+  surveyId: int('survey_id').notNull().references(() => surveys.id),
+  periodId: int('period_id').references(() => surveyPeriods.id),
+  totalScore: int('total_score').notNull(),
+  riskLevel: mysqlEnum('risk_level', ['low', 'medium', 'high', 'very_high']).notNull(),
+  categoryScores: text('category_scores'),
+  domainScores: text('domain_scores'),
+  recommendations: text('recommendations'),
+  calculatedAt: timestamp('calculated_at').notNull().defaultNow(),
+  completedAt: timestamp('completed_at'),
+});
+
 // Relations para surveys
 export const surveysRelations = relations(surveys, ({ many }) => ({
   questions: many(surveyQuestions),

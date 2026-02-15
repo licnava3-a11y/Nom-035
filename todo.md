@@ -170,3 +170,30 @@
 - [x] Agregar botón "Generar Reporte PDF" en CasesMetrics.tsx
 - [x] Validar rango de fechas antes de generar
 - [x] Descarga automática de archivo PDF
+
+## Nuevas Tareas - Análisis Predictivo y Tendencias Departamentales
+
+### 1. Implementar Dashboard de Análisis Predictivo
+- [x] Crear tabla surveyResults para almacenar riskLevel calculado
+- [x] Diseñar modelo predictivo de riesgo basado en encuestas NOM-035
+- [x] Implementar algoritmo de scoring (60% encuestas, 30% casos dept, 10% casos críticos)
+- [x] Crear procedure predictiveAnalytics.getRiskPredictions
+- [x] Integrar router en appRouter
+- [ ] Crear página PredictiveAnalytics.tsx con visualizaciones
+- [ ] Agregar navegación en menú lateral
+
+### 2. Implementar Sistema de Encuestas de Seguimiento Post-Caso
+- [ ] Crear tabla postCaseSurveys en schema
+- [ ] Crear job programado para enviar encuestas (30/60/90 días post-cierre)
+- [ ] Diseñar cuestionario de efectividad de intervención
+- [ ] Implementar procedure surveys.createPostCaseSurvey
+- [ ] Crear UI para responder encuestas
+- [ ] Crear dashboard de análisis de resultados de encuestas
+
+### 3. Implementar Panel de Análisis de Tendencias Departamentales
+- [ ] Crear procedure departmentalAnalytics.getTrends
+- [ ] Implementar heat map de casos por departamento
+- [ ] Crear sistema de alertas tempranas (umbrales de riesgo)
+- [ ] Crear página DepartmentalTrends.tsx con visualizaciones
+- [ ] Agregar navegación en menú lateral
+- [ ] Implementar notificaciones automáticas para áreas de riesgo

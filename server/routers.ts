@@ -48,6 +48,7 @@ import { investigationsRouter } from "./routers/investigations";
 import { workplaceViolenceRouter } from "./routers/workplaceViolence";
 import { committeeTrainingRouter } from "./routers/committeeTraining";
 import { massiveImportRouter } from "./routers/massiveImport";
+import { predictiveAnalyticsRouter } from "./routers/predictiveAnalytics";
 import { smtpConfigRouter } from "./routers/smtpConfig";
 import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
@@ -1293,6 +1294,7 @@ export const appRouter = router({
   executiveDashboard: executiveDashboardRouter,
   menuCounters: menuCountersRouter,
   reports: reportsRouter,
+  predictiveAnalytics: predictiveAnalyticsRouter,
 
   // Survey Anonymous Tokens (NOM-035 anonymous access)
   surveyAnonymousTokens: surveyAnonymousTokensRouter,
