@@ -37,39 +37,91 @@ export default function Employees() {
   // Fetch departments for filter
   const { data: departments } = trpc.employees.getDepartments.useQuery();
 
-  // Deactivate employee mutation
+  const utils = trpc.useUtils();
+
+  // Deactivate employee mutation with optimistic update
   const deactivateMutation = trpc.employees.deactivate.useMutation({
+    onMutate: async ({ id }) => {
+      // Cancel outgoing refetches
+      await utils.employees.list.cancel();
+      
+      // Snapshot previous value
+      const previousEmployees = utils.employees.list.getData();
+      
+      // Optimistically update to the new value
+      utils.employees.list.setData(
+        { search: search || undefined, department: departmentFilter, isActive: statusFilter },
+        (old) => old?.map((emp: any) => emp.id === id ? { ...emp, isActive: false } : emp)
+      );
+      
+      return { previousEmployees };
+    },
     onSuccess: () => {
       toast({
         title: "Empleado desactivado",
         description: "El empleado ha sido desactivado exitosamente",
       });
-      refetch();
     },
-    onError: (error: any) => {
+    onError: (error: any, variables, context) => {
+      // Rollback on error
+      if (context?.previousEmployees) {
+        utils.employees.list.setData(
+          { search: search || undefined, department: departmentFilter, isActive: statusFilter },
+          context.previousEmployees
+        );
+      }
       toast({
         title: "Error",
         description: error.message || "No se pudo desactivar el empleado",
         // variant: "destructive",
       });
     },
+    onSettled: () => {
+      // Refetch to ensure data consistency
+      utils.employees.list.invalidate();
+    },
   });
 
-  // Reactivate employee mutation
+  // Reactivate employee mutation with optimistic update
   const reactivateMutation = trpc.employees.reactivate.useMutation({
+    onMutate: async ({ id }) => {
+      // Cancel outgoing refetches
+      await utils.employees.list.cancel();
+      
+      // Snapshot previous value
+      const previousEmployees = utils.employees.list.getData();
+      
+      // Optimistically update to the new value
+      utils.employees.list.setData(
+        { search: search || undefined, department: departmentFilter, isActive: statusFilter },
+        (old) => old?.map((emp: any) => emp.id === id ? { ...emp, isActive: true } : emp)
+      );
+      
+      return { previousEmployees };
+    },
     onSuccess: () => {
       toast({
         title: "Empleado reactivado",
         description: "El empleado ha sido reactivado exitosamente",
       });
-      refetch();
     },
-    onError: (error: any) => {
+    onError: (error: any, variables, context) => {
+      // Rollback on error
+      if (context?.previousEmployees) {
+        utils.employees.list.setData(
+          { search: search || undefined, department: departmentFilter, isActive: statusFilter },
+          context.previousEmployees
+        );
+      }
       toast({
         title: "Error",
         description: error.message || "No se pudo reactivar el empleado",
         // variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Refetch to ensure data consistency
+      utils.employees.list.invalidate();
     },
   });
 

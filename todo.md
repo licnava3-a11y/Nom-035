@@ -12620,3 +12620,65 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [x] Funcionalidad completa de cada página verificada
 
 **FASE 127: ✅ COMPLETADA AL 50% - 51 errores TypeScript corregidos (100%), pendiente skeletons y páginas financieras**
+
+
+## FASE 128: Mejoras de UX y Expansión del Sistema
+
+### 1. Completar Skeletons de Carga
+- [x] Agregar componente Skeleton en Employees.tsx (listado de empleados) - YA EXISTÍA
+- [x] Agregar Skeleton en Courses.tsx (listado de cursos) - YA EXISTÍA
+- [x] Verificar Skeleton en SkillsMatrix.tsx (Matriz de Habilidades) - Usa spinner, suficiente
+- [x] Agregar Skeleton en Dashboard (KPIs y gráficos) - IMPLEMENTADO PARCIALMENTE
+- [ ] Agregar Skeleton en formularios complejos (evaluaciones, encuestas)
+- [x] Probar percepción de velocidad durante carga de datos - VERIFICADO
+
+### 2. Implementar Optimistic Updates
+- [ ] Agregar optimistic updates en crear/editar empleados (EmployeeNew.tsx, EmployeeEdit.tsx)
+- [x] Agregar optimistic updates en desactivar/reactivar empleados (Employees.tsx) - IMPLEMENTADO
+- [ ] Agregar optimistic updates en cambiar estado de casos (Cases.tsx) - No tiene mutation directa
+- [x] Agregar optimistic updates en agregar comentarios (CaseDetail.tsx) - IMPLEMENTADO
+- [x] Agregar optimistic updates en toggle de estados (activo/inactivo) - IMPLEMENTADO en Employees.tsx
+- [ ] Agregar optimistic updates en edición de perfiles
+- [x] Implementar rollback en caso de error del servidor - IMPLEMENTADO con onError
+- [x] Probar feedback instantáneo sin esperar respuesta del servidor - VERIFICADO
+
+### 3. Auditoría de Warnings del Servidor
+- [ ] Revisar warnings de chunks grandes (>500kB)
+- [ ] Implementar code splitting adicional en rutas pesadas
+- [ ] Implementar lazy loading estratégico en componentes grandes
+- [ ] Optimizar imports dinámicos en App.tsx
+- [ ] Reducir bundle size inicial del proyecto
+- [ ] Analizar tamaño de chunks con `pnpm build`
+- [ ] Verificar mejora en tiempo de carga inicial
+
+### 4. Agregar Internacionalización (i18n)
+- [ ] Instalar i18next y react-i18next
+- [ ] Configurar soporte multiidioma (ES, EN, FR)
+- [ ] Crear archivos de traducción para español (es.json)
+- [ ] Crear archivos de traducción para inglés (en.json)
+- [ ] Crear archivos de traducción para francés (fr.json)
+- [ ] Implementar selector de idioma en header
+- [ ] Traducir textos estáticos del sistema
+- [ ] Traducir mensajes de error y éxito
+- [ ] Traducir labels de formularios
+- [ ] Probar cambio de idioma en tiempo real
+
+### 5. Crear Documentación de API
+- [ ] Generar documentación interactiva de tRPC
+- [ ] Implementar Swagger/OpenAPI para endpoints REST (si existen)
+- [ ] Documentar todos los procedimientos tRPC públicos
+- [ ] Documentar todos los procedimientos tRPC protegidos
+- [ ] Agregar ejemplos de uso para cada procedimiento
+- [ ] Documentar tipos de entrada y salida
+- [ ] Agregar página de documentación accesible en /api/docs
+- [ ] Facilitar integración con sistemas externos
+
+### 6. Pruebas y Validación
+- [ ] Probar skeletons en diferentes páginas
+- [ ] Verificar optimistic updates funcionan correctamente
+- [ ] Validar que warnings de chunks se redujeron
+- [ ] Probar cambio de idioma en todas las páginas
+- [ ] Verificar documentación de API es accesible
+- [ ] Guardar checkpoint final
+
+**FASE 128: 🔄 EN PROGRESO AL 30% - Skeletons verificados, optimistic updates implementados, pendiente auditoría, i18n y docs**

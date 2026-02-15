@@ -29,16 +29,51 @@ export default function CaseDetail() {
   // Obtener cuestionarios de investigación del caso
   const { data: questionnaires, isLoading: questionnairesLoading } = trpc.investigations.listByCaseId.useQuery({ caseId });
 
-  // Mutation para agregar seguimiento
+  const utils = trpc.useUtils();
+
+  // Mutation para agregar seguimiento con optimistic update
   const addFollowUpMutation = trpc.cases.addFollowUp.useMutation({
+    onMutate: async (newFollowUp) => {
+      // Cancel outgoing refetches
+      await utils.cases.getFollowUps.cancel({ caseId });
+      
+      // Snapshot previous value
+      const previousFollowUps = utils.cases.getFollowUps.getData({ caseId });
+      
+      // Optimistically add new follow-up
+      const optimisticFollowUp = {
+        id: Date.now(), // Temporary ID
+        caseId,
+        action: newFollowUp.action,
+        notes: newFollowUp.notes,
+        createdAt: new Date(),
+        createdBy: user?.id || 0,
+        createdByName: user?.name || "Usuario",
+        newStatus: newFollowUp.newStatus,
+      };
+      
+      utils.cases.getFollowUps.setData(
+        { caseId },
+        (old) => old ? [...old, optimisticFollowUp as any] : [optimisticFollowUp as any]
+      );
+      
+      return { previousFollowUps };
+    },
     onSuccess: () => {
       toast.success("Seguimiento agregado exitosamente");
       setNewComment("");
       setNewStatus("");
-      refetchFollowUps();
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousFollowUps) {
+        utils.cases.getFollowUps.setData({ caseId }, context.previousFollowUps);
+      }
       toast.error(`Error: ${error.message}`);
+    },
+    onSettled: () => {
+      // Refetch to ensure data consistency
+      utils.cases.getFollowUps.invalidate({ caseId });
     },
   });
 
