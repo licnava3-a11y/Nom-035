@@ -353,10 +353,10 @@ export const appRouter = router({
           conditions.push(eq(cases.caseType, input.caseType));
         }
         if (input?.priority) {
-          conditions.push(eq(cases.priority, input.priority));
+          conditions.push(sql`${cases.priority} = ${input.priority}`);
         }
         if (input?.status) {
-          conditions.push(eq(cases.status, input.status));
+          conditions.push(sql`${cases.status} = ${input.status}`);
         }
         if (input?.search) {
           const searchTerm = `%${input.search}%`;
@@ -368,6 +368,16 @@ export const appRouter = router({
               ${cases.reporterEmail} LIKE ${searchTerm}
             )`
           );
+        }
+        if (input?.startDate) {
+          // Extract date from ISO string (YYYY-MM-DD)
+          const startDateStr = input.startDate.split('T')[0];
+          conditions.push(sql`DATE(${cases.createdAt}) >= ${startDateStr}`);
+        }
+        if (input?.endDate) {
+          // Extract date from ISO string (YYYY-MM-DD)
+          const endDateStr = input.endDate.split('T')[0];
+          conditions.push(sql`DATE(${cases.createdAt}) <= ${endDateStr}`);
         }
         
         const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -395,6 +405,94 @@ export const appRouter = router({
           pageSize,
         };
       }),
+    
+    exportToExcel: committeeProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']).optional(),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+        status: z.enum(['open', 'investigating', 'resolved', 'closed']).optional(),
+        search: z.string().optional(),
+      }).optional())
+      .mutation(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        
+        const { cases } = await import('../drizzle/schema');
+        const { eq, and, sql, desc } = await import('drizzle-orm');
+        const XLSX = await import('xlsx');
+        
+        // Build where conditions (same as list)
+        const conditions = [];
+        if (input?.caseType) {
+          conditions.push(eq(cases.caseType, input.caseType));
+        }
+        if (input?.priority) {
+          conditions.push(sql`${cases.priority} = ${input.priority}`);
+        }
+        if (input?.status) {
+          conditions.push(sql`${cases.status} = ${input.status}`);
+        }
+        if (input?.search) {
+          const searchTerm = `%${input.search}%`;
+          conditions.push(
+            sql`(
+              ${cases.caseNumber} LIKE ${searchTerm} OR
+              ${cases.description} LIKE ${searchTerm} OR
+              ${cases.reporterName} LIKE ${searchTerm} OR
+              ${cases.reporterEmail} LIKE ${searchTerm}
+            )`
+          );
+        }
+        if (input?.startDate) {
+          const startDateStr = input.startDate.split('T')[0];
+          conditions.push(sql`DATE(${cases.createdAt}) >= ${startDateStr}`);
+        }
+        if (input?.endDate) {
+          const endDateStr = input.endDate.split('T')[0];
+          conditions.push(sql`DATE(${cases.createdAt}) <= ${endDateStr}`);
+        }
+        
+        const where = conditions.length > 0 ? and(...conditions) : undefined;
+        
+        // Get all cases (no pagination for export)
+        const casesList = await dbInstance
+          .select()
+          .from(cases)
+          .where(where)
+          .orderBy(desc(cases.createdAt));
+        
+        // Transform data for Excel
+        const excelData = casesList.map(c => ({
+          'Folio': c.caseNumber,
+          'Tipo': c.caseType,
+          'Prioridad': c.priority,
+          'Estado': c.status,
+          'Reportante': c.reporterName || 'Anónimo',
+          'Email': c.reporterEmail || '',
+          'Teléfono': c.reporterPhone || '',
+          'Descripción': c.description || '',
+          'Fecha Creación': c.createdAt ? new Date(c.createdAt).toLocaleDateString('es-MX') : '',
+          'Fecha Cierre': c.closedAt ? new Date(c.closedAt).toLocaleDateString('es-MX') : '',
+        }));
+        
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Casos NOM-035');
+        
+        // Generate buffer
+        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+        
+        // Return base64 for download
+        return {
+          data: buffer.toString('base64'),
+          filename: `casos-nom035-${new Date().toISOString().split('T')[0]}.xlsx`,
+          totalRecords: casesList.length,
+        };
+      }),
+    
     getById: committeeProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
@@ -414,6 +512,7 @@ export const appRouter = router({
         isAnonymous: z.boolean().default(false),
         caseType: z.enum(['mobbing', 'burnout', 'violence', 'stress', 'other']),
         description: z.string().min(10),
+        priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
       }))
       .mutation(async ({ input }) => {
         const dbInstance = await db.getDb();
@@ -421,12 +520,30 @@ export const appRouter = router({
         
         const { cases } = await import('../drizzle/schema');
         const caseNumber = `CASO-${Date.now()}`;
-        await dbInstance.insert(cases).values({
+        const result = await dbInstance.insert(cases).values({
           ...input,
           caseNumber,
           status: 'open',
-          priority: 'medium',
         });
+        
+        const caseId = Number((result as any)[0]?.insertId || 0);
+        
+        // Si el caso es crítico, notificar a todos los miembros del comité
+        if (input.priority === 'critical') {
+          const committeeMembers = await db.getAllCommitteeMembers();
+          const notificationPromises = committeeMembers.map(member =>
+            db.createNotification({
+              userId: member.id,
+              type: 'new_case',
+              title: '¡Caso Crítico Reportado!',
+              message: `Se ha registrado un nuevo caso crítico (${caseNumber}) de tipo ${input.caseType}. Requiere atención inmediata.`,
+              relatedEntityType: 'case',
+              relatedEntityId: caseId,
+            }).catch(err => console.error('Error al crear notificación:', err))
+          );
+          await Promise.allSettled(notificationPromises);
+        }
+        
         return { success: true, caseNumber };
       }),
     updateStatus: committeeProcedure

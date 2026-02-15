@@ -189,7 +189,7 @@ export default function CaseAssignment() {
       {selectedCaseId && (
         <AssignCommitteeModal
           caseId={selectedCaseId}
-          caseNumber={cases?.find((c) => c.id === selectedCaseId)?.caseNumber || ""}
+          caseNumber={cases?.cases?.find((c: any) => c.id === selectedCaseId)?.caseNumber || ""}
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
         />

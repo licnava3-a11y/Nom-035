@@ -35,7 +35,10 @@ export default function Cases() {
   const [filterPriority, setFilterPriority] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isExporting, setIsExporting] = useState(false);
   const ITEMS_PER_PAGE = 20;
+  
+  const exportMutation = trpc.cases.exportToExcel.useMutation();
   
   // Preparar filtros para query server-side
   const queryParams = useMemo(() => {
@@ -81,7 +84,49 @@ export default function Cases() {
     setFilterPriority("all");
     setFilterStatus("all");
     setSearchTerm("");
+    setDateRange(undefined);
     setCurrentPage(1);
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      
+      // Preparar filtros para exportación (sin page/pageSize)
+      const exportParams: any = {};
+      if (dateRange) {
+        exportParams.startDate = dateRange.from.toISOString();
+        exportParams.endDate = dateRange.to.toISOString();
+      }
+      if (filterType !== "all") exportParams.caseType = filterType as any;
+      if (filterPriority !== "all") exportParams.priority = filterPriority as any;
+      if (filterStatus !== "all") exportParams.status = filterStatus as any;
+      if (searchTerm.trim()) exportParams.search = searchTerm.trim();
+      
+      const result = await exportMutation.mutateAsync(exportParams);
+      
+      // Download file
+      const blob = new Blob(
+        [Uint8Array.from(atob(result.data), c => c.charCodeAt(0))],
+        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+      );
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      // Show success toast (if available)
+      console.log(`Exportados ${result.totalRecords} casos a Excel`);
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      alert('Error al exportar casos a Excel');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleEditCase = (caseData: any) => {
@@ -199,15 +244,25 @@ export default function Cases() {
             Seguimiento y atención de casos de riesgo psicosocial
           </p>
         </div>
-        <ProtectedButton
-          onClick={() => setCreateDialogOpen(true)}
-          requiredPermission="can_create"
-          fallbackMessage="Solo los administradores pueden registrar casos"
-          hideIfNoPermission
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Registrar Caso
-        </ProtectedButton>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleExportExcel}
+            disabled={isExporting}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            {isExporting ? 'Exportando...' : 'Exportar Excel'}
+          </Button>
+          <ProtectedButton
+            onClick={() => setCreateDialogOpen(true)}
+            requiredPermission="can_create"
+            fallbackMessage="Solo los administradores pueden registrar casos"
+            hideIfNoPermission
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Registrar Caso
+          </ProtectedButton>
+        </div>
       </div>
 
       {/* Filtros Avanzados */}
@@ -216,17 +271,28 @@ export default function Cases() {
           <CardTitle>Filtros</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Buscar</label>
-              <input
-                type="text"
-                placeholder="Buscar por folio, descripción, reportante..."
-                value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                className="w-full px-3 py-2 border rounded-md"
+          <div className="space-y-4">
+            {/* Filtro de Fecha */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Rango de Fechas</label>
+              <DateRangeFilter
+                value={dateRange}
+                onChange={(range) => { setDateRange(range); setCurrentPage(1); }}
               />
             </div>
+            
+            {/* Otros Filtros */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm font-medium">Buscar</label>
+                <input
+                  type="text"
+                  placeholder="Buscar por folio, descripción, reportante..."
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  className="w-full px-3 py-2 border rounded-md"
+                />
+              </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Tipo de Caso</label>
               <select
@@ -270,14 +336,15 @@ export default function Cases() {
                 <option value="closed">Cerrado</option>
               </select>
             </div>
-            <div className="flex items-end">
-              <Button
-                variant="outline"
-                onClick={clearFilters}
-                className="w-full"
-              >
-                Limpiar Filtros
-              </Button>
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  className="w-full"
+                >
+                  Limpiar Filtros
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

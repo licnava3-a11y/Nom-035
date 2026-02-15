@@ -101,3 +101,39 @@
 - [x] Configurar cache en menuCounters (2 min refetch, 1 min stale)
 - [x] Configurar cache en recognitionsCount (2 min refetch, 1 min stale)
 - [x] Optimizar refetchInterval de 1min→2min (reducción 50% requests)
+
+## Nuevas Tareas - Optimización y Funcionalidades Avanzadas
+
+### 1. Reiniciar Servidor y Eliminar Falsos Positivos TypeScript
+- [x] Reiniciar servidor TypeScript para limpiar cache
+- [x] Corregir eq() restantes con sql raw en routers.ts
+- [x] Regenerar tipos Drizzle (sin cambios de schema)
+- [x] Confirmar compilación sin errores TypeScript
+
+### 2. Optimizar Código del Sistema
+- [ ] Revisar y optimizar queries con múltiples llamadas
+- [ ] Identificar código duplicado y refactorizar
+- [ ] Optimizar imports y reducir bundle size
+- [ ] Revisar y mejorar manejo de errores
+
+### 3. Implementar Filtros Avanzados por Fecha en Casos
+- [x] Agregar campos startDate y endDate al query cases.list (ya existían)
+- [x] Implementar lógica de filtrado por fecha en backend (DATE() >= startDate, <= endDate)
+- [x] Agregar DateRangeFilter visible en frontend Cases.tsx
+- [x] Actualizar clearFilters para incluir dateRange
+- [x] Combinar filtros de fecha con búsqueda y paginación
+
+### 4. Implementar Exportación Excel de Casos Filtrados
+- [x] Crear procedure cases.exportToExcel con filtros (mutation)
+- [x] Librería xlsx ya instalada (v0.18.5)
+- [x] Implementar botón de exportación en Cases.tsx (header)
+- [x] Generar Excel con casos filtrados actuales (base64 download)
+- [x] Incluir 10 columnas: Folio, Tipo, Prioridad, Estado, Reportante, Email, Teléfono, Descripción, Fecha Creación, Fecha Cierre
+
+### 5. Implementar Notificaciones Push para Casos Críticos
+- [x] Crear trigger automático para casos con prioridad "critical" (en cases.create)
+- [x] Modificar cases.create para aceptar priority como input
+- [x] Implementar job para detectar casos abiertos >7 días (stale-cases-alerts-job.ts)
+- [x] Detectar casos críticos abiertos >3 días (prioridad alta)
+- [x] Enviar notificaciones a miembros del comité (type: new_case, deadline_approaching)
+- [x] Inicializar job en server startup (cada 24 horas)

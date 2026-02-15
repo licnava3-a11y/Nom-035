@@ -17,6 +17,7 @@ import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
 import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
+import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
 import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
 import { runPredictiveAlertsJob } from "../jobs/predictiveAlertsJob";
 import { generateMonthlySnapshots } from "../jobs/autoSnapshotsJob";
@@ -126,6 +127,7 @@ async function startServer() {
     startSecurityAlertsJob();
     startAgreementsAlertsJob();
     startCorrectiveActionsRemindersJob();
+    startStaleCasesJob();
     
     // Schedule predictive alerts job (daily at 8:00 AM)
     setInterval(() => {

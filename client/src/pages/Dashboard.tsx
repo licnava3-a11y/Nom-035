@@ -322,8 +322,8 @@ export default function DashboardConsolidated() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{casesLoading ? '...' : cases?.length || 0}</div>
-                <p className="text-xs text-muted-foreground">Todos los registros</p>
+                <div className="text-2xl font-bold">{casesLoading ? '...' : cases?.totalCount || 0}</div>
+                <p className="text-xs text-muted-foreground">Total de casos registrados</p>
               </CardContent>
             </Card>
 
