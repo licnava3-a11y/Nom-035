@@ -29,11 +29,30 @@ export default function Policies() {
     representanteLegalId: undefined as number | undefined,
   });
 
+  const [uploadMode, setUploadMode] = useState<'generate' | 'upload'>('generate');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   // Queries
   const { data: policies, isLoading } = trpc.nom035Policies.list.useQuery();
   const { data: activeRepresentatives, isLoading: isLoadingReps } = trpc.company.legalRepresentative.listActive.useQuery();
 
   // Mutations
+  const uploadFileMutation = trpc.nom035Policies.uploadPolicyFile.useMutation({
+    onSuccess: () => {
+      alert("Archivo PDF cargado exitosamente");
+      utils.nom035Policies.list.invalidate();
+      setIsCreateDialogOpen(false);
+      setIsEditDialogOpen(false);
+      resetForm();
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      alert(`Error al cargar archivo: ${error.message}`);
+      setIsUploading(false);
+    },
+  });
+
   const createMutation = trpc.nom035Policies.create.useMutation({
     onSuccess: () => {
       alert("Política creada exitosamente");
@@ -88,10 +107,79 @@ export default function Policies() {
       fechaPublicacion: new Date().toISOString().split('T')[0],
       representanteLegalId: undefined,
     });
+    setUploadMode('generate');
+    setSelectedFile(null);
+    setIsUploading(false);
   };
 
-  const handleCreate = () => {
-    createMutation.mutate(formData);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      alert('Solo se permiten archivos PDF');
+      return;
+    }
+
+    // Validar tamaño (10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('El archivo excede el tamaño máximo permitido de 10MB');
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleUploadFile = async (policyId: number) => {
+    if (!selectedFile) {
+      alert('Por favor seleccione un archivo PDF');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Convertir archivo a base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+        const base64Data = base64.split(',')[1]; // Remover prefijo data:application/pdf;base64,
+
+        await uploadFileMutation.mutateAsync({
+          id: policyId,
+          fileBase64: base64Data,
+          fileName: selectedFile.name,
+          fileSize: selectedFile.size,
+        });
+      };
+      reader.readAsDataURL(selectedFile);
+    } catch (error) {
+      console.error('Error al cargar archivo:', error);
+      setIsUploading(false);
+    }
+  };
+
+  const handleCreate = async () => {
+    if (uploadMode === 'upload') {
+      // Modo: Subir PDF propio
+      if (!selectedFile) {
+        alert('Por favor seleccione un archivo PDF');
+        return;
+      }
+
+      // Crear política primero
+      const result = await createMutation.mutateAsync(formData);
+      
+      // Luego subir el archivo
+      if (result.id) {
+        await handleUploadFile(result.id);
+      }
+    } else {
+      // Modo: Generar desde texto
+      createMutation.mutate(formData);
+    }
   };
 
   const handleUpdate = () => {
@@ -148,6 +236,35 @@ export default function Policies() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {/* Selector de Modo */}
+              <div className="space-y-2">
+                <Label>Modo de Creación *</Label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="uploadMode"
+                      value="generate"
+                      checked={uploadMode === 'generate'}
+                      onChange={(e) => setUploadMode(e.target.value as 'generate' | 'upload')}
+                      className="w-4 h-4"
+                    />
+                    <span>Generar desde texto</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="uploadMode"
+                      value="upload"
+                      checked={uploadMode === 'upload'}
+                      onChange={(e) => setUploadMode(e.target.value as 'generate' | 'upload')}
+                      className="w-4 h-4"
+                    />
+                    <span>Subir PDF propio</span>
+                  </label>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="nombre">Nombre de la Política *</Label>
                 <Input
@@ -157,16 +274,45 @@ export default function Policies() {
                   placeholder="Ej: Política de Prevención del Acoso Laboral"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="descripcion">Descripción *</Label>
-                <Textarea
-                  id="descripcion"
-                  value={formData.descripcion}
-                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                  placeholder="Describa el contenido de la política..."
-                  rows={8}
-                />
-              </div>
+              {/* Campo Descripción - Solo visible en modo generar */}
+              {uploadMode === 'generate' && (
+                <div className="space-y-2">
+                  <Label htmlFor="descripcion">Descripción *</Label>
+                  <Textarea
+                    id="descripcion"
+                    value={formData.descripcion}
+                    onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                    placeholder="Describa el contenido de la política..."
+                    rows={8}
+                  />
+                </div>
+              )}
+
+              {/* Campo Carga de Archivo - Solo visible en modo subir */}
+              {uploadMode === 'upload' && (
+                <div className="space-y-2">
+                  <Label htmlFor="pdfFile">Archivo PDF *</Label>
+                  <Input
+                    id="pdfFile"
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                  />
+                  {selectedFile && (
+                    <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <span className="text-sm text-green-700 dark:text-green-300">
+                        {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Tamaño máximo: 10MB. Solo archivos PDF.
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="fechaPublicacion">Fecha de Publicación *</Label>
                 <Input
@@ -210,8 +356,11 @@ export default function Policies() {
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleCreate} disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creando..." : "Crear Política"}
+              <Button 
+                onClick={handleCreate} 
+                disabled={createMutation.isPending || isUploading}
+              >
+                {isUploading ? "Subiendo archivo..." : createMutation.isPending ? "Creando..." : uploadMode === 'upload' ? "Crear y Subir PDF" : "Crear Política"}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -12909,3 +12909,42 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 
 ### 🔄 Pendiente: Optimización Bundle Size y Validación CURP/RFC
 
+
+
+## FASE 131: Carga de Archivos PDF Propios en Políticas NOM-035
+
+### 1. Backend - Soporte de Carga de Archivos
+- [x] Agregar procedimiento tRPC uploadPolicyFile en nom035Policies router
+- [x] Implementar validación de tipo de archivo (solo PDF)
+- [x] Implementar validación de tamaño de archivo (máximo 10MB)
+- [x] Subir archivo a S3 usando storagePut
+- [x] Actualizar campo pdfUrl en base de datos
+- [ ] Agregar campo uploadedFileName para guardar nombre original (opcional)
+
+### 2. Frontend - Interfaz de Carga
+- [x] Agregar campo <input type="file"> en formulario de creación
+- [ ] Agregar campo <input type="file"> en formulario de edición (pendiente)
+- [x] Implementar preview del archivo seleccionado
+- [x] Mostrar indicador de progreso durante carga
+- [x] Agregar validación de tipo y tamaño en frontend
+- [ ] Mostrar nombre del archivo cargado en tabla (ya existe pdfUrl)
+- [ ] Agregar botón "Ver PDF" para abrir archivo cargado (ya existe)
+
+### 3. Funcionalidad Dual
+- [x] Permitir crear política con PDF propio (opción A)
+- [x] Permitir crear política desde texto y generar PDF automático (opción B)
+- [x] Agregar selector de modo: "Subir PDF" vs "Generar desde texto"
+- [x] Mostrar campos apropiados según modo seleccionado
+- [x] Validar que al menos una opción esté completa
+
+### 4. Pruebas y Validación
+- [ ] Probar carga de PDF de 1MB
+- [ ] Probar carga de PDF de 10MB
+- [ ] Probar validación de archivo no-PDF
+- [ ] Probar validación de archivo >10MB
+- [ ] Verificar que PDF se guarda en S3
+- [ ] Verificar que PDF se puede descargar
+- [ ] Probar edición de política con reemplazo de PDF
+- [ ] Guardar checkpoint final
+
+**FASE 131: ✅ COMPLETADA (90%) - Carga de archivos PDF propios implementada, pendiente pruebas**

@@ -6,6 +6,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateNom035PolicyPDF } from "../pdfGenerators/nom035Policy";
 import { logPolicyEvidence } from "../helpers/evidenceLogger";
+import { storagePut } from "../storage";
 
 export const nom035PoliciesRouter = router({
   /**
@@ -177,6 +178,92 @@ export const nom035PoliciesRouter = router({
         success: true,
         pdfUrl,
         message: "PDF generado exitosamente",
+      };
+    }),
+
+  /**
+   * Upload PDF file for policy
+   */
+  uploadPolicyFile: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        fileBase64: z.string(),
+        fileName: z.string(),
+        fileSize: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Validar tipo de archivo
+      if (!input.fileName.toLowerCase().endsWith('.pdf')) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Solo se permiten archivos PDF",
+        });
+      }
+
+      // Validar tamaño (máximo 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+      if (input.fileSize > maxSize) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "El archivo excede el tamaño máximo permitido de 10MB",
+        });
+      }
+
+      // Verificar que la política existe
+      const [policy] = await db
+        .select()
+        .from(nom035Policies)
+        .where(eq(nom035Policies.id, input.id))
+        .limit(1);
+
+      if (!policy) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Política no encontrada",
+        });
+      }
+
+      // Convertir base64 a buffer
+      const fileBuffer = Buffer.from(input.fileBase64, 'base64');
+
+      // Generar nombre único para el archivo
+      const timestamp = Date.now();
+      const fileKey = `policies/policy-${input.id}-${timestamp}.pdf`;
+
+      // Subir archivo a S3
+      const { url: pdfUrl } = await storagePut(
+        fileKey,
+        fileBuffer,
+        'application/pdf'
+      );
+
+      // Actualizar política con URL del PDF y nombre del archivo
+      await db
+        .update(nom035Policies)
+        .set({
+          pdfUrl,
+          // Nota: Necesitaremos agregar campo uploadedFileName en schema
+        })
+        .where(eq(nom035Policies.id, input.id));
+
+      // Registrar evidencia automáticamente
+      await logPolicyEvidence(
+        policy.id,
+        policy.nombre,
+        pdfUrl,
+        fileKey,
+        ctx.user.id
+      );
+
+      return {
+        success: true,
+        pdfUrl,
+        message: "Archivo PDF cargado exitosamente",
       };
     }),
 });
