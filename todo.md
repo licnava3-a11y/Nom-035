@@ -197,3 +197,33 @@
 - [ ] Crear página DepartmentalTrends.tsx con visualizaciones
 - [ ] Agregar navegación en menú lateral
 - [ ] Implementar notificaciones automáticas para áreas de riesgo
+
+## Nuevas Tareas - Completar Dashboard Predictivo y Tendencias Departamentales
+
+### Fase 1: Dashboard Predictivo Visual
+- [x] Crear página PredictiveAnalytics.tsx
+- [x] Implementar tabla de empleados de alto riesgo con filtros
+- [x] Agregar gráfico pie de distribución por nivel de riesgo (4 niveles)
+- [x] Crear panel de recomendaciones prioritarias (top 5)
+- [x] Agregar navegación en menú lateral (Prevención de Riesgos > Análisis Predictivo)
+- [x] Implementar filtros por departamento y umbral de riesgo (50-80%)
+- [x] Agregar 4 cards de métricas resumen (Total, Alto Riesgo, Medio, Bajo)
+- [x] Agregar ruta en App.tsx
+
+### Fase 2: Job de Cálculo Automático de RiskLevel
+- [x] Crear job calculate-risk-level-job.ts
+- [x] Implementar algoritmo de cálculo NOM-035 desde respuestas (answerValue)
+- [x] Calcular puntaje total y porcentaje (0-100%)
+- [x] Determinar nivel de riesgo según NOM-035 (low ≤20%, medium ≤45%, high ≤70%, very_high >70%)
+- [x] Generar recomendaciones automáticas según nivel (3-4 recomendaciones)
+- [x] Almacenar resultados en surveyResults con categoryScores
+- [x] Registrar job en server/_core/index.ts (línea 132)
+- [x] Programar ejecución diaria a las 2:00 AM con cron
+- [x] Procesar máximo 100 respuestas por ejecuciónentales
+- [ ] Crear router departmentalTrends
+- [ ] Implementar query getTrends con agregaciones por departamento
+- [ ] Crear página DepartmentalTrends.tsx
+- [ ] Implementar heat map de riesgo por departamento
+- [ ] Agregar sistema de alertas tempranas (umbrales configurables)
+- [ ] Crear notificaciones automáticas para áreas de alto riesgo
+- [ ] Agregar navegación en menú lateral

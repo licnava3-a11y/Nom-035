@@ -15,6 +15,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Courses = lazy(() => import("./pages/Courses"));
 const Cases = lazy(() => import("./pages/Cases"));
 const CasesMetrics = lazy(() => import("./pages/CasesMetrics"));
+const PredictiveAnalytics = lazy(() => import("./pages/PredictiveAnalytics"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Evaluations = lazy(() => import("./pages/Evaluations"));
 const TakeEvaluation = lazy(() => import("./pages/TakeEvaluation"));
@@ -179,6 +180,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <CasesMetrics />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/predictive-analytics"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PredictiveAnalytics />
             </Suspense>
           </DashboardLayout>
         </Route>
