@@ -72,8 +72,8 @@ export async function generateMonthlySnapshots() {
         let criticalGaps = 0;
 
         for (const row of matrixData) {
-          totalCurrentLevel += row.currentLevel || 0;
-          const gap = (row.requiredLevel || 0) - (row.currentLevel || 0);
+          totalCurrentLevel += Number(row.currentLevel || 0);
+          const gap = Number(row.requiredLevel || 0) - Number(row.currentLevel || 0);
           if (gap > 0) {
             totalGaps++;
             if (gap >= 2) {
@@ -193,8 +193,8 @@ export async function generateMonthlySnapshots() {
         let criticalGaps = 0;
 
         for (const row of matrixData) {
-          totalCurrentLevel += row.currentLevel || 0;
-          const gap = (row.requiredLevel || 0) - (row.currentLevel || 0);
+          totalCurrentLevel += Number(row.currentLevel || 0);
+          const gap = Number(row.requiredLevel || 0) - Number(row.currentLevel || 0);
           if (gap > 0) {
             totalGaps++;
             if (gap >= 2) {

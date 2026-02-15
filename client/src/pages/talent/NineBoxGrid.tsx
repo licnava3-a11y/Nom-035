@@ -25,7 +25,8 @@ export default function NineBoxGrid() {
   });
 
   const { data: stats } = trpc.nineBoxGrid.getStats.useQuery();
-  const { data: departments } = trpc.departments.getAll.useQuery();
+  const { data: departmentsData } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const departments = departmentsData?.data || [];
 
   // Mutations
   const calculateAllMutation = trpc.nineBoxGrid.calculateAll.useMutation({
@@ -209,7 +210,7 @@ export default function NineBoxGrid() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Todos</SelectItem>
-                  {departments?.map((dept) => (
+                  {departments?.map((dept: { id: number; name: string }) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
                     </SelectItem>

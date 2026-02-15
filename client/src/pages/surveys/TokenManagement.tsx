@@ -61,8 +61,8 @@ export default function TokenManagement() {
 
     generateBulkMutation.mutate({
       surveyType,
-      quantity,
-      expirationDays,
+      count: quantity,
+      expiresInDays: expirationDays,
       notes: notes || undefined,
     });
   };

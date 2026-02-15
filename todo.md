@@ -12589,3 +12589,33 @@ Dado que los routers existentes tienen estructuras complejas y modificarlos dire
 - [ ] Guardar checkpoint final
 
 **FASE 127: 🔄 EN PROGRESO - Auditoría profunda del código y mejoras de UX**
+
+
+### 2. Corrección de Errores TypeScript Restantes (33 errores)
+- [x] Corregir errores en NineBoxGrid.tsx (departments.getAll → departments.list, tipo dept)
+- [x] Corregir errores en SkillsMatrixSnapshots.tsx (departments.getAll → departments.list, tipos implícitos, context.parsed.y ?? 0, Type 'unknown' con any)
+- [x] Corregir errores en autoSnapshotsJob.ts (conversión Number() para arithmetic operations)
+- [x] Reducir errores TypeScript de 51 a 20 (61% de reducción, 31 errores corregidos)
+- [ ] Corregir errores en NotificationHistory.tsx (~10 errores de propiedades faltantes)
+- [ ] Corregir error MapIterator en competencyRegressionAlertsJob.ts línea 70 (requiere flag --downlevelIteration o Array.from)
+- [ ] Corregir errores en predictiveAlertsJob.ts (db possibly null líneas 32 y 297 con null checks)
+- [ ] Ejecutar `pnpm tsc` para validar que se redujeron a menos de 10 errores
+
+### 3. Implementación de Skeletons de Carga
+- [ ] Crear componente Skeleton reutilizable en client/src/components/ui/skeleton.tsx
+- [ ] Agregar Skeleton en Dashboard (KPIs, gráficos)
+- [ ] Agregar Skeleton en listados de empleados (EmployeeList.tsx)
+- [ ] Agregar Skeleton en listados de cursos (CourseList.tsx)
+- [ ] Agregar Skeleton en formularios complejos (evaluaciones, encuestas)
+- [ ] Agregar Skeleton en Matriz de Habilidades (SkillsMatrix.tsx)
+
+### 4. Recreación de Páginas Financieras FASE 231
+- [ ] Recrear página de Facturas (Invoices.tsx) sin useToast
+- [ ] Recrear página de Órdenes de Compra (PurchaseOrders.tsx) sin useToast
+- [ ] Recrear página de Solicitudes de Gasto (ExpenseRequests.tsx) sin useToast
+- [ ] Usar alert() o toast de sonner en lugar de useToast
+- [ ] Corregir uso de ProtectedButton (verificar que existe en componentes)
+- [ ] Agregar rutas en App.tsx si no existen
+- [ ] Probar funcionalidad completa de cada página
+
+**FASE 127: 🔄 EN PROGRESO - Auditoría profunda, corrección de errores TypeScript y mejoras de UX**

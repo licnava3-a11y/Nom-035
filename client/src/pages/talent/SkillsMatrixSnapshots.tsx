@@ -41,7 +41,8 @@ export default function SkillsMatrixSnapshots() {
     departmentId: selectedDepartmentId,
   });
 
-  const { data: departmentsData } = trpc.departments.getAll.useQuery({});
+  const { data: departmentsDataRaw } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const departmentsData = { departments: departmentsDataRaw?.data || [] };
 
   const { data: comparisonData, isLoading: isComparing } = trpc.skillsMatrixSnapshots.compareSnapshots.useQuery(
     {
@@ -306,7 +307,7 @@ export default function SkillsMatrixSnapshots() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los departamentos</SelectItem>
-                  {departmentsData?.departments.map((dept) => (
+                  {departmentsData?.departments.map((dept: { id: number; name: string }) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
                     </SelectItem>
@@ -324,7 +325,7 @@ export default function SkillsMatrixSnapshots() {
           {/* Average Level Trend */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Evolución del Nivel Promedio{selectedDepartmentId && departmentsData ? ` - ${departmentsData.departments.find(d => d.id === selectedDepartmentId)?.name}` : " - Todos los departamentos"}</CardTitle>
+              <CardTitle className="text-lg">Evolución del Nivel Promedio{selectedDepartmentId && departmentsData ? ` - ${departmentsData.departments.find((d: { id: number; name: string }) => d.id === selectedDepartmentId)?.name}` : " - Todos los departamentos"}</CardTitle>
               <CardDescription>Tendencia del nivel de competencias a lo largo del tiempo</CardDescription>
             </CardHeader>
             <CardContent>
@@ -357,7 +358,7 @@ export default function SkillsMatrixSnapshots() {
                             legend: { display: false },
                             tooltip: {
                               callbacks: {
-                                label: (context) => `Nivel: ${context.parsed.y.toFixed(2)}`,
+                                label: (context) => `Nivel: ${(context.parsed.y ?? 0).toFixed(2)}`,
                               },
                             },
                           },
@@ -764,7 +765,7 @@ export default function SkillsMatrixSnapshots() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {comparisonData.topImprovers.map((emp) => (
+                  {comparisonData.topImprovers.map((emp: any) => (
                     <TableRow key={emp.employeeId}>
                       <TableCell className="font-medium">{emp.employeeName}</TableCell>
                       <TableCell>{emp.departmentName}</TableCell>
@@ -813,7 +814,7 @@ export default function SkillsMatrixSnapshots() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {comparisonData.needsAttention.map((emp) => (
+                    {comparisonData.needsAttention.map((emp: any) => (
                       <TableRow key={emp.employeeId}>
                         <TableCell className="font-medium">{emp.employeeName}</TableCell>
                         <TableCell>{emp.departmentName}</TableCell>
