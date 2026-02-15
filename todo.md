@@ -105,3 +105,14 @@
 - [x] Implementar exportación a PDF del dashboard financiero
 - [x] Agregar botones de exportación en la interfaz
 - [x] Incluir datos de KPIs y gráfico en exportación
+
+
+## BUG REPORTADO: Distribución de Género Sin Datos
+
+### Investigación y Corrección
+- [x] Verificar si existe campo `gender` o `genero` en tabla `users` (campo `sexo` existe)
+- [x] Verificar si empleados de prueba tienen género asignado (todos tenían NULL)
+- [x] Revisar query del componente de gráfica de género (query correcto)
+- [x] Verificar correlación con otras gráficas del dashboard (no correlacionada)
+- [x] Corregir datos de prueba (asignado 9 Femenino, 18 Masculino)
+- [x] Verificar gráfica funcionando correctamente (RESUELTO)

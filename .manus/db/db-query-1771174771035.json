@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, name, email, sexo FROM users LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, name, email, sexo FROM users LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Vero Nava",
+      "email": "lic.nava3@gmail.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270044",
+      "name": "María González",
+      "email": "maria.gonzalez@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270045",
+      "name": "Carlos Ramírez",
+      "email": "carlos.ramirez@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270046",
+      "name": "Ana López",
+      "email": "ana.lopez@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270047",
+      "name": "Pedro Martínez",
+      "email": "pedro.martinez@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270048",
+      "name": "Laura Sánchez",
+      "email": "laura.sanchez@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270049",
+      "name": "Roberto Torres",
+      "email": "roberto.torres@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270050",
+      "name": "Carmen Flores",
+      "email": "carmen.flores@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270051",
+      "name": "Dr. José Hernández",
+      "email": "jose.hernandez@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270052",
+      "name": "Lic. Patricia Morales",
+      "email": "patricia.morales@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "270053",
+      "name": "Psic. Miguel Ángel Ruiz",
+      "email": "miguel.ruiz@empresa.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3240001",
+      "name": "Carlos Mendoza (Director)",
+      "email": "director@empresa.mx",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3240002",
+      "name": "María García (Responsable NOM-035)",
+      "email": "responsable.nom035@empresa.mx",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3240003",
+      "name": "Juan Pérez (Supervisor)",
+      "email": "supervisor@empresa.mx",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3240004",
+      "name": "Ana López (Jefe de Área)",
+      "email": "jefe.area@empresa.mx",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3240005",
+      "name": "Laura Martínez (Recursos Humanos)",
+      "email": "rh@empresa.mx",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3240006",
+      "name": "Pedro Sánchez (Usuario Demo)",
+      "email": "demo@empresa.mx",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3270001",
+      "name": "Gerente Prueba",
+      "email": "gerente.prueba@test.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3270002",
+      "name": "Instructor Prueba",
+      "email": "instructor.prueba@test.com",
+      "sexo": "NULL"
+    },
+    {
+      "id": "3270003",
+      "name": "Administrativo Prueba",
+      "email": "administrativo.prueba@test.com",
+      "sexo": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\tsexo\n1\tVero Nava\tlic.nava3@gmail.com\tNULL\n270044\tMaría González\tmaria.gonzalez@empresa.com\tNULL\n270045\tCarlos Ramírez\tcarlos.ramirez@empresa.com\tNULL\n270046\tAna López\tana.lopez@empresa.com\tNULL\n270047\tPedro Martínez\tpedro.martinez@empresa.com\tNULL\n270048\tLaura Sánchez\tlaura.sanchez@empresa.com\tNULL\n270049\tRoberto Torres\troberto.torres@empresa.com\tNULL\n270050\tCarmen Flores\tcarmen.flores@empresa.com\tNULL\n270051\tDr. José Hernández\tjose.hernandez@empresa.com\tNULL\n270052\tLic. Patricia Morales\tpatricia.morales@empresa.com\tNULL\n270053\tPsic. Miguel Ángel Ruiz\tmiguel.ruiz@empresa.com\tNULL\n3240001\tCarlos Mendoza (Director)\tdirector@empresa.mx\tNULL\n3240002\tMaría García (Responsable NOM-035)\tresponsable.nom035@empresa.mx\tNULL\n3240003\tJuan Pérez (Supervisor)\tsupervisor@empresa.mx\tNULL\n3240004\tAna López (Jefe de Área)\tjefe.area@empresa.mx\tNULL\n3240005\tLaura Martínez (Recursos Humanos)\trh@empresa.mx\tNULL\n3240006\tPedro Sánchez (Usuario Demo)\tdemo@empresa.mx\tNULL\n3270001\tGerente Prueba\tgerente.prueba@test.com\tNULL\n3270002\tInstructor Prueba\tinstructor.prueba@test.com\tNULL\n3270003\tAdministrativo Prueba\tadministrativo.prueba@test.com\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 360
+}

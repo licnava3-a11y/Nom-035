@@ -1,0 +1,18 @@
+{
+  "query": "SELECT sexo, COUNT(*) as count FROM users GROUP BY sexo;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT sexo, COUNT(*) as count FROM users GROUP BY sexo;",
+  "rows": [
+    {
+      "sexo": "Femenino",
+      "count": "9"
+    },
+    {
+      "sexo": "Masculino",
+      "count": "18"
+    }
+  ],
+  "messages": [],
+  "stdout": "sexo\tcount\nFemenino\t9\nMasculino\t18\n",
+  "stderr": "",
+  "execution_time_ms": 357
+}
