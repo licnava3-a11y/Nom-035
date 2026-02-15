@@ -39,6 +39,10 @@ export const users = mysqlTable("users", {
   habilidadesTransversales: text("habilidadesTransversales"),
   habilidadesLongitudinales: text("habilidadesLongitudinales"),
   
+  // Campos para métricas NMX-025 (Igualdad Laboral)
+  salario: decimal("salario", { precision: 10, scale: 2 }), // Salario mensual bruto
+  nivelJerarquico: mysqlEnum("nivelJerarquico", ["Operativo", "Especialista", "Supervisor", "Gerencial", "Directivo", "Alta Dirección"]),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

@@ -87,6 +87,9 @@ export const employeesRouter = router({
         rfc: z.string().optional(),
         nss: z.string().optional(),
         birthDate: z.string().optional(),
+        sexo: z.enum(["Masculino", "Femenino", "Otro"]).refine(val => val !== undefined, {
+          message: "El campo sexo es obligatorio"
+        }),
         employeeNumber: z.string().optional(),
         department: z.string().optional(),
         position: z.string().optional(),
@@ -235,6 +238,7 @@ export const employeesRouter = router({
         email: z.string().email().optional(),
         phone: z.string().optional(),
         curp: z.string().length(18).optional(),
+        sexo: z.enum(["Masculino", "Femenino", "Otro"]).optional(),
         employeeNumber: z.string().optional(),
         department: z.string().optional(),
         position: z.string().optional(),

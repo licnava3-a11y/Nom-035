@@ -116,3 +116,52 @@
 - [x] Verificar correlación con otras gráficas del dashboard (no correlacionada)
 - [x] Corregir datos de prueba (asignado 9 Femenino, 18 Masculino)
 - [x] Verificar gráfica funcionando correctamente (RESUELTO)
+
+
+## NUEVAS TAREAS: Validación Sexo, Métricas NMX-025 y Auditoría Completa
+
+### Tarea 1: Campo Sexo Obligatorio
+- [x] Agregar validación zod en procedure employees.create (sexo obligatorio)
+- [x] Agregar campo sexo en procedure employees.update (opcional)
+- [x] Marcar campo sexo como requerido en formulario EmployeeNew.tsx
+- [x] Agregar validación en frontend antes de enviar (validateForm)
+- [x] Agregar Select con opciones Masculino/Femenino/Otro
+- [ ] Probar creación de empleado sin sexo (debe fallar con error)
+
+### Tarea 2: Métricas NMX-025 Adicionales
+- [x] Agregar campos salario y nivelJerarquico a schema users
+- [x] Generar y aplicar migración SQL
+- [x] Implementar query de brecha salarial por género (salaryGapByGender)
+- [x] Implementar query de distribución por nivel jerárquico (hierarchyDistribution)
+- [x] Implementar query de porcentaje de mujeres en puestos directivos (femaleDirectivesPercentage)
+- [x] Asignar datos de prueba (salarios y niveles jerárquicos)
+- [x] Agregar gráficas en dashboard ejecutivo frontend (3 gráficas nuevas)
+- [x] Gráfica de brecha salarial por género con cálculo de porcentaje
+- [x] Gráfica de distribución por nivel jerárquico (Masculino vs Femenino)
+- [x] Indicador de porcentaje de mujeres en puestos directivos
+- [ ] Verificar datos con base de datos real
+
+### Tarea 3: Auditoría Performance
+- [ ] Analizar queries lentas en logs (.manus-logs/)
+- [ ] Identificar índices faltantes en base de datos
+- [ ] Revisar re-renders innecesarios con React DevTools
+- [ ] Optimizar imágenes y assets pesados
+- [ ] Implementar lazy loading adicional si necesario
+
+### Tarea 4: Auditoría Seguridad
+- [ ] Verificar validación de entrada en 242 procedures sin zod
+- [ ] Revisar protección contra SQL injection en queries dinámicas
+- [ ] Implementar rate limiting en endpoints públicos
+- [ ] Validar permisos en procedures críticos
+- [ ] Probar XSS en campos de texto
+
+### Tarea 5: Auditoría Queries y Gráficas
+- [ ] Verificar query de "Total Empleados" (debe ser 27)
+- [ ] Verificar query de "Casos Abiertos" (debe ser 185)
+- [ ] Verificar query de "Distribución por Departamento"
+- [ ] Verificar query de "Distribución de Género" (9F, 18M)
+- [ ] Verificar query de "Tendencia de Factores de Riesgo"
+- [ ] Verificar query de "Cobertura Encuestas" (debe ser 100%)
+- [ ] Comparar todas las métricas con base de datos real
+- [ ] Documentar discrepancias encontradas
+- [ ] Corregir queries incorrectos

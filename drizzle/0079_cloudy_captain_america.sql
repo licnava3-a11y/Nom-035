@@ -1,0 +1,2 @@
+ALTER TABLE `users` ADD `salario` decimal(10,2);--> statement-breakpoint
+ALTER TABLE `users` ADD `nivelJerarquico` enum('Operativo','Especialista','Supervisor','Gerencial','Directivo','Alta Dirección');

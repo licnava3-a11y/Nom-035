@@ -124,12 +124,42 @@ export const executiveDashboardRouter = router({
         .select({ count: sql<number>`COUNT(*)` })
         .from(equalityComplaints);
 
-      // Indicadores de brecha salarial (simplificado - requiere datos salariales)
-      const salaryGapIndicators = {
-        overallGap: 0, // Placeholder - requiere implementación con datos salariales
-        byPosition: [],
-        byDepartment: [],
-      };
+      // Brecha salarial por género (requiere campo salario en users)
+      const salaryGapByGender = await db
+        .select({
+          sexo: users.sexo,
+          avgSalary: sql<number>`AVG(CAST(${users.salario} AS DECIMAL(10,2)))`,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(users)
+        .where(sql`${users.salario} IS NOT NULL AND ${users.salario} > 0`)
+        .groupBy(users.sexo);
+
+      // Distribución por nivel jerárquico y género
+      const hierarchyDistribution = await db
+        .select({
+          nivelJerarquico: users.nivelJerarquico,
+          sexo: users.sexo,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(users)
+        .where(sql`${users.nivelJerarquico} IS NOT NULL`)
+        .groupBy(users.nivelJerarquico, users.sexo);
+
+      // Porcentaje de mujeres en puestos directivos
+      const [totalDirectives] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(users)
+        .where(sql`${users.nivelJerarquico} IN ('Directivo', 'Gerencial', 'Alta Dirección')`);
+
+      const [femaleDirectives] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(users)
+        .where(sql`${users.nivelJerarquico} IN ('Directivo', 'Gerencial', 'Alta Dirección') AND ${users.sexo} = 'Femenino'`);
+
+      const femaleDirectivesPercentage = totalDirectives?.count
+        ? (Number(femaleDirectives?.count || 0) / Number(totalDirectives.count)) * 100
+        : 0;
 
       return {
         // Empleados y Estructura
@@ -161,6 +191,17 @@ export const executiveDashboardRouter = router({
             sexo: g.sexo || 'No especificado',
             count: Number(g.count),
           })),
+          salaryGapByGender: salaryGapByGender.map(s => ({
+            sexo: s.sexo || 'No especificado',
+            avgSalary: Number(s.avgSalary) || 0,
+            count: Number(s.count),
+          })),
+          hierarchyDistribution: hierarchyDistribution.map(h => ({
+            nivelJerarquico: h.nivelJerarquico || 'No especificado',
+            sexo: h.sexo || 'No especificado',
+            count: Number(h.count),
+          })),
+          femaleDirectivesPercentage: Math.round(femaleDirectivesPercentage * 10) / 10,
           totalComplaints: Number(totalComplaints?.count || 0),
         },
       };

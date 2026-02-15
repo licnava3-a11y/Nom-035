@@ -162,6 +162,50 @@ export default function DashboardConsolidated() {
     ],
   } : null;
 
+  // Brecha Salarial por Género
+  const salaryGapChartData = metrics && metrics.nmx025Equality.salaryGapByGender.length > 0 ? {
+    labels: metrics.nmx025Equality.salaryGapByGender.map(s => s.sexo),
+    datasets: [
+      {
+        label: 'Salario Promedio Mensual',
+        data: metrics.nmx025Equality.salaryGapByGender.map(s => s.avgSalary),
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(236, 72, 153, 0.8)',
+          'rgba(156, 163, 175, 0.8)',
+        ],
+      },
+    ],
+  } : null;
+
+  // Distribución por Nivel Jerárquico y Género
+  const hierarchyChartData = metrics && metrics.nmx025Equality.hierarchyDistribution.length > 0 ? (() => {
+    const uniqueLevels = Array.from(new Set(metrics.nmx025Equality.hierarchyDistribution.map(h => h.nivelJerarquico)));
+    return {
+      labels: uniqueLevels,
+      datasets: [
+        {
+          label: 'Masculino',
+          data: uniqueLevels.map(nivel =>
+            metrics.nmx025Equality.hierarchyDistribution
+              .filter(h => h.nivelJerarquico === nivel && h.sexo === 'Masculino')
+              .reduce((sum, h) => sum + h.count, 0)
+          ),
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        },
+        {
+          label: 'Femenino',
+          data: uniqueLevels.map(nivel =>
+            metrics.nmx025Equality.hierarchyDistribution
+              .filter(h => h.nivelJerarquico === nivel && h.sexo === 'Femenino')
+              .reduce((sum, h) => sum + h.count, 0)
+          ),
+          backgroundColor: 'rgba(236, 72, 153, 0.8)',
+        },
+      ],
+    };
+  })() : null;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -433,6 +477,84 @@ export default function DashboardConsolidated() {
                       }}
                     />
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {salaryGapChartData && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Brecha Salarial por Género</CardTitle>
+                  <CardDescription>Salario promedio mensual - NMX-025-SCFI-2015</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <Bar 
+                      data={salaryGapChartData} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              callback: (value) => `$${value.toLocaleString()}`,
+                            },
+                          },
+                        },
+                        plugins: {
+                          tooltip: {
+                            callbacks: {
+                              label: (context) => `${context.dataset.label}: $${(context.parsed.y || 0).toLocaleString()}`,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                  {metrics && metrics.nmx025Equality.salaryGapByGender.length >= 2 && (
+                    <div className="mt-4 text-sm text-muted-foreground">
+                      <p>
+                        Brecha salarial: {(
+                          ((metrics.nmx025Equality.salaryGapByGender.find(s => s.sexo === 'Masculino')?.avgSalary || 0) -
+                           (metrics.nmx025Equality.salaryGapByGender.find(s => s.sexo === 'Femenino')?.avgSalary || 0)) /
+                          (metrics.nmx025Equality.salaryGapByGender.find(s => s.sexo === 'Masculino')?.avgSalary || 1) * 100
+                        ).toFixed(1)}%
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {hierarchyChartData && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Distribución por Nivel Jerárquico</CardTitle>
+                  <CardDescription>Equidad de género por nivel - NMX-025-SCFI-2015</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <Bar 
+                      data={hierarchyChartData} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                  {metrics && metrics.nmx025Equality.femaleDirectivesPercentage !== undefined && (
+                    <div className="mt-4 text-sm text-muted-foreground">
+                      <p>
+                        Mujeres en puestos directivos: {metrics.nmx025Equality.femaleDirectivesPercentage.toFixed(1)}%
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

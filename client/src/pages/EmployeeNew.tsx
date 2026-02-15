@@ -22,7 +22,7 @@ export default function EmployeeNew() {
     position: "" as string | number,
     hireDate: "",
     contractType: "permanent" as "permanent" | "temporary" | "contract",
-    gender: "", // Nuevo campo para género extraído de CURP
+    sexo: "", // Campo obligatorio para sexo (Masculino, Femenino, Otro)
     birthState: "", // Nuevo campo para estado de nacimiento extraído de CURP
     personalEmail: "", // Correo personal opcional
   });
@@ -95,6 +95,10 @@ export default function EmployeeNew() {
       newErrors.curp = "El CURP debe tener 18 caracteres";
     }
 
+    if (!formData.sexo) {
+      newErrors.sexo = "El sexo es requerido";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -156,7 +160,7 @@ export default function EmployeeNew() {
         setFormData(prev => ({
           ...prev,
           hireDate: prev.hireDate || result.fechaNacimiento || "",
-          gender: result.genero || "",
+          sexo: result.genero || "",
           birthState: result.estado || ""
         }));
       } else {
@@ -355,6 +359,31 @@ export default function EmployeeNew() {
                 )}
                 <p className="text-xs text-muted-foreground">
                   18 caracteres alfanuméricos
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sexo">Sexo *</Label>
+                <select
+                  id="sexo"
+                  value={formData.sexo}
+                  onChange={(e) => handleChange("sexo", e.target.value)}
+                  required
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">Seleccionar sexo</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
+                  <option value="Otro">Otro</option>
+                </select>
+                {errors.sexo && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <XCircle className="h-4 w-4" />
+                    {errors.sexo}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Campo obligatorio
                 </p>
               </div>
             </div>
