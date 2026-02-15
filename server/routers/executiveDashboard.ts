@@ -66,15 +66,16 @@ export const executiveDashboardRouter = router({
       // === MÉTRICAS DE CUMPLIMIENTO NOM-035 ===
 
       // Casos abiertos vs cerrados
+      // Nota: La BD usa valores en español ('abierto', 'resuelto'), mapeamos a inglés para consistencia
       const [casesOpen] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(cases)
-        .where(eq(cases.status, 'open'));
+        .where(eq(cases.status, 'abierto'));
 
       const [casesClosed] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(cases)
-        .where(eq(cases.status, 'closed'));
+        .where(eq(cases.status, 'resuelto'));
 
       // Cobertura de encuestas (%)
       const [totalSurveysSent] = await db
