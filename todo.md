@@ -905,3 +905,52 @@
 - [x] Filtro por capacitación individual o vista global
 - [x] Validación de permisos y prevención de duplicados
 - [x] Ruta y navegación agregadas
+
+
+## Sistema de Alertas Inteligentes con IA
+
+### Backend
+- [ ] Crear tabla `intelligent_alerts` con campos (tipo, severidad, contexto, sugerencias, estado)
+- [ ] Router `intelligentAlerts` con CRUD completo
+- [ ] Implementar análisis predictivo con LLM para detectar patrones de riesgo
+- [ ] Detección de aumento anormal de casos por departamento
+- [ ] Identificación de caída en satisfacción de capacitaciones
+- [ ] Detección de recomendaciones sin implementar >30 días
+- [ ] Clasificación automática por severidad (crítica, alta, media, baja)
+- [ ] Generación de sugerencias de intervención con IA
+- [ ] Asignación automática de responsables según contexto
+
+### Frontend
+- [ ] Página `IntelligentAlertsDashboard.tsx` con dashboard completo
+- [ ] Cards de KPIs (alertas activas, críticas, resueltas, tasa de resolución)
+- [ ] Gráficos de tendencias de riesgo
+- [ ] Lista de alertas con filtros por tipo, severidad, estado
+- [ ] Modal de detalles con sugerencias de intervención
+- [ ] Acciones rápidas (marcar como resuelta, asignar responsable, descartar)
+- [ ] Historial de alertas resueltas
+
+### Automatización
+- [ ] Job automático de análisis predictivo diario
+- [ ] Notificaciones automáticas a responsables
+- [ ] Registro de alertas en base de datos
+- [ ] Métricas de efectividad de intervenciones
+
+
+## ✅ Sistema de Alertas Inteligentes con IA Completado (Checkpoint Pendiente)
+
+- [x] Tabla `intelligent_alerts` creada con campos JSON estructurados
+- [x] Router `intelligentAlerts` con análisis predictivo usando IA
+- [x] Función `detectCaseSurge`: Detecta aumentos >50% en casos
+- [x] Función `detectSatisfactionDrop`: Detecta satisfacción <3.5
+- [x] Función `detectPendingRecommendations`: Detecta recomendaciones >30 días
+- [x] Función `generateSuggestions`: Genera sugerencias con LLM y JSON schema
+- [x] Clasificación automática por severidad (crítica, alta, media, baja)
+- [x] Página `IntelligentAlertsDashboard.tsx` con visualizaciones completas
+- [x] 4 cards de KPIs (alertas activas, críticas, resueltas, tasa de resolución)
+- [x] Sección de alertas críticas destacadas
+- [x] Filtros por estado y severidad
+- [x] Modal de detalles con contexto JSON y sugerencias de IA
+- [x] Acciones: Marcar como resuelta, Descartar alerta
+- [x] Job automático `intelligent-alerts-job.ts` ejecutándose diariamente a las 2:00 AM
+- [x] Notificaciones automáticas a administradores sobre alertas críticas
+- [x] Ruta y navegación agregadas en App.tsx y DashboardLayout.tsx

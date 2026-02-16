@@ -3363,3 +3363,49 @@ export const trainingEvaluations = mysqlTable("training_evaluations", {
   
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+
+// Tabla de alertas inteligentes con IA
+export const intelligentAlerts = mysqlTable("intelligent_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Tipo de alerta
+  alertType: mysqlEnum("alert_type", [
+    "case_surge", // Aumento anormal de casos
+    "training_satisfaction_drop", // Caída en satisfacción de capacitaciones
+    "pending_recommendations", // Recomendaciones sin implementar
+    "department_risk", // Riesgo departamental
+    "compliance_issue", // Problema de cumplimiento
+    "other" // Otro
+  ]).notNull(),
+  
+  // Severidad de la alerta
+  severity: mysqlEnum("severity", ["critical", "high", "medium", "low"]).notNull(),
+  
+  // Información de la alerta
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  
+  // Contexto JSON con datos relevantes
+  context: json("context").notNull(), // { departmentId, caseCount, trend, etc. }
+  
+  // Sugerencias de intervención generadas por IA
+  suggestions: json("suggestions").notNull(), // Array de sugerencias
+  
+  // Estado de la alerta
+  status: mysqlEnum("status", ["active", "resolved", "dismissed"]).notNull().default("active"),
+  
+  // Responsable asignado
+  assignedTo: int("assigned_to").references(() => users.id),
+  
+  // Notas de resolución
+  resolutionNotes: text("resolution_notes"),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedBy: int("resolved_by").references(() => users.id),
+  
+  // Métricas de efectividad
+  effectivenessScore: int("effectiveness_score"), // 1-100
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});

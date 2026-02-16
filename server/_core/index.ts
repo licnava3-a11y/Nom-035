@@ -21,6 +21,7 @@ import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
 import { startCalculateRiskLevelJob } from "../jobs/calculate-risk-level-job";
 import { runRootCauseAnalysisJob } from "../jobs/root-cause-analysis-job";
 import { startTrainingRemindersJob } from "../jobs/training-reminders-job";
+import { runIntelligentAlertsJob } from "../jobs/intelligent-alerts-job";
 import { schedulePostCaseSurveysJob } from "../jobs/post-case-surveys-job";
 import { scheduleDepartmentalAlertsJob } from "../jobs/departmental-alerts-job";
 import { scheduleSurveyRemindersJob } from "../jobs/survey-reminders-job";
@@ -136,6 +137,14 @@ async function startServer() {
     startStaleCasesJob();
     startCalculateRiskLevelJob();
     startTrainingRemindersJob();
+
+    // Intelligent Alerts Job (daily at 2:00 AM)
+    setInterval(async () => {
+      const now = new Date();
+      if (now.getHours() === 2 && now.getMinutes() === 0) {
+        await runIntelligentAlertsJob();
+      }
+    }, 60000); // Check every minute
     schedulePostCaseSurveysJob();
     scheduleDepartmentalAlertsJob();
     scheduleSurveyRemindersJob();
