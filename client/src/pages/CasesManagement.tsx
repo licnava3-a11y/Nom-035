@@ -21,7 +21,7 @@ export default function CasesManagement() {
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newCase, setNewCase] = useState({
-    caseType: "harassment" as const,
+    caseType: "mobbing" as const,
     priority: "medium" as const,
     departmentId: "",
     reporterName: "",
@@ -36,10 +36,12 @@ export default function CasesManagement() {
   const { data: casesData, isLoading } = trpc.casesManagement.listCases.useQuery({
     page,
     pageSize: 20,
-    ...filters
-  });
+    status: filters.status || "all",
+    priority: filters.priority || "all",
+    departmentId: filters.departmentId ? parseInt(filters.departmentId) : undefined,
+  } as any);
 
-  const { data: departments } = trpc.departments.list.useQuery();
+  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
   const { data: stats } = trpc.casesManagement.getCasesStats.useQuery();
 
   // Mutations
@@ -48,7 +50,7 @@ export default function CasesManagement() {
       toast.success("Caso creado exitosamente");
       setIsCreateDialogOpen(false);
       setNewCase({
-        caseType: "harassment",
+        caseType: "mobbing",
         priority: "medium",
         departmentId: "",
         reporterName: "",
@@ -91,15 +93,20 @@ export default function CasesManagement() {
       return;
     }
 
-    createCase.mutate(newCase);
+    createCase.mutate({
+      ...newCase,
+      departmentId: parseInt(newCase.departmentId),
+    });
   };
 
   const handleAssignCase = (caseId: number) => {
-    assignCase.mutate({ caseId });
+    // TODO: Implementar selector de usuario para asignar
+    const assignedTo = 1; // Placeholder
+    assignCase.mutate({ caseId, assignedTo });
   };
 
   const handleUpdateStatus = (caseId: number, status: "open" | "investigating" | "resolved" | "closed") => {
-    updateCase.mutate({ caseId, status });
+    updateCase.mutate({ id: caseId, status });
   };
 
   const getPriorityColor = (priority: string) => {
@@ -222,7 +229,7 @@ export default function CasesManagement() {
                     <SelectValue placeholder="Selecciona un departamento" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments?.map((dept) => (
+                    {departments?.data?.map((dept: { id: number; name: string }) => (
                       <SelectItem key={dept.id} value={dept.id.toString()}>
                         {dept.name}
                       </SelectItem>
@@ -355,7 +362,7 @@ export default function CasesManagement() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Todos</SelectItem>
-              {departments?.map((dept) => (
+              {departments?.data?.map((dept: { id: number; name: string }) => (
                 <SelectItem key={dept.id} value={dept.id.toString()}>
                   {dept.name}
                 </SelectItem>
@@ -429,7 +436,7 @@ export default function CasesManagement() {
               ) : (
                 casesData?.cases.map((caso) => (
                   <tr key={caso.id} className="border-b hover:bg-muted/50">
-                    <td className="px-4 py-3 text-sm font-mono">{caso.folio}</td>
+                    <td className="px-4 py-3 text-sm font-mono">{caso.caseNumber}</td>
                     <td className="px-4 py-3 text-sm">{getCaseTypeLabel(caso.caseType)}</td>
                     <td className="px-4 py-3">
                       <Badge className={getPriorityColor(caso.priority)}>
@@ -441,7 +448,7 @@ export default function CasesManagement() {
                         {getStatusLabel(caso.status)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm">{caso.departmentName || "N/A"}</td>
+                    <td className="px-4 py-3 text-sm">{caso.departmentId || "N/A"}</td>
                     <td className="px-4 py-3 text-sm">{caso.reporterName}</td>
                     <td className="px-4 py-3 text-sm">
                       {new Date(caso.createdAt).toLocaleDateString()}
@@ -492,8 +499,7 @@ export default function CasesManagement() {
         {casesData && casesData.pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t">
             <div className="text-sm text-muted-foreground">
-              Página {page} de {casesData.pagination.totalPages} ({casesData.pagination.total} casos en total)
-            </div>
+           Página {casesData.pagination.page} de {casesData.pagination.totalPages} ({casesData.pagination.totalCount} casos)    </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"

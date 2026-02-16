@@ -574,3 +574,39 @@
 - [ ] Crear página ReportConfigurations.tsx con panel de configuración
 - [ ] Agregar ruta en App.tsx
 - [ ] Agregar navegación en menú de Administración
+
+## Nuevas Tareas - Correcciones TypeScript y Página NotificationsHistory
+
+### 1. Corregir Errores TypeScript en CasesManagement.tsx
+- [x] Agregar tipo explícito al parámetro 'dept' en línea 358
+- [x] Cambiar 'caso.folio' por 'caso.caseNumber' en línea 432
+- [x] Cambiar 'pagination.total' por 'pagination.totalCount' en línea 495
+- [x] Corregir acceso a 'departments.data' en lugar de 'departments'
+- [x] Cambiar 'caseType: "harassment"' por '"mobbing"'
+- [x] Agregar parsing de 'departmentId' a número en createCase
+- [x] Corregir parámetro 'caseId' por 'id' en updateCase
+- [x] Agregar 'assignedTo' requerido en assignCase
+- [x] Corregir filtros en listCases query
+
+### 2. Agregar Navegación en DashboardLayout
+- [x] Agregar enlace "Gestión de Casos Manuales" en sección Prevención de Riesgos Psicosociales
+- [x] Ruta configurada: /cases-management
+
+### 3. Implementar Página NotificationsHistory.tsx
+- [x] Crear página con tabla paginada de notificaciones
+- [x] Implementar filtros por tipo (12 tipos diferentes)
+- [x] Implementar filtro por estado (leído/no leído)
+- [x] Implementar búsqueda por texto en título/mensaje
+- [x] Implementar filtros por rango de fechas (desde/hasta)
+- [x] Agregar 3 cards de estadísticas (Total, No Leídas, Leídas)
+- [x] Implementar acciones: marcar como leída, eliminar
+- [x] Implementar acción masiva: marcar todas como leídas
+- [x] Agregar badges de colores por tipo de notificación
+- [x] Integrar con router notifications existente
+- [x] Actualizar import en App.tsx
+- [x] Ruta configurada: /notification-history
+
+### Estado Final
+- [x] 15 errores TypeScript corregidos (15 → 0 errores)
+- [x] Sistema compilando sin errores
+- [x] Todas las funcionalidades implementadas y operativas
