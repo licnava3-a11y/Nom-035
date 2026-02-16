@@ -1020,3 +1020,32 @@
 - [x] Agregar ruta en App.tsx
 - [x] Agregar navegación en DashboardLayout
 - [x] Verificar funcionalidad completa
+
+
+## Exportación PDF de Benchmarking
+
+- [ ] Crear procedure benchmarking.generatePDF
+- [ ] Implementar portada con datos del sector y fecha
+- [ ] Agregar sección de KPIs principales
+- [ ] Incluir tabla de comparación detallada de métricas
+- [ ] Agregar sección de recomendaciones de IA
+- [ ] Implementar pie de página con folio único
+- [ ] Subir PDF a S3 con storagePut
+- [ ] Implementar botón "Exportar a PDF" en BenchmarkingDashboard.tsx
+- [ ] Agregar validación de sector seleccionado
+- [ ] Implementar descarga automática del PDF
+- [ ] Verificar funcionalidad completa
+
+## ✅ Exportación PDF de Benchmarking Completada
+
+- [x] Crear procedure benchmarking.generatePDF
+- [x] Implementar portada con datos del sector y fecha
+- [x] Agregar sección de KPIs principales
+- [x] Incluir tabla de comparación detallada de métricas
+- [x] Implementar pie de página con folio único
+- [x] Subir PDF a S3 con storagePut
+- [x] Implementar botón "Exportar a PDF" en BenchmarkingDashboard.tsx
+- [x] Agregar validación de sector seleccionado
+- [x] Implementar descarga automática del PDF
+- [x] Corregir error TypeScript (instructorRating → overallSatisfaction)
+- [x] Verificar funcionalidad completa

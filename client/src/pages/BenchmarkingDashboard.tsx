@@ -64,6 +64,25 @@ export default function BenchmarkingDashboard() {
     generateRecommendationsMutation.mutate({ sectorId: selectedSectorId });
   };
 
+  const generatePDFMutation = trpc.benchmarking.generatePDF.useMutation({
+    onSuccess: (data) => {
+      // Descargar PDF automáticamente
+      window.open(data.url, "_blank");
+      toast.success(`PDF generado exitosamente. Folio: ${data.folio}`);
+    },
+    onError: (error) => {
+      toast.error(`Error al generar PDF: ${error.message}`);
+    },
+  });
+
+  const handleExportPDF = () => {
+    if (!selectedSectorId) {
+      toast.error("Selecciona un sector primero");
+      return;
+    }
+    generatePDFMutation.mutate({ sectorId: selectedSectorId });
+  };
+
   // Preparar datos para gráfico de radar
   const radarData = comparison
     ? {
@@ -129,10 +148,16 @@ export default function BenchmarkingDashboard() {
             Compara tus métricas de riesgos psicosociales con los promedios del sector
           </p>
         </div>
-        <Button onClick={handleGenerateRecommendations} disabled={!selectedSectorId || generateRecommendationsMutation.isPending}>
-          <Sparkles className="mr-2 h-4 w-4" />
-          {generateRecommendationsMutation.isPending ? "Generando..." : "Generar Recomendaciones con IA"}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleExportPDF} disabled={!selectedSectorId || generatePDFMutation.isPending} variant="outline">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            {generatePDFMutation.isPending ? "Generando PDF..." : "Exportar a PDF"}
+          </Button>
+          <Button onClick={handleGenerateRecommendations} disabled={!selectedSectorId || generateRecommendationsMutation.isPending}>
+            <Sparkles className="mr-2 h-4 w-4" />
+            {generateRecommendationsMutation.isPending ? "Generando..." : "Generar Recomendaciones con IA"}
+          </Button>
+        </div>
       </div>
 
       {/* Selector de Sector */}

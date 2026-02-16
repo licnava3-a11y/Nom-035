@@ -303,4 +303,150 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
         comparisons: comparison.comparisons,
       };
     }),
+
+  // Generar PDF del análisis de benchmarking
+  generatePDF: protectedProcedure
+    .input(z.object({ sectorId: z.number() }))
+    .mutation(async ({ input, ctx }: { input: { sectorId: number }; ctx: any }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
+
+      // Obtener datos del sector
+      const sector = await db.select().from(industrySectors).where(eq(industrySectors.id, input.sectorId)).limit(1);
+      if (!sector || sector.length === 0) throw new Error("Sector no encontrado");
+      const sectorName = sector[0].name;
+
+      // Obtener comparación completa (reutilizar lógica de getComparison)
+      const benchmarks = await db.select().from(sectorBenchmarks).where(eq(sectorBenchmarks.sectorId, input.sectorId));
+      const benchmarkMap: Record<string, number> = {};
+      benchmarks.forEach((b: any) => { benchmarkMap[b.metricName] = parseFloat(b.metricValue); });
+
+      const totalEmployees = await db.select({ count: sql<number>`COUNT(*)` }).from(users);
+      const employeeCount = Number(totalEmployees[0]?.count || 0);
+
+      const totalCases = await db.select({ count: sql<number>`COUNT(*)` }).from(workplaceViolenceCases);
+      const caseCount = Number(totalCases[0]?.count || 0);
+      const casesPerEmployee = employeeCount > 0 ? (caseCount / employeeCount) * 100 : 0;
+
+      const highRiskCases = await db.select({ count: sql<number>`COUNT(*)` }).from(surveyResults).where(sql`${surveyResults.riskLevel} IN ('high', 'very_high')`);
+      const highRiskCount = Number(highRiskCases[0]?.count || 0);
+      const highRiskPercentage = employeeCount > 0 ? (highRiskCount / employeeCount) * 100 : 0;
+
+      const avgResolutionDays = 15;
+
+      const avgSatisfaction = await db.select({ avg: sql<number>`AVG(${trainingEvaluations.overallSatisfaction})` }).from(trainingEvaluations);
+      const satisfactionScore = parseFloat((avgSatisfaction[0]?.avg || 0).toFixed(2));
+
+      const burnoutRate = 8.5;
+      const turnoverRate = 12.3;
+
+      const orgMetrics: Record<string, number> = {
+        "Casos por 100 empleados": casesPerEmployee,
+        "Porcentaje de alto riesgo": highRiskPercentage,
+        "Días promedio de resolución": avgResolutionDays,
+        "Satisfacción de capacitaciones": satisfactionScore,
+        "Tasa de burnout": burnoutRate,
+        "Tasa de rotación": turnoverRate,
+      };
+
+      const comparisons: any[] = [];
+      Object.keys(benchmarkMap).forEach((metricName) => {
+        const benchmarkValue = benchmarkMap[metricName];
+        const orgValue = orgMetrics[metricName] || 0;
+        const lowerIsBetter = ["Casos por 100 empleados", "Porcentaje de alto riesgo", "Días promedio de resolución", "Tasa de burnout", "Tasa de rotación"].includes(metricName);
+        let status = "equal";
+        if (lowerIsBetter) {
+          status = orgValue < benchmarkValue ? "better" : orgValue > benchmarkValue ? "worse" : "equal";
+        } else {
+          status = orgValue > benchmarkValue ? "better" : orgValue < benchmarkValue ? "worse" : "equal";
+        }
+        const difference = orgValue - benchmarkValue;
+        comparisons.push({ metricName, orgValue, benchmarkValue, difference, status });
+      });
+
+      const betterCount = comparisons.filter((c) => c.status === "better").length;
+      const worseCount = comparisons.filter((c) => c.status === "worse").length;
+      const totalMetrics = comparisons.length;
+      const performanceScore = parseFloat(((betterCount / totalMetrics) * 100).toFixed(2));
+
+      // Generar PDF con PDFKit
+      const PDFDocument = require("pdfkit");
+      const doc = new PDFDocument({ margin: 50 });
+      const chunks: Buffer[] = [];
+      doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+
+      // Portada
+      doc.fontSize(24).fillColor("#1e40af").text("Análisis de Benchmarking Sectorial", { align: "center" });
+      doc.moveDown(0.5);
+      doc.fontSize(16).fillColor("#374151").text(`Sector: ${sectorName}`, { align: "center" });
+      doc.moveDown(0.3);
+      doc.fontSize(12).fillColor("#6b7280").text(`Fecha de generación: ${new Date().toLocaleDateString("es-MX")}`, { align: "center" });
+      doc.moveDown(2);
+
+      // KPIs principales
+      doc.fontSize(18).fillColor("#1e40af").text("Resumen Ejecutivo", { underline: true });
+      doc.moveDown(0.5);
+      doc.fontSize(12).fillColor("#374151");
+      doc.text(`Total de métricas evaluadas: ${totalMetrics}`);
+      doc.text(`Métricas por encima del estándar: ${betterCount}`);
+      doc.text(`Métricas por debajo del estándar: ${worseCount}`);
+      doc.text(`Score de desempeño relativo: ${performanceScore}%`);
+      doc.moveDown(2);
+
+      // Tabla de comparación
+      doc.fontSize(18).fillColor("#1e40af").text("Comparación Detallada de Métricas", { underline: true });
+      doc.moveDown(0.5);
+      doc.fontSize(10).fillColor("#374151");
+
+      const tableTop = doc.y;
+      const colWidths = [180, 80, 80, 80, 80];
+      const headers = ["Métrica", "Organización", "Sector", "Diferencia", "Estado"];
+      
+      // Encabezados
+      let xPos = 50;
+      headers.forEach((header, i) => {
+        doc.rect(xPos, tableTop, colWidths[i], 20).fillAndStroke("#1e40af", "#1e40af");
+        doc.fillColor("#ffffff").text(header, xPos + 5, tableTop + 5, { width: colWidths[i] - 10 });
+        xPos += colWidths[i];
+      });
+
+      // Filas
+      let yPos = tableTop + 20;
+      comparisons.forEach((comp) => {
+        xPos = 50;
+        const rowData = [
+          comp.metricName,
+          comp.orgValue.toFixed(2),
+          comp.benchmarkValue.toFixed(2),
+          comp.difference.toFixed(2),
+          comp.status === "better" ? "✓ Mejor" : comp.status === "worse" ? "✗ Peor" : "= Igual",
+        ];
+        rowData.forEach((data, i) => {
+          doc.rect(xPos, yPos, colWidths[i], 20).stroke("#d1d5db");
+          doc.fillColor("#374151").text(data, xPos + 5, yPos + 5, { width: colWidths[i] - 10 });
+          xPos += colWidths[i];
+        });
+        yPos += 20;
+      });
+
+      doc.moveDown(3);
+
+      // Pie de página con folio
+      const folio = `BENCH-NOM035-${Date.now()}`;
+      doc.fontSize(8).fillColor("#9ca3af").text(`Folio: ${folio}`, 50, doc.page.height - 50, { align: "center" });
+
+      doc.end();
+
+      // Esperar a que termine de generar
+      const pdfBuffer = await new Promise<Buffer>((resolve) => {
+        doc.on("end", () => resolve(Buffer.concat(chunks)));
+      });
+
+      // Subir a S3
+      const { storagePut } = await import("../storage");
+      const fileName = `benchmarking-${sectorName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.pdf`;
+      const { url } = await storagePut(fileName, pdfBuffer, "application/pdf");
+
+      return { url, fileName, folio };
+    }),
 });
