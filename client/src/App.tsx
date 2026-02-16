@@ -20,6 +20,7 @@ const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
 const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
 const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
+const ConsolidatedDashboard = lazy(() => import("./pages/ConsolidatedDashboard"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Evaluations = lazy(() => import("./pages/Evaluations"));
 const TakeEvaluation = lazy(() => import("./pages/TakeEvaluation"));
@@ -219,6 +220,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <PostCaseSurveysDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/consolidated-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ConsolidatedDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

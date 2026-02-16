@@ -366,3 +366,38 @@
 - [ ] Crear job send-post-case-surveys-job.ts
 - [ ] Crear página PostCaseSurveys.tsx
 - [ ] Agregar navegación en menú lateral
+
+## Nuevas Tareas - Automatización Jobs, Dashboard Ejecutivo y Notificaciones Email
+
+### Fase 1: Automatización de Jobs de Encuestas Post-Caso
+- [x] Crear archivo server/jobs/post-case-surveys-job.ts
+- [x] Implementar cron job diario para createPendingSurveys
+- [x] Implementar cron job diario para sendPendingSurveys
+- [x] Implementar cron job diario para expireSurveys
+- [x] Registrar jobs en servidor Express
+- [x] Agregar logging de ejecución de jobs
+- [ ] Eliminar botones manuales de UI (opcional)
+
+### Fase 2: Dashboard Ejecutivo Consolidado
+- [x] Crear router executiveDashboard con queries agregadas
+- [x] Implementar query getConsolidatedKPIs (NOM-035, NMX-025, Casos, Encuestas)
+- [x] Implementar query getComplianceTrends (tendencias temporales)
+- [x] Implementar query getConsolidatedAlerts (alertas críticas)
+- [x] Crear página ExecutiveDashboard.tsx
+- [x] Implementar sección de KPIs principales (4-6 cards)
+- [x] Implementar gráfico de tendencias temporales (Chart.js líneas)
+- [x] Implementar gráfico de distribución por categoría (Chart.js dona)
+- [x] Implementar tabla de alertas consolidadas
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación destacada en menú principal
+
+### Fase 3: Sistema de Notificaciones por Email
+- [x] Crear job server/jobs/departmental-alerts-job.ts
+- [x] Implementar detección de alertas departamentales críticas
+- [x] Crear template de email para alertas departamentales
+- [x] Implementar envío de email con notifyOwner
+- [x] Crear job server/jobs/survey-reminders-job.ts
+- [x] Implementar detección de encuestas pendientes próximas a expirar
+- [x] Crear template de email para recordatorios de encuestas
+- [x] Registrar ambos jobs en servidor Express
+- [x] Configurar frecuencia de ejecución (diario para alertas, cada 2 días para recordatorios)

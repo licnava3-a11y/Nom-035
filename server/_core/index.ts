@@ -19,6 +19,9 @@ import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
 import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
 import { startCalculateRiskLevelJob } from "../jobs/calculate-risk-level-job";
+import { schedulePostCaseSurveysJob } from "../jobs/post-case-surveys-job";
+import { scheduleDepartmentalAlertsJob } from "../jobs/departmental-alerts-job";
+import { scheduleSurveyRemindersJob } from "../jobs/survey-reminders-job";
 import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
 import { runPredictiveAlertsJob } from "../jobs/predictiveAlertsJob";
 import { generateMonthlySnapshots } from "../jobs/autoSnapshotsJob";
@@ -130,6 +133,9 @@ async function startServer() {
     startCorrectiveActionsRemindersJob();
     startStaleCasesJob();
     startCalculateRiskLevelJob();
+    schedulePostCaseSurveysJob();
+    scheduleDepartmentalAlertsJob();
+    scheduleSurveyRemindersJob();
     
     // Schedule predictive alerts job (daily at 8:00 AM)
     setInterval(() => {

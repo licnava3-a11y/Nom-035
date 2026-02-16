@@ -45,6 +45,12 @@ const hierarchicalMenuItems = [
     roles: ["admin", "instructor", "student", "committee"],
   },
   {
+    icon: BarChart3,
+    label: "Dashboard Ejecutivo",
+    path: "/consolidated-dashboard",
+    roles: ["admin"],
+  },
+  {
     icon: Building2,
     label: "Empresa",
     path: "/company",
