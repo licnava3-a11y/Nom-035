@@ -29,7 +29,7 @@ export const users = mysqlTable("users", {
   sexo: mysqlEnum("sexo", ["Masculino", "Femenino", "Otro"]),
   estadoCivil: mysqlEnum("estadoCivil", ["Soltero(a)", "Casado(a)", "Divorciado(a)", "Viudo(a)", "Unión libre"]),
   puesto: varchar("puesto", { length: 255 }),
-  departamento: varchar("departamento", { length: 255 }),
+  departamento: varchar("departamento", { length: 255 }).notNull(),
   fechaIngreso: date("fechaIngreso"),
   tipoContrato: mysqlEnum("tipoContrato", ["Planta", "Temporal", "Por obra", "Honorarios", "Otro"]),
   jornadaLaboral: mysqlEnum("jornadaLaboral", ["Diurna", "Nocturna", "Mixta", "Por turnos"]),
@@ -939,7 +939,7 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   title: varchar("title", { length: 255 }), // Título de la acción
   description: text("description").notNull(),
   responsibleUserId: int("responsibleUserId"),
-  departamento: varchar("departamento", { length: 255 }),
+  departamento: varchar("departamento", { length: 255 }).notNull(),
   dueDate: date("dueDate"),
   priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium"), // Prioridad de la acción
   status: mysqlEnum("status", ["pendiente", "en_proceso", "completada", "cancelada"]).default("pendiente").notNull(),
@@ -1465,7 +1465,7 @@ export const companyDigitalSignature = mysqlTable("company_digital_signature", {
   userId: int("user_id").references(() => users.id), // Puede ser null si es firmante externo
   nombreFirmante: varchar("nombre_firmante", { length: 255 }).notNull(),
   cargo: varchar("cargo", { length: 255 }).notNull(),
-  departamento: varchar("departamento", { length: 255 }),
+  departamento: varchar("departamento", { length: 255 }).notNull(),
   firmaUrl: varchar("firma_url", { length: 512 }).notNull(), // Firma digitalizada
   firmaKey: varchar("firma_key", { length: 512 }).notNull(),
   certificadoUrl: varchar("certificado_url", { length: 512 }), // Certificado NOM-151
@@ -1568,7 +1568,7 @@ export const equalitySalaryGap = mysqlTable("equality_salary_gap", {
   id: int("id").autoincrement().primaryKey(),
   periodo: varchar("periodo", { length: 100 }).notNull(), // Ej: "2024-Q1"
   fechaCalculo: date("fecha_calculo").notNull(),
-  departamento: varchar("departamento", { length: 255 }),
+  departamento: varchar("departamento", { length: 255 }).notNull(),
   puesto: varchar("puesto", { length: 255 }),
   // Datos agregados por género
   totalMujeres: int("total_mujeres").notNull(),
@@ -1608,7 +1608,7 @@ export const equalityAffirmativeActions = mysqlTable("equality_affirmative_actio
   fechaInicio: date("fecha_inicio").notNull(),
   fechaFin: date("fecha_fin"),
   responsable: varchar("responsable", { length: 255 }).notNull(),
-  departamento: varchar("departamento", { length: 255 }),
+  departamento: varchar("departamento", { length: 255 }).notNull(),
   presupuesto: decimal("presupuesto", { precision: 10, scale: 2 }),
   estado: mysqlEnum("estado", ["planeada", "en_progreso", "completada", "cancelada"]).default("planeada").notNull(),
   resultadosEsperados: text("resultados_esperados"),

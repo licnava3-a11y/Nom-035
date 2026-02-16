@@ -366,7 +366,7 @@ export const importRouter = router({
             sexo: worker.sexo as "Masculino" | "Femenino" | "Otro",
             estadoCivil: worker.estadoCivil as "Soltero(a)" | "Casado(a)" | "Divorciado(a)" | "Viudo(a)" | "Unión libre" | undefined,
             puesto: worker.puesto,
-            departamento: worker.departamento,
+            departamento: worker.departamento || "Administración",
             fechaIngreso: hireDate,
             tipoContrato: worker.tipoContrato as "Planta" | "Temporal" | "Por obra" | "Honorarios" | "Otro",
             jornadaLaboral: worker.jornadaLaboral as "Diurna" | "Nocturna" | "Mixta" | "Por turnos",

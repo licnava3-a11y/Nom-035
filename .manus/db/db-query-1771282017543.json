@@ -1,0 +1,94 @@
+{
+  "query": "SELECT id, name, email, departamento, puesto FROM users WHERE departamento IS NULL OR departamento = '' OR departamento = 'Sin departamento' OR departamento = 'Comité NOM-035' ORDER BY departamento, name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, name, email, departamento, puesto FROM users WHERE departamento IS NULL OR departamento = '' OR departamento = 'Sin departamento' OR departamento = 'Comité NOM-035' ORDER BY departamento, name;",
+  "rows": [
+    {
+      "id": "3270003",
+      "name": "Administrativo Prueba",
+      "email": "administrativo.prueba@test.com",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3240004",
+      "name": "Ana López (Jefe de Área)",
+      "email": "jefe.area@empresa.mx",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3240001",
+      "name": "Carlos Mendoza (Director)",
+      "email": "director@empresa.mx",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3270004",
+      "name": "Committee Prueba",
+      "email": "committee.prueba@test.com",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3270001",
+      "name": "Gerente Prueba",
+      "email": "gerente.prueba@test.com",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3270002",
+      "name": "Instructor Prueba",
+      "email": "instructor.prueba@test.com",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3240003",
+      "name": "Juan Pérez (Supervisor)",
+      "email": "supervisor@empresa.mx",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3240005",
+      "name": "Laura Martínez (Recursos Humanos)",
+      "email": "rh@empresa.mx",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3240002",
+      "name": "María García (Responsable NOM-035)",
+      "email": "responsable.nom035@empresa.mx",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3240006",
+      "name": "Pedro Sánchez (Usuario Demo)",
+      "email": "demo@empresa.mx",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3270005",
+      "name": "Student Prueba",
+      "email": "student.prueba@test.com",
+      "departamento": "NULL",
+      "puesto": "NULL"
+    },
+    {
+      "id": "3300005",
+      "name": "Comité Test",
+      "email": "committee.test@example.com",
+      "departamento": "Comité NOM-035",
+      "puesto": "Miembro del Comité"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\tdepartamento\tpuesto\n3270003\tAdministrativo Prueba\tadministrativo.prueba@test.com\tNULL\tNULL\n3240004\tAna López (Jefe de Área)\tjefe.area@empresa.mx\tNULL\tNULL\n3240001\tCarlos Mendoza (Director)\tdirector@empresa.mx\tNULL\tNULL\n3270004\tCommittee Prueba\tcommittee.prueba@test.com\tNULL\tNULL\n3270001\tGerente Prueba\tgerente.prueba@test.com\tNULL\tNULL\n3270002\tInstructor Prueba\tinstructor.prueba@test.com\tNULL\tNULL\n3240003\tJuan Pérez (Supervisor)\tsupervisor@empresa.mx\tNULL\tNULL\n3240005\tLaura Martínez (Recursos Humanos)\trh@empresa.mx\tNULL\tNULL\n3240002\tMaría García (Responsable NOM-035)\tresponsable.nom035@empresa.mx\tNULL\tNULL\n3240006\tPedro Sánchez (Usuario Demo)\tdemo@empresa.mx\tNULL\tNULL\n3270005\tStudent Prueba\tstudent.prueba@test.com\tNULL\tNULL\n3300005\tComité Test\tcommittee.test@example.com\tComité NOM-035\tMiembro del Comité\n",
+  "stderr": "",
+  "execution_time_ms": 358
+}

@@ -1197,3 +1197,9 @@
 - [x] Implementar tooltips informativos en bandas de riesgo con recomendaciones
 - [ ] Implementar comparativa interanual (año actual vs año anterior)
 - [x] Implementar alertas automáticas por umbral de riesgo alto/muy alto
+
+- [x] Investigar trabajadores sin departamento en base de datos
+- [x] Modificar schema employees para hacer department obligatorio
+- [x] Excluir "Comité NOM-035" de departamentos válidos
+- [x] Agregar validación en formularios de registro/edición de empleados
+- [x] Limpiar datos existentes de trabajadores sin departamento

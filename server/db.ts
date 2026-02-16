@@ -62,6 +62,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
         email: user.email || "",
         loginMethod: user.loginMethod || "google",
         role: user.role || (user.openId === ENV.ownerOpenId ? "admin" : "student"),
+        departamento: "Administración", // Departamento por defecto
         lastSignedIn: user.lastSignedIn || new Date(),
       };
 
