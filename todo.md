@@ -1049,3 +1049,55 @@
 - [x] Implementar descarga automática del PDF
 - [x] Corregir error TypeScript (instructorRating → overallSatisfaction)
 - [x] Verificar funcionalidad completa
+
+## Módulo de Planes de Acción Correctiva Automatizados
+
+- [ ] Crear tabla corrective_action_plans con workflow completo
+- [ ] Crear tabla action_evidences para evidencias fotográficas
+- [ ] Crear router correctiveActions con CRUD completo
+- [ ] Implementar asignación automática de responsables según departamento
+- [ ] Implementar sistema de firma digital de cumplimiento
+- [ ] Implementar subida de evidencias a S3
+- [ ] Crear página CorrectiveActionsManagement.tsx con dashboard
+- [ ] Implementar formularios de creación/edición de planes
+- [ ] Implementar visualización de evidencias y firmas
+- [ ] Implementar job automático de recordatorios escalonados
+- [ ] Implementar alertas de planes vencidos
+- [ ] Agregar navegación en DashboardLayout
+- [ ] Verificar funcionalidad completa
+
+## ✅ Módulo de Planes de Acción Correctiva Automatizados - Completado
+
+### Backend
+- [x] Crear tabla corrective_action_plans con 20 campos y workflow completo
+- [x] Crear tabla action_evidences con 9 campos para evidencias fotográficas
+- [x] Crear router correctiveActionPlans con 10 procedures
+- [x] Implementar CRUD completo (list, getById, create, update, changeStatus)
+- [x] Implementar sistema de firma digital con roles responsible/verifier
+- [x] Implementar gestión de evidencias (uploadEvidence, deleteEvidence)
+- [x] Implementar asignación automática por workload (autoAssign)
+- [x] Implementar dashboard de métricas (getDashboard)
+- [x] Implementar planes próximos a vencer (getExpiringSoon)
+- [x] Registrar router en appRouter
+
+### Frontend
+- [x] Crear página CorrectiveActionPlansManagement.tsx con dashboard completo
+- [x] Implementar 4 cards de KPIs (total, vencidos, tasa de completitud, próximos a vencer)
+- [x] Implementar filtros por estado y prioridad
+- [x] Implementar lista de planes con badges de estado y prioridad
+- [x] Implementar dialog de creación de plan con todos los campos
+- [x] Implementar dialog de detalles con acciones contextuales según estado
+- [x] Implementar dialog de subida de evidencias (imágenes/PDF)
+- [x] Implementar dialog de firma digital (simulación con canvas)
+- [x] Implementar botón "Asignar Automáticamente" para planes en borrador
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación en DashboardLayout
+
+### Job Automático
+- [x] Crear job corrective-action-plans-reminders-job.ts
+- [x] Implementar detección de planes vencidos y envío de alertas
+- [x] Implementar detección de planes próximos a vencer (3 días)
+- [x] Implementar detección de planes en progreso sin actividad (7 días)
+- [x] Implementar resumen semanal a administradores (solo lunes)
+- [x] Registrar job en server startup (ejecución diaria a las 9:00 AM)
+

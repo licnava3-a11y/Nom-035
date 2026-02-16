@@ -3445,3 +3445,57 @@ export const sectorBenchmarks = mysqlTable("sector_benchmarks", {
   source: varchar("source", { length: 255 }), // e.g., "STPS", "IMSS", "Estudio Sectorial"
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
+
+
+// Planes de Acción Correctiva Automatizados
+export const correctiveActionPlans = mysqlTable("corrective_action_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  
+  // Origen del plan
+  originType: mysqlEnum("origin_type", ["root_cause_analysis", "intelligent_alert", "manual_case", "recommendation"]).notNull(),
+  originId: int("origin_id"), // ID del origen (rootCauseAnalysisId, intelligentAlertId, caseId, recommendationId)
+  
+  // Workflow
+  status: mysqlEnum("status", ["draft", "assigned", "in_progress", "completed", "verified", "closed"]).notNull().default("draft"),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).notNull().default("medium"),
+  
+  // Responsables
+  assignedTo: int("assigned_to").references(() => users.id), // Responsable principal
+  verifiedBy: int("verified_by").references(() => users.id), // Verificador
+  createdBy: int("created_by").notNull().references(() => users.id),
+  
+  // Fechas
+  dueDate: timestamp("due_date").notNull(),
+  completedAt: timestamp("completed_at"),
+  verifiedAt: timestamp("verified_at"),
+  closedAt: timestamp("closed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  
+  // Firmas digitales
+  responsibleSignature: text("responsible_signature"), // Firma del responsable
+  verifierSignature: text("verifier_signature"), // Firma del verificador
+  verificationCode: varchar("verification_code", { length: 100 }), // Código único para auditorías
+  
+  // Métricas de efectividad
+  effectivenessScore: int("effectiveness_score"), // 0-100
+  notes: text("notes"),
+});
+
+export const actionEvidences = mysqlTable("action_evidences", {
+  id: int("id").autoincrement().primaryKey(),
+  planId: int("plan_id").notNull().references(() => correctiveActionPlans.id, { onDelete: "cascade" }),
+  
+  // Evidencia
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: varchar("file_url", { length: 500 }).notNull(), // URL en S3
+  fileType: varchar("file_type", { length: 50 }).notNull(), // image/jpeg, application/pdf, etc.
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  
+  // Metadata
+  uploadedBy: int("uploaded_by").notNull().references(() => users.id),
+  uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
+});
