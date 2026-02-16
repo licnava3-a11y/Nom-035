@@ -504,3 +504,39 @@
 - [ ] Crear página NotificationsPanel.tsx con historial
 - [ ] Implementar botón "Marcar todas como leídas"
 - [ ] Agregar ruta /notifications en App.tsx
+
+
+## Nuevas Tareas - Selector Departamento, Historial Notificaciones y Reportes
+
+### Fase 1: Selector de Departamento en Creación de Casos
+- [ ] Actualizar mutation createCase para incluir departmentId
+- [ ] Agregar dropdown de departamentos en CaseForm.tsx
+- [ ] Validación de departmentId requerido
+- [ ] Manejo de errores y mensajes de validación
+
+### Fase 2: Página de Historial de Notificaciones
+- [ ] Crear página /notifications con tabla paginada
+- [ ] Implementar filtros por tipo de notificación
+- [ ] Implementar filtros por fecha (rango)
+- [ ] Implementar filtro por estado (leído/no leído)
+- [ ] Agregar búsqueda por texto en título/mensaje
+- [ ] Implementar acción "Marcar todas como leídas"
+- [ ] Implementar acción "Eliminar notificaciones antiguas" (>30 días)
+- [ ] Agregar paginación (20 notificaciones por página)
+- [ ] Agregar navegación en menú lateral
+- [ ] Agregar ruta en App.tsx
+
+### Fase 3: Sistema de Reportes Automatizados Personalizado
+- [ ] Crear tabla report_configurations en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear router reportConfigurations con CRUD
+- [ ] Implementar job executive-reports-job.ts configurable
+- [ ] Implementar generación de PDF con KPIs consolidados
+- [ ] Crear template HTML profesional para reporte ejecutivo
+- [ ] Integrar gráficos Chart.js → imagen
+- [ ] Implementar sistema de destinatarios múltiples
+- [ ] Crear página ReportConfigurationPanel.tsx
+- [ ] Agregar configuración de frecuencia (semanal/mensual/personalizado)
+- [ ] Agregar selector de métricas a incluir
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en menú de Administración

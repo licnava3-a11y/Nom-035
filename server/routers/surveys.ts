@@ -3,7 +3,7 @@ import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
-import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, surveyNotifications, users, cases } from "../../drizzle/schema";
+import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, surveyNotifications, users, cases, employees } from "../../drizzle/schema";
 import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
@@ -425,6 +425,12 @@ export const surveysRouter = router({
         // Crear caso automáticamente si se detecta ATS
         if (atsDetected) {
           const caseNumber = `ATS-${Date.now()}-${ctx.user!.id}`;
+          // Obtener departmentId del usuario si existe
+          const [userEmployee] = await db.select({ departmentId: employees.departmentId })
+            .from(employees)
+            .where(eq(employees.userId, ctx.user!.id))
+            .limit(1);
+          
           await db.insert(cases).values({
             caseNumber,
             reporterName: ctx.user!.name || 'Anónimo',
@@ -434,6 +440,7 @@ export const surveysRouter = router({
             description: `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${ctx.user!.name || ctx.user!.email}. Se requiere investigación y dictamen por parte del comité.`,
             status: 'open',
             priority: 'critical',
+            departmentId: userEmployee?.departmentId || null,
             createdAt: new Date(),
           });
         }
