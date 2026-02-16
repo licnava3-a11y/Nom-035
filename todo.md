@@ -1184,3 +1184,5 @@
 - [x] Agregar logo de empresa en portada de PDF
 - [x] Implementar compresión de archivos PDF para reducir tamaño
 - [x] Implementar caché de reportes generados para evitar regeneración
+
+- [x] Cambiar nombres de guías en gráfico Dashboard principal a nomenclatura abreviada (Guía I-ATS, Guía II-Identificación FRPS, Guía III-FRPS + EOF)

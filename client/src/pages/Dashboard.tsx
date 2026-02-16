@@ -141,7 +141,14 @@ export default function DashboardConsolidated() {
   } : null;
 
   const riskTrendChartData = metrics ? {
-    labels: metrics.nom035Compliance.riskTrend.map(r => r.surveyTitle),
+    labels: metrics.nom035Compliance.riskTrend.map(r => {
+      // Transformar nombres largos a nomenclatura abreviada
+      const title = r.surveyTitle;
+      if (title.includes('Acontecimientos Traumáticos') || title.includes('Guía I')) return 'Guía I-ATS';
+      if (title.includes('Identificación de Factores') || title.includes('Guía II')) return 'Guía II';
+      if (title.includes('Evaluación de Factores') || title.includes('Guía III')) return 'Guía III-FRPS + EOF';
+      return title; // Mantener título original si no coincide
+    }),
     datasets: [
       {
         label: 'Puntuación Promedio de Riesgo',
