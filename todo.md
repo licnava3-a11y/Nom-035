@@ -1158,3 +1158,17 @@
 - [x] Agregar filtros por canal, fecha, usuario
 - [x] Agregar navegación en DashboardLayout
 - [x] Implementar paginación en tabla de historial
+
+## Exportación de Historial de Reportes a Excel
+### Backend
+- [x] Crear procedure sharedReports.exportHistoryToExcel
+- [x] Implementar hoja "Historial Completo" con todos los registros filtrados
+- [x] Implementar hoja "Estadísticas por Canal" con conteos y porcentajes
+- [x] Implementar hoja "Estadísticas por Usuario" con top usuarios compartiendo
+- [x] Implementar hoja "Tendencias Temporales" con comparticiones por día/semana/mes
+- [x] Subir archivo Excel a S3 y retornar URL pública
+### Frontend
+- [x] Agregar botón "Exportar a Excel" en SharedReportsHistory.tsx
+- [x] Aplicar filtros actuales a la exportación
+- [x] Mostrar estado de carga durante generación
+- [x] Descargar automáticamente archivo generado

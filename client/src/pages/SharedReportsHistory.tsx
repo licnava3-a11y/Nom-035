@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { History, Mail, Linkedin, FileDown, FileSpreadsheet, Calendar, User, Filter } from "lucide-react";
+import { History, Mail, Linkedin, FileDown, FileSpreadsheet, Calendar, User, Filter, Download } from "lucide-react";
 
 export default function SharedReportsHistory() {
   const [shareChannel, setShareChannel] = useState<string>("all");
@@ -27,6 +27,26 @@ export default function SharedReportsHistory() {
   });
 
   const { data: stats } = trpc.sharedReports.getStats.useQuery();
+
+  const exportToExcelMutation = trpc.sharedReports.exportHistoryToExcel.useMutation({
+    onSuccess: (result) => {
+      // Descargar archivo automáticamente
+      window.open(result.url, "_blank");
+      alert(`Exportación exitosa\nHistorial exportado a ${result.fileName}`);
+    },
+    onError: (error) => {
+      alert(`Error al exportar\n${error.message}`);
+    },
+  });
+
+  const handleExportToExcel = () => {
+    exportToExcelMutation.mutate({
+      shareChannel: shareChannel === "all" ? undefined : (shareChannel as any),
+      reportType: reportType === "all" ? undefined : (reportType as any),
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+    });
+  };
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
@@ -89,6 +109,23 @@ export default function SharedReportsHistory() {
             Rastreo completo de reportes compartidos por canal, fecha y destinatarios
           </p>
         </div>
+        <Button
+          onClick={handleExportToExcel}
+          disabled={exportToExcelMutation.isPending}
+          className="flex items-center gap-2"
+        >
+          {exportToExcelMutation.isPending ? (
+            <>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              Generando...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Exportar a Excel
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Estadísticas */}
