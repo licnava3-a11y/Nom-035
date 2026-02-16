@@ -1242,3 +1242,39 @@
 - [x] Implementar registro automático en historial (departmentHistory)
 - [x] Configurar notificaciones automáticas por email a empleados afectados
 - [x] Crear dialog de reasignación masiva en DepartmentManagement.tsx
+
+## Nuevas Tareas - Funcionalidades Avanzadas de Gestión Organizacional
+
+### 1. Importación Masiva de Emplead### 1. Importación Masiva de Empleados
+- [x] Crear procedure employees.importFromFile
+- [x] Implementar parser de Excel/CSV (librería xlsx)
+- [x] Validar estructura del archivo (columnas requeridas)
+- [x] Implementar asignación automática de departamentos por nombre
+- [x] Crear lógica de validación de datos (emails únicos, campos obligatorios)
+- [x] Implementar manejo de errores y reporte de filas con problemas
+- [x] Crear UI de importación en página Employees.tsx
+- [x] Agregar botón "Importar Empleados" con upload de archivo
+- [x] Mostrar preview de datos antes de importar
+- [x] Implementar confirmación y progreso de importación
+- [x] Generar reporte de importación (exitosos, errores, duplicados)
+
+### 2. Reportes PDF de Estructura Organizacional
+- [x] Crear procedure reports.generateOrgStructurePDF
+- [x] Implementar generación de organigrama visual (librería pdfkit)
+- [x] Incluir estadísticas por departamento (empleados, manager, puestos)
+- [x] Agregar métricas de distribución organizacional
+- [x] Crear UI para seleccionar opciones de reporte
+- [x] Agregar filtros por departamento y nivel jerárquico
+- [x] Implementar botón "Generar Reporte PDF" en DepartmentManagement.tsx
+- [x] Validar datos antes de generar reporte
+- [x] Descarga automática de archivo PDF
+
+### 3. Alertas de Departamentos sin Responsable
+- [x] Crear job scheduled para detectar departamentos sin manager
+- [x] Implementar lógica de detección (managerId null y >30 días)
+- [x] Crear procedure departments.getDepartmentsWithoutManager (integrado en job)
+- [x] Implementar envío de notificaciones a administradores
+- [ ] Crear tabla de historial de alertas (opcional)
+- [x] Configurar frecuencia de ejecución del job (semanal)
+- [ ] Agregar panel de visualización de alertas en dashboard
+- [ ] Implementar acción rápida para asignar manager desde alerta

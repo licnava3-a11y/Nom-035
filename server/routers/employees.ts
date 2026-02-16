@@ -533,4 +533,127 @@ export const employeesRouter = router({
       const endDate = new Date(input.endDate);
       return await employeesDb.getTerminationsByDepartment(startDate, endDate);
     }),
+
+  // Importación masiva de empleados desde archivo Excel/CSV
+  importFromFile: protectedProcedure
+    .input(
+      z.object({
+        fileData: z.string(), // Base64 encoded file
+        fileName: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const xlsx = await import("xlsx");
+      const { getDb } = await import("../db");
+      const { departments } = await import("../../drizzle/schema");
+      const { eq, sql } = await import("drizzle-orm");
+
+      try {
+        // Decodificar archivo base64
+        const buffer = Buffer.from(input.fileData, "base64");
+        const workbook = xlsx.read(buffer, { type: "buffer" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const data = xlsx.utils.sheet_to_json(worksheet);
+
+        if (data.length === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "El archivo está vacío",
+          });
+        }
+
+        const db = await getDb();
+        const results = {
+          total: data.length,
+          successful: 0,
+          failed: 0,
+          errors: [] as Array<{ row: number; error: string; data: any }>,
+        };
+
+        // Obtener todos los departamentos para mapeo
+        // @ts-expect-error - getDb() siempre retorna instancia válida
+        const allDepartments = await db.select().from(departments);
+        const departmentMap = new Map(
+          allDepartments.map((d) => [d.name.toLowerCase(), d.id])
+        );
+
+        for (let i = 0; i < data.length; i++) {
+          const row: any = data[i];
+          const rowNumber = i + 2; // +2 porque Excel empieza en 1 y tiene header
+
+          try {
+            // Validar campos obligatorios
+            if (!row.firstName || !row.lastName || !row.email) {
+              throw new Error(
+                "Campos obligatorios faltantes: firstName, lastName, email"
+              );
+            }
+
+            // Validar email único
+            const existingEmployee = await employeesDb.getEmployeeByEmail(
+              row.email
+            );
+            if (existingEmployee) {
+              throw new Error(`Email duplicado: ${row.email}`);
+            }
+
+            // Asignar departamento automáticamente por nombre
+            let departmentId = null;
+            if (row.department) {
+              const deptId = departmentMap.get(row.department.toLowerCase());
+              if (deptId) {
+                departmentId = deptId;
+              } else {
+                // Departamento no encontrado, usar valor por defecto
+                console.warn(
+                  `Departamento no encontrado: ${row.department}, usando null`
+                );
+              }
+            }
+
+            // Crear empleado
+            await employeesDb.createEmployee({
+              firstName: row.firstName,
+              lastName: row.lastName,
+              email: row.email,
+              phone: row.phone || null,
+              departmentId: departmentId,
+              position: row.position || null,
+              hireDate: row.hireDate ? new Date(row.hireDate) : new Date(),
+              gender: row.gender || null,
+              birthDate: row.birthDate ? new Date(row.birthDate) : null,
+              curp: row.curp || null,
+              rfc: row.rfc || null,
+              nss: row.nss || null,
+              address: row.address || null,
+              city: row.city || null,
+              state: row.state || null,
+              postalCode: row.postalCode || null,
+              emergencyContactName: row.emergencyContactName || null,
+              emergencyContactPhone: row.emergencyContactPhone || null,
+              maritalStatus: row.maritalStatus || null,
+              educationLevel: row.educationLevel || null,
+              isActive: true,
+            });
+
+            results.successful++;
+          } catch (error: any) {
+            results.failed++;
+            results.errors.push({
+              row: rowNumber,
+              error: error.message,
+              data: row,
+            });
+          }
+        }
+
+        return results;
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Error al procesar archivo: ${error.message}`,
+        });
+      }
+    }),
 });

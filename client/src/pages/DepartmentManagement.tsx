@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash2, Users, AlertCircle, UserCog } from "lucide-react";
+import { Plus, Edit, Trash2, Users, AlertCircle, UserCog, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function DepartmentManagement() {
@@ -35,6 +35,7 @@ export default function DepartmentManagement() {
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
   const [reassignReason, setReassignReason] = useState("");
   const [targetDepartmentId, setTargetDepartmentId] = useState<number | "">("");
+  const [includeInactive, setIncludeInactive] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -84,6 +85,21 @@ export default function DepartmentManagement() {
     { page: 1, pageSize: 1000 },
     { enabled: isReassignDialogOpen }
   );
+
+  // Mutation para generar reporte PDF
+  const generateReportMutation = trpc.reports.generateOrgStructurePDF.useMutation({
+    onSuccess: (result) => {
+      // Descargar PDF
+      const link = document.createElement("a");
+      link.href = `data:application/pdf;base64,${result.data}`;
+      link.download = result.filename;
+      link.click();
+      alert(`Reporte generado exitosamente: ${result.totalDepartments} departamentos, ${result.totalEmployees} empleados`);
+    },
+    onError: (error: any) => {
+      alert(`Error al generar reporte: ${error.message}`);
+    },
+  });
 
   // Mutation para reasignación masiva
   const bulkReassignMutation = trpc.departments.bulkReassign.useMutation({
@@ -223,27 +239,32 @@ export default function DepartmentManagement() {
                 className="max-w-md"
               />
             </div>
-            <Button
-              onClick={() => {
-                resetForm();
-                setIsCreateDialogOpen(true);
-              }}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo Departamento
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSelectedEmployees([]);
-                setTargetDepartmentId("");
-                setReassignReason("");
-                setIsReassignDialogOpen(true);
-              }}
-            >
-              <UserCog className="mr-2 h-4 w-4" />
-              Reasignación Masiva
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsReassignDialogOpen(true)}
+              >
+                <UserCog className="mr-2 h-4 w-4" />
+                Reasignación Masiva
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => generateReportMutation.mutate({ includeInactive })}
+                disabled={generateReportMutation.isPending}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                {generateReportMutation.isPending ? "Generando..." : "Generar Reporte PDF"}
+              </Button>
+              <Button
+                onClick={() => {
+                  resetForm();
+                  setIsCreateDialogOpen(true);
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo Departamento
+              </Button>
+            </div>
           </div>
         </CardHeader>
       </Card>

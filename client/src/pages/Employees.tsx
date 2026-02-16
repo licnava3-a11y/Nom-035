@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -13,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, User, Mail, Phone, Building, Briefcase, Calendar } from "lucide-react";
+import { Plus, Search, User, Mail, Phone, Building, Briefcase, Calendar, Upload } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +34,9 @@ export default function Employees() {
   const [search, setSearch] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState<string | undefined>();
   const [statusFilter, setStatusFilter] = useState<boolean | undefined>(true);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importResult, setImportResult] = useState<any>(null);
 
   // Fetch employees with filters
   const { data: employees, isLoading, refetch } = trpc.employees.list.useQuery({
@@ -38,6 +49,56 @@ export default function Employees() {
   const { data: departments } = trpc.employees.getDepartments.useQuery();
 
   const utils = trpc.useUtils();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImportFile(file);
+      setImportResult(null);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!importFile) {
+      alert("Por favor seleccione un archivo");
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result as string;
+        const fileData = base64.split(",")[1]; // Remove data:*/*;base64, prefix
+
+        importMutation.mutate({
+          fileData,
+          fileName: importFile.name,
+        });
+      };
+      reader.readAsDataURL(importFile);
+    } catch (error: any) {
+      alert(`Error al leer archivo: ${error.message}`);
+    }
+  };
+
+  // Import employees mutation
+  const importMutation = trpc.employees.importFromFile.useMutation({
+    onSuccess: (result) => {
+      setImportResult(result);
+      refetch();
+      toast({
+        title: "Importación completada",
+        description: `${result.successful} empleados importados exitosamente. ${result.failed} errores.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error en importación",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   // Deactivate employee mutation with optimistic update
   const deactivateMutation = trpc.employees.deactivate.useMutation({
@@ -150,16 +211,25 @@ export default function Employees() {
             Gestiona la información de todos los empleados de la organización
           </p>
         </div>
-        <Link href="/employees/new">
-          <ProtectedButton
-            requiredPermission="can_create"
-            fallbackMessage="Solo los administradores pueden agregar trabajadores"
-            hideIfNoPermission
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsImportDialogOpen(true)}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Agregar Trabajador
-          </ProtectedButton>
-        </Link>
+            <Upload className="mr-2 h-4 w-4" />
+            Importar Empleados
+          </Button>
+          <Link href="/employees/new">
+            <ProtectedButton
+              requiredPermission="can_create"
+              fallbackMessage="Solo los administradores pueden agregar trabajadores"
+              hideIfNoPermission
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Agregar Trabajador
+            </ProtectedButton>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -369,6 +439,89 @@ export default function Employees() {
           ))}
         </div>
       )}
+
+      {/* Dialog de Importación */}
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Importar Empleados desde Excel/CSV</DialogTitle>
+            <DialogDescription>
+              Sube un archivo Excel o CSV con la información de los empleados. El archivo debe contener las siguientes columnas:
+              firstName, lastName, email, phone, department, position, hireDate, gender, birthDate, curp, rfc, nss, address, city, state, postalCode
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Input
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={handleFileChange}
+              />
+              {importFile && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Archivo seleccionado: {importFile.name}
+                </p>
+              )}
+            </div>
+
+            {importResult && (
+              <div className="border rounded-lg p-4 space-y-2">
+                <h4 className="font-semibold">Resultado de la Importación</h4>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Total</p>
+                    <p className="text-2xl font-bold">{importResult.total}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Exitosos</p>
+                    <p className="text-2xl font-bold text-green-600">{importResult.successful}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Errores</p>
+                    <p className="text-2xl font-bold text-red-600">{importResult.failed}</p>
+                  </div>
+                </div>
+
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div className="mt-4">
+                    <h5 className="font-semibold text-sm mb-2">Errores Detectados:</h5>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {importResult.errors.slice(0, 10).map((err: any, idx: number) => (
+                        <div key={idx} className="text-xs bg-red-50 p-2 rounded">
+                          <span className="font-semibold">Fila {err.row}:</span> {err.error}
+                        </div>
+                      ))}
+                      {importResult.errors.length > 10 && (
+                        <p className="text-xs text-muted-foreground">...y {importResult.errors.length - 10} errores más</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsImportDialogOpen(false);
+                setImportFile(null);
+                setImportResult(null);
+              }}
+            >
+              Cerrar
+            </Button>
+            <Button
+              onClick={handleImport}
+              disabled={!importFile || importMutation.isPending}
+            >
+              {importMutation.isPending ? "Importando..." : "Importar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

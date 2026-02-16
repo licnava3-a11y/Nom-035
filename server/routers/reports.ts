@@ -375,4 +375,238 @@ export const reportsRouter = router({
         totalCases: Number(metrics.totalCases || 0),
       };
     }),
+
+  // Generar reporte PDF de estructura organizacional
+  generateOrgStructurePDF: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().optional(),
+        includeInactive: z.boolean().default(false),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const PDFDocument = (await import("pdfkit")).default;
+      const { getDb } = await import("../db");
+      const { departments, users } = await import("../../drizzle/schema");
+      const { eq, and, isNull } = await import("drizzle-orm");
+
+      try {
+        const db = await getDb();
+
+        // Obtener departamentos con contador de empleados
+        // @ts-expect-error - getDb() siempre retorna instancia válida
+        const allDepartments = await db
+          .select({
+            id: departments.id,
+            name: departments.name,
+            code: departments.code,
+            managerId: departments.managerId,
+            description: departments.description,
+          })
+          .from(departments)
+          .where(eq(departments.isActive, true));
+
+        // Obtener empleados por departamento
+        const employeesByDept = new Map<number, number>();
+        const managersByDept = new Map<number, string>();
+
+        for (const dept of allDepartments) {
+          // @ts-expect-error - getDb() siempre retorna instancia válida
+          const employees = await db
+            .select()
+            .from(users)
+            .where(
+              and(
+                eq(users.departmentId, dept.id),
+                input.includeInactive ? undefined : eq(users.isActive, true)
+              )
+            );
+
+          employeesByDept.set(dept.id, employees.length);
+
+          // Obtener nombre del manager
+          if (dept.managerId) {
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const manager = await db
+              .select()
+              .from(users)
+              .where(eq(users.id, dept.managerId))
+              .limit(1);
+
+            if (manager[0]) {
+              managersByDept.set(
+                dept.id,
+                `${manager[0].firstName} ${manager[0].lastName}`
+              );
+            }
+          }
+        }
+
+        // Crear documento PDF
+        const doc = new PDFDocument({ size: "letter", margin: 50 });
+        const chunks: Buffer[] = [];
+        doc.on("data", (chunk) => chunks.push(chunk));
+
+        // Título
+        doc
+          .fontSize(20)
+          .font("Helvetica-Bold")
+          .text("Reporte de Estructura Organizacional", { align: "center" });
+        doc.moveDown();
+        doc
+          .fontSize(12)
+          .font("Helvetica")
+          .text(`Fecha: ${new Date().toLocaleDateString("es-MX")}`, {
+            align: "center",
+          });
+        doc.moveDown(2);
+
+        // Estadísticas generales
+        doc.fontSize(14).font("Helvetica-Bold").text("Estadísticas Generales");
+        doc.moveDown();
+
+        const totalEmployees = Array.from(employeesByDept.values()).reduce(
+          (a, b) => a + b,
+          0
+        );
+        const deptsWithManager = Array.from(managersByDept.keys()).length;
+        const deptsWithoutManager = allDepartments.length - deptsWithManager;
+
+        doc
+          .fontSize(11)
+          .font("Helvetica")
+          .text(`Total de Departamentos: ${allDepartments.length}`);
+        doc.text(`Total de Empleados: ${totalEmployees}`);
+        doc.text(`Departamentos con Manager: ${deptsWithManager}`);
+        doc.text(`Departamentos sin Manager: ${deptsWithoutManager}`);
+        doc.moveDown(2);
+
+        // Tabla de departamentos
+        doc
+          .fontSize(14)
+          .font("Helvetica-Bold")
+          .text("Detalle por Departamento");
+        doc.moveDown();
+
+        // Header de tabla
+        const tableTop = doc.y;
+        const col1X = 50;
+        const col2X = 200;
+        const col3X = 350;
+        const col4X = 450;
+
+        doc
+          .fontSize(10)
+          .font("Helvetica-Bold")
+          .text("Departamento", col1X, tableTop)
+          .text("Código", col2X, tableTop)
+          .text("Manager", col3X, tableTop)
+          .text("Empleados", col4X, tableTop);
+
+        doc.moveDown();
+        let currentY = doc.y;
+
+        // Filas de tabla
+        for (const dept of allDepartments) {
+          if (currentY > 700) {
+            // Nueva página si se excede el espacio
+            doc.addPage();
+            currentY = 50;
+          }
+
+          doc
+            .fontSize(9)
+            .font("Helvetica")
+            .text(dept.name.substring(0, 25), col1X, currentY)
+            .text(dept.code || "N/A", col2X, currentY)
+            .text(
+              managersByDept.get(dept.id)?.substring(0, 15) || "Sin asignar",
+              col3X,
+              currentY
+            )
+            .text(employeesByDept.get(dept.id) || 0, col4X, currentY);
+
+          currentY += 20;
+          doc.y = currentY;
+        }
+
+        // Organigrama simple (solo departamentos principales)
+        doc.addPage();
+        doc
+          .fontSize(14)
+          .font("Helvetica-Bold")
+          .text("Organigrama de Departamentos", { align: "center" });
+        doc.moveDown(2);
+
+        let orgY = doc.y;
+        let orgX = 50;
+        const boxWidth = 150;
+        const boxHeight = 40;
+        const spacing = 20;
+
+        for (let i = 0; i < allDepartments.length; i++) {
+          const dept = allDepartments[i];
+
+          if (orgY > 700) {
+            doc.addPage();
+            orgY = 50;
+            orgX = 50;
+          }
+
+          // Dibujar caja de departamento
+          doc.rect(orgX, orgY, boxWidth, boxHeight).stroke();
+
+          // Texto del departamento
+          doc
+            .fontSize(9)
+            .font("Helvetica-Bold")
+            .text(dept.name.substring(0, 20), orgX + 5, orgY + 10, {
+              width: boxWidth - 10,
+              align: "center",
+            });
+
+          doc
+            .fontSize(8)
+            .font("Helvetica")
+            .text(
+              managersByDept.get(dept.id) || "Sin manager",
+              orgX + 5,
+              orgY + 25,
+              { width: boxWidth - 10, align: "center" }
+            );
+
+          // Posicionar siguiente caja
+          if ((i + 1) % 3 === 0) {
+            // Nueva fila cada 3 departamentos
+            orgY += boxHeight + spacing;
+            orgX = 50;
+          } else {
+            orgX += boxWidth + spacing;
+          }
+        }
+
+        doc.end();
+
+        // Convertir a base64
+        const pdfBuffer = await new Promise<Buffer>((resolve) => {
+          doc.on("end", () => resolve(Buffer.concat(chunks)));
+        });
+
+        const base64 = pdfBuffer.toString("base64");
+        const filename = `estructura-organizacional-${new Date().toISOString().split("T")[0]}.pdf`;
+
+        return {
+          success: true,
+          data: base64,
+          filename,
+          totalDepartments: allDepartments.length,
+          totalEmployees,
+        };
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Error al generar reporte: ${error.message}`,
+        });
+      }
+    }),
 });
