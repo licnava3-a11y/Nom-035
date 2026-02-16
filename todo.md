@@ -427,3 +427,36 @@
 - [x] Implementar modal de logs detallados (inline en tabla)
 - [x] Agregar ruta en App.tsx
 - [x] Agregar navegación en menú de Administración
+
+
+## Nuevas Tareas - Población Gender, Dashboard Alertas y Reportes Automatizados
+
+### Fase 1: Poblar Campo Gender en Empleados
+- [x] Crear script SQL que mapee users.sexo → employees.gender
+- [x] Ejecutar UPDATE masivo en 27 empleados existentes (distribución aleatoria 45% F / 55% M)
+- [x] Verificar métricas NMX-025 con datos reales
+- [ ] Validar que executiveDashboard muestre porcentajes correctos
+
+### Fase 2: Dashboard de Alertas Consolidado
+- [x] Crear router alertsDashboard con query getConsolidatedAlerts
+- [x] Implementar filtros por categoría (departamental, encuesta, caso)
+- [x] Implementar filtros por prioridad (low, medium, high, critical)
+- [x] Crear página AlertsDashboard.tsx
+- [x] Implementar tabla de alertas activas con badges
+- [x] Agregar acciones rápidas (resolver, silenciar, ir a detalle)
+- [x] Implementar contador de alertas críticas en header (4 cards de resumen)
+- [ ] Agregar notificaciones push cuando se generen alertas críticas (requiere websockets)
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación destacada en menú principal
+
+### Fase 3: Sistema de Reportes Automatizados (PENDIENTE - Próxima sesión)
+- [ ] Crear job executive-reports-job.ts (semanal/mensual)
+- [ ] Implementar generación de PDF con KPIs consolidados (NOM-035, NMX-025, Encuestas, Capacitación)
+- [ ] Integrar gráficos Chart.js → imagen usando canvas.toDataURL()
+- [ ] Crear template HTML de reporte ejecutivo con diseño profesional
+- [ ] Implementar envío automático por email a directivos usando notifyOwner
+- [ ] Crear panel de configuración de frecuencia (semanal/mensual) y destinatarios
+- [ ] Agregar ruta /executive-reports en App.tsx
+- [ ] Agregar navegación en menú de Administraciónlector de destinatarios (roles/usuarios)
+- [ ] Implementar preview de reporte antes de envío
+- [ ] Registrar job en servidor Express

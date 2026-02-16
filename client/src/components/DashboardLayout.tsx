@@ -34,7 +34,7 @@ import { MenuBadge } from "./MenuBadge";
 import { LanguageSelector } from "./LanguageSelector";
 import { trpc } from "@/lib/trpc";
 
-import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart, Bell } from "lucide-react";
 
 // Nueva arquitectura jerárquica optimizada con 9 menús principales
 const hierarchicalMenuItems = [
@@ -48,6 +48,12 @@ const hierarchicalMenuItems = [
     icon: BarChart3,
     label: "Dashboard Ejecutivo",
     path: "/consolidated-dashboard",
+    roles: ["admin"],
+  },
+  {
+    icon: Bell,
+    label: "Alertas",
+    path: "/alerts-dashboard",
     roles: ["admin"],
   },
   {

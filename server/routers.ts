@@ -54,6 +54,7 @@ import { nmx025EvidencesFolder } from "./routers/nmx025EvidencesFolder";
 import { departmentalTrendsRouter } from "./routers/departmentalTrends";
 import { postCaseSurveysRouter } from "./routers/postCaseSurveys";
 import { jobMonitoringRouter } from "./routers/jobMonitoring";
+import { alertsDashboardRouter } from "./routers/alertsDashboard";
 import { smtpConfigRouter } from "./routers/smtpConfig";
 import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
@@ -1305,6 +1306,7 @@ export const appRouter = router({
   departmentalTrends: departmentalTrendsRouter,
   postCaseSurveys: postCaseSurveysRouter,
   jobMonitoring: jobMonitoringRouter,
+  alertsDashboard: alertsDashboardRouter,
 
   // Survey Anonymous Tokens (NOM-035 anonymous access)
   surveyAnonymousTokens: surveyAnonymousTokensRouter,

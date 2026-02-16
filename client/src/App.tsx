@@ -21,6 +21,7 @@ const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder")
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
 const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
+const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
 const ConsolidatedDashboard = lazy(() => import("./pages/ConsolidatedDashboard"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Evaluations = lazy(() => import("./pages/Evaluations"));
@@ -228,6 +229,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <JobMonitoringDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alerts-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertsDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
