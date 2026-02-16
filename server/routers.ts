@@ -96,6 +96,7 @@ import { trainingROIRouter } from "./routers/trainingROI";
 import { benchmarkingRouter } from "./routers/benchmarking";
 import { correctiveActionPlansRouter } from "./routers/correctiveActionPlans";
 import { interventionImpactRouter } from "./routers/interventionImpact";
+import { sharedReportsRouter } from "./routers/sharedReports";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -194,6 +195,7 @@ export const appRouter = router({
   benchmarking: benchmarkingRouter,
   correctiveActionPlans: correctiveActionPlansRouter,
   interventionImpact: interventionImpactRouter,
+  sharedReports: sharedReportsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

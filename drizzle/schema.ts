@@ -3546,3 +3546,47 @@ export const interventionImpactAnalysis = mysqlTable("intervention_impact_analys
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
+
+/**
+ * Historial de reportes compartidos
+ * Registra quién compartió qué reporte, cuándo, a través de qué canal y a quién
+ */
+export const sharedReportsLog = mysqlTable("shared_reports_log", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Información del reporte
+  reportUrl: text("report_url").notNull(),
+  reportType: mysqlEnum("report_type", ["pdf", "excel"]).notNull(),
+  reportCategory: varchar("report_category", { length: 100 }).notNull(), // 'intervention_impact', 'executive_dashboard', etc.
+  
+  // Canal de compartición
+  shareChannel: mysqlEnum("share_channel", ["email", "linkedin", "twitter", "whatsapp", "other"]).notNull(),
+  
+  // Destinatarios (para email)
+  recipients: json("recipients").$type<string[]>(), // Array de emails
+  recipientCount: int("recipient_count").default(0),
+  
+  // Metadata del email (si aplica)
+  emailSubject: text("email_subject"),
+  emailMessage: text("email_message"),
+  
+  // Usuario que compartió
+  sharedBy: int("shared_by").notNull(),
+  sharedByName: varchar("shared_by_name", { length: 255 }),
+  sharedByEmail: varchar("shared_by_email", { length: 320 }),
+  
+  // Filtros aplicados al reporte (JSON)
+  appliedFilters: json("applied_filters").$type<{
+    status?: string;
+    interventionType?: string;
+    dateRange?: { start: string; end: string };
+    department?: string;
+    [key: string]: any;
+  }>(),
+  
+  // Métricas de engagement (futuro)
+  viewCount: int("view_count").default(0),
+  downloadCount: int("download_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});

@@ -242,7 +242,7 @@
 ### Fase 2: Sistema de Encuestas Post-Caso
 - [ ] Crear tabla postCaseSurveys en schema
 - [ ] Crear tabla postCaseSurveyResponses en schema
-- [ ] Generar y aplicar migración SQL
+- [x] Generar y aplicar migración SQL
 - [ ] Crear job post-case-surveys-job.ts
 - [ ] Implementar lógica de envío automático (30/60/90 días)
 - [ ] Crear router postCaseSurveys
@@ -359,7 +359,7 @@
 - [x] Agregar ruta en App.tsx
 - [x] Agregar navegación en menú laterals Post-Caso (Pendiente)
 - [ ] Crear tabla post_case_surveys en schema
-- [ ] Generar y aplicar migración SQL
+- [x] Generar y aplicar migración SQL
 - [ ] Crear router postCaseSurveys
 - [ ] Implementar query getSurveysByCase
 - [ ] Implementar mutation submitSurvey
@@ -528,7 +528,7 @@
 
 ### Fase 3: Sistema de Reportes Automatizados Personalizado
 - [ ] Crear tabla report_configurations en schema
-- [ ] Generar y aplicar migración SQL
+- [x] Generar y aplicar migración SQL
 - [ ] Crear router reportConfigurations con CRUD
 - [ ] Implementar job executive-reports-job.ts configurable
 - [ ] Implementar generación de PDF con KPIs consolidados
@@ -565,7 +565,7 @@
 
 ### Fase 3: Sistema de Reportes Automatizados
 - [ ] Crear tabla report_configurations en schema
-- [ ] Generar y aplicar migración SQL
+- [x] Generar y aplicar migración SQL
 - [ ] Crear job executive-reports-job.ts configurable
 - [ ] Implementar generación PDF con KPIs consolidados
 - [ ] Crear templates HTML profesionales
@@ -648,7 +648,7 @@
 - [ ] Implementar botón "Analizar Ahora" para ejecutar análisis manual
 - [ ] Agregar sección de insights departamentales expandibles
 - [ ] Agregar ruta /root-cause-analysis en App.tsx
-- [ ] Agregar navegación en DashboardLayout (Prevención de Riesgos > Análisis de Causas Raíz)
+- [x] Agregar navegación en DashboardLayout (Prevención de Riesgos > Análisis de Causas Raíz)
 
 ### 5. Implementar Job Automático de Análisis Periódico
 - [ ] Crear job root-cause-analysis-job.ts
@@ -774,7 +774,7 @@
 - [ ] Gráfico de progreso por tipo de capacitación
 - [ ] Alertas de renovaciones próximas
 - [ ] Agregar rutas en App.tsx
-- [ ] Agregar navegación en DashboardLayout
+- [x] Agregar navegación en DashboardLayout
 
 ### 5. Implementar Job Automático de Recordatorios
 - [ ] Crear job training-reminders-job.ts
@@ -998,7 +998,7 @@
 - [ ] Implementar indicadores de posicionamiento relativo
 - [ ] Implementar análisis de brechas con IA
 - [ ] Generar recomendaciones basadas en mejores prácticas del sector
-- [ ] Agregar navegación en DashboardLayout
+- [x] Agregar navegación en DashboardLayout
 - [ ] Agregar ruta en App.tsx
 - [ ] Sistema compilando sin errores TypeScript
 
@@ -1063,7 +1063,7 @@
 - [ ] Implementar visualización de evidencias y firmas
 - [ ] Implementar job automático de recordatorios escalonados
 - [ ] Implementar alertas de planes vencidos
-- [ ] Agregar navegación en DashboardLayout
+- [x] Agregar navegación en DashboardLayout
 - [ ] Verificar funcionalidad completa
 
 ## ✅ Módulo de Planes de Acción Correctiva Automatizados - Completado
@@ -1119,7 +1119,7 @@
 - [ ] Implementar tabla comparativa antes/después
 - [ ] Implementar ranking de intervenciones más efectivas
 - [ ] Agregar ruta en App.tsx
-- [ ] Agregar navegación en DashboardLayout
+- [x] Agregar navegación en DashboardLayout
 
 
 ## Exportación PDF/Excel Dashboard de Análisis de Impacto
@@ -1143,3 +1143,18 @@
 - [ ] Implementar integración con LinkedIn Share API
 - [ ] Implementar integración con Twitter/X Share API
 - [ ] Agregar preview de mensaje antes de compartir
+
+## Historial de Reportes Compartidos
+### Backend
+- [x] Crear tabla shared_reports_log en schema (canal, destinatarios, fecha, usuario)
+- [x] Generar y aplicar migración SQL
+- [x] Crear router sharedReports con procedures de consulta
+- [x] Modificar shareReportByEmail para registrar en log
+- [x] Agregar logging para compartir en LinkedIn
+- [x] Agregar logging para compartir en Twitter/X
+### Frontend
+- [x] Crear página SharedReportsHistory.tsx
+- [x] Implementar tabla con columnas: fecha, usuario, canal, destinatarios, tipo reporte
+- [x] Agregar filtros por canal, fecha, usuario
+- [x] Agregar navegación en DashboardLayout
+- [x] Implementar paginación en tabla de historial

@@ -172,6 +172,7 @@ const hierarchicalMenuItems = [
           { label: "Benchmarking Sectorial", path: "/benchmarking", description: "Comparación con promedios del sector/industria" },
           { label: "Planes de Acción Correctiva", path: "/corrective-action-plans", description: "Workflow completo con firma digital y evidencias" },
           { label: "Análisis de Impacto de Intervenciones", path: "/intervention-impact", description: "Mide efectividad de acciones correctivas y correlación con reducción de casos" },
+          { label: "Historial de Reportes Compartidos", path: "/shared-reports-history", description: "Rastreo de reportes compartidos por canal, fecha y destinatarios" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento de aceptación de cargo" },

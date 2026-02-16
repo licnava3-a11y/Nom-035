@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `shared_reports_log` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`report_url` text NOT NULL,\n\t`report_type` enum('pdf','excel') NOT NULL,\n\t`report_category` varchar(100) NOT NULL,\n\t`share_channel` enum('email','linkedin','twitter','whatsapp','other') NOT NULL,\n\t`recipients` json,\n\t`recipient_count` int DEFAULT 0,\n\t`email_subject` text,\n\t`email_message` text,\n\t`shared_by` int NOT NULL,\n\t`shared_by_name` varchar(255),\n\t`shared_by_email` varchar(320),\n\t`applied_filters` json,\n\t`view_count` int DEFAULT 0,\n\t`download_count` int DEFAULT 0,\n\t`created_at` timestamp DEFAULT (now()),\n\tCONSTRAINT `shared_reports_log_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `shared_reports_log` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`report_url` text NOT NULL,\n\t`report_type` enum('pdf','excel') NOT NULL,\n\t`report_category` varchar(100) NOT NULL,\n\t`share_channel` enum('email','linkedin','twitter','whatsapp','other') NOT NULL,\n\t`recipients` json,\n\t`recipient_count` int DEFAULT 0,\n\t`email_subject` text,\n\t`email_message` text,\n\t`shared_by` int NOT NULL,\n\t`shared_by_name` varchar(255),\n\t`shared_by_email` varchar(320),\n\t`applied_filters` json,\n\t`view_count` int DEFAULT 0,\n\t`download_count` int DEFAULT 0,\n\t`created_at` timestamp DEFAULT (now()),\n\tCONSTRAINT `shared_reports_log_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 561
+}

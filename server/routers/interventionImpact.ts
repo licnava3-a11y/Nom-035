@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { interventionImpactAnalysis, workplaceViolenceCases, departments, trainingEvaluations } from "../../drizzle/schema";
+import { interventionImpactAnalysis, workplaceViolenceCases, departments, trainingEvaluations, sharedReportsLog } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
@@ -549,6 +549,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         recipients: z.array(z.string().email()).min(1).max(10),
         subject: z.string().min(1).max(200),
         message: z.string().optional(),
+        appliedFilters: z.record(z.string(), z.any()).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -616,6 +617,26 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       // Enviar email
       try {
         await transporter.sendMail(mailOptions);
+        
+        // Registrar en log de reportes compartidos
+        const db = await getDb();
+        if (db) {
+          await db.insert(sharedReportsLog).values({
+            reportUrl: input.reportUrl,
+            reportType: input.reportType,
+            reportCategory: "intervention_impact",
+            shareChannel: "email",
+            recipients: input.recipients,
+            recipientCount: input.recipients.length,
+            emailSubject: input.subject,
+            emailMessage: input.message || null,
+            sharedBy: ctx.user.id,
+            sharedByName: ctx.user.name || null,
+            sharedByEmail: ctx.user.email || null,
+            appliedFilters: input.appliedFilters || null,
+          });
+        }
+        
         return { success: true, recipientCount: recipients.length };
       } catch (error: any) {
         console.error("Error al enviar correo:", error);

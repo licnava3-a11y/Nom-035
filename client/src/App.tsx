@@ -27,6 +27,7 @@ const TrainingROIDashboard = lazy(() => import("./pages/TrainingROIDashboard"));
 const BenchmarkingDashboard = lazy(() => import("./pages/BenchmarkingDashboard"));
 const CorrectiveActionPlansManagement = lazy(() => import("./pages/CorrectiveActionPlansManagement"));
 const InterventionImpactDashboard = lazy(() => import("./pages/InterventionImpactDashboard"));
+const SharedReportsHistory = lazy(() => import("./pages/SharedReportsHistory"));
 const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
 const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
@@ -282,6 +283,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <InterventionImpactDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/shared-reports-history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SharedReportsHistory />
             </Suspense>
           </DashboardLayout>
         </Route>
