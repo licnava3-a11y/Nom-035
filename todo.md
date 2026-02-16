@@ -1192,3 +1192,8 @@
 - [x] Insertar datos de prueba en survey_responses para visualización del gráfico
 - [x] Implementar filtro temporal en gráfico de tendencias (semana/mes/trimestre/año)
 - [x] Agregar bandas de color según niveles de riesgo NOM-035 en gráfico
+
+- [x] Corregir colores de bandas de riesgo según clasificación oficial NOM-035 (5 niveles)
+- [x] Implementar tooltips informativos en bandas de riesgo con recomendaciones
+- [ ] Implementar comparativa interanual (año actual vs año anterior)
+- [x] Implementar alertas automáticas por umbral de riesgo alto/muy alto

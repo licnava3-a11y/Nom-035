@@ -669,32 +669,85 @@ export default function DashboardConsolidated() {
                       plugins: {
                         annotation: {
                           annotations: {
-                            // Banda verde: Nulo/Bajo (0-0.20)
-                            greenZone: {
+                            // Banda azul: Nulo (0-0.20)
+                            blueZone: {
                               type: 'box',
                               yMin: 0,
                               yMax: 0.20,
+                              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                              borderColor: 'rgba(59, 130, 246, 0.3)',
+                              borderWidth: 1,
+                              label: {
+                                display: true,
+                                content: 'NULO: El riesgo resulta despreciable, no se requieren medidas adicionales',
+                                position: 'center',
+                                font: { size: 10 },
+                                color: 'rgba(59, 130, 246, 0.7)',
+                              },
+                            },
+                            // Banda verde: Bajo (0.21-0.40)
+                            greenZone: {
+                              type: 'box',
+                              yMin: 0.21,
+                              yMax: 0.40,
                               backgroundColor: 'rgba(34, 197, 94, 0.1)',
                               borderColor: 'rgba(34, 197, 94, 0.3)',
                               borderWidth: 1,
+                              label: {
+                                display: true,
+                                content: 'BAJO: Revisar política de prevención y programas',
+                                position: 'center',
+                                font: { size: 10 },
+                                color: 'rgba(34, 197, 94, 0.7)',
+                              },
                             },
-                            // Banda amarilla: Medio (0.21-0.50)
+                            // Banda amarilla: Medio (0.41-0.60)
                             yellowZone: {
                               type: 'box',
-                              yMin: 0.21,
-                              yMax: 0.50,
+                              yMin: 0.41,
+                              yMax: 0.60,
                               backgroundColor: 'rgba(234, 179, 8, 0.1)',
                               borderColor: 'rgba(234, 179, 8, 0.3)',
                               borderWidth: 1,
+                              label: {
+                                display: true,
+                                content: 'MEDIO: Reforzar aplicación mediante Programa de intervención',
+                                position: 'center',
+                                font: { size: 10 },
+                                color: 'rgba(234, 179, 8, 0.7)',
+                              },
                             },
-                            // Banda roja: Alto/Muy Alto (0.51-1.0)
+                            // Banda naranja: Alto (0.61-0.80)
+                            orangeZone: {
+                              type: 'box',
+                              yMin: 0.61,
+                              yMax: 0.80,
+                              backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                              borderColor: 'rgba(249, 115, 22, 0.3)',
+                              borderWidth: 1,
+                              label: {
+                                display: true,
+                                content: 'ALTO: Análisis por categoría + Programa de intervención + Campaña',
+                                position: 'center',
+                                font: { size: 10 },
+                                color: 'rgba(249, 115, 22, 0.7)',
+                              },
+                            },
+                            // Banda roja: Muy Alto (0.81-1.0)
                             redZone: {
                               type: 'box',
-                              yMin: 0.51,
+                              yMin: 0.81,
                               yMax: 1.0,
                               backgroundColor: 'rgba(239, 68, 68, 0.1)',
                               borderColor: 'rgba(239, 68, 68, 0.3)',
                               borderWidth: 1,
+                              label: {
+                                display: true,
+                                content: 'MUY ALTO: Medidas inmediatas + Análisis + Programa + Campaña',
+                                position: 'center',
+                                font: { size: 10 },
+                                color: 'rgba(239, 68, 68, 0.7)',
+                              },
                             },
                           },
                         },
@@ -703,32 +756,48 @@ export default function DashboardConsolidated() {
                           labels: {
                             generateLabels: function(chart) {
                               const original = ChartJS.defaults.plugins.legend.labels.generateLabels(chart);
-                              // Agregar leyendas de bandas de riesgo
+                              // Agregar leyendas de bandas de riesgo NOM-035
                               return [
                                 ...original,
                                 {
-                                  text: 'Nulo/Bajo (0-0.20)',
-                                  fillStyle: 'rgba(34, 197, 94, 0.3)',
-                                  strokeStyle: 'rgba(34, 197, 94, 0.5)',
+                                  text: 'Nulo (0-0.20)',
+                                  fillStyle: 'rgba(59, 130, 246, 0.3)',
+                                  strokeStyle: 'rgba(59, 130, 246, 0.5)',
                                   lineWidth: 2,
                                   hidden: false,
                                   index: 100,
                                 },
                                 {
-                                  text: 'Medio (0.21-0.50)',
-                                  fillStyle: 'rgba(234, 179, 8, 0.3)',
-                                  strokeStyle: 'rgba(234, 179, 8, 0.5)',
+                                  text: 'Bajo (0.21-0.40)',
+                                  fillStyle: 'rgba(34, 197, 94, 0.3)',
+                                  strokeStyle: 'rgba(34, 197, 94, 0.5)',
                                   lineWidth: 2,
                                   hidden: false,
                                   index: 101,
                                 },
                                 {
-                                  text: 'Alto/Muy Alto (0.51-1.0)',
+                                  text: 'Medio (0.41-0.60)',
+                                  fillStyle: 'rgba(234, 179, 8, 0.3)',
+                                  strokeStyle: 'rgba(234, 179, 8, 0.5)',
+                                  lineWidth: 2,
+                                  hidden: false,
+                                  index: 102,
+                                },
+                                {
+                                  text: 'Alto (0.61-0.80)',
+                                  fillStyle: 'rgba(249, 115, 22, 0.3)',
+                                  strokeStyle: 'rgba(249, 115, 22, 0.5)',
+                                  lineWidth: 2,
+                                  hidden: false,
+                                  index: 103,
+                                },
+                                {
+                                  text: 'Muy Alto (0.81-1.0)',
                                   fillStyle: 'rgba(239, 68, 68, 0.3)',
                                   strokeStyle: 'rgba(239, 68, 68, 0.5)',
                                   lineWidth: 2,
                                   hidden: false,
-                                  index: 102,
+                                  index: 104,
                                 },
                               ];
                             },

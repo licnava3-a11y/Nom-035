@@ -678,6 +678,52 @@ export const executiveDashboardRouter = router({
     const completionRate = (totalSurveys as any)[0]?.count ? (((completedSurveys as any)[0]?.count || 0) / (totalSurveys as any)[0].count * 100) : 0;
     if (completionRate < 50 && (totalSurveys as any)[0]?.count > 10) alerts.push({ id: 'surveys-low-completion', type: 'info', category: 'Encuestas', title: 'Baja Tasa de Completitud', description: `Solo ${completionRate.toFixed(1)}% de encuestas completadas` });
 
+    // Alertas de riesgo psicosocial alto/muy alto (NOM-035)
+    const highRiskSurveys = await db
+      .select({
+        surveyId: surveyResponses.surveyId,
+        surveyTitle: surveys.title,
+        finalScore: sql<number>`CAST(JSON_EXTRACT(${surveyResponses.results}, '$.finalScore') AS DECIMAL(5,2))`,
+        completedAt: surveyResponses.completedAt,
+      })
+      .from(surveyResponses)
+      .innerJoin(surveys, eq(surveyResponses.surveyId, surveys.id))
+      .where(
+        and(
+          sql`JSON_EXTRACT(${surveyResponses.results}, '$.finalScore') IS NOT NULL`,
+          sql`CAST(JSON_EXTRACT(${surveyResponses.results}, '$.finalScore') AS DECIMAL(5,2)) >= 0.61`
+        )
+      )
+      .orderBy(desc(surveyResponses.completedAt))
+      .limit(5);
+
+    if (highRiskSurveys.length > 0) {
+      const veryHighRisk = highRiskSurveys.filter(s => Number(s.finalScore) >= 0.81);
+      const highRisk = highRiskSurveys.filter(s => Number(s.finalScore) >= 0.61 && Number(s.finalScore) < 0.81);
+      
+      if (veryHighRisk.length > 0) {
+        alerts.push({
+          id: 'nom035-very-high-risk',
+          type: 'critical',
+          category: 'NOM-035',
+          title: 'Riesgo Psicosocial MUY ALTO Detectado',
+          description: `${veryHighRisk.length} encuesta(s) con puntuación ≥0.81 requieren medidas inmediatas + análisis + programa + campaña`,
+          count: veryHighRisk.length,
+        });
+      }
+      
+      if (highRisk.length > 0) {
+        alerts.push({
+          id: 'nom035-high-risk',
+          type: 'warning',
+          category: 'NOM-035',
+          title: 'Riesgo Psicosocial ALTO Detectado',
+          description: `${highRisk.length} encuesta(s) con puntuación ≥0.61 requieren análisis por categoría + programa de intervención`,
+          count: highRisk.length,
+        });
+      }
+    }
+
     return alerts;
   }),
 });
