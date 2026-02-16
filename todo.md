@@ -401,3 +401,29 @@
 - [x] Crear template de email para recordatorios de encuestas
 - [x] Registrar ambos jobs en servidor Express
 - [x] Configurar frecuencia de ejecución (diario para alertas, cada 2 días para recordatorios)
+
+## Nuevas Tareas - Campo Gender y Dashboard de Jobs
+
+### Fase 1: Campo Gender en Employees
+- [x] Agregar campo gender (enum: 'male', 'female', 'other', 'prefer_not_to_say') en schema employees
+- [x] Generar y aplicar migración SQL
+- [x] Actualizar query getConsolidatedKPIs en executiveDashboard para usar gender real
+- [x] Actualizar query getConsolidatedAlerts en executiveDashboard para usar gender real
+- [x] Actualizar query getEvidences en nmx025EvidencesFolder para usar gender real (no necesario, usa tabla users.sexo)
+- [ ] Crear script de migración de datos (opcional, asignar género aleatorio a empleados existentes)
+
+### Fase 2: Dashboard de Monitoreo de Jobs
+- [x] Crear tabla job_executions en schema (jobName, status, startedAt, completedAt, duration, result, error)
+- [x] Generar y aplicar migración SQL
+- [ ] Modificar todos los jobs para registrar ejecuciones en job_executions (opcional, mutations ya lo hacen)
+- [x] Crear router jobMonitoring con queries y mutations
+- [x] Implementar query getJobExecutions (historial con paginación)
+- [x] Implementar query getJobStats (estadísticas de éxito/fallo por job)
+- [x] Implementar mutations para ejecutar jobs manualmente
+- [x] Crear página JobMonitoringDashboard.tsx
+- [x] Implementar tabla de historial con filtros (job, status, fecha)
+- [x] Implementar cards de estadísticas por job
+- [x] Implementar botones de ejecución manual con confirmación
+- [x] Implementar modal de logs detallados (inline en tabla)
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación en menú de Administración

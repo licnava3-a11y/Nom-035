@@ -570,8 +570,8 @@ export const executiveDashboardRouter = router({
     // KPIs NMX-025
     const [nmx025Evidences] = await db.select({ count: sql<number>`COUNT(*)` }).from(nmx025ManualEvidences);
     const [totalEmployees] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees);
-    // Simulación de paridad de género (employees no tiene campo gender)
-    const femaleEmployees = Math.floor(((totalEmployees as any)[0]?.count || 0) * 0.45); // 45% simulado
+    const [femaleEmployeesResult] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees).where(eq(employees.gender, 'female'));
+    const femaleEmployees = (femaleEmployeesResult as any)[0]?.count || 0;
     const genderParityScore = (totalEmployees as any)[0]?.count ? (femaleEmployees / (totalEmployees as any)[0].count * 100).toFixed(1) : '0.0';
 
     // KPIs Encuestas Post-Caso
@@ -654,7 +654,8 @@ export const executiveDashboardRouter = router({
     if (((unassignedCases as any)[0]?.count || 0) > 3) alerts.push({ id: 'nom035-unassigned-cases', type: 'warning', category: 'NOM-035', title: 'Casos Sin Asignar', description: `${(unassignedCases as any)[0].count} casos abiertos sin responsable asignado`, count: (unassignedCases as any)[0].count });
 
     const [totalEmployees] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees);
-    const femaleEmployees = Math.floor(((totalEmployees as any)[0]?.count || 0) * 0.45);
+    const [femaleEmployeesResult] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees).where(eq(employees.gender, 'female'));
+    const femaleEmployees = (femaleEmployeesResult as any)[0]?.count || 0;
     const genderParity = (totalEmployees as any)[0]?.count ? (femaleEmployees / (totalEmployees as any)[0].count * 100) : 0;
     if (genderParity < 40 || genderParity > 60) alerts.push({ id: 'nmx025-gender-parity', type: 'warning', category: 'NMX-025', title: 'Brecha de Género', description: `Paridad actual: ${genderParity.toFixed(1)}% (objetivo: 40-60%)` });
 

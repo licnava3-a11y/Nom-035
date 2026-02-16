@@ -547,6 +547,7 @@ export const employees = mysqlTable("employees", {
   email: varchar("email", { length: 320 }).notNull().unique(),
   phone: varchar("phone", { length: 20 }),
   curp: varchar("curp", { length: 18 }).unique(), // CURP (Mexican ID)
+  gender: mysqlEnum("gender", ["male", "female", "other", "prefer_not_to_say"]), // Género para métricas NMX-025
   
   // Employment Information
   employeeNumber: varchar("employeeNumber", { length: 50 }).unique(),
@@ -3151,3 +3152,20 @@ export const postCaseSurveys = mysqlTable("post_case_surveys", {
 
 export type PostCaseSurvey = typeof postCaseSurveys.$inferSelect;
 export type InsertPostCaseSurvey = typeof postCaseSurveys.$inferInsert;
+
+/**
+ * Job Executions - Historial de ejecuciones de jobs automáticos
+ */
+export const jobExecutions = mysqlTable("job_executions", {
+  id: int("id").autoincrement().primaryKey(),
+  jobName: varchar("job_name", { length: 100 }).notNull(), // Nombre del job
+  status: mysqlEnum("status", ["running", "success", "failed"]).notNull(), // Estado de ejecución
+  startedAt: timestamp("started_at").notNull(), // Inicio de ejecución
+  completedAt: timestamp("completed_at"), // Fin de ejecución
+  duration: int("duration"), // Duración en milisegundos
+  result: json("result").$type<Record<string, any>>(), // Resultado de la ejecución (JSON)
+  error: text("error"), // Mensaje de error (si falló)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type JobExecution = typeof jobExecutions.$inferSelect;
+export type InsertJobExecution = typeof jobExecutions.$inferInsert;

@@ -589,6 +589,20 @@
       "when": 1771202989173,
       "tag": "0083_hot_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "5",
+      "when": 1771224068383,
+      "tag": "0084_clever_redwing",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "5",
+      "when": 1771224193320,
+      "tag": "0085_wealthy_mandrill",
+      "breakpoints": true
     }
   ]
 }

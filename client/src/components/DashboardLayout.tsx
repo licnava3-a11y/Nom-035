@@ -218,6 +218,7 @@ const hierarchicalMenuItems = [
       { label: "Plantillas de Reportes", path: "/report-templates", description: "Plantillas personalizables HTML/CSS" },
       { label: "Auditoría de Documentos", path: "/document-audit", description: "Registro de accesos y descargas" },
       { label: "Alertas de Seguridad", path: "/security-alerts", description: "Monitoreo de actividad sospechosa" },
+      { label: "Monitoreo de Jobs", path: "/job-monitoring", description: "Historial y ejecución manual de jobs automáticos" },
     ],
   },
 ];
