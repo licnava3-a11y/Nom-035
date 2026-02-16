@@ -1131,3 +1131,15 @@
 ### Frontend
 - [ ] Agregar botones de exportación PDF/Excel en InterventionImpactDashboard.tsx
 - [ ] Implementar descarga automática de archivos exportados
+
+## Compartir Reportes en Redes Sociales y Email
+### Backend
+- [ ] Crear procedure interventionImpact.shareReportByEmail
+- [ ] Implementar envío de correo con adjunto PDF/Excel
+- [ ] Agregar validación de emails destinatarios
+### Frontend
+- [ ] Agregar botones de compartir (Email, LinkedIn, Twitter/X)
+- [ ] Crear dialog de compartir por email con campos destinatarios/asunto/mensaje
+- [ ] Implementar integración con LinkedIn Share API
+- [ ] Implementar integración con Twitter/X Share API
+- [ ] Agregar preview de mensaje antes de compartir

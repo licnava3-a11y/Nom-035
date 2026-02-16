@@ -540,6 +540,89 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       return { success: true, url, fileName };
     }),
 
+  // Compartir reporte por email
+  shareReportByEmail: protectedProcedure
+    .input(
+      z.object({
+        reportUrl: z.string().url(),
+        reportType: z.enum(["pdf", "excel"]),
+        recipients: z.array(z.string().email()).min(1).max(10),
+        subject: z.string().min(1).max(200),
+        message: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { reportUrl, reportType, recipients, subject, message } = input;
+
+      // Importar nodemailer dinámicamente
+      const nodemailer = await import("nodemailer");
+
+      // Configurar transporter SMTP (usando variables de entorno)
+      const transporter = nodemailer.default.createTransport({
+        host: process.env.SMTP_HOST || "smtp.gmail.com",
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      // Verificar configuración SMTP
+      if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        throw new Error("Configuración SMTP incompleta. Verifica las variables de entorno SMTP_*");
+      }
+
+      const fileExtension = reportType === "pdf" ? "pdf" : "xlsx";
+      const fileName = `reporte-impacto-intervenciones-${Date.now()}.${fileExtension}`;
+
+      // Descargar archivo desde S3 para adjuntar
+      const response = await fetch(reportUrl);
+      const fileBuffer = await response.arrayBuffer();
+
+      // Preparar email
+      const mailOptions = {
+        from: `"Plataforma NOM-035" <${process.env.SMTP_USER}>`,
+        to: recipients.join(", "),
+        subject: subject,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2563eb;">Reporte de Análisis de Impacto de Intervenciones</h2>
+            <p>Hola,</p>
+            <p>${message || "Te compartimos el reporte de análisis de impacto de intervenciones de prevención de riesgos psicosociales."}</p>
+            <p>El reporte adjunto contiene:</p>
+            <ul>
+              <li>Resumen ejecutivo con métricas clave</li>
+              <li>Detalle de intervenciones implementadas</li>
+              <li>Análisis de efectividad antes/después</li>
+              <li>Insights generados con IA</li>
+              <li>Recomendaciones priorizadas</li>
+            </ul>
+            <p style="margin-top: 20px;">Enviado por: <strong>${ctx.user.name}</strong></p>
+            <p style="color: #666; font-size: 12px; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 10px;">
+              Este correo fue generado automáticamente desde la Plataforma de Capacitación NOM-035 STPS 2018.
+            </p>
+          </div>
+        `,
+        attachments: [
+          {
+            filename: fileName,
+            content: Buffer.from(fileBuffer),
+            contentType: reportType === "pdf" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+        ],
+      };
+
+      // Enviar email
+      try {
+        await transporter.sendMail(mailOptions);
+        return { success: true, recipientCount: recipients.length };
+      } catch (error: any) {
+        console.error("Error al enviar correo:", error);
+        throw new Error(`Error al enviar correo: ${error.message}`);
+      }
+    }),
+
   // Dashboard de impacto
   getDashboard: protectedProcedure.query(async () => {
     const db = await getDb();

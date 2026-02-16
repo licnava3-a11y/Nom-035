@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, Activity, Target, Plus, BarChart3, Sparkles, FileDown, FileSpreadsheet } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, Target, Plus, BarChart3, Sparkles, FileDown, FileSpreadsheet, Share2, Mail, Linkedin } from "lucide-react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -28,6 +28,9 @@ export default function InterventionImpactDashboard() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareReportUrl, setShareReportUrl] = useState<string>("");
+  const [shareReportType, setShareReportType] = useState<"pdf" | "excel">("pdf");
   const [selectedIntervention, setSelectedIntervention] = useState<any>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
@@ -81,10 +84,22 @@ export default function InterventionImpactDashboard() {
   const exportExcelMutation = trpc.interventionImpact.exportExcel.useMutation({
     onSuccess: (data) => {
       toast.success("Reporte Excel generado exitosamente");
+      setShareReportUrl(data.url);
+      setShareReportType("excel");
       window.open(data.url, "_blank");
     },
     onError: (error) => {
       toast.error(`Error al generar Excel: ${error.message}`);
+    },
+  });
+
+  const shareReportMutation = trpc.interventionImpact.shareReportByEmail.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Reporte enviado exitosamente a ${data.recipientCount} destinatario(s)`);
+      setShareDialogOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Error al enviar reporte: ${error.message}`);
     },
   });
 
@@ -114,6 +129,64 @@ export default function InterventionImpactDashboard() {
       status: selectedStatus === "all" ? undefined : (selectedStatus as any),
       interventionType: selectedType === "all" ? undefined : (selectedType as any),
     });
+  };
+
+  const handleExportAndSharePDF = () => {
+    exportPDFMutation.mutate(
+      {
+        status: selectedStatus === "all" ? undefined : (selectedStatus as any),
+        interventionType: selectedType === "all" ? undefined : (selectedType as any),
+      },
+      {
+        onSuccess: (data) => {
+          setShareReportUrl(data.url);
+          setShareReportType("pdf");
+          setShareDialogOpen(true);
+        },
+      }
+    );
+  };
+
+  const handleExportAndShareExcel = () => {
+    exportExcelMutation.mutate(
+      {
+        status: selectedStatus === "all" ? undefined : (selectedStatus as any),
+        interventionType: selectedType === "all" ? undefined : (selectedType as any),
+      },
+      {
+        onSuccess: (data) => {
+          setShareReportUrl(data.url);
+          setShareReportType("excel");
+          setShareDialogOpen(true);
+        },
+      }
+    );
+  };
+
+  const handleShareByEmail = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const recipients = (formData.get("recipients") as string).split(",").map((email) => email.trim());
+
+    shareReportMutation.mutate({
+      reportUrl: shareReportUrl,
+      reportType: shareReportType,
+      recipients,
+      subject: formData.get("subject") as string,
+      message: formData.get("message") as string,
+    });
+  };
+
+  const handleShareLinkedIn = () => {
+    const text = `Reporte de Análisis de Impacto de Intervenciones NOM-035 - Plataforma de Capacitación`;
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareReportUrl)}`;
+    window.open(url, "_blank", "width=600,height=400");
+  };
+
+  const handleShareTwitter = () => {
+    const text = `Reporte de Análisis de Impacto de Intervenciones NOM-035 📊`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareReportUrl)}`;
+    window.open(url, "_blank", "width=600,height=400");
   };
 
   const handleExportExcel = () => {
@@ -185,6 +258,14 @@ export default function InterventionImpactDashboard() {
           <Button variant="outline" onClick={handleExportExcel} disabled={exportExcelMutation.isPending}>
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             {exportExcelMutation.isPending ? "Generando Excel..." : "Exportar Excel"}
+          </Button>
+          <Button variant="outline" onClick={handleExportAndSharePDF} disabled={exportPDFMutation.isPending}>
+            <Share2 className="mr-2 h-4 w-4" />
+            Compartir PDF
+          </Button>
+          <Button variant="outline" onClick={handleExportAndShareExcel} disabled={exportExcelMutation.isPending}>
+            <Share2 className="mr-2 h-4 w-4" />
+            Compartir Excel
           </Button>
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -545,6 +626,92 @@ export default function InterventionImpactDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog de Compartir */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Compartir Reporte de Análisis de Impacto</DialogTitle>
+            <DialogDescription>
+              Comparte el reporte {shareReportType === "pdf" ? "PDF" : "Excel"} por correo electrónico o redes sociales
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Compartir en Redes Sociales */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Compartir en Redes Sociales</Label>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleShareLinkedIn} className="flex-1">
+                  <Linkedin className="mr-2 h-4 w-4" />
+                  LinkedIn
+                </Button>
+                <Button variant="outline" onClick={handleShareTwitter} className="flex-1">
+                  <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                  Twitter/X
+                </Button>
+              </div>
+            </div>
+
+            {/* Compartir por Email */}
+            <div className="border-t pt-6">
+              <form onSubmit={handleShareByEmail} className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">Compartir por Correo Electrónico</Label>
+                  <p className="text-sm text-muted-foreground">Envía el reporte directamente a los destinatarios</p>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="recipients">Destinatarios * (separados por comas)</Label>
+                    <Input
+                      id="recipients"
+                      name="recipients"
+                      type="text"
+                      placeholder="email1@ejemplo.com, email2@ejemplo.com"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">Máximo 10 destinatarios</p>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="subject">Asunto *</Label>
+                    <Input
+                      id="subject"
+                      name="subject"
+                      type="text"
+                      defaultValue="Reporte de Análisis de Impacto de Intervenciones NOM-035"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="message">Mensaje (opcional)</Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      placeholder="Agrega un mensaje personalizado para los destinatarios..."
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setShareDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={shareReportMutation.isPending}>
+                    <Mail className="mr-2 h-4 w-4" />
+                    {shareReportMutation.isPending ? "Enviando..." : "Enviar por Email"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
