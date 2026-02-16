@@ -3425,3 +3425,23 @@ export const trainingCosts = mysqlTable("training_costs", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
+
+
+// Benchmarking Sectorial Tables
+export const industrySectors = mysqlTable("industry_sectors", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const sectorBenchmarks = mysqlTable("sector_benchmarks", {
+  id: int("id").primaryKey().autoincrement(),
+  sectorId: int("sector_id").notNull().references(() => industrySectors.id, { onDelete: "cascade" }),
+  metricName: varchar("metric_name", { length: 100 }).notNull(), // e.g., "avg_cases_per_100_employees"
+  metricValue: decimal("metric_value", { precision: 10, scale: 2 }).notNull(),
+  metricUnit: varchar("metric_unit", { length: 50 }), // e.g., "casos", "porcentaje", "días"
+  period: varchar("period", { length: 50 }), // e.g., "2024-Q4", "2025-Annual"
+  source: varchar("source", { length: 255 }), // e.g., "STPS", "IMSS", "Estudio Sectorial"
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});

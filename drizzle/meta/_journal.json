@@ -652,6 +652,13 @@
       "when": 1771267714398,
       "tag": "0092_fixed_sue_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "5",
+      "when": 1771268445951,
+      "tag": "0093_bizarre_mastermind",
+      "breakpoints": true
     }
   ]
 }

@@ -93,6 +93,7 @@ import { reportsExportRouter } from "./routers/reportsExport";
 import { trainingEvaluationsRouter } from "./routers/trainingEvaluations";
 import { intelligentAlertsRouter } from "./routers/intelligentAlerts";
 import { trainingROIRouter } from "./routers/trainingROI";
+import { benchmarkingRouter } from "./routers/benchmarking";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -188,6 +189,7 @@ export const appRouter = router({
   trainingEvaluations: trainingEvaluationsRouter,
   intelligentAlerts: intelligentAlertsRouter,
   trainingROI: trainingROIRouter,
+  benchmarking: benchmarkingRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
