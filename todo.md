@@ -1121,3 +1121,13 @@
 - [ ] Agregar ruta en App.tsx
 - [ ] Agregar navegación en DashboardLayout
 
+
+## Exportación PDF/Excel Dashboard de Análisis de Impacto
+### Backend
+- [ ] Crear procedure interventionImpact.exportPDF con PDFKit
+- [ ] Crear procedure interventionImpact.exportExcel con ExcelJS
+- [ ] Incluir datos, gráficos y insights de IA en ambos formatos
+- [ ] Subir archivos a S3 y retornar URLs públicas
+### Frontend
+- [ ] Agregar botones de exportación PDF/Excel en InterventionImpactDashboard.tsx
+- [ ] Implementar descarga automática de archivos exportados

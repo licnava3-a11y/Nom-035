@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, Activity, Target, Plus, BarChart3, Sparkles } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, Target, Plus, BarChart3, Sparkles, FileDown, FileSpreadsheet } from "lucide-react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -68,6 +68,26 @@ export default function InterventionImpactDashboard() {
     },
   });
 
+  const exportPDFMutation = trpc.interventionImpact.exportPDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("Reporte PDF generado exitosamente");
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(`Error al generar PDF: ${error.message}`);
+    },
+  });
+
+  const exportExcelMutation = trpc.interventionImpact.exportExcel.useMutation({
+    onSuccess: (data) => {
+      toast.success("Reporte Excel generado exitosamente");
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(`Error al generar Excel: ${error.message}`);
+    },
+  });
+
   const handleCreate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -87,6 +107,20 @@ export default function InterventionImpactDashboard() {
 
   const handleGenerateInsights = (id: number) => {
     generateInsightsMutation.mutate({ id });
+  };
+
+  const handleExportPDF = () => {
+    exportPDFMutation.mutate({
+      status: selectedStatus === "all" ? undefined : (selectedStatus as any),
+      interventionType: selectedType === "all" ? undefined : (selectedType as any),
+    });
+  };
+
+  const handleExportExcel = () => {
+    exportExcelMutation.mutate({
+      status: selectedStatus === "all" ? undefined : (selectedStatus as any),
+      interventionType: selectedType === "all" ? undefined : (selectedType as any),
+    });
   };
 
   // Datos para gráfico de línea temporal
@@ -143,8 +177,17 @@ export default function InterventionImpactDashboard() {
             Mide la efectividad de acciones correctivas y su correlación con la reducción de casos
           </p>
         </div>
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportPDF} disabled={exportPDFMutation.isPending}>
+            <FileDown className="mr-2 h-4 w-4" />
+            {exportPDFMutation.isPending ? "Generando PDF..." : "Exportar PDF"}
+          </Button>
+          <Button variant="outline" onClick={handleExportExcel} disabled={exportExcelMutation.isPending}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            {exportExcelMutation.isPending ? "Generando Excel..." : "Exportar Excel"}
+          </Button>
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               Nueva Intervención
@@ -216,7 +259,8 @@ export default function InterventionImpactDashboard() {
               </DialogFooter>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* KPIs */}
