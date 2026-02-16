@@ -1101,3 +1101,23 @@
 - [x] Implementar resumen semanal a administradores (solo lunes)
 - [x] Registrar job en server startup (ejecución diaria a las 9:00 AM)
 
+
+## Dashboard de Análisis de Impacto de Intervenciones
+
+### Backend
+- [ ] Crear tabla intervention_impact_analysis con campos de correlación
+- [ ] Crear router interventionImpact con análisis de correlación
+- [ ] Implementar cálculo de métricas de efectividad
+- [ ] Implementar análisis antes/después de intervenciones
+- [ ] Implementar generación de insights con IA
+- [ ] Registrar router en appRouter
+
+### Frontend
+- [ ] Crear página InterventionImpactDashboard.tsx
+- [ ] Implementar cards de KPIs (intervenciones, efectividad, casos evitados)
+- [ ] Implementar gráfico de línea temporal de impacto
+- [ ] Implementar tabla comparativa antes/después
+- [ ] Implementar ranking de intervenciones más efectivas
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en DashboardLayout
+

@@ -666,6 +666,13 @@
       "when": 1771269622258,
       "tag": "0094_nebulous_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "5",
+      "when": 1771270658119,
+      "tag": "0095_flowery_talos",
+      "breakpoints": true
     }
   ]
 }

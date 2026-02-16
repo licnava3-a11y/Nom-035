@@ -3499,3 +3499,50 @@ export const actionEvidences = mysqlTable("action_evidences", {
   uploadedBy: int("uploaded_by").notNull().references(() => users.id),
   uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
 });
+
+
+// Tabla de análisis de impacto de intervenciones
+export const interventionImpactAnalysis = mysqlTable("intervention_impact_analysis", {
+  id: int("id").primaryKey().autoincrement(),
+  interventionType: mysqlEnum("intervention_type", ["training", "policy_change", "organizational_change", "corrective_action", "awareness_campaign", "other"]).notNull(),
+  interventionName: varchar("intervention_name", { length: 255 }).notNull(),
+  description: text("description"),
+  implementationDate: date("implementation_date").notNull(),
+  targetDepartmentId: int("target_department_id"),
+  targetArea: varchar("target_area", { length: 255 }),
+  
+  // Métricas antes de la intervención
+  casesBeforeCount: int("cases_before_count").default(0),
+  avgResolutionTimeBefore: int("avg_resolution_time_before"), // días
+  climateScoreBefore: decimal("climate_score_before", { precision: 3, scale: 2 }), // 0-5
+  satisfactionScoreBefore: decimal("satisfaction_score_before", { precision: 3, scale: 2 }), // 0-5
+  
+  // Métricas después de la intervención
+  casesAfterCount: int("cases_after_count").default(0),
+  avgResolutionTimeAfter: int("avg_resolution_time_after"), // días
+  climateScoreAfter: decimal("climate_score_after", { precision: 3, scale: 2 }), // 0-5
+  satisfactionScoreAfter: decimal("satisfaction_score_after", { precision: 3, scale: 2 }), // 0-5
+  
+  // Período de medición
+  measurementPeriodMonths: int("measurement_period_months").default(3), // meses
+  
+  // Métricas calculadas
+  caseReductionPercentage: decimal("case_reduction_percentage", { precision: 5, scale: 2 }),
+  resolutionTimeImprovement: decimal("resolution_time_improvement", { precision: 5, scale: 2 }),
+  climateScoreImprovement: decimal("climate_score_improvement", { precision: 5, scale: 2 }),
+  satisfactionScoreImprovement: decimal("satisfaction_score_improvement", { precision: 5, scale: 2 }),
+  effectivenessScore: decimal("effectiveness_score", { precision: 5, scale: 2 }), // 0-100
+  
+  // Insights generados por IA
+  aiInsights: json("ai_insights").$type<{
+    successFactors: string[];
+    challenges: string[];
+    recommendations: string[];
+    predictedImpact: string;
+  }>(),
+  
+  status: mysqlEnum("status", ["active", "completed", "archived"]).default("active"),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
