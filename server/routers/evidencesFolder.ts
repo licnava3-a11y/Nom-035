@@ -12,7 +12,8 @@ import {
   surveyPeriods,
   surveyResponses,
   employees,
-  courses
+  courses,
+  manualEvidences
 } from "../../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
 
@@ -305,6 +306,33 @@ export const evidencesFolderRouter = router({
         evidences["5.8"].status = "complete";
       }
 
+      // Agregar evidencias manuales cargadas
+      const manualEvidencesList = await db
+        .select()
+        .from(manualEvidences)
+        .orderBy(manualEvidences.uploadedAt);
+
+      for (const manualEvidence of manualEvidencesList) {
+        const numeral = manualEvidence.numeral;
+        if (evidences[numeral]) {
+          evidences[numeral].evidences.push({
+            type: "manual",
+            name: manualEvidence.title,
+            description: manualEvidence.description || "",
+            date: manualEvidence.uploadedAt?.toISOString() || "",
+            status: "complete",
+            id: manualEvidence.id,
+            fileUrl: manualEvidence.fileUrl,
+            fileName: manualEvidence.fileName,
+          });
+
+          // Actualizar status del numeral si tiene evidencias manuales
+          if (evidences[numeral].status === "pending") {
+            evidences[numeral].status = "partial";
+          }
+        }
+      }
+
       return evidences;
     }),
 
@@ -409,5 +437,71 @@ export const evidencesFolderRouter = router({
 
         doc.end();
       });
+    }),
+
+  /**
+   * Subir evidencia manual
+   */
+  uploadEvidence: protectedProcedure
+    .input(
+      z.object({
+        numeral: z.string(),
+        title: z.string(),
+        description: z.string().optional(),
+        fileUrl: z.string(),
+        fileKey: z.string(),
+        fileName: z.string(),
+        fileType: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [evidence] = await db.insert(manualEvidences).values({
+        numeral: input.numeral,
+        title: input.title,
+        description: input.description,
+        fileUrl: input.fileUrl,
+        fileKey: input.fileKey,
+        fileName: input.fileName,
+        fileType: input.fileType,
+        uploadedBy: ctx.user.id,
+      });
+
+      return { success: true, evidenceId: evidence.insertId };
+    }),
+
+  /**
+   * Eliminar evidencia manual
+   */
+  deleteEvidence: protectedProcedure
+    .input(
+      z.object({
+        evidenceId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Obtener evidencia para eliminar archivo de S3
+      const [evidence] = await db
+        .select()
+        .from(manualEvidences)
+        .where(eq(manualEvidences.id, input.evidenceId))
+        .limit(1);
+
+      if (!evidence) {
+        throw new Error("Evidence not found");
+      }
+
+      // TODO: Eliminar archivo de S3 usando storageDelete cuando esté disponible
+      // await storageDelete(evidence.fileKey);
+
+      // Eliminar registro de base de datos
+      await db.delete(manualEvidences).where(eq(manualEvidences.id, input.evidenceId));
+
+      return { success: true };
     }),
 });

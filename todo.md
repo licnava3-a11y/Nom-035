@@ -295,3 +295,32 @@
 - [ ] Asociar evidencias a numerales específicos
 - [ ] Actualizar indicadores de completitud al subir evidencias
 - [ ] Implementar listado de evidencias manuales por numeral
+
+## Nuevas Tareas - Sistema Carga Manual Evidencias + Tendencias Departamentales + Encuestas Post-Caso
+
+### Fase 1: Sistema de Carga Manual de Evidencias
+- [x] Crear tabla manual_evidences en schema (numeral, title, description, fileUrl, uploadedBy, uploadedAt)
+- [x] Generar y aplicar migración SQL
+- [x] Agregar procedure evidencesFolder.uploadEvidence
+- [x] Agregar procedure evidencesFolder.deleteEvidence
+- [x] Integrar evidencias manuales en query getEvidences
+- [ ] Implementar UI de carga en EvidencesFolder.tsx (botón + dialog)
+- [ ] Agregar selector de numeral en dialog de carga
+
+### Fase 2: Panel de Tendencias Departamentales
+- [ ] Crear router departmentalTrends
+- [ ] Implementar query getDepartmentalRiskMetrics (casos, riskLevel, alertas)
+- [ ] Crear tabla department_thresholds para umbrales configurables
+- [ ] Crear página DepartmentalTrends.tsx con heat map
+- [ ] Implementar heat map con Chart.js o librería especializada
+- [ ] Agregar sistema de alertas tempranas por umbral
+- [ ] Agregar navegación en menú lateral
+
+### Fase 3: Sistema de Encuestas Post-Caso
+- [ ] Crear tabla post_case_surveys en schema (caseId, surveyType, scheduledDate, sentAt, completedAt)
+- [ ] Crear job post-case-surveys-job.ts (ejecutar diariamente)
+- [ ] Implementar lógica de envío automático 30/60/90 días después de cerrar caso
+- [ ] Crear procedure postCaseSurveys.getScheduled
+- [ ] Crear procedure postCaseSurveys.submitResponse
+- [ ] Implementar UI de respuesta de encuesta
+- [ ] Agregar dashboard de resultados de encuestas post-caso

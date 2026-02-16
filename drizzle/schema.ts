@@ -3081,3 +3081,22 @@ export const recognitionReactions = mysqlTable("recognition_reactions", {
 
 export type RecognitionReaction = typeof recognitionReactions.$inferSelect;
 export type InsertRecognitionReaction = typeof recognitionReactions.$inferInsert;
+
+/**
+ * Evidencias manuales cargadas por el administrador para carpeta de evidencias STPS
+ */
+export const manualEvidences = mysqlTable("manual_evidences", {
+  id: int("id").autoincrement().primaryKey(),
+  numeral: varchar("numeral", { length: 10 }).notNull(), // "5.1", "5.2", etc.
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: varchar("file_url", { length: 512 }).notNull(), // URL de S3
+  fileKey: varchar("file_key", { length: 512 }).notNull(), // Key de S3 para eliminar
+  fileName: varchar("file_name", { length: 255 }).notNull(), // Nombre original del archivo
+  fileType: varchar("file_type", { length: 100 }), // MIME type
+  uploadedBy: int("uploaded_by").notNull().references(() => users.id),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
+export type ManualEvidence = typeof manualEvidences.$inferSelect;
+export type InsertManualEvidence = typeof manualEvidences.$inferInsert;
