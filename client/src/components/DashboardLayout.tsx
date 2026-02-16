@@ -163,6 +163,8 @@ const hierarchicalMenuItems = [
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos" },
       { label: "Carpeta de Evidencias STPS", path: "/evidences-folder", description: "Carpeta de evidencias NOM-035 organizada por numerales" },
       { label: "Carpeta de Evidencias NMX-025", path: "/nmx025-evidences-folder", description: "Carpeta de evidencias de Igualdad Laboral y No Discriminación" },
+      { label: "Tendencias Departamentales", path: "/departmental-trends", description: "Heat map de concentración de casos y niveles de riesgo por departamento" },
+      { label: "Encuestas Post-Caso", path: "/post-case-surveys", description: "Seguimiento 30/60/90 días y medición de efectividad de intervenciones" },
       { label: "Informe Numeral 7.5", path: "/reports/regulatory", description: "Informe de identificación y análisis" },
     ],
   },

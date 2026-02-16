@@ -16,8 +16,8 @@ export default function CaseAssignment() {
   const { data: cases, isLoading: casesLoading } = trpc.cases.list.useQuery();
   const { data: committeeMembers } = trpc.committee.list.useQuery();
 
-  const unassignedCases = cases?.filter((c) => c.status === "open" && !c.assignedTo) || [];
-  const assignedCases = cases?.filter((c) => c.assignedTo) || [];
+  const unassignedCases = cases?.cases?.filter((c: any) => c.status === "open" && !c.assignedTo) || [];
+  const assignedCases = cases?.cases?.filter((c: any) => c.assignedTo) || [];
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {

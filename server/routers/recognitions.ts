@@ -82,7 +82,7 @@ export const recognitionsRouter = router({
       // Enviar notificación al usuario destino (no bloqueante)
       createNotification({
         userId: input.toUserId,
-        type: "recognition",
+        type: "system",
         title: "¡Has recibido un reconocimiento!",
         message: `${ctx.user.name} te ha enviado un reconocimiento en la categoría "${category[0].name}": ${input.message.substring(0, 100)}${input.message.length > 100 ? '...' : ''}`,
         relatedEntityType: "recognition",

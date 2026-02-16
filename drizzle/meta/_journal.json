@@ -582,6 +582,13 @@
       "when": 1771201509103,
       "tag": "0082_curved_crystal",
       "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "5",
+      "when": 1771202989173,
+      "tag": "0083_hot_shaman",
+      "breakpoints": true
     }
   ]
 }

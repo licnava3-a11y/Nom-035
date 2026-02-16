@@ -51,6 +51,8 @@ import { massiveImportRouter } from "./routers/massiveImport";
 import { predictiveAnalyticsRouter } from "./routers/predictiveAnalytics";
 import { evidencesFolderRouter } from "./routers/evidencesFolder";
 import { nmx025EvidencesFolder } from "./routers/nmx025EvidencesFolder";
+import { departmentalTrendsRouter } from "./routers/departmentalTrends";
+import { postCaseSurveysRouter } from "./routers/postCaseSurveys";
 import { smtpConfigRouter } from "./routers/smtpConfig";
 import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
@@ -1299,6 +1301,8 @@ export const appRouter = router({
   predictiveAnalytics: predictiveAnalyticsRouter,
   evidencesFolder: evidencesFolderRouter,
   nmx025EvidencesFolder: nmx025EvidencesFolder,
+  departmentalTrends: departmentalTrendsRouter,
+  postCaseSurveys: postCaseSurveysRouter,
 
   // Survey Anonymous Tokens (NOM-035 anonymous access)
   surveyAnonymousTokens: surveyAnonymousTokensRouter,

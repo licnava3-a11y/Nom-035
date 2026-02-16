@@ -16,6 +16,7 @@ import {
   manualEvidences
 } from "../../drizzle/schema";
 import { eq, sql, and, gte } from "drizzle-orm";
+import { storagePut, storageDelete } from "../storage";
 
 // Tipos para evidencias
 interface Evidence {
@@ -448,8 +449,7 @@ export const evidencesFolderRouter = router({
         numeral: z.string(),
         title: z.string(),
         description: z.string().optional(),
-        fileUrl: z.string(),
-        fileKey: z.string(),
+        fileData: z.string(), // Base64 data
         fileName: z.string(),
         fileType: z.string().optional(),
       })
@@ -458,12 +458,23 @@ export const evidencesFolderRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
+      // Subir archivo a S3
+      const buffer = Buffer.from(input.fileData, 'base64');
+      const fileKey = `manual-evidences/${ctx.user.id}/${Date.now()}-${input.fileName}`;
+      
+      const { url: fileUrl } = await storagePut(
+        fileKey,
+        buffer,
+        input.fileType || 'application/octet-stream'
+      );
+
+      // Guardar en base de datos
       const [evidence] = await db.insert(manualEvidences).values({
         numeral: input.numeral,
         title: input.title,
         description: input.description,
-        fileUrl: input.fileUrl,
-        fileKey: input.fileKey,
+        fileUrl,
+        fileKey,
         fileName: input.fileName,
         fileType: input.fileType,
         uploadedBy: ctx.user.id,
@@ -496,8 +507,8 @@ export const evidencesFolderRouter = router({
         throw new Error("Evidence not found");
       }
 
-      // TODO: Eliminar archivo de S3 usando storageDelete cuando esté disponible
-      // await storageDelete(evidence.fileKey);
+      // Eliminar archivo de S3
+      await storageDelete(evidence.fileKey);
 
       // Eliminar registro de base de datos
       await db.delete(manualEvidences).where(eq(manualEvidences.id, input.evidenceId));

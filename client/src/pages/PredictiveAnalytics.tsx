@@ -134,7 +134,7 @@ export default function PredictiveAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {predictions.filter(p => p.riskLevel === 'high' || p.riskLevel === 'very_high').length}
+              {predictions.filter(p => p.riskLevel === 'critical').length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Requieren atención inmediata</p>
           </CardContent>

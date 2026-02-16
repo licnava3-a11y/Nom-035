@@ -317,13 +317,13 @@
 - [ ] Agregar navegación en menú lateral
 
 ### Fase 3: Sistema de Encuestas Post-Caso
-- [ ] Crear tabla post_case_surveys en schema (caseId, surveyType, scheduledDate, sentAt, completedAt)
-- [ ] Crear job post-case-surveys-job.ts (ejecutar diariamente)
-- [ ] Implementar lógica de envío automático 30/60/90 días después de cerrar caso
-- [ ] Crear procedure postCaseSurveys.getScheduled
-- [ ] Crear procedure postCaseSurveys.submitResponse
-- [ ] Implementar UI de respuesta de encuesta
-- [ ] Agregar dashboard de resultados de encuestas post-caso
+- [x] Crear tabla post_case_surveys en schema (caseId, surveyType, scheduledDate, sentAt, completedAt)
+- [x] Crear job post-case-surveys-job.ts (ejecutar diariamente)
+- [x] Implementar lógica de envío automático 30/60/90 días después de cerrar caso
+- [x] Crear procedure postCaseSurveys.getScheduled
+- [x] Crear procedure postCaseSurveys.submitResponse
+- [x] Implementar UI de respuesta de encuesta
+- [x] Agregar dashboard de resultados de encuestas post-caso
 
 ## Nuevas Tareas - Carpeta de Evidencias NMX-R-025-SCFI-2015 (Igualdad Laboral y No Discriminación)
 
@@ -344,23 +344,20 @@
 - [x] Agregar ruta en App.tsx
 - [x] Agregar navegación en menú lateral (Cumplimiento Normativo > NMX-025)
 
-### Fase 3: UI Carga Manual NOM-035 (Pendiente)
-- [ ] Implementar botón flotante "Cargar Evidencia" en EvidencesFolder.tsx
-- [ ] Crear dialog de upload con selector de numeral NOM-035
-- [ ] Agregar input de título y descripción en dialog
-- [ ] Implementar preview de archivos cargados
-- [ ] Agregar botón de eliminar evidencias manuales
-- [ ] Integrar con procedures uploadEvidence y deleteEvidence
-
-### Fase 4: Panel Tendencias Departamentales (Pendiente)
-- [ ] Crear router departmentalTrends
-- [ ] Implementar query getDepartmentalRiskMetrics
-- [ ] Crear página DepartmentalTrends.tsx
-- [ ] Implementar heat map con Chart.js
-- [ ] Agregar sistema de alertas automáticas por departamento
-- [ ] Agregar navegación en menú lateral
-
-### Fase 5: Encuestas Post-Caso (Pendiente)
+### Fase 3: UI Carga Manual NOM-035
+- [x] Implementar botón flotante "Cargar Evidencia" en EvidencesFolder.tsx
+- [x] Crear dialog de upload con selector de numeral NOM-035
+- [x] Agregar input de título y descripción en dialog
+- [x] Implementar preview de archivos cargados
+- [x] Agregar botón de eliminar evidencias manuales
+- [x] Integrar con procedures uploadEvidence y deleteEv### Fase 4: Panel Tendencias Departamentales
+- [x] Crear router departmentalTrends
+- [x] Implementar query getDepartmentalRiskMetrics
+- [x] Crear página DepartmentalTrends.tsx
+- [x] Implementar heat map con Chart.js
+- [x] Agregar sistema de alertas automáticas por departamento
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación en menú laterals Post-Caso (Pendiente)
 - [ ] Crear tabla post_case_surveys en schema
 - [ ] Generar y aplicar migración SQL
 - [ ] Crear router postCaseSurveys

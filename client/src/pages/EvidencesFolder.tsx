@@ -10,13 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { FileText, Download, CheckCircle2, AlertCircle, Clock, Upload, X, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export default function EvidencesFolder() {
 
   const [companySize, setCompanySize] = useState<'small' | 'medium' | 'large'>('large');
   const [isExporting, setIsExporting] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [selectedNumeral, setSelectedNumeral] = useState<string>('5.1');
+  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadDescription, setUploadDescription] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Query para obtener evidencias
   const { data: evidences, isLoading } = trpc.evidencesFolder.getEvidences.useQuery({
@@ -32,17 +42,14 @@ export default function EvidencesFolder() {
       link.download = `carpeta-evidencias-nom035-${new Date().toISOString().split('T')[0]}.pdf`;
       link.click();
       
-      toast({
-        title: "Carpeta exportada",
+      toast.success("Carpeta exportada", {
         description: "La carpeta de evidencias se ha generado exitosamente",
       });
       setIsExporting(false);
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "No se pudo generar la carpeta de evidencias",
-        variant: "destructive",
       });
       setIsExporting(false);
     },
@@ -51,6 +58,91 @@ export default function EvidencesFolder() {
   const handleExportPDF = () => {
     setIsExporting(true);
     exportPDF.mutate({ companySize });
+  };
+
+  // Mutation para subir evidencia manual
+  const utils = trpc.useUtils();
+  const uploadEvidence = trpc.evidencesFolder.uploadEvidence.useMutation({
+    onSuccess: () => {
+      toast.success("Evidencia cargada", {
+        description: "La evidencia se ha subido exitosamente",
+      });
+      setIsUploadDialogOpen(false);
+      setUploadTitle('');
+      setUploadDescription('');
+      setSelectedFile(null);
+      setIsUploading(false);
+      utils.evidencesFolder.getEvidences.invalidate();
+    },
+    onError: (error) => {
+      toast.error("Error", {
+        description: error.message || "No se pudo subir la evidencia",
+      });
+      setIsUploading(false);
+    },
+  });
+
+  // Mutation para eliminar evidencia manual
+  const deleteEvidence = trpc.evidencesFolder.deleteEvidence.useMutation({
+    onSuccess: () => {
+      toast.success("Evidencia eliminada", {
+        description: "La evidencia se ha eliminado exitosamente",
+      });
+      utils.evidencesFolder.getEvidences.invalidate();
+    },
+    onError: (error) => {
+      toast.error("Error", {
+        description: error.message || "No se pudo eliminar la evidencia",
+      });
+    },
+  });
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validar tamaño (máximo 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Archivo muy grande", {
+          description: "El archivo no debe superar 10MB",
+        });
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!selectedFile || !uploadTitle.trim()) {
+      toast.error("Campos requeridos", {
+        description: "Debes seleccionar un archivo y proporcionar un título",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    // Convertir archivo a base64
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      const base64Data = base64.split(',')[1]; // Remover prefijo data:...
+
+      uploadEvidence.mutate({
+        numeral: selectedNumeral,
+        title: uploadTitle,
+        description: uploadDescription || undefined,
+        fileData: base64Data,
+        fileName: selectedFile.name,
+        fileType: selectedFile.type,
+      });
+    };
+    reader.readAsDataURL(selectedFile);
+  };
+
+  const handleDeleteEvidence = (evidenceId: number) => {
+    if (confirm('¿Estás seguro de eliminar esta evidencia?')) {
+      deleteEvidence.mutate({ evidenceId });
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -122,10 +214,124 @@ export default function EvidencesFolder() {
             Documentación de cumplimiento NOM-035-STPS-2018
           </p>
         </div>
-        <Button onClick={handleExportPDF} disabled={isExporting}>
-          <Download className="mr-2 h-4 w-4" />
-          {isExporting ? "Generando PDF..." : "Exportar PDF"}
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Plus className="mr-2 h-4 w-4" />
+                Cargar Evidencia
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Cargar Evidencia Manual</DialogTitle>
+                <DialogDescription>
+                  Sube documentos adicionales para complementar la carpeta de evidencias
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {/* Selector de numeral */}
+                <div className="space-y-2">
+                  <Label htmlFor="numeral">Numeral NOM-035</Label>
+                  <Select value={selectedNumeral} onValueChange={setSelectedNumeral}>
+                    <SelectTrigger id="numeral">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5.1">5.1 - Política de Prevención</SelectItem>
+                      <SelectItem value="5.2">5.2 - Identificación de Factores de Riesgo</SelectItem>
+                      <SelectItem value="5.3">5.3 - Acontecimientos Traumáticos</SelectItem>
+                      <SelectItem value="5.4">5.4 - Difusión de Información</SelectItem>
+                      <SelectItem value="5.5">5.5 - Evaluaciones NOM-035</SelectItem>
+                      <SelectItem value="5.6">5.6 - Medidas de Control</SelectItem>
+                      <SelectItem value="5.7">5.7 - Difusión</SelectItem>
+                      <SelectItem value="5.8">5.8 - Registros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Título */}
+                <div className="space-y-2">
+                  <Label htmlFor="title">Título *</Label>
+                  <Input
+                    id="title"
+                    placeholder="Ej: Política firmada por dirección"
+                    value={uploadTitle}
+                    onChange={(e) => setUploadTitle(e.target.value)}
+                  />
+                </div>
+
+                {/* Descripción */}
+                <div className="space-y-2">
+                  <Label htmlFor="description">Descripción (opcional)</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Describe brevemente el contenido del documento"
+                    value={uploadDescription}
+                    onChange={(e) => setUploadDescription(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+
+                {/* Selección de archivo */}
+                <div className="space-y-2">
+                  <Label htmlFor="file">Archivo *</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="file"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      onChange={handleFileSelect}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                  {selectedFile && (
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm flex-1">{selectedFile.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedFile(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Formatos: PDF, JPG, PNG, DOC, DOCX (máx. 10MB)
+                  </p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsUploadDialogOpen(false)}
+                  disabled={isUploading}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={handleUploadSubmit} disabled={isUploading}>
+                  {isUploading ? (
+                    <>
+                      <Upload className="mr-2 h-4 w-4 animate-spin" />
+                      Subiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Subir Evidencia
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button onClick={handleExportPDF} disabled={isExporting}>
+            <Download className="mr-2 h-4 w-4" />
+            {isExporting ? "Generando PDF..." : "Exportar PDF"}
+          </Button>
+        </div>
       </div>
 
       {/* Información de la empresa */}
@@ -207,8 +413,22 @@ export default function EvidencesFolder() {
                         >
                           <FileText className="h-5 w-5 text-primary mt-0.5" />
                           <div className="flex-1">
-                            <p className="font-medium">{evidence.name}</p>
-                            <p className="text-sm text-muted-foreground">{evidence.description}</p>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <p className="font-medium">{evidence.name}</p>
+                                <p className="text-sm text-muted-foreground">{evidence.description}</p>
+                              </div>
+                              {evidence.type === 'manual' && evidence.id && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteEvidence(evidence.id)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                             <div className="flex items-center gap-2 mt-2">
                               <Badge variant="outline" className="text-xs">
                                 {evidence.type}
@@ -216,6 +436,16 @@ export default function EvidencesFolder() {
                               <span className="text-xs text-muted-foreground">
                                 {new Date(evidence.date).toLocaleDateString('es-MX')}
                               </span>
+                              {evidence.fileUrl && (
+                                <a
+                                  href={evidence.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  Ver archivo
+                                </a>
+                              )}
                             </div>
                           </div>
                         </div>

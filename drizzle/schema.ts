@@ -3121,3 +3121,33 @@ export const nmx025ManualEvidences = mysqlTable("nmx025_manual_evidences", {
 
 export type NMX025ManualEvidence = typeof nmx025ManualEvidences.$inferSelect;
 export type InsertNMX025ManualEvidence = typeof nmx025ManualEvidences.$inferInsert;
+
+/**
+ * Encuestas de seguimiento post-caso
+ * Se envían automáticamente 30/60/90 días después de cerrar un caso
+ * para medir efectividad de intervenciones
+ */
+export const postCaseSurveys = mysqlTable("post_case_surveys", {
+  id: int("id").autoincrement().primaryKey(),
+  caseId: int("case_id").notNull().references(() => cases.id, { onDelete: "cascade" }),
+  daysSinceClosure: int("days_since_closure").notNull(), // 30, 60 o 90
+  status: mysqlEnum("status", ["pending", "sent", "completed", "expired"]).default("pending").notNull(),
+  sentAt: timestamp("sent_at"),
+  completedAt: timestamp("completed_at"),
+  
+  // Respuestas de la encuesta (escala 1-5)
+  improvementRating: int("improvement_rating"), // ¿Ha mejorado la situación?
+  satisfactionRating: int("satisfaction_rating"), // ¿Qué tan satisfecho está con la resolución?
+  supportRating: int("support_rating"), // ¿Recibió el apoyo necesario?
+  recommendationRating: int("recommendation_rating"), // ¿Recomendaría el proceso?
+  
+  // Comentarios adicionales
+  comments: text("comments"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // Fecha de expiración (7 días después de envío)
+});
+
+export type PostCaseSurvey = typeof postCaseSurveys.$inferSelect;
+export type InsertPostCaseSurvey = typeof postCaseSurveys.$inferInsert;
