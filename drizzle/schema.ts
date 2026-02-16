@@ -3170,3 +3170,64 @@ export const jobExecutions = mysqlTable("job_executions", {
 });
 export type JobExecution = typeof jobExecutions.$inferSelect;
 export type InsertJobExecution = typeof jobExecutions.$inferInsert;
+
+
+/**
+ * Root Cause Analysis - Análisis de Causas Raíz con IA
+ * Almacena análisis automatizados de patrones en casos cerrados
+ */
+export const rootCauseAnalysis = mysqlTable("root_cause_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  analysisDate: timestamp("analysis_date").notNull(), // Fecha del análisis
+  periodStart: date("period_start").notNull(), // Inicio del período analizado
+  periodEnd: date("period_end").notNull(), // Fin del período analizado
+  totalCasesAnalyzed: int("total_cases_analyzed").notNull(), // Total de casos analizados
+  
+  // Resultados del análisis (JSON estructurado)
+  rootCauses: json("root_causes").$type<Array<{
+    cause: string;
+    frequency: number;
+    percentage: number;
+    affectedDepartments: string[];
+    severity: "low" | "medium" | "high" | "critical";
+  }>>().notNull(), // Causas raíz identificadas
+  
+  patterns: json("patterns").$type<Array<{
+    pattern: string;
+    description: string;
+    casesAffected: number;
+    departments: string[];
+  }>>().notNull(), // Patrones detectados
+  
+  correlations: json("correlations").$type<Array<{
+    factor1: string;
+    factor2: string;
+    correlationStrength: number; // 0-1
+    description: string;
+  }>>(), // Correlaciones entre factores
+  
+  recommendations: json("recommendations").$type<Array<{
+    priority: "high" | "medium" | "low";
+    recommendation: string;
+    targetDepartments: string[];
+    expectedImpact: string;
+    actionItems: string[];
+  }>>().notNull(), // Recomendaciones preventivas
+  
+  departmentInsights: json("department_insights").$type<Record<string, {
+    totalCases: number;
+    topCauses: string[];
+    riskLevel: "low" | "medium" | "high" | "critical";
+    specificRecommendations: string[];
+  }>>(), // Insights por departamento
+  
+  llmModel: varchar("llm_model", { length: 100 }), // Modelo de IA utilizado
+  analysisStatus: mysqlEnum("analysis_status", ["pending", "completed", "failed"]).default("pending").notNull(),
+  errorMessage: text("error_message"), // Mensaje de error si falló
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RootCauseAnalysis = typeof rootCauseAnalysis.$inferSelect;
+export type InsertRootCauseAnalysis = typeof rootCauseAnalysis.$inferInsert;

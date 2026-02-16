@@ -84,6 +84,7 @@ import { notificationLogsRouter } from "./routers/notificationLogs";
 import { skillsMatrixSnapshotsRouter } from "./routers/skillsMatrixSnapshots";
 import { recognitionsRouter } from "./routers/recognitions";
 import { casesManagementRouter } from "./routers/casesManagement";
+import { rootCauseAnalysisRouter } from "./routers/rootCauseAnalysis";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -170,6 +171,7 @@ export const appRouter = router({
   financial: financialRouter,
   recognitions: recognitionsRouter,
   casesManagement: casesManagementRouter,
+  rootCauseAnalysis: rootCauseAnalysisRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

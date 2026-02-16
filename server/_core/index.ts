@@ -19,6 +19,7 @@ import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
 import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
 import { startCalculateRiskLevelJob } from "../jobs/calculate-risk-level-job";
+import { runRootCauseAnalysisJob } from "../jobs/root-cause-analysis-job";
 import { schedulePostCaseSurveysJob } from "../jobs/post-case-surveys-job";
 import { scheduleDepartmentalAlertsJob } from "../jobs/departmental-alerts-job";
 import { scheduleSurveyRemindersJob } from "../jobs/survey-reminders-job";
@@ -136,6 +137,14 @@ async function startServer() {
     schedulePostCaseSurveysJob();
     scheduleDepartmentalAlertsJob();
     scheduleSurveyRemindersJob();
+    
+    // Schedule root cause analysis job (monthly on 1st day at 3:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getDate() === 1 && now.getHours() === 3 && now.getMinutes() === 0) {
+        runRootCauseAnalysisJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
     
     // Schedule predictive alerts job (daily at 8:00 AM)
     setInterval(() => {

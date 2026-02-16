@@ -610,3 +610,112 @@
 - [x] 15 errores TypeScript corregidos (15 → 0 errores)
 - [x] Sistema compilando sin errores
 - [x] Todas las funcionalidades implementadas y operativas
+
+
+## Nuevas Tareas - Panel de Análisis de Causas Raíz con IA
+
+### 1. Crear Tabla root_cause_analysis en Schema
+- [ ] Agregar tabla root_cause_analysis con campos: id, analysisDate, periodStart, periodEnd, totalCasesAnalyzed, rootCauses (JSON), patterns (JSON), recommendations (JSON), departmentInsights (JSON), createdAt
+- [ ] Generar migración SQL con drizzle-kit
+- [ ] Aplicar migración a base de datos
+
+### 2. Implementar Router rootCauseAnalysis con Integración LLM
+- [ ] Crear router rootCauseAnalysis.ts
+- [ ] Implementar procedure analyzeClosedCases con invokeLLM
+- [ ] Query para obtener casos cerrados por período
+- [ ] Enviar datos a LLM para análisis de patrones
+- [ ] Parsear respuesta JSON estructurada del LLM
+- [ ] Guardar análisis en tabla root_cause_analysis
+- [ ] Implementar procedure getLatestAnalysis
+- [ ] Implementar procedure getAnalysisHistory con paginación
+- [ ] Registrar router en appRouter
+
+### 3. Implementar Análisis Automatizado con IA
+- [ ] Diseñar prompt estructurado para LLM (causas raíz, patrones, correlaciones)
+- [ ] Implementar clustering de casos similares por descripción
+- [ ] Identificar causas recurrentes por departamento
+- [ ] Calcular correlaciones entre tipo de caso, prioridad y departamento
+- [ ] Generar recomendaciones preventivas priorizadas (top 5)
+- [ ] Usar response_format JSON schema para respuesta estructurada
+
+### 4. Crear Página RootCauseAnalysis.tsx con Visualizaciones
+- [ ] Crear página RootCauseAnalysis.tsx
+- [ ] Implementar 4 cards de métricas resumen (casos analizados, causas identificadas, patrones detectados, recomendaciones)
+- [ ] Agregar gráfico de barras de causas raíz más frecuentes (Chart.js)
+- [ ] Implementar heat map de correlaciones entre factores de riesgo
+- [ ] Crear tabla de recomendaciones priorizadas con badges de urgencia
+- [ ] Agregar filtros por departamento y período (último mes, trimestre, año)
+- [ ] Implementar botón "Analizar Ahora" para ejecutar análisis manual
+- [ ] Agregar sección de insights departamentales expandibles
+- [ ] Agregar ruta /root-cause-analysis en App.tsx
+- [ ] Agregar navegación en DashboardLayout (Prevención de Riesgos > Análisis de Causas Raíz)
+
+### 5. Implementar Job Automático de Análisis Periódico
+- [ ] Crear job root-cause-analysis-job.ts
+- [ ] Configurar ejecución mensual (primer día del mes, 3:00 AM)
+- [ ] Analizar casos cerrados del mes anterior
+- [ ] Guardar resultados en tabla root_cause_analysis
+- [ ] Enviar notificación a administradores con resumen
+- [ ] Registrar job en server startup
+
+### 6. Verificación y Testing
+- [ ] Verificar que análisis LLM funciona correctamente
+- [ ] Probar con casos de prueba cerrados
+- [ ] Verificar visualizaciones en frontend
+- [ ] Confirmar que job automático se ejecuta correctamente
+- [ ] Guardar checkpoint final
+
+
+## Panel de Análisis de Causas Raíz con IA - COMPLETADO
+
+### 1. Crear Tabla root_cause_analysis en Schema
+- [x] Agregar tabla root_cause_analysis con campos: id, analysisDate, periodStart, periodEnd, totalCasesAnalyzed, rootCauses (JSON), patterns (JSON), recommendations (JSON), departmentInsights (JSON), createdAt
+- [x] Generar migración SQL con drizzle-kit
+- [x] Aplicar migración a base de datos
+
+### 2. Implementar Router rootCauseAnalysis con Integración LLM
+- [x] Crear router rootCauseAnalysis.ts
+- [x] Implementar procedure analyzeClosedCases con invokeLLM
+- [x] Query para obtener casos cerrados por período
+- [x] Enviar datos a LLM para análisis de patrones
+- [x] Parsear respuesta JSON estructurada del LLM
+- [x] Guardar análisis en tabla root_cause_analysis
+- [x] Implementar procedure getLatestAnalysis
+- [x] Implementar procedure getAnalysisHistory con paginación
+- [x] Registrar router en appRouter
+
+### 3. Implementar Análisis Automatizado con IA
+- [x] Diseñar prompt estructurado para LLM (causas raíz, patrones, correlaciones)
+- [x] Implementar clustering de casos similares por descripción
+- [x] Identificar causas recurrentes por departamento
+- [x] Calcular correlaciones entre tipo de caso, prioridad y departamento
+- [x] Generar recomendaciones preventivas priorizadas (top 5)
+- [x] Usar response_format JSON schema para respuesta estructurada
+
+### 4. Crear Página RootCauseAnalysis.tsx con Visualizaciones
+- [x] Crear página RootCauseAnalysis.tsx
+- [x] Implementar 4 cards de métricas resumen (casos analizados, causas identificadas, patrones detectados, recomendaciones)
+- [x] Agregar gráfico de barras de causas raíz más frecuentes (Chart.js)
+- [x] Implementar heat map de correlaciones entre factores de riesgo
+- [x] Crear tabla de recomendaciones priorizadas con badges de urgencia
+- [x] Agregar filtros por departamento y período (último mes, trimestre, año)
+- [x] Implementar botón "Analizar Ahora" para ejecutar análisis manual
+- [x] Agregar sección de insights departamentales expandibles
+- [x] Agregar ruta /root-cause-analysis en App.tsx
+- [x] Agregar navegación en DashboardLayout (Prevención de Riesgos > Análisis de Causas Raíz)
+
+### 5. Implementar Job Automático de Análisis Periódico
+- [x] Crear job root-cause-analysis-job.ts
+- [x] Configurar ejecución mensual (primer día del mes, 3:00 AM)
+- [x] Analizar casos cerrados del mes anterior
+- [x] Guardar resultados en tabla root_cause_analysis
+- [x] Enviar notificación a administradores con resumen
+- [x] Registrar job en server startup
+
+### 6. Verificación y Testing
+- [x] Verificar que análisis LLM funciona correctamente
+- [x] Probar con casos de prueba cerrados
+- [x] Verificar visualizaciones en frontend
+- [x] Confirmar que job automático se ejecuta correctamente
+- [x] Sistema compilando sin errores TypeScript (0 errores)
+- [x] Guardar checkpoint final

@@ -131,6 +131,7 @@ const hierarchicalMenuItems = [
       { label: "Gestión de Casos Manuales", path: "/cases-management", description: "Crear y gestionar casos manualmente" },
       { label: "Métricas de Casos", path: "/cases/metrics", description: "Análisis y tendencias de casos" },
       { label: "Análisis Predictivo", path: "/predictive-analytics", description: "Identificación temprana de empleados en riesgo" },
+      { label: "Análisis de Causas Raíz", path: "/root-cause-analysis", description: "Identificación de patrones con IA en casos cerrados" },
       { label: "Investigación", path: "/cases/investigations", description: "Cuestionarios de mobbing y burnout" },
       { label: "Protocolo de Violencia Laboral", path: "/cases/workplace-violence", description: "Gestión de casos de violencia laboral" },
       { label: "Buzón de Quejas", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
