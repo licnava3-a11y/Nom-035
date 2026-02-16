@@ -3590,3 +3590,44 @@ export const sharedReportsLog = mysqlTable("shared_reports_log", {
   
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+
+// Tabla de caché de reportes generados
+export const reportCache = mysqlTable("report_cache", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Tipo de reporte
+  reportType: mysqlEnum("report_type", ["intervention_impact_pdf", "intervention_impact_excel", "shared_reports_excel"]).notNull(),
+  
+  // Hash MD5 de los parámetros de entrada (para identificación única)
+  paramsHash: varchar("params_hash", { length: 32 }).notNull().unique(),
+  
+  // Parámetros originales (JSON)
+  params: json("params").$type<{
+    status?: string;
+    interventionType?: string;
+    chartImages?: any;
+    companyLogo?: string;
+    [key: string]: any;
+  }>(),
+  
+  // URL del reporte en S3
+  reportUrl: text("report_url").notNull(),
+  fileName: varchar("file_name", { length: 255 }).notNull(),
+  
+  // Tamaño del archivo en bytes
+  fileSize: int("file_size"),
+  
+  // Usuario que generó el reporte
+  generatedBy: int("generated_by").notNull(),
+  generatedByName: varchar("generated_by_name", { length: 255 }),
+  
+  // Contadores de uso
+  hitCount: int("hit_count").default(0), // Cuántas veces se reutilizó desde caché
+  
+  // Expiración (24 horas por defecto)
+  expiresAt: timestamp("expires_at").notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+});

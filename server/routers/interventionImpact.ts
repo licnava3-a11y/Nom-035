@@ -303,12 +303,64 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       z.object({
         status: z.enum(["active", "completed", "archived"]).optional(),
         interventionType: z.enum(["training", "policy_change", "organizational_change", "corrective_action", "awareness_campaign", "other"]).optional(),
+        chartImages: z.object({
+          effectivenessChart: z.string().optional(),
+          casesChart: z.string().optional(),
+          typeDistributionChart: z.string().optional(),
+        }).optional(),
+        companyLogo: z.string().optional(), // Base64 del logo de la empresa
       })
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
 
+      // Generar hash MD5 de los parámetros para caché
+      const crypto = await import("crypto");
+      const paramsString = JSON.stringify({
+        status: input.status,
+        interventionType: input.interventionType,
+        hasCharts: !!input.chartImages,
+        hasLogo: !!input.companyLogo,
+      });
+      const paramsHash = crypto.createHash("md5").update(paramsString).digest("hex");
+
+      // Buscar en caché (reportes generados en las últimas 24 horas)
+      const { reportCache } = await import("../../drizzle/schema");
+      const { gt } = await import("drizzle-orm");
+      
+      const cachedReport = await db
+        .select()
+        .from(reportCache)
+        .where(
+          and(
+            eq(reportCache.paramsHash, paramsHash),
+            eq(reportCache.reportType, "intervention_impact_pdf"),
+            gt(reportCache.expiresAt, new Date())
+          )
+        )
+        .limit(1);
+
+      if (cachedReport.length > 0) {
+        // Actualizar contador de hits y último acceso
+        await db
+          .update(reportCache)
+          .set({
+            hitCount: (cachedReport[0].hitCount || 0) + 1,
+            lastAccessedAt: new Date(),
+          })
+          .where(eq(reportCache.id, cachedReport[0].id));
+
+        return {
+          success: true,
+          url: cachedReport[0].reportUrl,
+          fileName: cachedReport[0].fileName,
+          cached: true,
+          cacheHits: (cachedReport[0].hitCount || 0) + 1,
+        };
+      }
+
+      // No hay caché, generar nuevo reporte
       // Obtener datos filtrados
       const conditions = [];
       if (input.status) conditions.push(eq(interventionImpactAnalysis.status, input.status));
@@ -325,21 +377,37 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       const avgEffectiveness = interventions.reduce((sum, i) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
       const totalCasesAvoided = interventions.reduce((sum, i) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
 
-      // Generar PDF con PDFKit
+      // Generar PDF con PDFKit (con compresión habilitada)
       const PDFDocument = (await import("pdfkit")).default;
-      const doc = new PDFDocument({ margin: 50 });
+      const doc = new PDFDocument({ 
+        margin: 50,
+        compress: true, // Habilitar compresión de PDF
+        autoFirstPage: true
+      });
 
       const chunks: Buffer[] = [];
       doc.on("data", (chunk) => chunks.push(chunk));
 
       // Portada
+      // Agregar logo si está disponible
+      if (input.companyLogo) {
+        try {
+          const logoBuffer = Buffer.from(input.companyLogo.split(",")[1], "base64");
+          doc.image(logoBuffer, { fit: [150, 150], align: "center" });
+          doc.moveDown();
+        } catch (error) {
+          console.error("Error al agregar logo:", error);
+        }
+      }
+
       doc.fontSize(24).font("Helvetica-Bold").text("Reporte de Análisis de Impacto de Intervenciones", { align: "center" });
       doc.moveDown();
-      doc.fontSize(12).font("Helvetica").text(`Fecha de generación: ${new Date().toLocaleDateString("es-MX")}`, { align: "center" });
+      doc.fontSize(12).font("Helvetica").text(`Fecha de generación: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`, { align: "center" });
       doc.text(`Generado por: ${ctx.user.name}`, { align: "center" });
       doc.moveDown(2);
 
       // Resumen ejecutivo
+      doc.addPage();
       doc.fontSize(16).font("Helvetica-Bold").text("Resumen Ejecutivo", { underline: true });
       doc.moveDown();
       doc.fontSize(12).font("Helvetica");
@@ -347,6 +415,46 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       doc.text(`Efectividad promedio: ${avgEffectiveness.toFixed(1)}/100`);
       doc.text(`Total de casos evitados: ${totalCasesAvoided}`);
       doc.moveDown(2);
+
+      // Agregar gráficos si están disponibles
+      if (input.chartImages) {
+        if (input.chartImages.effectivenessChart) {
+          try {
+            const chartBuffer = Buffer.from(input.chartImages.effectivenessChart.split(",")[1], "base64");
+            doc.fontSize(14).font("Helvetica-Bold").text("Gráfico de Efectividad");
+            doc.moveDown(0.5);
+            doc.image(chartBuffer, { fit: [450, 250] });
+            doc.moveDown();
+          } catch (error) {
+            console.error("Error al agregar gráfico de efectividad:", error);
+          }
+        }
+
+        if (input.chartImages.casesChart) {
+          try {
+            const chartBuffer = Buffer.from(input.chartImages.casesChart.split(",")[1], "base64");
+            doc.fontSize(14).font("Helvetica-Bold").text("Gráfico de Reducción de Casos");
+            doc.moveDown(0.5);
+            doc.image(chartBuffer, { fit: [450, 250] });
+            doc.moveDown();
+          } catch (error) {
+            console.error("Error al agregar gráfico de casos:", error);
+          }
+        }
+
+        if (input.chartImages.typeDistributionChart) {
+          try {
+            const chartBuffer = Buffer.from(input.chartImages.typeDistributionChart.split(",")[1], "base64");
+            doc.addPage();
+            doc.fontSize(14).font("Helvetica-Bold").text("Distribución por Tipo de Intervención");
+            doc.moveDown(0.5);
+            doc.image(chartBuffer, { fit: [450, 250] });
+            doc.moveDown();
+          } catch (error) {
+            console.error("Error al agregar gráfico de distribución:", error);
+          }
+        }
+      }
 
       // Tabla de intervenciones
       doc.fontSize(16).font("Helvetica-Bold").text("Detalle de Intervenciones", { underline: true });
@@ -358,7 +466,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         doc.fontSize(14).font("Helvetica-Bold").text(`${idx + 1}. ${intervention.interventionName}`);
         doc.fontSize(10).font("Helvetica");
         doc.text(`Tipo: ${intervention.interventionType}`);
-        doc.text(`Fecha de implementación: ${new Date(intervention.implementationDate).toLocaleDateString("es-MX")}`);
+        doc.text(`Fecha de implementación: ${new Date(intervention.implementationDate).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`);
         doc.text(`Casos antes: ${intervention.casesBeforeCount} | Casos después: ${intervention.casesAfterCount}`);
         doc.text(`Reducción: ${Number(intervention.caseReductionPercentage || 0).toFixed(1)}%`);
         doc.text(`Efectividad: ${Number(intervention.effectivenessScore || 0).toFixed(1)}/100`);
@@ -395,7 +503,28 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       const fileName = `intervention-impact-report-${Date.now()}.pdf`;
       const { url } = await storagePut(`reports/${fileName}`, pdfBuffer, "application/pdf");
 
-      return { success: true, url, fileName };
+      // Guardar en caché (expira en 24 horas)
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24);
+
+      await db.insert(reportCache).values({
+        reportType: "intervention_impact_pdf",
+        paramsHash,
+        params: {
+          status: input.status,
+          interventionType: input.interventionType,
+          hasCharts: !!input.chartImages,
+          hasLogo: !!input.companyLogo,
+        },
+        reportUrl: url,
+        fileName,
+        fileSize: pdfBuffer.length,
+        generatedBy: ctx.user.id,
+        generatedByName: ctx.user.name,
+        expiresAt,
+      });
+
+      return { success: true, url, fileName, cached: false };
     }),
 
   // Exportar a Excel

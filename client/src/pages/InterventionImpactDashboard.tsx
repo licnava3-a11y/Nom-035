@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export default function InterventionImpactDashboard() {
   const [shareReportType, setShareReportType] = useState<"pdf" | "excel">("pdf");
   const [selectedIntervention, setSelectedIntervention] = useState<any>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const chartRef = useRef<any>(null);
 
   const { data: dashboard, isLoading: dashboardLoading } = trpc.interventionImpact.getDashboard.useQuery();
   const { data: interventions, isLoading, refetch } = trpc.interventionImpact.list.useQuery({
@@ -125,17 +126,39 @@ export default function InterventionImpactDashboard() {
   };
 
   const handleExportPDF = () => {
+    // Capturar gráfico Chart.js como imagen base64
+    let chartImage: string | undefined;
+    if (chartRef.current) {
+      try {
+        chartImage = chartRef.current.toBase64Image();
+      } catch (error) {
+        console.error("Error al capturar gráfico:", error);
+      }
+    }
+
     exportPDFMutation.mutate({
       status: selectedStatus === "all" ? undefined : (selectedStatus as any),
       interventionType: selectedType === "all" ? undefined : (selectedType as any),
+      chartImages: chartImage ? { effectivenessChart: chartImage } : undefined,
     });
   };
 
   const handleExportAndSharePDF = () => {
+    // Capturar gráfico Chart.js como imagen base64
+    let chartImage: string | undefined;
+    if (chartRef.current) {
+      try {
+        chartImage = chartRef.current.toBase64Image();
+      } catch (error) {
+        console.error("Error al capturar gráfico:", error);
+      }
+    }
+
     exportPDFMutation.mutate(
       {
         status: selectedStatus === "all" ? undefined : (selectedStatus as any),
         interventionType: selectedType === "all" ? undefined : (selectedType as any),
+        chartImages: chartImage ? { effectivenessChart: chartImage } : undefined,
       },
       {
         onSuccess: (data) => {
@@ -399,7 +422,7 @@ export default function InterventionImpactDashboard() {
         </CardHeader>
         <CardContent>
           <div style={{ height: "300px" }}>
-            <Line data={chartData} options={chartOptions} />
+            <Line ref={chartRef} data={chartData} options={chartOptions} />
           </div>
         </CardContent>
       </Card>

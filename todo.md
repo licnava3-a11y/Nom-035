@@ -1177,3 +1177,10 @@
 - [x] Mover "Certificados de Capacitación" de primer nivel a segundo nivel dentro de "Capacitación y Desarrollo"
 - [x] Actualizar estructura de navegación en DashboardLayout
 - [x] Verificar que la ruta /certificates siga funcionando correctamente
+
+## Mejoras de Exportación PDF - Dashboard de Impacto
+- [x] Implementar captura de gráficos Chart.js con html2canvas
+- [x] Mejorar formato de fechas con toLocaleDateString('es-MX')
+- [x] Agregar logo de empresa en portada de PDF
+- [x] Implementar compresión de archivos PDF para reducir tamaño
+- [x] Implementar caché de reportes generados para evitar regeneración
