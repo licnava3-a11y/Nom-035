@@ -839,3 +839,69 @@
 - [x] NOM-035 STPS 2018
 - [x] Investigación de Casos
 - [x] Otro (personalizable)
+
+
+## Nuevas Funcionalidades - Dashboard de Recomendaciones, Reportes Ejecutivos y Evaluación de Capacitaciones
+
+### 1. Dashboard de Seguimiento de Recomendaciones del Análisis de Causas Raíz
+- [ ] Crear tabla `recommendations_tracking` con estados y responsables
+- [ ] Crear router `recommendationsTracking` con CRUD completo
+- [ ] Implementar métricas de efectividad (reducción de casos similares)
+- [ ] Crear página `RecommendationsTracking.tsx` con dashboard de KPIs
+- [ ] Agregar visualizaciones de progreso y tendencias
+- [ ] Integrar navegación en DashboardLayout
+
+### 2. Exportación de Reportes Ejecutivos en PDF/Excel
+- [ ] Implementar generación de PDF para análisis de causas raíz
+- [ ] Implementar generación de PDF para capacitaciones del comité
+- [ ] Implementar exportación a Excel con datos tabulares
+- [ ] Agregar gráficos embebidos en reportes PDF
+- [ ] Implementar comparativas mes a mes
+- [ ] Crear botones de exportación en páginas relevantes
+
+### 3. Sistema de Evaluación de Instructores y Calidad de Capacitaciones
+- [ ] Crear tabla `training_evaluations` con campos de evaluación
+- [ ] Crear router `trainingEvaluations` con CRUD completo
+- [ ] Implementar encuestas post-capacitación
+- [ ] Crear página `TrainingEvaluations.tsx` con dashboard
+- [ ] Agregar dashboard de calificaciones promedio por instructor
+- [ ] Implementar análisis de tendencias y mejora continua
+- [ ] Integrar navegación en DashboardLayout
+
+
+## ✅ Nuevas Funcionalidades Completadas - Análisis y Capacitación
+
+### 1. Dashboard de Seguimiento de Recomendaciones del Análisis de Causas Raíz
+- [x] Tabla `recommendations_tracking` creada con 18 campos
+- [x] Router `recommendationsTracking` con 8 procedures (CRUD + métricas)
+- [x] Cálculo automático de efectividad (reducción de casos similares)
+- [x] Página `RecommendationsTracking.tsx` con dashboard de KPIs
+- [x] 4 cards de métricas (total, tasa completitud, en progreso, efectividad promedio)
+- [x] Top 5 recomendaciones más efectivas
+- [x] Filtros por estado y prioridad
+- [x] Notificaciones automáticas al asignar/reasignar
+- [x] Ruta y navegación agregadas
+
+### 2. Exportación de Reportes Ejecutivos en PDF/Excel
+- [x] Router `reportsExport` con 2 procedures
+- [x] `generateRootCauseAnalysisPDF`: PDF completo de análisis con gráficos
+- [x] `generateTrainingsExcel`: Excel de capacitaciones con matrices separadas
+- [x] Resumen ejecutivo con métricas consolidadas
+- [x] Causas raíz identificadas con frecuencia y severidad
+- [x] Recomendaciones preventivas priorizadas
+- [x] Seguimiento de implementación con efectividad
+- [x] Filtros por rango de fechas
+- [x] Subida automática a S3
+
+### 3. Sistema de Evaluación de Instructores y Calidad de Capacitaciones
+- [x] Tabla `training_evaluations` creada con 17 campos
+- [x] Router `trainingEvaluations` con 6 procedures
+- [x] Evaluación con 9 criterios (instructor, contenido, aplicabilidad)
+- [x] Dashboard por capacitación con promedios y recomendaciones
+- [x] Dashboard global con top 5 capacitaciones
+- [x] Página `TrainingEvaluationsDashboard.tsx` completa
+- [x] Visualización con estrellas (1-5) para calificaciones
+- [x] Sección de comentarios y retroalimentación
+- [x] Filtro por capacitación individual o vista global
+- [x] Validación de permisos y prevención de duplicados
+- [x] Ruta y navegación agregadas

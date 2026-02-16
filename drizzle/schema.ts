@@ -3297,3 +3297,69 @@ export const trainingCertificates = mysqlTable("training_certificates", {
 });
 export type TrainingCertificate = typeof trainingCertificates.$inferSelect;
 export type InsertTrainingCertificate = typeof trainingCertificates.$inferInsert;
+
+
+/**
+ * Seguimiento de recomendaciones del análisis de causas raíz
+ */
+export const recommendationsTracking = mysqlTable("recommendations_tracking", {
+  id: int("id").autoincrement().primaryKey(),
+  analysisId: int("analysis_id").notNull().references(() => rootCauseAnalysis.id, { onDelete: "cascade" }),
+  
+  recommendation: text("recommendation").notNull(), // Texto de la recomendación
+  priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  category: varchar("category", { length: 100 }), // Categoría (prevención, capacitación, proceso, etc.)
+  
+  status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
+  assignedTo: int("assigned_to").references(() => users.id, { onDelete: "set null" }), // Responsable
+  dueDate: date("due_date"), // Fecha límite
+  completionDate: date("completion_date"), // Fecha de completación
+  
+  // Métricas de efectividad
+  targetCaseType: varchar("target_case_type", { length: 50 }), // Tipo de caso objetivo
+  targetDepartmentId: int("target_department_id").references(() => departments.id, { onDelete: "set null" }),
+  baselineCaseCount: int("baseline_case_count"), // Casos antes de implementar
+  currentCaseCount: int("current_case_count"), // Casos después de implementar
+  reductionPercentage: decimal("reduction_percentage", { precision: 5, scale: 2 }), // % de reducción
+  
+  notes: text("notes"), // Notas de seguimiento
+  evidenceUrls: json("evidence_urls").$type<string[]>(), // URLs de evidencias
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type RecommendationTracking = typeof recommendationsTracking.$inferSelect;
+export type InsertRecommendationTracking = typeof recommendationsTracking.$inferInsert;
+
+
+// Tabla de evaluaciones de capacitaciones del comité
+export const trainingEvaluations = mysqlTable("training_evaluations", {
+  id: int("id").autoincrement().primaryKey(),
+  assignmentId: int("assignment_id").notNull().references(() => trainingAssignments.id, { onDelete: "cascade" }),
+  evaluatorId: int("evaluator_id").notNull().references(() => users.id),
+  
+  // Evaluación del instructor
+  instructorKnowledge: int("instructor_knowledge").notNull(), // 1-5
+  instructorCommunication: int("instructor_communication").notNull(), // 1-5
+  instructorEngagement: int("instructor_engagement").notNull(), // 1-5
+  
+  // Evaluación del contenido
+  contentRelevance: int("content_relevance").notNull(), // 1-5
+  contentClarity: int("content_clarity").notNull(), // 1-5
+  contentDepth: int("content_depth").notNull(), // 1-5
+  
+  // Evaluación de aplicabilidad
+  practicalApplication: int("practical_application").notNull(), // 1-5
+  workplaceRelevance: int("workplace_relevance").notNull(), // 1-5
+  
+  // Evaluación general
+  overallSatisfaction: int("overall_satisfaction").notNull(), // 1-5
+  wouldRecommend: mysqlEnum("would_recommend", ["yes", "no", "maybe"]).notNull(),
+  
+  // Comentarios
+  strengths: text("strengths"), // Fortalezas de la capacitación
+  improvements: text("improvements"), // Áreas de mejora
+  additionalComments: text("additional_comments"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});

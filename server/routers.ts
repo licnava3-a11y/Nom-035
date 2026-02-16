@@ -88,6 +88,9 @@ import { rootCauseAnalysisRouter } from "./routers/rootCauseAnalysis";
 import { committeeTrainingsRouter } from "./routers/committeeTrainings";
 import { trainingAssignmentsRouter } from "./routers/trainingAssignments";
 import { trainingCertificatesRouter } from "./routers/trainingCertificates";
+import { recommendationsTrackingRouter } from "./routers/recommendationsTracking";
+import { reportsExportRouter } from "./routers/reportsExport";
+import { trainingEvaluationsRouter } from "./routers/trainingEvaluations";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -178,6 +181,9 @@ export const appRouter = router({
   committeeTrainings: committeeTrainingsRouter,
   trainingAssignments: trainingAssignmentsRouter,
   trainingCertificates: trainingCertificatesRouter,
+  recommendationsTracking: recommendationsTrackingRouter,
+  reportsExport: reportsExportRouter,
+  trainingEvaluations: trainingEvaluationsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
