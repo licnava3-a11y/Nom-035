@@ -1,0 +1,35 @@
+{
+  "query": "SELECT d.name, d.code, COUNT(c.id) as total_cases \nFROM departments d \nLEFT JOIN cases c ON d.id = c.departmentId \nGROUP BY d.id, d.name, d.code \nORDER BY total_cases DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT d.name, d.code, COUNT(c.id) as total_cases \nFROM departments d \nLEFT JOIN cases c ON d.id = c.departmentId \nGROUP BY d.id, d.name, d.code \nORDER BY total_cases DESC;",
+  "rows": [
+    {
+      "name": "Recursos Humanos",
+      "code": "RH",
+      "total_cases": "85"
+    },
+    {
+      "name": "Tecnologías de la Información",
+      "code": "TI",
+      "total_cases": "40"
+    },
+    {
+      "name": "Finanzas",
+      "code": "FIN",
+      "total_cases": "33"
+    },
+    {
+      "name": "Comercial",
+      "code": "COM",
+      "total_cases": "15"
+    },
+    {
+      "name": "Operaciones",
+      "code": "OPS",
+      "total_cases": "15"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tcode\ttotal_cases\nRecursos Humanos\tRH\t85\nTecnologías de la Información\tTI\t40\nFinanzas\tFIN\t33\nComercial\tCOM\t15\nOperaciones\tOPS\t15\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

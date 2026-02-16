@@ -38,7 +38,7 @@ export const departmentalTrendsRouter = router({
       // Obtener todos los departamentos
       const allDepartments = await db.select().from(departments);
 
-      // Obtener casos agrupados por prioridad (usamos priority en lugar de riskLevel)
+      // Obtener casos agrupados por departamento usando departmentId real
       const allCases = await db
         .select({
           id: cases.id,
@@ -46,15 +46,15 @@ export const departmentalTrendsRouter = router({
           priority: cases.priority,
           createdAt: cases.createdAt,
           closedAt: cases.closedAt,
+          departmentId: cases.departmentId,
         })
         .from(cases)
         .where(and(...dateConditions));
 
-      // Simular distribución de casos por departamento (en ausencia de employeeId)
-      // En producción, se debería agregar campo employeeId o departmentId a tabla cases
-      const departmentalCases = allDepartments.map((dept, index) => {
-        // Distribuir casos entre departamentos de forma proporcional
-        const deptCases = allCases.filter((_, i) => i % allDepartments.length === index);
+      // Agrupar casos por departamento usando departmentId real
+      const departmentalCases = allDepartments.map((dept) => {
+        // Filtrar casos del departamento actual
+        const deptCases = allCases.filter(c => c.departmentId === dept.id);
         
         const totalCases = deptCases.length;
         const openCases = deptCases.filter(c => c.status === 'open').length;

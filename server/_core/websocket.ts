@@ -19,6 +19,19 @@ export function initializeWebSocket(httpServer: HTTPServer) {
   io.on("connection", (socket) => {
     console.log(`[WebSocket] Cliente conectado: ${socket.id}`);
 
+    // Unirse a sala de usuario específico
+    socket.on("join-user-room", (userId: number) => {
+      const roomName = `user-${userId}`;
+      socket.join(roomName);
+      console.log(`[WebSocket] Usuario ${userId} se unió a sala: ${roomName}`);
+    });
+
+    // Unirse a sala de administradores
+    socket.on("join-admin-room", () => {
+      socket.join("admin-room");
+      console.log(`[WebSocket] Usuario se unió a sala de administradores`);
+    });
+
     socket.on("disconnect", () => {
       console.log(`[WebSocket] Cliente desconectado: ${socket.id}`);
     });
@@ -72,4 +85,48 @@ export async function emitCriticalAlert(alert: {
   // Emitir notificación por WebSocket
   io.emit("critical-alert", alert);
   console.log(`[WebSocket] Alerta crítica emitida: ${alert.id}`);
+}
+
+/**
+ * Emitir notificación a usuario específico
+ */
+export function emitNotificationToUser(
+  userId: number,
+  notification: {
+    id: number;
+    type: string;
+    title: string;
+    message: string;
+    read: boolean;
+    createdAt: Date;
+  }
+) {
+  if (!io) {
+    console.warn("[WebSocket] Servidor no inicializado");
+    return;
+  }
+
+  const roomName = `user-${userId}`;
+  io.to(roomName).emit("new-notification", notification);
+  console.log(`[WebSocket] Notificación enviada a usuario ${userId}:`, notification.title);
+}
+
+/**
+ * Emitir alerta crítica a todos los administradores
+ */
+export function emitCriticalAlertToAdmins(alert: {
+  id: number;
+  category: string;
+  priority: string;
+  title: string;
+  message: string;
+}) {
+  if (!io) {
+    console.warn("[WebSocket] Servidor no inicializado");
+    return;
+  }
+
+  // Emitir a sala de administradores
+  io.to("admin-room").emit("critical-alert", alert);
+  console.log("[WebSocket] Alerta crítica enviada a admins:", alert.title);
 }

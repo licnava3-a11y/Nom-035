@@ -460,3 +460,47 @@
 - [ ] Agregar navegación en menú de Administraciónlector de destinatarios (roles/usuarios)
 - [ ] Implementar preview de reporte antes de envío
 - [ ] Registrar job en servidor Express
+
+
+## Nuevas Tareas - Campo departmentId, Reportes y Notificaciones Push
+
+### Fase 1: Campo departmentId en Casos
+- [x] Agregar campo departmentId (FK a departments) en schema de cases
+- [x] Generar y aplicar migración SQL para departmentId
+- [x] Crear script de migración de datos (asignar departamentos a 188 casos existentes con distribución 40/20/20/10/10)
+- [ ] Actualizar query getConsolidatedAlerts en alertsDashboard para usar departmentId real
+- [x] Actualizar query getDepartmentalRiskMetrics en departmentalTrends para usar departmentId real
+- [ ] Actualizar mutation createCase para incluir departmentId
+- [ ] Actualizar UI de creación de casos para seleccionar departamento
+
+### Fase 2: Sistema de Reportes Automatizados
+- [ ] Crear job executive-reports-job.ts (ejecutar semanalmente los lunes 8:00 AM)
+- [ ] Implementar función generateExecutiveReport con KPIs consolidados
+- [ ] Crear template HTML profesional de reporte ejecutivo
+- [ ] Integrar gráficos Chart.js → imagen usando canvas.toDataURL()
+- [ ] Implementar conversión HTML → PDF usando puppeteer o similar
+- [ ] Implementar envío automático por email usando notifyOwner
+- [ ] Crear tabla report_configurations (frequency, recipients, enabled)
+- [ ] Crear router reportConfigurations con CRUD
+- [ ] Crear página ReportConfigurationPanel.tsx
+- [ ] Implementar selector de frecuencia (weekly, monthly)
+- [ ] Implementar selector de destinatarios (roles/usuarios)
+- [ ] Implementar preview de reporte antes de envío
+- [ ] Registrar job en servidor Express
+- [ ] Agregar ruta /executive-reports en App.tsx
+- [ ] Agregar navegación en menú de Administración
+
+### Fase 3: Sistema de Notificaciones Push
+- [ ] Instalar socket.io y socket.io-client
+- [ ] Crear servidor websocket en server/_core/websocket.ts
+- [ ] Integrar websocket con servidor Express
+- [ ] Crear hook useNotifications en client/src/hooks/
+- [ ] Implementar NotificationProvider en client/src/contexts/
+- [ ] Agregar badge con contador en icono de campana (DashboardLayout)
+- [ ] Crear componente ToastNotification para alertas en tiempo real
+- [ ] Implementar evento "new-alert" cuando se creen alertas críticas
+- [ ] Crear tabla notifications (userId, type, title, message, read, createdAt)
+- [ ] Crear router notifications con queries y mutations
+- [ ] Crear página NotificationsPanel.tsx con historial
+- [ ] Implementar botón "Marcar todas como leídas"
+- [ ] Agregar ruta /notifications en App.tsx

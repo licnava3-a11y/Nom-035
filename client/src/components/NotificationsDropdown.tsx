@@ -12,10 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export function NotificationsDropdown() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
+  
+  // Integrar websockets para notificaciones en tiempo real
+  const { unreadCount: wsUnreadCount } = useNotifications();
   
   const { data: notifications = [] } = trpc.notifications.getAll.useQuery({}, {
     refetchInterval: 30000, // Refetch every 30 seconds
@@ -24,6 +28,9 @@ export function NotificationsDropdown() {
   const { data: unreadCount = 0 } = trpc.notifications.getUnreadCount.useQuery(undefined, {
     refetchInterval: 30000,
   });
+  
+  // Usar contador de websocket si está disponible, sino usar de tRPC
+  const displayUnreadCount = wsUnreadCount > 0 ? wsUnreadCount : (typeof unreadCount === 'object' ? unreadCount.count : 0);
   
   const markAsRead = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
@@ -82,12 +89,12 @@ export function NotificationsDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
-          {unreadCount && unreadCount.count > 0 && (
+          {displayUnreadCount > 0 && (
             <Badge 
               variant="destructive" 
               className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
-              {unreadCount.count > 9 ? "9+" : unreadCount.count}
+              {displayUnreadCount > 9 ? "9+" : displayUnreadCount}
             </Badge>
           )}
         </Button>
@@ -95,8 +102,8 @@ export function NotificationsDropdown() {
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notificaciones</span>
-          {unreadCount && unreadCount.count > 0 && (
-            <Badge variant="secondary">{unreadCount.count} nuevas</Badge>
+          {displayUnreadCount > 0 && (
+            <Badge variant="secondary">{displayUnreadCount} nuevas</Badge>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

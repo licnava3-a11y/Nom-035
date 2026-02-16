@@ -234,6 +234,7 @@ export const cases = mysqlTable("cases", {
   status: mysqlEnum("status", ["open", "investigating", "resolved", "closed"]).default("open").notNull(),
   priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
   assignedTo: int("assignedTo"), // Committee member assigned
+  departmentId: int("departmentId"), // Department where the case originated
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   closedAt: timestamp("closedAt"),
