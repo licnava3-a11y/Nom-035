@@ -20,6 +20,7 @@ import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-r
 import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
 import { startCalculateRiskLevelJob } from "../jobs/calculate-risk-level-job";
 import { runRootCauseAnalysisJob } from "../jobs/root-cause-analysis-job";
+import { startTrainingRemindersJob } from "../jobs/training-reminders-job";
 import { schedulePostCaseSurveysJob } from "../jobs/post-case-surveys-job";
 import { scheduleDepartmentalAlertsJob } from "../jobs/departmental-alerts-job";
 import { scheduleSurveyRemindersJob } from "../jobs/survey-reminders-job";
@@ -134,6 +135,7 @@ async function startServer() {
     startCorrectiveActionsRemindersJob();
     startStaleCasesJob();
     startCalculateRiskLevelJob();
+    startTrainingRemindersJob();
     schedulePostCaseSurveysJob();
     scheduleDepartmentalAlertsJob();
     scheduleSurveyRemindersJob();

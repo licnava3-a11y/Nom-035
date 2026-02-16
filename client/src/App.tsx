@@ -18,6 +18,8 @@ const CasesMetrics = lazy(() => import("./pages/CasesMetrics"));
 const CasesManagement = lazy(() => import("./pages/CasesManagement"));
 const PredictiveAnalytics = lazy(() => import("./pages/PredictiveAnalytics"));
 const RootCauseAnalysis = lazy(() => import("./pages/RootCauseAnalysis"));
+const CommitteeTrainingsManagement = lazy(() => import("./pages/CommitteeTrainingsManagement"));
+const MyCommitteeTrainings = lazy(() => import("./pages/MyCommitteeTrainings"));
 const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
 const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
@@ -210,6 +212,20 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <RootCauseAnalysis />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee-trainings-management"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeTrainingsManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/my-committee-trainings"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MyCommitteeTrainings />
             </Suspense>
           </DashboardLayout>
         </Route>

@@ -163,6 +163,8 @@ const hierarchicalMenuItems = [
         submenu: [
           { label: "Miembros del Comité", path: "/committee", description: "Gestión de miembros del comité" },
           { label: "Programa de Capacitación", path: "/committee/training", description: "Programas de capacitación del comité" },
+          { label: "Gestión de Capacitaciones", path: "/committee-trainings-management", description: "Administrar catálogo de capacitaciones" },
+          { label: "Mis Capacitaciones", path: "/my-committee-trainings", description: "Ver y completar capacitaciones asignadas" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento de aceptación de cargo" },

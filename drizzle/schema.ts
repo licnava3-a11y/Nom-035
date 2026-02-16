@@ -3231,3 +3231,69 @@ export const rootCauseAnalysis = mysqlTable("root_cause_analysis", {
 
 export type RootCauseAnalysis = typeof rootCauseAnalysis.$inferSelect;
 export type InsertRootCauseAnalysis = typeof rootCauseAnalysis.$inferInsert;
+
+
+// ============================================
+// TABLAS DE CAPACITACIÓN DEL COMITÉ
+// ============================================
+
+/**
+ * Catálogo de capacitaciones obligatorias para miembros del comité
+ */
+export const committeeTrainings = mysqlTable("committee_trainings", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(), // Título de la capacitación
+  description: text("description"), // Descripción detallada
+  type: mysqlEnum("type", ["mobbing", "burnout", "primeros_auxilios_psicologicos", "nom035", "investigacion", "otro"]).notNull(), // Tipo de capacitación
+  duration: int("duration").notNull(), // Duración en horas
+  validityMonths: int("validity_months"), // Vigencia en meses (null = sin vencimiento)
+  isRequired: boolean("is_required").default(true).notNull(), // Si es obligatoria
+  targetRoles: json("target_roles").$type<string[]>(), // Roles objetivo (committee, committee_coordinator, etc.)
+  content: text("content"), // Contenido o temario
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type CommitteeTraining = typeof committeeTrainings.$inferSelect;
+export type InsertCommitteeTraining = typeof committeeTrainings.$inferInsert;
+
+/**
+ * Asignaciones de capacitaciones a miembros del comité
+ */
+export const trainingAssignments = mysqlTable("training_assignments", {
+  id: int("id").autoincrement().primaryKey(),
+  trainingId: int("training_id").notNull().references(() => committeeTrainings.id, { onDelete: "cascade" }),
+  committeeMemberId: int("committee_member_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  assignedDate: timestamp("assigned_date").defaultNow().notNull(), // Fecha de asignación
+  status: mysqlEnum("status", ["pending", "in_progress", "completed", "expired"]).default("pending").notNull(),
+  startDate: timestamp("start_date"), // Fecha de inicio
+  completionDate: timestamp("completion_date"), // Fecha de completación
+  score: int("score"), // Calificación (0-100)
+  notes: text("notes"), // Notas adicionales
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type TrainingAssignment = typeof trainingAssignments.$inferSelect;
+export type InsertTrainingAssignment = typeof trainingAssignments.$inferInsert;
+
+/**
+ * Certificados digitales de capacitaciones completadas
+ */
+export const trainingCertificates = mysqlTable("training_certificates", {
+  id: int("id").autoincrement().primaryKey(),
+  assignmentId: int("assignment_id").notNull().references(() => trainingAssignments.id, { onDelete: "cascade" }),
+  
+  certificateNumber: varchar("certificate_number", { length: 50 }).notNull().unique(), // Número de certificado único
+  issueDate: date("issue_date").notNull(), // Fecha de emisión
+  expiryDate: date("expiry_date"), // Fecha de vencimiento (null = sin vencimiento)
+  pdfUrl: text("pdf_url").notNull(), // URL del PDF en S3
+  verificationCode: varchar("verification_code", { length: 100 }).notNull().unique(), // Código de verificación (UUID)
+  signedBy: varchar("signed_by", { length: 255 }), // Nombre del firmante
+  signerTitle: varchar("signer_title", { length: 255 }), // Cargo del firmante
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type TrainingCertificate = typeof trainingCertificates.$inferSelect;
+export type InsertTrainingCertificate = typeof trainingCertificates.$inferInsert;

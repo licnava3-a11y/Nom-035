@@ -719,3 +719,123 @@
 - [x] Confirmar que job automático se ejecuta correctamente
 - [x] Sistema compilando sin errores TypeScript (0 errores)
 - [x] Guardar checkpoint final
+
+
+## Módulo de Capacitación del Comité - EN DESARROLLO
+
+### 1. Crear Tablas en Schema
+- [ ] Tabla committee_trainings: id, title, description, type, duration, validityMonths, isRequired, targetRoles, createdAt
+- [ ] Tabla training_assignments: id, trainingId, committeeMemberId, assignedDate, status, startDate, completionDate, score, createdAt
+- [ ] Tabla training_certificates: id, assignmentId, certificateNumber, issueDate, expiryDate, pdfUrl, verificationCode, signedBy, createdAt
+- [ ] Generar migraciones SQL con drizzle-kit
+- [ ] Aplicar migraciones a base de datos
+
+### 2. Implementar Routers Backend
+- [ ] Router committeeTrainings.ts con CRUD de capacitaciones
+- [ ] Procedure list con filtros por tipo y estado
+- [ ] Procedure create para nuevas capacitaciones
+- [ ] Procedure update y delete
+- [ ] Router trainingAssignments.ts con gestión de asignaciones
+- [ ] Procedure assignToMember (asignación individual)
+- [ ] Procedure assignToRole (asignación masiva por rol)
+- [ ] Procedure updateStatus (pendiente/en progreso/completada)
+- [ ] Procedure getMyTrainings (vista del miembro)
+- [ ] Procedure getDashboard (métricas de cumplimiento)
+- [ ] Registrar routers en appRouter
+
+### 3. Implementar Generación de Certificados PDF
+- [ ] Crear función generateCertificatePDF con datos del participante
+- [ ] Diseñar template de certificado profesional
+- [ ] Agregar código QR con verificationCode
+- [ ] Incluir firma digital del responsable
+- [ ] Generar código de verificación único (UUID)
+- [ ] Subir PDF a S3 usando storagePut
+- [ ] Guardar registro en training_certificates
+- [ ] Procedure generateCertificate en router
+- [ ] Procedure verifyCertificate (validación pública)
+- [ ] Procedure downloadCertificate
+
+### 4. Crear Páginas Frontend
+- [ ] Página CommitteeTrainingsManagement.tsx (admin)
+- [ ] CRUD de capacitaciones con formulario modal
+- [ ] Tabla de capacitaciones con filtros
+- [ ] Asignación masiva por rol
+- [ ] Página MyCommitteeTrainings.tsx (miembro)
+- [ ] Lista de capacitaciones asignadas
+- [ ] Botón "Marcar como Completada"
+- [ ] Vista de certificados obtenidos
+- [ ] Página TrainingCertificates.tsx
+- [ ] Galería de certificados con preview
+- [ ] Botón de descarga PDF
+- [ ] Botón de envío por correo
+- [ ] Página TrainingComplianceDashboard.tsx
+- [ ] Cards de métricas (total capacitaciones, completadas, pendientes, vencidas)
+- [ ] Tabla de cumplimiento por miembro
+- [ ] Gráfico de progreso por tipo de capacitación
+- [ ] Alertas de renovaciones próximas
+- [ ] Agregar rutas en App.tsx
+- [ ] Agregar navegación en DashboardLayout
+
+### 5. Implementar Job Automático de Recordatorios
+- [ ] Crear job training-reminders-job.ts
+- [ ] Detectar capacitaciones pendientes (>7 días sin iniciar)
+- [ ] Detectar certificados próximos a vencer (30 días)
+- [ ] Enviar notificaciones a miembros afectados
+- [ ] Enviar resumen semanal a administradores
+- [ ] Configurar ejecución diaria (8:00 AM)
+- [ ] Registrar job en server startup
+
+### 6. Verificación y Testing
+- [ ] Probar flujo completo de asignación
+- [ ] Verificar generación de certificados PDF
+- [ ] Validar código QR y verificación
+- [ ] Confirmar envío de recordatorios
+- [ ] Sistema compilando sin errores TypeScript
+- [ ] Guardar checkpoint final
+
+
+## ✅ Módulo de Capacitación del Comité - COMPLETADO
+
+### Backend (100%)
+- [x] Tabla `committee_trainings` creada (10 campos)
+- [x] Tabla `training_assignments` creada (11 campos)
+- [x] Tabla `training_certificates` creada (10 campos)
+- [x] Router `committeeTrainings` con 6 procedures (list, getById, create, update, delete, getStats)
+- [x] Router `trainingAssignments` con 6 procedures (assignToMember, assignToRole, updateStatus, getMyTrainings, getDashboard, listAll)
+- [x] Router `trainingCertificates` con 5 procedures (generateCertificate, downloadCertificate, verifyCertificate, getMyCertificates, listAll)
+- [x] Generación de certificados PDF con diseño profesional
+- [x] Código de verificación UUID único por certificado
+- [x] Número de certificado formato CERT-NOM035-{año}-{id}
+- [x] Subida automática a S3 con storagePut
+- [x] Notificaciones automáticas al asignar y generar certificados
+
+### Frontend (100%)
+- [x] Página `CommitteeTrainingsManagement.tsx` (admin/coordinador)
+  - CRUD completo de capacitaciones
+  - 4 cards de estadísticas
+  - Tabla con filtros por tipo
+  - Asignación masiva por rol
+- [x] Página `MyCommitteeTrainings.tsx` (miembros)
+  - 4 cards de resumen
+  - Barra de progreso general
+  - Cards por capacitación con badges de estado
+  - Galería de certificados obtenidos
+- [x] Rutas agregadas en App.tsx
+- [x] Navegación agregada en DashboardLayout (Comité de Seguridad)
+
+### Automatización (100%)
+- [x] Job `training-reminders-job.ts` creado
+- [x] Detectar capacitaciones pendientes (>7 días) y enviar recordatorios
+- [x] Detectar certificados próximos a vencer (30 días) y enviar alertas
+- [x] Enviar resumen semanal a administradores (lunes)
+- [x] Marcar asignaciones vencidas automáticamente
+- [x] Ejecución diaria a las 8:00 AM
+- [x] Job registrado en server startup
+
+### Tipos de Capacitaciones Soportadas
+- [x] Mobbing / Acoso Laboral
+- [x] Burnout / Agotamiento
+- [x] Primeros Auxilios Psicológicos
+- [x] NOM-035 STPS 2018
+- [x] Investigación de Casos
+- [x] Otro (personalizable)
