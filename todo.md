@@ -1172,3 +1172,8 @@
 - [x] Aplicar filtros actuales a la exportación
 - [x] Mostrar estado de carga durante generación
 - [x] Descargar automáticamente archivo generado
+
+## Reorganización de Navegación
+- [x] Mover "Certificados de Capacitación" de primer nivel a segundo nivel dentro de "Capacitación y Desarrollo"
+- [x] Actualizar estructura de navegación en DashboardLayout
+- [x] Verificar que la ruta /certificates siga funcionando correctamente

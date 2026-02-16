@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, intervention_name, intervention_type, status, cases_before_count, cases_after_count, effectiveness_score, created_at FROM intervention_impact_analysis LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, intervention_name, intervention_type, status, cases_before_count, cases_after_count, effectiveness_score, created_at FROM intervention_impact_analysis LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "intervention_name": "Test Intervention - Automated Test",
+      "intervention_type": "training",
+      "status": "active",
+      "cases_before_count": "0",
+      "cases_after_count": "0",
+      "effectiveness_score": "NULL",
+      "created_at": "2026-02-16 19:44:26"
+    },
+    {
+      "id": "2",
+      "intervention_name": "Test Intervention - Automated Test",
+      "intervention_type": "training",
+      "status": "active",
+      "cases_before_count": "0",
+      "cases_after_count": "0",
+      "effectiveness_score": "NULL",
+      "created_at": "2026-02-16 19:45:02"
+    },
+    {
+      "id": "3",
+      "intervention_name": "Test Intervention - Automated Test",
+      "intervention_type": "training",
+      "status": "active",
+      "cases_before_count": "0",
+      "cases_after_count": "0",
+      "effectiveness_score": "NULL",
+      "created_at": "2026-02-16 19:45:39"
+    },
+    {
+      "id": "4",
+      "intervention_name": "Test Get By ID",
+      "intervention_type": "policy_change",
+      "status": "active",
+      "cases_before_count": "0",
+      "cases_after_count": "0",
+      "effectiveness_score": "NULL",
+      "created_at": "2026-02-16 19:45:39"
+    },
+    {
+      "id": "5",
+      "intervention_name": "Test Calculate Metrics",
+      "intervention_type": "corrective_action",
+      "status": "active",
+      "cases_before_count": "0",
+      "cases_after_count": "0",
+      "effectiveness_score": "0.00",
+      "created_at": "2026-02-16 19:45:40"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tintervention_name\tintervention_type\tstatus\tcases_before_count\tcases_after_count\teffectiveness_score\tcreated_at\n1\tTest Intervention - Automated Test\ttraining\tactive\t0\t0\tNULL\t2026-02-16 19:44:26\n2\tTest Intervention - Automated Test\ttraining\tactive\t0\t0\tNULL\t2026-02-16 19:45:02\n3\tTest Intervention - Automated Test\ttraining\tactive\t0\t0\tNULL\t2026-02-16 19:45:39\n4\tTest Get By ID\tpolicy_change\tactive\t0\t0\tNULL\t2026-02-16 19:45:39\n5\tTest Calculate Metrics\tcorrective_action\tactive\t0\t0\t0.00\t2026-02-16 19:45:40\n",
+  "stderr": "",
+  "execution_time_ms": 361
+}
