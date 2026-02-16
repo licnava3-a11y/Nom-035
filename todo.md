@@ -1186,3 +1186,5 @@
 - [x] Implementar caché de reportes generados para evitar regeneración
 
 - [x] Cambiar nombres de guías en gráfico Dashboard principal a nomenclatura abreviada (Guía I-ATS, Guía II-Identificación FRPS, Guía III-FRPS + EOF)
+
+- [x] Corregir transformación de títulos en gráfico de tendencias (mostrar Guía I-ATS, Guía II, Guía III-FRPS + EOF según datos reales)

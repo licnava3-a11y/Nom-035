@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, title, type, created_at FROM surveys ORDER BY created_at DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, title, type, created_at FROM surveys ORDER BY created_at DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "2",
+      "title": "Guía II - Identificación de Factores de Riesgo Psicosocial",
+      "type": "guia_ii",
+      "created_at": "2026-02-03 03:22:15"
+    },
+    {
+      "id": "3",
+      "title": "Guía III - Evaluación de Factores de Riesgo Psicosocial",
+      "type": "guia_iii",
+      "created_at": "2026-02-03 03:22:15"
+    },
+    {
+      "id": "1",
+      "title": "Guía I - Acontecimientos Traumáticos Severos",
+      "type": "guia_i",
+      "created_at": "2026-02-03 03:22:15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\ttype\tcreated_at\n2\tGuía II - Identificación de Factores de Riesgo Psicosocial\tguia_ii\t2026-02-03 03:22:15\n3\tGuía III - Evaluación de Factores de Riesgo Psicosocial\tguia_iii\t2026-02-03 03:22:15\n1\tGuía I - Acontecimientos Traumáticos Severos\tguia_i\t2026-02-03 03:22:15\n",
+  "stderr": "",
+  "execution_time_ms": 1625
+}

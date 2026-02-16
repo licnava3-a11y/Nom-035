@@ -144,9 +144,10 @@ export default function DashboardConsolidated() {
     labels: metrics.nom035Compliance.riskTrend.map(r => {
       // Transformar nombres largos a nomenclatura abreviada
       const title = r.surveyTitle;
-      if (title.includes('Acontecimientos Traumáticos') || title.includes('Guía I')) return 'Guía I-ATS';
-      if (title.includes('Identificación de Factores') || title.includes('Guía II')) return 'Guía II';
-      if (title.includes('Evaluación de Factores') || title.includes('Guía III')) return 'Guía III-FRPS + EOF';
+      // Orden de verificación: más específico primero
+      if (title.includes('Guía III') || title.includes('Evaluación de Factores')) return 'Guía III-FRPS + EOF';
+      if (title.includes('Guía II') || title.includes('Identificación de Factores')) return 'Guía II';
+      if (title.includes('Guía I') || title.includes('Acontecimientos Traumáticos')) return 'Guía I-ATS';
       return title; // Mantener título original si no coincide
     }),
     datasets: [
