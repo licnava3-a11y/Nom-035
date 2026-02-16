@@ -23,6 +23,7 @@ const MyCommitteeTrainings = lazy(() => import("./pages/MyCommitteeTrainings"));
 const RecommendationsTracking = lazy(() => import("./pages/RecommendationsTracking"));
 const TrainingEvaluationsDashboard = lazy(() => import("./pages/TrainingEvaluationsDashboard"));
 const IntelligentAlertsDashboard = lazy(() => import("./pages/IntelligentAlertsDashboard"));
+const TrainingROIDashboard = lazy(() => import("./pages/TrainingROIDashboard"));
 const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
 const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
@@ -250,6 +251,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <IntelligentAlertsDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/training-roi"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TrainingROIDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

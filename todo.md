@@ -954,3 +954,31 @@
 - [x] Job automático `intelligent-alerts-job.ts` ejecutándose diariamente a las 2:00 AM
 - [x] Notificaciones automáticas a administradores sobre alertas críticas
 - [x] Ruta y navegación agregadas en App.tsx y DashboardLayout.tsx
+
+
+## Dashboard de ROI de Capacitaciones
+
+- [ ] Crear tabla `training_costs` con campos de costos detallados
+- [ ] Crear router `trainingROI` con cálculo de ROI
+- [ ] Implementar análisis de beneficios medibles (reducción de casos, mejora en evaluaciones)
+- [ ] Crear página `TrainingROIDashboard.tsx` con visualizaciones financieras
+- [ ] Implementar exportación de reportes ejecutivos en PDF/Excel
+- [ ] Agregar ruta y navegación en App.tsx y DashboardLayout.tsx
+
+## ✅ Dashboard de ROI de Capacitaciones Completado (Feb 16, 2026)
+
+- [x] Crear tabla `training_costs` con 5 categorías de costos
+- [x] Crear router `trainingROI` con 5 procedures
+- [x] Implementar cálculo de ROI con fórmula ((Beneficios - Costos) / Costos) × 100
+- [x] Implementar análisis de reducción de casos antes/después de capacitación
+- [x] Implementar cálculo de beneficios por mejora en evaluaciones
+- [x] Implementar cálculo de beneficios por certificaciones obtenidas
+- [x] Crear página `TrainingROIDashboard.tsx` con visualizaciones financieras
+- [x] Implementar 4 cards de KPIs (inversión, beneficios, ROI promedio, capacitaciones)
+- [x] Implementar gráfico de barras con Top 5 capacitaciones mejor ROI
+- [x] Implementar tabla de capacitaciones con desglose de costos
+- [x] Implementar dialog para gestionar costos con 5 categorías
+- [x] Implementar dialog para ver ROI detallado con desglose completo
+- [x] Agregar navegación en DashboardLayout
+- [x] Agregar ruta en App.tsx
+- [x] Sistema compilando sin errores TypeScript

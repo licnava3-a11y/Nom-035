@@ -3409,3 +3409,19 @@ export const intelligentAlerts = mysqlTable("intelligent_alerts", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
+
+
+// Tabla de costos de capacitaciones para cálculo de ROI
+export const trainingCosts = mysqlTable("training_costs", {
+  id: int("id").primaryKey().autoincrement(),
+  trainingId: int("training_id").notNull().references(() => committeeTrainings.id, { onDelete: "cascade" }),
+  instructorCost: decimal("instructor_cost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  materialsCost: decimal("materials_cost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  facilitiesCost: decimal("facilities_cost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  laborHoursCost: decimal("labor_hours_cost", { precision: 10, scale: 2 }).notNull().default("0.00"), // Costo de horas laborales de participantes
+  otherCosts: decimal("other_costs", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});

@@ -168,6 +168,7 @@ const hierarchicalMenuItems = [
          { label: "Mis Capacitaciones", path: "/my-committee-trainings", description: "Ver y completar mis capacitaciones asignadas" },
       { label: "Dashboard de Evaluaciones", path: "/training-evaluations", description: "Análisis de calidad y efectividad de capacitaciones" },
           { label: "Alertas Inteligentes con IA", path: "/intelligent-alerts", description: "Detección proactiva de patrones de riesgo emergentes" },
+          { label: "Dashboard de ROI de Capacitaciones", path: "/training-roi", description: "Análisis financiero y retorno de inversión" },
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento de aceptación de cargo" },
