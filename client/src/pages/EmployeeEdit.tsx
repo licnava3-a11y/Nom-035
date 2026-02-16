@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 // Select components replaced with native HTML elements
 import { ArrowLeft, Save } from "lucide-react";
+import { DepartmentSelector } from "@/components/DepartmentSelector";
 
 export default function EmployeeEdit() {
   const { id } = useParams<{ id: string }>();
@@ -287,30 +288,18 @@ export default function EmployeeEdit() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="department">Departamento</Label>
-                <select
-                  id="department"
-                  value={formData.department}
-                  onChange={(e) => {
-                    const value = e.target.value ? parseInt(e.target.value) : "";
-                    handleChange("department", value);
-                    // Clear position when department changes
-                    handleChange("position", "");
-                  }}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  <option value="">Seleccionar departamento</option>
-                  {departments?.map((dept) => dept && (
-                    <option key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-muted-foreground">
-                  Seleccione primero el departamento
-                </p>
-              </div>
+              <DepartmentSelector
+                value={formData.department}
+                onChange={(value) => {
+                  handleChange("department", value);
+                  // Clear position when department changes
+                  handleChange("position", "");
+                }}
+                required
+                label="Departamento"
+                placeholder="Seleccionar departamento"
+                showAddButton={true}
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="position">Puesto</Label>

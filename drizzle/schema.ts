@@ -3631,3 +3631,5 @@ export const reportCache = mysqlTable("report_cache", {
   createdAt: timestamp("created_at").defaultNow(),
   lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
 });
+
+

@@ -807,6 +807,7 @@ export const correctiveActionsRouter = router({
         if (dept.avgRisk && dept.avgRisk >= 3) {
           await dbInstance.insert(correctiveActions).values({
             surveyPeriodId: input.surveyPeriodId,
+            departamento: 'Administración', // Departamento por defecto para acciones grupales
             riskLevel: dept.avgRisk >= 4 ? 'alto' : 'medio',
             actionLevel: 'grupal',
             targetScope: dept.departmentId,
@@ -837,6 +838,7 @@ export const correctiveActionsRouter = router({
       if (overallRisk[0]?.avgRisk && overallRisk[0].avgRisk >= 3.5) {
         await dbInstance.insert(correctiveActions).values({
           surveyPeriodId: input.surveyPeriodId,
+          departamento: 'Administración', // Departamento por defecto para acciones organizacionales
           riskLevel: overallRisk[0].avgRisk >= 4 ? 'alto' : 'medio',
           actionLevel: 'organizacional',
           targetScope: null,

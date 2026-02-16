@@ -694,6 +694,13 @@
       "when": 1771282080237,
       "tag": "0098_curvy_epoch",
       "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "5",
+      "when": 1771283160959,
+      "tag": "0099_nebulous_butterfly",
+      "breakpoints": true
     }
   ]
 }

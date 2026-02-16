@@ -81,7 +81,7 @@ export const hiringRouter = router({
         name: `${employee.firstName} ${employee.lastName}`,
         email: employee.email,
         role: input.role,
-        departamento: employee.department || "Administración",
+        departamento: employee.departmentId ? String(employee.departmentId) : "Administración",
       });
 
       // Link user to employee

@@ -162,7 +162,7 @@ const salaryGapRouter = router({
       const gapId = await equalityDb.createSalaryGap({
         periodo: input.periodo,
         fechaCalculo: new Date().toISOString().split("T")[0] as any,
-        departamento: input.departamento,
+        departamento: input.departamento || 'Administración',
         puesto: input.puesto,
         totalMujeres: input.totalMujeres,
         totalHombres: input.totalHombres,
@@ -245,7 +245,7 @@ const affirmativeActionsRouter = router({
         fechaInicio: input.fechaInicio as any,
         fechaFin: input.fechaFin as any,
         responsable: input.responsable,
-        departamento: input.departamento,
+        departamento: input.departamento || 'Administración',
         presupuesto: input.presupuesto as any,
         estado: input.estado,
         resultadosEsperados: input.resultadosEsperados,

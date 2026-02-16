@@ -1203,3 +1203,42 @@
 - [x] Excluir "Comité NOM-035" de departamentos válidos
 - [x] Agregar validación en formularios de registro/edición de empleados
 - [x] Limpiar datos existentes de trabajadores sin departamento
+
+## Gestión de Departamentos
+- [ ] Crear tabla departments en schema
+- [ ] Crear router departments con procedures CRUD
+- [ ] Implementar selector de departamento en formularios
+- [ ] Crear página DepartmentManagement con lista y CRUD
+- [ ] Implementar renombrar/fusionar/eliminar departamentos
+- [ ] Implementar herramienta de reasignación masiva
+- [ ] Agregar historial de cambios de departamento
+- [ ] Implementar notificaciones automáticas a empleados reasignados
+
+## Nuevas Tareas - Sistema de Gestión de Departamentos
+
+### 1. Selector de Departamento en Formularios
+- [x] Crear componente DepartmentSelector reutilizable con filtrado
+- [x] Excluir "Comité NOM-035" y "Sin departamento" de opciones
+- [x] Agregar botón "Agregar nuevo departamento" para administradores
+- [x] Implementar validación de campo obligatorio
+- [x] Integrar en EmployeeNew.tsx
+- [x] Integrar en EmployeeEdit.tsx
+
+### 2. Dashboard de Gestión de Departamentos
+- [x] Crear página DepartmentManagement.tsx
+- [x] Implementar tabla de departamentos con contador de empleados
+- [x] Agregar búsqueda y paginación
+- [x] Crear dialogs para crear, editar y eliminar departamentos
+- [x] Implementar validación para prevenir eliminación de departamentos con empleados activos
+- [x] Agregar navegación en sección Administración
+- [x] Agregar ruta /department-management en App.tsx
+
+### 3. Reasignación Masiva de Departamentos
+- [x] Crear procedure departments.bulkReassign en backend
+- [x] Implementar selección múltiple de empleados con checkboxes
+- [x] Agregar selector de departamento destino
+- [x] Implementar campo de motivo/razón opcional
+- [x] Agregar confirmación previa a reasignación
+- [x] Implementar registro automático en historial (departmentHistory)
+- [x] Configurar notificaciones automáticas por email a empleados afectados
+- [x] Crear dialog de reasignación masiva en DepartmentManagement.tsx

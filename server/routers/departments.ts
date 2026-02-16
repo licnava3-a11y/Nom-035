@@ -630,4 +630,107 @@ export const departmentsRouter = router({
         byMonth: statsByMonth,
       };
     }),
+
+  // Reasignación masiva de empleados a nuevo departamento
+  bulkReassign: protectedProcedure
+    .input(
+      z.object({
+        employeeIds: z.array(z.number()).min(1, "Debe seleccionar al menos un empleado"),
+        newDepartmentId: z.number(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+
+      // Verificar que el departamento destino existe
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const [targetDept] = await db
+        .select()
+        .from(departments)
+        .where(eq(departments.id, input.newDepartmentId))
+        .limit(1);
+
+      if (!targetDept) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Departamento destino no encontrado",
+        });
+      }
+
+      // Obtener información de empleados a reasignar
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const employeesToReassign = await db
+        .select({
+          id: employees.id,
+          name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          email: employees.email,
+          departmentId: employees.departmentId,
+        })
+        .from(employees)
+        .where(sql`${employees.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`)
+        .execute();
+
+      if (employeesToReassign.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No se encontraron empleados para reasignar",
+        });
+      }
+
+      // Actualizar departamento de empleados
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      await db
+        .update(employees)
+        .set({ departmentId: input.newDepartmentId })
+        .where(sql`${employees.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`)
+        .execute();
+
+      // Registrar cambios en historial
+      const historyRecords = employeesToReassign.map((emp) => ({
+        departmentId: input.newDepartmentId,
+        name: targetDept.name,
+        description: targetDept.description,
+        code: targetDept.code,
+        parentId: targetDept.parentId,
+        managerId: targetDept.managerId,
+        isActive: targetDept.isActive,
+        changeType: "updated" as const,
+        changedBy: ctx.user.id,
+      }));
+
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      await db.insert(departmentHistory).values(historyRecords);
+
+      // Enviar notificaciones por email a empleados afectados (opcional)
+      const emailPromises = employeesToReassign.map(async (emp) => {
+        if (!emp.email) return;
+
+        try {
+          await sendEmail({
+            to: emp.email,
+            subject: "Cambio de Departamento",
+            html: `
+              <h2>Notificación de Cambio de Departamento</h2>
+              <p>Estimado/a ${emp.name},</p>
+              <p>Le informamos que ha sido reasignado/a al departamento: <strong>${targetDept.name}</strong>.</p>
+              ${input.reason ? `<p><strong>Motivo:</strong> ${input.reason}</p>` : ""}
+              <p>Si tiene alguna duda, por favor contacte a Recursos Humanos.</p>
+              <br>
+              <p>Saludos cordiales,<br>Equipo de Recursos Humanos</p>
+            `,
+          });
+        } catch (error) {
+          console.error(`Error al enviar email a ${emp.email}:`, error);
+        }
+      });
+
+      await Promise.allSettled(emailPromises);
+
+      return {
+        success: true,
+        reassignedCount: employeesToReassign.length,
+        departmentName: targetDept.name,
+      };
+    }),
 });
