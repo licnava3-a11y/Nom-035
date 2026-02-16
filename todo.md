@@ -324,3 +324,48 @@
 - [ ] Crear procedure postCaseSurveys.submitResponse
 - [ ] Implementar UI de respuesta de encuesta
 - [ ] Agregar dashboard de resultados de encuestas post-caso
+
+## Nuevas Tareas - Carpeta de Evidencias NMX-R-025-SCFI-2015 (Igualdad Laboral y No Discriminación)
+
+### Fase 1: Backend Router NMX-025
+- [x] Crear tabla nmx025_manual_evidences en schema
+- [x] Generar y aplicar migración SQL para NMX-025
+- [x] Crear router nmx025EvidencesFolder con 5 ejes temáticos
+- [x] Implementar query getEvidences para NMX-025 (incorporación, igualdad, hostigamiento, accesibilidad, libertad sindical)
+- [x] Implementar procedures uploadEvidence y deleteEvidence para NMX-025
+- [x] Implementar procedure generatePDF para carpeta NMX-025
+- [x] Registrar router en appRouter
+
+### Fase 2: Frontend NMX-025
+- [x] Crear página NMX025EvidencesFolder.tsx con acordeones por eje temático
+- [x] Agregar selector de tamaño empresa para NMX-025
+- [x] Implementar indicadores de completitud por eje
+- [x] Implementar exportación PDF carpeta NMX-025
+- [x] Agregar ruta en App.tsx
+- [x] Agregar navegación en menú lateral (Cumplimiento Normativo > NMX-025)
+
+### Fase 3: UI Carga Manual NOM-035 (Pendiente)
+- [ ] Implementar botón flotante "Cargar Evidencia" en EvidencesFolder.tsx
+- [ ] Crear dialog de upload con selector de numeral NOM-035
+- [ ] Agregar input de título y descripción en dialog
+- [ ] Implementar preview de archivos cargados
+- [ ] Agregar botón de eliminar evidencias manuales
+- [ ] Integrar con procedures uploadEvidence y deleteEvidence
+
+### Fase 4: Panel Tendencias Departamentales (Pendiente)
+- [ ] Crear router departmentalTrends
+- [ ] Implementar query getDepartmentalRiskMetrics
+- [ ] Crear página DepartmentalTrends.tsx
+- [ ] Implementar heat map con Chart.js
+- [ ] Agregar sistema de alertas automáticas por departamento
+- [ ] Agregar navegación en menú lateral
+
+### Fase 5: Encuestas Post-Caso (Pendiente)
+- [ ] Crear tabla post_case_surveys en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear router postCaseSurveys
+- [ ] Implementar query getSurveysByCase
+- [ ] Implementar mutation submitSurvey
+- [ ] Crear job send-post-case-surveys-job.ts
+- [ ] Crear página PostCaseSurveys.tsx
+- [ ] Agregar navegación en menú lateral

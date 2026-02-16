@@ -17,6 +17,7 @@ const Cases = lazy(() => import("./pages/Cases"));
 const CasesMetrics = lazy(() => import("./pages/CasesMetrics"));
 const PredictiveAnalytics = lazy(() => import("./pages/PredictiveAnalytics"));
 const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
+const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Evaluations = lazy(() => import("./pages/Evaluations"));
 const TakeEvaluation = lazy(() => import("./pages/TakeEvaluation"));
@@ -195,6 +196,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <EvidencesFolder />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nmx025-evidences-folder"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NMX025EvidencesFolder />
             </Suspense>
           </DashboardLayout>
         </Route>

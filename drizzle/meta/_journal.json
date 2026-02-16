@@ -575,6 +575,13 @@
       "when": 1771200211774,
       "tag": "0081_colossal_toro",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "5",
+      "when": 1771201509103,
+      "tag": "0082_curved_crystal",
+      "breakpoints": true
     }
   ]
 }

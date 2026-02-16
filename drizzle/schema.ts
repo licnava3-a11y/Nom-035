@@ -3100,3 +3100,24 @@ export const manualEvidences = mysqlTable("manual_evidences", {
 
 export type ManualEvidence = typeof manualEvidences.$inferSelect;
 export type InsertManualEvidence = typeof manualEvidences.$inferInsert;
+
+/**
+ * Tabla para almacenar evidencias manuales de NMX-R-025-SCFI-2015
+ * Norma Mexicana de Igualdad Laboral y No Discriminación
+ * Organizada por 5 ejes temáticos
+ */
+export const nmx025ManualEvidences = mysqlTable("nmx025_manual_evidences", {
+  id: int("id").autoincrement().primaryKey(),
+  eje: varchar("eje", { length: 50 }).notNull(), // "incorporacion", "igualdad", "hostigamiento", "accesibilidad", "libertad_sindical"
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: varchar("file_url", { length: 512 }).notNull(), // URL de S3
+  fileKey: varchar("file_key", { length: 512 }).notNull(), // Key de S3 para eliminar
+  fileName: varchar("file_name", { length: 255 }).notNull(), // Nombre original del archivo
+  fileType: varchar("file_type", { length: 100 }), // MIME type
+  uploadedBy: int("uploaded_by").notNull().references(() => users.id),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
+export type NMX025ManualEvidence = typeof nmx025ManualEvidences.$inferSelect;
+export type InsertNMX025ManualEvidence = typeof nmx025ManualEvidences.$inferInsert;
