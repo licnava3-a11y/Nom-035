@@ -540,3 +540,37 @@
 - [ ] Agregar selector de métricas a incluir
 - [ ] Agregar ruta en App.tsx
 - [ ] Agregar navegación en menú de Administración
+
+
+## Nuevas Tareas - Gestión de Casos, Historial Notificaciones y Reportes
+
+### Fase 1: Página de Gestión de Casos
+- [ ] Crear página CasesManagement.tsx en `/cases-management`
+- [ ] Implementar tabla paginada con casos (20 por página)
+- [ ] Agregar filtros por departamento, estado y prioridad
+- [ ] Crear formulario modal para crear casos manualmente
+- [ ] Agregar selector de departamento en formulario
+- [ ] Implementar acciones rápidas (asignar, cambiar estado, resolver)
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en menú lateral (Prevención de Riesgos Psicosociales)
+
+### Fase 2: Página de Historial de Notificaciones
+- [ ] Crear página NotificationsHistory.tsx en `/notifications-history`
+- [ ] Implementar tabla completa de notificaciones con paginación
+- [ ] Agregar filtros por tipo, fecha y estado (leído/no leído)
+- [ ] Implementar búsqueda por texto en título/contenido
+- [ ] Crear acciones masivas (marcar todas como leídas, eliminar antiguas)
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en menú lateral
+
+### Fase 3: Sistema de Reportes Automatizados
+- [ ] Crear tabla report_configurations en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear job executive-reports-job.ts configurable
+- [ ] Implementar generación PDF con KPIs consolidados
+- [ ] Crear templates HTML profesionales
+- [ ] Implementar sistema de destinatarios múltiples
+- [ ] Crear router reportConfigurations
+- [ ] Crear página ReportConfigurations.tsx con panel de configuración
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en menú de Administración
