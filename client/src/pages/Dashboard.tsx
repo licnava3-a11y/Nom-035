@@ -39,6 +39,7 @@ import {
   LineElement,
 } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
+import annotationPlugin from 'chartjs-plugin-annotation';
 
 ChartJS.register(
   CategoryScale,
@@ -49,7 +50,8 @@ ChartJS.register(
   Legend,
   ArcElement,
   PointElement,
-  LineElement
+  LineElement,
+  annotationPlugin
 );
 
 export default function DashboardConsolidated() {
@@ -579,6 +581,72 @@ export default function DashboardConsolidated() {
               <CardHeader>
                 <CardTitle>Tendencia de Factores de Riesgo Psicosocial</CardTitle>
                 <CardDescription>Evolución de puntuaciones NOM-035-STPS-2018</CardDescription>
+                {/* Selector de periodo temporal */}
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant={!dateRange ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setDateRange(undefined)}
+                  >
+                    Todos
+                  </Button>
+                  <Button
+                    variant={dateRange && dateRange.from.getTime() === new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).setHours(0,0,0,0) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const from = new Date();
+                      from.setDate(from.getDate() - 7);
+                      from.setHours(0, 0, 0, 0);
+                      const to = new Date();
+                      to.setHours(23, 59, 59, 999);
+                      setDateRange({ from, to });
+                    }}
+                  >
+                    Última Semana
+                  </Button>
+                  <Button
+                    variant={dateRange && dateRange.from.getTime() === new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).setHours(0,0,0,0) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const from = new Date();
+                      from.setDate(from.getDate() - 30);
+                      from.setHours(0, 0, 0, 0);
+                      const to = new Date();
+                      to.setHours(23, 59, 59, 999);
+                      setDateRange({ from, to });
+                    }}
+                  >
+                    Último Mes
+                  </Button>
+                  <Button
+                    variant={dateRange && dateRange.from.getTime() === new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).setHours(0,0,0,0) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const from = new Date();
+                      from.setDate(from.getDate() - 90);
+                      from.setHours(0, 0, 0, 0);
+                      const to = new Date();
+                      to.setHours(23, 59, 59, 999);
+                      setDateRange({ from, to });
+                    }}
+                  >
+                    Último Trimestre
+                  </Button>
+                  <Button
+                    variant={dateRange && dateRange.from.getTime() === new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).setHours(0,0,0,0) ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const from = new Date();
+                      from.setDate(from.getDate() - 365);
+                      from.setHours(0, 0, 0, 0);
+                      const to = new Date();
+                      to.setHours(23, 59, 59, 999);
+                      setDateRange({ from, to });
+                    }}
+                  >
+                    Último Año
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
@@ -590,6 +658,81 @@ export default function DashboardConsolidated() {
                       scales: {
                         y: {
                           beginAtZero: true,
+                          max: 1.0,
+                          ticks: {
+                            callback: function(value) {
+                              return (value as number).toFixed(2);
+                            }
+                          }
+                        },
+                      },
+                      plugins: {
+                        annotation: {
+                          annotations: {
+                            // Banda verde: Nulo/Bajo (0-0.20)
+                            greenZone: {
+                              type: 'box',
+                              yMin: 0,
+                              yMax: 0.20,
+                              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                              borderColor: 'rgba(34, 197, 94, 0.3)',
+                              borderWidth: 1,
+                            },
+                            // Banda amarilla: Medio (0.21-0.50)
+                            yellowZone: {
+                              type: 'box',
+                              yMin: 0.21,
+                              yMax: 0.50,
+                              backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                              borderColor: 'rgba(234, 179, 8, 0.3)',
+                              borderWidth: 1,
+                            },
+                            // Banda roja: Alto/Muy Alto (0.51-1.0)
+                            redZone: {
+                              type: 'box',
+                              yMin: 0.51,
+                              yMax: 1.0,
+                              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                              borderColor: 'rgba(239, 68, 68, 0.3)',
+                              borderWidth: 1,
+                            },
+                          },
+                        },
+                        legend: {
+                          display: true,
+                          labels: {
+                            generateLabels: function(chart) {
+                              const original = ChartJS.defaults.plugins.legend.labels.generateLabels(chart);
+                              // Agregar leyendas de bandas de riesgo
+                              return [
+                                ...original,
+                                {
+                                  text: 'Nulo/Bajo (0-0.20)',
+                                  fillStyle: 'rgba(34, 197, 94, 0.3)',
+                                  strokeStyle: 'rgba(34, 197, 94, 0.5)',
+                                  lineWidth: 2,
+                                  hidden: false,
+                                  index: 100,
+                                },
+                                {
+                                  text: 'Medio (0.21-0.50)',
+                                  fillStyle: 'rgba(234, 179, 8, 0.3)',
+                                  strokeStyle: 'rgba(234, 179, 8, 0.5)',
+                                  lineWidth: 2,
+                                  hidden: false,
+                                  index: 101,
+                                },
+                                {
+                                  text: 'Alto/Muy Alto (0.51-1.0)',
+                                  fillStyle: 'rgba(239, 68, 68, 0.3)',
+                                  strokeStyle: 'rgba(239, 68, 68, 0.5)',
+                                  lineWidth: 2,
+                                  hidden: false,
+                                  index: 102,
+                                },
+                              ];
+                            },
+                          },
                         },
                       },
                     }}

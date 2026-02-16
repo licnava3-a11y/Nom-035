@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE survey_responses \nSET results = '{\"finalScore\": 0.15, \"riskLevel\": \"nulo\", \"categoryScores\": {}}'\nWHERE token = 'test_token_g1_2024';\n\nUPDATE survey_responses \nSET results = '{\"finalScore\": 0.45, \"riskLevel\": \"medio\", \"categoryScores\": {}}'\nWHERE token = 'test_token_g2_2024';\n\nUPDATE survey_responses \nSET results = '{\"finalScore\": 0.72, \"riskLevel\": \"alto\", \"categoryScores\": {}}'\nWHERE token = 'test_token_g3_2024';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute UPDATE survey_responses \nSET results = '{\"finalScore\": 0.15, \"riskLevel\": \"nulo\", \"categoryScores\": {}}'\nWHERE token = 'test_token_g1_2024';\n\nUPDATE survey_responses \nSET results = '{\"finalScore\": 0.45, \"riskLevel\": \"medio\", \"categoryScores\": {}}'\nWHERE token = 'test_token_g2_2024';\n\nUPDATE survey_responses \nSET results = '{\"finalScore\": 0.72, \"riskLevel\": \"alto\", \"categoryScores\": {}}'\nWHERE token = 'test_token_g3_2024';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 466
+}

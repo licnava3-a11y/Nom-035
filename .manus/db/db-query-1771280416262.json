@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, name, email FROM users LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, name, email FROM users LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Vero Nava",
+      "email": "lic.nava3@gmail.com"
+    },
+    {
+      "id": "270044",
+      "name": "María González",
+      "email": "maria.gonzalez@empresa.com"
+    },
+    {
+      "id": "270045",
+      "name": "Carlos Ramírez",
+      "email": "carlos.ramirez@empresa.com"
+    },
+    {
+      "id": "270046",
+      "name": "Ana López",
+      "email": "ana.lopez@empresa.com"
+    },
+    {
+      "id": "270047",
+      "name": "Pedro Martínez",
+      "email": "pedro.martinez@empresa.com"
+    },
+    {
+      "id": "270048",
+      "name": "Laura Sánchez",
+      "email": "laura.sanchez@empresa.com"
+    },
+    {
+      "id": "270049",
+      "name": "Roberto Torres",
+      "email": "roberto.torres@empresa.com"
+    },
+    {
+      "id": "270050",
+      "name": "Carmen Flores",
+      "email": "carmen.flores@empresa.com"
+    },
+    {
+      "id": "270051",
+      "name": "Dr. José Hernández",
+      "email": "jose.hernandez@empresa.com"
+    },
+    {
+      "id": "270052",
+      "name": "Lic. Patricia Morales",
+      "email": "patricia.morales@empresa.com"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\n1\tVero Nava\tlic.nava3@gmail.com\n270044\tMaría González\tmaria.gonzalez@empresa.com\n270045\tCarlos Ramírez\tcarlos.ramirez@empresa.com\n270046\tAna López\tana.lopez@empresa.com\n270047\tPedro Martínez\tpedro.martinez@empresa.com\n270048\tLaura Sánchez\tlaura.sanchez@empresa.com\n270049\tRoberto Torres\troberto.torres@empresa.com\n270050\tCarmen Flores\tcarmen.flores@empresa.com\n270051\tDr. José Hernández\tjose.hernandez@empresa.com\n270052\tLic. Patricia Morales\tpatricia.morales@empresa.com\n",
+  "stderr": "",
+  "execution_time_ms": 351
+}

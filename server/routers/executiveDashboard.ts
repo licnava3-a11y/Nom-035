@@ -97,6 +97,15 @@ export const executiveDashboardRouter = router({
         : 0;
 
       // Tendencia de factores de riesgo (últimas 3 encuestas)
+      // Construir condiciones de filtro temporal para riskTrend
+      const riskTrendConditions = [sql`${surveyResponses.completedAt} IS NOT NULL`];
+      if (input?.startDate) {
+        riskTrendConditions.push(sql`${surveyResponses.completedAt} >= ${input.startDate}`);
+      }
+      if (input?.endDate) {
+        riskTrendConditions.push(sql`${surveyResponses.completedAt} <= ${input.endDate}`);
+      }
+
       const riskTrend = await db
         .select({
           surveyId: surveyResponses.surveyId,
@@ -106,7 +115,7 @@ export const executiveDashboardRouter = router({
         })
         .from(surveyResponses)
         .leftJoin(surveys, eq(surveyResponses.surveyId, surveys.id))
-        .where(sql`${surveyResponses.completedAt} IS NOT NULL`)
+        .where(and(...riskTrendConditions))
         .groupBy(surveyResponses.surveyId, surveys.title)
         .orderBy(desc(sql`MAX(${surveyResponses.completedAt})`))
         .limit(3);

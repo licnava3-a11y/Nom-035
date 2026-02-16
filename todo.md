@@ -1188,3 +1188,7 @@
 - [x] Cambiar nombres de guías en gráfico Dashboard principal a nomenclatura abreviada (Guía I-ATS, Guía II-Identificación FRPS, Guía III-FRPS + EOF)
 
 - [x] Corregir transformación de títulos en gráfico de tendencias (mostrar Guía I-ATS, Guía II, Guía III-FRPS + EOF según datos reales)
+
+- [x] Insertar datos de prueba en survey_responses para visualización del gráfico
+- [x] Implementar filtro temporal en gráfico de tendencias (semana/mes/trimestre/año)
+- [x] Agregar bandas de color según niveles de riesgo NOM-035 en gráfico
