@@ -1712,3 +1712,44 @@
 - [ ] Mantener paleta de colores: azul marino, verde, rojo
 - [ ] Sincronizar escalas de ejes para comparación justa
 - [ ] Gráfico de normativas con barras agrupadas para comparación
+
+## Nuevas Tareas - Completar Sistema de Comparación WhatsApp
+
+### 1. Gráficos Comparativos
+- [x] Consultar getConversionTrends para período de comparación
+- [x] Actualizar gráfico de tendencias con dos datasets superpuestos
+- [x] Líneas sólidas verde/azul para período actual
+- [x] Líneas punteadas grises para período de comparación
+- [x] Leyendas claras con etiquetas y fechas de períodos (dd/MM formato)
+- [x] 4 datasets: Clics Actual, Conversiones Actual, Clics Comparación, Conversiones Comparación
+- [x] Actualizar gráfico de normativas con barras agrupadas (Bar chart)
+- [x] Mostrar normativas lado a lado para comparación visual
+- [x] Combinar normativas de ambos períodos para etiquetas completas
+- [x] Cambiar automáticamente de Pie a Bar cuando hay comparación
+
+### 2. Exportación a Excel
+- [x] Crear botón "Exportar Comparación" en header del dashboard
+- [x] Instalar librería para generación de Excel (xlsx)
+- [x] Hoja 1: Métricas comparativas con cambios porcentuales
+- [x] Hoja 2: Eventos del período actual
+- [x] Hoja 3: Eventos del período de comparación
+- [x] Hoja 4: Distribución de normativas comparativa
+- [x] Aplicar estilos profesionales (anchos de columna)
+- [x] Generar y descargar archivo automáticamente
+- [x] Helper excelExport.ts con tipos TypeScript
+- [x] Toast de confirmación y manejo de errores
+- [x] Botón deshabilitado cuando comparación está inactiva
+
+### 3. Alertas Automáticas
+- [x] Crear procedure checkSignificantChanges en router
+- [x] Detectar cambios >20% en clics
+- [x] Detectar cambios >15% en conversiones
+- [x] Detectar cambios >10 puntos porcentuales en tasa
+- [x] Generar resumen de métricas y recomendaciones
+- [x] Sistema de severidad (high/medium/low)
+- [x] Recomendaciones específicas según tipo de cambio
+- [x] Integrar con sistema de notificaciones (toast)
+- [x] Ejecutar verificación automática al activar comparación
+- [x] useEffect para detectar cambios en filtros y ejecutar verificación
+- [x] Mostrar alertas en toast con severidad
+- [x] Mostrar recomendaciones después de alertas

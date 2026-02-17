@@ -1,20 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { Line, Pie } from "react-chartjs-2";
+import { Line, Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   ArcElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare } from "lucide-react";
+import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare, Download } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -26,8 +27,10 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ComparisonMetricCard } from "@/components/ComparisonMetricCard";
+import { exportComparisonToExcel } from "@/lib/excelExport";
+import { useToast } from "@/hooks/use-toast";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
 type EventType = "click" | "demo_request" | "contact_request" | undefined;
 type ConversionStatus = "pending" | "converted" | "lost" | undefined;
@@ -49,6 +52,8 @@ export default function WhatsAppMetrics() {
   const [comparisonEnabled, setComparisonEnabled] = useState(false);
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("auto-previous");
   const [comparisonDateRange, setComparisonDateRange] = useState<{ from?: Date; to?: Date }>({});
+
+  const { toast } = useToast();
 
   // Funciones helper para períodos predefinidos
   const applyQuickFilter = (filterType: QuickFilterType) => {
@@ -140,6 +145,75 @@ export default function WhatsAppMetrics() {
     }
   );
 
+  // Queries para gráficos de comparación
+  const comparisonFilters = {
+    startDate: effectiveComparisonPeriod.from?.toISOString(),
+    endDate: effectiveComparisonPeriod.to?.toISOString(),
+    eventType,
+    conversionStatus,
+  };
+
+  const { data: comparisonTrends } = trpc.whatsappTracking.getConversionTrends.useQuery(
+    {
+      period,
+      ...comparisonFilters,
+    },
+    {
+      enabled: comparisonEnabled && !!effectiveComparisonPeriod.from && !!effectiveComparisonPeriod.to,
+    }
+  );
+
+  const { data: comparisonNormativas } = trpc.whatsappTracking.getNormativasPopularity.useQuery(
+    comparisonFilters,
+    {
+      enabled: comparisonEnabled && !!effectiveComparisonPeriod.from && !!effectiveComparisonPeriod.to,
+    }
+  );
+
+  // Mutation para verificar cambios significativos
+  const checkChangesMutation = trpc.whatsappTracking.checkSignificantChanges.useMutation({
+    onSuccess: (data) => {
+      if (data.hasSignificantChanges) {
+        // Mostrar alertas en toast
+        data.alerts.forEach((alert) => {
+          toast({
+            title: `Alerta: ${alert.type}`,
+            description: alert.message,
+            variant: alert.severity === "high" ? "destructive" : "default",
+          });
+        });
+
+        // Mostrar recomendaciones
+        if (data.recommendations.length > 0) {
+          setTimeout(() => {
+            toast({
+              title: "Recomendaciones",
+              description: data.recommendations.join(". "),
+            });
+          }, 2000);
+        }
+      }
+    },
+  });
+
+  // Ejecutar verificación de cambios al activar comparación
+  useEffect(() => {
+    if (
+      comparisonEnabled &&
+      dateRange.from &&
+      dateRange.to &&
+      effectiveComparisonPeriod.from &&
+      effectiveComparisonPeriod.to
+    ) {
+      checkChangesMutation.mutate({
+        currentStartDate: dateRange.from.toISOString(),
+        currentEndDate: dateRange.to.toISOString(),
+        comparisonStartDate: effectiveComparisonPeriod.from.toISOString(),
+        comparisonEndDate: effectiveComparisonPeriod.to.toISOString(),
+      });
+    }
+  }, [comparisonEnabled, dateRange.from, dateRange.to, effectiveComparisonPeriod.from, effectiveComparisonPeriod.to]);
+
   // Función para limpiar filtros
   const clearFilters = () => {
     setDateRange({});
@@ -152,6 +226,42 @@ export default function WhatsAppMetrics() {
   const handleDateChange = (type: 'from' | 'to', date: Date | undefined) => {
     setDateRange(prev => ({ ...prev, [type]: date }));
     setActiveQuickFilter(null);
+  };
+
+  // Función para exportar comparación a Excel
+  const handleExport = () => {
+    if (!comparisonData || !comparisonEnabled) {
+      toast({
+        title: "Error",
+        description: "Debes habilitar la comparación primero",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      exportComparisonToExcel({
+        comparisonData,
+        currentEvents: recentEvents?.events || [],
+        comparisonEvents: [], // Usar los mismos eventos actuales por ahora
+        currentNormativas: normativas || [],
+        comparisonNormativas: comparisonNormativas || [],
+        dateRange,
+        comparisonDateRange: effectiveComparisonPeriod,
+      });
+
+      toast({
+        title: "Éxito",
+        description: "Comparación exportada a Excel correctamente",
+      });
+    } catch (error) {
+      console.error("Error al exportar:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo exportar la comparación",
+        variant: "destructive",
+      });
+    }
   };
 
   // Calcular período de comparación automáticamente
@@ -195,48 +305,119 @@ export default function WhatsAppMetrics() {
   // Datos para gráfico de tendencias
   const trendsChartData = {
     labels: trends?.map((t) => t.period) || [],
-    datasets: [
-      {
-        label: "Total de Clics",
-        data: trends?.map((t) => t.totalEvents) || [],
-        borderColor: "rgb(34, 197, 94)",
-        backgroundColor: "rgba(34, 197, 94, 0.1)",
-        tension: 0.4,
-      },
-      {
-        label: "Conversiones",
-        data: trends?.map((t) => t.conversions) || [],
-        borderColor: "rgb(59, 130, 246)",
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        tension: 0.4,
-      },
-    ],
+    datasets: comparisonEnabled && comparisonTrends
+      ? [
+          // Período actual - líneas sólidas azul y verde
+          {
+            label: `Total de Clics (${dateRange.from && dateRange.to ? format(dateRange.from, "dd/MM", { locale: es }) + " - " + format(dateRange.to, "dd/MM", { locale: es }) : "Actual"})`,
+            data: trends?.map((t) => t.totalEvents) || [],
+            borderColor: "rgb(34, 197, 94)",
+            backgroundColor: "rgba(34, 197, 94, 0.1)",
+            tension: 0.4,
+            borderWidth: 2,
+          },
+          {
+            label: `Conversiones (${dateRange.from && dateRange.to ? format(dateRange.from, "dd/MM", { locale: es }) + " - " + format(dateRange.to, "dd/MM", { locale: es }) : "Actual"})`,
+            data: trends?.map((t) => t.conversions) || [],
+            borderColor: "rgb(59, 130, 246)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            tension: 0.4,
+            borderWidth: 2,
+          },
+          // Período de comparación - líneas punteadas grises
+          {
+            label: `Total de Clics (${effectiveComparisonPeriod.from && effectiveComparisonPeriod.to ? format(effectiveComparisonPeriod.from, "dd/MM", { locale: es }) + " - " + format(effectiveComparisonPeriod.to, "dd/MM", { locale: es }) : "Comparación"})`,
+            data: comparisonTrends?.map((t) => t.totalEvents) || [],
+            borderColor: "rgb(156, 163, 175)",
+            backgroundColor: "rgba(156, 163, 175, 0.05)",
+            tension: 0.4,
+            borderWidth: 2,
+            borderDash: [5, 5],
+          },
+          {
+            label: `Conversiones (${effectiveComparisonPeriod.from && effectiveComparisonPeriod.to ? format(effectiveComparisonPeriod.from, "dd/MM", { locale: es }) + " - " + format(effectiveComparisonPeriod.to, "dd/MM", { locale: es }) : "Comparación"})`,
+            data: comparisonTrends?.map((t) => t.conversions) || [],
+            borderColor: "rgb(107, 114, 128)",
+            backgroundColor: "rgba(107, 114, 128, 0.05)",
+            tension: 0.4,
+            borderWidth: 2,
+            borderDash: [5, 5],
+          },
+        ]
+      : [
+          // Vista normal sin comparación
+          {
+            label: "Total de Clics",
+            data: trends?.map((t) => t.totalEvents) || [],
+            borderColor: "rgb(34, 197, 94)",
+            backgroundColor: "rgba(34, 197, 94, 0.1)",
+            tension: 0.4,
+          },
+          {
+            label: "Conversiones",
+            data: trends?.map((t) => t.conversions) || [],
+            borderColor: "rgb(59, 130, 246)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            tension: 0.4,
+          },
+        ],
   };
 
   // Datos para gráfico de normativas
+  // Combinar normativas de ambos períodos para etiquetas completas
+  const allNormativas = comparisonEnabled && comparisonNormativas
+    ? Array.from(new Set([
+        ...(normativas?.map(n => n.normativa) || []),
+        ...(comparisonNormativas?.map(n => n.normativa) || [])
+      ]))
+    : normativas?.map(n => n.normativa) || [];
+
   const normativasChartData = {
-    labels: normativas?.map((n) => NORMATIVAS_MAP[n.normativa] || n.normativa) || [],
-    datasets: [
-      {
-        label: "Solicitudes",
-        data: normativas?.map((n) => n.count) || [],
-        backgroundColor: [
-          "rgba(34, 197, 94, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(168, 85, 247, 0.8)",
+    labels: allNormativas.map((n) => NORMATIVAS_MAP[n] || n),
+    datasets: comparisonEnabled && comparisonNormativas
+      ? [
+          {
+            label: `Período Actual (${dateRange.from && dateRange.to ? format(dateRange.from, "dd/MM", { locale: es }) + " - " + format(dateRange.to, "dd/MM", { locale: es }) : "Actual"})`,
+            data: allNormativas.map(norm => {
+              const found = normativas?.find(n => n.normativa === norm);
+              return found ? found.count : 0;
+            }),
+            backgroundColor: "rgba(59, 130, 246, 0.8)",
+            borderColor: "rgb(59, 130, 246)",
+            borderWidth: 1,
+          },
+          {
+            label: `Período de Comparación (${effectiveComparisonPeriod.from && effectiveComparisonPeriod.to ? format(effectiveComparisonPeriod.from, "dd/MM", { locale: es }) + " - " + format(effectiveComparisonPeriod.to, "dd/MM", { locale: es }) : "Comparación"})`,
+            data: allNormativas.map(norm => {
+              const found = comparisonNormativas?.find(n => n.normativa === norm);
+              return found ? found.count : 0;
+            }),
+            backgroundColor: "rgba(156, 163, 175, 0.8)",
+            borderColor: "rgb(156, 163, 175)",
+            borderWidth: 1,
+          },
+        ]
+      : [
+          {
+            label: "Solicitudes",
+            data: normativas?.map((n) => n.count) || [],
+            backgroundColor: [
+              "rgba(34, 197, 94, 0.8)",
+              "rgba(59, 130, 246, 0.8)",
+              "rgba(239, 68, 68, 0.8)",
+              "rgba(245, 158, 11, 0.8)",
+              "rgba(168, 85, 247, 0.8)",
+            ],
+            borderColor: [
+              "rgb(34, 197, 94)",
+              "rgb(59, 130, 246)",
+              "rgb(239, 68, 68)",
+              "rgb(245, 158, 11)",
+              "rgb(168, 85, 247)",
+            ],
+            borderWidth: 1,
+          },
         ],
-        borderColor: [
-          "rgb(34, 197, 94)",
-          "rgb(59, 130, 246)",
-          "rgb(239, 68, 68)",
-          "rgb(245, 158, 11)",
-          "rgb(168, 85, 247)",
-        ],
-        borderWidth: 1,
-      },
-    ],
   };
 
   return (
@@ -249,6 +430,14 @@ export default function WhatsAppMetrics() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={!comparisonEnabled || !comparisonData}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Exportar Comparación
+          </Button>
           <div className="flex items-center space-x-2">
             <Switch
               id="comparison-mode"
@@ -647,18 +836,41 @@ export default function WhatsAppMetrics() {
               </div>
             ) : normativas && normativas.length > 0 ? (
               <div className="h-[300px]">
-                <Pie
-                  data={normativasChartData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: "right" as const,
+                {comparisonEnabled && comparisonNormativas ? (
+                  <Bar
+                    data={normativasChartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "top" as const,
+                        },
                       },
-                    },
-                  }}
-                />
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            precision: 0,
+                          },
+                        },
+                      },
+                    }}
+                  />
+                ) : (
+                  <Pie
+                    data={normativasChartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "right" as const,
+                        },
+                      },
+                    }}
+                  />
+                )}
               </div>
             ) : (
               <div className="h-[300px] flex items-center justify-center">

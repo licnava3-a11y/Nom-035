@@ -495,4 +495,134 @@ export const whatsappTrackingRouter = router({
         },
       };
     }),
+
+  /**
+   * Verificar cambios significativos y generar alertas
+   */
+  checkSignificantChanges: protectedProcedure
+    .input(
+      z.object({
+        currentStartDate: z.string(),
+        currentEndDate: z.string(),
+        comparisonStartDate: z.string(),
+        comparisonEndDate: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
+      // Reutilizar la lógica de getComparisonMetrics
+      const getMetricsForPeriod = async (startDate: string, endDate: string) => {
+        const conditions = [
+          gte(whatsappTrackingEvents.createdAt, new Date(startDate)),
+          lte(whatsappTrackingEvents.createdAt, new Date(endDate)),
+        ];
+
+        const [totalResult] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(whatsappTrackingEvents)
+          .where(and(...conditions));
+
+        const totalEvents = Number(totalResult?.count || 0);
+
+        const [convertedResult] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(whatsappTrackingEvents)
+          .where(and(...conditions, eq(whatsappTrackingEvents.conversionStatus, "converted")));
+
+        const totalConverted = Number(convertedResult?.count || 0);
+        const conversionRate = totalEvents > 0 ? (totalConverted / totalEvents) * 100 : 0;
+
+        return {
+          totalEvents,
+          totalConverted,
+          conversionRate: Number(conversionRate.toFixed(2)),
+        };
+      };
+
+      const currentMetrics = await getMetricsForPeriod(input.currentStartDate, input.currentEndDate);
+      const comparisonMetrics = await getMetricsForPeriod(input.comparisonStartDate, input.comparisonEndDate);
+
+      // Calcular cambios porcentuales
+      const calculateChange = (current: number, comparison: number) => {
+        if (comparison === 0) return current > 0 ? 100 : 0;
+        return Number((((current - comparison) / comparison) * 100).toFixed(2));
+      };
+
+      const clicksChange = calculateChange(currentMetrics.totalEvents, comparisonMetrics.totalEvents);
+      const conversionsChange = calculateChange(currentMetrics.totalConverted, comparisonMetrics.totalConverted);
+      const rateChange = Number((currentMetrics.conversionRate - comparisonMetrics.conversionRate).toFixed(2));
+
+      // Detectar cambios significativos
+      const alerts: Array<{ type: string; message: string; severity: "high" | "medium" | "low" }> = [];
+
+      // Alerta de clics (>20%)
+      if (Math.abs(clicksChange) > 20) {
+        alerts.push({
+          type: "clics",
+          message: `Los clics han ${clicksChange > 0 ? "aumentado" : "disminuido"} un ${Math.abs(clicksChange).toFixed(2)}% (de ${comparisonMetrics.totalEvents} a ${currentMetrics.totalEvents})`,
+          severity: Math.abs(clicksChange) > 50 ? "high" : "medium",
+        });
+      }
+
+      // Alerta de conversiones (>15%)
+      if (Math.abs(conversionsChange) > 15) {
+        alerts.push({
+          type: "conversiones",
+          message: `Las conversiones han ${conversionsChange > 0 ? "aumentado" : "disminuido"} un ${Math.abs(conversionsChange).toFixed(2)}% (de ${comparisonMetrics.totalConverted} a ${currentMetrics.totalConverted})`,
+          severity: Math.abs(conversionsChange) > 30 ? "high" : "medium",
+        });
+      }
+
+      // Alerta de tasa de conversión (>10 puntos porcentuales)
+      if (Math.abs(rateChange) > 10) {
+        alerts.push({
+          type: "tasa_conversion",
+          message: `La tasa de conversión ha ${rateChange > 0 ? "aumentado" : "disminuido"} ${Math.abs(rateChange).toFixed(2)} puntos porcentuales (de ${comparisonMetrics.conversionRate}% a ${currentMetrics.conversionRate}%)`,
+          severity: Math.abs(rateChange) > 20 ? "high" : "medium",
+        });
+      }
+
+      // Generar recomendaciones
+      const recommendations: string[] = [];
+
+      if (clicksChange < -20) {
+        recommendations.push("Revisar estrategia de marketing y canales de adquisición");
+        recommendations.push("Verificar si hay problemas técnicos en el botón de WhatsApp");
+      } else if (clicksChange > 20) {
+        recommendations.push("Capitalizar el aumento de tráfico optimizando el proceso de conversión");
+      }
+
+      if (conversionsChange < -15) {
+        recommendations.push("Analizar el proceso de seguimiento post-clic");
+        recommendations.push("Revisar tiempos de respuesta y calidad de atención");
+      } else if (conversionsChange > 15) {
+        recommendations.push("Documentar las prácticas exitosas para replicarlas");
+      }
+
+      if (rateChange < -10) {
+        recommendations.push("Mejorar la calificación de leads antes del contacto");
+        recommendations.push("Capacitar al equipo de ventas en técnicas de cierre");
+      }
+
+      return {
+        hasSignificantChanges: alerts.length > 0,
+        alerts,
+        recommendations,
+        metrics: {
+          current: currentMetrics,
+          comparison: comparisonMetrics,
+          changes: {
+            clics: clicksChange,
+            conversiones: conversionsChange,
+            tasaConversion: rateChange,
+          },
+        },
+      };
+    }),
 });
