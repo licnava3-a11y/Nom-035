@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { getDb } from "../db";
-import { departments, employees, predictiveTurnoverAlerts } from "../../drizzle/schema";
+import { departments, employees, predictiveTurnoverAlerts, predictiveAlgorithmConfig } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, isNull } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -32,6 +32,24 @@ async function analyzePredictiveTurnover() {
       .execute();
 
     console.log(`[Predictive Turnover Job] Analyzing ${allDepartments.length} departments...`);
+
+    // Obtener configuración de pesos del algoritmo
+    // @ts-expect-error - getDb() siempre retorna instancia válida
+    const [config] = await db
+      .select()
+      .from(predictiveAlgorithmConfig)
+      .limit(1)
+      .execute();
+
+    // Usar valores por defecto si no existe configuración
+    const weights = config || {
+      turnoverWeight: 40,
+      tenureWeight: 30,
+      managerWeight: 20,
+      teamSizeWeight: 10,
+    };
+
+    console.log(`[Predictive Turnover Job] Using algorithm weights: turnover=${weights.turnoverWeight}%, tenure=${weights.tenureWeight}%, manager=${weights.managerWeight}%, teamSize=${weights.teamSizeWeight}%`);
 
     const alerts: Array<{
       departmentId: number;
@@ -113,29 +131,29 @@ async function analyzePredictiveTurnover() {
 
       const avgTenureMonths = avgTenure.avg || 0;
 
-      // Calcular score de riesgo (0-100)
+      // Calcular score de riesgo (0-100) usando pesos configurados
       let riskScore = 0;
 
-      // Factor 1: Tasa de rotación reciente (0-40 puntos)
+      // Factor 1: Tasa de rotación reciente (0-turnoverWeight puntos)
       const turnoverRate =
         currentEmployeeCount > 0
           ? (terminationsLast3Months / currentEmployeeCount) * 100
           : 0;
-      if (turnoverRate > 20) riskScore += 40;
-      else if (turnoverRate > 10) riskScore += 30;
-      else if (turnoverRate > 5) riskScore += 20;
-      else riskScore += 10;
+      if (turnoverRate > 20) riskScore += weights.turnoverWeight;
+      else if (turnoverRate > 10) riskScore += weights.turnoverWeight * 0.75;
+      else if (turnoverRate > 5) riskScore += weights.turnoverWeight * 0.5;
+      else riskScore += weights.turnoverWeight * 0.25;
 
-      // Factor 2: Antigüedad promedio baja (0-30 puntos)
-      if (avgTenureMonths < 6) riskScore += 30;
-      else if (avgTenureMonths < 12) riskScore += 20;
-      else if (avgTenureMonths < 24) riskScore += 10;
+      // Factor 2: Antigüedad promedio baja (0-tenureWeight puntos)
+      if (avgTenureMonths < 6) riskScore += weights.tenureWeight;
+      else if (avgTenureMonths < 12) riskScore += weights.tenureWeight * 0.67;
+      else if (avgTenureMonths < 24) riskScore += weights.tenureWeight * 0.33;
 
-      // Factor 3: Sin manager asignado (0-20 puntos)
-      if (!dept.managerId) riskScore += 20;
+      // Factor 3: Sin manager asignado (0-managerWeight puntos)
+      if (!dept.managerId) riskScore += weights.managerWeight;
 
-      // Factor 4: Tamaño del equipo pequeño con rotación (0-10 puntos)
-      if (currentEmployeeCount < 5 && terminationsLast3Months > 0) riskScore += 10;
+      // Factor 4: Tamaño del equipo pequeño con rotación (0-teamSizeWeight puntos)
+      if (currentEmployeeCount < 5 && terminationsLast3Months > 0) riskScore += weights.teamSizeWeight;
 
       // Predicción de tasa de rotación anualizada
       const predictedTurnoverRate = turnoverRate * 4; // Proyección anual

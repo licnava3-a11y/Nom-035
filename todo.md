@@ -1512,3 +1512,10 @@
 - [ ] Agregar tabla de comparación de predicciones vs realidad
 - [ ] Calcular precisión del algoritmo (% aciertos)
 
+
+## Nueva Tarea - Actualización Job Predictive-Turnover
+- [x] Modificar job predictive-turnover-job.ts para leer configuración dinámica
+- [x] Obtener pesos desde tabla predictive_algorithm_config
+- [x] Reemplazar valores hardcodeados (40, 30, 20, 10) por valores de configuración
+- [x] Manejar caso cuando no existe configuración (usar valores por defecto)
+- [x] Probar ejecución del job con diferentes configuraciones
