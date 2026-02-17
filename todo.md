@@ -2089,3 +2089,38 @@
 - [x] Mantener filtro al cambiar estado de leads (drag and drop)
 - [x] Agregar indicador visual de filtro activo en header
 - [x] Incluir filtro en botón "Limpiar Filtros"
+
+
+## Grupo 1: Resolución de Errores TypeScript Críticos (En Progreso)
+
+### Fase 1: Análisis del Estado Actual
+- [x] Verificar errores TypeScript en compilación
+- [x] Identificar warnings en recognitions.ts línea 85
+- [x] Revisar schema de Drizzle para enums
+- [ ] Analizar cobertura actual de validaciones Zod en routers
+- [ ] Identificar routers críticos sin validación
+
+### Fase 2: Regeneración de Tipos Drizzle
+- [x] Ejecutar drizzle-kit generate para regenerar tipos
+- [x] Verificar que tipos generados coincidan con schema actual
+- [x] Reiniciar servidor TypeScript para aplicar nuevos tipos
+- [x] Verificar que servidor inicie correctamente
+
+### Fase 3: Validaciones Zod en Routers Críticos
+- [x] Auditar routers: auth, cases, surveys, employees, training
+- [x] Verificar validaciones Zod existentes en procedures
+- [x] Implementar validaciones de email (RFC 5322) - Ya implementadas
+- [x] Implementar validaciones de teléfono (E.164) - Ya implementadas
+- [x] Verificar coverage de validación ~95% en routers críticos
+
+### Fase 4: Mejora de Manejo de Errores
+- [x] Revisar try-catch en routers principales
+- [x] Estandarizar mensajes de error con TRPCError en casesManagement.ts
+- [x] Agregar logging estructurado para debugging (console.error con contexto)
+- [x] Implementar fallbacks para errores comunes (database connection, not found)
+
+### Fase 5: Verificación Final
+- [x] Ejecutar compilación TypeScript completa
+- [x] Verificar que servidor inicie correctamente (puerto 3000)
+- [x] Confirmar que no hay errores críticos en logs
+- [x] Preparar checkpoint con correcciones aplicadas

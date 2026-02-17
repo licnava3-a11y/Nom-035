@@ -1,5 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { cases, employees } from "../../drizzle/schema";
 import { eq, desc, and, or, like, isNull, sql } from "drizzle-orm";
@@ -20,32 +21,45 @@ export const casesManagementRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database connection failed");
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
 
-      // Generar número de caso único
-      const caseNumber = `CASE-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+        // Generar número de caso único
+        const caseNumber = `CASE-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-      // Crear caso
-      const [newCase] = await db.insert(cases).values({
-        caseNumber,
-        reporterName: input.reporterName,
-        reporterEmail: input.reporterEmail || null,
-        isAnonymous: input.isAnonymous,
-        caseType: input.caseType,
-        description: input.description,
-        status: "open",
-        priority: input.priority,
-        departmentId: input.departmentId,
-        assignedTo: input.assignedTo || null,
-        createdAt: new Date(),
-      });
+        // Crear caso
+        const [newCase] = await db.insert(cases).values({
+          caseNumber,
+          reporterName: input.reporterName,
+          reporterEmail: input.reporterEmail || null,
+          isAnonymous: input.isAnonymous,
+          caseType: input.caseType,
+          description: input.description,
+          status: "open",
+          priority: input.priority,
+          departmentId: input.departmentId,
+          assignedTo: input.assignedTo || null,
+          createdAt: new Date(),
+        });
 
-      return {
-        success: true,
-        caseId: newCase.insertId,
-        caseNumber,
-      };
+        return {
+          success: true,
+          caseId: newCase.insertId,
+          caseNumber,
+        };
+      } catch (error) {
+        console.error("[CasesManagement] Error creating case:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Error al crear caso",
+        });
+      }
     }),
 
   // Listar casos con filtros
@@ -60,70 +74,100 @@ export const casesManagementRouter = router({
       }).optional()
     )
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database connection failed");
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
 
-      const page = input?.page || 1;
-      const pageSize = input?.pageSize || 20;
-      const offset = (page - 1) * pageSize;
+        const page = input?.page || 1;
+        const pageSize = input?.pageSize || 20;
+        const offset = (page - 1) * pageSize;
 
-      let conditions = [];
-      if (input?.status && input.status !== "all") {
-        conditions.push(eq(cases.status, input.status));
+        let conditions = [];
+        if (input?.status && input.status !== "all") {
+          conditions.push(eq(cases.status, input.status));
+        }
+        if (input?.priority && input.priority !== "all") {
+          conditions.push(eq(cases.priority, input.priority));
+        }
+        if (input?.departmentId) {
+          conditions.push(eq(cases.departmentId, input.departmentId));
+        }
+
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+        const [casesList, totalCount] = await Promise.all([
+          db
+            .select()
+            .from(cases)
+            .where(whereClause)
+            .orderBy(desc(cases.createdAt))
+            .limit(pageSize)
+            .offset(offset),
+          db
+            .select({ count: sql<number>`count(*)` })
+            .from(cases)
+            .where(whereClause)
+            .then(r => r[0]?.count || 0),
+        ]);
+
+        return {
+          cases: casesList,
+          pagination: {
+            page,
+            pageSize,
+            totalCount,
+            totalPages: Math.ceil(totalCount / pageSize),
+          },
+        };
+      } catch (error) {
+        console.error("[CasesManagement] Error listing cases:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al listar casos",
+        });
       }
-      if (input?.priority && input.priority !== "all") {
-        conditions.push(eq(cases.priority, input.priority));
-      }
-      if (input?.departmentId) {
-        conditions.push(eq(cases.departmentId, input.departmentId));
-      }
-
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-      const [casesList, totalCount] = await Promise.all([
-        db
-          .select()
-          .from(cases)
-          .where(whereClause)
-          .orderBy(desc(cases.createdAt))
-          .limit(pageSize)
-          .offset(offset),
-        db
-          .select({ count: sql<number>`count(*)` })
-          .from(cases)
-          .where(whereClause)
-          .then(r => r[0]?.count || 0),
-      ]);
-
-      return {
-        cases: casesList,
-        pagination: {
-          page,
-          pageSize,
-          totalCount,
-          totalPages: Math.ceil(totalCount / pageSize),
-        },
-      };
     }),
 
   // Obtener caso por ID
   getCaseById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database connection failed");
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
 
-      const [caseData] = await db
-        .select()
-        .from(cases)
-        .where(eq(cases.id, input.id))
-        .limit(1);
+        const [caseData] = await db
+          .select()
+          .from(cases)
+          .where(eq(cases.id, input.id))
+          .limit(1);
 
-      if (!caseData) {
-        throw new Error("Caso no encontrado");
+        if (!caseData) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Caso no encontrado",
+          });
+        }
+
+        return caseData;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("[CasesManagement] Error getting case:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener caso",
+        });
       }
-
-      return caseData;
     }),
 
   // Actualizar caso
@@ -138,22 +182,35 @@ export const casesManagementRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database connection failed");
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
 
-      const updateData: any = {};
-      if (input.status) updateData.status = input.status;
-      if (input.priority) updateData.priority = input.priority;
-      if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
-      if (input.resolution) updateData.resolution = input.resolution;
+        const updateData: any = {};
+        if (input.status) updateData.status = input.status;
+        if (input.priority) updateData.priority = input.priority;
+        if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
+        if (input.resolution) updateData.resolution = input.resolution;
 
-      if (input.status === "resolved" || input.status === "closed") {
-        updateData.resolvedAt = new Date();
+        if (input.status === "resolved" || input.status === "closed") {
+          updateData.resolvedAt = new Date();
+        }
+
+        await db.update(cases).set(updateData).where(eq(cases.id, input.id));
+
+        return { success: true };
+      } catch (error) {
+        console.error("[CasesManagement] Error updating case:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al actualizar caso",
+        });
       }
-
-      await db.update(cases).set(updateData).where(eq(cases.id, input.id));
-
-      return { success: true };
     }),
 
   // Asignar caso a usuario
@@ -165,42 +222,68 @@ export const casesManagementRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database connection failed");
+      try {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection failed",
+          });
+        }
 
-      await db
-        .update(cases)
-        .set({ assignedTo: input.assignedTo })
-        .where(eq(cases.id, input.caseId));
+        await db
+          .update(cases)
+          .set({ assignedTo: input.assignedTo })
+          .where(eq(cases.id, input.caseId));
 
-      return { success: true };
+        return { success: true };
+      } catch (error) {
+        console.error("[CasesManagement] Error assigning case:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al asignar caso",
+        });
+      }
     }),
 
   // Obtener estadísticas de casos
   getCasesStats: protectedProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database connection failed");
+    try {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
 
-    const [stats] = await db
-      .select({
-        total: sql<number>`count(*)`,
-        open: sql<number>`sum(case when ${cases.status} = 'open' then 1 else 0 end)`,
-        investigating: sql<number>`sum(case when ${cases.status} = 'investigating' then 1 else 0 end)`,
-        resolved: sql<number>`sum(case when ${cases.status} = 'resolved' then 1 else 0 end)`,
-        closed: sql<number>`sum(case when ${cases.status} = 'closed' then 1 else 0 end)`,
-        critical: sql<number>`sum(case when ${cases.priority} = 'critical' then 1 else 0 end)`,
-        unassigned: sql<number>`sum(case when ${cases.assignedTo} is null then 1 else 0 end)`,
-      })
-      .from(cases);
+      const [stats] = await db
+        .select({
+          total: sql<number>`count(*)`,
+          open: sql<number>`sum(case when ${cases.status} = 'open' then 1 else 0 end)`,
+          investigating: sql<number>`sum(case when ${cases.status} = 'investigating' then 1 else 0 end)`,
+          resolved: sql<number>`sum(case when ${cases.status} = 'resolved' then 1 else 0 end)`,
+          closed: sql<number>`sum(case when ${cases.status} = 'closed' then 1 else 0 end)`,
+          critical: sql<number>`sum(case when ${cases.priority} = 'critical' then 1 else 0 end)`,
+          unassigned: sql<number>`sum(case when ${cases.assignedTo} is null then 1 else 0 end)`,
+        })
+        .from(cases);
 
-    return stats || {
-      total: 0,
-      open: 0,
-      investigating: 0,
-      resolved: 0,
-      closed: 0,
-      critical: 0,
-      unassigned: 0,
-    };
+      return stats || {
+        total: 0,
+        open: 0,
+        investigating: 0,
+        resolved: 0,
+        closed: 0,
+        critical: 0,
+        unassigned: 0,
+      };
+    } catch (error) {
+      console.error("[CasesManagement] Error getting stats:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Error al obtener estadísticas",
+      });
+    }
   }),
 });
