@@ -15,7 +15,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare, Download } from "lucide-react";
+import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare, Download, UserPlus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -29,6 +29,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ComparisonMetricCard } from "@/components/ComparisonMetricCard";
 import { exportComparisonToExcel } from "@/lib/excelExport";
 import { useToast } from "@/hooks/use-toast";
+import { ConvertToLeadModal } from "@/components/ConvertToLeadModal";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -53,7 +54,12 @@ export default function WhatsAppMetrics() {
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("auto-previous");
   const [comparisonDateRange, setComparisonDateRange] = useState<{ from?: Date; to?: Date }>({});
 
+  // Estado para conversión a lead
+  const [convertModalOpen, setConvertModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+
   const { toast } = useToast();
+  const utils = trpc.useUtils();
 
   // Funciones helper para períodos predefinidos
   const applyQuickFilter = (filterType: QuickFilterType) => {
@@ -262,6 +268,12 @@ export default function WhatsAppMetrics() {
         variant: "destructive",
       });
     }
+  };
+
+  // Función para abrir modal de conversión a lead
+  const handleConvertToLead = (event: any) => {
+    setSelectedEvent(event);
+    setConvertModalOpen(true);
   };
 
   // Calcular período de comparación automáticamente
@@ -902,6 +914,7 @@ export default function WhatsAppMetrics() {
                     <th className="text-left p-2">Usuario</th>
                     <th className="text-left p-2">Normativas</th>
                     <th className="text-left p-2">Estado</th>
+                    <th className="text-left p-2">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -944,6 +957,18 @@ export default function WhatsAppMetrics() {
                             : "Pendiente"}
                         </span>
                       </td>
+                      <td className="p-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleConvertToLead(event)}
+                          disabled={event.conversionStatus === "converted"}
+                          className="gap-1"
+                        >
+                          <UserPlus className="h-3 w-3" />
+                          {event.conversionStatus === "converted" ? "Ya Convertido" : "Convertir a Lead"}
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -956,6 +981,17 @@ export default function WhatsAppMetrics() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de conversión a lead */}
+      <ConvertToLeadModal
+        open={convertModalOpen}
+        onOpenChange={setConvertModalOpen}
+        event={selectedEvent}
+        onSuccess={() => {
+          // Invalidar queries para actualizar la tabla
+          utils.whatsappTracking.getRecentEvents.invalidate();
+        }}
+      />
     </div>
   );
 }

@@ -1856,3 +1856,37 @@
 - [ ] Inputs: número de empleados, sector, riesgo actual
 - [ ] Integrar WhatsApp chat en vivo con horario laboral
 - [ ] Agregar indicador de disponibilidad (En línea/Fuera de línea)
+
+## Nuevas Tareas - Conversión Automática WhatsApp→Leads
+
+### 1. Botón de Conversión en Tabla de Eventos
+- [x] Agregar columna "Acciones" en tabla de eventos de WhatsAppMetrics.tsx
+- [x] Implementar botón "Convertir a Lead" con icono UserPlus
+- [x] Deshabilitar botón si evento ya tiene lead vinculado
+- [x] Mostrar texto dinámico ("Ya Convertido" / "Convertir a Lead")
+
+### 2. Modal de Confirmación con Datos Pre-llenados
+- [x] Crear estado para modal de conversión (open/close)
+- [x] Pre-llenar campos del formulario con datos del evento
+- [x] Campos: nombre (userData.nombre), email (userData.email), teléfono (userData.telefono)
+- [x] Empresa (userData.empresa o vacío)
+- [x] Normativas (normativas del evento) con badges visuales
+- [x] Notas pre-llenadas con tipo de evento
+- [x] Estado inicial "nuevo"
+- [x] Permitir edición de campos antes de confirmar
+- [x] Componente ConvertToLeadModal.tsx creado
+
+### 3. Integración con Procedure convertWhatsAppEventToLead
+- [x] Usar mutation trpc.leads.convertWhatsAppEventToLead
+- [x] Pasar whatsappEventId y datos editables al procedure
+- [x] Vincular lead creado con whatsappEventId
+- [x] Actualizar estado de conversión del evento a "converted"
+- [x] Mostrar toast de éxito
+- [x] Invalidar queries de eventos y leads después de conversión
+- [x] Procedure actualizado para aceptar datos del formulario
+
+### 4. Validación y Prevención de Duplicados
+- [x] Verificar en backend si whatsappEventId ya tiene lead vinculado
+- [x] Retornar error CONFLICT si intenta convertir evento ya convertido
+- [x] Mostrar mensaje de error en frontend si ya existe lead
+- [x] Botón deshabilitado cuando conversionStatus === "converted"

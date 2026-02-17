@@ -195,30 +195,24 @@ export const leadsRouter = router({
    * Convertir evento de WhatsApp a lead automáticamente
    */
   convertWhatsAppEventToLead: protectedProcedure
-    .input(z.object({ eventId: z.number() }))
+    .input(z.object({
+      whatsappEventId: z.number(),
+      nombre: z.string().min(1),
+      email: z.string().email().optional(),
+      telefono: z.string().optional(),
+      empresa: z.string().optional(),
+      normativas: z.array(z.string()).optional(),
+      notas: z.string().optional(),
+    }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
       
-      // Obtener evento de WhatsApp
-      const [event] = await db
-        .select()
-        .from(whatsappTrackingEvents)
-        .where(eq(whatsappTrackingEvents.id, input.eventId))
-        .limit(1);
-
-      if (!event) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Evento de WhatsApp no encontrado",
-        });
-      }
-
       // Verificar si ya existe un lead para este evento
       const [existingLead] = await db
         .select()
         .from(leads)
-        .where(eq(leads.whatsappEventId, input.eventId))
+        .where(eq(leads.whatsappEventId, input.whatsappEventId))
         .limit(1);
 
       if (existingLead) {
@@ -228,20 +222,17 @@ export const leadsRouter = router({
         });
       }
 
-      // Extraer datos del usuario
-      const userData = event.userData as { nombre?: string; email?: string; empresa?: string; telefono?: string } | null;
-      const metadata = event.metadata as { source?: string } | null;
-
-      // Crear lead
+      // Crear lead con datos del input
       const [newLead] = await db.insert(leads).values({
-        whatsappEventId: input.eventId,
-        nombre: userData?.nombre || "Lead sin nombre",
-        email: userData?.email,
-        empresa: userData?.empresa,
-        telefono: userData?.telefono,
-        normativas: event.normativas as string[],
+        whatsappEventId: input.whatsappEventId,
+        nombre: input.nombre,
+        email: input.email,
+        empresa: input.empresa,
+        telefono: input.telefono,
+        normativas: input.normativas || [],
         estado: "nuevo",
-        origen: metadata?.source || "whatsapp",
+        origen: "whatsapp",
+        notas: input.notas,
         probabilidadCierre: 25, // Probabilidad inicial del 25%
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -254,7 +245,7 @@ export const leadsRouter = router({
           conversionStatus: "converted",
           convertedAt: new Date(),
         })
-        .where(eq(whatsappTrackingEvents.id, input.eventId));
+        .where(eq(whatsappTrackingEvents.id, input.whatsappEventId));
 
       return { success: true, leadId: newLead.insertId };
     }),
