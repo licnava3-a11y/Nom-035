@@ -1519,3 +1519,18 @@
 - [x] Reemplazar valores hardcodeados (40, 30, 20, 10) por valores de configuración
 - [x] Manejar caso cuando no existe configuración (usar valores por defecto)
 - [x] Probar ejecución del job con diferentes configuraciones
+
+## Nuevas Tareas - Dashboard de Efectividad del Algoritmo Predictivo
+- [ ] Crear tabla prediction_history en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Actualizar job predictive-turnover para guardar histórico de predicciones
+- [ ] Crear router algorithmEffectiveness.ts
+- [ ] Implementar query getAccuracyMetrics (precisión del algoritmo)
+- [ ] Implementar query getPredictionTrends (tendencias de predicciones vs realidad)
+- [ ] Implementar query getPredictionHistory (histórico completo con paginación)
+- [ ] Crear página AlgorithmEffectiveness.tsx
+- [ ] Implementar cards de resumen (precisión, predicciones totales, departamentos analizados)
+- [ ] Implementar gráfico de comparación predicciones vs rotación real
+- [ ] Implementar gráfico de tendencias de precisión del algoritmo
+- [ ] Implementar tabla de histórico de predicciones con detalles
+- [ ] Agregar navegación en menú lateral (Administración > Efectividad Algoritmo)

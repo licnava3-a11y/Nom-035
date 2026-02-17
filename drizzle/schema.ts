@@ -3733,3 +3733,45 @@ export const predictiveAlgorithmConfig = mysqlTable("predictive_algorithm_config
   // Estado
   isActive: boolean("is_active").default(true), // Solo una configuración puede estar activa
 });
+
+// Tabla de histórico de predicciones del algoritmo
+export const predictionHistory = mysqlTable("prediction_history", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Referencia al departamento
+  departmentId: int("department_id").notNull(),
+  departmentName: varchar("department_name", { length: 255 }).notNull(),
+  
+  // Predicción realizada
+  predictedRiskScore: int("predicted_risk_score").notNull(), // Score de riesgo predicho (0-100)
+  predictedTurnoverRate: decimal("predicted_turnover_rate", { precision: 5, scale: 2 }), // Tasa de rotación predicha (%)
+  
+  // Datos reales observados (se actualizan después de 3 meses)
+  actualTurnoverRate: decimal("actual_turnover_rate", { precision: 5, scale: 2 }), // Tasa de rotación real (%)
+  actualTerminations: int("actual_terminations"), // Bajas reales en el período
+  
+  // Métricas del análisis
+  currentEmployeeCount: int("current_employee_count").notNull(),
+  avgTenureMonths: decimal("avg_tenure_months", { precision: 10, scale: 2 }),
+  hasManager: boolean("has_manager").notNull(),
+  
+  // Configuración del algoritmo utilizada
+  algorithmConfigId: int("algorithm_config_id"),
+  rotationWeight: int("rotation_weight").notNull(),
+  tenureWeight: int("tenure_weight").notNull(),
+  managerWeight: int("manager_weight").notNull(),
+  teamSizeWeight: int("team_size_weight").notNull(),
+  
+  // Precisión de la predicción (se calcula después de 3 meses)
+  accuracyScore: decimal("accuracy_score", { precision: 5, scale: 2 }), // Precisión de la predicción (%)
+  predictionError: decimal("prediction_error", { precision: 5, scale: 2 }), // Error absoluto de la predicción
+  
+  // Fechas
+  predictionDate: timestamp("prediction_date").notNull(), // Fecha de la predicción
+  evaluationDate: timestamp("evaluation_date"), // Fecha de evaluación de precisión (3 meses después)
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  
+  // Estado
+  status: varchar("status", { length: 50 }).default("pending"), // pending, evaluated
+});

@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import { getDb } from "../db";
-import { departments, employees, predictiveTurnoverAlerts, predictiveAlgorithmConfig } from "../../drizzle/schema";
+import { departments, employees, predictiveTurnoverAlerts, predictiveAlgorithmConfig, predictionHistory } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, isNull } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -191,8 +191,34 @@ async function analyzePredictiveTurnover() {
       }
     }
 
-    // Insertar alertas en la base de datos
+    // Guardar histórico de predicciones y alertas en la base de datos
     if (alerts.length > 0) {
+      // Guardar en prediction_history
+      for (const alert of alerts) {
+        // @ts-expect-error - getDb() siempre retorna instancia válida
+        await db
+          .insert(predictionHistory)
+          .values({
+            departmentId: alert.departmentId,
+            departmentName: alert.departmentName,
+            predictedRiskScore: alert.riskScore,
+            predictedTurnoverRate: alert.predictedTurnoverRate,
+            currentEmployeeCount: alert.currentEmployeeCount,
+            avgTenureMonths: alert.avgTenureMonths,
+            hasManager: !!alert.dept.managerId,
+            algorithmConfigId: config?.id || null,
+            rotationWeight: weights.turnoverWeight,
+            tenureWeight: weights.tenureWeight,
+            managerWeight: weights.managerWeight,
+            teamSizeWeight: weights.teamSizeWeight,
+            predictionDate: new Date(),
+            status: "pending",
+          })
+          .execute();
+      }
+      console.log(`[Predictive Turnover Job] Saved ${alerts.length} predictions to history`);
+
+      // Guardar alertas{
       // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.insert(predictiveTurnoverAlerts).values(alerts).execute();
 

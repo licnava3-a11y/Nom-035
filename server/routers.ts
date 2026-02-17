@@ -60,6 +60,7 @@ import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
 import { departmentsRouter } from "./routers/departments";
 import { departmentMetricsRouter } from "./routers/departmentMetrics";
+import { algorithmEffectivenessRouter } from "./routers/algorithmEffectiveness";
 import { positionsRouter } from "./routers/positions";
 import { notificationsRouter } from "./routers/notifications";
 import { alertsRouter } from "./routers/alerts";
@@ -168,6 +169,7 @@ export const appRouter = router({
   nom035: nom035Router,
   departments: departmentsRouter,
   departmentMetrics: departmentMetricsRouter,
+  algorithmEffectiveness: algorithmEffectivenessRouter,
   positions: positionsRouter,
   notifications: notificationsRouter,
   alerts: alertsRouter,
