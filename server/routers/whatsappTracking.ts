@@ -383,4 +383,116 @@ export const whatsappTrackingRouter = router({
 
       return { success: true };
     }),
+
+  /**
+   * Obtener métricas comparativas entre dos períodos
+   */
+  getComparisonMetrics: protectedProcedure
+    .input(
+      z.object({
+        // Período actual
+        currentStartDate: z.string(),
+        currentEndDate: z.string(),
+        // Período de comparación
+        comparisonStartDate: z.string(),
+        comparisonEndDate: z.string(),
+        // Filtros opcionales
+        eventType: z.enum(["click", "demo_request", "contact_request"]).optional(),
+        conversionStatus: z.enum(["pending", "converted", "lost"]).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database not available",
+        });
+
+      // Función helper para obtener métricas de un período
+      const getMetricsForPeriod = async (startDate: string, endDate: string) => {
+        const conditions = [
+          gte(whatsappTrackingEvents.createdAt, new Date(startDate)),
+          lte(whatsappTrackingEvents.createdAt, new Date(endDate)),
+        ];
+
+        if (input.eventType) {
+          conditions.push(eq(whatsappTrackingEvents.eventType, input.eventType));
+        }
+        if (input.conversionStatus) {
+          conditions.push(eq(whatsappTrackingEvents.conversionStatus, input.conversionStatus));
+        }
+
+        // Total de eventos
+        const [totalResult] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(whatsappTrackingEvents)
+          .where(and(...conditions));
+
+        const totalEvents = Number(totalResult?.count || 0);
+
+        // Conversiones
+        const convertedConditions = [...conditions];
+        if (!input.conversionStatus) {
+          convertedConditions.push(eq(whatsappTrackingEvents.conversionStatus, "converted"));
+        }
+
+        const [convertedResult] = await db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(whatsappTrackingEvents)
+          .where(and(...convertedConditions));
+
+        const totalConverted = Number(convertedResult?.count || 0);
+        const conversionRate = totalEvents > 0 ? (totalConverted / totalEvents) * 100 : 0;
+
+        // Eventos por tipo
+        const eventsByType = await db
+          .select({
+            eventType: whatsappTrackingEvents.eventType,
+            count: sql<number>`COUNT(*)`,
+          })
+          .from(whatsappTrackingEvents)
+          .where(and(...conditions))
+          .groupBy(whatsappTrackingEvents.eventType);
+
+        return {
+          totalEvents,
+          totalConverted,
+          conversionRate: Number(conversionRate.toFixed(2)),
+          eventsByType: eventsByType.map((e) => ({
+            eventType: e.eventType,
+            count: Number(e.count),
+          })),
+        };
+      };
+
+      // Obtener métricas para ambos períodos
+      const currentMetrics = await getMetricsForPeriod(input.currentStartDate, input.currentEndDate);
+      const comparisonMetrics = await getMetricsForPeriod(input.comparisonStartDate, input.comparisonEndDate);
+
+      // Calcular cambios
+      const calculateChange = (current: number, comparison: number) => {
+        if (comparison === 0) return current > 0 ? 100 : 0;
+        return Number((((current - comparison) / comparison) * 100).toFixed(2));
+      };
+
+      return {
+        current: currentMetrics,
+        comparison: comparisonMetrics,
+        changes: {
+          totalEvents: {
+            absolute: currentMetrics.totalEvents - comparisonMetrics.totalEvents,
+            percentage: calculateChange(currentMetrics.totalEvents, comparisonMetrics.totalEvents),
+          },
+          totalConverted: {
+            absolute: currentMetrics.totalConverted - comparisonMetrics.totalConverted,
+            percentage: calculateChange(currentMetrics.totalConverted, comparisonMetrics.totalConverted),
+          },
+          conversionRate: {
+            absolute: Number((currentMetrics.conversionRate - comparisonMetrics.conversionRate).toFixed(2)),
+            percentage: calculateChange(currentMetrics.conversionRate, comparisonMetrics.conversionRate),
+          },
+        },
+      };
+    }),
 });

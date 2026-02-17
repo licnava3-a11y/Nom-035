@@ -1673,3 +1673,34 @@
 - [x] Actualizar automáticamente los selectores de fecha al hacer clic
 - [x] Mantener sincronización entre filtros rápidos y date picker
 - [x] Limpiar selección de filtro rápido al cambiar fechas manualmente (handleDateChange)
+
+## Nuevas Tareas - Comparación de Períodos Dashboard WhatsApp (Febrero 2026)
+
+### 1. Router tRPC para Comparaciones
+- [x] Crear procedure getComparisonMetrics que acepte dos rangos de fechas
+- [x] Calcular métricas para período actual y período de comparación
+- [x] Calcular diferencias absolutas y porcentuales
+- [x] Retornar estructura con current, comparison, y changes
+- [x] Función helper getMetricsForPeriod reutilizable
+- [x] Soporte para filtros opcionales (eventType, conversionStatus)
+
+### 2. UI de Comparación
+- [ ] Agregar toggle "Comparar Períodos" en header
+- [ ] Crear selector de tipo de comparación (automático/manual)
+- [ ] Opciones automáticas: Período anterior, Mismo período año anterior
+- [ ] Date pickers para comparación manual
+- [ ] Diseño responsive y profesional
+
+### 3. Cards Comparativos
+- [ ] Rediseñar cards de métricas para mostrar dos valores
+- [ ] Agregar indicadores de cambio (↑↓) con colores
+- [ ] Mostrar cambio porcentual y absoluto
+- [ ] Verde para mejoras, rojo para deterioros
+- [ ] Tooltips con explicaciones detalladas
+
+### 4. Gráficos Comparativos
+- [ ] Actualizar gráfico de tendencias con dos líneas
+- [ ] Diferenciar visualmente período actual vs comparación
+- [ ] Leyenda clara con etiquetas de períodos
+- [ ] Mantener paleta de colores consistente
+- [ ] Gráfico de normativas con comparación lado a lado
