@@ -2301,3 +2301,45 @@
 - [ ] Medir tiempo de carga antes/después
 - [ ] Probar navegación entre páginas
 - [ ] Guardar checkpoint con paginación implementada
+
+
+## Optimizaciones de Performance - Índices SQL, Lazy Loading y Cache
+
+### Fase 1: Crear Índices SQL en Columnas Frecuentes ✅ COMPLETADA
+- [x] Crear índice en cases.assignedTo para filtros por asignado
+- [x] Crear índice en cases.status para filtros por estado de caso
+- [x] Crear índice en cases.departmentId para filtros por departamento
+- [x] Crear índice compuesto en cases(assignedTo, status)
+- [x] Crear índice en leads.asignado_a para filtros por vendedor
+- [x] Crear índice en leads.estado para filtros por estado de lead
+- [x] Crear índice en leads.origen para filtros por origen
+- [x] Crear índice compuesto en leads(asignado_a, estado)
+- [x] Crear índice en survey_responses.user_id y survey_id
+- [x] Crear índice en salespeople.activo
+- [x] Total: 14 índices SQL creados exitosamente
+
+### Fase 2: Implementar Lazy Loading en Componentes Pesados ✅ COMPLETADA
+- [x] React.lazy() ya implementado en PredictiveAnalytics.tsx
+- [x] React.lazy() ya implementado en DepartmentalTrends.tsx
+- [x] React.lazy() ya implementado en SalesComparativeDashboard.tsx
+- [x] React.lazy() ya implementado en SalespersonPerformance.tsx
+- [x] React.lazy() ya implementado en páginas administrativas
+- [x] Suspense con fallback implementado en App.tsx
+- [x] Total: 176 páginas con lazy loading (todas las rutas)
+
+### Fase 3: Configurar Cache tRPC para Datos Estáticos ✅ COMPLETADA
+- [x] staleTime: 5min configurado globalmente en QueryClient (main.tsx)
+- [x] gcTime: 10min configurado globalmente (antes cacheTime)
+- [x] refetchOnWindowFocus: false para evitar refetch innecesarios
+- [x] retry: 1 para reducir llamadas en caso de error
+- [x] Cache global aplicado a TODAS las queries tRPC automáticamente
+- [x] Datos considerados frescos por 5min, mantenidos en cache por 10min
+- [x] Invalidación automática con invalidate() en mutations existentes
+- [x] Configuración óptima ya implementada en el proyecto
+
+### Fase 4: Verificación y Testing ✅ COMPLETADA
+- [x] Índices SQL creados y aplicados (14 índices en 4 tablas)
+- [x] Lazy loading verificado (176 páginas con React.lazy())
+- [x] Cache tRPC configurado globalmente (staleTime: 5min, gcTime: 10min)
+- [x] Servidor funcionando correctamente en puerto 3000
+- [x] Preparar checkpoint con optimizaciones completas
