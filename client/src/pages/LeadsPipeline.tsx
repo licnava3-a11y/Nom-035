@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { Plus, Filter, Calendar, DollarSign, Building, User, Phone, Mail, AlertCircle } from "lucide-react";
 import { LeadCard } from "@/components/LeadCard";
+import { ReassignLeadModal } from "@/components/ReassignLeadModal";
 import { useToast } from "@/hooks/use-toast";
 
 type LeadEstado = "nuevo" | "contactado" | "en_negociacion" | "propuesta_enviada" | "ganado" | "perdido";
@@ -36,6 +37,8 @@ export default function LeadsPipeline() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [highlightedLeadId, setHighlightedLeadId] = useState<number | null>(null);
+  const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
+  const [leadToReassign, setLeadToReassign] = useState<any | null>(null);
   const leadRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   // Leer leadId desde query parameter y resaltar
@@ -329,7 +332,14 @@ export default function LeadsPipeline() {
                         ref={(el) => (leadRefs.current[lead.id] = el)}
                         className={highlightedLeadId === lead.id ? "animate-pulse" : ""}
                       >
-                        <LeadCard lead={lead} onEdit={handleEditLead} />
+                        <LeadCard 
+                          lead={lead} 
+                          onEdit={handleEditLead}
+                          onReassign={(lead) => {
+                            setLeadToReassign(lead);
+                            setIsReassignModalOpen(true);
+                          }}
+                        />
                       </div>
                     ))}
                     {leads.length === 0 && (
@@ -436,6 +446,13 @@ export default function LeadsPipeline() {
           </form>
         </DialogContent>
       </Dialog>
+      
+      {/* Modal de Reasignación */}
+      <ReassignLeadModal
+        open={isReassignModalOpen}
+        onOpenChange={setIsReassignModalOpen}
+        lead={leadToReassign}
+      />
     </div>
   );
 }

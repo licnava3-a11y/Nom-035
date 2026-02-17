@@ -3,15 +3,16 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, DollarSign, Mail, Phone, Edit } from "lucide-react";
+import { Building, DollarSign, Mail, Phone, Edit, UserCog } from "lucide-react";
 
 interface LeadCardProps {
   lead: any;
   onEdit: (lead: any) => void;
+  onReassign?: (lead: any) => void;
   isDragging?: boolean;
 }
 
-export function LeadCard({ lead, onEdit, isDragging = false }: LeadCardProps) {
+export function LeadCard({ lead, onEdit, onReassign, isDragging = false }: LeadCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging: isSortableDragging } = useSortable({
     id: lead.id,
   });
@@ -92,6 +93,29 @@ export function LeadCard({ lead, onEdit, isDragging = false }: LeadCardProps) {
             </div>
           )}
 
+          {/* Asignado a */}
+          {lead.asignadoNombre && (
+            <div className="flex items-center justify-between pt-2 border-t">
+              <div className="text-xs text-muted-foreground">
+                Asignado: {lead.asignadoNombre}
+              </div>
+              {onReassign && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReassign(lead);
+                  }}
+                >
+                  <UserCog className="w-3 h-3 mr-1" />
+                  Reasignar
+                </Button>
+              )}
+            </div>
+          )}
+          
           {/* Origen */}
           {lead.origen && (
             <div className="text-xs text-muted-foreground">

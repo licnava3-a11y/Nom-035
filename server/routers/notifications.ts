@@ -120,6 +120,7 @@ export const notificationsRouter = router({
           "department_change",
           "survey_expiring",
           "training_due",
+          "lead_assigned",
           "system",
         ]),
         title: z.string().min(1),

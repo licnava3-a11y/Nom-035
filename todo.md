@@ -2045,3 +2045,35 @@
 - [ ] Historial de asignaciones con tabla lead_assignments
 - [ ] Filtros en pipeline por vendedor asignado
 - [ ] Métricas de tiempo de respuesta por vendedor
+
+
+## Mejoras al Sistema de Leads CRM
+
+### 1. Notificaciones Automáticas al Asignar Leads
+- [x] Crear procedure notifications.notifySalespersonAssignment en backend
+- [x] Integrar notificación en createLead después de asignación automática
+- [x] Integrar notificación en assignLead (reasignación manual)
+- [x] Crear template de notificación con datos del lead (nombre, empresa, normativas, origen)
+- [x] Incluir enlace directo al pipeline con lead resaltado
+- [x] Probar notificación con vendedores de demostración
+
+### 2. Reasignación Manual en Pipeline Kanban
+- [x] Agregar selector de vendedor en LeadCard.tsx
+- [x] Crear modal de reasignación con lista de vendedores activos
+- [x] Implementar mutation assignLead con notificación incluida
+- [x] Actualizar estadísticas del vendedor anterior y nuevo
+- [x] Agregar confirmación visual (toast) tras reasignación
+- [ ] Registrar cambio en historial de notas del lead (opcional)
+
+### 3. Dashboard de Rendimiento Individual por Vendedor
+- [x] Crear procedure salespeople.getIndividualPerformance con métricas detalladas
+- [x] Implementar cálculo de tiempo promedio de respuesta
+- [x] Calcular conversión por fuente (WhatsApp, manual, web)
+- [x] Agregar tendencias históricas (últimos 6 meses)
+- [x] Crear página SalespersonPerformance.tsx con gráficos
+- [x] Implementar selector de vendedor en header
+- [x] Agregar 6 cards de métricas clave
+- [x] Crear gráfico de tendencias de conversión (Chart.js)
+- [x] Crear gráfico de distribución por fuente (pie chart)
+- [x] Agregar tabla de leads recientes del vendedor
+- [x] Integrar navegación desde SalesPeopleManagement (botón Ver Rendimiento)

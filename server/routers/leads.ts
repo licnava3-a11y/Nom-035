@@ -1,6 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { getDb, getNextSalespersonRoundRobin, updateSalespersonAssignment } from "../db";
+import { getDb, getNextSalespersonRoundRobin, updateSalespersonAssignment, notifySalespersonLeadAssignment } from "../db";
 import { leads, whatsappTrackingEvents } from "../../drizzle/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -57,6 +57,15 @@ export const leadsRouter = router({
       // Actualizar estadísticas del vendedor asignado
       if (assignedTo) {
         await updateSalespersonAssignment(assignedTo);
+        
+        // Enviar notificación al vendedor asignado
+        await notifySalespersonLeadAssignment({
+          salespersonId: assignedTo,
+          leadId: newLead.insertId,
+          leadName: input.nombre,
+          leadCompany: input.empresa,
+          leadNormativas: input.normativas,
+        });
       }
 
       return { 
@@ -310,6 +319,13 @@ export const leadsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
       
+      // Obtener lead actual para obtener datos antes de reasignar
+      const [currentLead] = await db.select().from(leads).where(eq(leads.id, input.leadId)).limit(1);
+      if (!currentLead) throw new TRPCError({ code: 'NOT_FOUND', message: 'Lead no encontrado' });
+      
+      const previousSalespersonId = currentLead.asignadoA;
+      
+      // Actualizar asignación
       await db
         .update(leads)
         .set({
@@ -318,6 +334,18 @@ export const leadsRouter = router({
           updatedAt: new Date(),
         })
         .where(eq(leads.id, input.leadId));
+      
+      // Actualizar estadísticas del nuevo vendedor asignado
+      await updateSalespersonAssignment(input.asignadoA);
+      
+      // Enviar notificación al nuevo vendedor asignado
+      await notifySalespersonLeadAssignment({
+        salespersonId: input.asignadoA,
+        leadId: input.leadId,
+        leadName: currentLead.nombre,
+        leadCompany: currentLead.empresa || undefined,
+        leadNormativas: currentLead.normativas as string[] | undefined,
+      });
 
       return { success: true };
     }),

@@ -787,3 +787,132 @@ export async function getSalespeopleDistributionStats() {
   
   return stats;
 }
+
+/**
+ * Create notification for salesperson when lead is assigned
+ */
+export async function notifySalespersonLeadAssignment(data: {
+  salespersonId: number;
+  leadId: number;
+  leadName: string;
+  leadCompany?: string;
+  leadNormativas?: string[];
+}) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Get salesperson with userId
+  const salesperson = await getSalespersonById(data.salespersonId);
+  if (!salesperson || !salesperson.userId) {
+    console.log(`[Notifications] Salesperson ${data.salespersonId} has no linked userId, skipping notification`);
+    return;
+  }
+  
+  // Build notification message
+  const normativasText = data.leadNormativas && data.leadNormativas.length > 0
+    ? ` interesado en ${data.leadNormativas.join(", ")}`
+    : "";
+  
+  const companyText = data.leadCompany ? ` de ${data.leadCompany}` : "";
+  
+  const message = `Se te ha asignado un nuevo lead: ${data.leadName}${companyText}${normativasText}. Revisa el pipeline para dar seguimiento.`;
+  
+  // Create notification
+  await db.insert(notifications).values({
+    userId: salesperson.userId,
+    type: "lead_assigned" as any,
+    title: "Nuevo Lead Asignado",
+    message,
+    relatedEntityType: "lead",
+    relatedEntityId: data.leadId,
+    isRead: false,
+  } as any);
+  
+  console.log(`[Notifications] Lead assignment notification sent to salesperson ${salesperson.nombre} (userId: ${salesperson.userId})`);
+}
+
+/**
+ * Get individual salesperson performance metrics
+ */
+export async function getSalespersonPerformance(salespersonId: number, months: number = 6) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - months);
+  
+  // Get all leads for this salesperson
+  const salespersonLeads = await db
+    .select()
+    .from(leads)
+    .where(eq(leads.asignadoA, salespersonId));
+  
+  // Calculate metrics
+  const totalLeads = salespersonLeads.length;
+  const leadsWon = salespersonLeads.filter(l => l.estado === "ganado").length;
+  const leadsLost = salespersonLeads.filter(l => l.estado === "perdido").length;
+  const leadsActive = salespersonLeads.filter(l => 
+    ["nuevo", "contactado", "en_negociacion", "propuesta_enviada"].includes(l.estado)
+  ).length;
+  
+  const conversionRate = totalLeads > 0 ? (leadsWon / totalLeads) * 100 : 0;
+  
+  // Calculate average response time (time from creation to first contact)
+  const contactedLeads = salespersonLeads.filter(l => l.fechaContacto);
+  let avgResponseTime = 0;
+  if (contactedLeads.length > 0) {
+    const totalResponseTime = contactedLeads.reduce((sum, lead) => {
+      if (lead.fechaContacto && lead.createdAt) {
+        const diff = new Date(lead.fechaContacto).getTime() - new Date(lead.createdAt).getTime();
+        return sum + diff;
+      }
+      return sum;
+    }, 0);
+    avgResponseTime = totalResponseTime / contactedLeads.length / (1000 * 60 * 60); // Convert to hours
+  }
+  
+  // Group by source
+  const bySource: Record<string, { total: number; won: number }> = {};
+  salespersonLeads.forEach(lead => {
+    const source = lead.origen || "Desconocido";
+    if (!bySource[source]) {
+      bySource[source] = { total: 0, won: 0 };
+    }
+    bySource[source].total++;
+    if (lead.estado === "ganado") {
+      bySource[source].won++;
+    }
+  });
+  
+  // Group by month for trends
+  const monthlyTrends: Record<string, { total: number; won: number; lost: number }> = {};
+  salespersonLeads.forEach(lead => {
+    const monthKey = new Date(lead.createdAt).toISOString().substring(0, 7); // YYYY-MM
+    if (!monthlyTrends[monthKey]) {
+      monthlyTrends[monthKey] = { total: 0, won: 0, lost: 0 };
+    }
+    monthlyTrends[monthKey].total++;
+    if (lead.estado === "ganado") monthlyTrends[monthKey].won++;
+    if (lead.estado === "perdido") monthlyTrends[monthKey].lost++;
+  });
+  
+  // Calculate total revenue from won leads
+  const totalRevenue = salespersonLeads
+    .filter(l => l.estado === "ganado" && l.valorEstimado)
+    .reduce((sum, l) => sum + Number(l.valorEstimado || 0), 0);
+  
+  return {
+    totalLeads,
+    leadsWon,
+    leadsLost,
+    leadsActive,
+    conversionRate,
+    avgResponseTime,
+    totalRevenue,
+    bySource,
+    monthlyTrends,
+    recentLeads: salespersonLeads
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10),
+  };
+}

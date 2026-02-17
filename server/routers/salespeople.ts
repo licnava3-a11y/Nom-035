@@ -9,6 +9,7 @@ import {
   updateSalesperson,
   toggleSalespersonActive,
   getSalespeopleDistributionStats,
+  getSalespersonPerformance,
 } from "../db";
 import { TRPCError } from "@trpc/server";
 
@@ -90,4 +91,22 @@ export const salespeopleRouter = router({
   getDistributionStats: protectedProcedure.query(async () => {
     return await getSalespeopleDistributionStats();
   }),
+  
+  /**
+   * Obtener rendimiento individual de un vendedor
+   */
+  getIndividualPerformance: protectedProcedure
+    .input(
+      z.object({
+        salespersonId: z.number(),
+        months: z.number().min(1).max(24).optional().default(6),
+      })
+    )
+    .query(async ({ input }) => {
+      const performance = await getSalespersonPerformance(input.salespersonId, input.months);
+      if (!performance) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'No se encontraron datos de rendimiento' });
+      }
+      return performance;
+    }),
 });

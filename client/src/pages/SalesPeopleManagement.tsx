@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function SalesPeopleManagement() {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
   const utils = trpc.useUtils();
 
@@ -301,6 +303,14 @@ export default function SalesPeopleManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate("/salesperson-performance")}
+                          title="Ver rendimiento detallado"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
