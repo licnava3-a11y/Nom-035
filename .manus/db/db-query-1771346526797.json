@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `whatsapp_tracking_events` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`user_id` int,\n\t`event_type` varchar(50) NOT NULL,\n\t`normativas` json,\n\t`user_data` json,\n\t`metadata` json,\n\t`user_agent` text,\n\t`ip_address` varchar(45),\n\t`country` varchar(100),\n\t`city` varchar(100),\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`conversion_status` varchar(50) DEFAULT 'pending',\n\t`converted_at` timestamp,\n\t`notes` text,\n\tCONSTRAINT `whatsapp_tracking_events_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `whatsapp_tracking_events` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`user_id` int,\n\t`event_type` varchar(50) NOT NULL,\n\t`normativas` json,\n\t`user_data` json,\n\t`metadata` json,\n\t`user_agent` text,\n\t`ip_address` varchar(45),\n\t`country` varchar(100),\n\t`city` varchar(100),\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`conversion_status` varchar(50) DEFAULT 'pending',\n\t`converted_at` timestamp,\n\t`notes` text,\n\tCONSTRAINT `whatsapp_tracking_events_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 576
+}

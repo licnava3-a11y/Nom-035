@@ -71,6 +71,7 @@ const DepartmentManagement = lazy(() => import("./pages/DepartmentManagement"));
 const DepartmentMetrics = lazy(() => import("./pages/DepartmentMetrics"));
 const AlgorithmConfig = lazy(() => import("./pages/AlgorithmConfig"));
 const AlgorithmEffectiveness = lazy(() => import("./pages/AlgorithmEffectiveness"));
+const WhatsAppMetrics = lazy(() => import("./pages/WhatsAppMetrics"));
 const EmployeeDocuments = lazy(() => import("./pages/EmployeeDocuments"));
 const EmployeeTrainingNeeds = lazy(() => import("./pages/EmployeeTrainingNeeds"));
 const EmployeeTermination = lazy(() => import("./pages/EmployeeTermination"));
@@ -623,6 +624,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <AlgorithmEffectiveness />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/whatsapp-metrics"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <WhatsAppMetrics />
             </Suspense>
           </DashboardLayout>
         </Route>

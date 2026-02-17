@@ -1600,3 +1600,33 @@
 - [ ] Agregar validación de teléfono en tiempo real (feedback visual)
 - [ ] Implementar tracking de conversiones desde WhatsApp
 - [ ] Actualizar otros routers con validaciones estrictas (documents, import, massiveImport)
+
+## Nuevas Tareas - Sistema de Tracking de Conversiones WhatsApp (Febrero 2026)
+
+### 1. Schema de Base de Datos
+- [x] Crear tabla whatsapp_tracking_events en schema.ts
+- [x] Campos: id, userId, eventType, normativas, metadata, userAgent, ipAddress, timestamp
+- [x] Generar migración SQL con drizzle-kit generate
+- [x] Aplicar migración con webdev_execute_sql
+
+### 2. Router tRPC de Tracking
+- [x] Crear router whatsappTracking.ts
+- [x] Procedure trackEvent para registrar clics
+- [x] Procedure getConversionMetrics para métricas generales
+- [x] Procedure getNormativasPopularity para ranking de normativas
+- [x] Procedure getConversionTrends para tendencias temporales
+- [x] Integrar router en appRouter
+
+### 3. Integración en Componentes
+- [x] Actualizar WhatsAppButton para registrar eventos automáticamente
+- [x] Actualizar WhatsAppDemoButton con tracking de normativas
+- [x] Capturar metadata: userAgent, timestamp, origen
+- [x] Implementar tracking sin bloquear apertura de WhatsApp
+
+### 4. Dashboard de Métricas
+- [x] Crear página WhatsAppMetrics.tsx
+- [x] Cards de resumen: total clics, conversión, normativas top
+- [x] Gráfico de tendencias de clics por día/semana/mes
+- [x] Gráfico de distribución de normativas (pie chart)
+- [x] Tabla de eventos recientes con detalles
+- [x] Agregar navegación en menú lateral

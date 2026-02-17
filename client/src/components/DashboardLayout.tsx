@@ -229,6 +229,7 @@ const hierarchicalMenuItems = [
       { label: "Métricas de Departamentos", path: "/department-metrics", description: "Estadísticas de rotación, crecimiento y distribución" },
       { label: "Configuración Algoritmo", path: "/algorithm-config", description: "Ajustar pesos del algoritmo predictivo" },
       { label: "Efectividad del Algoritmo", path: "/algorithm-effectiveness", description: "Análisis de precisión y comparativa predicciones vs realidad" },
+      { label: "Métricas de WhatsApp", path: "/whatsapp-metrics", description: "Seguimiento de conversiones y normativas solicitadas" },
       { label: "Roles y Permisos", path: "/administrative/roles-permissions", description: "Administración de roles y matriz de permisos" },
       { label: "Permisos Personalizados", path: "/administrative/custom-permissions", description: "Asignar permisos específicos por usuario" },
       { label: "Auditoría de Permisos", path: "/administrative/permission-audit", description: "Historial de cambios de roles y permisos" },

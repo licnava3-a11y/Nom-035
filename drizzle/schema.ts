@@ -3775,3 +3775,60 @@ export const predictionHistory = mysqlTable("prediction_history", {
   // Estado
   status: varchar("status", { length: 50 }).default("pending"), // pending, evaluated
 });
+
+/**
+ * ============================================================================
+ * WHATSAPP TRACKING - Sistema de seguimiento de conversiones
+ * ============================================================================
+ */
+
+/**
+ * Tabla para registrar eventos de tracking de WhatsApp
+ * Registra clics en botones de WhatsApp, normativas solicitadas y metadata
+ */
+export const whatsappTrackingEvents = mysqlTable("whatsapp_tracking_events", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Usuario (opcional, puede ser anónimo)
+  userId: int("user_id"), // Null si es usuario anónimo
+  
+  // Tipo de evento
+  eventType: varchar("event_type", { length: 50 }).notNull(), // 'click', 'demo_request', 'contact_request'
+  
+  // Normativas solicitadas (JSON array de códigos)
+  normativas: json("normativas").$type<string[]>(), // ['nom-035', 'nmx-025', etc.]
+  
+  // Datos del usuario (si están disponibles)
+  userData: json("user_data").$type<{
+    nombre?: string;
+    email?: string;
+    empresa?: string;
+    telefono?: string;
+  }>(),
+  
+  // Metadata técnica
+  metadata: json("metadata").$type<{
+    userAgent?: string;
+    referrer?: string;
+    source?: string; // 'home', 'contact', 'demo', etc.
+    buttonVariant?: string; // 'default', 'outline', etc.
+  }>(),
+  
+  // Información de red
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address", { length: 45 }), // Soporta IPv6
+  
+  // Geolocalización (opcional)
+  country: varchar("country", { length: 100 }),
+  city: varchar("city", { length: 100 }),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  
+  // Estado de conversión
+  conversionStatus: varchar("conversion_status", { length: 50 }).default("pending"), // 'pending', 'converted', 'lost'
+  convertedAt: timestamp("converted_at"),
+  
+  // Notas adicionales
+  notes: text("notes"),
+});
