@@ -18,6 +18,8 @@ export const employeesRouter = router({
           isActive: z.boolean().optional(),
           department: z.string().optional(),
           search: z.string().optional(),
+          page: z.number().min(1).default(1),
+          pageSize: z.number().min(10).max(100).default(20),
         })
         .optional()
     )

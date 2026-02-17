@@ -16,7 +16,9 @@ export async function getAllEmployees(filters?: {
   isActive?: boolean;
   department?: string;
   search?: string;
-}): Promise<EmployeeWithRelations[]> {
+  page?: number;
+  pageSize?: number;
+}): Promise<{ employees: EmployeeWithRelations[]; pagination: { page: number; pageSize: number; totalCount: number; totalPages: number } }> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -90,7 +92,33 @@ export async function getAllEmployees(filters?: {
       .leftJoin(positions, eq(employees.positionId, positions.id))
       .orderBy(desc(employees.createdAt));
 
-  return (await query) as EmployeeWithRelations[];
+  // Contar total de empleados
+  const countQuery = conditions.length > 0
+    ? db.select({ count: sql<number>`count(*)` }).from(employees).where(and(...conditions))
+    : db.select({ count: sql<number>`count(*)` }).from(employees);
+  
+  const [{ count: totalCount }] = await countQuery;
+
+  // Aplicar paginación
+  const page = filters?.page || 1;
+  const pageSize = filters?.pageSize || 20;
+  const offset = (page - 1) * pageSize;
+
+  const paginatedQuery = conditions.length > 0
+    ? query.limit(pageSize).offset(offset)
+    : query.limit(pageSize).offset(offset);
+
+  const employeesList = (await paginatedQuery) as EmployeeWithRelations[];
+
+  return {
+    employees: employeesList,
+    pagination: {
+      page,
+      pageSize,
+      totalCount,
+      totalPages: Math.ceil(totalCount / pageSize),
+    },
+  };
 }
 
 /**

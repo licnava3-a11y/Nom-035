@@ -85,6 +85,8 @@ export const leadsRouter = router({
         origen: z.string().optional(),
         normativa: z.string().optional(),
         asignadoA: z.number().optional(),
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(10).max(100).default(50),
       })
     )
     .query(async ({ input }) => {
@@ -106,7 +108,15 @@ export const leadsRouter = router({
         query = query.where(and(...conditions));
       }
 
-      const allLeads = await query.orderBy(desc(leads.createdAt));
+      // Contar total de leads antes de paginación
+      const [{ count: totalCount }] = await db.select({ count: sql<number>`count(*)` }).from(leads).where(conditions.length > 0 ? and(...conditions) : undefined);
+
+      // Aplicar paginación
+      const page = input.page || 1;
+      const pageSize = input.pageSize || 50;
+      const offset = (page - 1) * pageSize;
+
+      const allLeads = await query.orderBy(desc(leads.createdAt)).limit(pageSize).offset(offset);
 
       // Filtrar por normativa si se especifica (JSON array)
       let filteredLeads = allLeads;
@@ -127,7 +137,15 @@ export const leadsRouter = router({
         perdido: filteredLeads.filter((l) => l.estado === "perdido"),
       };
 
-      return pipeline;
+      return {
+        pipeline,
+        pagination: {
+          page,
+          pageSize,
+          totalCount,
+          totalPages: Math.ceil(totalCount / pageSize),
+        },
+      };
     }),
 
   /**

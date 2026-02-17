@@ -27,6 +27,7 @@ import { Plus, Search, User, Mail, Phone, Building, Briefcase, Calendar, Upload 
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 // Using alert for now instead of toast
 
 export default function Employees() {
@@ -39,13 +40,20 @@ export default function Employees() {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importResult, setImportResult] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // Fetch employees with filters
-  const { data: employees, isLoading, refetch } = trpc.employees.list.useQuery({
+  const { data: employeesData, isLoading, refetch } = trpc.employees.list.useQuery({
     search: search || undefined,
     department: departmentFilter,
     isActive: statusFilter,
+    page: currentPage,
+    pageSize,
   });
+
+  const employees = employeesData?.employees;
+  const pagination = employeesData?.pagination;
 
   // Fetch departments for filter
   const { data: departments } = trpc.employees.getDepartments.useQuery();
@@ -566,6 +574,21 @@ export default function Employees() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Controles de Paginación */}
+      {pagination && (
+        <PaginationControls
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          pageSize={pagination.pageSize}
+          totalCount={pagination.totalCount}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      )}
     </div>
   );
 }

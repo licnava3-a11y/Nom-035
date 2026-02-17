@@ -2272,3 +2272,32 @@
 - [ ] Optimizar queries con múltiples joins
 - [ ] Implementar cache en queries frecuentes
 
+
+
+## Implementación de Paginación Server-Side
+
+### Fase 1: Identificar Tablas Críticas
+- [ ] Consultar conteo de registros en tablas principales (leads, employees, cases, surveys, recognitions)
+- [ ] Identificar tablas con >100 registros
+- [ ] Priorizar por impacto en rendimiento
+
+### Fase 2: Implementar Paginación en Backend ✅ COMPLETADA
+- [x] Agregar parámetros page y pageSize a procedures críticos
+- [x] Implementar LIMIT y OFFSET en queries SQL (leads, employees)
+- [x] Agregar totalCount en respuesta para calcular páginas totales
+- [x] Validar parámetros con Zod (page ≥1, pageSize 10-100)
+- [x] casesManagement.listCases: ya tenía paginación
+- [x] leads.getLeadsPipeline: paginación agregada (page, pageSize, totalCount)
+- [x] employees.list: paginación agregada en getAllEmployees
+
+### Fase 3: Actualizar Frontend
+- [ ] Agregar controles de paginación (anterior, siguiente, ir a página)
+- [ ] Implementar selector de tamaño de página (10, 20, 50, 100)
+- [ ] Mostrar indicador "Mostrando X-Y de Z registros"
+- [ ] Mantener filtros y búsqueda al cambiar página
+
+### Fase 4: Verificación y Checkpoint
+- [ ] Verificar reducción de transferencia de datos
+- [ ] Medir tiempo de carga antes/después
+- [ ] Probar navegación entre páginas
+- [ ] Guardar checkpoint con paginación implementada

@@ -16,6 +16,7 @@ import { trpc } from "@/lib/trpc";
 import { Plus, Filter, Calendar, DollarSign, Building, User, Phone, Mail, AlertCircle } from "lucide-react";
 import { LeadCard } from "@/components/LeadCard";
 import { ReassignLeadModal } from "@/components/ReassignLeadModal";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import { useToast } from "@/hooks/use-toast";
 
 type LeadEstado = "nuevo" | "contactado" | "en_negociacion" | "propuesta_enviada" | "ganado" | "perdido";
@@ -43,6 +44,8 @@ export default function LeadsPipeline() {
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
   const [leadToReassign, setLeadToReassign] = useState<any | null>(null);
   const leadRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
 
   // Leer leadId desde query parameter y resaltar
   useEffect(() => {
@@ -68,10 +71,16 @@ export default function LeadsPipeline() {
   }, [location]);
 
   // Queries
-  const { data: pipeline, refetch } = trpc.leads.getLeadsPipeline.useQuery({
+  const { data: pipelineData, refetch } = trpc.leads.getLeadsPipeline.useQuery({
     origen: filtroOrigen,
     normativa: filtroNormativa,
+    asignadoA: filtroVendedor,
+    page: currentPage,
+    pageSize,
   });
+
+  const pipeline = pipelineData?.pipeline;
+  const pagination = pipelineData?.pagination;
 
   const { data: stats } = trpc.leads.getPipelineStats.useQuery();
   const { data: salespeople } = trpc.salespeople.getAll.useQuery();
@@ -394,6 +403,21 @@ export default function LeadsPipeline() {
           {activeLead ? <LeadCard lead={activeLead} onEdit={() => {}} isDragging /> : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Controles de Paginación */}
+      {pagination && (
+        <PaginationControls
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          pageSize={pagination.pageSize}
+          totalCount={pagination.totalCount}
+          onPageChange={(page) => setCurrentPage(page)}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1); // Reset to first page when changing page size
+          }}
+        />
+      )}
 
       {/* Modal de Edición */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
