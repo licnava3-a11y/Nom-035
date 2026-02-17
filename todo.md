@@ -1476,3 +1476,39 @@
 - [ ] Actualizar job predictive-turnover para usar pesos configurados
 - [ ] Agregar navegación en menú lateral (Administración > Configuración Algoritmo)
 
+
+## Nuevas Tareas - Configuración Umbrales, Alertas Email y Histórico de Predicciones
+
+### Fase 1: Sistema de Configuración de Umbrales Personalizados
+- [ ] Crear tabla predictive_algorithm_config en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear procedure departments.getAlgorithmConfig
+- [ ] Crear procedure departments.updateAlgorithmConfig
+- [ ] Crear página AlgorithmConfig.tsx
+- [ ] Implementar sliders para ajustar pesos (rotación, antigüedad, manager, tamaño)
+- [ ] Agregar validación de suma de pesos = 100%
+- [ ] Implementar botón "Guardar Configuración"
+- [ ] Actualizar job predictive-turnover para usar pesos configurados
+- [ ] Agregar navegación en menú lateral (Administración > Configuración Algoritmo)
+
+### Fase 2: Alertas Automáticas por Email a Managers
+- [ ] Crear job weekly-manager-alerts-job.ts
+- [ ] Implementar lógica de identificación de managers de departamentos de alto riesgo
+- [ ] Crear template de email ejecutivo con métricas y recomendaciones
+- [ ] Incluir enlace directo a DepartmentMetrics filtrado por departamento
+- [ ] Agregar resumen de empleados de alto riesgo individual
+- [ ] Implementar envío semanal (lunes 8:00 AM)
+- [ ] Registrar job en server/_core/index.ts
+- [ ] Agregar log de envíos en tabla de auditoría
+
+### Fase 3: Histórico de Predicciones y Análisis de Tendencias
+- [ ] Crear tabla prediction_history en schema
+- [ ] Generar y aplicar migración SQL
+- [ ] Modificar job predictive-turnover para registrar predicciones en historial
+- [ ] Crear procedure departments.getPredictionHistory
+- [ ] Implementar query de análisis de tendencias (comparación mes a mes)
+- [ ] Crear sección en DepartmentMetrics.tsx para visualizar histórico
+- [ ] Implementar gráfico de tendencias de riesgo (line chart)
+- [ ] Agregar tabla de comparación de predicciones vs realidad
+- [ ] Calcular precisión del algoritmo (% aciertos)
+

@@ -1165,6 +1165,87 @@ export const departmentsRouter = router({
       data: base64,
     };
   }),
+
+  // Obtener configuración del algoritmo predictivo
+  getAlgorithmConfig: protectedProcedure.query(async ({ ctx }) => {
+    const config = await ctx.db.select().from(schema.predictiveAlgorithmConfig)
+      .where(eq(schema.predictiveAlgorithmConfig.isActive, true))
+      .limit(1);
+
+    if (config.length === 0) {
+      // Retornar configuración por defecto si no existe
+      return {
+        id: 0,
+        configName: 'default',
+        rotationWeight: 40,
+        tenureWeight: 30,
+        managerWeight: 20,
+        teamSizeWeight: 10,
+        lowRiskThreshold: 30,
+        mediumRiskThreshold: 60,
+        highRiskThreshold: 100,
+      };
+    }
+
+    return config[0];
+  }),
+
+  // Actualizar configuración del algoritmo predictivo
+  updateAlgorithmConfig: protectedProcedure
+    .input(
+      z.object({
+        rotationWeight: z.number().int().min(0).max(100),
+        tenureWeight: z.number().int().min(0).max(100),
+        managerWeight: z.number().int().min(0).max(100),
+        teamSizeWeight: z.number().int().min(0).max(100),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Validar que la suma sea 100
+      const sum = input.rotationWeight + input.tenureWeight + input.managerWeight + input.teamSizeWeight;
+      if (sum !== 100) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `La suma de los pesos debe ser 100%. Suma actual: ${sum}%`,
+        });
+      }
+
+      // Obtener configuración activa
+      const activeConfig = await ctx.db.select().from(schema.predictiveAlgorithmConfig)
+        .where(eq(schema.predictiveAlgorithmConfig.isActive, true))
+        .limit(1);
+
+      if (activeConfig.length === 0) {
+        // Crear nueva configuración
+        await ctx.db.insert(schema.predictiveAlgorithmConfig).values({
+          configName: 'default',
+          rotationWeight: input.rotationWeight,
+          tenureWeight: input.tenureWeight,
+          managerWeight: input.managerWeight,
+          teamSizeWeight: input.teamSizeWeight,
+          createdBy: ctx.user.id,
+          updatedBy: ctx.user.id,
+          isActive: true,
+        });
+      } else {
+        // Actualizar configuración existente
+        await ctx.db.update(schema.predictiveAlgorithmConfig)
+          .set({
+            rotationWeight: input.rotationWeight,
+            tenureWeight: input.tenureWeight,
+            managerWeight: input.managerWeight,
+            teamSizeWeight: input.teamSizeWeight,
+            updatedBy: ctx.user.id,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.predictiveAlgorithmConfig.id, activeConfig[0].id));
+      }
+
+      return {
+        success: true,
+        message: 'Configuración actualizada exitosamente',
+      };
+    }),
 });
 
 

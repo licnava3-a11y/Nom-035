@@ -69,6 +69,7 @@ const EmployeeEdit = lazy(() => import("./pages/EmployeeEdit"));
 const EmployeeProfile = lazy(() => import("./pages/EmployeeProfile"));
 const DepartmentManagement = lazy(() => import("./pages/DepartmentManagement"));
 const DepartmentMetrics = lazy(() => import("./pages/DepartmentMetrics"));
+const AlgorithmConfig = lazy(() => import("./pages/AlgorithmConfig"));
 const EmployeeDocuments = lazy(() => import("./pages/EmployeeDocuments"));
 const EmployeeTrainingNeeds = lazy(() => import("./pages/EmployeeTrainingNeeds"));
 const EmployeeTermination = lazy(() => import("./pages/EmployeeTermination"));
@@ -607,6 +608,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <DepartmentMetrics />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/algorithm-config"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlgorithmConfig />
             </Suspense>
           </DashboardLayout>
         </Route>

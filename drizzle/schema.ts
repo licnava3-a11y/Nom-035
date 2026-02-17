@@ -3705,3 +3705,31 @@ export const predictiveTurnoverAlerts = mysqlTable("predictive_turnover_alerts",
   notificationsSent: int("notifications_sent").default(0),
   lastNotificationAt: timestamp("last_notification_at"),
 });
+
+// Tabla de configuración del algoritmo predictivo
+export const predictiveAlgorithmConfig = mysqlTable("predictive_algorithm_config", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Nombre de la configuración
+  configName: varchar("config_name", { length: 255 }).notNull().default("default"),
+  
+  // Pesos del algoritmo (deben sumar 100)
+  rotationWeight: int("rotation_weight").notNull().default(40), // Peso de la tasa de rotación (%)
+  tenureWeight: int("tenure_weight").notNull().default(30), // Peso de la antigüedad promedio (%)
+  managerWeight: int("manager_weight").notNull().default(20), // Peso de ausencia de manager (%)
+  teamSizeWeight: int("team_size_weight").notNull().default(10), // Peso del tamaño del equipo (%)
+  
+  // Umbrales de riesgo
+  lowRiskThreshold: int("low_risk_threshold").notNull().default(30), // 0-30: bajo
+  mediumRiskThreshold: int("medium_risk_threshold").notNull().default(60), // 31-60: medio
+  highRiskThreshold: int("high_risk_threshold").notNull().default(100), // 61-100: alto
+  
+  // Metadata
+  createdBy: int("created_by"), // Usuario que creó la configuración
+  updatedBy: int("updated_by"), // Último usuario que actualizó
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  
+  // Estado
+  isActive: boolean("is_active").default(true), // Solo una configuración puede estar activa
+});

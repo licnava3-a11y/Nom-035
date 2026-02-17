@@ -715,6 +715,13 @@
       "when": 1771337360615,
       "tag": "0101_watery_scarecrow",
       "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "5",
+      "when": 1771341521528,
+      "tag": "0102_silent_silver_samurai",
+      "breakpoints": true
     }
   ]
 }

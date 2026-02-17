@@ -227,6 +227,7 @@ const hierarchicalMenuItems = [
       { label: "Usuarios", path: "/users", description: "Gestión de usuarios y permisos" },
       { label: "Gestión de Departamentos", path: "/department-management", description: "Administrar departamentos organizacionales" },
       { label: "Métricas de Departamentos", path: "/department-metrics", description: "Estadísticas de rotación, crecimiento y distribución" },
+      { label: "Configuración Algoritmo", path: "/algorithm-config", description: "Ajustar pesos del algoritmo predictivo" },
       { label: "Roles y Permisos", path: "/administrative/roles-permissions", description: "Administración de roles y matriz de permisos" },
       { label: "Permisos Personalizados", path: "/administrative/custom-permissions", description: "Asignar permisos específicos por usuario" },
       { label: "Auditoría de Permisos", path: "/administrative/permission-audit", description: "Historial de cambios de roles y permisos" },

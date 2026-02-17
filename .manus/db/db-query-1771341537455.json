@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `predictive_algorithm_config` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`config_name` varchar(255) NOT NULL DEFAULT 'default',\n\t`rotation_weight` int NOT NULL DEFAULT 40,\n\t`tenure_weight` int NOT NULL DEFAULT 30,\n\t`manager_weight` int NOT NULL DEFAULT 20,\n\t`team_size_weight` int NOT NULL DEFAULT 10,\n\t`low_risk_threshold` int NOT NULL DEFAULT 30,\n\t`medium_risk_threshold` int NOT NULL DEFAULT 60,\n\t`high_risk_threshold` int NOT NULL DEFAULT 100,\n\t`created_by` int,\n\t`updated_by` int,\n\t`created_at` timestamp DEFAULT (now()),\n\t`updated_at` timestamp DEFAULT (now()),\n\t`is_active` boolean DEFAULT true,\n\tCONSTRAINT `predictive_algorithm_config_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `predictive_algorithm_config` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`config_name` varchar(255) NOT NULL DEFAULT 'default',\n\t`rotation_weight` int NOT NULL DEFAULT 40,\n\t`tenure_weight` int NOT NULL DEFAULT 30,\n\t`manager_weight` int NOT NULL DEFAULT 20,\n\t`team_size_weight` int NOT NULL DEFAULT 10,\n\t`low_risk_threshold` int NOT NULL DEFAULT 30,\n\t`medium_risk_threshold` int NOT NULL DEFAULT 60,\n\t`high_risk_threshold` int NOT NULL DEFAULT 100,\n\t`created_by` int,\n\t`updated_by` int,\n\t`created_at` timestamp DEFAULT (now()),\n\t`updated_at` timestamp DEFAULT (now()),\n\t`is_active` boolean DEFAULT true,\n\tCONSTRAINT `predictive_algorithm_config_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 753
+}
