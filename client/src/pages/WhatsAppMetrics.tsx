@@ -15,7 +15,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare, Download, UserPlus } from "lucide-react";
+import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare, Download, UserPlus, CheckSquare, Square } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -30,6 +31,7 @@ import { ComparisonMetricCard } from "@/components/ComparisonMetricCard";
 import { exportComparisonToExcel } from "@/lib/excelExport";
 import { useToast } from "@/hooks/use-toast";
 import { ConvertToLeadModal } from "@/components/ConvertToLeadModal";
+import { BulkConvertToLeadModal } from "@/components/BulkConvertToLeadModal";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
@@ -57,6 +59,10 @@ export default function WhatsAppMetrics() {
   // Estado para conversión a lead
   const [convertModalOpen, setConvertModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  
+  // Estado para selección múltiple
+  const [selectedEvents, setSelectedEvents] = useState<Set<number>>(new Set());
+  const [bulkConvertModalOpen, setBulkConvertModalOpen] = useState(false);
 
   const { toast } = useToast();
   const utils = trpc.useUtils();
@@ -274,6 +280,76 @@ export default function WhatsAppMetrics() {
   const handleConvertToLead = (event: any) => {
     setSelectedEvent(event);
     setConvertModalOpen(true);
+  };
+
+  // Funciones de selección múltiple
+  const handleSelectEvent = (eventId: number, isConverted: boolean) => {
+    if (isConverted) return; // No permitir seleccionar eventos ya convertidos
+    
+    setSelectedEvents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(eventId)) {
+        newSet.delete(eventId);
+      } else {
+        newSet.add(eventId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = (events: any[]) => {
+    const convertibleEvents = events.filter(e => e.conversionStatus !== "converted");
+    if (selectedEvents.size === convertibleEvents.length) {
+      // Deseleccionar todos
+      setSelectedEvents(new Set());
+    } else {
+      // Seleccionar todos los convertibles
+      setSelectedEvents(new Set(convertibleEvents.map(e => e.id)));
+    }
+  };
+
+  const handleBulkConvert = () => {
+    if (selectedEvents.size === 0) {
+      toast({
+        title: "Sin selección",
+        description: "Selecciona al menos un evento para convertir",
+        variant: "destructive",
+      });
+      return;
+    }
+    setBulkConvertModalOpen(true);
+  };
+
+  // Mutation de conversión masiva
+  const bulkConvertMutation = trpc.leads.bulkConvertWhatsAppEventsToLeads.useMutation({
+    onSuccess: (results) => {
+      const { successful, failed, duplicates } = results;
+      
+      // Mostrar toast de resumen
+      toast({
+        title: "Conversión masiva completada",
+        description: `✅ ${successful.length} lead${successful.length !== 1 ? "s" : ""} creado${successful.length !== 1 ? "s" : ""}${failed.length > 0 ? ` | ❌ ${failed.length} fallido${failed.length !== 1 ? "s" : ""}` : ""}${duplicates.length > 0 ? ` | ⚠️ ${duplicates.length} duplicado${duplicates.length !== 1 ? "s" : ""}` : ""}`,
+      });
+
+      // Invalidar queries
+      utils.whatsappTracking.getRecentEvents.invalidate();
+      utils.leads.getLeadsPipeline.invalidate();
+
+      // Limpiar selección y cerrar modal
+      setSelectedEvents(new Set());
+      setBulkConvertModalOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error en conversión masiva",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleBulkConvertConfirm = (eventIds: number[]) => {
+    bulkConvertMutation.mutate({ eventIds });
   };
 
   // Calcular período de comparación automáticamente
@@ -896,8 +972,18 @@ export default function WhatsAppMetrics() {
       {/* Tabla de eventos recientes */}
       <Card>
         <CardHeader>
-          <CardTitle>Eventos Recientes</CardTitle>
-          <CardDescription>Últimos 10 clics registrados</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Eventos Recientes</CardTitle>
+              <CardDescription>Últimos 10 clics registrados</CardDescription>
+            </div>
+            {selectedEvents.size > 0 && (
+              <Button onClick={handleBulkConvert} className="gap-2">
+                <CheckSquare className="h-4 w-4" />
+                Convertir Seleccionados ({selectedEvents.size})
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {eventsLoading ? (
@@ -909,6 +995,12 @@ export default function WhatsAppMetrics() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
+                    <th className="p-2 w-12">
+                      <Checkbox
+                        checked={recentEvents.events.filter(e => e.conversionStatus !== "converted").length > 0 && selectedEvents.size === recentEvents.events.filter(e => e.conversionStatus !== "converted").length}
+                        onCheckedChange={() => handleSelectAll(recentEvents.events)}
+                      />
+                    </th>
                     <th className="text-left p-2">Fecha</th>
                     <th className="text-left p-2">Tipo</th>
                     <th className="text-left p-2">Usuario</th>
@@ -920,6 +1012,13 @@ export default function WhatsAppMetrics() {
                 <tbody>
                   {recentEvents.events.map((event) => (
                     <tr key={event.id} className="border-b hover:bg-muted/50">
+                      <td className="p-2">
+                        <Checkbox
+                          checked={selectedEvents.has(event.id)}
+                          onCheckedChange={() => handleSelectEvent(event.id, event.conversionStatus === "converted")}
+                          disabled={event.conversionStatus === "converted"}
+                        />
+                      </td>
                       <td className="p-2 text-sm">
                         {new Date(event.createdAt).toLocaleDateString("es-MX", {
                           year: "numeric",
@@ -991,6 +1090,15 @@ export default function WhatsAppMetrics() {
           // Invalidar queries para actualizar la tabla
           utils.whatsappTracking.getRecentEvents.invalidate();
         }}
+      />
+
+      {/* Modal de conversión masiva */}
+      <BulkConvertToLeadModal
+        open={bulkConvertModalOpen}
+        onOpenChange={setBulkConvertModalOpen}
+        selectedEvents={recentEvents?.events.filter(e => selectedEvents.has(e.id)) || []}
+        onConfirm={handleBulkConvertConfirm}
+        isLoading={bulkConvertMutation.isPending}
       />
     </div>
   );

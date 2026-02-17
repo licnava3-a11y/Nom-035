@@ -389,4 +389,89 @@ export const leadsRouter = router({
 
     return stats;
   }),
+
+  /**
+   * Conversión masiva de eventos de WhatsApp a leads
+   */
+  bulkConvertWhatsAppEventsToLeads: protectedProcedure
+    .input(
+      z.object({
+        eventIds: z.array(z.number()),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      
+      const results = {
+        successful: [] as number[],
+        failed: [] as { eventId: number; reason: string }[],
+        duplicates: [] as number[],
+      };
+
+      for (const eventId of input.eventIds) {
+        try {
+          // Verificar si el evento existe
+          const [event] = await db
+            .select()
+            .from(whatsappTrackingEvents)
+            .where(eq(whatsappTrackingEvents.id, eventId));
+
+          if (!event) {
+            results.failed.push({ eventId, reason: "Evento no encontrado" });
+            continue;
+          }
+
+          // Verificar si ya fue convertido
+          if (event.conversionStatus === "converted") {
+            results.duplicates.push(eventId);
+            continue;
+          }
+
+          // Verificar si ya existe un lead vinculado
+          const existingLeads = await db
+            .select()
+            .from(leads)
+            .where(eq(leads.whatsappEventId, eventId));
+
+          if (existingLeads.length > 0) {
+            results.duplicates.push(eventId);
+            continue;
+          }
+
+          // Extraer datos del evento
+          const userData = event.userData && typeof event.userData === "object" ? event.userData as any : {};
+          const metadata = event.metadata && typeof event.metadata === "object" ? event.metadata as any : {};
+
+          // Crear lead
+          const [newLead] = await db.insert(leads).values({
+            whatsappEventId: eventId,
+            nombre: userData.nombre || "Contacto desde WhatsApp",
+            email: userData.email || null,
+            empresa: userData.empresa || null,
+            telefono: userData.telefono || null,
+            normativas: event.normativas ? JSON.stringify(event.normativas) : null,
+            estado: "nuevo",
+            origen: metadata.source || "whatsapp",
+            notas: `Lead creado desde evento de WhatsApp (${event.eventType})`,
+            probabilidadCierre: 20,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+
+          // Actualizar estado del evento
+          await db
+            .update(whatsappTrackingEvents)
+            .set({ conversionStatus: "converted" })
+            .where(eq(whatsappTrackingEvents.id, eventId));
+
+          results.successful.push(eventId);
+        } catch (error) {
+          console.error(`Error al convertir evento ${eventId}:`, error);
+          results.failed.push({ eventId, reason: "Error interno" });
+        }
+      }
+
+      return results;
+    }),
 });

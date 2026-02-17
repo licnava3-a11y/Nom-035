@@ -1908,3 +1908,42 @@
 - [x] Remover resaltado después de 3 segundos
 - [x] useRef para almacenar referencias a elementos del DOM
 - [x] Wrapper div con ref alrededor de LeadCard
+
+## Nuevas Tareas - Conversión Masiva de Eventos WhatsApp
+
+### 1. Checkboxes de Selección Múltiple en Tabla
+- [x] Agregar columna de checkbox en header de tabla de eventos
+- [x] Implementar checkbox "Seleccionar todos" en header
+- [x] Agregar checkbox individual en cada fila de evento
+- [x] Crear estado para almacenar eventos seleccionados (Set<number>)
+- [x] Funciones handleSelectAll y handleSelectEvent
+- [x] Deshabilitar checkboxes de eventos ya convertidos
+
+### 2. Botón de Conversión Masiva
+- [x] Agregar botón "Convertir Seleccionados" en header de tabla
+- [x] Mostrar contador de eventos seleccionados en botón
+- [x] Mostrar botón solo cuando hay selección (condicional)
+- [x] Validar que al menos un evento esté seleccionado
+
+### 3. Modal de Confirmación de Conversión Masiva
+- [x] Crear componente BulkConvertToLeadModal
+- [x] Mostrar lista de eventos seleccionados con datos completos
+- [x] Permitir deseleccionar eventos individuales antes de confirmar
+- [x] Mostrar advertencia de eventos ya convertidos con badge
+- [x] Botón de confirmación "Convertir X Leads" dinámico
+- [x] Diseño responsive con scroll para muchos eventos
+
+### 4. Procedure de Conversión Masiva en Backend
+- [x] Crear procedure bulkConvertWhatsAppEventsToLeads en leads.ts
+- [x] Aceptar array de whatsappEventIds
+- [x] Validar duplicados para cada evento (conversionStatus y whatsappEventId)
+- [x] Convertir eventos en loop con manejo de errores individual
+- [x] Retornar resultados: successful, failed, duplicates con detalles
+
+### 5. Integración y Feedback de Progreso
+- [x] Mutation de conversión masiva con trpc (bulkConvertMutation)
+- [x] Mostrar progreso durante conversión (isPending en modal)
+- [x] Toast de resumen con resultados (X exitosos, Y fallidos, Z duplicados)
+- [x] Invalidar queries después de conversión (events y leads)
+- [x] Limpiar selección después de conversión exitosa
+- [x] Manejo de errores individuales sin bloquear lote completo (try-catch por evento)
