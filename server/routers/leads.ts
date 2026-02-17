@@ -1,6 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
-import { getDb } from "../db";
+import { getDb, getNextSalespersonRoundRobin, updateSalespersonAssignment } from "../db";
 import { leads, whatsappTrackingEvents } from "../../drizzle/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -34,13 +34,37 @@ export const leadsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
       
+      // Si no se especifica asignadoA, usar round-robin automático
+      let assignedTo = input.asignadoA;
+      let assignedName = input.asignadoNombre;
+      
+      if (!assignedTo) {
+        const nextSalesperson = await getNextSalespersonRoundRobin();
+        if (nextSalesperson) {
+          assignedTo = nextSalesperson.id;
+          assignedName = nextSalesperson.nombre;
+        }
+      }
+      
       const [newLead] = await db.insert(leads).values({
         ...input,
+        asignadoA: assignedTo,
+        asignadoNombre: assignedName,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      
+      // Actualizar estadísticas del vendedor asignado
+      if (assignedTo) {
+        await updateSalespersonAssignment(assignedTo);
+      }
 
-      return { success: true, leadId: newLead.insertId };
+      return { 
+        success: true, 
+        leadId: newLead.insertId,
+        assignedTo,
+        assignedName,
+      };
     }),
 
   /**

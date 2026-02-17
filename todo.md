@@ -1947,3 +1947,101 @@
 - [x] Invalidar queries después de conversión (events y leads)
 - [x] Limpiar selección después de conversión exitosa
 - [x] Manejo de errores individuales sin bloquear lote completo (try-catch por evento)
+
+## Nuevas Tareas - Asignación Automática de Leads con Round-Robin
+
+### 1. Tabla de Vendedores en Base de Datos
+- [ ] Crear tabla salespeople en schema.ts
+- [ ] Campos: id, userId, nombre, email, activo, ultimaAsignacion, totalLeadsAsignados
+- [ ] Generar migración SQL con drizzle-kit generate
+- [ ] Aplicar migración con webdev_execute_sql
+- [ ] Insertar 5 vendedores de demostración
+
+### 2. Algoritmo Round-Robin en Backend
+- [ ] Crear helper getNextSalesperson en server/db.ts
+- [ ] Lógica: obtener vendedor activo con ultimaAsignacion más antigua
+- [ ] Actualizar ultimaAsignacion y totalLeadsAsignados después de asignar
+- [ ] Manejar caso cuando no hay vendedores activos
+
+### 3. Integración en Creación de Leads
+- [ ] Modificar procedure createLead para asignar automáticamente
+- [ ] Modificar procedure convertWhatsAppEventToLead para asignar
+- [ ] Modificar procedure bulkConvertWhatsAppEventsToLeads para asignar
+- [ ] Permitir override manual de asignación (parámetro opcional)
+- [ ] Actualizar campo asignadoA y asignadoNombre automáticamente
+
+### 4. Dashboard de Distribución de Leads
+- [ ] Crear página SalesDistribution.tsx
+- [ ] Card de resumen: total vendedores activos, leads asignados hoy, distribución equitativa
+- [ ] Tabla de vendedores con: nombre, leads asignados, última asignación, estado
+- [ ] Gráfico de distribución (pie chart o bar chart)
+- [ ] Botón para activar/desactivar vendedores
+- [ ] Agregar navegación en DashboardLayout
+
+### 5. Gestión de Vendedores
+- [ ] Crear router salespeople.ts con procedures CRUD
+- [ ] Procedure getSalespeople (listar todos)
+- [ ] Procedure createSalesperson (agregar vendedor)
+- [ ] Procedure updateSalesperson (editar vendedor)
+- [ ] Procedure toggleSalespersonStatus (activar/desactivar)
+- [ ] Procedure getSalesDistributionStats (estadísticas)
+- [ ] Integrar router en appRouter
+
+
+## Sistema de Asignación Automática de Leads con Round-Robin
+
+### Implementación Completada
+- [x] Crear tabla salespeople en base de datos con campos: id, nombre, email, activo, ultimaAsignacion, totalLeadsAsignados
+- [x] Insertar 5 vendedores de demostración en la tabla
+- [x] Implementar helpers en server/db.ts:
+  - [x] getActiveSalespeople() - Obtener vendedores activos ordenados por última asignación
+  - [x] getNextSalespersonRoundRobin() - Algoritmo round-robin para seleccionar siguiente vendedor
+  - [x] updateSalespersonAssignment() - Actualizar estadísticas tras asignación
+  - [x] getSalespersonById() - Obtener vendedor por ID
+  - [x] getAllSalespeople() - Obtener todos los vendedores
+  - [x] createSalesperson() - Crear nuevo vendedor
+  - [x] updateSalesperson() - Actualizar datos de vendedor
+  - [x] toggleSalespersonActive() - Activar/desactivar vendedor
+  - [x] getSalespeopleDistributionStats() - Estadísticas de distribución de leads
+- [x] Crear router tRPC salespeople.ts con 7 procedures:
+  - [x] getAll - Obtener todos los vendedores
+  - [x] getActive - Obtener solo activos
+  - [x] getById - Obtener por ID
+  - [x] create - Crear vendedor
+  - [x] update - Actualizar vendedor
+  - [x] toggleActive - Activar/desactivar
+  - [x] getDistributionStats - Estadísticas de distribución
+- [x] Integrar router salespeople en appRouter
+- [x] Modificar procedure createLead en leads.ts:
+  - [x] Agregar lógica de asignación automática si no se especifica asignadoA
+  - [x] Llamar a getNextSalespersonRoundRobin() para obtener siguiente vendedor
+  - [x] Actualizar estadísticas del vendedor con updateSalespersonAssignment()
+  - [x] Retornar assignedTo y assignedName en respuesta
+- [x] Crear página SalesPeopleManagement.tsx con:
+  - [x] 4 cards de estadísticas (Total Vendedores, Leads Asignados, Leads Ganados, Tasa Conversión)
+  - [x] Tabla completa con distribución de leads por vendedor
+  - [x] Columnas: Vendedor, Email, Estado, Leads Asignados, Activos, Ganados, Perdidos, Tasa Conversión, Última Asignación
+  - [x] Modal de creación de vendedor con validación
+  - [x] Modal de edición de vendedor
+  - [x] Botón de activar/desactivar vendedor
+  - [x] Indicadores visuales de estado (badges verdes/grises)
+  - [x] Cálculo automático de tasa de conversión por vendedor
+- [x] Agregar ruta /salespeople-management en App.tsx
+- [x] Agregar navegación en DashboardLayout bajo Administración > Gestión de Vendedores
+
+### Características del Sistema
+- **Algoritmo Round-Robin**: Asigna leads al vendedor con la fecha de última asignación más antigua
+- **Distribución Equitativa**: Balancea automáticamente la carga entre vendedores activos
+- **Estadísticas en Tiempo Real**: Monitorea leads asignados, activos, ganados, perdidos por vendedor
+- **Gestión Flexible**: Permite activar/desactivar vendedores sin eliminarlos
+- **Tasa de Conversión**: Calcula automáticamente el rendimiento de cada vendedor
+- **Asignación Automática**: Al crear un lead (manual o desde WhatsApp) se asigna automáticamente
+- **Asignación Manual**: Opción de especificar vendedor manualmente si se requiere
+
+### Próximas Mejoras Sugeridas
+- [ ] Notificación automática al vendedor cuando se le asigna un lead
+- [ ] Dashboard de rendimiento individual por vendedor
+- [ ] Reasignación manual de leads desde el pipeline
+- [ ] Historial de asignaciones con tabla lead_assignments
+- [ ] Filtros en pipeline por vendedor asignado
+- [ ] Métricas de tiempo de respuesta por vendedor

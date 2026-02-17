@@ -231,6 +231,7 @@ const hierarchicalMenuItems = [
       { label: "Efectividad del Algoritmo", path: "/algorithm-effectiveness", description: "Análisis de precisión y comparativa predicciones vs realidad" },
       { label: "Métricas de WhatsApp", path: "/whatsapp-metrics", description: "Seguimiento de conversiones y normativas solicitadas" },
       { label: "Pipeline de Leads", path: "/leads-pipeline", description: "Gestión de oportunidades de venta con Kanban" },
+      { label: "Gestión de Vendedores", path: "/salespeople-management", description: "Administrar equipo de ventas y distribución de leads" },
       { label: "Roles y Permisos", path: "/administrative/roles-permissions", description: "Administración de roles y matriz de permisos" },
       { label: "Permisos Personalizados", path: "/administrative/custom-permissions", description: "Asignar permisos específicos por usuario" },
       { label: "Auditoría de Permisos", path: "/administrative/permission-audit", description: "Historial de cambios de roles y permisos" },

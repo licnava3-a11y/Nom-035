@@ -101,6 +101,7 @@ import { interventionImpactRouter } from "./routers/interventionImpact";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
+import { salespeopleRouter } from "./routers/salespeople";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -204,6 +205,7 @@ export const appRouter = router({
   sharedReports: sharedReportsRouter,
   whatsappTracking: whatsappTrackingRouter,
   leads: leadsRouter,
+  salespeople: salespeopleRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

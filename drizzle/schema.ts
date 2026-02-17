@@ -3893,3 +3893,28 @@ export const leads = mysqlTable("leads", {
   // Razón de pérdida (si estado = perdido)
   razonPerdida: text("razon_perdida"),
 });
+
+/**
+ * Tabla de vendedores para asignación automática de leads
+ */
+export const salespeople = mysqlTable("salespeople", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Vinculación con usuario (opcional)
+  userId: int("user_id"),
+  
+  // Información del vendedor
+  nombre: varchar("nombre", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  
+  // Estado activo/inactivo para round-robin
+  activo: boolean("activo").default(true).notNull(),
+  
+  // Tracking de asignaciones
+  ultimaAsignacion: timestamp("ultima_asignacion"),
+  totalLeadsAsignados: int("total_leads_asignados").default(0).notNull(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `salespeople` (`nombre`, `email`, `activo`, `total_leads_asignados`) VALUES\n('Carlos Martínez', 'carlos.martinez@empresa.com', true, 0),\n('Ana López', 'ana.lopez@empresa.com', true, 0),\n('Roberto García', 'roberto.garcia@empresa.com', true, 0),\n('María Fernández', 'maria.fernandez@empresa.com', true, 0),\n('Juan Rodríguez', 'juan.rodriguez@empresa.com', true, 0);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute INSERT INTO `salespeople` (`nombre`, `email`, `activo`, `total_leads_asignados`) VALUES\n('Carlos Martínez', 'carlos.martinez@empresa.com', true, 0),\n('Ana López', 'ana.lopez@empresa.com', true, 0),\n('Roberto García', 'roberto.garcia@empresa.com', true, 0),\n('María Fernández', 'maria.fernandez@empresa.com', true, 0),\n('Juan Rodríguez', 'juan.rodriguez@empresa.com', true, 0);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 384
+}

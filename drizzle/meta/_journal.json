@@ -743,6 +743,13 @@
       "when": 1771351641695,
       "tag": "0105_smooth_shriek",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "5",
+      "when": 1771355726987,
+      "tag": "0106_gorgeous_johnny_blaze",
+      "breakpoints": true
     }
   ]
 }

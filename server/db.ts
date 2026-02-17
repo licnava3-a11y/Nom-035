@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, asc, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations, mailbox, mailboxResponses, notifications, caseAssignments, invoices, purchaseOrders, expenseRequests } from "../drizzle/schema";
+import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations, mailbox, mailboxResponses, notifications, caseAssignments, invoices, purchaseOrders, expenseRequests, salespeople, leads } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -626,4 +626,164 @@ export async function getAllExpenseRequests() {
   const db = await getDb();
   if (!db) return [];
   return await db.select().from(expenseRequests);
+}
+
+// ============================================
+// Salespeople Management
+// ============================================
+
+/**
+ * Get all active salespeople ordered by last assignment (round-robin)
+ */
+export async function getActiveSalespeople() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(salespeople)
+    .where(eq(salespeople.activo, true))
+    .orderBy(asc(salespeople.ultimaAsignacion));
+}
+
+/**
+ * Get next salesperson using round-robin strategy
+ * Returns the active salesperson with the oldest last assignment date
+ */
+export async function getNextSalespersonRoundRobin() {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const activeSalespeople = await db
+    .select()
+    .from(salespeople)
+    .where(eq(salespeople.activo, true))
+    .orderBy(asc(salespeople.ultimaAsignacion))
+    .limit(1);
+  
+  return activeSalespeople[0] || null;
+}
+
+/**
+ * Update salesperson assignment stats after assigning a lead
+ */
+export async function updateSalespersonAssignment(salespersonId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(salespeople)
+    .set({
+      ultimaAsignacion: new Date(),
+      totalLeadsAsignados: sql`${salespeople.totalLeadsAsignados} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(eq(salespeople.id, salespersonId));
+}
+
+/**
+ * Get salesperson by ID
+ */
+export async function getSalespersonById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(salespeople).where(eq(salespeople.id, id)).limit(1);
+  return result[0] || null;
+}
+
+/**
+ * Get all salespeople (active and inactive)
+ */
+export async function getAllSalespeople() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(salespeople).orderBy(desc(salespeople.activo), asc(salespeople.nombre));
+}
+
+/**
+ * Create new salesperson
+ */
+export async function createSalesperson(data: {
+  nombre: string;
+  email: string;
+  userId?: number;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.insert(salespeople).values({
+    nombre: data.nombre,
+    email: data.email,
+    userId: data.userId,
+    activo: true,
+    totalLeadsAsignados: 0,
+  });
+  
+  return result.insertId;
+}
+
+/**
+ * Update salesperson
+ */
+export async function updateSalesperson(id: number, data: {
+  nombre?: string;
+  email?: string;
+  activo?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(salespeople)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(salespeople.id, id));
+}
+
+/**
+ * Toggle salesperson active status
+ */
+export async function toggleSalespersonActive(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const salesperson = await getSalespersonById(id);
+  if (!salesperson) return;
+  
+  await db
+    .update(salespeople)
+    .set({
+      activo: !salesperson.activo,
+      updatedAt: new Date(),
+    })
+    .where(eq(salespeople.id, id));
+}
+
+/**
+ * Get salespeople distribution stats
+ */
+export async function getSalespeopleDistributionStats() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get all salespeople with their lead counts by status
+  const stats = await db
+    .select({
+      id: salespeople.id,
+      nombre: salespeople.nombre,
+      email: salespeople.email,
+      activo: salespeople.activo,
+      totalLeadsAsignados: salespeople.totalLeadsAsignados,
+      ultimaAsignacion: salespeople.ultimaAsignacion,
+      leadsActivos: sql<number>`COUNT(CASE WHEN ${leads.status} IN ('new', 'contacted', 'negotiation', 'proposal') THEN 1 END)`,
+      leadsGanados: sql<number>`COUNT(CASE WHEN ${leads.status} = 'won' THEN 1 END)`,
+      leadsPerdidos: sql<number>`COUNT(CASE WHEN ${leads.status} = 'lost' THEN 1 END)`,
+    })
+    .from(salespeople)
+    .leftJoin(leads, eq(leads.assignedTo, salespeople.id))
+    .groupBy(salespeople.id)
+    .orderBy(desc(salespeople.activo), asc(salespeople.nombre));
+  
+  return stats;
 }
