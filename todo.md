@@ -1359,3 +1359,58 @@
 - [x] Incluir columnas: ID, Nombre, Código, Manager, Total Empleados, Fecha Creación
 - [x] Implementar botón "Exportar Todo" en DepartmentManagement.tsx
 - [x] Descarga automática del archivo .xlsx
+
+## Nuevas Tareas - Comparativa Histórica, Alertas Predictivas y Dashboard Personalizado
+
+### 1. Comparativa Histórica de Métricas Año contra Año
+- [ ] Crear query departmentMetrics.getYearOverYearComparison
+- [ ] Implementar cálculo de métricas del año actual vs año anterior
+- [ ] Calcular porcentajes de cambio (crecimiento/decrecimiento)
+- [ ] Agregar gráfico de comparación año contra año en DepartmentMetrics.tsx
+- [ ] Implementar Line Chart con 2 líneas (año actual vs año anterior)
+- [ ] Agregar indicadores de tendencia (↑ crecimiento, ↓ decrecimiento)
+- [ ] Incluir filtro de métrica (rotación, crecimiento, distribución)
+
+### 2. Alertas Predictivas de Rotación con Machine Learning
+- [ ] Crear tabla predictive_turnover_alerts en schema
+- [ ] Implementar algoritmo de detección de patrones de rotación
+- [ ] Calcular score de riesgo por departamento (0-100)
+- [ ] Crear procedure departments.getPredictiveTurnoverAlerts
+- [ ] Implementar job scheduled para análisis predictivo mensual
+- [ ] Crear componente PredictiveTurnoverAlerts en Dashboard
+- [ ] Enviar notificaciones automáticas a managers de departamentos en riesgo
+- [ ] Incluir recomendaciones de acción preventiva
+
+### 3. Dashboard Personalizado por Departamento con Drill-Down
+- [ ] Implementar filtro por departamento en DepartmentMetrics.tsx
+- [ ] Agregar lógica de permisos: managers solo ven su departamento
+- [ ] Crear query departmentMetrics.getEmployeeDetails por departamento
+- [ ] Implementar tabla expandible con drill-down a empleados individuales
+- [ ] Mostrar métricas individuales: antigüedad, evaluaciones, capacitaciones
+- [ ] Agregar gráfico de distribución de empleados por puesto
+- [ ] Implementar botón "Ver Detalle" que redirige a perfil de empleado
+
+## Nuevas Tareas - Comparativa Histórica, Alertas Predictivas y Dashboard Personalizado
+
+### 1. Comparativa Histórica Año contra Año
+- [x] Crear query departmentMetrics.getYearOverYearComparison
+- [x] Implementar cálculo de métricas año actual vs año anterior
+- [x] Agregar gráfico YoY en DepartmentMetrics.tsx
+- [x] Implementar selector de métrica (rotación, crecimiento, distribución)
+- [x] Mostrar cambios porcentuales y tendencias
+
+### 2. Sistema de Alertas Predictivas de Rotación
+- [x] Crear tabla predictive_turnover_alerts en schema
+- [x] Crear job predictive-turnover-job.ts (mensual)
+- [x] Implementar algoritmo de cálculo de riesgo (0-100)
+- [x] Considerar 4 factores: rotación, antigüedad, manager, tamaño
+- [x] Crear procedure departments.getPredictiveTurnoverAlerts
+- [x] Agregar sección de alertas en DepartmentMetrics.tsx
+- [x] Implementar cards de resumen (alto/medio/total)
+- [x] Mostrar recomendaciones automáticas
+
+### 3. Dashboard Personalizado por Departamento
+- [x] Agregar filtro por departamento en DepartmentMetrics.tsx
+- [x] Implementar selector dropdown de departamentos
+- [x] Opción "Todos los departamentos" para vista global
+- [ ] Implementar drill-down a empleados individuales (pendiente)

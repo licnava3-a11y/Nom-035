@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `predictive_turnover_alerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`department_id` int NOT NULL,\n\t`department_name` varchar(255) NOT NULL,\n\t`risk_score` int NOT NULL,\n\t`current_employee_count` int NOT NULL,\n\t`hires_last_3_months` int NOT NULL,\n\t`terminations_last_3_months` int NOT NULL,\n\t`avg_tenure_months` decimal(10,2),\n\t`predicted_turnover_rate` decimal(5,2),\n\t`recommended_actions` text,\n\t`status` varchar(50) DEFAULT 'active',\n\t`analyzed_at` timestamp DEFAULT (now()),\n\t`resolved_at` timestamp,\n\t`notifications_sent` int DEFAULT 0,\n\t`last_notification_at` timestamp,\n\tCONSTRAINT `predictive_turnover_alerts_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `predictive_turnover_alerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`department_id` int NOT NULL,\n\t`department_name` varchar(255) NOT NULL,\n\t`risk_score` int NOT NULL,\n\t`current_employee_count` int NOT NULL,\n\t`hires_last_3_months` int NOT NULL,\n\t`terminations_last_3_months` int NOT NULL,\n\t`avg_tenure_months` decimal(10,2),\n\t`predicted_turnover_rate` decimal(5,2),\n\t`recommended_actions` text,\n\t`status` varchar(50) DEFAULT 'active',\n\t`analyzed_at` timestamp DEFAULT (now()),\n\t`resolved_at` timestamp,\n\t`notifications_sent` int DEFAULT 0,\n\t`last_notification_at` timestamp,\n\tCONSTRAINT `predictive_turnover_alerts_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 542
+}

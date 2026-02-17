@@ -3672,3 +3672,36 @@ export const bulkReassignmentDetails = mysqlTable("bulk_reassignment_details", {
   // Fecha de registro
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Tabla de alertas predictivas de rotación
+export const predictiveTurnoverAlerts = mysqlTable("predictive_turnover_alerts", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Departamento analizado
+  departmentId: int("department_id").notNull(),
+  departmentName: varchar("department_name", { length: 255 }).notNull(),
+  
+  // Score de riesgo (0-100)
+  riskScore: int("risk_score").notNull(), // 0-30: bajo, 31-60: medio, 61-100: alto
+  
+  // Métricas del análisis
+  currentEmployeeCount: int("current_employee_count").notNull(),
+  hiresLast3Months: int("hires_last_3_months").notNull(),
+  terminationsLast3Months: int("terminations_last_3_months").notNull(),
+  avgTenureMonths: decimal("avg_tenure_months", { precision: 10, scale: 2 }),
+  
+  // Predicción
+  predictedTurnoverRate: decimal("predicted_turnover_rate", { precision: 5, scale: 2 }), // Porcentaje estimado de rotación
+  recommendedActions: text("recommended_actions"), // JSON con recomendaciones
+  
+  // Estado de la alerta
+  status: varchar("status", { length: 50 }).default("active"), // active, resolved, dismissed
+  
+  // Fechas
+  analyzedAt: timestamp("analyzed_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+  
+  // Notificaciones enviadas
+  notificationsSent: int("notifications_sent").default(0),
+  lastNotificationAt: timestamp("last_notification_at"),
+});

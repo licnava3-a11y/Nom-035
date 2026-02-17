@@ -980,6 +980,48 @@ export const departmentsRouter = router({
       managerCount: managersData.length,
     };
   }),
+
+  /**
+   * Obtener alertas predictivas de rotación
+   * Retorna alertas activas ordenadas por score de riesgo
+   */
+  getPredictiveTurnoverAlerts: protectedProcedure
+    .input(
+      z.object({
+        status: z.enum(["active", "resolved", "dismissed"]).optional(),
+        minRiskScore: z.number().min(0).max(100).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+
+      let conditions = [];
+      if (input.status) {
+        conditions.push(eq(predictiveTurnoverAlerts.status, input.status));
+      }
+      if (input.minRiskScore !== undefined) {
+        conditions.push(gte(predictiveTurnoverAlerts.riskScore, input.minRiskScore));
+      }
+
+      const alerts = await db
+        .select()
+        .from(predictiveTurnoverAlerts)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(predictiveTurnoverAlerts.riskScore), desc(predictiveTurnoverAlerts.analyzedAt))
+        .execute();
+
+      return {
+        alerts: alerts.map((alert) => ({
+          ...alert,
+          recommendedActions: alert.recommendedActions
+            ? JSON.parse(alert.recommendedActions)
+            : [],
+        })),
+        totalAlerts: alerts.length,
+        highRiskCount: alerts.filter((a) => a.riskScore >= 70).length,
+        mediumRiskCount: alerts.filter((a) => a.riskScore >= 40 && a.riskScore < 70).length,
+      };
+    }),
 });
 
 

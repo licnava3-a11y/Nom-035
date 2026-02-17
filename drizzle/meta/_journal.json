@@ -708,6 +708,13 @@
       "when": 1771332747268,
       "tag": "0100_friendly_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "5",
+      "when": 1771337360615,
+      "tag": "0101_watery_scarecrow",
+      "breakpoints": true
     }
   ]
 }

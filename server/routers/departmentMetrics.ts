@@ -242,4 +242,271 @@ export const departmentMetricsRouter = router({
       departmentCount: distribution.length,
     };
   }),
+
+  /**
+   * Obtener comparativa año contra año de métricas
+   * Compara métricas del año actual vs año anterior
+   */
+  getYearOverYearComparison: protectedProcedure
+    .input(
+      z.object({
+        metric: z.enum(["rotation", "growth", "distribution"]).default("growth"),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { metric } = input;
+
+      // Calcular fechas
+      const now = new Date();
+      const currentYearStart = new Date(now.getFullYear(), 0, 1);
+      const currentYearEnd = now;
+      const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
+      const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
+
+      // Obtener departamentos activos
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const allDepartments = await db
+        .select({
+          id: departments.id,
+          name: departments.name,
+        })
+        .from(departments)
+        .where(eq(departments.isActive, true))
+        .execute();
+
+      if (metric === "rotation") {
+        // Comparativa de rotación (altas y bajas)
+        const currentYearData = await Promise.all(
+          allDepartments.map(async (dept) => {
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [hires] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  gte(employees.createdAt, currentYearStart),
+                  lte(employees.createdAt, currentYearEnd)
+                )
+              )
+              .execute();
+
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [terminations] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  sql`${employees.status} = 'inactivo'`,
+                  gte(employees.updatedAt, currentYearStart),
+                  lte(employees.updatedAt, currentYearEnd)
+                )
+              )
+              .execute();
+
+            return {
+              departmentId: dept.id,
+              departmentName: dept.name,
+              hires: hires.count,
+              terminations: terminations.count,
+              netChange: hires.count - terminations.count,
+            };
+          })
+        );
+
+        const lastYearData = await Promise.all(
+          allDepartments.map(async (dept) => {
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [hires] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  gte(employees.createdAt, lastYearStart),
+                  lte(employees.createdAt, lastYearEnd)
+                )
+              )
+              .execute();
+
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [terminations] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  sql`${employees.status} = 'inactivo'`,
+                  gte(employees.updatedAt, lastYearStart),
+                  lte(employees.updatedAt, lastYearEnd)
+                )
+              )
+              .execute();
+
+            return {
+              departmentId: dept.id,
+              departmentName: dept.name,
+              hires: hires.count,
+              terminations: terminations.count,
+              netChange: hires.count - terminations.count,
+            };
+          })
+        );
+
+        // Calcular cambios porcentuales
+        const comparison = allDepartments.map((dept) => {
+          const current = currentYearData.find((d) => d.departmentId === dept.id);
+          const last = lastYearData.find((d) => d.departmentId === dept.id);
+
+          const hiresChange =
+            last && last.hires > 0
+              ? ((current!.hires - last.hires) / last.hires) * 100
+              : current!.hires > 0
+              ? 100
+              : 0;
+
+          const terminationsChange =
+            last && last.terminations > 0
+              ? ((current!.terminations - last.terminations) / last.terminations) * 100
+              : current!.terminations > 0
+              ? 100
+              : 0;
+
+          return {
+            departmentId: dept.id,
+            departmentName: dept.name,
+            currentYear: current,
+            lastYear: last,
+            hiresChange: hiresChange.toFixed(2),
+            terminationsChange: terminationsChange.toFixed(2),
+          };
+        });
+
+        return {
+          metric: "rotation",
+          currentYear: now.getFullYear(),
+          lastYear: now.getFullYear() - 1,
+          comparison,
+        };
+      } else if (metric === "growth") {
+        // Comparativa de crecimiento (número de empleados)
+        const currentYearData = await Promise.all(
+          allDepartments.map(async (dept) => {
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [result] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  lte(employees.createdAt, currentYearEnd),
+                  sql`(${employees.status} = 'activo' OR ${employees.updatedAt} > ${currentYearEnd})`
+                )
+              )
+              .execute();
+
+            return {
+              departmentId: dept.id,
+              departmentName: dept.name,
+              employeeCount: result.count,
+            };
+          })
+        );
+
+        const lastYearData = await Promise.all(
+          allDepartments.map(async (dept) => {
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [result] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  lte(employees.createdAt, lastYearEnd),
+                  sql`(${employees.status} = 'activo' OR ${employees.updatedAt} > ${lastYearEnd})`
+                )
+              )
+              .execute();
+
+            return {
+              departmentId: dept.id,
+              departmentName: dept.name,
+              employeeCount: result.count,
+            };
+          })
+        );
+
+        // Calcular cambios porcentuales
+        const comparison = allDepartments.map((dept) => {
+          const current = currentYearData.find((d) => d.departmentId === dept.id);
+          const last = lastYearData.find((d) => d.departmentId === dept.id);
+
+          const growthChange =
+            last && last.employeeCount > 0
+              ? ((current!.employeeCount - last.employeeCount) / last.employeeCount) * 100
+              : current!.employeeCount > 0
+              ? 100
+              : 0;
+
+          return {
+            departmentId: dept.id,
+            departmentName: dept.name,
+            currentYear: current,
+            lastYear: last,
+            growthChange: growthChange.toFixed(2),
+          };
+        });
+
+        return {
+          metric: "growth",
+          currentYear: now.getFullYear(),
+          lastYear: now.getFullYear() - 1,
+          comparison,
+        };
+      } else {
+        // Comparativa de distribución (porcentaje por departamento)
+        const currentYearTotal = await Promise.all(
+          allDepartments.map(async (dept) => {
+            // @ts-expect-error - getDb() siempre retorna instancia válida
+            const [result] = await db
+              .select({ count: count() })
+              .from(employees)
+              .where(
+                and(
+                  eq(employees.departmentId, dept.id),
+                  sql`${employees.status} = 'activo'`
+                )
+              )
+              .execute();
+
+            return {
+              departmentId: dept.id,
+              departmentName: dept.name,
+              employeeCount: result.count,
+            };
+          })
+        );
+
+        const totalCurrent = currentYearTotal.reduce((sum, d) => sum + d.employeeCount, 0);
+
+        const comparison = currentYearTotal.map((dept) => ({
+          departmentId: dept.departmentId,
+          departmentName: dept.departmentName,
+          employeeCount: dept.employeeCount,
+          percentage:
+            totalCurrent > 0 ? ((dept.employeeCount / totalCurrent) * 100).toFixed(2) : "0",
+        }));
+
+        return {
+          metric: "distribution",
+          currentYear: now.getFullYear(),
+          comparison,
+          totalEmployees: totalCurrent,
+        };
+      }
+    }),
 });
