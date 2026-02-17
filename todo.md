@@ -1792,7 +1792,7 @@
 
 ## Nuevas Tareas - CRM Completo, Análisis Predictivo y Optimización Landing Pages
 
-### 1. Router y Procedures de Leads CRM
+### 1. Router y Procedures de Leads CRM (✅ COMPLETADO)
 - [x] Crear archivo server/routers/leads.ts
 - [x] Procedure createLead (crear lead manual o desde WhatsApp)
 - [x] Procedure getLeadsPipeline (obtener leads agrupados por estado)
@@ -1807,21 +1807,20 @@
 - [x] Procedure getPipelineStats (estadísticas del pipeline)
 - [x] Integrar router en appRouter
 
-### 2. Página LeadsPipeline con Kanban Board (PENDIENTE)
-- [ ] Crear client/src/pages/LeadsPipeline.tsx
+### 2. Página LeadsPipeline con Kanban Board (✅ COMPLETADO)
+- [x] Crear client/src/pages/LeadsPipeline.tsx
 - [x] Instalar @dnd-kit/core y @dnd-kit/sortable para drag-and-drop
-- [ ] Implementar columnas Kanban (Nuevo, Contactado, Negociación, Propuesta, Ganado, Perdido)
-- [ ] Cards de leads con información clave (nombre, empresa, normativas, valor estimado)
-- [ ] Drag-and-drop entre columnas con actualización automática
-- [ ] Modal de detalles de lead con edición inline
-- [ ] Botón para agregar nuevo lead manualmente
-- [ ] Filtros por origen, normativas, asignado a
-- [ ] Indicadores de próxima acción con badges de urgencia
-- [ ] Agregar ruta en App.tsx y navegación en DashboardLayout
-
-### 3. Sistema de Conversión Automática WhatsApp → Leads
-- [ ] Actualizar procedure updateConversionStatus en whatsappTracking.ts
-- [ ] Al marcar como "converted", crear lead automáticamente
+- [x] Implementar 6 columnas de estado (Nuevo, Contactado, En Negociación, Propuesta Enviada, Ganado, Perdido)
+- [x] Drag-and-drop funcional con @dnd-kit
+- [x] Cards de leads con información clave (nombre, empresa, email, teléfono, valor estimado, probabilidad)
+- [x] Modal de edición con formulario completo
+- [x] Modal de creación de leads manuales
+- [x] Filtros por origen y normativa
+- [x] Widget de próximas acciones (24 horas)
+- [x] Cards de estadísticas (Total, Tasa de Conversión, Valor Estimado, Valor Ganado)
+- [x] Componente LeadCard reutilizable con useSortable
+- [x] Ruta agregada en App.tsx (/leads-pipeline)
+- [x] Navegación agregada en DashboardLayout (Administración > Pipeline de Leads) automáticamente
 - [ ] Copiar datos de userData a campos de lead
 - [ ] Asignar origen desde metadata.source
 - [ ] Establecer estado inicial como "nuevo"

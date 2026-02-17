@@ -72,6 +72,7 @@ const DepartmentMetrics = lazy(() => import("./pages/DepartmentMetrics"));
 const AlgorithmConfig = lazy(() => import("./pages/AlgorithmConfig"));
 const AlgorithmEffectiveness = lazy(() => import("./pages/AlgorithmEffectiveness"));
 const WhatsAppMetrics = lazy(() => import("./pages/WhatsAppMetrics"));
+const LeadsPipeline = lazy(() => import("./pages/LeadsPipeline"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NOM035Landing = lazy(() => import("./pages/NOM035Landing"));
 const NOM037Landing = lazy(() => import("./pages/NOM037Landing"));
@@ -634,6 +635,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <WhatsAppMetrics />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/leads-pipeline"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <LeadsPipeline />
             </Suspense>
           </DashboardLayout>
         </Route>
