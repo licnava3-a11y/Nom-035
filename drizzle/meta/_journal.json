@@ -757,6 +757,13 @@
       "when": 1771362316962,
       "tag": "0107_faithful_violations",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "5",
+      "when": 1771365582780,
+      "tag": "0108_confused_microchip",
+      "breakpoints": true
     }
   ]
 }

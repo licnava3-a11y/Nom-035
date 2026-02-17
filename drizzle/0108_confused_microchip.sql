@@ -1,0 +1,21 @@
+CREATE TABLE `report_configurations` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`report_type` varchar(50) NOT NULL,
+	`frequency` varchar(20) NOT NULL,
+	`custom_schedule` varchar(100),
+	`recipients` text NOT NULL,
+	`cc_recipients` text,
+	`enabled` boolean NOT NULL DEFAULT true,
+	`include_charts` boolean NOT NULL DEFAULT true,
+	`include_trends` boolean NOT NULL DEFAULT true,
+	`include_recommendations` boolean NOT NULL DEFAULT true,
+	`department_ids` text,
+	`date_range_type` varchar(20) DEFAULT 'auto',
+	`last_executed_at` timestamp,
+	`next_execution_at` timestamp,
+	`execution_count` int NOT NULL DEFAULT 0,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()),
+	`created_by` int NOT NULL,
+	CONSTRAINT `report_configurations_id` PRIMARY KEY(`id`)
+);

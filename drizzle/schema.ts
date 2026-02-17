@@ -3946,3 +3946,45 @@ export const departmentThresholds = mysqlTable("department_thresholds", {
 
 export type DepartmentThreshold = typeof departmentThresholds.$inferSelect;
 export type InsertDepartmentThreshold = typeof departmentThresholds.$inferInsert;
+
+/**
+ * Tabla de configuración de reportes ejecutivos automatizados
+ * Permite configurar frecuencia, destinatarios y habilitar/deshabilitar reportes
+ */
+export const reportConfigurations = mysqlTable("report_configurations", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Tipo de reporte
+  reportType: varchar("report_type", { length: 50 }).notNull(), // 'executive_weekly', 'executive_monthly', 'departmental', etc.
+  
+  // Configuración de frecuencia
+  frequency: varchar("frequency", { length: 20 }).notNull(), // 'weekly', 'monthly', 'quarterly', 'custom'
+  customSchedule: varchar("custom_schedule", { length: 100 }), // Cron expression para frecuencias personalizadas
+  
+  // Configuración de destinatarios
+  recipients: text("recipients").notNull(), // JSON array de emails
+  ccRecipients: text("cc_recipients"), // JSON array de emails en copia
+  
+  // Estado y configuración
+  enabled: boolean("enabled").default(true).notNull(),
+  includeCharts: boolean("include_charts").default(true).notNull(),
+  includeTrends: boolean("include_trends").default(true).notNull(),
+  includeRecommendations: boolean("include_recommendations").default(true).notNull(),
+  
+  // Filtros y opciones
+  departmentIds: text("department_ids"), // JSON array de IDs de departamentos (null = todos)
+  dateRangeType: varchar("date_range_type", { length: 20 }).default('auto'), // 'auto', 'custom', 'last_7_days', 'last_30_days'
+  
+  // Metadata
+  lastExecutedAt: timestamp("last_executed_at"),
+  nextExecutionAt: timestamp("next_execution_at"),
+  executionCount: int("execution_count").default(0).notNull(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdBy: int("created_by").notNull(), // User ID
+});
+
+export type ReportConfiguration = typeof reportConfigurations.$inferSelect;
+export type InsertReportConfiguration = typeof reportConfigurations.$inferInsert;
