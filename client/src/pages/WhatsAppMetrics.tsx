@@ -14,7 +14,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { MessageCircle, TrendingUp, Users, CheckCircle, Calendar, X, Filter } from "lucide-react";
+import { MessageCircle, TrendingUp, TrendingDown, Users, CheckCircle, Calendar, X, Filter, GitCompare } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -22,6 +22,10 @@ import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, end
 import { es } from "date-fns/locale";
 import { NORMATIVAS_MAP } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ComparisonMetricCard } from "@/components/ComparisonMetricCard";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend);
 
@@ -31,12 +35,20 @@ type ConversionStatus = "pending" | "converted" | "lost" | undefined;
 // Tipos para filtros rápidos
 type QuickFilterType = "today" | "thisWeek" | "thisMonth" | "last7Days" | "last30Days" | "lastYear" | "lastWeek" | "lastMonth" | "lastYearPeriod" | null;
 
+// Tipos para comparación
+type ComparisonMode = "auto-previous" | "auto-year" | "manual";
+
 export default function WhatsAppMetrics() {
   const [period, setPeriod] = useState<"day" | "week" | "month">("day");
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [eventType, setEventType] = useState<EventType>(undefined);
   const [conversionStatus, setConversionStatus] = useState<ConversionStatus>(undefined);
   const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilterType>(null);
+  
+  // Estado para comparación
+  const [comparisonEnabled, setComparisonEnabled] = useState(false);
+  const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("auto-previous");
+  const [comparisonDateRange, setComparisonDateRange] = useState<{ from?: Date; to?: Date }>({});
 
   // Funciones helper para períodos predefinidos
   const applyQuickFilter = (filterType: QuickFilterType) => {
@@ -113,6 +125,21 @@ export default function WhatsAppMetrics() {
     ...filters,
   });
 
+  // Query de comparación (solo si está habilitada y hay fechas)
+  const { data: comparisonData, isLoading: comparisonLoading } = trpc.whatsappTracking.getComparisonMetrics.useQuery(
+    {
+      currentStartDate: dateRange.from?.toISOString() || "",
+      currentEndDate: dateRange.to?.toISOString() || "",
+      comparisonStartDate: effectiveComparisonPeriod.from?.toISOString() || "",
+      comparisonEndDate: effectiveComparisonPeriod.to?.toISOString() || "",
+      eventType,
+      conversionStatus,
+    },
+    {
+      enabled: comparisonEnabled && !!dateRange.from && !!dateRange.to && !!effectiveComparisonPeriod.from && !!effectiveComparisonPeriod.to,
+    }
+  );
+
   // Función para limpiar filtros
   const clearFilters = () => {
     setDateRange({});
@@ -126,6 +153,36 @@ export default function WhatsAppMetrics() {
     setDateRange(prev => ({ ...prev, [type]: date }));
     setActiveQuickFilter(null);
   };
+
+  // Calcular período de comparación automáticamente
+  const calculateComparisonPeriod = () => {
+    if (!dateRange.from || !dateRange.to) return { from: undefined, to: undefined };
+
+    const duration = dateRange.to.getTime() - dateRange.from.getTime();
+    const durationDays = duration / (1000 * 60 * 60 * 24);
+
+    if (comparisonMode === "auto-previous") {
+      // Período anterior del mismo tamaño
+      const compFrom = new Date(dateRange.from.getTime() - duration);
+      const compTo = new Date(dateRange.to.getTime() - duration);
+      return { from: compFrom, to: compTo };
+    } else if (comparisonMode === "auto-year") {
+      // Mismo período del año anterior
+      const compFrom = subYears(dateRange.from, 1);
+      const compTo = subYears(dateRange.to, 1);
+      return { from: compFrom, to: compTo };
+    } else {
+      // Manual
+      return comparisonDateRange;
+    }
+  };
+
+  // Obtener período de comparación efectivo
+  const effectiveComparisonPeriod = comparisonEnabled
+    ? comparisonMode === "manual"
+      ? comparisonDateRange
+      : calculateComparisonPeriod()
+    : { from: undefined, to: undefined };
 
   // Contar filtros activos
   const activeFiltersCount = [
@@ -191,16 +248,29 @@ export default function WhatsAppMetrics() {
             Seguimiento de clics, normativas solicitadas y conversiones
           </p>
         </div>
-        <Select value={period} onValueChange={(value: "day" | "week" | "month") => setPeriod(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Período" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="day">Por Día</SelectItem>
-            <SelectItem value="week">Por Semana</SelectItem>
-            <SelectItem value="month">Por Mes</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="comparison-mode"
+              checked={comparisonEnabled}
+              onCheckedChange={setComparisonEnabled}
+            />
+            <Label htmlFor="comparison-mode" className="flex items-center gap-2 cursor-pointer">
+              <GitCompare className="h-4 w-4" />
+              Comparar Períodos
+            </Label>
+          </div>
+          <Select value={period} onValueChange={(value: "day" | "week" | "month") => setPeriod(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">Por Día</SelectItem>
+              <SelectItem value="week">Por Semana</SelectItem>
+              <SelectItem value="month">Por Mes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Filtros Rápidos Predefinidos */}
@@ -277,6 +347,99 @@ export default function WhatsAppMetrics() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Configuración de Comparación */}
+      {comparisonEnabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <GitCompare className="h-5 w-5" />
+              Configuración de Comparación
+            </CardTitle>
+            <CardDescription>
+              Selecciona cómo comparar el período actual con otro período
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <RadioGroup value={comparisonMode} onValueChange={(value: ComparisonMode) => setComparisonMode(value)}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="auto-previous" id="auto-previous" />
+                <Label htmlFor="auto-previous" className="cursor-pointer">
+                  Período Anterior (mismo tamaño)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="auto-year" id="auto-year" />
+                <Label htmlFor="auto-year" className="cursor-pointer">
+                  Mismo Período del Año Anterior
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="manual" id="manual" />
+                <Label htmlFor="manual" className="cursor-pointer">
+                  Selección Manual
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {comparisonMode === "manual" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                <div className="space-y-2">
+                  <Label>Fecha Inicio (Comparación)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {comparisonDateRange.from ? format(comparisonDateRange.from, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={comparisonDateRange.from}
+                        onSelect={(date) => setComparisonDateRange({ ...comparisonDateRange, from: date })}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Fecha Fin (Comparación)</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {comparisonDateRange.to ? format(comparisonDateRange.to, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={comparisonDateRange.to}
+                        onSelect={(date) => setComparisonDateRange({ ...comparisonDateRange, to: date })}
+                        initialFocus
+                        disabled={(date) => comparisonDateRange.from ? date < comparisonDateRange.from : false}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+
+            {comparisonMode !== "manual" && dateRange.from && dateRange.to && (
+              <div className="pt-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Período de comparación:</strong>{" "}
+                  {effectiveComparisonPeriod.from && effectiveComparisonPeriod.to
+                    ? `${format(effectiveComparisonPeriod.from, "PPP", { locale: es })} - ${format(effectiveComparisonPeriod.to, "PPP", { locale: es })}`
+                    : "Selecciona un período actual primero"}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filtros Avanzados */}
       <Card>
@@ -378,38 +541,39 @@ export default function WhatsAppMetrics() {
 
       {/* Cards de resumen */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Clics</CardTitle>
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.totalEvents || 0}</div>
-            <p className="text-xs text-muted-foreground">Eventos registrados</p>
-          </CardContent>
-        </Card>
+        <ComparisonMetricCard
+          title="Total de Clics"
+          icon={MessageCircle}
+          currentValue={metrics?.totalEvents || 0}
+          comparisonValue={comparisonData?.comparison.totalEvents}
+          change={comparisonData?.changes.totalEvents}
+          subtitle="Eventos registrados"
+          comparisonSubtitle="Eventos en comparación"
+          comparisonEnabled={comparisonEnabled}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Conversiones</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.totalConverted || 0}</div>
-            <p className="text-xs text-muted-foreground">Clientes convertidos</p>
-          </CardContent>
-        </Card>
+        <ComparisonMetricCard
+          title="Conversiones"
+          icon={CheckCircle}
+          currentValue={metrics?.totalConverted || 0}
+          comparisonValue={comparisonData?.comparison.totalConverted}
+          change={comparisonData?.changes.totalConverted}
+          subtitle="Clientes convertidos"
+          comparisonSubtitle="Conversiones en comparación"
+          comparisonEnabled={comparisonEnabled}
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Conversión</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics?.conversionRate || 0}%</div>
-            <p className="text-xs text-muted-foreground">De clics a conversiones</p>
-          </CardContent>
-        </Card>
+        <ComparisonMetricCard
+          title="Tasa de Conversión"
+          icon={TrendingUp}
+          currentValue={metrics?.conversionRate || 0}
+          comparisonValue={comparisonData?.comparison.conversionRate}
+          change={comparisonData?.changes.conversionRate}
+          subtitle="De clics a conversiones"
+          comparisonSubtitle="Tasa en comparación"
+          format="percentage"
+          comparisonEnabled={comparisonEnabled}
+        />
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

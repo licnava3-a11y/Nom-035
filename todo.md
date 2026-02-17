@@ -1685,22 +1685,30 @@
 - [x] Soporte para filtros opcionales (eventType, conversionStatus)
 
 ### 2. UI de Comparación
-- [ ] Agregar toggle "Comparar Períodos" en header
-- [ ] Crear selector de tipo de comparación (automático/manual)
-- [ ] Opciones automáticas: Período anterior, Mismo período año anterior
-- [ ] Date pickers para comparación manual
-- [ ] Diseño responsive y profesional
+- [x] Agregar toggle "Comparar Períodos" en header con Switch
+- [x] Crear selector de tipo de comparación (automático/manual) con RadioGroup
+- [x] Opciones automáticas: Período anterior, Mismo período año anterior
+- [x] Date pickers para comparación manual (from/to)
+- [x] Calcular automáticamente período de comparación según selección (calculateComparisonPeriod)
+- [x] Diseño responsive y profesional con Card
+- [x] Query de comparación con enabled condicional
 
 ### 3. Cards Comparativos
-- [ ] Rediseñar cards de métricas para mostrar dos valores
-- [ ] Agregar indicadores de cambio (↑↓) con colores
-- [ ] Mostrar cambio porcentual y absoluto
-- [ ] Verde para mejoras, rojo para deterioros
-- [ ] Tooltips con explicaciones detalladas
+- [x] Rediseñar cards de métricas para mostrar dos valores lado a lado
+- [x] Agregar indicadores de cambio (↑↓) con colores (TrendingUp/TrendingDown de lucide-react)
+- [x] Mostrar cambio porcentual y absoluto en badge
+- [x] Verde (text-green-600) para mejoras, rojo (text-red-600) para deterioros
+- [x] Etiquetas claras: "Período Actual" vs "Período de Comparación"
+- [x] Componente ComparisonMetricCard reutilizable
+- [x] Soporte para formato number y percentage
+- [x] Mostrar cambio absoluto en texto descriptivo
 
-### 4. Gráficos Comparativos
-- [ ] Actualizar gráfico de tendencias con dos líneas
-- [ ] Diferenciar visualmente período actual vs comparación
-- [ ] Leyenda clara con etiquetas de períodos
-- [ ] Mantener paleta de colores consistente
-- [ ] Gráfico de normativas con comparación lado a lado
+### 4. Gráficos Comparativos (PENDIENTE PARA PRÓXIMA SESIÓN)
+- [ ] Consultar getConversionTrends para período de comparación
+- [ ] Actualizar gráfico de tendencias con dos datasets superpuestos
+- [ ] Línea azul (rgb(59, 130, 246)) para período actual
+- [ ] Línea gris (rgb(156, 163, 175)) para período de comparación
+- [ ] Leyenda clara con etiquetas de períodos y fechas
+- [ ] Mantener paleta de colores: azul marino, verde, rojo
+- [ ] Sincronizar escalas de ejes para comparación justa
+- [ ] Gráfico de normativas con barras agrupadas para comparación
