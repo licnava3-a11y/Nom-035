@@ -5,6 +5,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -435,7 +436,13 @@ export default function LeadsPipeline() {
                 <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit">Guardar Cambios</Button>
+                <LoadingButton 
+                  type="submit" 
+                  loading={updateLeadMutation.isPending}
+                  loadingText="Guardando..."
+                >
+                  Guardar Cambios
+                </LoadingButton>
               </div>
             </form>
           )}
@@ -475,7 +482,13 @@ export default function LeadsPipeline() {
               <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit">Crear Lead</Button>
+              <LoadingButton 
+                type="submit" 
+                loading={createLeadMutation.isPending}
+                loadingText="Creando lead..."
+              >
+                Crear Lead
+              </LoadingButton>
             </div>
           </form>
         </DialogContent>

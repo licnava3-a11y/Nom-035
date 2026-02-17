@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -286,9 +287,13 @@ export default function CasesManagement() {
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleCreateCase} disabled={createCase.isPending}>
-                {createCase.isPending ? "Creando..." : "Crear Caso"}
-              </Button>
+              <LoadingButton 
+                onClick={handleCreateCase} 
+                loading={createCase.isPending}
+                loadingText="Creando caso..."
+              >
+                Crear Caso
+              </LoadingButton>
             </div>
           </DialogContent>
         </Dialog>

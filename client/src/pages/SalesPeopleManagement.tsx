@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -379,9 +380,13 @@ export default function SalesPeopleManagement() {
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creando..." : "Crear Vendedor"}
-            </Button>
+            <LoadingButton 
+              onClick={handleCreate} 
+              loading={createMutation.isPending}
+              loadingText="Creando vendedor..."
+            >
+              Crear Vendedor
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -420,9 +425,13 @@ export default function SalesPeopleManagement() {
             <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Actualizando..." : "Guardar Cambios"}
-            </Button>
+            <LoadingButton 
+              onClick={handleUpdate} 
+              loading={updateMutation.isPending}
+              loadingText="Guardando cambios..."
+            >
+              Guardar Cambios
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

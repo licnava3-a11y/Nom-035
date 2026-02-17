@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
   Select,
   SelectContent,
@@ -484,9 +485,7 @@ export default function AlertHistory() {
             <Button variant="outline" onClick={() => setResolveDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={confirmResolve} disabled={resolveMutation.isPending}>
-              {resolveMutation.isPending ? "Resolviendo..." : "Resolver Alerta"}
-            </Button>
+            <LoadingButton onClick={confirmResolve} loading={resolveMutation.isPending} loadingText="Resolviendo...">Resolver Alerta</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

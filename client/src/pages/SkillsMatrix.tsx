@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -749,9 +750,7 @@ export default function SkillsMatrix() {
             <Button variant="outline" onClick={() => setSnapshotDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveSnapshot} disabled={saveSnapshotMutation.isPending}>
-              {saveSnapshotMutation.isPending ? "Guardando..." : "Guardar Snapshot"}
-            </Button>
+            <LoadingButton onClick={handleSaveSnapshot} loading={saveSnapshotMutation.isPending} loadingText="Guardando...">Guardar Snapshot</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -790,9 +789,7 @@ export default function SkillsMatrix() {
             <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleImport} disabled={importMutation.isPending}>
-              {importMutation.isPending ? "Importando..." : "Importar"}
-            </Button>
+            <LoadingButton onClick={handleImport} loading={importMutation.isPending} loadingText="Importando...">Importar</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

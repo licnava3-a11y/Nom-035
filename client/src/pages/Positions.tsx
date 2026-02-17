@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -408,12 +409,9 @@ export default function Positions() {
             <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
               Cancelar
             </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending ? "Creando..." : "Crear"}
-            </Button>
+            <LoadingButton onClick={handleCreate}
+              loading={createMutation.isPending} loadingText="Creando..."
+            >Crear</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -503,12 +501,9 @@ export default function Positions() {
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
               Cancelar
             </Button>
-            <Button
-              onClick={handleUpdate}
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? "Guardando..." : "Guardar"}
-            </Button>
+            <LoadingButton onClick={handleUpdate}
+              loading={updateMutation.isPending} loadingText="Guardando..."
+            >Guardar</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

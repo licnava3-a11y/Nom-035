@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Shield, Users, Check, X, Search, Edit, FileDown, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Chart, registerables } from "chart.js";

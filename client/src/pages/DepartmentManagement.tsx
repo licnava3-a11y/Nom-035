@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -466,13 +467,10 @@ export default function DepartmentManagement() {
             >
               Cancelar
             </Button>
-            <Button
-              type="button"
+            <LoadingButton type="button"
               onClick={handleCreate}
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending ? "Creando..." : "Crear Departamento"}
-            </Button>
+              loading={createMutation.isPending} loadingText="Creando..."
+            >Crear Departamento</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -538,13 +536,10 @@ export default function DepartmentManagement() {
             >
               Cancelar
             </Button>
-            <Button
-              type="button"
+            <LoadingButton type="button"
               onClick={handleUpdate}
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
-            </Button>
+              loading={updateMutation.isPending} loadingText="Actualizando..."
+            >Actualizar</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

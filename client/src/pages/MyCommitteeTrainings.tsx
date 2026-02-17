@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -335,9 +336,7 @@ export default function MyCommitteeTrainings() {
                 <Button type="button" variant="outline" onClick={() => setIsCompleteDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={updateStatusMutation.isPending}>
-                  {updateStatusMutation.isPending ? "Guardando..." : "Completar"}
-                </Button>
+                <LoadingButton type="submit" loading={updateStatusMutation.isPending} loadingText="Guardando...">Completar</LoadingButton>
               </DialogFooter>
             </form>
           )}

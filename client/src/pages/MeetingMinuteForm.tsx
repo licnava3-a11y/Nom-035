@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -369,13 +370,10 @@ export default function MeetingMinuteForm() {
 
             {/* Botones de Acción */}
             <div className="flex gap-4 pt-6">
-              <Button
-                type="submit"
-                disabled={createMutation.isPending}
+              <LoadingButton type="submit"
+                loading={createMutation.isPending} loadingText="Creando..."
                 className="flex-1"
-              >
-                {createMutation.isPending ? "Creando..." : "Crear Minuta"}
-              </Button>
+              >Crear Minuta</LoadingButton>
               <Button
                 type="button"
                 variant="outline"

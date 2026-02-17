@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -384,9 +385,7 @@ export default function CommitteeTrainingsManagement() {
               <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creando..." : "Crear"}
-              </Button>
+              <LoadingButton type="submit" loading={createMutation.isPending} loadingText="Creando...">Crear</LoadingButton>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -458,9 +457,7 @@ export default function CommitteeTrainingsManagement() {
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={updateMutation.isPending}>
-                  {updateMutation.isPending ? "Guardando..." : "Guardar"}
-                </Button>
+                <LoadingButton type="submit" loading={updateMutation.isPending} loadingText="Guardando...">Guardar</LoadingButton>
               </DialogFooter>
             </form>
           )}
@@ -503,9 +500,7 @@ export default function CommitteeTrainingsManagement() {
                 <Button type="button" variant="outline" onClick={() => setIsAssignDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={assignToRoleMutation.isPending}>
-                  {assignToRoleMutation.isPending ? "Asignando..." : "Asignar"}
-                </Button>
+                <LoadingButton type="submit" loading={assignToRoleMutation.isPending} loadingText="Asignando...">Asignar</LoadingButton>
               </DialogFooter>
             </form>
           )}

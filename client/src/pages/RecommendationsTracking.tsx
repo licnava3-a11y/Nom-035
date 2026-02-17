@@ -2,6 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -262,9 +263,7 @@ export default function RecommendationsTracking() {
                 <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "Creando..." : "Crear Recomendación"}
-                </Button>
+                <LoadingButton type="submit" loading={createMutation.isPending} loadingText="Creando...">Crear Recomendación</LoadingButton>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -660,9 +659,7 @@ export default function RecommendationsTracking() {
               <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
-              </Button>
+              <LoadingButton type="submit" loading={updateMutation.isPending} loadingText="Actualizando...">Actualizar</LoadingButton>
             </DialogFooter>
           </form>
         </DialogContent>

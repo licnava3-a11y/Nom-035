@@ -2,6 +2,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -257,9 +258,7 @@ export default function Payments() {
             <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creando..." : "Crear"}
-            </Button>
+            <LoadingButton onClick={handleCreate} loading={createMutation.isPending} loadingText="Creando...">Crear</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -309,9 +308,7 @@ export default function Payments() {
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
-            </Button>
+            <LoadingButton onClick={handleUpdate} loading={updateMutation.isPending} loadingText="Actualizando...">Actualizar</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

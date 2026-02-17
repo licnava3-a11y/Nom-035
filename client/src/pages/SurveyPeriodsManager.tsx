@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
   Card,
   CardContent,
@@ -318,9 +319,7 @@ export default function SurveyPeriodsManager() {
                 <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createPeriodMutation.isPending}>
-                  {createPeriodMutation.isPending ? "Creando..." : "Crear Periodo"}
-                </Button>
+                <LoadingButton type="submit" loading={createPeriodMutation.isPending} loadingText="Creando...">Crear Periodo</LoadingButton>
               </DialogFooter>
             </form>
           </DialogContent>

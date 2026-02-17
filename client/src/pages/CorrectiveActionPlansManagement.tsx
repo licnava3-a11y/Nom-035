@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -453,9 +454,7 @@ export default function CorrectiveActionPlansManagement() {
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creando..." : "Crear Plan"}
-            </Button>
+            <LoadingButton onClick={handleCreate} loading={createMutation.isPending} loadingText="Creando...">Crear Plan</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -616,9 +615,7 @@ export default function CorrectiveActionPlansManagement() {
             <Button variant="outline" onClick={() => setShowEvidenceDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleUploadEvidence} disabled={uploadEvidenceMutation.isPending}>
-              {uploadEvidenceMutation.isPending ? "Subiendo..." : "Subir"}
-            </Button>
+            <LoadingButton onClick={handleUploadEvidence} loading={uploadEvidenceMutation.isPending} loadingText="Subiendo...">Subir</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -648,9 +645,7 @@ export default function CorrectiveActionPlansManagement() {
             <Button variant="outline" onClick={() => setShowSignDialog(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSign} disabled={signMutation.isPending}>
-              {signMutation.isPending ? "Firmando..." : "Confirmar Firma"}
-            </Button>
+            <LoadingButton onClick={handleSign} loading={signMutation.isPending} loadingText="Firmando...">Confirmar Firma</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

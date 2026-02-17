@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -133,13 +134,14 @@ export default function Contact() {
                   />
                 </div>
 
-                <Button
+                <LoadingButton
                   type="submit"
                   className="w-full"
-                  disabled={contactMutation.isPending}
+                  loading={contactMutation.isPending}
+                  loadingText="Enviando mensaje..."
                 >
-                  {contactMutation.isPending ? "Enviando..." : "Enviar Mensaje"}
-                </Button>
+                  Enviar Mensaje
+                </LoadingButton>
               </form>
             </CardContent>
           </Card>

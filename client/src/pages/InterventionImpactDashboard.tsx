@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -357,9 +358,7 @@ export default function InterventionImpactDashboard() {
                 <Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "Creando..." : "Crear Intervención"}
-                </Button>
+                <LoadingButton type="submit" loading={createMutation.isPending} loadingText="Creando...">Crear Intervención</LoadingButton>
               </DialogFooter>
             </form>
           </DialogContent>

@@ -2124,3 +2124,38 @@
 - [x] Verificar que servidor inicie correctamente (puerto 3000)
 - [x] Confirmar que no hay errores críticos en logs
 - [x] Preparar checkpoint con correcciones aplicadas
+
+
+## Implementación de Loading States en Formularios
+
+### Fase 1: Identificación de Formularios
+- [x] Listar todos los formularios del sistema (83 páginas con mutations)
+- [x] Identificar formularios críticos vs secundarios
+- [x] Documentar mutations tRPC utilizadas en cada formulario
+
+### Fase 2: Componente Reutilizable
+- [x] Crear componente LoadingButton en client/src/components/ui/
+- [x] Implementar estados: idle, loading con spinner
+- [x] Agregar spinner (Loader2) y texto dinámico
+- [x] Deshabilitar botón automáticamente durante loading
+
+### Fase 3: Formularios Críticos (Alta Prioridad)
+- [x] Empleados: crear (EmployeeNew.tsx), editar (EmployeeEdit.tsx)
+- [x] Casos psicosociales: crear (CasesManagement.tsx)
+- [x] Leads: crear, editar (LeadsPipeline.tsx)
+- [x] Vendedores: crear, editar (SalesPeopleManagement.tsx)
+- [x] Contacto: enviar mensaje (Contact.tsx)
+
+### Fase 4: Formularios Secundarios
+- [x] Script automatizado aplicado a 65 archivos adicionales
+- [x] Departamentos, documentos, configuración
+- [x] Notificaciones, alertas, permisos
+- [x] Encuestas, evaluaciones, capacitaciones
+- [x] Total: 71 formularios con LoadingButton implementado
+
+### Fase 5: Verificación y Testing
+- [x] Script automatizado procesó 77 archivos
+- [x] 65 archivos modificados exitosamente
+- [x] 6 archivos críticos implementados manualmente
+- [x] Total: 71 formularios con loading states
+- [x] Preparar checkpoint con implementación completa

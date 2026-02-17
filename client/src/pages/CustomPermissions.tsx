@@ -364,9 +364,7 @@ export default function CustomPermissions() {
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSavePermissions} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Guardando..." : "Guardar Permisos"}
-            </Button>
+            <LoadingButton onClick={handleSavePermissions} loading={updateMutation.isPending} loadingText="Guardando...">Guardar Permisos</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -434,9 +435,7 @@ export default function OrganizationalCompetenciesManager() {
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creando..." : "Crear Competencia"}
-            </Button>
+            <LoadingButton onClick={handleCreate} loading={createMutation.isPending} loadingText="Creando...">Crear Competencia</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -523,9 +522,7 @@ export default function OrganizationalCompetenciesManager() {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Actualizando..." : "Actualizar"}
-            </Button>
+            <LoadingButton onClick={handleUpdate} loading={updateMutation.isPending} loadingText="Actualizando...">Actualizar</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -544,13 +541,10 @@ export default function OrganizationalCompetenciesManager() {
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancelar
             </Button>
-            <Button
-              variant="destructive"
+            <LoadingButton variant="destructive"
               onClick={handleDeleteConfirm}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
-            </Button>
+              loading={deleteMutation.isPending} loadingText="Eliminando..."
+            >Eliminar</LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -541,10 +542,14 @@ export default function EmployeeNew() {
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={createMutation.isPending}>
+          <LoadingButton 
+            type="submit" 
+            loading={createMutation.isPending}
+            loadingText="Guardando trabajador..."
+          >
             <Save className="mr-2 h-4 w-4" />
-            {createMutation.isPending ? "Guardando..." : "Guardar Trabajador"}
-          </Button>
+            Guardar Trabajador
+          </LoadingButton>
         </div>
       </form>
     </div>

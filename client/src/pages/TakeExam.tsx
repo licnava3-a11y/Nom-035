@@ -155,14 +155,11 @@ export default function TakeExam() {
               </AlertDescription>
             </Alert>
 
-            <Button
-              className="w-full"
+            <LoadingButton className="w-full"
               size="lg"
               onClick={handleStartExam}
-              disabled={startAttemptMutation.isPending}
-            >
-              {startAttemptMutation.isPending ? 'Iniciando...' : 'Iniciar Examen'}
-            </Button>
+              loading={startAttemptMutation.isPending} loadingText="Iniciando..."
+            >Iniciar Examen</LoadingButton>
           </CardContent>
         </Card>
       </div>
