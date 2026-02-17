@@ -1807,9 +1807,9 @@
 - [x] Procedure getPipelineStats (estadísticas del pipeline)
 - [x] Integrar router en appRouter
 
-### 2. Página LeadsPipeline con Kanban Board
+### 2. Página LeadsPipeline con Kanban Board (PENDIENTE)
 - [ ] Crear client/src/pages/LeadsPipeline.tsx
-- [ ] Instalar @dnd-kit/core y @dnd-kit/sortable para drag-and-drop
+- [x] Instalar @dnd-kit/core y @dnd-kit/sortable para drag-and-drop
 - [ ] Implementar columnas Kanban (Nuevo, Contactado, Negociación, Propuesta, Ganado, Perdido)
 - [ ] Cards de leads con información clave (nombre, empresa, normativas, valor estimado)
 - [ ] Drag-and-drop entre columnas con actualización automática
