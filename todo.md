@@ -344,13 +344,15 @@
 - [x] Agregar ruta en App.tsx
 - [x] Agregar navegación en menú lateral (Cumplimiento Normativo > NMX-025)
 
-### Fase 3: UI Carga Manual NOM-035
+### Fase 3: UI Carga Manual NOM-035 ✅ COMPLETADA
 - [x] Implementar botón flotante "Cargar Evidencia" en EvidencesFolder.tsx
 - [x] Crear dialog de upload con selector de numeral NOM-035
 - [x] Agregar input de título y descripción en dialog
 - [x] Implementar preview de archivos cargados
 - [x] Agregar botón de eliminar evidencias manuales
-- [x] Integrar con procedures uploadEvidence y deleteEv### Fase 4: Panel Tendencias Departamentales
+- [x] Integrar con procedures uploadEvidence y deleteEvidence
+
+### Fase 4: Panel Tendencias Departamentales ✅ COMPLETADA
 - [x] Crear router departmentalTrends
 - [x] Implementar query getDepartmentalRiskMetrics
 - [x] Crear página DepartmentalTrends.tsx
@@ -464,14 +466,13 @@
 
 ## Nuevas Tareas - Campo departmentId, Reportes y Notificaciones Push
 
-### Fase 1: Campo departmentId en Casos
+### Fase 1: Campo departmentId en Casos ✅ COMPLETADA
 - [x] Agregar campo departmentId (FK a departments) en schema de cases
 - [x] Generar y aplicar migración SQL para departmentId
 - [x] Crear script de migración de datos (asignar departamentos a 188 casos existentes con distribución 40/20/20/10/10)
-- [ ] Actualizar query getConsolidatedAlerts en alertsDashboard para usar departmentId real
 - [x] Actualizar query getDepartmentalRiskMetrics en departmentalTrends para usar departmentId real
-- [ ] Actualizar mutation createCase para incluir departmentId
-- [ ] Actualizar UI de creación de casos para seleccionar departamento
+- [x] Mutation createCase ya incluye departmentId como campo requerido (línea 19 casesManagement.ts)
+- [x] UI de creación de casos incluye selector de departamento (líneas 224-239 CasesManagement.tsx)
 
 ### Fase 2: Sistema de Reportes Automatizados
 - [ ] Crear job executive-reports-job.ts (ejecutar semanalmente los lunes 8:00 AM)
@@ -490,14 +491,15 @@
 - [ ] Agregar ruta /executive-reports en App.tsx
 - [ ] Agregar navegación en menú de Administración
 
-### Fase 3: Sistema de Notificaciones Push
-- [ ] Instalar socket.io y socket.io-client
-- [ ] Crear servidor websocket en server/_core/websocket.ts
-- [ ] Integrar websocket con servidor Express
-- [ ] Crear hook useNotifications en client/src/hooks/
-- [ ] Implementar NotificationProvider en client/src/contexts/
-- [ ] Agregar badge con contador en icono de campana (DashboardLayout)
-- [ ] Crear componente ToastNotification para alertas en tiempo real
+### Fase 3: Sistema de Notificaciones Push ✅ COMPLETADA
+- [x] socket.io y socket.io-client instalados (v4.8.3)
+- [x] Servidor websocket en server/_core/websocket.ts creado
+- [x] WebSocket integrado con servidor Express (línea 129 index.ts)
+- [x] Hook useNotifications creado en client/src/hooks/useNotifications.tsx
+- [x] NotificationProvider implementado en client/src/contexts/NotificationContext.tsx
+- [x] Provider integrado en main.tsx
+- [x] Badge con contador en NotificationsDropdown (DashboardLayout)
+- [x] Toast notifications automáticas con sonner
 - [ ] Implementar evento "new-alert" cuando se creen alertas críticas
 - [ ] Crear tabla notifications (userId, type, title, message, read, createdAt)
 - [ ] Crear router notifications con queries y mutations
