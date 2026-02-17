@@ -2,6 +2,7 @@ import { useLocation } from "wouter";
 import { TerminationWizard } from "@/components/TerminationWizard";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 
 export default function EmployeeTermination() {
   const [, navigate] = useLocation();

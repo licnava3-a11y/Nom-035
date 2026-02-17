@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { useValidation } from "@/hooks/useValidation";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { DepartmentSelector } from "@/components/DepartmentSelector";
 
 export default function EmployeeNew() {
@@ -242,58 +243,53 @@ export default function EmployeeNew() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">
-                  Correo Empresarial <span className="text-destructive">*</span>
-                </Label>
-                <Input
+              <div>
+                <InputWithValidation
                   id="email"
+                  label="Correo Empresarial"
                   type="email"
                   value={formData.email}
-                  required
-                  onChange={(e) => handleChange("email", e.target.value)}
+                  onValueChange={(value) => handleChange("email", value)}
                   placeholder="juan.perez@empresa.com"
-                  className={errors.email ? "border-destructive" : ""}
+                  validationRules={{ required: true, email: true }}
+                  showValidationIcon={true}
                 />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   Correo corporativo del empleado
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="personalEmail">Correo Personal</Label>
-                <Input
+              <div>
+                <InputWithValidation
                   id="personalEmail"
+                  label="Correo Personal"
                   type="email"
                   value={formData.personalEmail}
-                  onChange={(e) => handleChange("personalEmail", e.target.value)}
+                  onValueChange={(value) => handleChange("personalEmail", value)}
                   placeholder="juan.perez@gmail.com"
+                  validationRules={{ email: true }}
+                  showValidationIcon={true}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   Opcional - usado como respaldo para envío de credenciales
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  required
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  placeholder="+52 614 123 4567"
-                />
-              </div>
+              <InputWithValidation
+                id="phone"
+                label="Teléfono"
+                type="tel"
+                value={formData.phone}
+                onValueChange={(value) => handleChange("phone", value)}
+                placeholder="+52 614 123 4567"
+                validationRules={{ phone: true }}
+                showValidationIcon={true}
+              />
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="curp">CURP</Label>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -308,60 +304,27 @@ export default function EmployeeNew() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <div className="relative">
-                  <Input
-                    id="curp"
-                    value={formData.curp}
-                    onChange={(e) => handleChange("curp", e.target.value.toUpperCase())}
-                    required
-                    minLength={18}
-                    maxLength={18}
-                    onBlur={handleCURPBlur}
-                    placeholder="PEGG850101HCHRRN09"
-                    className={`pr-10 ${
-                      errors.curp || (validations.curp && !validations.curp.valid)
-                        ? "border-destructive"
-                        : validations.curp?.valid
-                        ? "border-green-500"
-                        : ""
-                    }`}
-                  />
-                  {validations.curp && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {validations.curp.valid ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-destructive" />
-                      )}
-                    </div>
-                  )}
-                </div>
-                {errors.curp && (
-                  <p className="text-sm text-destructive">{errors.curp}</p>
-                )}
-                {validations.curp && !validations.curp.valid && (
-                  <p className="text-sm text-destructive flex items-center gap-1">
-                    <XCircle className="h-4 w-4" />
-                    CURP inválida
-                  </p>
-                )}
-                {validations.curp?.valid && (
-                  <p className="text-sm text-green-600 flex items-center gap-1">
-                    <CheckCircle2 className="h-4 w-4" />
-                    CURP válida
-                  </p>
-                )}
+                <InputWithValidation
+                  id="curp"
+                  label="CURP"
+                  value={formData.curp}
+                  onValueChange={(value) => {
+                    handleChange("curp", value.toUpperCase());
+                    if (value.length === 18) handleCURPBlur();
+                  }}
+                  placeholder="PEGG850101HCHRRN09"
+                  validationRules={{ curp: true }}
+                  showValidationIcon={true}
+                  maxLength={18}
+                />
                 {curpValidation?.valid && curpValidation.data && (
-                  <div className="text-xs text-muted-foreground space-y-1">
+                  <div className="text-xs text-muted-foreground space-y-1 mt-2">
                     <p>• Fecha de nacimiento: {curpValidation.data.fechaNacimiento}</p>
                     <p>• Género: {curpValidation.data.genero}</p>
                     <p>• Estado: {curpValidation.data.estado}</p>
                     <p>• Edad: {curpValidation.data.edad} años</p>
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  18 caracteres alfanuméricos
-                </p>
               </div>
 
               <div className="space-y-2">

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, TrendingUp, Users, ArrowRight } from "lucide-react";

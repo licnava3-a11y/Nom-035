@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -227,14 +228,7 @@ export default function NOM035Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="email">Correo electrónico</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="juan@empresa.com"
-                      />
+                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={(value) => handleChange("email", value)} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
                     </div>
                   </div>
 
@@ -252,14 +246,7 @@ export default function NOM035Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
-                      <Input
-                        id="telefono"
-                        name="telefono"
-                        type="tel"
-                        value={formData.telefono}
-                        onChange={handleChange}
-                        placeholder="+52 55 1234 5678"
-                      />
+                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={(value) => handleChange("telefono", value)} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
                     </div>
                   </div>
 

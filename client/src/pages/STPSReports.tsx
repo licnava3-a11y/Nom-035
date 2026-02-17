@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, ListChecks, Award } from "lucide-react";
 import { DC2Form } from "@/components/stps/DC2Form";

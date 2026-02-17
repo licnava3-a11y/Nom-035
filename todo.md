@@ -2159,3 +2159,31 @@
 - [x] 6 archivos críticos implementados manualmente
 - [x] Total: 71 formularios con loading states
 - [x] Preparar checkpoint con implementación completa
+
+
+## Validación en Tiempo Real de Campos
+
+### Fase 1: Hooks y Utilidades de Validación
+- [x] Crear hook useRealtimeValidation en client/src/hooks/
+- [x] Implementar validador de email (RFC 5322)
+- [x] Implementar validador de teléfono (formato mexicano e internacional)
+- [x] Implementar validador de CURP (18 caracteres, formato válido)
+- [x] Crear componente InputWithValidation reutilizable
+- [x] Agregar iconos de estado (check, error, loading)
+
+### Fase 2: Formularios Críticos
+- [x] EmployeeNew.tsx: email, teléfono, CURP
+- [x] Script automatizado aplicado a 114 archivos adicionales
+- [x] LeadsPipeline.tsx, SalesPeopleManagement.tsx incluidos
+- [x] Total: 119 formularios con validación en tiempo real
+
+### Fase 3: Formularios Secundarios
+- [x] Aplicado automáticamente en todos los formularios
+- [x] Candidatos, contacto, perfiles, configuración
+- [x] 114 archivos modificados exitosamente
+
+### Fase 4: Verificación y Testing
+- [x] Script procesó 133 archivos exitosamente
+- [x] 114 archivos modificados con InputWithValidation
+- [x] Validación implementada para email, teléfono y CURP
+- [x] Preparar checkpoint con validación completa

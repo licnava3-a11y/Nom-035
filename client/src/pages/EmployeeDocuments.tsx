@@ -3,6 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { useDropzone } from "react-dropzone";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";

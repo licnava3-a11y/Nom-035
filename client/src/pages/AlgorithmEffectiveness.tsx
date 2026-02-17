@@ -1,6 +1,7 @@
 import { useState } from "react";
 // DashboardLayout is already wrapped by App.tsx route
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { trpc } from "@/lib/trpc";
 import { Line } from "react-chartjs-2";
 import {

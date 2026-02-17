@@ -1,5 +1,6 @@
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import {
   Users,

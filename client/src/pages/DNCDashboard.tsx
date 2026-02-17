@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Loader2, Download, Filter, TrendingUp, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { toast } from "sonner";
