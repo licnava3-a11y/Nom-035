@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO `department_thresholds` (\n  `department_id`,\n  `critical_cases_threshold`,\n  `open_cases_threshold`,\n  `risk_score_threshold`,\n  `avg_resolution_days_threshold`,\n  `enable_alerts`,\n  `alert_recipients`\n) VALUES (\n  NULL,\n  5,\n  10,\n  70,\n  30,\n  true,\n  '[]'\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute INSERT INTO `department_thresholds` (\n  `department_id`,\n  `critical_cases_threshold`,\n  `open_cases_threshold`,\n  `risk_score_threshold`,\n  `avg_resolution_days_threshold`,\n  `enable_alerts`,\n  `alert_recipients`\n) VALUES (\n  NULL,\n  5,\n  10,\n  70,\n  30,\n  true,\n  '[]'\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 401
+}

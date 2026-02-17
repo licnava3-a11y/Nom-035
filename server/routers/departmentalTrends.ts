@@ -6,7 +6,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { cases, employees, departments } from "../../drizzle/schema";
+import { cases, employees, departments, departmentThresholds } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 
 export const departmentalTrendsRouter = router({
@@ -264,4 +264,110 @@ export const departmentalTrendsRouter = router({
 
     return alerts;
   }),
+
+  /**
+   * Obtener umbrales configurados (global o por departamento)
+   */
+  getThresholds: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Buscar umbral específico del departamento
+      if (input.departmentId) {
+        const deptThreshold = await db
+          .select()
+          .from(departmentThresholds)
+          .where(eq(departmentThresholds.departmentId, input.departmentId))
+          .limit(1);
+
+        if (deptThreshold.length > 0) {
+          return deptThreshold[0];
+        }
+      }
+
+      // Si no hay umbral específico, obtener umbral global (departmentId = null)
+      const globalThreshold = await db
+        .select()
+        .from(departmentThresholds)
+        .where(sql`${departmentThresholds.departmentId} IS NULL`)
+        .limit(1);
+
+      if (globalThreshold.length > 0) {
+        return globalThreshold[0];
+      }
+
+      // Si no existe ningún umbral, retornar valores por defecto
+      return {
+        id: 0,
+        departmentId: null,
+        criticalCasesThreshold: 5,
+        openCasesThreshold: 10,
+        riskScoreThreshold: 70,
+        avgResolutionDaysThreshold: 30,
+        enableAlerts: true,
+        alertRecipients: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }),
+
+  /**
+   * Actualizar umbrales de un departamento
+   */
+  updateThresholds: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().nullable(),
+        criticalCasesThreshold: z.number().min(1).max(100),
+        openCasesThreshold: z.number().min(1).max(100),
+        riskScoreThreshold: z.number().min(1).max(100),
+        avgResolutionDaysThreshold: z.number().min(1).max(365),
+        enableAlerts: z.boolean(),
+        alertRecipients: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { departmentId, ...thresholdData } = input;
+
+      // Verificar si ya existe un umbral para este departamento
+      const existing = await db
+        .select()
+        .from(departmentThresholds)
+        .where(
+          departmentId
+            ? eq(departmentThresholds.departmentId, departmentId)
+            : sql`${departmentThresholds.departmentId} IS NULL`
+        )
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Actualizar umbral existente
+        await db
+          .update(departmentThresholds)
+          .set({
+            ...thresholdData,
+            updatedAt: new Date(),
+          })
+          .where(eq(departmentThresholds.id, existing[0].id));
+
+        return { success: true, message: "Umbrales actualizados exitosamente" };
+      } else {
+        // Crear nuevo umbral
+        await db.insert(departmentThresholds).values({
+          departmentId,
+          ...thresholdData,
+        });
+
+        return { success: true, message: "Umbrales creados exitosamente" };
+      }
+    }),
 });

@@ -2187,3 +2187,46 @@
 - [x] 114 archivos modificados con InputWithValidation
 - [x] Validación implementada para email, teléfono y CURP
 - [x] Preparar checkpoint con validación completa
+
+
+## Plan Priorizado de Ejecución Continua (606 tareas pendientes)
+
+### Fase 1: Sistema de Encuestas Post-Caso (30/60/90 días) ✅ COMPLETADA
+- [x] Crear tabla post_case_surveys en schema (ya existía)
+- [x] Router postCaseSurveys completo con 10 procedures
+- [x] Job post-case-surveys-job.ts implementado
+- [x] Página PostCaseSurveysDashboard.tsx creada
+- [x] Router registrado en appRouter
+- [x] Job registrado en server/_core/index.ts
+- [x] Navegación integrada en menú lateral
+
+### Fase 2: Sistema de Alertas Tempranas Departamentales ✅ COMPLETADA
+- [x] Crear tabla department_thresholds para umbrales configurables
+- [x] Implementar query getDepartmentalRiskMetrics en departmentalTrends (ya existía)
+- [x] Crear sistema de alertas automáticas con getDepartmentalAlerts
+- [x] Agregar procedures getThresholds y updateThresholds
+- [x] Umbrales globales por defecto insertados (5 críticos, 10 abiertos, 70 riesgo)
+- [x] DepartmentalTrends.tsx ya implementado con heat map
+
+### Fase 3: Carpeta de Evidencias NOM-035 ✅ COMPLETADA
+- [x] Verificar tabla nmx025_manual_evidences en schema (existe como nmx025ManualEvidences)
+- [x] Procedure evidencesFolder.uploadEvidence implementado con S3
+- [x] Procedure evidencesFolder.deleteEvidence implementado
+- [x] Página EvidencesFolder.tsx creada con UI completa
+- [x] Selector de numeral integrado en dialog de carga
+- [x] Indicadores de completitud automáticos por numeral
+- [x] Exportación PDF disponible en UI
+
+### Fase 4: Reportes Ejecutivos Automatizados
+- [ ] Crear job executive-reports-job.ts (semanal/mensual)
+- [ ] Implementar función generateExecutiveReport con KPIs consolidados
+- [ ] Crear template HTML profesional de reporte ejecutivo
+- [ ] Integrar gráficos Chart.js → imagen usando canvas.toDataURL()
+- [ ] Implementar conversión HTML → PDF
+- [ ] Implementar envío automático por email usando notifyOwner
+- [ ] Crear tabla report_configurations (frequency, recipients, enabled)
+- [ ] Crear router reportConfigurations con CRUD
+- [ ] Crear página ReportConfigurationPanel.tsx
+- [ ] Agregar ruta /executive-reports en App.tsx
+- [ ] Agregar navegación en menú de Administración
+

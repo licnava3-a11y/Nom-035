@@ -3918,3 +3918,31 @@ export const salespeople = mysqlTable("salespeople", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+/**
+ * Tabla de umbrales configurables por departamento
+ * Para sistema de alertas tempranas
+ */
+export const departmentThresholds = mysqlTable("department_thresholds", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Departamento (null = umbral global por defecto)
+  departmentId: int("department_id").references(() => departments.id, { onDelete: "cascade" }),
+  
+  // Umbrales de riesgo
+  criticalCasesThreshold: int("critical_cases_threshold").default(5).notNull(), // Casos críticos para alerta
+  openCasesThreshold: int("open_cases_threshold").default(10).notNull(), // Casos abiertos para alerta
+  riskScoreThreshold: int("risk_score_threshold").default(70).notNull(), // Score de riesgo (0-100)
+  avgResolutionDaysThreshold: int("avg_resolution_days_threshold").default(30).notNull(), // Días promedio de resolución
+  
+  // Configuración de notificaciones
+  enableAlerts: boolean("enable_alerts").default(true).notNull(),
+  alertRecipients: text("alert_recipients"), // JSON array de emails
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type DepartmentThreshold = typeof departmentThresholds.$inferSelect;
+export type InsertDepartmentThreshold = typeof departmentThresholds.$inferInsert;
