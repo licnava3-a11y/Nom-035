@@ -18,7 +18,7 @@ import { MessageCircle, TrendingUp, Users, CheckCircle, Calendar, X, Filter } fr
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subMonths, subYears } from "date-fns";
 import { es } from "date-fns/locale";
 import { NORMATIVAS_MAP } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/badge";
@@ -28,11 +28,69 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcEleme
 type EventType = "click" | "demo_request" | "contact_request" | undefined;
 type ConversionStatus = "pending" | "converted" | "lost" | undefined;
 
+// Tipos para filtros rápidos
+type QuickFilterType = "today" | "thisWeek" | "thisMonth" | "last7Days" | "last30Days" | "lastYear" | "lastWeek" | "lastMonth" | "lastYearPeriod" | null;
+
 export default function WhatsAppMetrics() {
   const [period, setPeriod] = useState<"day" | "week" | "month">("day");
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
   const [eventType, setEventType] = useState<EventType>(undefined);
   const [conversionStatus, setConversionStatus] = useState<ConversionStatus>(undefined);
+  const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilterType>(null);
+
+  // Funciones helper para períodos predefinidos
+  const applyQuickFilter = (filterType: QuickFilterType) => {
+    const now = new Date();
+    let from: Date;
+    let to: Date;
+
+    switch (filterType) {
+      case "today":
+        from = startOfDay(now);
+        to = endOfDay(now);
+        break;
+      case "thisWeek":
+        from = startOfWeek(now, { weekStartsOn: 1 }); // Lunes
+        to = endOfWeek(now, { weekStartsOn: 1 });
+        break;
+      case "thisMonth":
+        from = startOfMonth(now);
+        to = endOfMonth(now);
+        break;
+      case "last7Days":
+        from = startOfDay(subDays(now, 6)); // Últimos 7 días incluyendo hoy
+        to = endOfDay(now);
+        break;
+      case "last30Days":
+        from = startOfDay(subDays(now, 29)); // Últimos 30 días incluyendo hoy
+        to = endOfDay(now);
+        break;
+      case "lastYear":
+        from = startOfDay(subYears(now, 1));
+        to = endOfDay(now);
+        break;
+      case "lastWeek":
+        const lastWeekStart = subDays(startOfWeek(now, { weekStartsOn: 1 }), 7);
+        from = lastWeekStart;
+        to = endOfWeek(lastWeekStart, { weekStartsOn: 1 });
+        break;
+      case "lastMonth":
+        const lastMonthDate = subMonths(now, 1);
+        from = startOfMonth(lastMonthDate);
+        to = endOfMonth(lastMonthDate);
+        break;
+      case "lastYearPeriod":
+        const lastYearDate = subYears(now, 1);
+        from = startOfYear(lastYearDate);
+        to = endOfYear(lastYearDate);
+        break;
+      default:
+        return;
+    }
+
+    setDateRange({ from, to });
+    setActiveQuickFilter(filterType);
+  };
 
   // Construir filtros para queries
   const filters = {
@@ -60,6 +118,13 @@ export default function WhatsAppMetrics() {
     setDateRange({});
     setEventType(undefined);
     setConversionStatus(undefined);
+    setActiveQuickFilter(null);
+  };
+
+  // Limpiar filtro rápido si se cambian las fechas manualmente
+  const handleDateChange = (type: 'from' | 'to', date: Date | undefined) => {
+    setDateRange(prev => ({ ...prev, [type]: date }));
+    setActiveQuickFilter(null);
   };
 
   // Contar filtros activos
@@ -138,6 +203,81 @@ export default function WhatsAppMetrics() {
         </Select>
       </div>
 
+      {/* Filtros Rápidos Predefinidos */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Filtros Rápidos</CardTitle>
+          <CardDescription>Selecciona un período predefinido para análisis rápido</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            <Badge
+              variant={activeQuickFilter === "today" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("today")}
+            >
+              Hoy
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "thisWeek" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("thisWeek")}
+            >
+              Esta Semana
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "thisMonth" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("thisMonth")}
+            >
+              Este Mes
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "last7Days" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("last7Days")}
+            >
+              Últimos 7 Días
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "last30Days" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("last30Days")}
+            >
+              Últimos 30 Días
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "lastYear" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("lastYear")}
+            >
+              Último Año
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "lastWeek" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("lastWeek")}
+            >
+              Semana Anterior
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "lastMonth" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("lastMonth")}
+            >
+              Mes Anterior
+            </Badge>
+            <Badge
+              variant={activeQuickFilter === "lastYearPeriod" ? "default" : "outline"}
+              className="cursor-pointer px-4 py-2 text-sm hover:bg-primary/90 transition-colors"
+              onClick={() => applyQuickFilter("lastYearPeriod")}
+            >
+              Año Anterior
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Filtros Avanzados */}
       <Card>
         <CardHeader>
@@ -173,7 +313,7 @@ export default function WhatsAppMetrics() {
                   <CalendarComponent
                     mode="single"
                     selected={dateRange.from}
-                    onSelect={(date) => setDateRange({ ...dateRange, from: date })}
+                    onSelect={(date) => handleDateChange('from', date)}
                     initialFocus
                   />
                 </PopoverContent>
@@ -193,7 +333,7 @@ export default function WhatsAppMetrics() {
                   <CalendarComponent
                     mode="single"
                     selected={dateRange.to}
-                    onSelect={(date) => setDateRange({ ...dateRange, to: date })}
+                    onSelect={(date) => handleDateChange('to', date)}
                     initialFocus
                     disabled={(date) => dateRange.from ? date < dateRange.from : false}
                   />

@@ -1653,3 +1653,23 @@
 - [x] Actualizar gráficos al cambiar filtros
 - [x] Agregar indicadores visuales de filtros activos (Badge con contador)
 - [x] Instalación de react-day-picker y date-fns
+
+## Nuevas Tareas - Filtros Rápidos Predefinidos Dashboard WhatsApp (Febrero 2026)
+
+### 1. Funciones Helper para Períodos
+- [x] Crear funciones para calcular rangos de fechas (startOfDay, endOfDay, startOfWeek, etc.)
+- [x] Implementar helpers: getToday, getThisWeek, getThisMonth, getLast7Days, getLast30Days, getLastYear
+- [x] Agregar función para mes anterior, semana anterior, año anterior
+
+### 2. UI de Filtros Rápidos
+- [x] Diseñar sección de filtros rápidos con badges/chips
+- [x] Crear botones: Hoy, Esta semana, Este mes, Últimos 7 días, Últimos 30 días, Último año
+- [x] Agregar botones: Mes anterior, Semana anterior, Año anterior
+- [x] Implementar indicador visual del período activo (variant default/outline)
+- [x] Diseño responsive para móvil y desktop (flex-wrap)
+
+### 3. Integración con Filtros Existentes
+- [x] Conectar filtros rápidos con date range picker
+- [x] Actualizar automáticamente los selectores de fecha al hacer clic
+- [x] Mantener sincronización entre filtros rápidos y date picker
+- [x] Limpiar selección de filtro rápido al cambiar fechas manualmente (handleDateChange)
