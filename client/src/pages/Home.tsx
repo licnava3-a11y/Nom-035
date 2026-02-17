@@ -13,6 +13,7 @@ import {
 import { AlertCircle, TrendingUp, Users, FileText, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { AlertBanner } from "@/components/AlertBanner";
+import { WhatsAppDemoButton } from "@/components/WhatsAppButton";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -225,6 +226,14 @@ export default function Home() {
             {user?.role === 'admin' ? 'Administrador' : 'Usuario'} - Plataforma de Capacitación NOM-035 STPS 2018
           </p>
         </div>
+        
+        {/* Botón de WhatsApp */}
+        <WhatsAppDemoButton
+          nombre={user?.name || ""}
+          email={user?.email || ""}
+          normativas={["NOM-035"]}
+          origen="dashboard"
+        />
         
         {/* Filtro de período */}
         <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>

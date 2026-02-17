@@ -1753,3 +1753,39 @@
 - [x] useEffect para detectar cambios en filtros y ejecutar verificación
 - [x] Mostrar alertas en toast con severidad
 - [x] Mostrar recomendaciones después de alertas
+
+## Nuevas Tareas - Integración WhatsApp Público, CRM y Análisis Predictivo
+
+### 1. Integración de WhatsApp en Páginas Públicas
+- [x] Agregar WhatsAppDemoButton en Home.tsx con mensaje contextual
+- [x] Crear página de contacto (Contact.tsx) con WhatsAppButton
+- [x] Crear landing page de NOM-035 con WhatsAppButton específico
+- [x] Crear landing page de NOM-037 con WhatsAppButton específico
+- [x] Personalizar mensajes pre-llenados según origen (dashboard, contacto, landing_nom035, landing_nom037)
+- [x] Agregar tracking automático de origen en metadata
+- [x] Diseño responsive y profesional de botones
+- [x] Agregar rutas en App.tsx para nuevas páginas (/contacto, /nom-03### 2. Sistema de Seguimiento Post-Contacto (CRM)
+- [x] Crear tabla leads en schema.ts con campos de seguimiento
+- [x] Campos: id, whatsappEventId, nombre, email, empresa, telefono, normativas, estado, fechaContacto, proximaAccion, notas, asignadoA, valorEstimado, probabilidadCierre, createdAt, updatedAt
+- [x] Generar migración SQL con drizzle-kit generate
+- [x] Aplicar migración con webdev_execute_sql (0105_smooth_shriek.sql)
+- [ ] Procedure createLeadFromConversion para conversión automática
+- [ ] Procedure updateLeadStatus para cambiar estado
+- [ ] Procedure getLeadsPipeline para dashboard
+- [ ] Crear página LeadsPipeline.tsx con kanban board
+- [ ] Estados: nuevo, contactado, en_negociacion, propuesta_enviada, ganado, perdido
+- [ ] Sistema de recordatorios automáticos para próximas acciones
+- [ ] Integrar con sistema de notificaciones
+- [ ] Agregar navegación en DashboardLayout
+
+### 3. Dashboard de Análisis Predictivo
+- [ ] Crear página PredictiveAnalytics.tsx
+- [ ] Implementar análisis de tendencias históricas
+- [ ] Calcular patrones estacionales por normativa
+- [ ] Identificar mejores horarios/días para conversiones
+- [ ] Predicción de volumen de solicitudes futuras
+- [ ] Gráficos de tendencias con proyecciones
+- [ ] Recomendaciones automáticas de campañas
+- [ ] Análisis de correlación entre eventos y conversiones
+- [ ] Exportación de insights a PDF
+- [ ] Agregar navegación en DashboardLayout

@@ -3832,3 +3832,64 @@ export const whatsappTrackingEvents = mysqlTable("whatsapp_tracking_events", {
   // Notas adicionales
   notes: text("notes"),
 });
+
+/**
+ * ============================================================================
+ * LEADS CRM - Sistema de seguimiento post-contacto
+ * ============================================================================
+ */
+
+/**
+ * Tabla para gestionar leads generados desde WhatsApp
+ * Pipeline de ventas con seguimiento de estado y próximas acciones
+ */
+export const leads = mysqlTable("leads", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Referencia al evento de WhatsApp que generó el lead
+  whatsappEventId: int("whatsapp_event_id"),
+  
+  // Información del contacto
+  nombre: varchar("nombre", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  empresa: varchar("empresa", { length: 255 }),
+  telefono: varchar("telefono", { length: 50 }),
+  
+  // Normativas de interés (JSON array)
+  normativas: json("normativas").$type<string[]>(),
+  
+  // Estado del lead en el pipeline
+  estado: varchar("estado", { length: 50 }).notNull().default("nuevo"), 
+  // Estados: nuevo, contactado, en_negociacion, propuesta_enviada, ganado, perdido
+  
+  // Seguimiento
+  fechaContacto: timestamp("fecha_contacto"),
+  proximaAccion: timestamp("proxima_accion"),
+  proximaAccionDescripcion: text("proxima_accion_descripcion"),
+  
+  // Notas y observaciones
+  notas: text("notas"),
+  
+  // Asignación
+  asignadoA: int("asignado_a"), // ID del usuario asignado
+  asignadoNombre: varchar("asignado_nombre", { length: 255 }),
+  
+  // Origen del lead
+  origen: varchar("origen", { length: 100 }), // 'whatsapp', 'contacto', 'landing_nom035', etc.
+  
+  // Valor estimado del negocio
+  valorEstimado: decimal("valor_estimado", { precision: 10, scale: 2 }),
+  
+  // Probabilidad de cierre (0-100%)
+  probabilidadCierre: int("probabilidad_cierre").default(0),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  
+  // Fecha de cierre (cuando se gana o pierde)
+  fechaCierre: timestamp("fecha_cierre"),
+  
+  // Razón de pérdida (si estado = perdido)
+  razonPerdida: text("razon_perdida"),
+});

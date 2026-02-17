@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `leads` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`whatsapp_event_id` int,\n\t`nombre` varchar(255) NOT NULL,\n\t`email` varchar(255),\n\t`empresa` varchar(255),\n\t`telefono` varchar(50),\n\t`normativas` json,\n\t`estado` varchar(50) NOT NULL DEFAULT 'nuevo',\n\t`fecha_contacto` timestamp,\n\t`proxima_accion` timestamp,\n\t`proxima_accion_descripcion` text,\n\t`notas` text,\n\t`asignado_a` int,\n\t`asignado_nombre` varchar(255),\n\t`origen` varchar(100),\n\t`valor_estimado` decimal(10,2),\n\t`probabilidad_cierre` int DEFAULT 0,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()),\n\t`fecha_cierre` timestamp,\n\t`razon_perdida` text,\n\tCONSTRAINT `leads_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `leads` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`whatsapp_event_id` int,\n\t`nombre` varchar(255) NOT NULL,\n\t`email` varchar(255),\n\t`empresa` varchar(255),\n\t`telefono` varchar(50),\n\t`normativas` json,\n\t`estado` varchar(50) NOT NULL DEFAULT 'nuevo',\n\t`fecha_contacto` timestamp,\n\t`proxima_accion` timestamp,\n\t`proxima_accion_descripcion` text,\n\t`notas` text,\n\t`asignado_a` int,\n\t`asignado_nombre` varchar(255),\n\t`origen` varchar(100),\n\t`valor_estimado` decimal(10,2),\n\t`probabilidad_cierre` int DEFAULT 0,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()),\n\t`fecha_cierre` timestamp,\n\t`razon_perdida` text,\n\tCONSTRAINT `leads_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 648
+}

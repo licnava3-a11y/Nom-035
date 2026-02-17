@@ -72,6 +72,9 @@ const DepartmentMetrics = lazy(() => import("./pages/DepartmentMetrics"));
 const AlgorithmConfig = lazy(() => import("./pages/AlgorithmConfig"));
 const AlgorithmEffectiveness = lazy(() => import("./pages/AlgorithmEffectiveness"));
 const WhatsAppMetrics = lazy(() => import("./pages/WhatsAppMetrics"));
+const Contact = lazy(() => import("./pages/Contact"));
+const NOM035Landing = lazy(() => import("./pages/NOM035Landing"));
+const NOM037Landing = lazy(() => import("./pages/NOM037Landing"));
 const EmployeeDocuments = lazy(() => import("./pages/EmployeeDocuments"));
 const EmployeeTrainingNeeds = lazy(() => import("./pages/EmployeeTrainingNeeds"));
 const EmployeeTermination = lazy(() => import("./pages/EmployeeTermination"));
@@ -633,6 +636,21 @@ function Router() {
               <WhatsAppMetrics />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path={"/contacto"}>
+          <Suspense fallback={<PageLoader />}>
+            <Contact />
+          </Suspense>
+        </Route>
+        <Route path={"/nom-035"}>
+          <Suspense fallback={<PageLoader />}>
+            <NOM035Landing />
+          </Suspense>
+        </Route>
+        <Route path={"/nom-037"}>
+          <Suspense fallback={<PageLoader />}>
+            <NOM037Landing />
+          </Suspense>
         </Route>
         <Route path={"/employees/:id/training-needs"}>
           <DashboardLayout>

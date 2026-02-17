@@ -736,6 +736,13 @@
       "when": 1771346516309,
       "tag": "0104_certain_jubilee",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "5",
+      "when": 1771351641695,
+      "tag": "0105_smooth_shriek",
+      "breakpoints": true
     }
   ]
 }
