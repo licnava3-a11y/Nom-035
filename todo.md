@@ -2077,3 +2077,15 @@
 - [x] Crear gráfico de distribución por fuente (pie chart)
 - [x] Agregar tabla de leads recientes del vendedor
 - [x] Integrar navegación desde SalesPeopleManagement (botón Ver Rendimiento)
+
+
+## Filtro por Vendedor en Pipeline Kanban
+
+### Implementación de Filtro por Vendedor
+- [x] Agregar estado filtroVendedor en LeadsPipeline.tsx
+- [x] Crear selector de vendedor en header del pipeline (junto a filtros existentes)
+- [x] Aplicar filtro en frontend antes de agrupar por estado
+- [x] Agregar opción "Todos los vendedores" para limpiar filtro
+- [x] Mantener filtro al cambiar estado de leads (drag and drop)
+- [x] Agregar indicador visual de filtro activo en header
+- [x] Incluir filtro en botón "Limpiar Filtros"

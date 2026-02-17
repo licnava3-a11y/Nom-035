@@ -32,6 +32,7 @@ export default function LeadsPipeline() {
   const [location] = useLocation();
   const [filtroOrigen, setFiltroOrigen] = useState<string | undefined>();
   const [filtroNormativa, setFiltroNormativa] = useState<string | undefined>();
+  const [filtroVendedor, setFiltroVendedor] = useState<number | undefined>();
   const [activeId, setActiveId] = useState<number | null>(null);
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -71,6 +72,7 @@ export default function LeadsPipeline() {
   });
 
   const { data: stats } = trpc.leads.getPipelineStats.useQuery();
+  const { data: salespeople } = trpc.salespeople.getAll.useQuery();
   const { data: upcomingReminders } = trpc.leads.getUpcomingReminders.useQuery();
 
   // Mutations
@@ -185,7 +187,14 @@ export default function LeadsPipeline() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Pipeline de Leads</h1>
-          <p className="text-muted-foreground">Gestiona tus oportunidades de venta</p>
+          <p className="text-muted-foreground">
+            Gestiona tus oportunidades de venta
+            {filtroVendedor && salespeople && (
+              <span className="ml-2 text-blue-600 font-medium">
+                · Filtrando por: {salespeople.find(s => s.id === filtroVendedor)?.nombre}
+              </span>
+            )}
+          </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -269,12 +278,32 @@ export default function LeadsPipeline() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex-1">
+            <Label>Vendedor</Label>
+            <Select 
+              value={filtroVendedor?.toString() || "all"} 
+              onValueChange={(value) => setFiltroVendedor(value === "all" ? undefined : parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos los vendedores" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los vendedores</SelectItem>
+                {salespeople?.map((salesperson) => (
+                  <SelectItem key={salesperson.id} value={salesperson.id.toString()}>
+                    {salesperson.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex items-end">
             <Button
               variant="outline"
               onClick={() => {
                 setFiltroOrigen(undefined);
                 setFiltroNormativa(undefined);
+                setFiltroVendedor(undefined);
               }}
             >
               Limpiar Filtros
@@ -314,7 +343,12 @@ export default function LeadsPipeline() {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(ESTADOS_CONFIG).map(([estado, config]) => {
-            const leads = pipeline?.[estado as LeadEstado] || [];
+            let leads = pipeline?.[estado as LeadEstado] || [];
+            
+            // Aplicar filtro por vendedor si está seleccionado
+            if (filtroVendedor) {
+              leads = leads.filter((lead: any) => lead.asignadoA === filtroVendedor);
+            }
             
             return (
               <SortableContext key={estado} id={estado} items={leads.map((l: any) => l.id)} strategy={verticalListSortingStrategy}>
