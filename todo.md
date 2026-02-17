@@ -1789,3 +1789,71 @@
 - [ ] Análisis de correlación entre eventos y conversiones
 - [ ] Exportación de insights a PDF
 - [ ] Agregar navegación en DashboardLayout
+
+## Nuevas Tareas - CRM Completo, Análisis Predictivo y Optimización Landing Pages
+
+### 1. Router y Procedures de Leads CRM
+- [x] Crear archivo server/routers/leads.ts
+- [x] Procedure createLead (crear lead manual o desde WhatsApp)
+- [x] Procedure getLeadsPipeline (obtener leads agrupados por estado)
+- [x] Procedure updateLeadStatus (cambiar estado con drag-and-drop)
+- [x] Procedure updateLead (editar información del lead)
+- [x] Procedure deleteLead (eliminar lead)
+- [x] Procedure convertWhatsAppEventToLead (conversión automática)
+- [x] Procedure getLeadById (obtener detalles de un lead)
+- [x] Procedure assignLead (asignar lead a usuario)
+- [x] Procedure addLeadNote (agregar nota a lead)
+- [x] Procedure getUpcomingReminders (recordatorios próximos)
+- [x] Procedure getPipelineStats (estadísticas del pipeline)
+- [x] Integrar router en appRouter
+
+### 2. Página LeadsPipeline con Kanban Board
+- [ ] Crear client/src/pages/LeadsPipeline.tsx
+- [ ] Instalar @dnd-kit/core y @dnd-kit/sortable para drag-and-drop
+- [ ] Implementar columnas Kanban (Nuevo, Contactado, Negociación, Propuesta, Ganado, Perdido)
+- [ ] Cards de leads con información clave (nombre, empresa, normativas, valor estimado)
+- [ ] Drag-and-drop entre columnas con actualización automática
+- [ ] Modal de detalles de lead con edición inline
+- [ ] Botón para agregar nuevo lead manualmente
+- [ ] Filtros por origen, normativas, asignado a
+- [ ] Indicadores de próxima acción con badges de urgencia
+- [ ] Agregar ruta en App.tsx y navegación en DashboardLayout
+
+### 3. Sistema de Conversión Automática WhatsApp → Leads
+- [ ] Actualizar procedure updateConversionStatus en whatsappTracking.ts
+- [ ] Al marcar como "converted", crear lead automáticamente
+- [ ] Copiar datos de userData a campos de lead
+- [ ] Asignar origen desde metadata.source
+- [ ] Establecer estado inicial como "nuevo"
+- [ ] Vincular whatsappEventId al lead creado
+- [ ] Notificar al administrador de nuevo lead
+
+### 4. Sistema de Recordatorios de Próxima Acción
+- [ ] Crear procedure getUpcomingReminders en leads.ts
+- [ ] Job programado que revise próximas acciones cada hora
+- [ ] Enviar notificación 24h antes de próxima acción
+- [ ] Enviar notificación el día de la próxima acción
+- [ ] Marcar recordatorios como enviados para evitar duplicados
+- [ ] Dashboard widget con próximas acciones del día
+
+### 5. Dashboard de Análisis Predictivo
+- [ ] Crear client/src/pages/PredictiveWhatsAppAnalytics.tsx
+- [ ] Implementar regresión lineal para tendencias futuras (próximos 3 meses)
+- [ ] Gráfico de predicción de clics y conversiones
+- [ ] Gráfico de calor mensual de solicitudes por normativa
+- [ ] Análisis de patrones estacionales (días de semana vs fin de semana)
+- [ ] Sugerencias de mejores horarios para campañas (basado en conversiones)
+- [ ] Análisis de franja horaria con mayor tasa de conversión
+- [ ] Recomendaciones automáticas de optimización
+- [ ] Agregar ruta y navegación
+
+### 6. Optimización de Landing Pages
+- [ ] Crear componente Testimonials.tsx con casos de éxito
+- [ ] Agregar sección de testimonios en NOM035Landing y NOM037Landing
+- [ ] Crear componente FAQ.tsx con accordion expandible
+- [ ] FAQ específico para cada normativa (NOM-035, NOM-037)
+- [ ] Crear componente ROICalculator.tsx interactivo
+- [ ] Calculadora que estime: multas evitadas, productividad mejorada, ROI total
+- [ ] Inputs: número de empleados, sector, riesgo actual
+- [ ] Integrar WhatsApp chat en vivo con horario laboral
+- [ ] Agregar indicador de disponibilidad (En línea/Fuera de línea)
