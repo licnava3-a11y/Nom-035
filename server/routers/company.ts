@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailValidatorOptional, phoneValidatorMXOptional } from "../validators/contact";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as companyDb from "../db-company";
 import { TRPCError } from "@trpc/server";
@@ -29,11 +30,11 @@ export const companyRouter = router({
           actividadesPreponderantes: z.string().optional(),
           numeroTrabajadores: z.number().int().positive().optional(),
           representanteLegal: z.string().optional(),
-          telefonoContacto: z.string().optional(),
-          emailContacto: z.string().email("Email inválido").optional(),
+          telefonoContacto: phoneValidatorMXOptional,
+          emailContacto: emailValidatorOptional,
           paginaWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-          notificationEmail: z.string().email("Email de notificaciones inválido").optional().or(z.literal("")),
-          noreplyEmail: z.string().email("Email no-reply inválido").optional().or(z.literal("")),
+          notificationEmail: emailValidatorOptional,
+          noreplyEmail: emailValidatorOptional,
         })
       )
       .mutation(async ({ input, ctx }) => {
@@ -137,8 +138,8 @@ export const companyRouter = router({
         z.object({
           nombre: z.string().min(1, "Nombre es requerido"),
           cargo: z.string().min(1, "Cargo es requerido"),
-          email: z.string().email("Email inválido").optional(),
-          telefono: z.string().optional(),
+          email: emailValidatorOptional,
+          telefono: phoneValidatorMXOptional,
           rfc: z.string().regex(/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/, "RFC inválido").optional(),
           curp: z.string().length(18, "CURP debe tener 18 caracteres").optional(),
           domicilio: z.string().optional(),
@@ -207,8 +208,8 @@ export const companyRouter = router({
           id: z.number(),
           nombre: z.string().min(1, "Nombre es requerido"),
           cargo: z.string().min(1, "Cargo es requerido"),
-          email: z.string().email("Email inválido").optional(),
-          telefono: z.string().optional(),
+          email: emailValidatorOptional,
+          telefono: phoneValidatorMXOptional,
           activo: z.boolean(),
         })
       )

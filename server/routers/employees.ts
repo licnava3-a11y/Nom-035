@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailValidator, phoneValidatorMXOptional } from "../validators/contact";
 import { router, protectedProcedure } from "../_core/trpc";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
@@ -81,8 +82,8 @@ export const employeesRouter = router({
       z.object({
         firstName: z.string().min(1, "Nombre es requerido"),
         lastName: z.string().min(1, "Apellido es requerido"),
-        email: z.string().email("Email inválido"),
-        phone: z.string().optional(),
+        email: emailValidator,
+        phone: phoneValidatorMXOptional,
         curp: z.string().length(18, "CURP debe tener 18 caracteres").optional(),
         rfc: z.string().optional(),
         nss: z.string().optional(),
@@ -235,8 +236,8 @@ export const employeesRouter = router({
         id: z.number(),
         firstName: z.string().min(1).optional(),
         lastName: z.string().min(1).optional(),
-        email: z.string().email().optional(),
-        phone: z.string().optional(),
+        email: emailValidator.optional(),
+        phone: phoneValidatorMXOptional,
         curp: z.string().length(18).optional(),
         sexo: z.enum(["Masculino", "Femenino", "Otro"]).optional(),
         employeeNumber: z.string().optional(),

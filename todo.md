@@ -1534,3 +1534,69 @@
 - [ ] Implementar gráfico de tendencias de precisión del algoritmo
 - [ ] Implementar tabla de histórico de predicciones con detalles
 - [ ] Agregar navegación en menú lateral (Administración > Efectividad Algoritmo)
+
+## Nuevas Tareas - Auditoría Profunda y Mejoras UX (Febrero 2026)
+
+### 1. Validación Estricta de Datos de Contacto
+- [x] Implementar validación de email según RFC 5322 en todos los formularios
+- [x] Implementar validación de teléfono según formato E.164 (internacional)
+- [x] Agregar validación de teléfono mexicano (+52 formato 10 dígitos)
+- [x] Actualizar schema Zod en routers de contacto/demo/empleados
+- [ ] Agregar feedback visual en formularios (email/teléfono válido/inválido)
+
+### 2. Integración de WhatsApp para Solicitud de Demo
+- [x] Agregar botón de WhatsApp en formulario de contacto/demo (componente creado)
+- [x] Generar mensaje pre-llenado con datos del usuario
+- [x] Incluir normativa de interés en mensaje de WhatsApp
+- [x] Implementar apertura de chat de WhatsApp con API de WhatsApp Business
+- [ ] Agregar tracking de conversiones desde WhatsApp
+
+### 3. Optimización de Código y Refactorización
+- [x] Identificar código duplicado en routers y componentes (116 mutations analizadas)
+- [x] Refactorizar funciones comunes en helpers reutilizables (validators/contact.ts, lib/whatsapp.ts)
+- [ ] Optimizar imports y reducir bundle size del frontend
+- [ ] Revisar y mejorar manejo de errores en todos los routers
+- [ ] Implementar logging estructurado para debugging
+
+### 4. Mejoras de Experiencia de Usuario
+- [ ] Agregar loading states en todos los formularios
+- [ ] Implementar mensajes de error más descriptivos
+- [ ] Agregar confirmaciones antes de acciones destructivas
+- [ ] Mejorar feedback visual en operaciones exitosas
+- [ ] Implementar breadcrumbs en navegación compleja
+
+### 5. Auditoría de Seguridad y Validaciones
+- [ ] Revisar todos los endpoints públicos por vulnerabilidades
+- [ ] Implementar rate limiting en formularios de contacto
+- [ ] Validar sanitización de inputs en todos los formularios
+- [ ] Revisar permisos de acceso en routers protegidos
+- [ ] Implementar CSRF protection en formularios críticos
+
+## Progreso - Auditoría Profunda y Mejoras UX (Febrero 2026)
+
+### 1. Validación Estricta de Datos de Contacto ✅
+- [x] Crear helper de validaciones contact.ts con RFC 5322 y E.164
+- [x] Implementar emailValidator con regex RFC 5322
+- [x] Implementar phoneValidatorMX para teléfonos mexicanos (10 dígitos)
+- [x] Implementar phoneValidatorE164 para formato internacional
+- [x] Agregar helpers de formateo (formatPhoneMX, formatPhoneE164)
+- [x] Actualizar validaciones en employees.ts con nuevos validators
+- [x] Actualizar validaciones en company.ts con nuevos validators
+- [x] Actualizar validaciones en recruitment.ts con nuevos validators
+
+### 2. Integración de WhatsApp para Solicitud de Demo ✅
+- [x] Crear helper whatsapp.ts con funciones de generación de enlaces
+- [x] Implementar generateWhatsAppLink con mensaje pre-llenado
+- [x] Implementar generateDemoRequestMessage con datos del usuario
+- [x] Crear mapeo NORMATIVAS_MAP para nombres completos
+- [x] Implementar openWhatsAppDemo para abrir chat automáticamente
+- [x] Crear componente WhatsAppButton reutilizable
+- [x] Crear componente WhatsAppDemoButton especializado
+- [x] Agregar formatPhoneForWhatsApp para normalización de números
+
+### 3. Pendiente - Integración en Formularios
+- [ ] Agregar WhatsAppDemoButton en formulario de contacto
+- [ ] Agregar validación de email en tiempo real (feedback visual)
+- [ ] Agregar validación de teléfono en tiempo real (feedback visual)
+- [ ] Implementar tracking de conversiones desde WhatsApp
+- [ ] Actualizar otros routers con validaciones estrictas (documents, import, massiveImport)

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailValidator, emailValidatorOptional, phoneValidatorMXOptional } from "../validators/contact";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { TRPCError } from "@trpc/server";
@@ -70,8 +71,8 @@ export const recruitmentRouter = router({
       jobOpeningId: z.number(),
       firstName: z.string(),
       lastName: z.string(),
-      email: z.string().email(),
-      phone: z.string(),
+      email: emailValidator,
+      phone: phoneValidatorMXOptional,
       curp: z.string().length(18),
       birthDate: z.string().optional(),
       gender: z.enum(["Masculino", "Femenino"]).optional(),
@@ -100,7 +101,7 @@ export const recruitmentRouter = router({
         position: z.string(),
         company: z.string(),
         phone: z.string(),
-        email: z.string().email().optional(),
+        email: emailValidatorOptional,
         relationship: z.string(),
       })).optional(),
     }))
