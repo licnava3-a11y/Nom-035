@@ -1278,3 +1278,63 @@
 - [x] Configurar frecuencia de ejecución del job (semanal)
 - [ ] Agregar panel de visualización de alertas en dashboard
 - [ ] Implementar acción rápida para asignar manager desde alerta
+
+## Nuevas Tareas - Funcionalidades Complementarias de Gestión de Departamentos
+
+### 1. Panel de Visualización de Alertas en Dashboard
+- [ ] Crear procedure departments.getActiveAlerts para obtener departamentos sin manager
+- [ ] Implementar widget de alertas en Dashboard.tsx
+- [ ] Agregar card con contador de alertas activas
+- [ ] Mostrar lista de departamentos sin manager (nombre, días sin manager)
+- [ ] Implementar botón de acción rápida "Asignar Manager"
+- [ ] Crear dialog de asignación rápida con selector de usuario
+- [ ] Actualizar contador de alertas después de asignar manager
+- [ ] Agregar indicador visual de urgencia (>30 días = rojo, >60 días = crítico)
+
+### 2. Plantilla Excel de Importación
+- [ ] Crear procedure employees.generateImportTemplate
+- [ ] Generar archivo Excel con columnas predefinidas (nombre, email, departamento, puesto, etc.)
+- [ ] Incluir fila de ejemplos con datos de muestra
+- [ ] Agregar validaciones de columnas (dropdowns, formatos)
+- [ ] Implementar botón "Descargar Plantilla" en dialog de importación
+- [ ] Generar descarga automática de archivo .xlsx
+- [ ] Documentar formato esperado en tooltip o ayuda contextual
+
+### 3. Historial de Reasignaciones Masivas
+- [ ] Crear tabla bulk_reassignments en schema (fecha, usuario, motivo, departamentoOrigen, departamentoDestino)
+- [ ] Crear tabla bulk_reassignment_details (reassignmentId, employeeId, employeeName)
+- [ ] Generar y aplicar migración SQL
+- [ ] Modificar procedure departments.bulkReassign para registrar en historial
+- [ ] Crear procedure departments.getReassignmentHistory con filtros
+- [ ] Crear página ReassignmentHistory.tsx
+- [ ] Implementar tabla con columnas: fecha, usuario, empleados afectados, departamentos, motivo
+- [ ] Agregar filtros por fecha, departamento y usuario
+- [ ] Implementar paginación server-side
+- [ ] Agregar navegación en menú lateral (Administración > Historial de Reasignaciones)
+- [ ] Agregar botón "Ver Detalles" para expandir lista de empleados afectados
+
+## Nuevas Tareas - Funcionalidades Complementarias de Gestión de Departamentos (Completadas)
+
+### 1. Widget de Alertas en Dashboard
+- [x] Crear procedure departments.getActiveAlerts
+- [x] Agregar query en Dashboard.tsx para obtener alertas
+- [x] Crear widget visual con indicador de urgencia (crítico >60 días)
+- [x] Implementar botón "Asignar Manager" con dialog de asignación rápida
+- [x] Crear componente AssignManagerDialog reutilizable
+- [x] Agregar refetch automático cada 5 minutos
+
+### 2. Plantilla Excel de Importación
+- [x] Crear procedure employees.generateImportTemplate
+- [x] Generar archivo Excel con 23 columnas predefinidas
+- [x] Incluir fila de ejemplo con datos de muestra
+- [x] Agregar nota informativa en primera fila
+- [x] Implementar botón "Descargar Plantilla" en dialog de importación
+- [x] Descarga automática del archivo .xlsx
+
+### 3. Tabla de Auditoría de Reasignaciones Masivas
+- [x] Crear tablas bulk_reassignments y bulk_reassignment_details
+- [x] Actualizar procedure departments.bulkReassign para registrar en auditoría
+- [x] Crear procedure departments.getReassignmentHistory
+- [x] Implementar sección de historial en DepartmentManagement.tsx
+- [x] Agregar paginación y detalles expandibles de empleados
+- [x] Mostrar información completa: fecha, usuario, motivo, departamentos

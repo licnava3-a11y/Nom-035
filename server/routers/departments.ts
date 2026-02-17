@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, departmentHistory, positions, employees, systemSettings } from "../../drizzle/schema";
+import { departments, departmentHistory, positions, employees, systemSettings, bulkReassignments, bulkReassignmentDetails } from "../../drizzle/schema";
 import { sendEmail } from "../lib/email-sender";
-import { eq, like, and, sql, count, desc } from "drizzle-orm";
+import { eq, like, and, sql, count, desc, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const departmentsRouter = router({
@@ -686,21 +686,36 @@ export const departmentsRouter = router({
         .where(sql`${employees.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`)
         .execute();
 
-      // Registrar cambios en historial
-      const historyRecords = employeesToReassign.map((emp) => ({
-        departmentId: input.newDepartmentId,
-        name: targetDept.name,
-        description: targetDept.description,
-        code: targetDept.code,
-        parentId: targetDept.parentId,
-        managerId: targetDept.managerId,
-        isActive: targetDept.isActive,
-        changeType: "updated" as const,
-        changedBy: ctx.user.id,
+      // Registrar reasignación masiva en tabla de auditoría
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const [reassignmentRecord] = await db
+        .insert(bulkReassignments)
+        .values({
+          sourceDepartmentId: employeesToReassign[0]?.departmentId || null,
+          sourceDepartmentName: employeesToReassign[0]?.departmentId
+            ? (await db.select({ name: departments.name }).from(departments).where(eq(departments.id, employeesToReassign[0].departmentId)).execute())[0]?.name || null
+            : null,
+          targetDepartmentId: input.newDepartmentId,
+          targetDepartmentName: targetDept.name,
+          performedBy: ctx.user.id,
+          performedByName: ctx.user.name || 'Usuario',
+          reason: input.reason || null,
+          employeeCount: employeesToReassign.length,
+        })
+        .execute();
+
+      const reassignmentId = reassignmentRecord.insertId;
+
+      // Registrar detalles de empleados afectados
+      const detailRecords = employeesToReassign.map((emp) => ({
+        reassignmentId: Number(reassignmentId),
+        employeeId: emp.id,
+        employeeName: emp.name,
+        employeeEmail: emp.email || null,
       }));
 
       // @ts-expect-error - getDb() siempre retorna instancia válida
-      await db.insert(departmentHistory).values(historyRecords);
+      await db.insert(bulkReassignmentDetails).values(detailRecords);
 
       // Enviar notificaciones por email a empleados afectados (opcional)
       const emailPromises = employeesToReassign.map(async (emp) => {
@@ -733,4 +748,113 @@ export const departmentsRouter = router({
         departmentName: targetDept.name,
       };
     }),
+
+  /**
+   * Obtener alertas activas de departamentos sin manager
+   */
+  getActiveAlerts: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    // Obtener departamentos activos sin manager
+    // @ts-expect-error - getDb() siempre retorna instancia válida
+    const deptsWithoutManager = await db
+      .select({
+        id: departments.id,
+        name: departments.name,
+        code: departments.code,
+        createdAt: departments.createdAt,
+        description: departments.description,
+      })
+      .from(departments)
+      .where(
+        and(
+          eq(departments.isActive, true),
+          isNull(departments.managerId)
+        )
+      );
+
+    // Calcular días sin manager desde creación
+    const alerts = deptsWithoutManager.map((dept) => {
+      const daysSinceCreation = Math.floor(
+        (Date.now() - new Date(dept.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      return {
+        ...dept,
+        daysSinceCreation,
+        urgency: daysSinceCreation > 60 ? "critical" : daysSinceCreation > 30 ? "high" : "medium",
+      };
+    });
+
+    // Filtrar solo departamentos con más de 30 días
+    const criticalAlerts = alerts.filter((alert) => alert.daysSinceCreation >= 30);
+
+    return {
+      alerts: criticalAlerts,
+      totalCount: criticalAlerts.length,
+    };
+  }),
+
+  /**
+   * Obtener historial de reasignaciones masivas
+   */
+  getReassignmentHistory: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(10),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { page, pageSize } = input;
+      const offset = (page - 1) * pageSize;
+
+      // Obtener reasignaciones con paginación
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const reassignments = await db
+        .select()
+        .from(bulkReassignments)
+        .orderBy(desc(bulkReassignments.createdAt))
+        .limit(pageSize)
+        .offset(offset)
+        .execute();
+
+      // Contar total de reasignaciones
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const [{ total }] = await db
+        .select({ total: count() })
+        .from(bulkReassignments)
+        .execute();
+
+      // Obtener detalles de empleados para cada reasignación
+      const reassignmentsWithDetails = await Promise.all(
+        reassignments.map(async (reassignment) => {
+          // @ts-expect-error - getDb() siempre retorna instancia válida
+          const details = await db
+            .select()
+            .from(bulkReassignmentDetails)
+            .where(eq(bulkReassignmentDetails.reassignmentId, reassignment.id))
+            .execute();
+
+          return {
+            ...reassignment,
+            affectedEmployees: details,
+          };
+        })
+      );
+
+      return {
+        reassignments: reassignmentsWithDetails,
+        totalCount: total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    }),
 });
+
+

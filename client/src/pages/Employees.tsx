@@ -80,8 +80,32 @@ export default function Employees() {
       alert(`Error al leer archivo: ${error.message}`);
     }
   };
+  // Mutation para generar plantilla Excel
+  const generateTemplateMutation = trpc.employees.generateImportTemplate.useMutation({
+    onSuccess: (data) => {
+      // Descargar archivo
+      const link = document.createElement('a');
+      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-  // Import employees mutation
+      toast({
+        title: 'Plantilla generada',
+        description: 'La plantilla se ha descargado correctamente',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo generar la plantilla',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Mutation para importar empleados
   const importMutation = trpc.employees.importFromFile.useMutation({
     onSuccess: (result) => {
       setImportResult(result);
@@ -444,11 +468,29 @@ export default function Employees() {
       <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Importar Empleados desde Excel/CSV</DialogTitle>
-            <DialogDescription>
-              Sube un archivo Excel o CSV con la información de los empleados. El archivo debe contener las siguientes columnas:
-              firstName, lastName, email, phone, department, position, hireDate, gender, birthDate, curp, rfc, nss, address, city, state, postalCode
-            </DialogDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle>Importar Empleados desde Excel/CSV</DialogTitle>
+                <DialogDescription className="mt-2">
+                  Sube un archivo Excel o CSV con la información de los empleados.
+                </DialogDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => generateTemplateMutation.mutate()}
+                disabled={generateTemplateMutation.isPending}
+              >
+                {generateTemplateMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generando...
+                  </>
+                ) : (
+                  'Descargar Plantilla'
+                )}
+              </Button>
+            </div>
           </DialogHeader>
 
           <div className="space-y-4">

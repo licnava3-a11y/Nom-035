@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import TrendsCharts from '@/components/TrendsCharts';
 import RecognitionsCard from '@/components/RecognitionsCard';
+import AssignManagerDialog from '@/components/AssignManagerDialog';
 import { Link } from 'wouter';
 import { 
   Users, 
@@ -97,6 +98,15 @@ export default function DashboardConsolidated() {
   const { data: cases, isLoading: casesLoading } = trpc.cases.list.useQuery(undefined, {
     enabled: user?.role === 'admin' || (user?.role as string) === 'committee',
   });
+
+  // Alertas de departamentos sin manager (solo para admin)
+  const { data: departmentAlerts, isLoading: alertsLoading } = trpc.departments.getActiveAlerts.useQuery(undefined, {
+    enabled: user?.role === 'admin',
+    refetchInterval: 5 * 60 * 1000, // Refetch cada 5 minutos
+  });
+
+  // Estado para dialog de asignación rápida
+  const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
 
   // Brechas críticas de competencias (solo para admin)
   const { data: criticalGaps, isLoading: gapsLoading } = trpc.trainingNeeds.getCriticalGaps.useQuery(
@@ -451,6 +461,68 @@ export default function DashboardConsolidated() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Widget de Alertas de Departamentos */}
+          {departmentAlerts && departmentAlerts.totalCount > 0 && (
+            <Card className="border-destructive/50 bg-destructive/5">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-destructive flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5" />
+                      Alertas de Departamentos sin Manager
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {departmentAlerts.totalCount} departamento(s) sin responsable asignado por más de 30 días
+                    </CardDescription>
+                  </div>
+                  <Link href="/department-management">
+                    <Button variant="outline" size="sm">
+                      Gestionar Departamentos
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {departmentAlerts.alerts.slice(0, 5).map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="flex items-center justify-between p-3 bg-background rounded-lg border"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{alert.name}</p>
+                          {alert.code && (
+                            <span className="text-xs text-muted-foreground">({alert.code})</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {alert.daysSinceCreation} días sin manager
+                          {alert.urgency === "critical" && (
+                            <span className="ml-2 text-destructive font-semibold">⚠️ CRÍTICO</span>
+                          )}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => setSelectedDepartment(alert.id)}
+                      >
+                        Asignar Manager
+                      </Button>
+                    </div>
+                  ))}
+                  {departmentAlerts.totalCount > 5 && (
+                    <p className="text-sm text-muted-foreground text-center pt-2">
+                      Y {departmentAlerts.totalCount - 5} departamento(s) más...
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Gráficas */}
           <div className="grid gap-6 md:grid-cols-2">
@@ -1064,6 +1136,21 @@ export default function DashboardConsolidated() {
           <h2 className="text-2xl font-bold mb-4">Tendencias Temporales</h2>
           <TrendsCharts />
         </div>
+      )}
+
+      {/* Dialog de Asignación Rápida de Manager */}
+      {selectedDepartment && (
+        <AssignManagerDialog
+          departmentId={selectedDepartment}
+          onClose={() => setSelectedDepartment(null)}
+          onSuccess={() => {
+            setSelectedDepartment(null);
+            // Refetch alertas
+            if (user?.role === 'admin') {
+              trpc.useUtils().departments.getActiveAlerts.invalidate();
+            }
+          }}
+        />
       )}
     </div>
   );

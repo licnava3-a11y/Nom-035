@@ -3633,3 +3633,42 @@ export const reportCache = mysqlTable("report_cache", {
 });
 
 
+// Tabla de historial de reasignaciones masivas de departamentos
+export const bulkReassignments = mysqlTable("bulk_reassignments", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Departamento origen y destino
+  sourceDepartmentId: int("source_department_id"),
+  sourceDepartmentName: varchar("source_department_name", { length: 255 }),
+  targetDepartmentId: int("target_department_id").notNull(),
+  targetDepartmentName: varchar("target_department_name", { length: 255 }).notNull(),
+  
+  // Usuario que realizó la reasignación
+  performedBy: int("performed_by").notNull(),
+  performedByName: varchar("performed_by_name", { length: 255 }).notNull(),
+  
+  // Motivo de la reasignación
+  reason: text("reason"),
+  
+  // Cantidad de empleados afectados
+  employeeCount: int("employee_count").notNull().default(0),
+  
+  // Fecha de la reasignación
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Tabla de detalles de reasignaciones masivas (empleados afectados)
+export const bulkReassignmentDetails = mysqlTable("bulk_reassignment_details", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Referencia a la reasignación masiva
+  reassignmentId: int("reassignment_id").notNull(),
+  
+  // Empleado afectado
+  employeeId: int("employee_id").notNull(),
+  employeeName: varchar("employee_name", { length: 255 }).notNull(),
+  employeeEmail: varchar("employee_email", { length: 255 }),
+  
+  // Fecha de registro
+  createdAt: timestamp("created_at").defaultNow(),
+});

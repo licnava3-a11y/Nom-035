@@ -701,6 +701,13 @@
       "when": 1771283160959,
       "tag": "0099_nebulous_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "5",
+      "when": 1771332747268,
+      "tag": "0100_friendly_inertia",
+      "breakpoints": true
     }
   ]
 }

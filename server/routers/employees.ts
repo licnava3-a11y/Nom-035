@@ -656,4 +656,99 @@ export const employeesRouter = router({
         });
       }
     }),
+
+  /**
+   * Generar plantilla Excel para importación de empleados
+   */
+  generateImportTemplate: protectedProcedure.mutation(async () => {
+    const XLSX = await import("xlsx");
+
+    // Definir columnas de la plantilla
+    const headers = [
+      "nombre",
+      "email",
+      "departamento",
+      "puesto",
+      "telefono",
+      "fechaNacimiento",
+      "sexo",
+      "curp",
+      "rfc",
+      "nss",
+      "fechaIngreso",
+      "salario",
+      "nivelJerarquico",
+      "calle",
+      "numeroExterior",
+      "colonia",
+      "ciudad",
+      "estado",
+      "codigoPostal",
+      "nombreContactoEmergencia",
+      "telefonoContactoEmergencia",
+      "estadoCivil",
+      "nivelEducativo",
+    ];
+
+    // Datos de ejemplo
+    const exampleRow = {
+      nombre: "Juan Pérez García",
+      email: "juan.perez@empresa.com",
+      departamento: "Recursos Humanos",
+      puesto: "Analista de Nómina",
+      telefono: "6141234567",
+      fechaNacimiento: "1990-05-15",
+      sexo: "Masculino",
+      curp: "PEGJ900515HCHRRN01",
+      rfc: "PEGJ900515ABC",
+      nss: "12345678901",
+      fechaIngreso: "2020-01-10",
+      salario: "25000",
+      nivelJerarquico: "Operativo",
+      calle: "Av. Principal",
+      numeroExterior: "123",
+      colonia: "Centro",
+      ciudad: "Chihuahua",
+      estado: "Chihuahua",
+      codigoPostal: "31000",
+      nombreContactoEmergencia: "María Pérez",
+      telefonoContactoEmergencia: "6149876543",
+      estadoCivil: "Casado",
+      nivelEducativo: "Licenciatura",
+    };
+
+    // Crear hoja de trabajo con headers y ejemplo
+    const worksheet = XLSX.utils.json_to_sheet([exampleRow], { header: headers });
+
+    // Agregar nota informativa en la primera fila
+    XLSX.utils.sheet_add_aoa(
+      worksheet,
+      [
+        [
+          "PLANTILLA DE IMPORTACIÓN DE EMPLEADOS - Complete los datos siguiendo el ejemplo. Elimine esta fila antes de importar.",
+        ],
+      ],
+      { origin: "A1" }
+    );
+
+    // Ajustar ancho de columnas
+    const columnWidths = headers.map(() => ({ wch: 20 }));
+    worksheet["!cols"] = columnWidths;
+
+    // Crear libro de trabajo
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Empleados");
+
+    // Generar buffer
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    // Convertir a base64 para descarga
+    const base64 = buffer.toString("base64");
+
+    return {
+      filename: `plantilla_importacion_empleados_${Date.now()}.xlsx`,
+      data: base64,
+    };
+  }),
 });
+

@@ -80,6 +80,13 @@ export default function DepartmentManagement() {
     },
   });
 
+  // Query para obtener historial de reasignaciones
+  const [historyPage, setHistoryPage] = useState(1);
+  const { data: reassignmentHistory, isLoading: historyLoading } = trpc.departments.getReassignmentHistory.useQuery({
+    page: historyPage,
+    pageSize: 10,
+  });
+
   // Query para obtener lista de empleados
   const { data: employeesData } = trpc.employees.list.useQuery(
     { page: 1, pageSize: 1000 },
@@ -577,7 +584,105 @@ export default function DepartmentManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog para reasignación masiva */}
+        {/* Historial de Reasignaciones Masivas */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Historial de Reasignaciones Masivas</CardTitle>
+          <CardDescription>
+            Registro de todas las reasignaciones masivas de empleados entre departamentos
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {historyLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : reassignmentHistory && reassignmentHistory.reassignments.length > 0 ? (
+            <>
+              <div className="space-y-4">
+                {reassignmentHistory.reassignments.map((reassignment: any) => (
+                  <div key={reassignment.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-semibold">
+                            {reassignment.sourceDepartmentName || 'Varios departamentos'} →{' '}
+                            {reassignment.targetDepartmentName}
+                          </h4>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                            {reassignment.employeeCount} empleado(s)
+                          </span>
+                        </div>
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <p>
+                            <strong>Realizado por:</strong> {reassignment.performedByName}
+                          </p>
+                          <p>
+                            <strong>Fecha:</strong>{' '}
+                            {new Date(reassignment.createdAt).toLocaleString('es-MX')}
+                          </p>
+                          {reassignment.reason && (
+                            <p>
+                              <strong>Motivo:</strong> {reassignment.reason}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {reassignment.affectedEmployees && reassignment.affectedEmployees.length > 0 && (
+                      <details className="mt-3">
+                        <summary className="cursor-pointer text-sm font-medium text-primary hover:underline">
+                          Ver empleados afectados ({reassignment.affectedEmployees.length})
+                        </summary>
+                        <div className="mt-2 pl-4 space-y-1">
+                          {reassignment.affectedEmployees.map((emp: any) => (
+                            <div key={emp.id} className="text-sm text-muted-foreground">
+                              • {emp.employeeName} {emp.employeeEmail && `(${emp.employeeEmail})`}
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Paginación */}
+              {reassignmentHistory.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-sm text-muted-foreground">
+                    Página {reassignmentHistory.page} de {reassignmentHistory.totalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setHistoryPage((prev) => Math.max(1, prev - 1))}
+                      disabled={historyPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setHistoryPage((prev) => prev + 1)}
+                      disabled={historyPage >= reassignmentHistory.totalPages}
+                    >
+                      Siguiente
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No hay reasignaciones masivas registradas
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dialog de Reasignación Masiva */}
       <Dialog open={isReassignDialogOpen} onOpenChange={setIsReassignDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
