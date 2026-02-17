@@ -1,0 +1,622 @@
+/**
+ * Panel de Configuración de Reportes Ejecutivos
+ * Permite configurar frecuencia, destinatarios y opciones de reportes automatizados
+ */
+
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Pencil, Trash2, Power, PowerOff, Calendar, Mail, Settings } from "lucide-react";
+import { toast } from "sonner";
+
+type ReportConfig = {
+  id: number;
+  reportType: string;
+  frequency: string;
+  customSchedule: string | null;
+  recipients: string;
+  ccRecipients: string | null;
+  enabled: boolean;
+  includeCharts: boolean;
+  includeTrends: boolean;
+  includeRecommendations: boolean;
+  departmentIds: string | null;
+  dateRangeType: string;
+  lastExecutedAt: Date | null;
+  nextExecutionAt: Date | null;
+  executionCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: number;
+};
+
+export default function ReportConfigurationPanel() {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedConfig, setSelectedConfig] = useState<ReportConfig | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Form state
+  const [reportType, setReportType] = useState("executive_weekly");
+  const [frequency, setFrequency] = useState<"weekly" | "monthly" | "quarterly" | "custom">("weekly");
+  const [customSchedule, setCustomSchedule] = useState("");
+  const [recipients, setRecipients] = useState("");
+  const [ccRecipients, setCcRecipients] = useState("");
+  const [enabled, setEnabled] = useState(true);
+  const [includeCharts, setIncludeCharts] = useState(true);
+  const [includeTrends, setIncludeTrends] = useState(true);
+  const [includeRecommendations, setIncludeRecommendations] = useState(true);
+  const [dateRangeType, setDateRangeType] = useState<"auto" | "custom" | "last_7_days" | "last_30_days">("auto");
+
+  // Queries
+  const { data: configs, isLoading, refetch } = trpc.reportConfigurations.getAll.useQuery();
+
+  // Mutations
+  const createMutation = trpc.reportConfigurations.create.useMutation({
+    onSuccess: () => {
+      toast.success("Configuración de reporte creada exitosamente");
+      refetch();
+      setIsCreateDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error(`Error al crear configuración: ${error.message}`);
+    },
+  });
+
+  const updateMutation = trpc.reportConfigurations.update.useMutation({
+    onSuccess: () => {
+      toast.success("Configuración actualizada exitosamente");
+      refetch();
+      setIsEditDialogOpen(false);
+      setSelectedConfig(null);
+      resetForm();
+    },
+    onError: (error) => {
+      toast.error(`Error al actualizar configuración: ${error.message}`);
+    },
+  });
+
+  const deleteMutation = trpc.reportConfigurations.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Configuración eliminada exitosamente");
+      refetch();
+      setIsDeleteDialogOpen(false);
+      setSelectedConfig(null);
+    },
+    onError: (error) => {
+      toast.error(`Error al eliminar configuración: ${error.message}`);
+    },
+  });
+
+  const toggleEnabledMutation = trpc.reportConfigurations.toggleEnabled.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const resetForm = () => {
+    setReportType("executive_weekly");
+    setFrequency("weekly");
+    setCustomSchedule("");
+    setRecipients("");
+    setCcRecipients("");
+    setEnabled(true);
+    setIncludeCharts(true);
+    setIncludeTrends(true);
+    setIncludeRecommendations(true);
+    setDateRangeType("auto");
+  };
+
+  const handleCreate = () => {
+    const recipientsList = recipients.split(",").map((r) => r.trim()).filter((r) => r);
+    const ccRecipientsList = ccRecipients ? ccRecipients.split(",").map((r) => r.trim()).filter((r) => r) : [];
+
+    createMutation.mutate({
+      reportType,
+      frequency,
+      customSchedule: frequency === "custom" ? customSchedule : undefined,
+      recipients: recipientsList,
+      ccRecipients: ccRecipientsList.length > 0 ? ccRecipientsList : undefined,
+      enabled,
+      includeCharts,
+      includeTrends,
+      includeRecommendations,
+      dateRangeType,
+    });
+  };
+
+  const handleEdit = () => {
+    if (!selectedConfig) return;
+
+    const recipientsList = recipients.split(",").map((r) => r.trim()).filter((r) => r);
+    const ccRecipientsList = ccRecipients ? ccRecipients.split(",").map((r) => r.trim()).filter((r) => r) : [];
+
+    updateMutation.mutate({
+      id: selectedConfig.id,
+      reportType,
+      frequency,
+      customSchedule: frequency === "custom" ? customSchedule : undefined,
+      recipients: recipientsList,
+      ccRecipients: ccRecipientsList.length > 0 ? ccRecipientsList : undefined,
+      enabled,
+      includeCharts,
+      includeTrends,
+      includeRecommendations,
+      dateRangeType,
+    });
+  };
+
+  const openEditDialog = (config: ReportConfig) => {
+    setSelectedConfig(config);
+    setReportType(config.reportType);
+    setFrequency(config.frequency as any);
+    setCustomSchedule(config.customSchedule || "");
+    setRecipients(JSON.parse(config.recipients).join(", "));
+    setCcRecipients(config.ccRecipients ? JSON.parse(config.ccRecipients).join(", ") : "");
+    setEnabled(config.enabled);
+    setIncludeCharts(config.includeCharts);
+    setIncludeTrends(config.includeTrends);
+    setIncludeRecommendations(config.includeRecommendations);
+    setDateRangeType(config.dateRangeType as any);
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (config: ReportConfig) => {
+    setSelectedConfig(config);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleToggleEnabled = (config: ReportConfig) => {
+    toggleEnabledMutation.mutate({
+      id: config.id,
+      enabled: !config.enabled,
+    });
+  };
+
+  const getFrequencyBadge = (freq: string) => {
+    const colors: Record<string, string> = {
+      weekly: "bg-blue-100 text-blue-800",
+      monthly: "bg-green-100 text-green-800",
+      quarterly: "bg-purple-100 text-purple-800",
+      custom: "bg-orange-100 text-orange-800",
+    };
+    return <Badge className={colors[freq] || ""}>{freq}</Badge>;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-muted-foreground">Cargando configuraciones...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Configuración de Reportes Ejecutivos</h1>
+          <p className="text-muted-foreground mt-2">
+            Gestiona la frecuencia, destinatarios y opciones de reportes automatizados
+          </p>
+        </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nueva Configuración
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Total Configuraciones</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{configs?.length || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Activas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {configs?.filter((c) => c.enabled).length || 0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Deshabilitadas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-400">
+              {configs?.filter((c) => !c.enabled).length || 0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Total Ejecuciones</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {configs?.reduce((sum, c) => sum + c.executionCount, 0) || 0}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Configurations Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Configuraciones de Reportes</CardTitle>
+          <CardDescription>
+            Lista de todas las configuraciones de reportes automatizados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!configs || configs.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Settings className="mx-auto h-12 w-12 mb-4 opacity-50" />
+              <p>No hay configuraciones de reportes</p>
+              <p className="text-sm mt-2">Crea una nueva configuración para comenzar</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tipo de Reporte</TableHead>
+                  <TableHead>Frecuencia</TableHead>
+                  <TableHead>Destinatarios</TableHead>
+                  <TableHead>Próxima Ejecución</TableHead>
+                  <TableHead>Ejecuciones</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {configs.map((config) => (
+                  <TableRow key={config.id}>
+                    <TableCell className="font-medium">{config.reportType}</TableCell>
+                    <TableCell>{getFrequencyBadge(config.frequency)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        {JSON.parse(config.recipients).length} destinatarios
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {config.nextExecutionAt ? (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {new Date(config.nextExecutionAt).toLocaleDateString("es-MX")}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{config.executionCount}</TableCell>
+                    <TableCell>
+                      {config.enabled ? (
+                        <Badge className="bg-green-100 text-green-800">Activo</Badge>
+                      ) : (
+                        <Badge variant="secondary">Deshabilitado</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleEnabled(config)}
+                        >
+                          {config.enabled ? (
+                            <PowerOff className="h-4 w-4" />
+                          ) : (
+                            <Power className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditDialog(config)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDeleteDialog(config)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Create Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nueva Configuración de Reporte</DialogTitle>
+            <DialogDescription>
+              Configura un nuevo reporte ejecutivo automatizado
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="reportType">Tipo de Reporte</Label>
+              <Input
+                id="reportType"
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value)}
+                placeholder="executive_weekly"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="frequency">Frecuencia</Label>
+              <Select value={frequency} onValueChange={(v: any) => setFrequency(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Semanal</SelectItem>
+                  <SelectItem value="monthly">Mensual</SelectItem>
+                  <SelectItem value="quarterly">Trimestral</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {frequency === "custom" && (
+              <div className="grid gap-2">
+                <Label htmlFor="customSchedule">Cron Expression</Label>
+                <Input
+                  id="customSchedule"
+                  value={customSchedule}
+                  onChange={(e) => setCustomSchedule(e.target.value)}
+                  placeholder="0 0 8 * * 1"
+                />
+              </div>
+            )}
+            <div className="grid gap-2">
+              <Label htmlFor="recipients">Destinatarios (separados por comas)</Label>
+              <Input
+                id="recipients"
+                value={recipients}
+                onChange={(e) => setRecipients(e.target.value)}
+                placeholder="email1@example.com, email2@example.com"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="ccRecipients">CC (opcional, separados por comas)</Label>
+              <Input
+                id="ccRecipients"
+                value={ccRecipients}
+                onChange={(e) => setCcRecipients(e.target.value)}
+                placeholder="cc1@example.com, cc2@example.com"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="dateRangeType">Rango de Fechas</Label>
+              <Select value={dateRangeType} onValueChange={(v: any) => setDateRangeType(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Automático</SelectItem>
+                  <SelectItem value="last_7_days">Últimos 7 días</SelectItem>
+                  <SelectItem value="last_30_days">Últimos 30 días</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="enabled">Habilitado</Label>
+                <Switch checked={enabled} onCheckedChange={setEnabled} id="enabled" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="includeCharts">Incluir Gráficos</Label>
+                <Switch checked={includeCharts} onCheckedChange={setIncludeCharts} id="includeCharts" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="includeTrends">Incluir Tendencias</Label>
+                <Switch checked={includeTrends} onCheckedChange={setIncludeTrends} id="includeTrends" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="includeRecommendations">Incluir Recomendaciones</Label>
+                <Switch checked={includeRecommendations} onCheckedChange={setIncludeRecommendations} id="includeRecommendations" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <LoadingButton
+              onClick={handleCreate}
+              loading={createMutation.isPending}
+            >
+              Crear Configuración
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Configuración de Reporte</DialogTitle>
+            <DialogDescription>
+              Modifica la configuración del reporte ejecutivo
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Same form fields as Create Dialog */}
+            <div className="grid gap-2">
+              <Label htmlFor="edit-reportType">Tipo de Reporte</Label>
+              <Input
+                id="edit-reportType"
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-frequency">Frecuencia</Label>
+              <Select value={frequency} onValueChange={(v: any) => setFrequency(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Semanal</SelectItem>
+                  <SelectItem value="monthly">Mensual</SelectItem>
+                  <SelectItem value="quarterly">Trimestral</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {frequency === "custom" && (
+              <div className="grid gap-2">
+                <Label htmlFor="edit-customSchedule">Cron Expression</Label>
+                <Input
+                  id="edit-customSchedule"
+                  value={customSchedule}
+                  onChange={(e) => setCustomSchedule(e.target.value)}
+                />
+              </div>
+            )}
+            <div className="grid gap-2">
+              <Label htmlFor="edit-recipients">Destinatarios</Label>
+              <Input
+                id="edit-recipients"
+                value={recipients}
+                onChange={(e) => setRecipients(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-ccRecipients">CC (opcional)</Label>
+              <Input
+                id="edit-ccRecipients"
+                value={ccRecipients}
+                onChange={(e) => setCcRecipients(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-dateRangeType">Rango de Fechas</Label>
+              <Select value={dateRangeType} onValueChange={(v: any) => setDateRangeType(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Automático</SelectItem>
+                  <SelectItem value="last_7_days">Últimos 7 días</SelectItem>
+                  <SelectItem value="last_30_days">Últimos 30 días</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-enabled">Habilitado</Label>
+                <Switch checked={enabled} onCheckedChange={setEnabled} id="edit-enabled" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-includeCharts">Incluir Gráficos</Label>
+                <Switch checked={includeCharts} onCheckedChange={setIncludeCharts} id="edit-includeCharts" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-includeTrends">Incluir Tendencias</Label>
+                <Switch checked={includeTrends} onCheckedChange={setIncludeTrends} id="edit-includeTrends" />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-includeRecommendations">Incluir Recomendaciones</Label>
+                <Switch checked={includeRecommendations} onCheckedChange={setIncludeRecommendations} id="edit-includeRecommendations" />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <LoadingButton
+              onClick={handleEdit}
+              loading={updateMutation.isPending}
+            >
+              Guardar Cambios
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Eliminación</DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro de que deseas eliminar esta configuración de reporte?
+              Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <LoadingButton
+              variant="destructive"
+              onClick={() => selectedConfig && deleteMutation.mutate({ id: selectedConfig.id })}
+              loading={deleteMutation.isPending}
+            >
+              Eliminar
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

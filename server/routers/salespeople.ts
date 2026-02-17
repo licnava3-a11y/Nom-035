@@ -109,4 +109,93 @@ export const salespeopleRouter = router({
       }
       return performance;
     }),
+
+  /**
+   * Obtener métricas comparativas de todos los vendedores
+   */
+  getComparativeMetrics: protectedProcedure
+    .input(
+      z.object({
+        months: z.number().min(1).max(24).optional().default(6),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const { salespeople, leads } = await import("../../drizzle/schema");
+      const { eq, and, gte, sql } = await import("drizzle-orm");
+
+      // Fecha de inicio para el período
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - input.months);
+
+      // Obtener todos los vendedores activos
+      const allSalespeople = await db.select().from(salespeople).where(eq(salespeople.activo, true));
+
+      // Obtener métricas de cada vendedor
+      const metrics = await Promise.all(
+        allSalespeople.map(async (sp) => {
+          // Total leads asignados
+          const totalLeads = await db
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(leads)
+            .where(
+              and(
+                eq(leads.asignadoA, sp.id),
+                gte(leads.fechaCreacion, startDate)
+              )
+            );
+
+          // Leads ganados
+          const wonLeads = await db
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(leads)
+            .where(
+              and(
+                eq(leads.asignadoA, sp.id),
+                eq(leads.estado, "ganado"),
+                gte(leads.fechaCreacion, startDate)
+              )
+            );
+
+          // Leads perdidos
+          const lostLeads = await db
+            .select({ count: sql<number>`COUNT(*)` })
+            .from(leads)
+            .where(
+              and(
+                eq(leads.asignadoA, sp.id),
+                eq(leads.estado, "perdido"),
+                gte(leads.fechaCreacion, startDate)
+              )
+            );
+
+          const total = Number(totalLeads[0]?.count || 0);
+          const won = Number(wonLeads[0]?.count || 0);
+          const lost = Number(lostLeads[0]?.count || 0);
+          const conversionRate = total > 0 ? (won / total) * 100 : 0;
+
+          return {
+            salespersonId: sp.id,
+            nombre: sp.nombre,
+            email: sp.email,
+            totalLeads: total,
+            wonLeads: won,
+            lostLeads: lost,
+            activeLeads: total - won - lost,
+            conversionRate: Math.round(conversionRate * 100) / 100,
+          };
+        })
+      );
+
+      // Ordenar por tasa de conversión descendente
+      metrics.sort((a, b) => b.conversionRate - a.conversionRate);
+
+      return {
+        salespeople: metrics,
+        periodMonths: input.months,
+        generatedAt: new Date(),
+      };
+    }),
 });

@@ -75,6 +75,8 @@ const WhatsAppMetrics = lazy(() => import("./pages/WhatsAppMetrics"));
 const LeadsPipeline = lazy(() => import("./pages/LeadsPipeline"));
 const SalesPeopleManagement = lazy(() => import("./pages/SalesPeopleManagement"));
 const SalespersonPerformance = lazy(() => import("./pages/SalespersonPerformance"));
+const ReportConfigurationPanel = lazy(() => import("./pages/ReportConfigurationPanel"));
+const SalesComparativeDashboard = lazy(() => import("./pages/SalesComparativeDashboard"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NOM035Landing = lazy(() => import("./pages/NOM035Landing"));
 const NOM037Landing = lazy(() => import("./pages/NOM037Landing"));
@@ -658,6 +660,20 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <SalespersonPerformance />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/sales-comparative"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SalesComparativeDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/report-configuration"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ReportConfigurationPanel />
             </Suspense>
           </DashboardLayout>
         </Route>

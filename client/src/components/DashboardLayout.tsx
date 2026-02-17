@@ -232,6 +232,7 @@ const hierarchicalMenuItems = [
       { label: "Métricas de WhatsApp", path: "/whatsapp-metrics", description: "Seguimiento de conversiones y normativas solicitadas" },
       { label: "Pipeline de Leads", path: "/leads-pipeline", description: "Gestión de oportunidades de venta con Kanban" },
       { label: "Gestión de Vendedores", path: "/salespeople-management", description: "Administrar equipo de ventas y distribución de leads" },
+      { label: "Dashboard Comparativo", path: "/sales-comparative", description: "Métricas comparativas y ranking de vendedores" },
       { label: "Roles y Permisos", path: "/administrative/roles-permissions", description: "Administración de roles y matriz de permisos" },
       { label: "Permisos Personalizados", path: "/administrative/custom-permissions", description: "Asignar permisos específicos por usuario" },
       { label: "Auditoría de Permisos", path: "/administrative/permission-audit", description: "Historial de cambios de roles y permisos" },
@@ -244,6 +245,7 @@ const hierarchicalMenuItems = [
       { label: "Auditoría de Documentos", path: "/document-audit", description: "Registro de accesos y descargas" },
       { label: "Alertas de Seguridad", path: "/security-alerts", description: "Monitoreo de actividad sospechosa" },
       { label: "Monitoreo de Jobs", path: "/job-monitoring", description: "Historial y ejecución manual de jobs automáticos" },
+      { label: "Configuración de Reportes", path: "/report-configuration", description: "Gestionar reportes ejecutivos automatizados" },
     ],
   },
 ];
