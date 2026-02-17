@@ -1338,3 +1338,24 @@
 - [x] Implementar sección de historial en DepartmentManagement.tsx
 - [x] Agregar paginación y detalles expandibles de empleados
 - [x] Mostrar información completa: fecha, usuario, motivo, departamentos
+
+## Nuevas Tareas - Dashboard de Métricas de Departamentos y Exportación Masiva
+
+### 1. Dashboard de Métricas de Departamentos
+- [x] Crear router departmentMetrics
+- [x] Implementar query getRotationMetrics (altas/bajas por departamento)
+- [x] Implementar query getGrowthMetrics (crecimiento mensual por departamento)
+- [x] Implementar query getDistributionMetrics (distribución de empleados)
+- [x] Crear página DepartmentMetrics.tsx
+- [x] Implementar gráfico de rotación (line chart con tendencias)
+- [x] Implementar gráfico de crecimiento (bar chart comparativo)
+- [x] Implementar gráfico de distribución (pie chart por departamento)
+- [x] Agregar filtros por período (mes, trimestre, año)
+- [x] Agregar navegación en menú lateral (Administración > Métricas de Departamentos)
+
+### 2. Exportación Masiva de Datos
+- [x] Crear procedure departments.exportAll
+- [x] Generar Excel con 3 hojas: Departamentos, Empleados por Departamento, Managers
+- [x] Incluir columnas: ID, Nombre, Código, Manager, Total Empleados, Fecha Creación
+- [x] Implementar botón "Exportar Todo" en DepartmentManagement.tsx
+- [x] Descarga automática del archivo .xlsx

@@ -59,6 +59,7 @@ import { smtpConfigRouter } from "./routers/smtpConfig";
 import { financialRouter } from "./routers/financial";
 import { nom035Router } from "./routers/nom035";
 import { departmentsRouter } from "./routers/departments";
+import { departmentMetricsRouter } from "./routers/departmentMetrics";
 import { positionsRouter } from "./routers/positions";
 import { notificationsRouter } from "./routers/notifications";
 import { alertsRouter } from "./routers/alerts";
@@ -166,6 +167,7 @@ export const appRouter = router({
   smtpConfig: smtpConfigRouter,
   nom035: nom035Router,
   departments: departmentsRouter,
+  departmentMetrics: departmentMetricsRouter,
   positions: positionsRouter,
   notifications: notificationsRouter,
   alerts: alertsRouter,

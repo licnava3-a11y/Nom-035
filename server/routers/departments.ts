@@ -855,6 +855,131 @@ export const departmentsRouter = router({
         totalPages: Math.ceil(total / pageSize),
       };
     }),
+
+  /**
+   * Exportar todos los departamentos a Excel
+   * Genera archivo con 3 hojas: Departamentos, Empleados por Departamento, Managers
+   */
+  exportAll: protectedProcedure.mutation(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    const XLSX = await import("xlsx");
+
+    // Obtener todos los departamentos con manager
+    // @ts-expect-error - getDb() siempre retorna instancia válida
+    const allDepartments = await db
+      .select({
+        id: departments.id,
+        name: departments.name,
+        code: departments.code,
+        managerId: departments.managerId,
+        managerName: sql`(SELECT name FROM user WHERE id = ${departments.managerId})`
+          .mapWith(String)
+          .as("managerName"),
+        createdAt: departments.createdAt,
+        isActive: departments.isActive,
+      })
+      .from(departments)
+      .execute();
+
+    // Contar empleados por departamento
+    const employeeCounts = await Promise.all(
+      allDepartments.map(async (dept) => {
+        // @ts-expect-error - getDb() siempre retorna instancia válida
+        const [result] = await db
+          .select({ count: count() })
+          .from(employees)
+          .where(eq(employees.departmentId, dept.id))
+          .execute();
+
+        return {
+          departmentId: dept.id,
+          employeeCount: result.count,
+        };
+      })
+    );
+
+    // Hoja 1: Departamentos
+    const departmentsData = allDepartments.map((dept) => {
+      const empCount = employeeCounts.find((ec) => ec.departmentId === dept.id);
+      return {
+        ID: dept.id,
+        "Nombre": dept.name,
+        "Código": dept.code,
+        "Manager": dept.managerName || "Sin asignar",
+        "Total Empleados": empCount?.employeeCount || 0,
+        "Fecha Creación": dept.createdAt
+          ? new Date(dept.createdAt).toLocaleDateString("es-MX")
+          : "",
+        "Estado": dept.isActive ? "Activo" : "Inactivo",
+      };
+    });
+
+    // Hoja 2: Empleados por Departamento
+    const employeesByDept = await Promise.all(
+      allDepartments.map(async (dept) => {
+        // @ts-expect-error - getDb() siempre retorna instancia válida
+        const deptEmployees = await db
+          .select({
+            id: employees.id,
+            name: employees.name,
+            email: employees.email,
+            position: employees.position,
+            status: employees.status,
+          })
+          .from(employees)
+          .where(eq(employees.departmentId, dept.id))
+          .execute();
+
+        return deptEmployees.map((emp) => ({
+          "Departamento": dept.name,
+          "ID Empleado": emp.id,
+          "Nombre": emp.name,
+          "Email": emp.email,
+          "Puesto": emp.position,
+          "Estado": emp.status,
+        }));
+      })
+    );
+    const flatEmployeesData = employeesByDept.flat();
+
+    // Hoja 3: Managers
+    const managersData = allDepartments
+      .filter((dept) => dept.managerId)
+      .map((dept) => ({
+        "Departamento": dept.name,
+        "Manager": dept.managerName || "",
+        "ID Manager": dept.managerId,
+      }));
+
+    // Crear workbook
+    const wb = XLSX.utils.book_new();
+
+    // Agregar hojas
+    const ws1 = XLSX.utils.json_to_sheet(departmentsData);
+    XLSX.utils.book_append_sheet(wb, ws1, "Departamentos");
+
+    const ws2 = XLSX.utils.json_to_sheet(flatEmployeesData);
+    XLSX.utils.book_append_sheet(wb, ws2, "Empleados por Departamento");
+
+    const ws3 = XLSX.utils.json_to_sheet(managersData);
+    XLSX.utils.book_append_sheet(wb, ws3, "Managers");
+
+    // Generar buffer
+    const excelBuffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+    // Convertir a base64
+    const base64 = excelBuffer.toString("base64");
+
+    return {
+      filename: `departamentos_exportacion_${new Date().toISOString().split("T")[0]}.xlsx`,
+      data: base64,
+      departmentCount: allDepartments.length,
+      employeeCount: flatEmployeesData.length,
+      managerCount: managersData.length,
+    };
+  }),
 });
 
 

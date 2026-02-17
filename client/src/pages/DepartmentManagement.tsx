@@ -94,8 +94,22 @@ export default function DepartmentManagement() {
   );
 
   // Mutation para generar reporte PDF
+   const exportAllMutation = trpc.departments.exportAll.useMutation({
+    onSuccess: (data) => {
+      // Descargar archivo Excel
+      const link = document.createElement('a');
+      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
+      link.download = data.filename;
+      link.click();
+      toast.success(`Exportación completada: ${data.departmentCount} departamentos, ${data.employeeCount} empleados`);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Error al exportar datos');
+    },
+  });
+
   const generateReportMutation = trpc.reports.generateOrgStructurePDF.useMutation({
-    onSuccess: (result) => {
+    onSuccess: (data) => {
       // Descargar PDF
       const link = document.createElement("a");
       link.href = `data:application/pdf;base64,${result.data}`;
@@ -256,11 +270,19 @@ export default function DepartmentManagement() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => generateReportMutation.mutate({ includeInactive })}
+                onClick={handleGenerateReport}
                 disabled={generateReportMutation.isPending}
               >
                 <FileText className="mr-2 h-4 w-4" />
                 {generateReportMutation.isPending ? "Generando..." : "Generar Reporte PDF"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => exportAllMutation.mutate()}
+                disabled={exportAllMutation.isPending}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                {exportAllMutation.isPending ? "Exportando..." : "Exportar Todo (Excel)"}
               </Button>
               <Button
                 onClick={() => {
