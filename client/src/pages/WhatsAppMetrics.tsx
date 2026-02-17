@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { Line, Pie } from "react-chartjs-2";
 import {
@@ -13,27 +14,61 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { MessageCircle, TrendingUp, Users, CheckCircle } from "lucide-react";
+import { MessageCircle, TrendingUp, Users, CheckCircle, Calendar, X, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { NORMATIVAS_MAP } from "@/lib/whatsapp";
+import { Badge } from "@/components/ui/badge";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend);
 
+type EventType = "click" | "demo_request" | "contact_request" | undefined;
+type ConversionStatus = "pending" | "converted" | "lost" | undefined;
+
 export default function WhatsAppMetrics() {
   const [period, setPeriod] = useState<"day" | "week" | "month">("day");
-  const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [eventType, setEventType] = useState<EventType>(undefined);
+  const [conversionStatus, setConversionStatus] = useState<ConversionStatus>(undefined);
+
+  // Construir filtros para queries
+  const filters = {
+    startDate: dateRange.from ? dateRange.from.toISOString() : undefined,
+    endDate: dateRange.to ? dateRange.to.toISOString() : undefined,
+    eventType,
+    conversionStatus,
+  };
 
   // Queries
-  const { data: metrics, isLoading: metricsLoading } = trpc.whatsappTracking.getConversionMetrics.useQuery(dateRange);
-  const { data: normativas, isLoading: normativasLoading } = trpc.whatsappTracking.getNormativasPopularity.useQuery(dateRange);
+  const { data: metrics, isLoading: metricsLoading } = trpc.whatsappTracking.getConversionMetrics.useQuery(filters);
+  const { data: normativas, isLoading: normativasLoading } = trpc.whatsappTracking.getNormativasPopularity.useQuery(filters);
   const { data: trends, isLoading: trendsLoading } = trpc.whatsappTracking.getConversionTrends.useQuery({
     period,
-    ...dateRange,
+    ...filters,
   });
   const { data: recentEvents, isLoading: eventsLoading } = trpc.whatsappTracking.getRecentEvents.useQuery({
     limit: 10,
     offset: 0,
+    ...filters,
   });
+
+  // Función para limpiar filtros
+  const clearFilters = () => {
+    setDateRange({});
+    setEventType(undefined);
+    setConversionStatus(undefined);
+  };
+
+  // Contar filtros activos
+  const activeFiltersCount = [
+    dateRange.from,
+    dateRange.to,
+    eventType,
+    conversionStatus,
+  ].filter(Boolean).length;
 
   // Datos para gráfico de tendencias
   const trendsChartData = {
@@ -84,7 +119,7 @@ export default function WhatsAppMetrics() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Métricas de Conversión WhatsApp</h1>
           <p className="text-muted-foreground">
@@ -102,6 +137,104 @@ export default function WhatsAppMetrics() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Filtros Avanzados */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              <CardTitle>Filtros Avanzados</CardTitle>
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary">{activeFiltersCount} activo{activeFiltersCount > 1 ? "s" : ""}</Badge>
+              )}
+            </div>
+            {activeFiltersCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="h-4 w-4 mr-2" />
+                Limpiar Filtros
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Date Range Picker */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fecha Inicio</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange.from ? format(dateRange.from, "PPP", { locale: es }) : "Seleccionar fecha"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={dateRange.from}
+                    onSelect={(date) => setDateRange({ ...dateRange, from: date })}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fecha Fin</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange.to ? format(dateRange.to, "PPP", { locale: es }) : "Seleccionar fecha"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={dateRange.to}
+                    onSelect={(date) => setDateRange({ ...dateRange, to: date })}
+                    initialFocus
+                    disabled={(date) => dateRange.from ? date < dateRange.from : false}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Filtro por Tipo de Evento */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tipo de Evento</label>
+              <Select value={eventType || "all"} onValueChange={(value) => setEventType(value === "all" ? undefined : value as EventType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los tipos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
+                  <SelectItem value="click">Clic Simple</SelectItem>
+                  <SelectItem value="demo_request">Solicitud de Demo</SelectItem>
+                  <SelectItem value="contact_request">Solicitud de Contacto</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro por Estado de Conversión */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Estado de Conversión</label>
+              <Select value={conversionStatus || "all"} onValueChange={(value) => setConversionStatus(value === "all" ? undefined : value as ConversionStatus)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los estados" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="pending">Pendiente</SelectItem>
+                  <SelectItem value="converted">Convertido</SelectItem>
+                  <SelectItem value="lost">Perdido</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Cards de resumen */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -74,6 +74,8 @@ export const whatsappTrackingRouter = router({
         .object({
           startDate: z.string().optional(),
           endDate: z.string().optional(),
+          eventType: z.enum(["click", "demo_request", "contact_request"]).optional(),
+          conversionStatus: z.enum(["pending", "converted", "lost"]).optional(),
         })
         .optional()
     )
@@ -85,13 +87,19 @@ export const whatsappTrackingRouter = router({
           message: "Database not available",
         });
 
-      // Construir condiciones de fecha
+      // Construir condiciones de filtros
       const conditions = [];
       if (input?.startDate) {
         conditions.push(gte(whatsappTrackingEvents.createdAt, new Date(input.startDate)));
       }
       if (input?.endDate) {
         conditions.push(lte(whatsappTrackingEvents.createdAt, new Date(input.endDate)));
+      }
+      if (input?.eventType) {
+        conditions.push(eq(whatsappTrackingEvents.eventType, input.eventType));
+      }
+      if (input?.conversionStatus) {
+        conditions.push(eq(whatsappTrackingEvents.conversionStatus, input.conversionStatus));
       }
 
       // Total de eventos
@@ -112,16 +120,16 @@ export const whatsappTrackingRouter = router({
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .groupBy(whatsappTrackingEvents.eventType);
 
-      // Conversiones
+      // Conversiones (solo si no se filtra por conversionStatus)
+      const convertedConditions = [...conditions];
+      if (!input?.conversionStatus) {
+        convertedConditions.push(eq(whatsappTrackingEvents.conversionStatus, "converted"));
+      }
+      
       const [convertedResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(whatsappTrackingEvents)
-        .where(
-          and(
-            eq(whatsappTrackingEvents.conversionStatus, "converted"),
-            ...(conditions.length > 0 ? conditions : [])
-          )
-        );
+        .where(convertedConditions.length > 0 ? and(...convertedConditions) : undefined);
 
       const totalConverted = Number(convertedResult?.count || 0);
       const conversionRate = totalEvents > 0 ? (totalConverted / totalEvents) * 100 : 0;
@@ -146,6 +154,8 @@ export const whatsappTrackingRouter = router({
         .object({
           startDate: z.string().optional(),
           endDate: z.string().optional(),
+          eventType: z.enum(["click", "demo_request", "contact_request"]).optional(),
+          conversionStatus: z.enum(["pending", "converted", "lost"]).optional(),
         })
         .optional()
     )
@@ -157,13 +167,19 @@ export const whatsappTrackingRouter = router({
           message: "Database not available",
         });
 
-      // Construir condiciones de fecha
+      // Construir condiciones de filtros
       const conditions = [];
       if (input?.startDate) {
         conditions.push(gte(whatsappTrackingEvents.createdAt, new Date(input.startDate)));
       }
       if (input?.endDate) {
         conditions.push(lte(whatsappTrackingEvents.createdAt, new Date(input.endDate)));
+      }
+      if (input?.eventType) {
+        conditions.push(eq(whatsappTrackingEvents.eventType, input.eventType));
+      }
+      if (input?.conversionStatus) {
+        conditions.push(eq(whatsappTrackingEvents.conversionStatus, input.conversionStatus));
       }
 
       // Obtener todos los eventos con normativas
@@ -205,6 +221,8 @@ export const whatsappTrackingRouter = router({
         period: z.enum(["day", "week", "month"]).default("day"),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
+        eventType: z.enum(["click", "demo_request", "contact_request"]).optional(),
+        conversionStatus: z.enum(["pending", "converted", "lost"]).optional(),
       })
     )
     .query(async ({ input }) => {
@@ -215,13 +233,19 @@ export const whatsappTrackingRouter = router({
           message: "Database not available",
         });
 
-      // Construir condiciones de fecha
+      // Construir condiciones de filtros
       const conditions = [];
       if (input.startDate) {
         conditions.push(gte(whatsappTrackingEvents.createdAt, new Date(input.startDate)));
       }
       if (input.endDate) {
         conditions.push(lte(whatsappTrackingEvents.createdAt, new Date(input.endDate)));
+      }
+      if (input.eventType) {
+        conditions.push(eq(whatsappTrackingEvents.eventType, input.eventType));
+      }
+      if (input.conversionStatus) {
+        conditions.push(eq(whatsappTrackingEvents.conversionStatus, input.conversionStatus));
       }
 
       // Formato de fecha según período
@@ -269,6 +293,10 @@ export const whatsappTrackingRouter = router({
       z.object({
         limit: z.number().min(1).max(100).default(20),
         offset: z.number().min(0).default(0),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        eventType: z.enum(["click", "demo_request", "contact_request"]).optional(),
+        conversionStatus: z.enum(["pending", "converted", "lost"]).optional(),
       })
     )
     .query(async ({ input }) => {
@@ -279,17 +307,34 @@ export const whatsappTrackingRouter = router({
           message: "Database not available",
         });
 
+      // Construir condiciones de filtros
+      const conditions = [];
+      if (input.startDate) {
+        conditions.push(gte(whatsappTrackingEvents.createdAt, new Date(input.startDate)));
+      }
+      if (input.endDate) {
+        conditions.push(lte(whatsappTrackingEvents.createdAt, new Date(input.endDate)));
+      }
+      if (input.eventType) {
+        conditions.push(eq(whatsappTrackingEvents.eventType, input.eventType));
+      }
+      if (input.conversionStatus) {
+        conditions.push(eq(whatsappTrackingEvents.conversionStatus, input.conversionStatus));
+      }
+
       const events = await db
         .select()
         .from(whatsappTrackingEvents)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(whatsappTrackingEvents.createdAt))
         .limit(input.limit)
         .offset(input.offset);
 
-      // Contar total
+      // Contar total con filtros
       const [countResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
-        .from(whatsappTrackingEvents);
+        .from(whatsappTrackingEvents)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
 
       const total = Number(countResult?.count || 0);
 

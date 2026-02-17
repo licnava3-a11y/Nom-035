@@ -1630,3 +1630,26 @@
 - [x] Gráfico de distribución de normativas (pie chart)
 - [x] Tabla de eventos recientes con detalles
 - [x] Agregar navegación en menú lateral
+
+## Nuevas Tareas - Filtros Avanzados Dashboard WhatsApp (Febrero 2026)
+
+### 1. Actualizar Router tRPC
+- [x] Agregar parámetros eventType y conversionStatus a procedures
+- [x] Actualizar getConversionMetrics con filtros adicionales
+- [x] Actualizar getNormativasPopularity con filtros adicionales
+- [x] Actualizar getConversionTrends con filtros adicionales
+- [x] Actualizar getRecentEvents con filtros adicionales
+
+### 2. UI de Filtros Avanzados
+- [x] Implementar Date Range Picker (react-day-picker)
+- [x] Crear selector de tipo de evento (Select)
+- [x] Crear selector de estado de conversión (Select)
+- [x] Agregar botón "Limpiar Filtros"
+- [x] Diseñar layout de filtros responsive
+
+### 3. Integración y Funcionalidad
+- [x] Conectar filtros con queries tRPC
+- [x] Implementar persistencia de filtros en estado
+- [x] Actualizar gráficos al cambiar filtros
+- [x] Agregar indicadores visuales de filtros activos (Badge con contador)
+- [x] Instalación de react-day-picker y date-fns
