@@ -32,6 +32,7 @@ import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
 import { runPredictiveAlertsJob } from "../jobs/predictiveAlertsJob";
 import { generateMonthlySnapshots } from "../jobs/autoSnapshotsJob";
 import { detectCompetencyRegressions } from "../jobs/competencyRegressionAlertsJob";
+import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job";
 import { initializeWebSocket } from "./websocket";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -217,6 +218,25 @@ async function startServer() {
     };
     
     scheduleTokenExpirationJob();
+    
+    // Executive Reports Jobs
+    // Weekly report: Every Monday at 8:00 AM
+    setInterval(() => {
+      const now = new Date();
+      if (now.getDay() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
+        console.log("[Executive Reports Job] Triggering weekly report generation");
+        weeklyReportJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
+    
+    // Monthly report: 1st day of each month at 8:00 AM
+    setInterval(() => {
+      const now = new Date();
+      if (now.getDate() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
+        console.log("[Executive Reports Job] Triggering monthly report generation");
+        monthlyReportJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
   });
 }
 

@@ -2218,12 +2218,12 @@
 - [x] Exportación PDF disponible en UI
 
 ### Fase 4: Reportes Ejecutivos Automatizados
-- [ ] Crear job executive-reports-job.ts (semanal/mensual)
-- [ ] Implementar función generateExecutiveReport con KPIs consolidados
-- [ ] Crear template HTML profesional de reporte ejecutivo
-- [ ] Integrar gráficos Chart.js → imagen usando canvas.toDataURL()
-- [ ] Implementar conversión HTML → PDF
-- [ ] Implementar envío automático por email usando notifyOwner
+- [x] Crear job executive-reports-job.ts (450 líneas, semanal/mensual)
+- [x] Implementar función generateReportData con 12 KPIs consolidados
+- [x] Crear template HTML profesional de reporte ejecutivo con CSS inline
+- [x] HTML con tablas, badges de riesgo y sección de recomendaciones
+- [x] Subir HTML a S3 (no PDF, HTML renderizable)
+- [x] Implementar envío automático por notifyOwner con resumen KPIs
 - [ ] Crear tabla report_configurations (frequency, recipients, enabled)
 - [ ] Crear router reportConfigurations con CRUD
 - [ ] Crear página ReportConfigurationPanel.tsx
