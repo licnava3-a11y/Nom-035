@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { Loader2, TrendingUp, Users, BarChart3, Eye, Search } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -35,6 +39,9 @@ export default function DepartmentMetrics() {
   const [growthMonths, setGrowthMonths] = useState(6);
   const [yoyMetric, setYoyMetric] = useState<'rotation' | 'growth' | 'distribution'>('growth');
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
+  const [showEmployeesDialog, setShowEmployeesDialog] = useState(false);
+  const [employeesSearch, setEmployeesSearch] = useState('');
+  const [employeesPage, setEmployeesPage] = useState(1);
 
   // Query de departamentos para el filtro
   const { data: departmentsData } = trpc.departments.list.useQuery({ isActive: true });
@@ -57,6 +64,34 @@ export default function DepartmentMetrics() {
   const { data: predictiveAlerts, isLoading: predictiveAlertsLoading } = trpc.departments.getPredictiveTurnoverAlerts.useQuery({
     status: 'active',
     minRiskScore: 40,
+  });
+
+  // Query de empleados para drill-down
+  const { data: employeesData, isLoading: employeesLoading } = trpc.departmentMetrics.getEmployeeDetails.useQuery(
+    {
+      departmentId: selectedDepartmentId || undefined,
+      search: employeesSearch || undefined,
+      page: employeesPage,
+      pageSize: 20,
+    },
+    {
+      enabled: showEmployeesDialog,
+    }
+  );
+
+  // Mutation para generar PDF de alertas predictivas
+  const generatePredictiveAlertsPDF = trpc.departments.generatePredictiveAlertsPDF.useMutation({
+    onSuccess: (data) => {
+      // Descargar PDF
+      const link = document.createElement('a');
+      link.href = `data:application/pdf;base64,${data.data}`;
+      link.download = data.filename;
+      link.click();
+    },
+    onError: (error) => {
+      console.error('Error al generar PDF:', error);
+      alert('Error al generar el reporte PDF');
+    },
   });
 
   // Configuración de gráfico de rotación (Line Chart)
@@ -620,10 +655,30 @@ export default function DepartmentMetrics() {
       {/* Alertas Predictivas de Rotación */}
       <Card className="col-span-full">
         <CardHeader>
-          <CardTitle>Alertas Predictivas de Rotación</CardTitle>
-          <CardDescription>
-            Departamentos con alto riesgo de rotación basado en análisis predictivo
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Alertas Predictivas de Rotación</CardTitle>
+              <CardDescription>
+                Departamentos con alto riesgo de rotación basado en análisis predictivo
+              </CardDescription>
+            </div>
+            {predictiveAlerts && predictiveAlerts.alerts.length > 0 && (
+              <Button
+                onClick={() => generatePredictiveAlertsPDF.mutate()}
+                disabled={generatePredictiveAlertsPDF.isLoading}
+                variant="outline"
+              >
+                {generatePredictiveAlertsPDF.isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generando...
+                  </>
+                ) : (
+                  'Exportar Reporte PDF'
+                )}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {predictiveAlertsLoading ? (
@@ -727,6 +782,153 @@ export default function DepartmentMetrics() {
           )}
         </CardContent>
       </Card>
+
+      {/* Botón para abrir dialog de empleados */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Empleados por Departamento</CardTitle>
+          <CardDescription>Vista detallada de empleados con métricas individuales</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={() => {
+              setShowEmployeesDialog(true);
+              setEmployeesPage(1);
+              setEmployeesSearch('');
+            }}
+            className="w-full"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Ver Empleados
+            {selectedDepartmentId && departmentsData
+              ? ` de ${departmentsData.find((d) => d.id === selectedDepartmentId)?.name}`
+              : ' de Todos los Departamentos'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Dialog de drill-down de empleados */}
+      <Dialog open={showEmployeesDialog} onOpenChange={setShowEmployeesDialog}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Empleados - Métricas Individuales</DialogTitle>
+            <DialogDescription>
+              {selectedDepartmentId && departmentsData
+                ? `Departamento: ${departmentsData.find((d) => d.id === selectedDepartmentId)?.name}`
+                : 'Todos los departamentos'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Barra de búsqueda */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre, apellido o email..."
+                value={employeesSearch}
+                onChange={(e) => {
+                  setEmployeesSearch(e.target.value);
+                  setEmployeesPage(1);
+                }}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Tabla de empleados */}
+            {employeesLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : employeesData && employeesData.employees.length > 0 ? (
+              <>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nombre</TableHead>
+                        <TableHead>Puesto</TableHead>
+                        <TableHead>Departamento</TableHead>
+                        <TableHead className="text-right">Antigüedad</TableHead>
+                        <TableHead className="text-right">Evaluaciones</TableHead>
+                        <TableHead className="text-right">Capacitaciones</TableHead>
+                        <TableHead className="text-right">Casos</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {employeesData.employees.map((emp) => (
+                        <TableRow key={emp.id}>
+                          <TableCell className="font-medium">
+                            <div>
+                              <p>{emp.nombreCompleto}</p>
+                              <p className="text-xs text-muted-foreground">{emp.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{emp.puesto || 'Sin asignar'}</TableCell>
+                          <TableCell>{emp.departmentName || 'Sin departamento'}</TableCell>
+                          <TableCell className="text-right">
+                            <div>
+                              <p className="font-medium">{emp.metrics.tenureYears} años</p>
+                              <p className="text-xs text-muted-foreground">
+                                {emp.metrics.tenureMonths} meses
+                              </p>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="inline-flex items-center justify-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                              {emp.metrics.evaluationsCompleted}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="inline-flex items-center justify-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                              {emp.metrics.trainingsCompleted}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="inline-flex items-center justify-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">
+                              {emp.metrics.casesReported}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Paginación */}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Mostrando {(employeesPage - 1) * 20 + 1} -{' '}
+                    {Math.min(employeesPage * 20, employeesData.total)} de {employeesData.total}{' '}
+                    empleados
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEmployeesPage((p) => Math.max(1, p - 1))}
+                      disabled={employeesPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEmployeesPage((p) => p + 1)}
+                      disabled={employeesPage >= employeesData.totalPages}
+                    >
+                      Siguiente
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No se encontraron empleados</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

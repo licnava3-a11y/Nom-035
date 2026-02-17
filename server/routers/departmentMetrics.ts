@@ -509,4 +509,137 @@ export const departmentMetricsRouter = router({
         };
       }
     }),
+
+  /**
+   * Obtener detalles de empleados por departamento con métricas individuales
+   */
+  getEmployeeDetails: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().optional(),
+        search: z.string().optional(),
+        page: z.number().default(1),
+        pageSize: z.number().default(20),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { departmentId, search, page, pageSize } = input;
+      const offset = (page - 1) * pageSize;
+
+      // Construir condiciones de filtro
+      const conditions = [];
+      if (departmentId) {
+        conditions.push(eq(employees.departmentId, departmentId));
+      }
+      conditions.push(sql`${employees.status} = 'activo'`);
+
+      if (search) {
+        conditions.push(
+          or(
+            sql`${employees.nombre} LIKE ${`%${search}%`}`,
+            sql`${employees.apellidoPaterno} LIKE ${`%${search}%`}`,
+            sql`${employees.apellidoMaterno} LIKE ${`%${search}%`}`,
+            sql`${employees.email} LIKE ${`%${search}%`}`
+          )!
+        );
+      }
+
+      // Obtener empleados con información de departamento
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const employeesList = await db
+        .select({
+          id: employees.id,
+          nombre: employees.nombre,
+          apellidoPaterno: employees.apellidoPaterno,
+          apellidoMaterno: employees.apellidoMaterno,
+          email: employees.email,
+          puesto: employees.puesto,
+          departmentId: employees.departmentId,
+          departmentName: departments.name,
+          createdAt: employees.createdAt,
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .where(and(...conditions))
+        .limit(pageSize)
+        .offset(offset)
+        .execute();
+
+      // Obtener total de empleados para paginación
+      // @ts-expect-error - getDb() siempre retorna instancia válida
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(employees)
+        .where(and(...conditions))
+        .execute();
+
+      // Obtener métricas individuales para cada empleado
+      const employeesWithMetrics = await Promise.all(
+        employeesList.map(async (emp) => {
+          // Calcular antigüedad en meses
+          const createdDate = new Date(emp.createdAt);
+          const now = new Date();
+          const tenureMonths =
+            (now.getFullYear() - createdDate.getFullYear()) * 12 +
+            (now.getMonth() - createdDate.getMonth());
+
+          // Obtener número de evaluaciones completadas
+          // @ts-expect-error - getDb() siempre retorna instancia válida
+          const [evaluationsResult] = await db
+            .select({ count: count() })
+            .from(sql`survey_responses`)
+            .where(
+              and(
+                sql`employee_id = ${emp.id}`,
+                sql`completed_at IS NOT NULL`
+              )
+            )
+            .execute();
+
+          // Obtener número de capacitaciones completadas
+          // @ts-expect-error - getDb() siempre retorna instancia válida
+          const [trainingsResult] = await db
+            .select({ count: count() })
+            .from(sql`training_enrollments`)
+            .where(
+              and(
+                sql`employee_id = ${emp.id}`,
+                sql`status = 'completed'`
+              )
+            )
+            .execute();
+
+          // Obtener número de casos asociados (como reportante)
+          // @ts-expect-error - getDb() siempre retorna instancia válida
+          const [casesResult] = await db
+            .select({ count: count() })
+            .from(sql`cases`)
+            .where(sql`reported_by_employee_id = ${emp.id}`)
+            .execute();
+
+          return {
+            ...emp,
+            nombreCompleto: `${emp.nombre} ${emp.apellidoPaterno} ${emp.apellidoMaterno || ""}`.trim(),
+            metrics: {
+              tenureMonths,
+              tenureYears: (tenureMonths / 12).toFixed(1),
+              evaluationsCompleted: evaluationsResult.count,
+              trainingsCompleted: trainingsResult.count,
+              casesReported: casesResult.count,
+            },
+          };
+        })
+      );
+
+      return {
+        employees: employeesWithMetrics,
+        total: totalResult.count,
+        page,
+        pageSize,
+        totalPages: Math.ceil(totalResult.count / pageSize),
+      };
+    }),
 });

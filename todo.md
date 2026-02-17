@@ -1414,3 +1414,65 @@
 - [x] Implementar selector dropdown de departamentos
 - [x] Opción "Todos los departamentos" para vista global
 - [ ] Implementar drill-down a empleados individuales (pendiente)
+
+## Nuevas Tareas - Drill-down Empleados, Reportes PDF Alertas y Configuración de Umbrales
+
+### 1. Drill-down a Empleados Individuales
+- [ ] Crear query departmentMetrics.getEmployeeDetails con métricas individuales
+- [ ] Incluir: antigüedad, evaluaciones, capacitaciones, casos asociados
+- [ ] Agregar dialog/modal en DepartmentMetrics.tsx para vista detallada
+- [ ] Implementar tabla de empleados con filtros y búsqueda
+- [ ] Agregar botón "Ver Detalles" por empleado
+- [ ] Mostrar métricas individuales en cards o tabla expandible
+
+### 2. Exportación PDF de Reportes de Alertas
+- [ ] Crear procedure departments.generatePredictiveAlertsPDF
+- [ ] Diseñar portada ejecutiva con resumen de alertas
+- [ ] Incluir tabla de departamentos de riesgo ordenados por score
+- [ ] Agregar recomendaciones priorizadas por urgencia
+- [ ] Incluir plan de acción sugerido con timeline
+- [ ] Implementar botón "Exportar Reporte PDF" en sección de alertas
+- [ ] Descarga automática con nombre descriptivo
+
+### 3. Configuración de Umbrales Personalizados
+- [ ] Crear tabla algorithm_config en schema para almacenar configuración
+- [ ] Crear página AlgorithmConfig.tsx para administradores
+- [ ] Implementar sliders para ajustar pesos (rotación, antigüedad, manager, tamaño)
+- [ ] Validar que suma de pesos = 100%
+- [ ] Crear procedure departments.updateAlgorithmConfig
+- [ ] Crear procedure departments.getAlgorithmConfig
+- [ ] Actualizar job predictive-turnover para usar configuración personalizada
+- [ ] Agregar navegación en menú lateral (Administración > Configuración Algoritmo)
+
+## Nuevas Tareas - Drill-down Empleados, Exportación PDF Alertas y Configuración Umbrales
+
+### Fase 1: Drill-down a Empleados Individuales
+- [x] Crear query departmentMetrics.getEmployeeDetails
+- [x] Implementar filtros por departamento, búsqueda y paginación (20/página)
+- [x] Calcular métricas individuales (antigüedad, evaluaciones, capacitaciones, casos)
+- [x] Crear dialog de drill-down en DepartmentMetrics.tsx
+- [x] Implementar tabla con métricas individuales
+- [x] Agregar búsqueda por nombre, apellido o email
+- [x] Implementar paginación server-side
+- [x] Agregar botón "Ver Empleados" con indicador de departamento
+
+### Fase 2: Exportación PDF de Reportes de Alertas Predictivas
+- [x] Crear procedure departments.generatePredictiveAlertsPDF
+- [x] Diseñar portada ejecutiva con título y fecha
+- [x] Generar resumen ejecutivo (total, alto/medio riesgo, empleados afectados)
+- [x] Crear tabla detallada de departamentos de riesgo
+- [x] Agregar recomendaciones priorizadas (top 5 departamentos)
+- [x] Incluir plan de acción sugerido (corto/mediano/largo plazo)
+- [x] Implementar botón "Exportar Reporte PDF" en DepartmentMetrics.tsx
+- [x] Descarga automática del archivo PDF
+
+### Fase 3: Configuración de Umbrales Personalizados
+- [ ] Crear tabla predictive_algorithm_config en schema
+- [ ] Implementar procedure departments.updateAlgorithmWeights
+- [ ] Crear página AlgorithmConfig.tsx
+- [ ] Agregar sliders para ajustar pesos (rotación, antigüedad, manager, tamaño)
+- [ ] Implementar validación de suma de pesos = 100%
+- [ ] Agregar botón "Guardar Configuración"
+- [ ] Actualizar job predictive-turnover para usar pesos configurados
+- [ ] Agregar navegación en menú lateral (Administración > Configuración Algoritmo)
+

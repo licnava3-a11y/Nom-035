@@ -1022,6 +1022,149 @@ export const departmentsRouter = router({
         mediumRiskCount: alerts.filter((a) => a.riskScore >= 40 && a.riskScore < 70).length,
       };
     }),
+
+  /**
+   * Generar reporte PDF de alertas predictivas de rotación
+   */
+  generatePredictiveAlertsPDF: protectedProcedure.mutation(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+
+    // Obtener alertas activas ordenadas por riesgo
+    const alerts = await db
+      .select()
+      .from(predictiveTurnoverAlerts)
+      .where(eq(predictiveTurnoverAlerts.status, "active"))
+      .orderBy(desc(predictiveTurnoverAlerts.riskScore), desc(predictiveTurnoverAlerts.analyzedAt))
+      .execute();
+
+    if (alerts.length === 0) {
+      throw new Error("No hay alertas activas para generar el reporte");
+    }
+
+    // Crear documento PDF
+    const PDFDocument = (await import("pdfkit")).default;
+    const doc = new PDFDocument({ margin: 50 });
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+
+    // Portada ejecutiva
+    doc.fontSize(24).text("Reporte Ejecutivo", { align: "center" });
+    doc.fontSize(20).text("Alertas Predictivas de Rotación", { align: "center" });
+    doc.moveDown(2);
+
+    // Resumen ejecutivo
+    const highRiskCount = alerts.filter((a) => a.riskScore >= 70).length;
+    const mediumRiskCount = alerts.filter((a) => a.riskScore >= 40 && a.riskScore < 70).length;
+    const totalEmployeesAtRisk = alerts.reduce((sum, a) => sum + a.currentEmployeeCount, 0);
+
+    doc.fontSize(16).text("Resumen Ejecutivo", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(12);
+    doc.text(`Total de departamentos en riesgo: ${alerts.length}`);
+    doc.text(`Departamentos de riesgo alto (>70%): ${highRiskCount}`);
+    doc.text(`Departamentos de riesgo medio (40-70%): ${mediumRiskCount}`);
+    doc.text(`Total de empleados en departamentos de riesgo: ${totalEmployeesAtRisk}`);
+    doc.text(`Fecha de análisis: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}`);
+    doc.moveDown(2);
+
+    // Tabla de departamentos de riesgo
+    doc.fontSize(16).text("Departamentos de Riesgo", { underline: true });
+    doc.moveDown(0.5);
+
+    alerts.forEach((alert, index) => {
+      // Verificar si necesitamos una nueva página
+      if (doc.y > 650) {
+        doc.addPage();
+      }
+
+      doc.fontSize(14).text(`${index + 1}. ${alert.departmentName}`, { continued: false });
+      doc.fontSize(10);
+      doc.text(`   Score de Riesgo: ${alert.riskScore}% (${alert.riskLevel === "high" ? "Alto" : "Medio"})`);
+      doc.text(`   Empleados: ${alert.currentEmployeeCount}`);
+      doc.text(`   Antigüedad Promedio: ${alert.avgTenureMonths} meses`);
+      doc.text(`   Altas (últimos 3m): ${alert.hiresLast3Months}`);
+      doc.text(`   Bajas (últimos 3m): ${alert.terminationsLast3Months}`);
+      doc.text(`   Rotación Predicha: ${alert.predictedTurnoverRate}%`);
+      doc.moveDown(0.5);
+    });
+
+    // Recomendaciones priorizadas
+    doc.addPage();
+    doc.fontSize(16).text("Recomendaciones Priorizadas", { underline: true });
+    doc.moveDown(0.5);
+
+    const topAlerts = alerts.slice(0, 5); // Top 5 departamentos de riesgo
+    topAlerts.forEach((alert, index) => {
+      doc.fontSize(14).text(`${index + 1}. ${alert.departmentName} (Riesgo: ${alert.riskScore}%)`);
+      doc.fontSize(10);
+
+      const actions = alert.recommendedActions ? JSON.parse(alert.recommendedActions) : [];
+      if (actions.length > 0) {
+        actions.forEach((action: string, idx: number) => {
+          doc.text(`   • ${action}`);
+        });
+      } else {
+        doc.text("   • Revisar condiciones laborales y clima organizacional");
+        doc.text("   • Implementar programa de retención de talento");
+        doc.text("   • Realizar entrevistas de permanencia con empleados clave");
+      }
+      doc.moveDown(0.5);
+    });
+
+    // Plan de acción sugerido
+    doc.addPage();
+    doc.fontSize(16).text("Plan de Acción Sugerido", { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(12);
+
+    doc.text("Corto Plazo (1-2 meses):");
+    doc.fontSize(10);
+    doc.text("   • Realizar entrevistas de permanencia con empleados de departamentos de alto riesgo");
+    doc.text("   • Revisar y ajustar compensaciones y beneficios");
+    doc.text("   • Implementar programa de reconocimiento inmediato");
+    doc.moveDown(1);
+
+    doc.fontSize(12).text("Mediano Plazo (3-6 meses):");
+    doc.fontSize(10);
+    doc.text("   • Desarrollar plan de carrera y sucesión para puestos críticos");
+    doc.text("   • Implementar programa de capacitación y desarrollo");
+    doc.text("   • Mejorar comunicación interna y transparencia organizacional");
+    doc.moveDown(1);
+
+    doc.fontSize(12).text("Largo Plazo (6-12 meses):");
+    doc.fontSize(10);
+    doc.text("   • Fortalecer cultura organizacional y valores compartidos");
+    doc.text("   • Implementar sistema de gestión del desempeño basado en competencias");
+    doc.text("   • Establecer métricas de seguimiento y evaluación continua");
+
+    // Pie de página
+    doc.moveDown(2);
+    doc.fontSize(8).text(
+      `Generado el ${new Date().toLocaleDateString("es-MX")} | Sistema de Gestión de Talento NOM-035`,
+      { align: "center" }
+    );
+
+    doc.end();
+
+    // Esperar a que termine de generar el PDF
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      doc.on("end", () => {
+        resolve(Buffer.concat(chunks));
+      });
+    });
+
+    // Convertir a base64 para enviar al frontend
+    const base64 = pdfBuffer.toString("base64");
+    const filename = `reporte-alertas-predictivas-${new Date().toISOString().split("T")[0]}.pdf`;
+
+    return {
+      success: true,
+      filename,
+      data: base64,
+    };
+  }),
 });
 
 
