@@ -1890,3 +1890,21 @@
 - [x] Retornar error CONFLICT si intenta convertir evento ya convertido
 - [x] Mostrar mensaje de error en frontend si ya existe lead
 - [x] Botón deshabilitado cuando conversionStatus === "converted"
+
+## Nuevas Tareas - Toast con Botón "Ver Lead" y Resaltado
+
+### 1. Actualizar Toast con Botón de Acción
+- [x] Modificar toast de éxito en ConvertToLeadModal
+- [x] Agregar botón "Ver Lead" en toast usando action property
+- [x] Implementar navegación a /leads-pipeline con query parameter leadId
+- [x] Usar useLocation de wouter para navegación
+- [x] Capturar leadId desde onSuccess de mutation
+
+### 2. Resaltado Visual del Lead Recién Creado
+- [x] Leer query parameter leadId en LeadsPipeline
+- [x] Aplicar clase CSS de resaltado al card del lead (animate-pulse)
+- [x] Implementar animación de pulso con Tailwind
+- [x] Auto-scroll hacia el lead resaltado con scrollIntoView
+- [x] Remover resaltado después de 3 segundos
+- [x] useRef para almacenar referencias a elementos del DOM
+- [x] Wrapper div con ref alrededor de LeadCard

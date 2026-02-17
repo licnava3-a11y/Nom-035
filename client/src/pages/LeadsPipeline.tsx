@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,12 +28,38 @@ const ESTADOS_CONFIG: Record<LeadEstado, { label: string; color: string; bgColor
 
 export default function LeadsPipeline() {
   const { toast } = useToast();
+  const [location] = useLocation();
   const [filtroOrigen, setFiltroOrigen] = useState<string | undefined>();
   const [filtroNormativa, setFiltroNormativa] = useState<string | undefined>();
   const [activeId, setActiveId] = useState<number | null>(null);
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [highlightedLeadId, setHighlightedLeadId] = useState<number | null>(null);
+  const leadRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  // Leer leadId desde query parameter y resaltar
+  useEffect(() => {
+    const params = new URLSearchParams(location.split('?')[1] || '');
+    const leadIdParam = params.get('leadId');
+    if (leadIdParam) {
+      const leadId = parseInt(leadIdParam, 10);
+      setHighlightedLeadId(leadId);
+      
+      // Scroll hacia el lead después de que se renderice
+      setTimeout(() => {
+        const leadElement = leadRefs.current[leadId];
+        if (leadElement) {
+          leadElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+
+      // Remover resaltado después de 3 segundos
+      setTimeout(() => {
+        setHighlightedLeadId(null);
+      }, 3000);
+    }
+  }, [location]);
 
   // Queries
   const { data: pipeline, refetch } = trpc.leads.getLeadsPipeline.useQuery({
@@ -297,7 +324,13 @@ export default function LeadsPipeline() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {leads.map((lead: any) => (
-                      <LeadCard key={lead.id} lead={lead} onEdit={handleEditLead} />
+                      <div
+                        key={lead.id}
+                        ref={(el) => (leadRefs.current[lead.id] = el)}
+                        className={highlightedLeadId === lead.id ? "animate-pulse" : ""}
+                      >
+                        <LeadCard lead={lead} onEdit={handleEditLead} />
+                      </div>
                     ))}
                     {leads.length === 0 && (
                       <div className="text-center py-8 text-muted-foreground text-sm">

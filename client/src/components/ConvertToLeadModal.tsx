@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/hooks/use-toast";
 import { NORMATIVAS_MAP } from "@/lib/whatsapp";
+import { useLocation } from "wouter";
 
 interface ConvertToLeadModalProps {
   open: boolean;
@@ -44,12 +45,23 @@ export function ConvertToLeadModal({ open, onOpenChange, event, onSuccess }: Con
     }
   }, [event, open]);
 
+  const [, setLocation] = useLocation();
+
   // Mutation para convertir evento a lead
   const convertMutation = trpc.leads.convertWhatsAppEventToLead.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const leadId = data.leadId;
       toast({
         title: "Lead Creado",
         description: "El evento se convirtió exitosamente en un lead",
+        action: (
+          <Button
+            size="sm"
+            onClick={() => setLocation(`/leads-pipeline?leadId=${leadId}`)}
+          >
+            Ver Lead
+          </Button>
+        ),
       });
       // Invalidar queries
       utils.whatsappTracking.getRecentEvents.invalidate();
