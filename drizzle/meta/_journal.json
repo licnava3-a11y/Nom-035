@@ -813,6 +813,20 @@
       "when": 1771382639085,
       "tag": "0115_wild_piledriver",
       "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "5",
+      "when": 1771382963918,
+      "tag": "0116_steady_nehzno",
+      "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "5",
+      "when": 1771383119353,
+      "tag": "0117_burly_talisman",
+      "breakpoints": true
     }
   ]
 }

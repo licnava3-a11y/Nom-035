@@ -1,0 +1,21 @@
+CREATE TABLE `model_retraining_history` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`old_config_id` int NOT NULL,
+	`new_config_id` int NOT NULL,
+	`reason` text NOT NULL,
+	`old_precision` decimal(5,2),
+	`old_recall` decimal(5,2),
+	`old_f1_score` decimal(5,2),
+	`old_accuracy` decimal(5,2),
+	`new_precision` decimal(5,2),
+	`new_recall` decimal(5,2),
+	`new_f1_score` decimal(5,2),
+	`new_accuracy` decimal(5,2),
+	`alert_count` int NOT NULL,
+	`improvement_percentage` decimal(5,2),
+	`status` varchar(20) NOT NULL DEFAULT 'applied',
+	`applied_at` timestamp NOT NULL DEFAULT (now()),
+	`reverted_at` timestamp,
+	`created_by` int,
+	CONSTRAINT `model_retraining_history_id` PRIMARY KEY(`id`)
+);

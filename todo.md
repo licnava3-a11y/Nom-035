@@ -2765,3 +2765,30 @@
 - [x] Implementar botón "Crear Nuevo Experimento" con selector de configuraciones
 - [x] Agregar recomendación automática de mejor configuración basada en métricas
 - [x] Agregar enlace en navegación lateral (Encuestas NOM-035 > A/B Testing de Umbrales)
+
+## Nuevas Tareas - Reentrenamiento Automático e Impacto de Intervenciones
+
+### 1. Reentrenamiento Automático del Modelo Predictivo
+- [x] Crear tabla model_retraining_history en schema (oldConfigId, newConfigId, reason, metrics)
+- [x] Aplicar migración SQL
+- [x] Crear job model-auto-retraining-job.ts (ejecuta semanalmente)
+- [x] Implementar lógica de detección de degradación persistente (3+ alertas críticas en 7 días)
+- [x] Implementar selección automática de mejor configuración desde experimentos A/B históricos
+- [x] Aplicar automáticamente la configuración ganadora cuando se detecte degradación
+- [x] Generar notificación al owner con detalles del reentrenamiento
+- [x] Crear router modelRetraining con queries (getRetrainingHistory, getLastRetraining)
+- [x] Registrar job en server startup
+- [x] Crear página ModelRetrainingHistory.tsx con historial de reentrena mientos
+- [x] Agregar enlace en navegación lateral
+
+### 2. Dashboard de Impacto de Intervenciones de Retención
+- [x] Crear tabla retention_interventions en schema (employeeId, interventionType, date, cost, outcome)
+- [x] Aplicar migración SQL
+- [x] Crear router retentionInterventions con procedures CRUD
+- [x] Implementar cálculo de efectividad de intervenciones (rotación predicha vs real)
+- [x] Crear página RetentionInterventionsDashboard.tsx
+- [x] Implementar gráfico de efectividad por tipo de intervención
+- [x] Agregar tabla de intervenciones con outcomes
+- [x] Implementar análisis ROI de intervenciones (costo vs empleados retenidos)
+- [x] Agregar comparación de riesgo antes/después de intervención
+- [x] Agregar enlace en navegación lateral (Encuestas NOM-035 > Impacto de Intervenciones)

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `model_retraining_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`old_config_id` int NOT NULL,\n\t`new_config_id` int NOT NULL,\n\t`reason` text NOT NULL,\n\t`old_precision` decimal(5,2),\n\t`old_recall` decimal(5,2),\n\t`old_f1_score` decimal(5,2),\n\t`old_accuracy` decimal(5,2),\n\t`new_precision` decimal(5,2),\n\t`new_recall` decimal(5,2),\n\t`new_f1_score` decimal(5,2),\n\t`new_accuracy` decimal(5,2),\n\t`alert_count` int NOT NULL,\n\t`improvement_percentage` decimal(5,2),\n\t`status` varchar(20) NOT NULL DEFAULT 'applied',\n\t`applied_at` timestamp NOT NULL DEFAULT (now()),\n\t`reverted_at` timestamp,\n\t`created_by` int,\n\tCONSTRAINT `model_retraining_history_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `model_retraining_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`old_config_id` int NOT NULL,\n\t`new_config_id` int NOT NULL,\n\t`reason` text NOT NULL,\n\t`old_precision` decimal(5,2),\n\t`old_recall` decimal(5,2),\n\t`old_f1_score` decimal(5,2),\n\t`old_accuracy` decimal(5,2),\n\t`new_precision` decimal(5,2),\n\t`new_recall` decimal(5,2),\n\t`new_f1_score` decimal(5,2),\n\t`new_accuracy` decimal(5,2),\n\t`alert_count` int NOT NULL,\n\t`improvement_percentage` decimal(5,2),\n\t`status` varchar(20) NOT NULL DEFAULT 'applied',\n\t`applied_at` timestamp NOT NULL DEFAULT (now()),\n\t`reverted_at` timestamp,\n\t`created_by` int,\n\tCONSTRAINT `model_retraining_history_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 498
+}

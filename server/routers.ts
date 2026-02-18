@@ -111,6 +111,8 @@ import { modelThresholdsRouter } from "./routers/modelThresholds";
 import { predictiveReportsRouter } from "./routers/predictiveReports";
 import { modelPerformanceAlertsRouter } from "./routers/modelPerformanceAlerts";
 import { thresholdExperimentsRouter } from "./routers/thresholdExperiments";
+import { modelRetrainingRouter } from "./routers/modelRetraining";
+import { retentionInterventionsRouter } from "./routers/retentionInterventions";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -232,6 +234,8 @@ export const appRouter = router({
   predictiveReports: predictiveReportsRouter,
   modelPerformanceAlerts: modelPerformanceAlertsRouter,
   thresholdExperiments: thresholdExperimentsRouter,
+  modelRetraining: modelRetrainingRouter,
+  retentionInterventions: retentionInterventionsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -4191,3 +4191,83 @@ export const thresholdExperiments = mysqlTable("threshold_experiments", {
 
 export type ThresholdExperiment = typeof thresholdExperiments.$inferSelect;
 export type InsertThresholdExperiment = typeof thresholdExperiments.$inferInsert;
+
+/**
+ * Tabla: model_retraining_history
+ * Almacena historial de reentrena mientos automáticos del modelo predictivo
+ */
+export const modelRetrainingHistory = mysqlTable("model_retraining_history", {
+  id: int("id").primaryKey().autoincrement(),
+  oldConfigId: int("old_config_id").notNull(), // Configuración anterior
+  newConfigId: int("new_config_id").notNull(), // Nueva configuración aplicada
+  reason: text("reason").notNull(), // Razón del reentrenamiento
+  
+  // Métricas antes del reentrenamiento
+  oldPrecision: decimal("old_precision", { precision: 5, scale: 2 }),
+  oldRecall: decimal("old_recall", { precision: 5, scale: 2 }),
+  oldF1Score: decimal("old_f1_score", { precision: 5, scale: 2 }),
+  oldAccuracy: decimal("old_accuracy", { precision: 5, scale: 2 }),
+  
+  // Métricas después del reentrenamiento
+  newPrecision: decimal("new_precision", { precision: 5, scale: 2 }),
+  newRecall: decimal("new_recall", { precision: 5, scale: 2 }),
+  newF1Score: decimal("new_f1_score", { precision: 5, scale: 2 }),
+  newAccuracy: decimal("new_accuracy", { precision: 5, scale: 2 }),
+  
+  // Metadata
+  alertCount: int("alert_count").notNull(), // Número de alertas que dispararon el reentrenamiento
+  improvementPercentage: decimal("improvement_percentage", { precision: 5, scale: 2 }), // Mejora esperada en F1-Score
+  status: varchar("status", { length: 20 }).default("applied").notNull(), // applied, reverted
+  appliedAt: timestamp("applied_at").defaultNow().notNull(),
+  revertedAt: timestamp("reverted_at"),
+  createdBy: int("created_by"), // NULL si es automático
+});
+
+export type ModelRetrainingHistory = typeof modelRetrainingHistory.$inferSelect;
+export type InsertModelRetrainingHistory = typeof modelRetrainingHistory.$inferInsert;
+
+/**
+ * Tabla: retention_interventions
+ * Almacena intervenciones de retención aplicadas a empleados de alto riesgo
+ */
+export const retentionInterventions = mysqlTable("retention_interventions", {
+  id: int("id").primaryKey().autoincrement(),
+  employeeId: int("employee_id").notNull(), // ID del empleado
+  employeeName: varchar("employee_name", { length: 255 }).notNull(),
+  employeePosition: varchar("employee_position", { length: 255 }),
+  department: varchar("department", { length: 255 }),
+  
+  // Tipo de intervención
+  interventionType: varchar("intervention_type", { length: 100 }).notNull(), // training, salary_adjustment, position_change, benefits, recognition, other
+  interventionDescription: text("intervention_description").notNull(),
+  
+  // Costos y fechas
+  cost: decimal("cost", { precision: 10, scale: 2 }), // Costo de la intervención
+  implementationDate: date("implementation_date").notNull(),
+  followUpDate: date("follow_up_date"), // Fecha de seguimiento
+  
+  // Métricas antes de la intervención
+  riskScoreBefore: decimal("risk_score_before", { precision: 5, scale: 2 }), // Riesgo de rotación antes (0-100)
+  turnoverProbabilityBefore: decimal("turnover_probability_before", { precision: 5, scale: 2 }), // Probabilidad de rotación antes (0-100)
+  
+  // Métricas después de la intervención
+  riskScoreAfter: decimal("risk_score_after", { precision: 5, scale: 2 }), // Riesgo de rotación después (0-100)
+  turnoverProbabilityAfter: decimal("turnover_probability_after", { precision: 5, scale: 2 }), // Probabilidad de rotación después (0-100)
+  
+  // Outcome
+  outcome: varchar("outcome", { length: 50 }), // retained, left, pending
+  outcomeDate: date("outcome_date"), // Fecha del outcome
+  outcomeNotes: text("outcome_notes"), // Notas adicionales sobre el resultado
+  
+  // Efectividad calculada
+  riskReduction: decimal("risk_reduction", { precision: 5, scale: 2 }), // Reducción de riesgo (%)
+  effectivenessScore: decimal("effectiveness_score", { precision: 5, scale: 2 }), // Score de efectividad (0-100)
+  
+  // Metadata
+  createdBy: int("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type RetentionIntervention = typeof retentionInterventions.$inferSelect;
+export type InsertRetentionIntervention = typeof retentionInterventions.$inferInsert;

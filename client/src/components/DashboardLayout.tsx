@@ -127,6 +127,8 @@ const hierarchicalMenuItems = [
       { label: "Configuración de Umbrales", path: "/model-thresholds-config", description: "Ajustar pesos del modelo predictivo" },
       { label: "Alertas de Rendimiento", path: "/model-performance-alerts", description: "Monitoreo automático de métricas del modelo" },
       { label: "A/B Testing de Umbrales", path: "/threshold-ab-testing", description: "Comparar configuraciones para optimizar el modelo" },
+      { label: "Historial de Reentrenamiento", path: "/model-retraining-history", description: "Registro de ajustes automáticos del modelo" },
+      { label: "Impacto de Intervenciones", path: "/retention-interventions", description: "Efectividad de acciones de retención" },
     ],
   },
   {

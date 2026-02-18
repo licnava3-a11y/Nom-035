@@ -42,6 +42,8 @@ const ModelEvolutionDashboard = lazy(() => import("./pages/ModelEvolutionDashboa
 const ModelThresholdsConfig = lazy(() => import("./pages/ModelThresholdsConfig"));
 const ModelPerformanceAlerts = lazy(() => import("./pages/ModelPerformanceAlerts"));
 const ThresholdABTestingDashboard = lazy(() => import("./pages/ThresholdABTestingDashboard"));
+const ModelRetrainingHistory = lazy(() => import("./pages/ModelRetrainingHistory"));
+const RetentionInterventionsDashboard = lazy(() => import("./pages/RetentionInterventionsDashboard"));
 const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
@@ -976,6 +978,12 @@ function Router() {
         </Route>
         <Route path={"/threshold-ab-testing"}>
           <ThresholdABTestingDashboard />
+        </Route>
+        <Route path={"/model-retraining-history"}>
+          <ModelRetrainingHistory />
+        </Route>
+        <Route path={"/retention-interventions"}>
+          <RetentionInterventionsDashboard />
         </Route>
         <Route path={"/admin/turnover-management"}>
           <DashboardLayout>
