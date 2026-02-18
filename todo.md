@@ -2792,3 +2792,38 @@
 - [x] Implementar análisis ROI de intervenciones (costo vs empleados retenidos)
 - [x] Agregar comparación de riesgo antes/después de intervención
 - [x] Agregar enlace en navegación lateral (Encuestas NOM-035 > Impacto de Intervenciones)
+
+## Nuevas Tareas - Sistemas Avanzados de Retención
+
+### 1. Sistema de Recomendaciones Inteligentes
+- [x] Crear router interventionRecommendations con procedure getRecommendations
+- [x] Implementar algoritmo de scoring basado en perfil del empleado
+- [x] Calcular efectividad histórica por tipo de intervención y características similares
+- [x] Generar top 3 recomendaciones con justificación y probabilidad de éxito
+- [x] Crear componente RecommendationsPanel en PredictiveTurnoverDashboard
+- [x] Mostrar recomendaciones para empleados de alto riesgo con botón de acción rápida
+
+### 2. Dashboard de Predicción de Efectividad
+- [ ] Crear router interventionPrediction con procedure predictEffectiveness
+- [ ] Implementar modelo predictivo basado en regresión logística con datos históricos
+- [ ] Considerar variables: tipo de intervención, costo, departamento, puesto, nivel de riesgo
+- [ ] Calcular probabilidad de éxito y ROI esperado
+- [ ] Crear página InterventionPredictionDashboard.tsx
+- [ ] Implementar simulador de intervenciones con inputs configurables
+- [ ] Mostrar gráfico de probabilidad de éxito vs costo
+- [ ] Agregar comparación de escenarios (qué pasa si...)
+- [ ] Agregar enlace en navegación lateral
+
+### 3. Integración con Sistema de Nómina
+- [ ] Crear tabla payroll_data en schema (employeeId, salary, benefits, lastRaise, marketRate)
+- [ ] Aplicar migración SQL
+- [ ] Crear router payrollIntegration con procedures CRUD
+- [ ] Implementar análisis de brecha salarial (salary gap analysis)
+- [ ] Crear job payroll-compensation-alerts-job.ts (ejecuta mensualmente)
+- [ ] Detectar empleados con compensación <90% del mercado
+- [ ] Generar alertas automáticas de riesgo por compensación
+- [ ] Actualizar modelo predictivo para incluir factor de compensación
+- [ ] Crear página PayrollCompensationDashboard.tsx
+- [ ] Implementar gráfico de correlación compensación vs riesgo de rotación
+- [ ] Agregar tabla de empleados con brecha salarial crítica
+- [ ] Agregar enlace en navegación lateral

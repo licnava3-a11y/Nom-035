@@ -4,6 +4,7 @@
  */
 
 import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,100 @@ import {
 } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+/**
+ * Componente de celda de recomendaciones
+ */
+function RecommendationsCell({
+  employeeId,
+  employeeName,
+  department,
+  riskScore,
+  turnoverProbability,
+}: {
+  employeeId: number;
+  employeeName: string;
+  department: string;
+  riskScore: number;
+  turnoverProbability: number;
+}) {
+  const { data: recommendations, isLoading } = trpc.interventionRecommendations.getRecommendations.useQuery({
+    employeeId,
+    employeeName,
+    department,
+    riskScore,
+    turnoverProbability,
+  });
+
+  if (isLoading) {
+    return <Loader2 className="h-4 w-4 animate-spin" />;
+  }
+
+  if (!recommendations || recommendations.recommendations.length === 0) {
+    return <span className="text-xs text-muted-foreground">Sin datos</span>;
+  }
+
+  const topRecommendation = recommendations.recommendations[0];
+  const interventionTypeLabels: Record<string, string> = {
+    training: "Capacitación",
+    salary_adjustment: "Ajuste Salarial",
+    position_change: "Cambio de Puesto",
+    benefits: "Beneficios",
+    recognition: "Reconocimiento",
+    other: "Otro",
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Lightbulb className="h-4 w-4 mr-1" />
+          Ver
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Recomendaciones para {employeeName}</DialogTitle>
+          <DialogDescription>
+            Basadas en {recommendations.hasHistoricalData ? `${recommendations.totalHistoricalCases} casos históricos` : "mejores prácticas"}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          {recommendations.recommendations.map((rec, index) => (
+            <Card key={rec.interventionType} className={index === 0 ? "border-blue-200 bg-blue-50/50" : ""}>
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-base">
+                      {index + 1}. {interventionTypeLabels[rec.interventionType] || rec.interventionType}
+                    </CardTitle>
+                    <CardDescription className="text-xs mt-1">
+                      Probabilidad de éxito: {rec.successProbability}%
+                    </CardDescription>
+                  </div>
+                  <Badge variant={index === 0 ? "default" : "secondary"}>
+                    Score: {rec.score}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm">{rec.reasoning}</p>
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div>
+                    <span className="font-medium">Costo promedio:</span> ${rec.avgCost.toFixed(2)}
+                  </div>
+                  <div>
+                    <span className="font-medium">Casos similares:</span> {rec.similarCases}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function PredictiveTurnoverDashboard() {
   const [selectedDepartment, setSelectedDepartment] = useState<number | undefined>(undefined);
@@ -286,6 +381,7 @@ export default function PredictiveTurnoverDashboard() {
                     <th className="text-center p-3 font-medium">Comentarios Críticos</th>
                     <th className="text-center p-3 font-medium">Último Nivel de Riesgo NOM-035</th>
                     <th className="text-center p-3 font-medium">Puntuación de Riesgo</th>
+                    <th className="text-center p-3 font-medium">Recomendaciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -314,6 +410,15 @@ export default function PredictiveTurnoverDashboard() {
                       </td>
                       <td className="p-3 text-center">
                         <span className="font-bold">{employee.riskScore}</span>
+                      </td>
+                      <td className="p-3 text-center">
+                        <RecommendationsCell
+                          employeeId={employee.userId}
+                          employeeName={employee.userName}
+                          department={employee.departmentName}
+                          riskScore={parseFloat(employee.riskScore)}
+                          turnoverProbability={employee.turnoverProbability || 0}
+                        />
                       </td>
                     </tr>
                   ))}
