@@ -34,6 +34,7 @@ import { generateMonthlySnapshots } from "../jobs/autoSnapshotsJob";
 import { detectCompetencyRegressions } from "../jobs/competencyRegressionAlertsJob";
 import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job";
 import { initializeWebSocket } from "./websocket";
+import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -237,6 +238,9 @@ async function startServer() {
         monthlyReportJob().catch(console.error);
       }
     }, 60000); // Check every minute
+    
+    // Sentiment Analysis Job
+    initializeSentimentAnalysisJob();
   });
 }
 

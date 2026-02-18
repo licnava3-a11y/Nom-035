@@ -2345,3 +2345,61 @@
 - [x] Cache tRPC configurado globalmente (staleTime: 5min, gcTime: 10min)
 - [x] Servidor funcionando correctamente en puerto 3000
 - [x] Preparar checkpoint con optimizaciones completas
+
+
+## Nuevas Tareas - Análisis de Sentimiento, Exportación Reportes y Dashboard Cumplimiento
+
+### Fase 1: Análisis de Sentimiento en Encuestas NOM-035 con LLM ✅ COMPLETADA
+- [x] Crear tabla sentiment_analysis en schema (responseId, sentiment, riskLevel, keywords, summary, analyzedAt)
+- [x] Generar y aplicar migración SQL para sentiment_analysis
+- [x] Crear helper analyzeSentimentWithLLM en server/db.ts usando invokeLLM
+- [x] Implementar prompt estructurado para análisis de riesgo psicosocial (burnout, acoso, estrés)
+- [x] Crear job sentiment-analysis-job.ts para procesar respuestas pendientes (cada 6 horas)
+- [x] Implementar detección de comentarios críticos y generación de alertas automáticas
+- [x] Crear router sentimentAnalysis con queries y mutations
+- [x] Implementar query getSentimentTrends (tendencias por departamento y periodo)
+- [x] Crear página SentimentAnalysisDashboard.tsx con 3 gráficos interactivos
+- [x] Implementar gráfico de línea: evolución temporal de sentimiento
+- [x] Implementar gráfico de dona: distribución por nivel de riesgo
+- [x] Implementar gráfico de barras: distribución por sentimiento
+- [x] Implementar tabla de comentarios críticos con dialog de revisión
+- [x] Agregar ruta /surveys/sentiment-analysis en App.tsx
+- [x] Agregar navegación en menú lateral (Encuestas NOM-035)
+- [x] Registrar job en servidor Express (línea 243 index.ts)
+
+### Fase 2: Exportación Masiva de Reportes Ejecutivos
+- [x] Crear tabla executive_reports_history en schema (reportType, period, generatedBy, generatedAt, fileUrl, recipients)
+- [x] Generar y aplicar migración SQL para executive_reports_history
+- [ ] Crear router executiveReports con queries y mutations
+- [ ] Implementar mutation generateReport (semanal/mensual/trimestral)
+- [ ] Integrar gráficos Chart.js → imagen usando canvas.toDataURL()
+- [ ] Crear template HTML profesional de reporte ejecutivo
+- [ ] Implementar conversión HTML → PDF usando pdfkit o similar
+- [ ] Subir PDF a S3 y guardar URL en historial
+- [ ] Implementar envío automático por email a destinatarios
+- [ ] Crear página ExecutiveReportsPanel.tsx
+- [ ] Implementar selector de periodo (semanal/mensual/trimestral)
+- [ ] Implementar selector de destinatarios (emails múltiples)
+- [ ] Implementar tabla de historial de reportes generados
+- [ ] Implementar botón de descarga directa de reportes
+- [ ] Implementar preview de reporte antes de generar
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en menú de Administración
+
+### Fase 3: Dashboard de Cumplimiento NOM-035 por Numeral
+- [ ] Crear tabla compliance_checklist en schema (numeral, requirement, companySize, status, completedAt, evidence)
+- [ ] Generar y aplicar migración SQL para compliance_checklist
+- [ ] Poblar checklist con requisitos por numeral (5.1-5.8) y tamaño empresa
+- [ ] Crear router complianceNOM035 con queries y mutations
+- [ ] Implementar query getComplianceByNumeral (porcentaje por numeral)
+- [ ] Implementar query getUpcomingDeadlines (evaluaciones próximas a vencer)
+- [ ] Implementar mutation updateChecklistItem (marcar como completo)
+- [ ] Crear página ComplianceNOM035Dashboard.tsx
+- [ ] Implementar 8 cards de numerales con porcentaje de cumplimiento
+- [ ] Implementar indicadores de semáforo (verde ≥80%, amarillo 50-79%, rojo <50%)
+- [ ] Implementar gráfico de dona: cumplimiento global por numeral
+- [ ] Implementar tabla de alertas de vencimientos (evaluaciones obligatorias)
+- [ ] Implementar checklist interactivo por numeral (expandible)
+- [ ] Implementar filtro por tamaño de empresa (pequeña/mediana/grande)
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación destacada en menú principal (Cumplimiento Normativo)

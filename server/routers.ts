@@ -99,6 +99,7 @@ import { benchmarkingRouter } from "./routers/benchmarking";
 import { correctiveActionPlansRouter } from "./routers/correctiveActionPlans";
 import { interventionImpactRouter } from "./routers/interventionImpact";
 import { reportConfigurationsRouter } from "./routers/reportConfigurations";
+import { sentimentAnalysisRouter } from "./routers/sentimentAnalysis";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -208,6 +209,7 @@ export const appRouter = router({
   leads: leadsRouter,
   salespeople: salespeopleRouter,
   reportConfigurations: reportConfigurationsRouter,
+  sentimentAnalysis: sentimentAnalysisRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

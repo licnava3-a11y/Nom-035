@@ -916,3 +916,166 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
       .slice(0, 10),
   };
 }
+
+/**
+ * Analizar sentimiento de respuestas de encuestas NOM-035 usando LLM
+ * Detecta patrones de riesgo psicosocial (burnout, acoso, estrés)
+ */
+export async function analyzeSentimentWithLLM(responseText: string, questionContext?: string) {
+  const { invokeLLM } = await import("./_core/llm");
+  
+  const prompt = `Eres un experto en psicología organizacional y riesgo psicosocial según la NOM-035-STPS-2018 de México.
+
+Analiza la siguiente respuesta de un trabajador en una encuesta de factores de riesgo psicosocial:
+
+${questionContext ? `**Contexto de la pregunta:** ${questionContext}\n\n` : ''}**Respuesta del trabajador:** "${responseText}"
+
+Realiza un análisis profundo y proporciona tu evaluación en formato JSON con la siguiente estructura:
+
+{
+  "sentiment": "positive|neutral|negative|critical",
+  "riskLevel": "low|medium|high|critical",
+  "confidence": 85,
+  "keywords": ["palabra1", "palabra2", "palabra3"],
+  "riskIndicators": ["burnout", "acoso", "estrés", "violencia", "carga_excesiva"],
+  "summary": "Resumen breve del análisis (máximo 200 caracteres)",
+  "recommendations": "Recomendaciones específicas para el comité de atención (máximo 300 caracteres)"
+}
+
+**Criterios de evaluación:**
+- **sentiment**: Tono emocional general (positive: satisfacción, neutral: indiferente, negative: insatisfacción, critical: alerta roja)
+- **riskLevel**: Nivel de riesgo psicosocial detectado
+  * low: Sin indicadores de riesgo significativos
+  * medium: Indicadores moderados que requieren seguimiento
+  * high: Indicadores claros de riesgo que requieren intervención
+  * critical: Situación crítica que requiere atención inmediata (burnout severo, acoso, violencia)
+- **confidence**: Nivel de confianza del análisis (0-100)
+- **keywords**: Palabras clave más relevantes de la respuesta
+- **riskIndicators**: Indicadores específicos detectados (burnout, acoso, estrés, violencia, carga_excesiva, discriminación, hostigamiento)
+- **summary**: Resumen conciso del análisis
+- **recommendations**: Acciones recomendadas para el comité
+
+**Importante:** Si detectas indicadores de riesgo crítico (burnout severo, acoso laboral, violencia, hostigamiento sexual), marca como "critical" y genera recomendaciones de intervención inmediata.`;
+
+  try {
+    const response = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: "Eres un experto en psicología organizacional y análisis de riesgo psicosocial. Respondes siempre en formato JSON válido."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "sentiment_analysis",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              sentiment: {
+                type: "string",
+                enum: ["positive", "neutral", "negative", "critical"],
+                description: "Tono emocional general de la respuesta"
+              },
+              riskLevel: {
+                type: "string",
+                enum: ["low", "medium", "high", "critical"],
+                description: "Nivel de riesgo psicosocial detectado"
+              },
+              confidence: {
+                type: "number",
+                description: "Nivel de confianza del análisis (0-100)"
+              },
+              keywords: {
+                type: "array",
+                items: { type: "string" },
+                description: "Palabras clave más relevantes"
+              },
+              riskIndicators: {
+                type: "array",
+                items: { type: "string" },
+                description: "Indicadores específicos de riesgo detectados"
+              },
+              summary: {
+                type: "string",
+                description: "Resumen breve del análisis"
+              },
+              recommendations: {
+                type: "string",
+                description: "Recomendaciones específicas para el comité"
+              }
+            },
+            required: ["sentiment", "riskLevel", "confidence", "keywords", "riskIndicators", "summary", "recommendations"],
+            additionalProperties: false
+          }
+        }
+      }
+    });
+
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error("No content in LLM response");
+    }
+
+    const analysis = JSON.parse(content);
+    return analysis;
+  } catch (error) {
+    console.error("[SentimentAnalysis] Error analyzing with LLM:", error);
+    throw error;
+  }
+}
+
+/**
+ * Obtener tendencias de sentimiento por departamento
+ */
+export async function getSentimentTrends(departmentId?: number, startDate?: Date, endDate?: Date) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const { sentimentAnalysis, surveyResponses, users } = await import("../drizzle/schema");
+  const { eq, and, gte, lte, sql } = await import("drizzle-orm");
+
+  let conditions = [];
+  
+  if (departmentId) {
+    conditions.push(eq(users.departamento, String(departmentId)));
+  }
+  
+  if (startDate) {
+    conditions.push(gte(sentimentAnalysis.analyzedAt, startDate));
+  }
+  
+  if (endDate) {
+    conditions.push(lte(sentimentAnalysis.analyzedAt, endDate));
+  }
+
+  const results = await db
+    .select({
+      id: sentimentAnalysis.id,
+      sentiment: sentimentAnalysis.sentiment,
+      riskLevel: sentimentAnalysis.riskLevel,
+      confidence: sentimentAnalysis.confidence,
+      keywords: sentimentAnalysis.keywords,
+      riskIndicators: sentimentAnalysis.riskIndicators,
+      summary: sentimentAnalysis.summary,
+      recommendations: sentimentAnalysis.recommendations,
+      analyzedAt: sentimentAnalysis.analyzedAt,
+      alertGenerated: sentimentAnalysis.alertGenerated,
+      responseId: surveyResponses.id,
+      userId: surveyResponses.userId,
+      userName: users.name,
+      userDepartment: users.departamento,
+    })
+    .from(sentimentAnalysis)
+    .leftJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+    .leftJoin(users, eq(surveyResponses.userId, users.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(sql`${sentimentAnalysis.analyzedAt} DESC`);
+
+  return results;
+}

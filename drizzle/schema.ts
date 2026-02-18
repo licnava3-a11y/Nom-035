@@ -3988,3 +3988,94 @@ export const reportConfigurations = mysqlTable("report_configurations", {
 
 export type ReportConfiguration = typeof reportConfigurations.$inferSelect;
 export type InsertReportConfiguration = typeof reportConfigurations.$inferInsert;
+
+/**
+ * Tabla de análisis de sentimiento en respuestas de encuestas NOM-035
+ * Almacena resultados de análisis automático con LLM para detectar riesgo psicosocial
+ */
+export const sentimentAnalysis = mysqlTable("sentiment_analysis", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Referencia a respuesta de encuesta
+  responseId: int("response_id").notNull().unique().references(() => surveyResponses.id),
+  answerId: int("answer_id").references(() => surveyAnswers.id), // Respuesta específica analizada (si aplica)
+  
+  // Resultados del análisis
+  sentiment: mysqlEnum("sentiment", ["positive", "neutral", "negative", "critical"]).notNull(),
+  riskLevel: mysqlEnum("risk_level", ["low", "medium", "high", "critical"]).notNull(),
+  confidence: decimal("confidence", { precision: 5, scale: 2 }), // Nivel de confianza del análisis (0-100)
+  
+  // Detalles del análisis
+  keywords: text("keywords"), // JSON array de palabras clave detectadas
+  riskIndicators: text("risk_indicators"), // JSON array de indicadores de riesgo (burnout, acoso, estrés)
+  summary: text("summary"), // Resumen generado por LLM
+  recommendations: text("recommendations"), // Recomendaciones generadas por LLM
+  
+  // Metadata
+  analyzedAt: timestamp("analyzed_at").defaultNow().notNull(),
+  alertGenerated: boolean("alert_generated").default(false).notNull(), // Si se generó alerta automática
+  reviewedBy: int("reviewed_by").references(() => users.id), // Usuario que revisó el análisis
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNotes: text("review_notes"),
+});
+
+export type SentimentAnalysis = typeof sentimentAnalysis.$inferSelect;
+export type InsertSentimentAnalysis = typeof sentimentAnalysis.$inferInsert;
+
+// Relations para sentimentAnalysis
+export const sentimentAnalysisRelations = relations(sentimentAnalysis, ({ one }) => ({
+  response: one(surveyResponses, {
+    fields: [sentimentAnalysis.responseId],
+    references: [surveyResponses.id],
+  }),
+  answer: one(surveyAnswers, {
+    fields: [sentimentAnalysis.answerId],
+    references: [surveyAnswers.id],
+  }),
+  reviewer: one(users, {
+    fields: [sentimentAnalysis.reviewedBy],
+    references: [users.id],
+  }),
+}));
+
+/**
+ * Tabla de historial de reportes ejecutivos generados
+ * Almacena metadata y archivos PDF de reportes generados manualmente o automáticamente
+ */
+export const executiveReportsHistory = mysqlTable("executive_reports_history", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Tipo y periodo del reporte
+  reportType: mysqlEnum("report_type", ["weekly", "monthly", "quarterly", "custom"]).notNull(),
+  periodLabel: varchar("period_label", { length: 100 }).notNull(), // "Semana 1 Enero 2026", "Enero 2026", etc.
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  
+  // Archivo PDF generado
+  fileUrl: text("file_url").notNull(), // URL de S3
+  fileKey: varchar("file_key", { length: 500 }).notNull(), // Key de S3
+  fileSize: int("file_size"), // Tamaño en bytes
+  
+  // Metadata del reporte
+  generatedBy: int("generated_by").notNull().references(() => users.id),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  
+  // Destinatarios (opcional, para envío por email)
+  recipients: text("recipients"), // JSON array de emails
+  emailSent: boolean("email_sent").default(false).notNull(),
+  emailSentAt: timestamp("email_sent_at"),
+  
+  // Estadísticas incluidas en el reporte (JSON)
+  reportData: text("report_data"), // JSON con KPIs y métricas
+});
+
+export type ExecutiveReportHistory = typeof executiveReportsHistory.$inferSelect;
+export type InsertExecutiveReportHistory = typeof executiveReportsHistory.$inferInsert;
+
+// Relations para executiveReportsHistory
+export const executiveReportsHistoryRelations = relations(executiveReportsHistory, ({ one }) => ({
+  generator: one(users, {
+    fields: [executiveReportsHistory.generatedBy],
+    references: [users.id],
+  }),
+}));
