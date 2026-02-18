@@ -52,6 +52,7 @@ const ExternalOfferAlertsDashboard = lazy(() => import("./pages/ExternalOfferAle
 const BudgetPlannerDashboard = lazy(() => import("./pages/BudgetPlannerDashboard"));
 const SalaryEquityDashboard = lazy(() => import("./pages/SalaryEquityDashboard"));
 const ClimateAnalysisDashboard = lazy(() => import("./pages/ClimateAnalysisDashboard"));
+const CareerPlanningDashboard = lazy(() => import("./pages/CareerPlanningDashboard"));
 const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
@@ -1016,6 +1017,9 @@ function Router() {
         </Route>
         <Route path={"/climate-analysis"}>
           <ClimateAnalysisDashboard />
+        </Route>
+        <Route path={"/career-planning"}>
+          <CareerPlanningDashboard />
         </Route>
         <Route path={"/admin/turnover-management"}>
           <DashboardLayout>

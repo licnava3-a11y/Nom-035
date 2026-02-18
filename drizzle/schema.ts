@@ -4628,3 +4628,91 @@ export const climateAnalysis = mysqlTable("climate_analysis", {
 
 export type ClimateAnalysis = typeof climateAnalysis.$inferSelect;
 export type InsertClimateAnalysis = typeof climateAnalysis.$inferInsert;
+
+// ============================================
+// PLANES DE CARRERA (CAREER PLANNING)
+// ============================================
+
+// Rutas de Carrera Organizacionales
+export const careerPaths = mysqlTable("career_paths", {
+  id: int("id").autoincrement().primaryKey(),
+  pathName: varchar("path_name", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Posiciones en la ruta
+  positions: json("positions").$type<Array<{
+    level: number;
+    positionId: number;
+    positionName: string;
+    requiredCompetencies: Array<{
+      competencyId: number;
+      competencyName: string;
+      minimumLevel: number; // 1-5
+    }>;
+    estimatedTimeMonths: number;
+  }>>().notNull(),
+  
+  // Requisitos generales
+  minimumEducation: varchar("minimum_education", { length: 100 }),
+  minimumExperience: int("minimum_experience"), // Meses
+  
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CareerPath = typeof careerPaths.$inferSelect;
+export type InsertCareerPath = typeof careerPaths.$inferInsert;
+
+// Planes de Carrera Individuales
+export const employeeCareerPlans = mysqlTable("employee_career_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull(),
+  pathId: int("path_id").notNull().references(() => careerPaths.id),
+  
+  // Estado actual
+  currentLevel: int("current_level").notNull(),
+  targetLevel: int("target_level").notNull(),
+  
+  // Brechas de competencias
+  competencyGaps: json("competency_gaps").$type<Array<{
+    competencyId: number;
+    competencyName: string;
+    currentLevel: number;
+    requiredLevel: number;
+    gap: number;
+    recommendedCourses: Array<{
+      courseId: number;
+      courseName: string;
+      duration: number;
+    }>;
+  }>>(),
+  
+  // Hitos de desarrollo
+  milestones: json("milestones").$type<Array<{
+    id: string;
+    title: string;
+    description: string;
+    targetDate: string;
+    status: "pending" | "in_progress" | "completed";
+    completedDate?: string;
+  }>>(),
+  
+  // Proyección de vacantes
+  projectedVacancies: json("projected_vacancies").$type<Array<{
+    positionId: number;
+    positionName: string;
+    estimatedOpeningDate: string;
+    probability: number; // 0-100
+  }>>(),
+  
+  // Metadata
+  status: varchar("status", { length: 50 }).default("active"), // active, on_hold, completed, cancelled
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type EmployeeCareerPlan = typeof employeeCareerPlans.$inferSelect;
+export type InsertEmployeeCareerPlan = typeof employeeCareerPlans.$inferInsert;

@@ -123,6 +123,7 @@ import { externalOfferAlertsRouter } from "./routers/externalOfferAlerts";
 import { budgetPlannerRouter } from "./routers/budgetPlanner";
 import { salaryEquityRouter } from "./routers/salaryEquity";
 import { climateAnalysisRouter } from "./routers/climateAnalysis";
+import { careerPlanningRouter } from "./routers/careerPlanning";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -256,6 +257,7 @@ export const appRouter = router({
   budgetPlanner: budgetPlannerRouter,
   salaryEquity: salaryEquityRouter,
   climateAnalysis: climateAnalysisRouter,
+  careerPlanning: careerPlanningRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
