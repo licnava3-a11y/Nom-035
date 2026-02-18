@@ -9,6 +9,7 @@ import { getDb } from "../db";
 import { complianceChecks, complianceChecklist, notifications, users } from "../../drizzle/schema";
 import { and, lte, gte, eq, isNull, sql } from "drizzle-orm";
 import { emitNotificationToUser } from "../_core/websocket";
+import { notifyOwner } from "../_core/notification";
 
 /**
  * Verificar vencimientos y enviar recordatorios
@@ -95,6 +96,22 @@ async function checkDueDatesAndNotify() {
             title: "Recordatorio de Cumplimiento NOM-035",
             message,
           });
+
+          // Enviar notificación por email usando notifyOwner
+          try {
+            const emailSent = await notifyOwner({
+              title: `⏰ Recordatorio de Cumplimiento NOM-035 - ${item.itemCode}`,
+              content: `Hola ${admin.nombre},\n\n${message}\n\nPrioridad: ${daysUntilDue <= 7 ? "ALTA" : "Media"}\n\nPor favor, revisa el dashboard de cumplimiento para más detalles.\n\nSaludos,\nPlataforma NOM-035`,
+            });
+            
+            if (emailSent) {
+              console.log(`[Compliance Reminders Job] Email sent to ${admin.email}`);
+            } else {
+              console.warn(`[Compliance Reminders Job] Failed to send email to ${admin.email}`);
+            }
+          } catch (emailError) {
+            console.error(`[Compliance Reminders Job] Error sending email to ${admin.email}:`, emailError);
+          }
 
           notificationsSent++;
         } catch (error) {

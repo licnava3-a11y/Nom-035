@@ -2600,3 +2600,36 @@
 - [ ] Crear página SMTPConfigPanel.tsx para configurar SMTP
 - [ ] Agregar ruta en App.tsx
 - [ ] Probar envío de emails de prueba
+
+
+## Nuevas Tareas - Dashboard Correlación, Email Notifications y Seed Turnover
+
+### Fase 1: Frontend Dashboard de Correlación Predictiva ✅ COMPLETADA
+- [x] Crear página PredictiveCorrelationDashboard.tsx
+- [x] Implementar 4 cards de métricas (Precisión, Recall, F1-Score, Accuracy)
+- [x] Implementar matriz de confusión visual con colores (verde/rojo/naranja/azul)
+- [x] Implementar tabla de verdaderos positivos con detalles
+- [x] Implementar tabla de falsos positivos con detalles
+- [x] Implementar tabla de falsos negativos con detalles
+- [x] Agregar tabs para navegar entre categorías
+- [x] Agregar filtro de rango de fechas
+- [x] Agregar ruta /predictive-correlation en App.tsx
+- [x] Agregar enlace "Precisión del Modelo Predictivo" en navegación lateral (Encuestas NOM-035)
+
+### Fase 2: Sistema de Notificaciones por Email ✅ COMPLETADA
+- [x] Leer job compliance-reminders-job.ts para integrar emails
+- [x] Implementar integración con notifyOwner en compliance-reminders-job.ts
+- [x] Crear template de email personalizado con nombre, mensaje y prioridad
+- [x] Integrar envío de email en job compliance-reminders-job.ts (línea 100-114)
+- [x] Agregar logs de confirmación de envío exitoso o errores
+- [x] Notificaciones por email complementan las notificaciones WebSocket
+
+### Fase 3: Seed de Datos de Prueba de Rotación ✅ COMPLETADA
+- [x] Crear script seed-turnover-history.mjs
+- [x] Definir 15 empleados ficticios que rotaron
+- [x] Mix de empleados: 7 alto riesgo (verdaderos positivos) + 8 bajo riesgo (falsos negativos)
+- [x] Asignar fechas de salida variadas (junio-diciembre 2025)
+- [x] Asignar razones de salida (voluntary, involuntary, retirement)
+- [x] Asignar riskScoreAtExit (20-95)
+- [x] Ejecutar script con pnpm exec tsx seed-turnover-history.mjs
+- [x] Verificar inserción: 15 registros insertados exitosamente
