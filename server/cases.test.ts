@@ -73,8 +73,12 @@ describe("cases router", () => {
     const ctx = createCommitteeContext();
     const caller = appRouter.createCaller(ctx);
 
-    const cases = await caller.cases.list();
-    expect(Array.isArray(cases)).toBe(true);
+    const result = await caller.cases.list();
+    expect(result).toBeDefined();
+    expect(result.cases).toBeDefined();
+    expect(Array.isArray(result.cases)).toBe(true);
+    expect(result.totalCount).toBeDefined();
+    expect(result.totalPages).toBeDefined();
   });
 
   it("should prevent students from listing cases", async () => {

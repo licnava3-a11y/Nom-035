@@ -22,6 +22,20 @@ export const employeesRouter = router({
           pageSize: z.number().min(10).max(100).default(20),
         })
         .optional()
+        .refine(
+          (data) => {
+            // Si department está presente, debe ser un ID numérico válido
+            if (data?.department) {
+              const parsed = parseInt(data.department);
+              return !isNaN(parsed) && parsed > 0;
+            }
+            return true;
+          },
+          {
+            message: "El departamento debe ser un ID numérico válido",
+            path: ["department"],
+          }
+        )
     )
     .query(async ({ input }) => {
       return await employeesDb.getAllEmployees(input);
