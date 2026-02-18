@@ -3282,3 +3282,40 @@
 - [ ] Ejecutar tests para verificar validaciones
 - [ ] Actualizar reporte de cobertura final
 
+
+
+## Nuevas Tareas - Seguridad Avanzada CSRF y Validaciones (Feb 18, 2026 - Fase 2)
+
+### Tarea 4: Página de Administración de Violaciones CSRF ⏱️ 2 horas
+- [ ] Crear componente CSRFViolationsPage.tsx en client/src/pages/admin/
+- [ ] Implementar tabla de violaciones con paginación y filtros (IP, razón, fechas)
+- [ ] Agregar gráfica de violaciones por razón (pie chart con Chart.js)
+- [ ] Agregar gráfica de top 10 IPs atacantes (bar chart horizontal)
+- [ ] Agregar gráfica de endpoints más atacados (bar chart)
+- [ ] Implementar panel de alertas activas con estados (pending, investigating, resolved)
+- [ ] Agregar acciones: marcar alerta como resuelta, investigando, falso positivo
+- [ ] Implementar exportación de violaciones a Excel
+- [ ] Agregar ruta en App.tsx y enlace en menú de administración
+- [ ] Usar paleta de colores: negro, verde, azul marino, rojo
+
+### Tarea 5: Bloqueo Automático de IPs Atacantes ⏱️ 1.5 horas
+- [ ] Crear tabla blocked_ips en schema con expiración configurable
+- [ ] Crear tabla ip_whitelist para IPs confiables
+- [ ] Generar y aplicar migración SQL para ambas tablas
+- [ ] Implementar función autoBlockIP en server/_core/csrf.ts
+- [ ] Lógica: bloquear IP si genera >3 alertas en 24 horas
+- [ ] Crear middleware checkBlockedIP para rechazar requests de IPs bloqueadas
+- [ ] Integrar middleware en server/_core/index.ts antes de tRPC
+- [ ] Crear procedures ipBlocking.getBlockedIPs, addToWhitelist, removeBlock
+- [ ] Enviar notificación al administrador cuando se bloquee una IP
+- [ ] Agregar log de bloqueos en tabla blocked_ips con razón y duración
+
+### Tarea 6: Extender Validaciones Zod a 95%+ Cobertura ⏱️ 3 horas
+- [ ] Ejecutar script analyze-zod-coverage.ts para actualizar reporte
+- [ ] Implementar validaciones en routers de reportes (7-10 routers)
+- [ ] Implementar validaciones en routers de notificaciones (3-5 routers)
+- [ ] Implementar validaciones en routers de configuración (2-3 routers)
+- [ ] Implementar validaciones en routers de dashboards (3-4 routers)
+- [ ] Verificar cobertura alcanzada (objetivo: 95%+)
+- [ ] Ejecutar tests de Vitest para validar nuevas validaciones
+- [ ] Actualizar reporte de cobertura final

@@ -48,6 +48,7 @@ const InterventionPredictionDashboard = lazy(() => import("./pages/InterventionP
 const PayrollCompensationDashboard = lazy(() => import("./pages/PayrollCompensationDashboard"));
 const RetentionConsolidatedDashboard = lazy(() => import("./pages/RetentionConsolidatedDashboard"));
 const SalaryTrendsDashboard = lazy(() => import("./pages/SalaryTrendsDashboard"));
+const CSRFViolationsPage = lazy(() => import("./pages/admin/CSRFViolationsPage"));
 const ExternalOfferAlertsDashboard = lazy(() => import("./pages/ExternalOfferAlertsDashboard"));
 const BudgetPlannerDashboard = lazy(() => import("./pages/BudgetPlannerDashboard"));
 const SalaryEquityDashboard = lazy(() => import("./pages/SalaryEquityDashboard"));
@@ -1025,6 +1026,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <TurnoverManagementPanel />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/admin/csrf-violations"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CSRFViolationsPage />
             </Suspense>
           </DashboardLayout>
         </Route>
