@@ -3319,3 +3319,16 @@
 - [ ] Verificar cobertura alcanzada (objetivo: 95%+)
 - [ ] Ejecutar tests de Vitest para validar nuevas validaciones
 - [ ] Actualizar reporte de cobertura final
+
+
+## Nueva Tarea - Corrección de Pantalla Inicial en Blanco
+
+### Problema Reportado
+- [x] Pantalla inicial no se visualiza en la vista previa (pantalla en blanco)
+- [x] Revisar logs del navegador para identificar errores JavaScript (sin errores)
+- [x] Verificar configuración de rutas en App.tsx (ruta / configurada con Dashboard)
+- [x] Verificar componente Home.tsx (requiere autenticación)
+- [x] Crear componente LandingPage.tsx público
+- [x] Actualizar ruta raíz "/" para usar LandingPage
+- [x] Agregar ruta "/dashboard" para Dashboard autenticado
+- [ ] Problema persiste: pantalla en blanco (investigar CSRFProvider o cache del navegador)

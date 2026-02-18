@@ -49,6 +49,7 @@ const PayrollCompensationDashboard = lazy(() => import("./pages/PayrollCompensat
 const RetentionConsolidatedDashboard = lazy(() => import("./pages/RetentionConsolidatedDashboard"));
 const SalaryTrendsDashboard = lazy(() => import("./pages/SalaryTrendsDashboard"));
 const CSRFViolationsPage = lazy(() => import("./pages/admin/CSRFViolationsPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const ExternalOfferAlertsDashboard = lazy(() => import("./pages/ExternalOfferAlertsDashboard"));
 const BudgetPlannerDashboard = lazy(() => import("./pages/BudgetPlannerDashboard"));
 const SalaryEquityDashboard = lazy(() => import("./pages/SalaryEquityDashboard"));
@@ -218,6 +219,11 @@ function Router() {
     <Suspense fallback={<PageLoader />}>
       <Switch>
         <Route path={"/"}>
+          <Suspense fallback={<PageLoader />}>
+            <LandingPage />
+          </Suspense>
+        </Route>
+        <Route path={"/dashboard"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <Dashboard />
