@@ -105,6 +105,7 @@ import { complianceNOM035Router } from "./routers/complianceNOM035";
 import { sentimentCasesCorrelationRouter } from "./routers/sentimentCasesCorrelation";
 import { predictiveTurnoverDashboardRouter } from "./routers/predictiveTurnoverDashboard";
 import { predictiveCorrelationRouter } from "./routers/predictiveCorrelation";
+import { turnoverManagementRouter } from "./routers/turnoverManagement";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -220,6 +221,7 @@ export const appRouter = router({
   sentimentCasesCorrelation: sentimentCasesCorrelationRouter,
   predictiveTurnoverDashboard: predictiveTurnoverDashboardRouter,
   predictiveCorrelation: predictiveCorrelationRouter,
+  turnoverManagement: turnoverManagementRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

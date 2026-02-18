@@ -2633,3 +2633,45 @@
 - [x] Asignar riskScoreAtExit (20-95)
 - [x] Ejecutar script con pnpm exec tsx seed-turnover-history.mjs
 - [x] Verificar inserción: 15 registros insertados exitosamente
+
+
+## Nuevas Tareas - Gestión Manual de Rotación, Evolución Temporal y Exportación PDF
+
+### Fase 1: UI para Gestión Manual de Rotación de Empleados ✅ COMPLETADA
+- [x] Crear router turnoverManagement con mutations (create, update, delete) y query getAll
+- [x] Implementar mutation createTurnoverRecord con validación de duplicados (±7 días)
+- [x] Implementar mutation updateTurnoverRecord
+- [x] Implementar mutation deleteTurnoverRecord
+- [x] Implementar query getAllTurnoverRecords con paginación (limit 50)
+- [x] Crear página TurnoverManagementPanel.tsx
+- [x] Implementar formulario de registro (empleado, fecha salida, razón, puntuación riesgo)
+- [x] Implementar tabla de registros existentes con opciones editar/eliminar
+- [x] Agregar dialog de edición con todos los campos
+- [x] Agregar ruta /admin/turnover-management en App.tsx
+- [x] Agregar enlace "Gestión de Rotación" en navegación lateral (Administración)
+- [x] Registrar router en appRouter
+
+### Fase 2: Dashboard de Evolución Temporal del Modelo Predictivo
+- [ ] Crear router modelEvolution con query getMetricsEvolution
+- [ ] Implementar query que calcule métricas por mes (últimos 12 meses)
+- [ ] Crear página ModelEvolutionDashboard.tsx
+- [ ] Implementar gráfico de línea: evolución de precisión por mes
+- [ ] Implementar gráfico de línea: evolución de recall por mes
+- [ ] Implementar gráfico de línea: evolución de F1-score por mes
+- [ ] Implementar cards de métricas: tendencia (mejora/degradación)
+- [ ] Agregar selector de rango de fechas
+- [ ] Agregar ruta /model-evolution en App.tsx
+- [ ] Agregar enlace en navegación lateral (Encuestas NOM-035)
+- [ ] Registrar router en appRouter
+
+### Fase 3: Exportación de Matriz de Confusión a PDF
+- [ ] Crear mutation generateConfusionMatrixReport en router predictiveCorrelation
+- [ ] Implementar generación de PDF con pdfkit
+- [ ] Incluir portada con fecha y título
+- [ ] Incluir matriz de confusión visual (tabla con colores)
+- [ ] Incluir métricas actuales (precisión, recall, F1-score, accuracy)
+- [ ] Incluir tabla de casos críticos (falsos negativos)
+- [ ] Incluir recomendaciones de mejora del modelo
+- [ ] Subir PDF a S3 y retornar URL
+- [ ] Agregar botón "Exportar a PDF" en PredictiveCorrelationDashboard.tsx
+- [ ] Abrir PDF en nueva ventana automáticamente

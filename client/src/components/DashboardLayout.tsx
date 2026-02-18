@@ -234,6 +234,7 @@ const hierarchicalMenuItems = [
       { label: "Gestión de Departamentos", path: "/department-management", description: "Administrar departamentos organizacionales" },
       { label: "Métricas de Departamentos", path: "/department-metrics", description: "Estadísticas de rotación, crecimiento y distribución" },
       { label: "Configuración Algoritmo", path: "/algorithm-config", description: "Ajustar pesos del algoritmo predictivo" },
+      { label: "Gestión de Rotación", path: "/admin/turnover-management", description: "Registrar manualmente empleados que rotaron" },
       { label: "Efectividad del Algoritmo", path: "/algorithm-effectiveness", description: "Análisis de precisión y comparativa predicciones vs realidad" },
       { label: "Métricas de WhatsApp", path: "/whatsapp-metrics", description: "Seguimiento de conversiones y normativas solicitadas" },
       { label: "Pipeline de Leads", path: "/leads-pipeline", description: "Gestión de oportunidades de venta con Kanban" },
