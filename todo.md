@@ -2930,3 +2930,53 @@
 - [x] Incluir recomendaciones de acción correctiva
 - [x] Subir PDF a S3 y almacenar en tabla equity_reports_history
 - [x] Agregar botón "Exportar Reporte PDF" en SalaryEquityDashboard
+## Nuevas Tareas - Clima Laboral, Planes de Carrera y Benchmarking Salarial
+
+### 1. Dashboard de Análisis de Clima Laboral
+- [x] Crear tabla organizational_climate_surveys en schema (preguntas de satisfacción, frecuencia)
+- [x] Aplicar migración SQL
+- [x] Crear tabla climate_survey_responses para almacenar respuestas
+- [x] Aplicar migración SQL para responses
+- [x] Crear router climateAnalysis con procedures (createSurvey, submitResponse, getAnalytics, getCorrelations)
+- [x] Implementar cálculo de índice de clima laboral (0-100)
+- [x] Calcular correlaciones con métricas de equidad y rotación
+- [x] Crear página ClimateAnalysisDashboard.tsx
+- [x] Implementar tabs: Resultados Actuales, Tendencias Históricas, Correlaciones
+- [x] Agregar gráficos de satisfacción por dimensión (liderazgo, comunicación, desarrollo, compensación)
+- [x] Mostrar correlación clima-rotación y clima-equidad
+- [x] Agregar tabla de áreas críticas con recomendaciones
+- [x] Crear formulario de configuración de encuestas periódicas
+- [x] Agregar ruta y enlace en navegación lateral
+
+### 2. Sistema de Planes de Carrera
+- [ ] Crear tabla career_paths en schema (rutas de crecimiento, requisitos)
+- [ ] Aplicar migración SQL
+- [ ] Crear tabla employee_career_plans para planes individuales
+- [ ] Aplicar migración SQL para employee_career_plans
+- [ ] Crear router careerPlanning con procedures (suggestPath, createPlan, trackProgress, getVacancyProjections)
+- [ ] Implementar algoritmo de sugerencia de rutas basado en competencias actuales
+- [ ] Calcular brechas de competencias para cada ruta
+- [ ] Proyectar vacantes futuras basándose en rotación histórica
+- [ ] Crear página CareerPlanningDashboard.tsx
+- [ ] Implementar vista de rutas sugeridas con requisitos
+- [ ] Mostrar brechas de competencias con cursos recomendados
+- [ ] Agregar timeline de desarrollo profesional
+- [ ] Implementar seguimiento de progreso con hitos
+- [ ] Agregar proyección de vacantes futuras
+- [ ] Agregar ruta y enlace en navegación lateral
+
+### 3. Integración con APIs de Benchmarking Salarial
+- [ ] Investigar APIs disponibles (Glassdoor, PayScale, LinkedIn Salary)
+- [ ] Crear tabla market_salary_data en schema (fuente, puesto, salario, fecha)
+- [ ] Aplicar migración SQL
+- [ ] Crear router salaryBenchmarking con procedures (fetchMarketData, updateRates, compareToMarket)
+- [ ] Implementar integración con API de benchmarking (simulada si no hay acceso real)
+- [ ] Crear job salary-benchmark-update-job.ts (ejecuta mensualmente)
+- [ ] Actualizar automáticamente tasas de mercado en payroll_data
+- [ ] Registrar job en server startup
+- [ ] Actualizar alertas de compensación para usar datos de benchmarking
+- [ ] Crear página SalaryBenchmarkingDashboard.tsx
+- [ ] Mostrar comparación salarios internos vs mercado
+- [ ] Agregar gráficos de posicionamiento competitivo
+- [ ] Agregar tabla de puestos con mayor brecha vs mercado
+- [ ] Agregar ruta y enlace en navegación lateral

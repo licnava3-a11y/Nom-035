@@ -4530,3 +4530,101 @@ export const equityReportsHistory = mysqlTable("equity_reports_history", {
 
 export type EquityReportsHistory = typeof equityReportsHistory.$inferSelect;
 export type InsertEquityReportsHistory = typeof equityReportsHistory.$inferInsert;
+
+// ============================================
+// CLIMA LABORAL (ORGANIZATIONAL CLIMATE)
+// ============================================
+
+// Encuestas de Clima Organizacional
+export const organizationalClimateSurveys = mysqlTable("organizational_climate_surveys", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Dimensiones de evaluación
+  dimensions: json("dimensions").$type<Array<{
+    id: string;
+    name: string;
+    questions: Array<{
+      id: string;
+      text: string;
+      type: "likert" | "yes_no" | "open";
+    }>;
+  }>>().notNull(),
+  
+  // Configuración
+  frequency: varchar("frequency", { length: 50 }).default("quarterly"), // monthly, quarterly, semiannual, annual
+  isActive: boolean("is_active").default(true),
+  
+  // Metadata
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type OrganizationalClimateSurvey = typeof organizationalClimateSurveys.$inferSelect;
+export type InsertOrganizationalClimateSurvey = typeof organizationalClimateSurveys.$inferInsert;
+
+// Respuestas de Encuestas de Clima
+export const climateSurveyResponses = mysqlTable("climate_survey_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("survey_id").notNull().references(() => organizationalClimateSurveys.id),
+  employeeId: int("employee_id").notNull(),
+  
+  // Respuestas por dimensión
+  responses: json("responses").$type<Record<string, {
+    dimensionId: string;
+    dimensionName: string;
+    answers: Record<string, string | number>;
+    score: number; // 0-100 por dimensión
+  }>>().notNull(),
+  
+  // Score global
+  overallScore: int("overall_score").notNull(), // 0-100
+  
+  // Metadata
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+});
+
+export type ClimateSurveyResponse = typeof climateSurveyResponses.$inferSelect;
+export type InsertClimateSurveyResponse = typeof climateSurveyResponses.$inferInsert;
+
+// Análisis de Clima Organizacional
+export const climateAnalysis = mysqlTable("climate_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  surveyId: int("survey_id").notNull().references(() => organizationalClimateSurveys.id),
+  period: varchar("period", { length: 50 }).notNull(), // "2026-Q1", "2026-02", etc.
+  
+  // Índice de Clima Laboral Global
+  climateIndex: int("climate_index").notNull(), // 0-100
+  
+  // Scores por dimensión
+  dimensionScores: json("dimension_scores").$type<Record<string, {
+    dimensionId: string;
+    dimensionName: string;
+    score: number; // 0-100
+    participationRate: number; // % de empleados que respondieron
+    trend: "improving" | "stable" | "declining";
+  }>>().notNull(),
+  
+  // Correlaciones con otras métricas
+  correlations: json("correlations").$type<{
+    climateVsRotation: { correlation: number; significance: string };
+    climateVsEquity: { correlation: number; significance: string };
+    climateVsProductivity: { correlation: number; significance: string };
+  }>(),
+  
+  // Áreas críticas
+  criticalAreas: json("critical_areas").$type<Array<{
+    dimension: string;
+    score: number;
+    affectedEmployees: number;
+    recommendations: string[];
+  }>>(),
+  
+  // Metadata
+  analyzedAt: timestamp("analyzed_at").defaultNow().notNull(),
+});
+
+export type ClimateAnalysis = typeof climateAnalysis.$inferSelect;
+export type InsertClimateAnalysis = typeof climateAnalysis.$inferInsert;
