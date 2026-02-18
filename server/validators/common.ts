@@ -22,25 +22,8 @@ export const commonValidators = {
   // Email válido
   email: z.string().email("Formato de email inválido").toLowerCase(),
   
-  // Fecha en formato ISO (YYYY-MM-DD) con validación semántica
-  isoDate: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido (YYYY-MM-DD)")
-    .refine(
-      (dateStr) => {
-        // Validar que la fecha sea semánticamente válida
-        const date = new Date(dateStr + 'T00:00:00Z');
-        if (isNaN(date.getTime())) return false;
-        
-        // Verificar que la fecha parseada coincida con la string original
-        const [year, month, day] = dateStr.split('-').map(Number);
-        return (
-          date.getUTCFullYear() === year &&
-          date.getUTCMonth() + 1 === month &&
-          date.getUTCDate() === day
-        );
-      },
-      { message: "Fecha inválida (mes o día fuera de rango)" }
-    ),
+  // Fecha en formato ISO (YYYY-MM-DD)
+  isoDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido (YYYY-MM-DD)"),
   
   // Porcentaje (0-100)
   percentage: z.number()

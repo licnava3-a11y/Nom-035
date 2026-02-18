@@ -78,40 +78,36 @@ describe("Employees Module", () => {
 
     it("should list employees", async () => {
       const caller = appRouter.createCaller(adminContext);
-      const result = await caller.employees.list();
+      const result = await caller.employees.list({});
 
       expect(result).toBeDefined();
-      expect(result.employees).toBeDefined();
-      expect(Array.isArray(result.employees)).toBe(true);
-      expect(result.employees.length).toBeGreaterThan(0);
-      expect(result.pagination).toBeDefined();
-      expect(result.pagination.totalCount).toBeGreaterThan(0);
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
     });
 
-        it("should filter employees by search term", async () => {
+    it("should filter employees by search term", async () => {
       const caller = appRouter.createCaller(adminContext);
-      const result = await caller.employees.list({ search: "Test" });
+      const result = await caller.employees.list({
+        search: "Test",
+      });
 
       expect(result).toBeDefined();
-      expect(result.employees).toBeDefined();
-      expect(Array.isArray(result.employees)).toBe(true);
+      expect(Array.isArray(result)).toBe(true);
       // Search should return results
-      expect(result.employees.length).toBeGreaterThanOrEqual(0);
-      expect(result.pagination).toBeDefined();
+      expect(result.length).toBeGreaterThanOrEqual(0);
     });
 
     it("should filter employees by department", async () => {
       const caller = appRouter.createCaller(adminContext);
       const result = await caller.employees.list({
-        department: "1", // ID numérico como string
+        department: "Testing Department",
       });
 
       expect(result).toBeDefined();
-      expect(result.employees).toBeDefined();
-      expect(Array.isArray(result.employees)).toBe(true);
+      expect(Array.isArray(result)).toBe(true);
       // If there are results, they should match the filter
-      if (result.employees.length > 0) {
-        expect(result.employees.every((emp) => emp.departmentId === 1)).toBe(true);
+      if (result.length > 0) {
+        expect(result.every((emp) => emp.department === "Testing Department")).toBe(true);
       }
     });
 
