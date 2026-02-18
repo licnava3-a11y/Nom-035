@@ -3332,3 +3332,10 @@
 - [x] Actualizar ruta raíz "/" para usar LandingPage
 - [x] Agregar ruta "/dashboard" para Dashboard autenticado
 - [ ] Problema persiste: pantalla en blanco (investigar CSRFProvider o cache del navegador)
+
+### Tarea Crítica Actual: Corregir Tests CSRF Fallidos ✅ COMPLETADA
+- [x] Analizar csrf.test.ts para identificar promesas no resueltas
+- [x] Corregir funciones generateCSRFToken, validateCSRFToken, invalidateCSRFToken agregando await
+- [x] Ejecutar tests Vitest para verificar correcciones (resultado: 277/297 tests pasando, +12 tests corregidos)
+- [x] Tests CSRF: 18/18 pasando (100% éxito)
+- [x] Guardar checkpoint con tests CSRF corregidos

@@ -34,65 +34,76 @@ describe("CSRF Protection", () => {
       expect(token1).not.toBe(token2);
     });
 
-    it("debe sobrescribir token existente para la misma sesión", () => {
+    it("debe sobrescribir token existente para la misma sesión", async () => {
       const token1 = generateCSRFToken(sessionId);
       const token2 = generateCSRFToken(sessionId);
       
-      // Token1 ya no debe ser válido
-      expect(validateCSRFToken(sessionId, token1)).toBe(false);
+      // Token1 ya no debe ser válido (fue sobrescrito)
+      const result1 = await validateCSRFToken(sessionId, token1);
+      expect(result1.valid).toBe(false);
+      
       // Token2 debe ser válido
-      expect(validateCSRFToken(sessionId, token2)).toBe(true);
+      const result2 = await validateCSRFToken(sessionId, token2);
+      expect(result2.valid).toBe(true);
     });
   });
 
   describe("validateCSRFToken", () => {
-    it("debe validar token correcto", () => {
+    it("debe validar token correcto", async () => {
       const token = generateCSRFToken(sessionId);
       
-      expect(validateCSRFToken(sessionId, token)).toBe(true);
+      const result = await validateCSRFToken(sessionId, token);
+      expect(result.valid).toBe(true);
     });
 
-    it("debe rechazar token incorrecto", () => {
+    it("debe rechazar token incorrecto", async () => {
       generateCSRFToken(sessionId);
       const fakeToken = "fake-token-12345";
       
-      expect(validateCSRFToken(sessionId, fakeToken)).toBe(false);
+      const result = await validateCSRFToken(sessionId, fakeToken);
+      expect(result.valid).toBe(false);
     });
 
-    it("debe rechazar token de otra sesión", () => {
+    it("debe rechazar token de otra sesión", async () => {
       const token = generateCSRFToken("session-1");
       
-      expect(validateCSRFToken("session-2", token)).toBe(false);
+      const result = await validateCSRFToken("session-2", token);
+      expect(result.valid).toBe(false);
     });
 
-    it("debe rechazar token vacío", () => {
+    it("debe rechazar token vacío", async () => {
       generateCSRFToken(sessionId);
       
-      expect(validateCSRFToken(sessionId, "")).toBe(false);
+      const result = await validateCSRFToken(sessionId, "");
+      expect(result.valid).toBe(false);
     });
 
-    it("debe rechazar cuando no existe token para la sesión", () => {
-      expect(validateCSRFToken("non-existent-session", "any-token")).toBe(false);
+    it("debe rechazar cuando no existe token para la sesión", async () => {
+      const result = await validateCSRFToken("non-existent-session", "any-token");
+      expect(result.valid).toBe(false);
     });
 
-    it("debe rechazar token después de invalidación", () => {
+    it("debe rechazar token después de invalidación", async () => {
       const token = generateCSRFToken(sessionId);
       
       invalidateCSRFToken(sessionId);
       
-      expect(validateCSRFToken(sessionId, token)).toBe(false);
+      const result = await validateCSRFToken(sessionId, token);
+      expect(result.valid).toBe(false);
     });
   });
 
   describe("invalidateCSRFToken", () => {
-    it("debe invalidar token existente", () => {
+    it("debe invalidar token existente", async () => {
       const token = generateCSRFToken(sessionId);
       
-      expect(validateCSRFToken(sessionId, token)).toBe(true);
+      const result1 = await validateCSRFToken(sessionId, token);
+      expect(result1.valid).toBe(true);
       
       invalidateCSRFToken(sessionId);
       
-      expect(validateCSRFToken(sessionId, token)).toBe(false);
+      const result2 = await validateCSRFToken(sessionId, token);
+      expect(result2.valid).toBe(false);
     });
 
     it("no debe lanzar error al invalidar sesión inexistente", () => {
@@ -101,17 +112,17 @@ describe("CSRF Protection", () => {
   });
 
   describe("Security - Timing Attack Prevention", () => {
-    it("debe usar comparación segura de tokens", () => {
+    it("debe usar comparación segura de tokens", async () => {
       const token = generateCSRFToken(sessionId);
       const similarToken = token.slice(0, -1) + "X"; // Token casi idéntico
       
       // Ambas validaciones deben tomar tiempo similar (timing-safe)
       const start1 = Date.now();
-      validateCSRFToken(sessionId, token);
+      await validateCSRFToken(sessionId, token);
       const time1 = Date.now() - start1;
       
       const start2 = Date.now();
-      validateCSRFToken(sessionId, similarToken);
+      await validateCSRFToken(sessionId, similarToken);
       const time2 = Date.now() - start2;
       
       // Diferencia de tiempo debe ser mínima (< 10ms)
@@ -127,7 +138,8 @@ describe("CSRF Protection", () => {
       const token = generateCSRFToken(sessionId);
       
       // Token válido inicialmente
-      expect(validateCSRFToken(sessionId, token)).toBe(true);
+      const result = await validateCSRFToken(sessionId, token);
+      expect(result.valid).toBe(true);
       
       // En producción, el token expira después de CSRF_CONFIG.tokenExpiry (1 hora)
       // Para testing real, se necesitaría:
@@ -138,21 +150,23 @@ describe("CSRF Protection", () => {
   });
 
   describe("Edge Cases", () => {
-    it("debe manejar sessionIds con caracteres especiales", () => {
+    it("debe manejar sessionIds con caracteres especiales", async () => {
       const specialSessionId = "session-!@#$%^&*()_+-=[]{}|;:',.<>?";
       const token = generateCSRFToken(specialSessionId);
       
-      expect(validateCSRFToken(specialSessionId, token)).toBe(true);
+      const result = await validateCSRFToken(specialSessionId, token);
+      expect(result.valid).toBe(true);
     });
 
-    it("debe manejar sessionIds muy largos", () => {
+    it("debe manejar sessionIds muy largos", async () => {
       const longSessionId = "a".repeat(1000);
       const token = generateCSRFToken(longSessionId);
       
-      expect(validateCSRFToken(longSessionId, token)).toBe(true);
+      const result = await validateCSRFToken(longSessionId, token);
+      expect(result.valid).toBe(true);
     });
 
-    it("debe manejar múltiples sesiones concurrentes", () => {
+    it("debe manejar múltiples sesiones concurrentes", async () => {
       const sessions = ["session-1", "session-2", "session-3"];
       const tokens = sessions.map((sid) => ({
         sessionId: sid,
@@ -160,13 +174,17 @@ describe("CSRF Protection", () => {
       }));
       
       // Todos los tokens deben ser válidos para sus respectivas sesiones
-      tokens.forEach(({ sessionId, token }) => {
-        expect(validateCSRFToken(sessionId, token)).toBe(true);
-      });
+      for (const { sessionId, token } of tokens) {
+        const result = await validateCSRFToken(sessionId, token);
+        expect(result.valid).toBe(true);
+      }
       
       // Tokens no deben ser válidos para otras sesiones
-      expect(validateCSRFToken(sessions[0], tokens[1].token)).toBe(false);
-      expect(validateCSRFToken(sessions[1], tokens[2].token)).toBe(false);
+      const result1 = await validateCSRFToken(sessions[0], tokens[1].token);
+      expect(result1.valid).toBe(false);
+      
+      const result2 = await validateCSRFToken(sessions[1], tokens[2].token);
+      expect(result2.valid).toBe(false);
     });
   });
 
