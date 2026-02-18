@@ -2825,3 +2825,35 @@
 - [x] Implementar gráfico de correlación compensación vs riesgo de rotación
 - [x] Agregar tabla de empleados con brecha salarial crítica
 - [x] Agregar enlace en navegación lateral
+
+## Nuevas Tareas - Dashboard Consolidado y Herramientas Finales
+
+### 1. Dashboard Consolidado de Retención
+- [x] Crear página RetentionConsolidatedDashboard.tsx
+- [x] Integrar recomendaciones inteligentes para empleados de alto riesgo
+- [x] Mostrar predicciones de efectividad de intervenciones sugeridas
+- [x] Incluir análisis de brecha salarial y compensación
+- [x] Agregar métricas consolidadas (empleados en riesgo, intervenciones activas, ROI)
+- [x] Implementar vista de priorización de acciones
+- [x] Agregar enlace en navegación lateral
+
+### 2. Simulador de Impacto Salarial
+- [x] Crear router salaryImpactSimulator con procedure simulateImpact
+- [x] Implementar cálculo de reducción de riesgo por ajuste salarial
+- [x] Considerar múltiples escenarios (aumento porcentual, aumento fijo, ajuste a mercado)
+- [x] Calcular ROI de ajustes salariales vs costo de rotación
+- [x] Crear componente SalaryImpactSimulator en RetentionConsolidatedDashboard
+- [x] Mostrar gráfico de riesgo antes/después del ajuste
+- [x] Agregar comparación de escenarios
+
+### 3. Exportación PDF de Análisis de Compensación
+- [x] Crear router compensationReports con procedure generateCompensationPDF
+- [x] Implementar generación de PDF con pdfkit (portada, resumen ejecutivo)
+- [x] Incluir gráfico de distribución de brecha salarial
+- [x] Agregar tabla de empleados con brecha crítica
+- [x] Incluir recomendaciones de ajuste salarial por empleado
+- [x] Calcular costo total de ajustes vs costo de rotación
+- [x] Subir PDF a S3 y almacenar en tabla compensation_reports_history
+- [x] Agregar botón "Exportar a PDF" en PayrollCompensationDashboard
+- [x] Agregar botón "Exportar a PDF" en RetentionConsolidatedDashboard
+- [x] Implementar descarga automática del PDF generado

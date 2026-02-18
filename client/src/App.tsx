@@ -46,6 +46,7 @@ const ModelRetrainingHistory = lazy(() => import("./pages/ModelRetrainingHistory
 const RetentionInterventionsDashboard = lazy(() => import("./pages/RetentionInterventionsDashboard"));
 const InterventionPredictionDashboard = lazy(() => import("./pages/InterventionPredictionDashboard"));
 const PayrollCompensationDashboard = lazy(() => import("./pages/PayrollCompensationDashboard"));
+const RetentionConsolidatedDashboard = lazy(() => import("./pages/RetentionConsolidatedDashboard"));
 const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
@@ -992,6 +993,9 @@ function Router() {
         </Route>
         <Route path={"/payroll-compensation"}>
           <PayrollCompensationDashboard />
+        </Route>
+        <Route path={"/retention-consolidated"}>
+          <RetentionConsolidatedDashboard />
         </Route>
         <Route path={"/admin/turnover-management"}>
           <DashboardLayout>

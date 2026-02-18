@@ -4309,3 +4309,27 @@ export const payrollData = mysqlTable("payroll_data", {
 
 export type PayrollData = typeof payrollData.$inferSelect;
 export type InsertPayrollData = typeof payrollData.$inferInsert;
+
+// Historial de reportes de compensación generados
+export const compensationReportsHistory = mysqlTable("compensation_reports_history", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Metadata del reporte
+  reportDate: timestamp("report_date").defaultNow().notNull(),
+  generatedBy: int("generated_by").notNull(), // user ID
+  
+  // Estadísticas del reporte
+  totalEmployees: int("total_employees").notNull(),
+  criticalGaps: int("critical_gaps").notNull(),
+  highRiskCount: int("high_risk_count").notNull(),
+  totalAdjustmentCost: decimal("total_adjustment_cost", { precision: 12, scale: 2 }),
+  
+  // Archivo PDF
+  pdfUrl: text("pdf_url").notNull(),
+  pdfKey: text("pdf_key").notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CompensationReportsHistory = typeof compensationReportsHistory.$inferSelect;
+export type InsertCompensationReportsHistory = typeof compensationReportsHistory.$inferInsert;
