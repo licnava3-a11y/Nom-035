@@ -2804,15 +2804,15 @@
 - [x] Mostrar recomendaciones para empleados de alto riesgo con botón de acción rápida
 
 ### 2. Dashboard de Predicción de Efectividad
-- [ ] Crear router interventionPrediction con procedure predictEffectiveness
-- [ ] Implementar modelo predictivo basado en regresión logística con datos históricos
-- [ ] Considerar variables: tipo de intervención, costo, departamento, puesto, nivel de riesgo
-- [ ] Calcular probabilidad de éxito y ROI esperado
-- [ ] Crear página InterventionPredictionDashboard.tsx
-- [ ] Implementar simulador de intervenciones con inputs configurables
-- [ ] Mostrar gráfico de probabilidad de éxito vs costo
-- [ ] Agregar comparación de escenarios (qué pasa si...)
-- [ ] Agregar enlace en navegación lateral
+- [x] Crear router interventionPrediction con procedure predictEffectiveness
+- [x] Implementar modelo predictivo basado en regresión logística con datos históricos
+- [x] Considerar variables: tipo de intervención, costo, departamento, puesto, nivel de riesgo
+- [x] Calcular probabilidad de éxito y ROI esperado
+- [x] Crear página InterventionPredictionDashboard.tsx
+- [x] Implementar simulador de intervenciones con inputs configurables
+- [x] Mostrar gráfico de probabilidad de éxito vs costo
+- [x] Agregar comparación de escenarios (qué pasa si...)
+- [x] Agregar enlace en navegación lateral
 
 ### 3. Integración con Sistema de Nómina
 - [ ] Crear tabla payroll_data en schema (employeeId, salary, benefits, lastRaise, marketRate)
