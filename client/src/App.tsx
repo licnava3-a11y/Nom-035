@@ -36,6 +36,7 @@ const SentimentAnalysisDashboard = lazy(() => import("./pages/SentimentAnalysisD
 const ExecutiveReportsPanel = lazy(() => import("./pages/ExecutiveReportsPanel"));
 const ComplianceNOM035Dashboard = lazy(() => import("./pages/ComplianceNOM035Dashboard"));
 const SentimentCasesCorrelationDashboard = lazy(() => import("./pages/SentimentCasesCorrelationDashboard"));
+const PredictiveTurnoverDashboard = lazy(() => import("./pages/PredictiveTurnoverDashboard"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
 const ConsolidatedDashboard = lazy(() => import("./pages/ConsolidatedDashboard"));
@@ -945,6 +946,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <SentimentCasesCorrelationDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/predictive-turnover"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PredictiveTurnoverDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

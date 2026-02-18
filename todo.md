@@ -2479,3 +2479,80 @@
 - [x] Prioridad alta para items que vencen en 7 días o menos
 - [x] Notificaciones a todos los administradores
 - [x] Registrar job en server/_core/index.ts (ejecuta diariamente a las 08:00)
+
+
+## Nuevas Tareas - Funcionalidades Avanzadas de Cumplimiento y Análisis Predictivo
+
+### Fase 1: UI para Asignar Fechas de Vencimiento en Cumplimiento NOM-035
+- [ ] Agregar mutation setDueDate en router complianceNOM035
+- [ ] Leer ComplianceNOM035Dashboard.tsx para identificar estructura actual
+- [ ] Implementar dialog de asignación de fecha con DatePicker
+- [ ] Agregar botón "Asignar Fecha de Vencimiento" en cada item del checklist
+- [ ] Implementar mutation para actualizar dueDate en complianceChecks
+- [ ] Mostrar fecha de vencimiento actual si existe
+- [ ] Agregar indicador visual de días restantes hasta vencimiento
+- [ ] Probar asignación y visualización de fechas
+
+### Fase 2: Dashboard de Análisis Predictivo de Rotación
+- [ ] Crear router predictiveTurnoverDashboard con queries
+- [ ] Implementar query getPredictiveMetrics (probabilidad por departamento)
+- [ ] Implementar query getHighRiskEmployees (empleados en riesgo alto)
+- [ ] Implementar helper generateRetentionRecommendations con LLM
+- [ ] Crear página PredictiveTurnoverDashboard.tsx
+- [ ] Implementar gráfico de probabilidad de rotación por departamento
+- [ ] Implementar tabla de empleados en riesgo alto con detalles
+- [ ] Implementar sección de recomendaciones de retención generadas por LLM
+- [ ] Agregar filtros por departamento y nivel de riesgo
+- [ ] Agregar ruta en App.tsx
+- [ ] Registrar router en appRouter
+- [ ] Agregar enlace en navegación lateral
+
+### Fase 3: Exportación de Reportes de Cumplimiento NOM-035 a PDF
+- [ ] Agregar mutation generateComplianceReport en router complianceNOM035
+- [ ] Implementar función generateCompliancePDF con pdfkit
+- [ ] Incluir portada con logo y título del reporte
+- [ ] Incluir sección de resumen ejecutivo con porcentajes globales
+- [ ] Incluir sección detallada por numeral (5.1-5.8) con checklist
+- [ ] Incluir gráficos de progreso (dona o barras)
+- [ ] Incluir plan de acción para items pendientes
+- [ ] Subir PDF a S3 y retornar URL
+- [ ] Agregar botón "Exportar a PDF" en ComplianceNOM035Dashboard.tsx
+- [ ] Implementar descarga automática del PDF generado
+- [ ] Probar generación y descarga de reporte
+
+
+## Nuevas Tareas - Funcionalidades Avanzadas de Cumplimiento y Análisis Predictivo
+
+### Fase 1: UI para Asignar Fechas de Vencimiento ✅ COMPLETADA
+- [x] Agregar mutation setDueDate en router complianceNOM035
+- [x] Actualizar query getComplianceByNumeral para incluir dueDate
+- [x] Agregar dialog de asignación de fecha en ComplianceNOM035Dashboard
+- [x] Implementar DatePicker en dialog con validación de fecha mínima
+- [x] Agregar botón "Asignar Fecha" / "Cambiar Fecha" en cada item
+- [x] Mostrar indicador visual de días restantes (verde >7, naranja ≤7, rojo vencido)
+
+### Fase 2: Dashboard de Análisis Predictivo de Rotación ✅ COMPLETADA
+- [x] Crear router predictiveTurnoverDashboard con 3 queries/mutations
+- [x] Implementar query getPredictiveMetrics (fórmula ponderada: 40% comentarios, 30% casos, 30% encuestas)
+- [x] Implementar query getHighRiskEmployees (empleados con 2+ comentarios críticos en 90 días)
+- [x] Implementar mutation generateRetentionRecommendations (recomendaciones con LLM)
+- [x] Crear página PredictiveTurnoverDashboard.tsx
+- [x] Implementar 3 cards de estadísticas globales (total empleados, probabilidad promedio, departamentos críticos)
+- [x] Implementar gráfico de barras con colores por nivel de riesgo
+- [x] Implementar tabla de empleados en riesgo alto con puntuación
+- [x] Implementar sección de recomendaciones con problemas principales + 5 recomendaciones accionables
+- [x] Agregar filtro por departamento
+- [x] Agregar ruta /predictive-turnover en App.tsx
+- [x] Agregar enlace en navegación lateral (Encuestas NOM-035)
+- [x] Registrar router en appRouter
+
+### Fase 3: Exportación de Reportes de Cumplimiento NOM-035 a PDF ✅ COMPLETADA
+- [x] Agregar mutation generateComplianceReport en router complianceNOM035
+- [x] Implementar generación de PDF con pdfkit
+- [x] Incluir portada con fecha y generador
+- [x] Incluir resumen ejecutivo con estadísticas globales
+- [x] Incluir cumplimiento por numeral con items pendientes y fechas de vencimiento
+- [x] Incluir plan de acción con 5 recomendaciones
+- [x] Subir PDF a S3 y retornar URL
+- [x] Agregar botón "Exportar a PDF" en header de ComplianceNOM035Dashboard
+- [x] Abrir PDF en nueva ventana automáticamente

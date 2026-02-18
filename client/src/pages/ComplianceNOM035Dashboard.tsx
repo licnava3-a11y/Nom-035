@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, FileCheck, AlertTriangle, CheckSquare } from "lucide-react";
+import { CheckCircle2, Circle, FileCheck, AlertTriangle, CheckSquare, Calendar, Clock } from "lucide-react";
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -56,6 +58,24 @@ export default function ComplianceNOM035Dashboard() {
       toast.error(`Error: ${error.message}`);
     },
   });
+
+  // Mutation: asignar fecha de vencimiento
+  const setDueDate = trpc.complianceNOM035.setDueDate.useMutation({
+    onSuccess: () => {
+      toast.success("Fecha de vencimiento asignada");
+      utils.complianceNOM035.getComplianceByNumeral.invalidate();
+      setDueDateDialogOpen(false);
+      setSelectedItemForDueDate(null);
+      setDueDateInput("");
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const [dueDateDialogOpen, setDueDateDialogOpen] = useState(false);
+  const [selectedItemForDueDate, setSelectedItemForDueDate] = useState<number | null>(null);
+  const [dueDateInput, setDueDateInput] = useState("");
 
   // Determinar color de semáforo
   const getTrafficLightColor = (percentage: number) => {
@@ -117,11 +137,23 @@ export default function ComplianceNOM035Dashboard() {
   return (
     <div className="container py-8 space-y-6">
       {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <FileCheck className="h-8 w-8 text-primary" />
+            Cumplimiento NOM-035 por Numeral
+          </h1>
+        </div>
+        <Button
+          onClick={() => generateReport.mutate()}
+          disabled={generateReport.isPending}
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          {generateReport.isPending ? "Generando..." : "Exportar a PDF"}
+        </Button>
+      </div>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <FileCheck className="h-8 w-8 text-primary" />
-          Cumplimiento NOM-035 por Numeral
-        </h1>
         <p className="text-muted-foreground mt-2">
           Monitorea el porcentaje de cumplimiento de requisitos por numeral de la NOM-035-STPS-2018
         </p>
@@ -235,6 +267,34 @@ export default function ComplianceNOM035Dashboard() {
                           </div>
                           <p className="text-sm text-muted-foreground">{item.requirement}</p>
                           <p className="text-xs text-muted-foreground italic">Evidencia: {item.evidence}</p>
+                          {item.dueDate && (
+                            <div className="flex items-center gap-2 text-xs mt-2">
+                              <Clock className="h-3 w-3" />
+                              <span className="text-muted-foreground">
+                                Vence: {new Date(item.dueDate).toLocaleDateString()}
+                                {(() => {
+                                  const daysUntil = Math.ceil((new Date(item.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                  if (daysUntil < 0) return <span className="text-red-600 ml-2">(Vencido)</span>;
+                                  if (daysUntil <= 7) return <span className="text-orange-600 ml-2">({daysUntil} días restantes)</span>;
+                                  return <span className="text-green-600 ml-2">({daysUntil} días restantes)</span>;
+                                })()}
+                              </span>
+                            </div>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItemForDueDate(item.id);
+                              setDueDateInput(item.dueDate ? new Date(item.dueDate).toISOString().split('T')[0] : "");
+                              setDueDateDialogOpen(true);
+                            }}
+                          >
+                            <Calendar className="h-4 w-4 mr-2" />
+                            {item.dueDate ? "Cambiar Fecha" : "Asignar Fecha"}
+                          </Button>
                         </div>
                         {item.isCompleted && (
                           <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-1" />
@@ -263,6 +323,57 @@ export default function ComplianceNOM035Dashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* Dialog de Asignación de Fecha de Vencimiento */}
+      <Dialog open={dueDateDialogOpen} onOpenChange={setDueDateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Asignar Fecha de Vencimiento</DialogTitle>
+            <DialogDescription>
+              Establece una fecha límite para el cumplimiento de este requisito
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="dueDate">Fecha de Vencimiento</Label>
+              <Input
+                id="dueDate"
+                type="date"
+                value={dueDateInput}
+                onChange={(e) => setDueDateInput(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setDueDateDialogOpen(false);
+                  setSelectedItemForDueDate(null);
+                  setDueDateInput("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!selectedItemForDueDate || !dueDateInput) {
+                    toast.error("Selecciona una fecha");
+                    return;
+                  }
+                  setDueDate.mutate({
+                    checklistItemId: selectedItemForDueDate,
+                    dueDate: dueDateInput,
+                  });
+                }}
+                disabled={!dueDateInput || setDueDate.isPending}
+              >
+                {setDueDate.isPending ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
