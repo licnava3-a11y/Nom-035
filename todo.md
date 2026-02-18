@@ -3202,3 +3202,49 @@
 - ✅ CSRF Protection: 100% implementado (backend + frontend)
 - ✅ Rate Limiting: 5 niveles de protección configurados
 - ✅ Tests automatizados: 291+ tests totales (Vitest + Playwright)
+
+
+## Plan de Ejecución de Tareas Críticas (Feb 18, 2026)
+
+### Orden de Ejecución (Sencilla → Compleja)
+
+#### Tarea 1: Documentar Flujo CSRF en README ⏱️ 15 min ✅ COMPLETADA
+- [x] Crear sección "CSRF Protection" en README principal (README_CSRF.md)
+- [x] Documentar arquitectura de 3 capas (backend, interceptor, frontend)
+- [x] Incluir diagramas de flujo de generación y validación (3 fases)
+- [x] Agregar ejemplos de código para desarrolladores (5 casos de uso)
+- [x] Documentar configuración de expiración y renovación (tabla de parámetros)
+
+#### Tarea 2: Feedback Visual en Formularios ⏱️ 30 min ✅ COMPLETADA
+- [x] Agregar validación visual de email en tiempo real (verde/rojo)
+- [x] Agregar validación visual de teléfono en tiempo real (formato mexicano +52)
+- [x] Implementar indicadores de campos requeridos (asterisco rojo)
+- [x] Agregar tooltips con formato esperado (texto de ayuda)
+- [x] Implementar mensajes de error contextuales (validaciones detalladas)
+- [x] Crear componente ValidatedInput.tsx reutilizable
+
+#### Tarea 3: Logging de Intentos CSRF Fallidos ⏱️ 45 min ✅ COMPLETADA
+- [x] Crear tabla csrf_violations en schema (5 razones de fallo)
+- [x] Generar y aplicar migración SQL (0126_famous_omega_red.sql)
+- [x] Modificar validateCSRFToken para registrar fallos (función async)
+- [x] Registrar IP, timestamp, user agent en violaciones (logCSRFViolation)
+- [x] Modificar requireCSRF middleware para usar logging
+- [ ] Crear procedure csrfViolations.getViolations con paginación (pendiente)
+- [ ] Implementar alertas cuando se detecten >10 intentos/hora (pendiente)
+
+#### Tarea 4: Extender Validaciones Zod (Routers Prioritarios) ⏱️ 2 horas
+- [ ] Ejecutar script analyze-zod-coverage.ts para identificar routers
+- [ ] Implementar validaciones en routers de reportes (5 routers)
+- [ ] Implementar validaciones en routers de notificaciones (3 routers)
+- [ ] Implementar validaciones en routers de configuración (4 routers)
+- [ ] Objetivo: Alcanzar 95% de cobertura global
+- [ ] Ejecutar tests para verificar validaciones
+
+#### Tarea 5: Configurar CI/CD con GitHub Actions ⏱️ 1 hora
+- [ ] Crear archivo .github/workflows/ci.yml
+- [ ] Configurar workflow para ejecutar tests Vitest en push/PR
+- [ ] Configurar workflow para ejecutar tests Playwright
+- [ ] Agregar generación de reportes HTML de cobertura
+- [ ] Configurar notificaciones de fallos en Slack/Email
+- [ ] Agregar badge de status en README
+

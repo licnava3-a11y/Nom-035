@@ -4716,3 +4716,41 @@ export const employeeCareerPlans = mysqlTable("employee_career_plans", {
 
 export type EmployeeCareerPlan = typeof employeeCareerPlans.$inferSelect;
 export type InsertEmployeeCareerPlan = typeof employeeCareerPlans.$inferInsert;
+
+
+// ============================================
+// CSRF VIOLATIONS (SECURITY LOGGING)
+// ============================================
+
+/**
+ * Tabla para registrar intentos fallidos de validación CSRF
+ * Permite detectar patrones de ataque y generar alertas de seguridad
+ */
+export const csrfViolations = mysqlTable("csrf_violations", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Información del intento fallido
+  token: varchar("token", { length: 128 }), // Token inválido o expirado
+  userId: varchar("user_id", { length: 64 }), // Usuario asociado (si existe)
+  
+  // Información de la request
+  ipAddress: varchar("ip_address", { length: 45 }).notNull(), // IPv4 o IPv6
+  userAgent: text("user_agent"), // Navegador y sistema operativo
+  endpoint: varchar("endpoint", { length: 255 }), // Endpoint que se intentó acceder
+  method: varchar("method", { length: 10 }), // GET, POST, PUT, DELETE
+  
+  // Razón del fallo
+  reason: mysqlEnum("reason", [
+    "missing_token",      // Token no presente en header
+    "invalid_token",      // Token no existe en tokenStore
+    "expired_token",      // Token expirado
+    "user_mismatch",      // Token pertenece a otro usuario
+    "malformed_token"     // Token con formato inválido
+  ]).notNull(),
+  
+  // Metadata
+  attemptedAt: timestamp("attempted_at").defaultNow().notNull(),
+});
+
+export type CsrfViolation = typeof csrfViolations.$inferSelect;
+export type InsertCsrfViolation = typeof csrfViolations.$inferInsert;

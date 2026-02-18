@@ -6,6 +6,8 @@
 
 import crypto from "crypto";
 import { TRPCError } from "@trpc/server";
+import { getDb } from "../db";
+import { csrfViolations } from "../../drizzle/schema";
 
 /**
  * Configuración de CSRF
@@ -52,29 +54,88 @@ export function generateCSRFToken(sessionId: string): string {
 /**
  * Valida un token CSRF
  */
-export function validateCSRFToken(sessionId: string, token: string): boolean {
+export async function validateCSRFToken(
+  sessionId: string, 
+  token: string,
+  req?: { ip?: string; headers?: any; url?: string; method?: string }
+): Promise<{ valid: boolean; reason?: string }> {
   const storedToken = tokenStore.get(sessionId);
 
   if (!storedToken) {
-    return false; // Token no encontrado
+    if (req) {
+      await logCSRFViolation({
+        token,
+        userId: sessionId,
+        ipAddress: req.ip || 'unknown',
+        userAgent: req.headers?.['user-agent'],
+        endpoint: req.url,
+        method: req.method,
+        reason: 'invalid_token',
+      });
+    }
+    return { valid: false, reason: 'invalid_token' };
   }
 
   if (storedToken.expiresAt < Date.now()) {
-    tokenStore.delete(sessionId); // Limpiar token expirado
-    return false; // Token expirado
+    tokenStore.delete(sessionId);
+    if (req) {
+      await logCSRFViolation({
+        token,
+        userId: sessionId,
+        ipAddress: req.ip || 'unknown',
+        userAgent: req.headers?.['user-agent'],
+        endpoint: req.url,
+        method: req.method,
+        reason: 'expired_token',
+      });
+    }
+    return { valid: false, reason: 'expired_token' };
   }
 
   // Validar longitudes antes de comparación segura
   if (storedToken.token.length !== token.length) {
-    return false;
+    if (req) {
+      await logCSRFViolation({
+        token,
+        userId: sessionId,
+        ipAddress: req.ip || 'unknown',
+        userAgent: req.headers?.['user-agent'],
+        endpoint: req.url,
+        method: req.method,
+        reason: 'malformed_token',
+      });
+    }
+    return { valid: false, reason: 'malformed_token' };
   }
   
   // Comparación segura contra timing attacks
   try {
-    return crypto.timingSafeEqual(Buffer.from(storedToken.token), Buffer.from(token));
+    const isValid = crypto.timingSafeEqual(Buffer.from(storedToken.token), Buffer.from(token));
+    if (!isValid && req) {
+      await logCSRFViolation({
+        token,
+        userId: sessionId,
+        ipAddress: req.ip || 'unknown',
+        userAgent: req.headers?.['user-agent'],
+        endpoint: req.url,
+        method: req.method,
+        reason: 'user_mismatch',
+      });
+    }
+    return { valid: isValid };
   } catch (error) {
-    // Si hay error en la comparación, rechazar token
-    return false;
+    if (req) {
+      await logCSRFViolation({
+        token,
+        userId: sessionId,
+        ipAddress: req.ip || 'unknown',
+        userAgent: req.headers?.['user-agent'],
+        endpoint: req.url,
+        method: req.method,
+        reason: 'malformed_token',
+      });
+    }
+    return { valid: false, reason: 'malformed_token' };
   }
 }
 
@@ -86,16 +147,52 @@ export function invalidateCSRFToken(sessionId: string): void {
 }
 
 /**
+ * Registra una violación de CSRF en la base de datos
+ */
+async function logCSRFViolation(violation: {
+  token: string;
+  userId: string;
+  ipAddress: string;
+  userAgent?: string;
+  endpoint?: string;
+  method?: string;
+  reason: 'missing_token' | 'invalid_token' | 'expired_token' | 'user_mismatch' | 'malformed_token';
+}): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) {
+      console.warn('[CSRF] Database not available, skipping violation logging');
+      return;
+    }
+    await db.insert(csrfViolations).values(violation);
+  } catch (error) {
+    // No fallar si el logging falla, solo registrar en consola
+    console.error('[CSRF] Error logging violation:', error);
+  }
+}
+
+/**
  * Middleware de tRPC para validar CSRF en mutations críticas
  * Uso: .use(requireCSRF)
  */
-export function requireCSRF<T extends { req: any; user?: any }>(opts: { ctx: T; next: () => any }) {
+export async function requireCSRF<T extends { req: any; user?: any }>(opts: { ctx: T; next: () => any }) {
   const { ctx, next } = opts;
 
   // Obtener token del header
   const csrfToken = ctx.req.headers[CSRF_CONFIG.headerName];
 
   if (!csrfToken || typeof csrfToken !== "string") {
+    // Registrar violación por token faltante
+    await logCSRFViolation({
+      token: '',
+      userId: ctx.user?.id?.toString() || 'anonymous',
+      ipAddress: ctx.req.ip || 'unknown',
+      userAgent: ctx.req.headers?.['user-agent'],
+      endpoint: ctx.req.url,
+      method: ctx.req.method,
+      reason: 'missing_token',
+    });
+    
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Token CSRF faltante. Por favor recarga la página.",
@@ -112,10 +209,10 @@ export function requireCSRF<T extends { req: any; user?: any }>(opts: { ctx: T; 
     });
   }
 
-  // Validar token
-  const isValid = validateCSRFToken(sessionId, csrfToken);
+  // Validar token con logging
+  const validation = await validateCSRFToken(sessionId, csrfToken, ctx.req);
 
-  if (!isValid) {
+  if (!validation.valid) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: "Token CSRF inválido o expirado. Por favor recarga la página.",

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `csrf_violations` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`token` varchar(128),\n\t`user_id` varchar(64),\n\t`ip_address` varchar(45) NOT NULL,\n\t`user_agent` text,\n\t`endpoint` varchar(255),\n\t`method` varchar(10),\n\t`reason` enum('missing_token','invalid_token','expired_token','user_mismatch','malformed_token') NOT NULL,\n\t`attempted_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `csrf_violations_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `csrf_violations` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`token` varchar(128),\n\t`user_id` varchar(64),\n\t`ip_address` varchar(45) NOT NULL,\n\t`user_agent` text,\n\t`endpoint` varchar(255),\n\t`method` varchar(10),\n\t`reason` enum('missing_token','invalid_token','expired_token','user_mismatch','malformed_token') NOT NULL,\n\t`attempted_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `csrf_violations_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 617
+}
