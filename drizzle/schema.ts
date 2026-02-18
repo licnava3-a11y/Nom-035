@@ -4082,3 +4082,19 @@ export const executiveReportsHistoryRelations = relations(executiveReportsHistor
 }));
 
 
+
+
+// Employee Turnover History - Historial de rotación de empleados
+export const employeeTurnoverHistory = mysqlTable("employee_turnover_history", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id),
+  exitDate: timestamp("exit_date").notNull(),
+  exitReason: varchar("exit_reason", { length: 100 }), // voluntary, involuntary, retirement, etc.
+  wasHighRisk: boolean("was_high_risk").default(false).notNull(), // Si fue identificado como alto riesgo antes de rotar
+  riskScoreAtExit: int("risk_score_at_exit"), // Puntuación de riesgo al momento de salida (0-100)
+  comments: text("comments"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type EmployeeTurnoverHistory = typeof employeeTurnoverHistory.$inferSelect;
+export type InsertEmployeeTurnoverHistory = typeof employeeTurnoverHistory.$inferInsert;

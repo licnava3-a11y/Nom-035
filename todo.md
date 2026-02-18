@@ -2556,3 +2556,47 @@
 - [x] Subir PDF a S3 y retornar URL
 - [x] Agregar botón "Exportar a PDF" en header de ComplianceNOM035Dashboard
 - [x] Abrir PDF en nueva ventana automáticamente
+
+
+## Nuevas Tareas - Seed Compliance, Dashboard Correlación y Notificaciones Email
+
+### Fase 1: Poblar Datos de Prueba en compliance_checklist ✅ COMPLETADA
+- [x] Crear script seed-compliance-checklist.mjs
+- [x] Definir requisitos por numeral 5.1 (Política de prevención)
+- [x] Definir requisitos por numeral 5.2 (Medidas de prevención)
+- [x] Definir requisitos por numeral 5.3 (Identificación y análisis)
+- [x] Definir requisitos por numeral 5.4 (Evaluación del entorno organizacional)
+- [x] Definir requisitos por numeral 5.5 (Medidas y acciones de control)
+- [x] Definir requisitos por numeral 5.6 (Exámenes médicos)
+- [x] Definir requisitos por numeral 5.7 (Difusión de la información)
+- [x] Definir requisitos por numeral 5.8 (Registros)
+- [x] Diferenciar requisitos por tamaño de empresa (hasta 15, 16-50, >50)
+- [x] Ejecutar script con pnpm exec tsx seed-compliance-checklist.mjs
+- [x] Verificar inserción en base de datos (53 registros totales)
+
+### Fase 2: Dashboard de Correlación Análisis Predictivo vs Rotación Real (PARCIAL)
+- [x] Crear tabla employee_turnover_history (userId, exitDate, exitReason, wasHighRisk, riskScoreAtExit)
+- [x] Generar y aplicar migración SQL (0112_furry_layla_miller.sql)
+- [x] Crear router predictiveCorrelation con 4 queries
+- [x] Implementar query getModelAccuracy (precisión, recall, F1-score, accuracy)
+- [x] Implementar query getTruePositives (alto riesgo + rotaron)
+- [x] Implementar query getFalsePositives (alto riesgo + no rotaron)
+- [x] Implementar query getFalseNegatives (bajo riesgo + rotaron)
+- [x] Registrar router en appRouter
+- [ ] Crear página PredictiveCorrelationDashboard.tsx
+- [ ] Implementar cards de métricas (precisión, recall, F1-score)
+- [ ] Implementar matriz de confusión visual
+- [ ] Implementar tabla de casos por categoría
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar navegación en menú lateral
+
+### Fase 3: Sistema de Notificaciones por Email para Vencimientos
+- [ ] Verificar tabla smtp_config en schema (ya existe)
+- [ ] Modificar job compliance-reminders-job.ts para incluir envío de email
+- [ ] Crear función sendEmailNotification usando nodemailer
+- [ ] Crear template HTML de email para recordatorios
+- [ ] Incluir lista de items próximos a vencer en email
+- [ ] Agregar configuración SMTP en router smtpConfig
+- [ ] Crear página SMTPConfigPanel.tsx para configurar SMTP
+- [ ] Agregar ruta en App.tsx
+- [ ] Probar envío de emails de prueba
