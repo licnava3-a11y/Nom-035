@@ -3248,3 +3248,37 @@
 - [ ] Configurar notificaciones de fallos en Slack/Email
 - [ ] Agregar badge de status en README
 
+
+
+## Nuevas Tareas - Seguridad CSRF Avanzada (Feb 18, 2026)
+
+### Tarea 1: Procedure csrfViolations.getViolations ⏱️ 30 min ✅ COMPLETADA
+- [x] Crear router csrfViolations en server/routers/
+- [x] Implementar procedure getViolations con paginación (offset, limit)
+- [x] Agregar filtros por IP, userId, razón, rango de fechas
+- [x] Implementar ordenamiento por attempted_at DESC
+- [x] Agregar estadísticas: total de violaciones, violaciones por IP, endpoints más atacados
+- [x] Restringir acceso solo a administradores (adminProcedure)
+- [x] Agregar procedure getStatistics con análisis detallado
+- [x] Agregar procedure getRecentViolations (últimas 24h)
+
+### Tarea 2: Sistema de Alertas Automáticas CSRF ⏱️ 45 min ✅ COMPLETADA
+- [x] Crear función detectCSRFAttackPattern en server/_core/csrf.ts
+- [x] Implementar lógica: >10 intentos fallidos/hora desde misma IP
+- [x] Crear tabla csrf_alerts en schema para registrar alertas (5 estados)
+- [x] Generar y aplicar migración SQL para csrf_alerts (0127_noisy_selene.sql)
+- [x] Integrar notifyOwner para enviar alerta al administrador
+- [x] Incluir en alerta: IP atacante, total de intentos, endpoints afectados, período
+- [x] Ejecutar detección cada vez que se registre una violación (en logCSRFViolation)
+- [x] Actualizar alertas existentes si el patrón persiste
+- [x] Registrar primera y última violación en alerta
+
+### Tarea 3: Extender Validaciones Zod a Routers Restantes ⏱️ 3 horas
+- [ ] Ejecutar script analyze-zod-coverage.ts para actualizar reporte
+- [ ] Implementar validaciones en routers de reportes (5-7 routers)
+- [ ] Implementar validaciones en routers de notificaciones (3-4 routers)
+- [ ] Implementar validaciones en routers de configuración (4-5 routers)
+- [ ] Objetivo: Alcanzar 95%+ de cobertura global
+- [ ] Ejecutar tests para verificar validaciones
+- [ ] Actualizar reporte de cobertura final
+

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `csrf_alerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`ip_address` varchar(45) NOT NULL,\n\t`violation_count` int NOT NULL,\n\t`first_attempt` timestamp NOT NULL,\n\t`last_attempt` timestamp NOT NULL,\n\t`affected_endpoints` json NOT NULL,\n\t`status` enum('pending','investigating','resolved','false_positive') NOT NULL DEFAULT 'pending',\n\t`action_taken` text,\n\t`resolved_by` varchar(64),\n\t`resolved_at` timestamp,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `csrf_alerts_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `csrf_alerts` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`ip_address` varchar(45) NOT NULL,\n\t`violation_count` int NOT NULL,\n\t`first_attempt` timestamp NOT NULL,\n\t`last_attempt` timestamp NOT NULL,\n\t`affected_endpoints` json NOT NULL,\n\t`status` enum('pending','investigating','resolved','false_positive') NOT NULL DEFAULT 'pending',\n\t`action_taken` text,\n\t`resolved_by` varchar(64),\n\t`resolved_at` timestamp,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `csrf_alerts_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 555
+}

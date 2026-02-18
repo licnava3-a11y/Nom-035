@@ -4754,3 +4754,43 @@ export const csrfViolations = mysqlTable("csrf_violations", {
 
 export type CsrfViolation = typeof csrfViolations.$inferSelect;
 export type InsertCsrfViolation = typeof csrfViolations.$inferInsert;
+
+
+/**
+ * Tabla para registrar alertas de patrones de ataque CSRF detectados
+ * Se genera una alerta cuando se detectan >10 intentos fallidos/hora desde la misma IP
+ */
+export const csrfAlerts = mysqlTable("csrf_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Información del atacante
+  ipAddress: varchar("ip_address", { length: 45 }).notNull(), // IP del atacante
+  
+  // Estadísticas del ataque
+  violationCount: int("violation_count").notNull(), // Número de intentos fallidos
+  firstAttempt: timestamp("first_attempt").notNull(), // Primera violación detectada
+  lastAttempt: timestamp("last_attempt").notNull(), // Última violación detectada
+  
+  // Endpoints afectados
+  affectedEndpoints: json("affected_endpoints").$type<string[]>().notNull(), // Lista de endpoints atacados
+  
+  // Estado de la alerta
+  status: mysqlEnum("status", [
+    "pending",      // Alerta generada, pendiente de revisión
+    "investigating", // En investigación
+    "resolved",     // Resuelta
+    "false_positive" // Falso positivo
+  ]).default("pending").notNull(),
+  
+  // Acciones tomadas
+  actionTaken: text("action_taken"), // Descripción de acciones tomadas
+  resolvedBy: varchar("resolved_by", { length: 64 }), // Usuario que resolvió la alerta
+  resolvedAt: timestamp("resolved_at"), // Fecha de resolución
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CsrfAlert = typeof csrfAlerts.$inferSelect;
+export type InsertCsrfAlert = typeof csrfAlerts.$inferInsert;

@@ -98,6 +98,7 @@ import { intelligentAlertsRouter } from "./routers/intelligentAlerts";
 import { trainingROIRouter } from "./routers/trainingROI";
 import { benchmarkingRouter } from "./routers/benchmarking";
 import { correctiveActionPlansRouter } from "./routers/correctiveActionPlans";
+import { csrfViolationsRouter } from "./routers/csrfViolations";
 import { interventionImpactRouter } from "./routers/interventionImpact";
 import { reportConfigurationsRouter } from "./routers/reportConfigurations";
 import { sentimentAnalysisRouter } from "./routers/sentimentAnalysis";
@@ -185,6 +186,7 @@ export const appRouter = router({
   documentFormats: documentFormatsRouter,
   documentAudit: documentAuditRouter,
   securityAlerts: securityAlertsRouter,
+  csrfViolations: csrfViolationsRouter,
   reportTemplates: reportTemplatesRouter,
   company: companyRouter,
   evidenceFolder: evidenceFolderRouter,

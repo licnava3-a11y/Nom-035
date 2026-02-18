@@ -7,7 +7,9 @@
 import crypto from "crypto";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { csrfViolations } from "../../drizzle/schema";
+import { csrfViolations, csrfAlerts } from "../../drizzle/schema";
+import { notifyOwner } from "./notification";
+import { sql, gte, eq } from "drizzle-orm";
 
 /**
  * Configuración de CSRF
@@ -165,6 +167,9 @@ async function logCSRFViolation(violation: {
       return;
     }
     await db.insert(csrfViolations).values(violation);
+    
+    // Detectar patrones de ataque después de registrar la violación
+    await detectCSRFAttackPattern(violation.ipAddress);
   } catch (error) {
     // No fallar si el logging falla, solo registrar en consola
     console.error('[CSRF] Error logging violation:', error);
@@ -238,3 +243,121 @@ export const csrfConfig = {
   headerName: CSRF_CONFIG.headerName,
   cookieName: CSRF_CONFIG.cookieName,
 };
+
+
+/**
+ * Detecta patrones de ataque CSRF y genera alertas automáticas
+ * Se ejecuta cada vez que se registra una violación
+ * 
+ * Lógica: Si una IP tiene >10 intentos fallidos en la última hora, genera una alerta
+ */
+export async function detectCSRFAttackPattern(ipAddress: string): Promise<void> {
+  try {
+    const db = await getDb();
+    if (!db) {
+      console.warn('[CSRF] Database not available, skipping attack detection');
+      return;
+    }
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+    // Contar violaciones de esta IP en la última hora
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(csrfViolations)
+      .where(
+        sql`${csrfViolations.ipAddress} = ${ipAddress} AND ${csrfViolations.attemptedAt} >= ${oneHourAgo}`
+      );
+
+    const violationCount = Number(count);
+
+    // Si hay más de 10 intentos fallidos, verificar si ya existe una alerta activa
+    if (violationCount > 10) {
+      // Buscar alerta activa (pending o investigating) para esta IP
+      const existingAlert = await db
+        .select()
+        .from(csrfAlerts)
+        .where(
+          sql`${csrfAlerts.ipAddress} = ${ipAddress} AND ${csrfAlerts.status} IN ('pending', 'investigating')`
+        )
+        .limit(1);
+
+      if (existingAlert.length === 0) {
+        // No existe alerta activa, crear una nueva
+
+        // Obtener endpoints afectados
+        const affectedEndpointsResult = await db
+          .select({ endpoint: csrfViolations.endpoint })
+          .from(csrfViolations)
+          .where(
+            sql`${csrfViolations.ipAddress} = ${ipAddress} AND ${csrfViolations.attemptedAt} >= ${oneHourAgo}`
+          )
+          .groupBy(csrfViolations.endpoint);
+
+        const affectedEndpoints = affectedEndpointsResult
+          .map(r => r.endpoint || 'unknown')
+          .filter((v, i, a) => a.indexOf(v) === i); // Eliminar duplicados
+
+        // Obtener primera y última violación
+        const [firstViolation] = await db
+          .select({ attemptedAt: csrfViolations.attemptedAt })
+          .from(csrfViolations)
+          .where(
+            sql`${csrfViolations.ipAddress} = ${ipAddress} AND ${csrfViolations.attemptedAt} >= ${oneHourAgo}`
+          )
+          .orderBy(csrfViolations.attemptedAt)
+          .limit(1);
+
+        const [lastViolation] = await db
+          .select({ attemptedAt: csrfViolations.attemptedAt })
+          .from(csrfViolations)
+          .where(
+            sql`${csrfViolations.ipAddress} = ${ipAddress} AND ${csrfViolations.attemptedAt} >= ${oneHourAgo}`
+          )
+          .orderBy(sql`${csrfViolations.attemptedAt} DESC`)
+          .limit(1);
+
+        // Crear alerta en base de datos
+        await db.insert(csrfAlerts).values({
+          ipAddress,
+          violationCount,
+          firstAttempt: firstViolation.attemptedAt,
+          lastAttempt: lastViolation.attemptedAt,
+          affectedEndpoints,
+          status: 'pending',
+        });
+
+        // Enviar notificación al administrador
+        await notifyOwner({
+          title: '🚨 Alerta de Seguridad: Posible Ataque CSRF Detectado',
+          content: `Se ha detectado un patrón de ataque CSRF desde la IP ${ipAddress}.\n\n` +
+            `**Estadísticas:**\n` +
+            `- Total de intentos fallidos: ${violationCount}\n` +
+            `- Período: Última hora\n` +
+            `- Endpoints afectados: ${affectedEndpoints.join(', ')}\n\n` +
+            `**Acción recomendada:**\n` +
+            `Revise los logs de seguridad y considere bloquear la IP si el patrón persiste.\n\n` +
+            `Puede ver más detalles en el panel de administración > Seguridad > Violaciones CSRF.`,
+        });
+
+        console.log(`[CSRF] Alert created for IP ${ipAddress} with ${violationCount} violations`);
+      } else {
+        // Ya existe una alerta activa, actualizar el contador
+        const alert = existingAlert[0];
+        await db
+          .update(csrfAlerts)
+          .set({
+            violationCount,
+            lastAttempt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(csrfAlerts.id, alert.id));
+
+        console.log(`[CSRF] Alert updated for IP ${ipAddress}, new count: ${violationCount}`);
+      }
+    }
+  } catch (error) {
+    // No fallar si la detección falla, solo registrar en consola
+    console.error('[CSRF] Error detecting attack pattern:', error);
+  }
+}
