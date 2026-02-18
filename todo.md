@@ -2735,3 +2735,33 @@
 - [ ] Crear botón "Exportar a PDF" en PredictiveCorrelationDashboard.tsx
 - [ ] Crear botón "Exportar a PDF" en ModelEvolutionDashboard.tsx
 - [x] Implementar descarga automática del PDF generado
+
+## Nuevas Tareas - Completar Suite de Reportes y Sistema de Alertas
+
+### 1. Completar Botones de Exportación PDF
+- [x] Agregar botón "Exportar a PDF" en PredictiveCorrelationDashboard.tsx
+- [x] Agregar botón "Exportar a PDF" en ModelEvolutionDashboard.tsx
+- [x] Verificar que ambos botones usen el mismo mutation predictiveReports.generatePredictivePDF
+
+### 2. Sistema de Alertas Automáticas para Métricas del Modelo
+- [x] Crear tabla model_performance_alerts en schema (threshold, alertType, lastTriggered)
+- [x] Aplicar migración SQL
+- [x] Crear job model-performance-monitor-job.ts (ejecuta diariamente)
+- [x] Implementar lógica de verificación de umbrales críticos (precisión <70%, recall <60%, F1 <65%)
+- [x] Generar notificaciones push vía WebSocket a administradores
+- [x] Crear router modelPerformanceAlerts con queries (getAlerts, getAlertHistory)
+- [x] Registrar job en server startup
+- [x] Crear página ModelPerformanceAlerts.tsx con historial de alertas
+- [x] Agregar enlace en navegación lateral
+
+### 3. Dashboard de A/B Testing de Configuraciones de Umbrales
+- [x] Crear tabla threshold_experiments en schema (configId, startDate, endDate, metrics)
+- [x] Aplicar migración SQL
+- [x] Crear router thresholdExperiments con procedures (createExperiment, getExperiments, compareConfigs)
+- [x] Implementar cálculo de métricas para cada configuración histórica
+- [x] Crear página ThresholdABTestingDashboard.tsx
+- [x] Implementar gráfico comparativo de precisión/recall/F1 entre configuraciones
+- [x] Agregar tabla de experimentos con resultados
+- [x] Implementar botón "Crear Nuevo Experimento" con selector de configuraciones
+- [x] Agregar recomendación automática de mejor configuración basada en métricas
+- [x] Agregar enlace en navegación lateral (Encuestas NOM-035 > A/B Testing de Umbrales)

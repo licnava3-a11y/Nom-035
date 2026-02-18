@@ -15,6 +15,7 @@ import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
+import { startModelPerformanceMonitorJob } from "../jobs/model-performance-monitor-job";
 import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
 import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
@@ -138,6 +139,7 @@ async function startServer() {
     startCoverageAlertsJob();
     startAlertSummaryCronJob();
     startSecurityAlertsJob();
+    startModelPerformanceMonitorJob();
     startAgreementsAlertsJob();
     startCorrectiveActionsRemindersJob();
     startStaleCasesJob();

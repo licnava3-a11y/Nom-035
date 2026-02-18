@@ -4131,3 +4131,63 @@ export const modelThresholdsRelations = relations(modelThresholds, ({ one }) => 
     references: [users.id],
   }),
 }));
+
+/**
+ * Tabla: model_performance_alerts
+ * Almacena alertas generadas cuando las métricas del modelo caen por debajo de umbrales críticos
+ */
+export const modelPerformanceAlerts = mysqlTable("model_performance_alerts", {
+  id: int("id").primaryKey().autoincrement(),
+  alertType: varchar("alert_type", { length: 50 }).notNull(), // precision_low, recall_low, f1_low, accuracy_low
+  metricName: varchar("metric_name", { length: 50 }).notNull(), // precision, recall, f1Score, accuracy
+  currentValue: decimal("current_value", { precision: 5, scale: 2 }).notNull(), // Valor actual de la métrica
+  thresholdValue: decimal("threshold_value", { precision: 5, scale: 2 }).notNull(), // Umbral crítico configurado
+  severity: varchar("severity", { length: 20 }).notNull(), // low, medium, high, critical
+  message: text("message").notNull(), // Mensaje descriptivo de la alerta
+  recommendation: text("recommendation"), // Recomendación de acción
+  isResolved: boolean("is_resolved").default(false).notNull(),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedBy: int("resolved_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ModelPerformanceAlert = typeof modelPerformanceAlerts.$inferSelect;
+export type InsertModelPerformanceAlert = typeof modelPerformanceAlerts.$inferInsert;
+
+/**
+ * Tabla: threshold_experiments
+ * Almacena experimentos A/B de configuraciones de umbrales para comparar rendimiento
+ */
+export const thresholdExperiments = mysqlTable("threshold_experiments", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 100 }).notNull(), // Nombre del experimento
+  description: text("description"), // Descripción del experimento
+  configIdA: int("config_id_a").notNull(), // ID de la primera configuración a comparar
+  configIdB: int("config_id_b").notNull(), // ID de la segunda configuración a comparar
+  startDate: timestamp("start_date").notNull(), // Fecha de inicio del experimento
+  endDate: timestamp("end_date"), // Fecha de fin del experimento (null si está activo)
+  
+  // Métricas de configuración A
+  precisionA: decimal("precision_a", { precision: 5, scale: 2 }),
+  recallA: decimal("recall_a", { precision: 5, scale: 2 }),
+  f1ScoreA: decimal("f1_score_a", { precision: 5, scale: 2 }),
+  accuracyA: decimal("accuracy_a", { precision: 5, scale: 2 }),
+  
+  // Métricas de configuración B
+  precisionB: decimal("precision_b", { precision: 5, scale: 2 }),
+  recallB: decimal("recall_b", { precision: 5, scale: 2 }),
+  f1ScoreB: decimal("f1_score_b", { precision: 5, scale: 2 }),
+  accuracyB: decimal("accuracy_b", { precision: 5, scale: 2 }),
+  
+  // Resultado del experimento
+  winnerConfigId: int("winner_config_id"), // ID de la configuración ganadora
+  conclusion: text("conclusion"), // Conclusiones del experimento
+  
+  status: varchar("status", { length: 20 }).default("active").notNull(), // active, completed, cancelled
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ThresholdExperiment = typeof thresholdExperiments.$inferSelect;
+export type InsertThresholdExperiment = typeof thresholdExperiments.$inferInsert;

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `threshold_experiments` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`name` varchar(100) NOT NULL,\n\t`description` text,\n\t`config_id_a` int NOT NULL,\n\t`config_id_b` int NOT NULL,\n\t`start_date` timestamp NOT NULL,\n\t`end_date` timestamp,\n\t`precision_a` decimal(5,2),\n\t`recall_a` decimal(5,2),\n\t`f1_score_a` decimal(5,2),\n\t`accuracy_a` decimal(5,2),\n\t`precision_b` decimal(5,2),\n\t`recall_b` decimal(5,2),\n\t`f1_score_b` decimal(5,2),\n\t`accuracy_b` decimal(5,2),\n\t`winner_config_id` int,\n\t`conclusion` text,\n\t`status` varchar(20) NOT NULL DEFAULT 'active',\n\t`created_by` int NOT NULL,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `threshold_experiments_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `threshold_experiments` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`name` varchar(100) NOT NULL,\n\t`description` text,\n\t`config_id_a` int NOT NULL,\n\t`config_id_b` int NOT NULL,\n\t`start_date` timestamp NOT NULL,\n\t`end_date` timestamp,\n\t`precision_a` decimal(5,2),\n\t`recall_a` decimal(5,2),\n\t`f1_score_a` decimal(5,2),\n\t`accuracy_a` decimal(5,2),\n\t`precision_b` decimal(5,2),\n\t`recall_b` decimal(5,2),\n\t`f1_score_b` decimal(5,2),\n\t`accuracy_b` decimal(5,2),\n\t`winner_config_id` int,\n\t`conclusion` text,\n\t`status` varchar(20) NOT NULL DEFAULT 'active',\n\t`created_by` int NOT NULL,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\t`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `threshold_experiments_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 515
+}

@@ -13,12 +13,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
+import { AlertCircle, CheckCircle2, XCircle, TrendingUp, FileDown, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PredictiveCorrelationDashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [dateFilter, setDateFilter] = useState<{ startDate?: string; endDate?: string }>({});
+
+  // Mutation: generar reporte PDF
+  const generatePDF = trpc.predictiveReports.generatePredictivePDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("Reporte PDF generado exitosamente");
+      window.open(data.pdfUrl, "_blank");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al generar reporte PDF");
+    },
+  });
 
   const { data: accuracy, isLoading: loadingAccuracy } = trpc.predictiveCorrelation.getModelAccuracy.useQuery(dateFilter);
   const { data: truePositives, isLoading: loadingTP } = trpc.predictiveCorrelation.getTruePositives.useQuery();
@@ -41,11 +53,30 @@ export default function PredictiveCorrelationDashboard() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Dashboard de Correlación Predictiva</h1>
-        <p className="text-muted-foreground">
-          Evalúa la precisión del modelo predictivo de rotación comparando predicciones vs rotación real
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Dashboard de Correlación Predictiva</h1>
+          <p className="text-muted-foreground">
+            Evalúa la precisión del modelo predictivo de rotación comparando predicciones vs rotación real
+          </p>
+        </div>
+        <Button
+          onClick={() => generatePDF.mutate({ includeConfusionMatrix: true, includeEvolution: true, includeRecommendations: true })}
+          disabled={generatePDF.isPending}
+          variant="outline"
+        >
+          {generatePDF.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generando...
+            </>
+          ) : (
+            <>
+              <FileDown className="mr-2 h-4 w-4" />
+              Exportar a PDF
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Filtro de Rango de Fechas */}

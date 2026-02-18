@@ -40,6 +40,8 @@ const PredictiveTurnoverDashboard = lazy(() => import("./pages/PredictiveTurnove
 const PredictiveCorrelationDashboard = lazy(() => import("./pages/PredictiveCorrelationDashboard"));
 const ModelEvolutionDashboard = lazy(() => import("./pages/ModelEvolutionDashboard"));
 const ModelThresholdsConfig = lazy(() => import("./pages/ModelThresholdsConfig"));
+const ModelPerformanceAlerts = lazy(() => import("./pages/ModelPerformanceAlerts"));
+const ThresholdABTestingDashboard = lazy(() => import("./pages/ThresholdABTestingDashboard"));
 const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
@@ -968,6 +970,12 @@ function Router() {
         </Route>
         <Route path={"/model-thresholds-config"}>
           <ModelThresholdsConfig />
+        </Route>
+        <Route path={"/model-performance-alerts"}>
+          <ModelPerformanceAlerts />
+        </Route>
+        <Route path={"/threshold-ab-testing"}>
+          <ThresholdABTestingDashboard />
         </Route>
         <Route path={"/admin/turnover-management"}>
           <DashboardLayout>

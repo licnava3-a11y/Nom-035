@@ -12,7 +12,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, FileDown, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -20,6 +22,17 @@ export default function ModelEvolutionDashboard() {
   const [dateRange, setDateRange] = useState({
     startDate: "",
     endDate: "",
+  });
+
+  // Mutation: generar reporte PDF
+  const generatePDF = trpc.predictiveReports.generatePredictivePDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("Reporte PDF generado exitosamente");
+      window.open(data.pdfUrl, "_blank");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al generar reporte PDF");
+    },
   });
 
   const { data, isLoading } = trpc.modelEvolution.getMetricsByMonth.useQuery({
@@ -117,11 +130,30 @@ export default function ModelEvolutionDashboard() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Evolución del Modelo Predictivo</h1>
-        <p className="text-muted-foreground">
-          Análisis temporal de precisión, recall y F1-score
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Evolución del Modelo Predictivo</h1>
+          <p className="text-muted-foreground">
+            Análisis temporal de precisión, recall y F1-score
+          </p>
+        </div>
+        <Button
+          onClick={() => generatePDF.mutate({ includeConfusionMatrix: true, includeEvolution: true, includeRecommendations: true })}
+          disabled={generatePDF.isPending}
+          variant="outline"
+        >
+          {generatePDF.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generando...
+            </>
+          ) : (
+            <>
+              <FileDown className="mr-2 h-4 w-4" />
+              Exportar a PDF
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Filtros de fecha */}

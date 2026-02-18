@@ -125,6 +125,8 @@ const hierarchicalMenuItems = [
       { label: "Precisión del Modelo Predictivo", path: "/predictive-correlation", description: "Métricas de precisión y matriz de confusión" },
       { label: "Evolución del Modelo", path: "/model-evolution", description: "Tendencias temporales de precisión" },
       { label: "Configuración de Umbrales", path: "/model-thresholds-config", description: "Ajustar pesos del modelo predictivo" },
+      { label: "Alertas de Rendimiento", path: "/model-performance-alerts", description: "Monitoreo automático de métricas del modelo" },
+      { label: "A/B Testing de Umbrales", path: "/threshold-ab-testing", description: "Comparar configuraciones para optimizar el modelo" },
     ],
   },
   {
