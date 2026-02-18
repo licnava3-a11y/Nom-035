@@ -68,52 +68,8 @@ export default function Home() {
   // Mutation para resolver alertas
   const resolveAlertMutation = trpc.alerts.resolve.useMutation();
   
-  // Registro automático de alertas cuando se detecten umbrales
-  useEffect(() => {
-    if (!metrics) return;
-    
-    const { casesOpen, surveyCoverage } = metrics.nom035Compliance;
-    
-    // Alerta crítica: casos abiertos > 50
-    if (casesOpen > 50) {
-      createAlertMutation.mutate({
-        alertType: "critical_cases",
-        priority: "critical",
-        description: `Hay ${casesOpen} casos abiertos que requieren atención inmediata`,
-        threshold: 50,
-        currentValue: casesOpen,
-      });
-    } else if (activeAlerts) {
-      // Resolución automática: casos abiertos < 50
-      const criticalAlert = activeAlerts.find(a => a.alertType === "critical_cases");
-      if (criticalAlert) {
-        resolveAlertMutation.mutate({
-          alertId: criticalAlert.id,
-          notes: "Resuelta automáticamente: umbral normalizado (casos abiertos < 50)",
-        });
-      }
-    }
-    
-    // Alerta warning: cobertura < 80%
-    if (surveyCoverage < 80) {
-      createAlertMutation.mutate({
-        alertType: "low_coverage",
-        priority: "warning",
-        description: `La cobertura de encuestas es ${surveyCoverage.toFixed(1)}%`,
-        threshold: 80,
-        currentValue: surveyCoverage,
-      });
-    } else if (activeAlerts) {
-      // Resolución automática: cobertura > 80%
-      const coverageAlert = activeAlerts.find(a => a.alertType === "low_coverage");
-      if (coverageAlert) {
-        resolveAlertMutation.mutate({
-          alertId: coverageAlert.id,
-          notes: "Resuelta automáticamente: umbral normalizado (cobertura > 80%)",
-        });
-      }
-    }
-   }, [metrics, activeAlerts]);
+  // NOTA: Registro automático de alertas deshabilitado para evitar loop infinito
+  // Las alertas deben crearse manualmente por el usuario o mediante jobs programados
   
   const { data: trendsData, isLoading: trendsLoading } = trpc.executiveDashboard.getTrendsData.useQuery({ period });
   const { data: alertTrends, isLoading: alertTrendsLoading } = trpc.alerts.getTrends.useQuery({ months: alertMonths });

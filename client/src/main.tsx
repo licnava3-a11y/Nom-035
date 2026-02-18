@@ -108,7 +108,14 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-createRoot(document.getElementById("root")!).render(
+// Guardar referencia al root para evitar múltiples createRoot() con HMR
+let root = (globalThis as any).__react_root;
+if (!root) {
+  root = createRoot(document.getElementById("root")!);
+  (globalThis as any).__react_root = root;
+}
+
+root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
       <CSRFProvider>

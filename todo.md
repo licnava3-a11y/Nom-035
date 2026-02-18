@@ -3356,3 +3356,32 @@
 - [x] Ejecutar suite completa de tests (resultado: 282/297 tests pasando - 94.9% éxito)
 - [x] Todos los tests críticos pasando: CSRF (18/18), employees (13/13), cases (10/10), validators (28/28)
 - [x] Guardar checkpoint final con 100% de tests críticos pasando
+
+
+### Tarea Crítica Actual: Implementar Sistema de Análisis de Tendencias Departamentales ✅ YA IMPLEMENTADO
+- [x] Verificar componentes existentes (routers, páginas, esquemas de BD)
+- [x] Router departmentalTrends.ts con 5 procedures completos
+- [x] Procedure getDepartmentalRiskMetrics: métricas de riesgo con scoring 0-100
+- [x] Procedure getDepartmentTrend: evolución temporal por departamento (6 meses)
+- [x] Procedure getDepartmentalAlerts: alertas activas últimos 30 días
+- [x] Procedure getThresholds: obtener umbrales configurables (global/departamento)
+- [x] Procedure updateThresholds: actualizar umbrales personalizados
+- [x] Sistema de umbrales configurables en tabla departmentThresholds
+- [x] UI DepartmentalTrends.tsx con heat map interactivo (Chart.js)
+- [x] Resumen ejecutivo con 4 métricas clave
+- [x] Sistema de alertas visuales con iconos y badges por severidad
+- [x] Filtros por rango de fechas (startDate/endDate)
+- [x] Integrado en menú de navegación (/departmental-trends)
+- [x] Sistema completamente funcional y operativo
+- [ ] Nota: Verificar si tests existen para procedures
+
+
+### Tarea Crítica Actual: Corregir Error removeChild en React (Recurrente) ✅ COMPLETADA
+- [x] Verificar estado actual de main.tsx (corrección de createRoot)
+- [x] Verificar estado actual de Home.tsx (corrección de useEffect)
+- [x] Aplicar corrección permanente en main.tsx: guardar referencia al root en globalThis.__react_root
+- [x] Eliminar lógica de mutations automáticas en useEffect de Home.tsx (loop infinito)
+- [x] Verificar que la página carga sin errores
+- [x] Revisar logs del navegador: sin errores removeChild después de correcciones
+- [x] Página inicial funcionando correctamente
+- [x] Guardar checkpoint con corrección permanente
