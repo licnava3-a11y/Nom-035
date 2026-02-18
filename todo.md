@@ -3129,3 +3129,18 @@
 - [x] Implementar manejo de errores 403 Forbidden con mensaje amigable
 - [x] Agregar renovación automática de tokens expirados (cada 50 minutos)
 - [ ] Documentar flujo de CSRF protection en README
+
+
+## Nueva Tarea - Documentación de Seguridad CSRF ✅ COMPLETADA
+
+### Crear README de Seguridad
+- [x] Documentar arquitectura completa de CSRF protection (3 capas)
+- [x] Explicar flujo de generación y validación de tokens (diagramas de secuencia)
+- [x] Incluir diagramas de secuencia del flujo CSRF (3 fases)
+- [x] Documentar configuración de expiración y renovación automática (tabla de escenarios)
+- [x] Agregar guía para desarrolladores sobre uso de tokens (5 casos de uso)
+- [x] Documentar manejo de errores 403 Forbidden (5 errores comunes)
+- [x] Incluir ejemplos de código para casos de uso comunes (TypeScript)
+- [x] Agregar sección de troubleshooting y FAQ (5 preguntas frecuentes)
+- [x] Incluir checklist de auditoría y cumplimiento normativo
+- [x] Documentar roadmap de mejoras futuras (4 mejoras planificadas)
