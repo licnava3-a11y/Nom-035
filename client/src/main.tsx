@@ -9,6 +9,7 @@ import { getLoginUrl } from "./const";
 import "./index.css";
 import "./i18n/config";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { CSRFProvider } from "./contexts/CSRFContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,13 +41,50 @@ queryClient.getQueryCache().subscribe(event => {
   }
 });
 
+// Variable para almacenar función de renovación de token CSRF
+let renewCSRFToken: (() => Promise<void>) | null = null;
+
+export function setCSRFRenewalFunction(renewFn: () => Promise<void>) {
+  renewCSRFToken = renewFn;
+}
+
 queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
+    
+    // Manejar errores 403 Forbidden (CSRF token inválido/expirado)
+    if (error instanceof TRPCClientError && error.data?.code === "FORBIDDEN") {
+      const message = error.message;
+      
+      // Si es error de CSRF, intentar renovar token
+      if (message.includes("CSRF") || message.includes("Token CSRF")) {
+        console.warn("[CSRF Error] Token inválido o expirado, renovando...");
+        
+        if (renewCSRFToken) {
+          renewCSRFToken().then(() => {
+            console.log("[CSRF] Token renovado exitosamente");
+            // Mostrar mensaje al usuario
+            alert("Tu sesión ha expirado. Por favor, intenta nuevamente.");
+          }).catch((err) => {
+            console.error("[CSRF] Error al renovar token:", err);
+            alert("Error de seguridad. Por favor, recarga la página.");
+          });
+        }
+      }
+    }
+    
     console.error("[API Mutation Error]", error);
   }
 });
+
+// Variable global para almacenar el token CSRF
+let csrfToken: string | undefined;
+
+// Función para actualizar el token CSRF desde el CSRFProvider
+export function setGlobalCSRFToken(token: string | undefined) {
+  csrfToken = token;
+}
 
 const trpcClient = trpc.createClient({
   links: [
@@ -54,8 +92,15 @@ const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       fetch(input, init) {
+        // Agregar token CSRF en headers para mutations
+        const headers = new Headers(init?.headers);
+        if (csrfToken) {
+          headers.set("x-csrf-token", csrfToken);
+        }
+        
         return globalThis.fetch(input, {
           ...(init ?? {}),
+          headers,
           credentials: "include",
         });
       },
@@ -66,9 +111,11 @@ const trpcClient = trpc.createClient({
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
-      <NotificationProvider>
-        <App />
-      </NotificationProvider>
+      <CSRFProvider>
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
+      </CSRFProvider>
     </QueryClientProvider>
   </trpc.Provider>
 );

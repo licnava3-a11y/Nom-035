@@ -3113,3 +3113,19 @@
 - [ ] Implementar auditoría de accesos a datos sensibles
 - [ ] Crear dashboard de métricas de seguridad
 
+
+
+## Nueva Tarea - Integración CSRF Protection en Frontend ✅ COMPLETADA
+
+### Implementar Tokens CSRF en Formularios Críticos
+- [x] Crear hook personalizado useCSRFToken para gestionar tokens en el cliente
+- [x] Crear CSRFProvider para proveer tokens a toda la aplicación
+- [x] Configurar interceptor de tRPC para agregar header x-csrf-token automáticamente
+- [x] Integrar CSRF tokens en formularios de casos (crear, editar) - Protección automática
+- [x] Integrar CSRF tokens en formularios de encuestas NOM-035 (distribución, respuestas) - Protección automática
+- [x] Integrar CSRF tokens en formularios de nómina (crear, actualizar) - Protección automática
+- [x] Integrar CSRF tokens en formularios de reconocimientos (crear, editar) - Protección automática
+- [x] Integrar CSRF tokens en formularios de capacitación (crear, actualizar) - Protección automática
+- [x] Implementar manejo de errores 403 Forbidden con mensaje amigable
+- [x] Agregar renovación automática de tokens expirados (cada 50 minutos)
+- [ ] Documentar flujo de CSRF protection en README
