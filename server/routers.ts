@@ -102,6 +102,7 @@ import { reportConfigurationsRouter } from "./routers/reportConfigurations";
 import { sentimentAnalysisRouter } from "./routers/sentimentAnalysis";
 import { executiveReportsRouter } from "./routers/executiveReports";
 import { complianceNOM035Router } from "./routers/complianceNOM035";
+import { sentimentCasesCorrelationRouter } from "./routers/sentimentCasesCorrelation";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -214,6 +215,7 @@ export const appRouter = router({
   sentimentAnalysis: sentimentAnalysisRouter,
   executiveReports: executiveReportsRouter,
   complianceNOM035: complianceNOM035Router,
+  sentimentCasesCorrelation: sentimentCasesCorrelationRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

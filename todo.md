@@ -2443,3 +2443,39 @@
 - [x] Descripción del caso incluye resúmenes de comentarios críticos
 - [x] Notificaciones automáticas a administradores vía WebSocket
 - [x] Integración con job que ejecuta cada 6 horas
+
+
+## Nuevas Tareas - Mejoras de UX y Funcionalidad
+
+### Fase 1: Agregar Accesos Directos en Navegación Lateral ✅ COMPLETADA
+- [x] Leer DashboardLayout.tsx para identificar estructura de navegación
+- [x] Agregar enlace "Reportes Ejecutivos" en sección "Reportes y Análisis" (línea 221)
+- [x] Agregar enlace "Cumplimiento por Numeral" en sección "Cumplimiento Normativo" (línea 194)
+- [x] Agregar enlace "Análisis de Sentimiento" en sección "Encuestas NOM-035" (línea 122)
+- [x] Agregar enlace "Correlación Sentimiento-Casos" en sección "Encuestas NOM-035" (línea 123)
+
+### Fase 2: Dashboard de Correlación Sentimiento-Casos ✅ COMPLETADA
+- [x] Crear router sentimentCasesCorrelation con 4 queries
+- [x] Implementar query getCorrelationData (evolución mensual)
+- [x] Implementar query getAutoCases (últimos 20 casos)
+- [x] Implementar query getInterventionMetrics (total, cerrados, tasa resolución, tiempo promedio)
+- [x] Implementar query getCasesByDepartment (distribución)
+- [x] Crear página SentimentCasesCorrelationDashboard.tsx
+- [x] Implementar gráfico de línea temporal (Line chart)
+- [x] Implementar gráfico de barras por departamento
+- [x] Implementar 4 cards de métricas (total, cerrados, tasa, tiempo)
+- [x] Implementar tabla de casos con enlace directo a detalle
+- [x] Agregar filtro por departamento
+- [x] Agregar ruta /sentiment-cases-correlation en App.tsx
+- [x] Registrar router en appRouter
+- [x] Agregar enlace en navegación lateral
+
+### Fase 3: Sistema de Recordatorios para Cumplimiento NOM-035 ✅ COMPLETADA
+- [x] Agregar campo dueDate a complianceChecks en schema
+- [x] Generar y aplicar migración SQL (0111_modern_ironclad.sql)
+- [x] Crear job compliance-reminders-job.ts
+- [x] Implementar lógica de verificación de vencimientos (21 días antes)
+- [x] Crear notificaciones automáticas por WebSocket y base de datos
+- [x] Prioridad alta para items que vencen en 7 días o menos
+- [x] Notificaciones a todos los administradores
+- [x] Registrar job en server/_core/index.ts (ejecuta diariamente a las 08:00)

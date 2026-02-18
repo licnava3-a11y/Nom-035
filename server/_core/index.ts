@@ -35,6 +35,7 @@ import { detectCompetencyRegressions } from "../jobs/competencyRegressionAlertsJ
 import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job";
 import { initializeWebSocket } from "./websocket";
 import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
+import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -241,6 +242,9 @@ async function startServer() {
     
     // Sentiment Analysis Job
     initializeSentimentAnalysisJob();
+    
+    // Compliance Reminders Job
+    initializeComplianceRemindersJob();
   });
 }
 

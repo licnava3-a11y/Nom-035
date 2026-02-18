@@ -119,6 +119,8 @@ const hierarchicalMenuItems = [
       { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación" },
       { label: "Envío Masivo", path: "/surveys/mass-email", description: "Envío masivo de invitaciones" },
       { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo de encuestas" },
+      { label: "Análisis de Sentimiento", path: "/surveys/sentiment-analysis", description: "Dashboard de análisis de sentimiento con IA" },
+      { label: "Correlación Sentimiento-Casos", path: "/sentiment-cases-correlation", description: "Visualiza la relación entre sentimiento y casos generados" },
     ],
   },
   {
@@ -190,6 +192,7 @@ const hierarchicalMenuItems = [
       { label: "Tendencias Departamentales", path: "/departmental-trends", description: "Heat map de concentración de casos y niveles de riesgo por departamento" },
       { label: "Encuestas Post-Caso", path: "/post-case-surveys", description: "Seguimiento 30/60/90 días y medición de efectividad de intervenciones" },
       { label: "Informe Numeral 7.5", path: "/reports/regulatory", description: "Informe de identificación y análisis" },
+      { label: "Cumplimiento por Numeral", path: "/compliance/nom035", description: "Dashboard de cumplimiento NOM-035 con indicadores de semáforo" },
     ],
   },
   {
@@ -216,6 +219,7 @@ const hierarchicalMenuItems = [
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento NOM-035 y NMX-025" },
       { label: "Histórico de Alertas", path: "/alert-history", description: "Registro de alertas para auditoría" },
       { label: "Análisis Predictivo", path: "/alerts/predictive", description: "Predicción de alertas basada en datos históricos" },
+      { label: "Reportes Ejecutivos", path: "/executive-reports", description: "Generación de reportes ejecutivos en PDF" },
     ],
   },
   {

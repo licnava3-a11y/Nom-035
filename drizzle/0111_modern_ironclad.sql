@@ -1,0 +1,1 @@
+ALTER TABLE `complianceChecks` ADD `dueDate` timestamp;

@@ -1355,6 +1355,7 @@ export const complianceChecks = mysqlTable("complianceChecks", {
   isCompliant: boolean("isCompliant").default(false).notNull(),
   verifiedBy: int("verifiedBy"), // FK to users
   verifiedAt: timestamp("verifiedAt"),
+  dueDate: timestamp("dueDate"), // Fecha de vencimiento para recordatorios
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
