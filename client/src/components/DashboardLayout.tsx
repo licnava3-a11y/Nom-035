@@ -124,6 +124,7 @@ const hierarchicalMenuItems = [
       { label: "Análisis Predictivo de Rotación", path: "/predictive-turnover", description: "Predicciones de rotación con recomendaciones de retención" },
       { label: "Precisión del Modelo Predictivo", path: "/predictive-correlation", description: "Métricas de precisión y matriz de confusión" },
       { label: "Evolución del Modelo", path: "/model-evolution", description: "Tendencias temporales de precisión" },
+      { label: "Configuración de Umbrales", path: "/model-thresholds-config", description: "Ajustar pesos del modelo predictivo" },
     ],
   },
   {

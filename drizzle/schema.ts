@@ -4098,3 +4098,36 @@ export const employeeTurnoverHistory = mysqlTable("employee_turnover_history", {
 
 export type EmployeeTurnoverHistory = typeof employeeTurnoverHistory.$inferSelect;
 export type InsertEmployeeTurnoverHistory = typeof employeeTurnoverHistory.$inferInsert;
+
+
+// Model Thresholds Configuration - Configuración de umbrales del modelo predictivo
+export const modelThresholds = mysqlTable("model_thresholds", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Pesos de la fórmula predictiva (deben sumar 100)
+  criticalCommentsWeight: int("critical_comments_weight").notNull().default(40), // Peso de comentarios críticos (0-100)
+  openCasesWeight: int("open_cases_weight").notNull().default(30), // Peso de casos abiertos (0-100)
+  highRiskSurveysWeight: int("high_risk_surveys_weight").notNull().default(30), // Peso de encuestas de alto riesgo (0-100)
+  
+  // Umbrales de clasificación de riesgo
+  highRiskThreshold: int("high_risk_threshold").notNull().default(70), // Score >= 70 = Alto riesgo
+  mediumRiskThreshold: int("medium_risk_threshold").notNull().default(40), // Score >= 40 = Riesgo medio
+  
+  // Metadata
+  description: text("description"), // Descripción de la configuración
+  isActive: boolean("is_active").default(true).notNull(), // Solo una configuración activa a la vez
+  createdBy: int("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ModelThresholds = typeof modelThresholds.$inferSelect;
+export type InsertModelThresholds = typeof modelThresholds.$inferInsert;
+
+// Relations para modelThresholds
+export const modelThresholdsRelations = relations(modelThresholds, ({ one }) => ({
+  creator: one(users, {
+    fields: [modelThresholds.createdBy],
+    references: [users.id],
+  }),
+}));

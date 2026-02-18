@@ -39,6 +39,7 @@ const SentimentCasesCorrelationDashboard = lazy(() => import("./pages/SentimentC
 const PredictiveTurnoverDashboard = lazy(() => import("./pages/PredictiveTurnoverDashboard"));
 const PredictiveCorrelationDashboard = lazy(() => import("./pages/PredictiveCorrelationDashboard"));
 const ModelEvolutionDashboard = lazy(() => import("./pages/ModelEvolutionDashboard"));
+const ModelThresholdsConfig = lazy(() => import("./pages/ModelThresholdsConfig"));
 const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
@@ -964,6 +965,9 @@ function Router() {
         </Route>
         <Route path={"/model-evolution"}>
           <ModelEvolutionDashboard />
+        </Route>
+        <Route path={"/model-thresholds-config"}>
+          <ModelThresholdsConfig />
         </Route>
         <Route path={"/admin/turnover-management"}>
           <DashboardLayout>

@@ -2707,3 +2707,31 @@
 - [ ] Actualizar job compliance-reminders para usar configuración SMTP
 - [ ] Agregar ruta en App.tsx
 - [ ] Agregar enlace en navegación lateral (Administración)
+
+## Nuevas Tareas - Optimización de Umbrales del Modelo Predictivo y Exportación PDF
+
+### 1. Sistema de Configuración de Umbrales del Modelo Predictivo
+- [x] Crear tabla model_thresholds en schema (weights: criticalComments, openCases, highRiskSurveys)
+- [x] Aplicar migración SQL para crear tabla
+- [x] Crear router modelThresholds con procedures (getThresholds, updateThresholds, resetToDefaults)
+- [x] Registrar router en appRouter
+- [x] Crear página ModelThresholdsConfig.tsx con formulario de configuración
+- [x] Implementar sliders para ajustar pesos (suma debe ser 100%)
+- [x] Agregar validación en tiempo real de suma de pesos
+- [x] Mostrar métricas actuales del modelo (precisión, recall, F1-score)
+- [x] Agregar botón "Restaurar Valores por Defecto" (40%, 30%, 30%)
+- [x] Agregar navegación en menú lateral (Encuestas NOM-035 > Configuración de Umbrales)
+- [x] Actualizar cálculo en predictiveTurnoverDashboard.ts para usar umbrales configurables
+
+### 2. Exportación de Análisis Predictivo a PDF
+- [x] Crear procedure predictiveReports.generatePDF en nuevo router
+- [x] Implementar generación de PDF con pdfkit (portada, resumen ejecutivo, métricas)
+- [x] Incluir matriz de confusión visual en PDF
+- [x] Agregar tabla de métricas (precisión, recall, F1-score, accuracy)
+- [x] Incluir lista de empleados de alto riesgo con recomendaciones
+- [x] Implementar sección de recomendaciones de retención generadas por LLM
+- [x] Subir PDF a S3 y almacenar en tabla predictive_reports_history
+- [x] Crear botón "Exportar a PDF" en PredictiveTurnoverDashboard.tsx
+- [ ] Crear botón "Exportar a PDF" en PredictiveCorrelationDashboard.tsx
+- [ ] Crear botón "Exportar a PDF" en ModelEvolutionDashboard.tsx
+- [x] Implementar descarga automática del PDF generado

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, Users, AlertTriangle, Lightbulb, Target, Clock, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, AlertTriangle, Lightbulb, Target, Clock, BarChart3, FileDown, Loader2 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -27,6 +27,17 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default function PredictiveTurnoverDashboard() {
   const [selectedDepartment, setSelectedDepartment] = useState<number | undefined>(undefined);
   const [showRecommendations, setShowRecommendations] = useState(false);
+
+  // Mutation: generar reporte PDF
+  const generatePDF = trpc.predictiveReports.generatePredictivePDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("Reporte PDF generado exitosamente");
+      window.open(data.pdfUrl, "_blank");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al generar reporte PDF");
+    },
+  });
 
   const utils = trpc.useUtils();
 
@@ -142,22 +153,41 @@ export default function PredictiveTurnoverDashboard() {
             Predicciones basadas en análisis de sentimiento, casos y encuestas NOM-035
           </p>
         </div>
-        <Select
-          value={selectedDepartment?.toString() || "all"}
-          onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : parseInt(value))}
-        >
-          <SelectTrigger className="w-[250px]">
-            <SelectValue placeholder="Todos los departamentos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los departamentos</SelectItem>
-            {metrics.map((metric) => (
-              <SelectItem key={metric.departmentId} value={metric.departmentId.toString()}>
-                {metric.departmentName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => generatePDF.mutate({ includeConfusionMatrix: true, includeEvolution: true, includeRecommendations: true })}
+            disabled={generatePDF.isPending}
+            variant="outline"
+          >
+            {generatePDF.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generando...
+              </>
+            ) : (
+              <>
+                <FileDown className="mr-2 h-4 w-4" />
+                Exportar a PDF
+              </>
+            )}
+          </Button>
+          <Select
+            value={selectedDepartment?.toString() || "all"}
+            onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : parseInt(value))}
+          >
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder="Todos los departamentos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los departamentos</SelectItem>
+              {metrics.map((metric) => (
+                <SelectItem key={metric.departmentId} value={metric.departmentId.toString()}>
+                  {metric.departmentName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Cards de Estadísticas Globales */}

@@ -7,7 +7,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { sentimentAnalysis, nom035Cases, surveyResponses, users, departments, nom035Results } from "../../drizzle/schema";
+import { sentimentAnalysis, nom035Cases, surveyResponses, users, departments, nom035Results, modelThresholds } from "../../drizzle/schema";
 import { eq, and, gte, desc, count, sql, inArray } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
@@ -117,22 +117,33 @@ export const predictiveTurnoverDashboardRouter = router({
 
           const highRiskSurveys = highRiskSurveysCount[0]?.count || 0;
 
-          // Calcular probabilidad de rotación (0-100)
-          // Fórmula ponderada:
-          // - Comentarios críticos: 40%
-          // - Casos abiertos: 30%
-          // - Encuestas de riesgo alto: 30%
-          const criticalCommentsScore = Math.min((criticalComments / totalEmployees) * 100, 100) * 0.4;
-          const openCasesScore = Math.min((openCases / totalEmployees) * 100, 100) * 0.3;
-          const highRiskSurveysScore = Math.min((highRiskSurveys / totalEmployees) * 100, 100) * 0.3;
+          // Obtener configuración activa de umbrales
+          const [activeConfig] = await db!
+            .select()
+            .from(modelThresholds)
+            .where(eq(modelThresholds.isActive, true))
+            .orderBy(desc(modelThresholds.createdAt))
+            .limit(1);
+
+          // Usar umbrales configurables o valores por defecto
+          const criticalCommentsWeight = (activeConfig?.criticalCommentsWeight || 40) / 100;
+          const openCasesWeight = (activeConfig?.openCasesWeight || 30) / 100;
+          const highRiskSurveysWeight = (activeConfig?.highRiskSurveysWeight || 30) / 100;
+          const highRiskThreshold = activeConfig?.highRiskThreshold || 70;
+          const mediumRiskThreshold = activeConfig?.mediumRiskThreshold || 40;
+
+          // Calcular probabilidad de rotación (0-100) con pesos configurables
+          const criticalCommentsScore = Math.min((criticalComments / totalEmployees) * 100, 100) * criticalCommentsWeight;
+          const openCasesScore = Math.min((openCases / totalEmployees) * 100, 100) * openCasesWeight;
+          const highRiskSurveysScore = Math.min((highRiskSurveys / totalEmployees) * 100, 100) * highRiskSurveysWeight;
 
           const turnoverProbability = Math.round(criticalCommentsScore + openCasesScore + highRiskSurveysScore);
 
-          // Determinar nivel de riesgo
+          // Determinar nivel de riesgo usando umbrales configurables
           let riskLevel: "low" | "medium" | "high" | "critical" = "low";
-          if (turnoverProbability >= 75) {
+          if (turnoverProbability >= highRiskThreshold) {
             riskLevel = "critical";
-          } else if (turnoverProbability >= 50) {
+          } else if (turnoverProbability >= mediumRiskThreshold) {
             riskLevel = "high";
           } else if (turnoverProbability >= 25) {
             riskLevel = "medium";
