@@ -2,17 +2,14 @@
 
 ## 📈 Resumen Global
 
-- **Total de Routers Analizados**: 123
-- **Total de Procedures**: 782
-- **Procedures con Validación**: 640 (82%)
-- **Procedures sin Validación**: 142 (18%)
+- **Total de Routers Analizados**: 124
+- **Total de Procedures**: 785
+- **Procedures con Validación**: 656 (84%)
+- **Procedures sin Validación**: 129 (16%)
 
 ## 🎯 Routers Prioritarios (Cobertura <50%)
 
-- **permissionAudit.ts**: 25% (6/8 sin validación)
-- **executiveDashboard.ts**: 33% (4/6 sin validación)
-- **trainingDashboard.ts**: 33% (4/6 sin validación)
-- **postCaseSurveys.ts**: 43% (4/7 sin validación)
+*No hay routers con cobertura crítica (<50%).*
 
 ## 📋 Detalle por Router
 
@@ -114,22 +111,6 @@
 - `getMarketProjections` (query, línea 50)
 - `getDepartmentSummary` (query, línea 133)
 
-### ❌ permissionAudit.ts
-
-- **Cobertura**: 25%
-- **Procedures Totales**: 8
-- **Con Validación**: 2
-- **Sin Validación**: 6
-
-**Procedures sin validación:**
-
-- `getStatistics` (query, línea 91)
-- `getRecentChanges` (query, línea 111)
-- `getMonthlyChangesCount` (query, línea 179)
-- `getUsersWithCustomPermissionsCount` (query, línea 221)
-- `getTopAdministrators` (query, línea 238)
-- `getRecentCriticalChanges` (query, línea 271)
-
 ### ❌ predictiveCorrelation.ts
 
 - **Cobertura**: 25%
@@ -156,20 +137,6 @@
 - `getLatestAnalysis` (query, línea 209)
 - `getAnalysisHistory` (query, línea 229)
 
-### ❌ executiveDashboard.ts
-
-- **Cobertura**: 33%
-- **Procedures Totales**: 6
-- **Con Validación**: 2
-- **Sin Validación**: 4
-
-**Procedures sin validación:**
-
-- `getHistoricalComparison` (query, línea 380)
-- `getConsolidatedKPIs` (query, línea 569)
-- `getComplianceTrends` (query, línea 620)
-- `getConsolidatedAlerts` (query, línea 653)
-
 ### ❌ modelRetraining.ts
 
 - **Cobertura**: 33%
@@ -181,20 +148,6 @@
 
 - `getLastRetraining` (query, línea 73)
 - `getRetrainingStats` (query, línea 120)
-
-### ❌ trainingDashboard.ts
-
-- **Cobertura**: 33%
-- **Procedures Totales**: 6
-- **Con Validación**: 2
-- **Sin Validación**: 4
-
-**Procedures sin validación:**
-
-- `getCertificatesByMonth` (query, línea 81)
-- `getEmployeesByDepartment` (query, línea 110)
-- `getPopularCourses` (query, línea 133)
-- `getRenewalAlerts` (query, línea 164)
 
 ### ❌ modelThresholds.ts
 
@@ -208,20 +161,6 @@
 - `getActiveThresholds` (query, línea 12)
 - `getThresholdsHistory` (query, línea 58)
 - `resetToDefaults` (mutation, línea 163)
-
-### ❌ postCaseSurveys.ts
-
-- **Cobertura**: 43%
-- **Procedures Totales**: 7
-- **Con Validación**: 3
-- **Sin Validación**: 4
-
-**Procedures sin validación:**
-
-- `getEffectivenessStats` (query, línea 111)
-- `createPendingSurveys` (mutation, línea 236)
-- `sendPendingSurveys` (mutation, línea 301)
-- `expireSurveys` (mutation, línea 337)
 
 ### ⚠️ administrative.ts
 
@@ -247,6 +186,19 @@
 - `getComplianceByNumeral` (query, línea 18)
 - `getGlobalStats` (query, línea 102)
 - `generateComplianceReport` (mutation, línea 319)
+
+### ⚠️ executiveDashboard.ts
+
+- **Cobertura**: 50%
+- **Procedures Totales**: 6
+- **Con Validación**: 3
+- **Sin Validación**: 3
+
+**Procedures sin validación:**
+
+- `getConsolidatedKPIs` (query, línea 571)
+- `getComplianceTrends` (query, línea 622)
+- `getConsolidatedAlerts` (query, línea 655)
 
 ### ⚠️ modelPerformanceAlerts.ts
 
@@ -464,6 +416,18 @@
 
 - `runPredictiveAnalysis` (mutation, línea 13)
 - `getDashboard` (query, línea 180)
+
+### ⚠️ postCaseSurveys.ts
+
+- **Cobertura**: 71%
+- **Procedures Totales**: 7
+- **Con Validación**: 5
+- **Sin Validación**: 2
+
+**Procedures sin validación:**
+
+- `sendPendingSurveys` (mutation, línea 306)
+- `expireSurveys` (mutation, línea 342)
 
 ### ⚠️ departments.ts
 
@@ -956,6 +920,13 @@
 - **Con Validación**: 4
 - **Sin Validación**: 0
 
+### ✅ csrfViolations.ts
+
+- **Cobertura**: 100%
+- **Procedures Totales**: 3
+- **Con Validación**: 3
+- **Sin Validación**: 0
+
 ### ✅ documentAudit.ts
 
 - **Cobertura**: 100%
@@ -1073,6 +1044,13 @@
 - **Cobertura**: 100%
 - **Procedures Totales**: 5
 - **Con Validación**: 5
+- **Sin Validación**: 0
+
+### ✅ permissionAudit.ts
+
+- **Cobertura**: 100%
+- **Procedures Totales**: 8
+- **Con Validación**: 8
 - **Sin Validación**: 0
 
 ### ✅ positions.ts
@@ -1199,6 +1177,13 @@
 - **Cobertura**: 100%
 - **Procedures Totales**: 5
 - **Con Validación**: 5
+- **Sin Validación**: 0
+
+### ✅ trainingDashboard.ts
+
+- **Cobertura**: 100%
+- **Procedures Totales**: 6
+- **Con Validación**: 6
 - **Sin Validación**: 0
 
 ### ✅ trends.ts

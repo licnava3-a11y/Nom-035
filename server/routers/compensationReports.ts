@@ -9,9 +9,15 @@ import { getDb } from "../db";
 import { compensationReportsHistory } from "../../drizzle/schema";
 import PDFDocument from "pdfkit";
 import { storagePut } from "../storage";
+import { z } from "zod";
 
 export const compensationReportsRouter = router({
-  generateCompensationPDF: protectedProcedure.mutation(async ({ ctx }) => {
+  generateCompensationPDF: protectedProcedure
+    .input(z.object({
+      includeRecommendations: z.boolean().optional().default(true),
+      maxEmployeesInTable: z.number().int().positive().max(100).optional().default(20),
+    }).optional().default({}))
+    .mutation(async ({ ctx, input }) => {
     const db = await getDb();
 
     try {
@@ -110,7 +116,8 @@ export const compensationReportsRouter = router({
         let yPosition = tableTop + 20;
         doc.font("Helvetica");
 
-        criticalGaps.slice(0, 20).forEach((emp) => {
+        const maxEmployees = input?.maxEmployeesInTable || 20;
+        criticalGaps.slice(0, maxEmployees).forEach((emp) => {
           if (yPosition > 750) {
             doc.addPage();
             yPosition = 50;
@@ -125,47 +132,49 @@ export const compensationReportsRouter = router({
           yPosition += 20;
         });
 
-        if (criticalGaps.length > 20) {
+        if (criticalGaps.length > maxEmployees) {
           doc.moveDown(2);
-          doc.fontSize(10).font("Helvetica-Oblique").text(`... y ${criticalGaps.length - 20} empleados más`);
+          doc.fontSize(10).font("Helvetica-Oblique").text(`... y ${criticalGaps.length - maxEmployees} empleados más`);
         }
       } else {
         doc.text("No hay empleados con brecha salarial crítica en este momento.", { align: "center" });
       }
 
-      doc.addPage();
+      // Recomendaciones (opcional)
+      if (input?.includeRecommendations !== false) {
+        doc.addPage();
 
-      // Recomendaciones
-      doc.fontSize(18).font("Helvetica-Bold").text("Recomendaciones Estratégicas", { underline: true });
-      doc.moveDown(1);
-      doc.fontSize(12).font("Helvetica");
+        doc.fontSize(18).font("Helvetica-Bold").text("Recomendaciones Estratégicas", { underline: true });
+        doc.moveDown(1);
+        doc.fontSize(12).font("Helvetica");
 
-      doc.text("1. Priorizar Ajustes Salariales", { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(11).text(`   • Revisar inmediatamente los ${criticalCount} casos con brecha crítica (>20% por debajo del mercado)`);
-      doc.text("   • Implementar ajustes escalonados para optimizar el presupuesto");
-      doc.text("   • Considerar ajustes a tasa de mercado para empleados de alto valor estratégico");
-      doc.moveDown(1);
+        doc.text("1. Priorizar Ajustes Salariales", { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).text(`   • Revisar inmediatamente los ${criticalCount} casos con brecha crítica (>20% por debajo del mercado)`);
+        doc.text("   • Implementar ajustes escalonados para optimizar el presupuesto");
+        doc.text("   • Considerar ajustes a tasa de mercado para empleados de alto valor estratégico");
+        doc.moveDown(1);
 
-      doc.fontSize(12).text("2. Implementar Revisiones Periódicas", { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(11).text("   • Establecer revisiones salariales trimestrales basadas en benchmarks de mercado");
-      doc.text("   • Monitorear continuamente el riesgo de rotación de empleados clave");
-      doc.text("   • Actualizar tasas de mercado cada 6 meses");
-      doc.moveDown(1);
+        doc.fontSize(12).text("2. Implementar Revisiones Periódicas", { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).text("   • Establecer revisiones salariales trimestrales basadas en benchmarks de mercado");
+        doc.text("   • Monitorear continuamente el riesgo de rotación de empleados clave");
+        doc.text("   • Actualizar tasas de mercado cada 6 meses");
+        doc.moveDown(1);
 
-      doc.fontSize(12).text("3. Combinar con Otras Intervenciones", { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(11).text("   • Complementar ajustes salariales con capacitación y desarrollo");
-      doc.text("   • Ofrecer beneficios flexibles para maximizar la percepción de valor");
-      doc.text("   • Implementar programas de reconocimiento para reforzar la retención");
-      doc.moveDown(1);
+        doc.fontSize(12).text("3. Combinar con Otras Intervenciones", { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).text("   • Complementar ajustes salariales con capacitación y desarrollo");
+        doc.text("   • Ofrecer beneficios flexibles para maximizar la percepción de valor");
+        doc.text("   • Implementar programas de reconocimiento para reforzar la retención");
+        doc.moveDown(1);
 
-      doc.fontSize(12).text("4. Monitoreo de ROI", { underline: true });
-      doc.moveDown(0.5);
-      doc.fontSize(11).text(`   • El ROI estimado de ${roi.toFixed(0)}% justifica la inversión en ajustes salariales`);
-      doc.text("   • Rastrear la tasa de retención post-ajuste para validar la efectividad");
-      doc.text("   • Documentar casos de éxito para optimizar futuras estrategias");
+        doc.fontSize(12).text("4. Monitoreo de ROI", { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(11).text(`   • El ROI estimado de ${roi.toFixed(0)}% justifica la inversión en ajustes salariales`);
+        doc.text("   • Rastrear la tasa de retención post-ajuste para validar la efectividad");
+        doc.text("   • Documentar casos de éxito para optimizar futuras estrategias");
+      }
 
       // Finalizar PDF
       doc.end();
@@ -214,11 +223,17 @@ export const compensationReportsRouter = router({
     }
   }),
 
-  getReportHistory: protectedProcedure.query(async () => {
+  getReportHistory: protectedProcedure
+    .input(z.object({
+      limit: z.number().int().positive().max(100).optional().default(20),
+      offset: z.number().int().nonnegative().optional().default(0),
+    }).optional().default({}))
+    .query(async ({ input }) => {
     const db = await getDb();
     const reports = await db.query.compensationReportsHistory.findMany({
       orderBy: (reports, { desc }) => [desc(reports.reportDate)],
-      limit: 20,
+      limit: input?.limit || 20,
+      offset: input?.offset || 0,
     });
     return reports;
   }),

@@ -1,9 +1,9 @@
 {
-  "totalRouters": 123,
-  "totalProcedures": 782,
-  "proceduresWithValidation": 640,
-  "proceduresWithoutValidation": 142,
-  "globalCoveragePercentage": 82,
+  "totalRouters": 124,
+  "totalProcedures": 785,
+  "proceduresWithValidation": 656,
+  "proceduresWithoutValidation": 129,
+  "globalCoveragePercentage": 84,
   "routers": [
     {
       "routerFile": "actionPlan.ts",
@@ -1496,6 +1496,36 @@
       ]
     },
     {
+      "routerFile": "csrfViolations.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "csrfViolations",
+          "procedureName": "getViolations",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "csrfViolations",
+          "procedureName": "getStatistics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 100
+        },
+        {
+          "router": "csrfViolations",
+          "procedureName": "getRecentViolations",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 187
+        }
+      ]
+    },
+    {
       "routerFile": "customPermissions.ts",
       "totalProcedures": 4,
       "proceduresWithValidation": 3,
@@ -2487,51 +2517,51 @@
     {
       "routerFile": "executiveDashboard.ts",
       "totalProcedures": 6,
-      "proceduresWithValidation": 2,
-      "proceduresWithoutValidation": 4,
-      "coveragePercentage": 33,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 50,
       "procedures": [
         {
           "router": "executiveDashboard",
           "procedureName": "getMetrics",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 25
+          "lineNumber": 26
         },
         {
           "router": "executiveDashboard",
           "procedureName": "getTrendsData",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 229
+          "lineNumber": 230
         },
         {
           "router": "executiveDashboard",
           "procedureName": "getHistoricalComparison",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 380
+          "hasInput": true,
+          "lineNumber": 381
         },
         {
           "router": "executiveDashboard",
           "procedureName": "getConsolidatedKPIs",
           "type": "query",
           "hasInput": false,
-          "lineNumber": 569
+          "lineNumber": 571
         },
         {
           "router": "executiveDashboard",
           "procedureName": "getComplianceTrends",
           "type": "query",
           "hasInput": false,
-          "lineNumber": 620
+          "lineNumber": 622
         },
         {
           "router": "executiveDashboard",
           "procedureName": "getConsolidatedAlerts",
           "type": "query",
           "hasInput": false,
-          "lineNumber": 653
+          "lineNumber": 655
         }
       ]
     },
@@ -4021,65 +4051,65 @@
     {
       "routerFile": "permissionAudit.ts",
       "totalProcedures": 8,
-      "proceduresWithValidation": 2,
-      "proceduresWithoutValidation": 6,
-      "coveragePercentage": 25,
+      "proceduresWithValidation": 8,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
       "procedures": [
         {
           "router": "permissionAudit",
           "procedureName": "getHistory",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 17
+          "lineNumber": 18
         },
         {
           "router": "permissionAudit",
           "procedureName": "getStatistics",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 91
+          "hasInput": true,
+          "lineNumber": 92
         },
         {
           "router": "permissionAudit",
           "procedureName": "getRecentChanges",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 111
+          "hasInput": true,
+          "lineNumber": 113
         },
         {
           "router": "permissionAudit",
           "procedureName": "getChangesTrends",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 145
+          "lineNumber": 148
         },
         {
           "router": "permissionAudit",
           "procedureName": "getMonthlyChangesCount",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 179
+          "hasInput": true,
+          "lineNumber": 182
         },
         {
           "router": "permissionAudit",
           "procedureName": "getUsersWithCustomPermissionsCount",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 221
+          "hasInput": true,
+          "lineNumber": 225
         },
         {
           "router": "permissionAudit",
           "procedureName": "getTopAdministrators",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 238
+          "hasInput": true,
+          "lineNumber": 243
         },
         {
           "router": "permissionAudit",
           "procedureName": "getRecentCriticalChanges",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 271
+          "hasInput": true,
+          "lineNumber": 277
         }
       ]
     },
@@ -4137,58 +4167,58 @@
     {
       "routerFile": "postCaseSurveys.ts",
       "totalProcedures": 7,
-      "proceduresWithValidation": 3,
-      "proceduresWithoutValidation": 4,
-      "coveragePercentage": 43,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 71,
       "procedures": [
         {
           "router": "postCaseSurveys",
           "procedureName": "getSurveysByCase",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 17
+          "lineNumber": 18
         },
         {
           "router": "postCaseSurveys",
           "procedureName": "getAllSurveys",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 39
+          "lineNumber": 40
         },
         {
           "router": "postCaseSurveys",
           "procedureName": "completeSurvey",
           "type": "mutation",
           "hasInput": true,
-          "lineNumber": 79
+          "lineNumber": 80
         },
         {
           "router": "postCaseSurveys",
           "procedureName": "getEffectivenessStats",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 111
+          "hasInput": true,
+          "lineNumber": 112
         },
         {
           "router": "postCaseSurveys",
           "procedureName": "createPendingSurveys",
           "type": "mutation",
-          "hasInput": false,
-          "lineNumber": 236
+          "hasInput": true,
+          "lineNumber": 239
         },
         {
           "router": "postCaseSurveys",
           "procedureName": "sendPendingSurveys",
           "type": "mutation",
           "hasInput": false,
-          "lineNumber": 301
+          "lineNumber": 306
         },
         {
           "router": "postCaseSurveys",
           "procedureName": "expireSurveys",
           "type": "mutation",
           "hasInput": false,
-          "lineNumber": 337
+          "lineNumber": 342
         }
       ]
     },
@@ -6179,51 +6209,51 @@
     {
       "routerFile": "trainingDashboard.ts",
       "totalProcedures": 6,
-      "proceduresWithValidation": 2,
-      "proceduresWithoutValidation": 4,
-      "coveragePercentage": 33,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
       "procedures": [
         {
           "router": "trainingDashboard",
           "procedureName": "getStats",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 9
+          "lineNumber": 10
         },
         {
           "router": "trainingDashboard",
           "procedureName": "getCertificatesByMonth",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 81
+          "hasInput": true,
+          "lineNumber": 82
         },
         {
           "router": "trainingDashboard",
           "procedureName": "getEmployeesByDepartment",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 110
+          "hasInput": true,
+          "lineNumber": 113
         },
         {
           "router": "trainingDashboard",
           "procedureName": "getPopularCourses",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 133
+          "hasInput": true,
+          "lineNumber": 138
         },
         {
           "router": "trainingDashboard",
           "procedureName": "getRenewalAlerts",
           "type": "query",
-          "hasInput": false,
-          "lineNumber": 164
+          "hasInput": true,
+          "lineNumber": 171
         },
         {
           "router": "trainingDashboard",
           "procedureName": "getRecentCertificates",
           "type": "query",
           "hasInput": true,
-          "lineNumber": 217
+          "lineNumber": 226
         }
       ]
     },
@@ -6586,10 +6616,5 @@
       ]
     }
   ],
-  "priorityRouters": [
-    "permissionAudit.ts",
-    "executiveDashboard.ts",
-    "trainingDashboard.ts",
-    "postCaseSurveys.ts"
-  ]
+  "priorityRouters": []
 }
