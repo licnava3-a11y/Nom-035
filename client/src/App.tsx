@@ -33,6 +33,8 @@ const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder")
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
 const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
 const SentimentAnalysisDashboard = lazy(() => import("./pages/SentimentAnalysisDashboard"));
+const ExecutiveReportsPanel = lazy(() => import("./pages/ExecutiveReportsPanel"));
+const ComplianceNOM035Dashboard = lazy(() => import("./pages/ComplianceNOM035Dashboard"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
 const ConsolidatedDashboard = lazy(() => import("./pages/ConsolidatedDashboard"));
@@ -921,6 +923,20 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <SentimentAnalysisDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/executive-reports"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ExecutiveReportsPanel />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/compliance/nom035"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ComplianceNOM035Dashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

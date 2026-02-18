@@ -2403,3 +2403,43 @@
 - [ ] Implementar filtro por tamaño de empresa (pequeña/mediana/grande)
 - [ ] Agregar ruta en App.tsx
 - [ ] Agregar navegación destacada en menú principal (Cumplimiento Normativo)
+
+
+## Nuevas Tareas - Continuación Fases 2 y 3
+
+### Fase 2: Exportación Masiva de Reportes Ejecutivos ✅ COMPLETADA
+- [x] Tabla executive_reports_history creada
+- [x] Crear router executiveReports con queries y mutations
+- [x] Implementar mutation generateReport (semanal/mensual/trimestral/custom)
+- [x] Implementar helper consolidateReportData (casos, encuestas, riesgo, empleados)
+- [x] Implementar función generatePDF con pdfkit (portada, secciones, recomendaciones)
+- [x] Subir PDF a S3 y guardar metadata en executive_reports_history
+- [x] Crear página ExecutiveReportsPanel.tsx
+- [x] Implementar selector de periodo y rango de fechas
+- [x] Implementar tabla de historial de reportes generados con descarga
+- [x] Agregar ruta /executive-reports en App.tsx
+- [x] Registrar router en appRouter
+
+### Fase 3: Dashboard de Cumplimiento NOM-035 por Numeral ✅ COMPLETADA
+- [x] Tabla complianceChecklist ya existía en schema (línea 1337)
+- [x] Tabla complianceChecks para registros de verificación
+- [x] Crear router complianceNOM035 con queries y mutations
+- [x] Implementar query getComplianceByNumeral (porcentaje por numeral)
+- [x] Implementar query getGlobalStats (estadísticas globales)
+- [x] Implementar mutations markAsCompleted y markAsIncomplete
+- [x] Crear página ComplianceNOM035Dashboard.tsx
+- [x] Implementar cards de numerales con indicadores de porcentaje
+- [x] Implementar sistema de semáforo (verde ≥80%, amarillo 50-79%, rojo <50%)
+- [x] Implementar gráfico de dona: distribución de cumplimiento
+- [x] Implementar dialog interactivo con checklist de requisitos
+- [x] Agregar ruta /compliance/nom035 en App.tsx
+- [x] Registrar router en appRouter
+
+### Fase 4: Integración Análisis de Sentimiento con Casos ✅ COMPLETADA
+- [x] Crear función checkCriticalThresholdAndCreateCase en sentiment-analysis-job.ts
+- [x] Implementar lógica: 3+ comentarios críticos mismo dept en 30 días → crear caso
+- [x] Verificación de casos existentes para prevenir duplicados
+- [x] Generación automática de caso con título "[AUTO] Alerta de Riesgo Psicosocial - {dept}"
+- [x] Descripción del caso incluye resúmenes de comentarios críticos
+- [x] Notificaciones automáticas a administradores vía WebSocket
+- [x] Integración con job que ejecuta cada 6 horas

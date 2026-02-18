@@ -6,8 +6,8 @@
 
 import cron from "node-cron";
 import { getDb, analyzeSentimentWithLLM } from "../db";
-import { surveyResponses, surveyAnswers, sentimentAnalysis, surveyQuestions, notifications } from "../../drizzle/schema";
-import { eq, isNull, and, sql } from "drizzle-orm";
+import { surveyResponses, surveyAnswers, sentimentAnalysis, surveyQuestions, notifications, nom035Cases, users } from "../../drizzle/schema";
+import { eq, isNull, and, sql, gte, desc } from "drizzle-orm";
 import { emitCriticalAlertToAdmins } from "../_core/websocket";
 
 /**
@@ -130,8 +130,115 @@ async function processPendingResponses() {
     }
 
     console.log(`[Sentiment Analysis Job] Completed: ${analyzed} analyzed, ${criticalAlerts} critical alerts, ${errors} errors`);
+    
+    // Verificar umbrales críticos por departamento y generar casos automáticos
+    await checkCriticalThresholdAndCreateCase();
   } catch (error) {
     console.error("[Sentiment Analysis Job] Error in sentiment analysis job:", error);
+  }
+}
+
+/**
+ * Verificar umbrales críticos por departamento y generar casos automáticos
+ * Si se detectan 3+ comentarios críticos del mismo departamento en 30 días, crea caso de prevención
+ */
+async function checkCriticalThresholdAndCreateCase() {
+  console.log("[Sentiment Analysis Job] Checking critical thresholds by department...");
+  
+  const db = await getDb();
+  if (!db) return;
+
+  try {
+    // Fecha límite: últimos 30 días
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Obtener análisis críticos de los últimos 30 días con departamento del usuario
+    const criticalAnalyses = await db
+      .select({
+        analysisId: sentimentAnalysis.id,
+        responseId: sentimentAnalysis.responseId,
+        userId: surveyResponses.userId,
+        department: users.departamento,
+        riskLevel: sentimentAnalysis.riskLevel,
+        summary: sentimentAnalysis.summary,
+        analyzedAt: sentimentAnalysis.analyzedAt,
+      })
+      .from(sentimentAnalysis)
+      .innerJoin(surveyResponses, eq(sentimentAnalysis.responseId, surveyResponses.id))
+      .innerJoin(users, eq(surveyResponses.userId, users.id))
+      .where(
+        and(
+          eq(sentimentAnalysis.riskLevel, "critical"),
+          gte(sentimentAnalysis.analyzedAt, thirtyDaysAgo)
+        )
+      )
+      .orderBy(desc(sentimentAnalysis.analyzedAt));
+
+    // Agrupar por departamento
+    const byDepartment: Record<string, typeof criticalAnalyses> = {};
+    criticalAnalyses.forEach((analysis) => {
+      const dept = analysis.department || "Sin departamento";
+      if (!byDepartment[dept]) {
+        byDepartment[dept] = [];
+      }
+      byDepartment[dept].push(analysis);
+    });
+
+    let casesCreated = 0;
+
+    // Verificar umbral por departamento (3+ comentarios críticos)
+    for (const [department, analyses] of Object.entries(byDepartment)) {
+      if (analyses.length >= 3) {
+        // Verificar si ya existe un caso generado automáticamente para este departamento en los últimos 30 días
+        const existingCase = await db
+          .select()
+          .from(nom035Cases)
+          .where(
+            and(
+              eq(nom035Cases.title, `[AUTO] Alerta de Riesgo Psicosocial - ${department}`),
+              gte(nom035Cases.createdAt, thirtyDaysAgo)
+            )
+          )
+          .limit(1);
+
+        if (existingCase.length === 0) {
+          // Crear caso automático de prevención
+          const summaries = analyses.map(a => a.summary).join("; ");
+          const caseDescription = `Se detectaron ${analyses.length} comentarios críticos de riesgo psicosocial en el departamento "${department}" durante los últimos 30 días. Resúmenes: ${summaries}. Se requiere intervención preventiva inmediata.`;
+
+          await db.insert(nom035Cases).values({
+            title: `[AUTO] Alerta de Riesgo Psicosocial - ${department}`,
+            description: caseDescription,
+            category: "psychosocial_risk",
+            priority: "critical",
+            status: "open",
+            source: "sentiment_analysis_auto",
+            reportedBy: analyses[0].userId, // Usar primer usuario como reportante
+            assignedTo: null, // Sin asignar inicialmente
+            departmentId: null, // TODO: mapear departamento a departmentId si existe tabla departments
+          } as any);
+
+          // Notificar a administradores
+          emitCriticalAlertToAdmins({
+            id: Date.now(),
+            category: "auto_case_creation",
+            priority: "critical",
+            title: `Caso Automático Generado: ${department}`,
+            message: `Se creó automáticamente un caso de prevención para el departamento "${department}" debido a ${analyses.length} comentarios críticos detectados en 30 días.`,
+          });
+
+          casesCreated++;
+          console.log(`[Sentiment Analysis Job] Auto-created case for department: ${department} (${analyses.length} critical comments)`);
+        } else {
+          console.log(`[Sentiment Analysis Job] Case already exists for department: ${department}`);
+        }
+      }
+    }
+
+    console.log(`[Sentiment Analysis Job] Critical threshold check completed: ${casesCreated} cases created`);
+  } catch (error) {
+    console.error("[Sentiment Analysis Job] Error checking critical thresholds:", error);
   }
 }
 
