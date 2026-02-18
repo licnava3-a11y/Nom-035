@@ -118,6 +118,9 @@ import { interventionPredictionRouter } from "./routers/interventionPrediction";
 import { payrollIntegrationRouter } from "./routers/payrollIntegration";
 import { salaryImpactSimulatorRouter } from "./routers/salaryImpactSimulator";
 import { compensationReportsRouter } from "./routers/compensationReports";
+import { salaryTrendsRouter } from "./routers/salaryTrends";
+import { externalOfferAlertsRouter } from "./routers/externalOfferAlerts";
+import { budgetPlannerRouter } from "./routers/budgetPlanner";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -246,6 +249,9 @@ export const appRouter = router({
   payrollIntegration: payrollIntegrationRouter,
   salaryImpactSimulator: salaryImpactSimulatorRouter,
   compensationReports: compensationReportsRouter,
+  salaryTrends: salaryTrendsRouter,
+  externalOfferAlerts: externalOfferAlertsRouter,
+  budgetPlanner: budgetPlannerRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

@@ -1,0 +1,23 @@
+CREATE TABLE `external_offer_risk_alerts` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`employee_id` int NOT NULL,
+	`employee_name` varchar(255) NOT NULL,
+	`department` varchar(255),
+	`position` varchar(255),
+	`salary_gap_percentage` decimal(5,2),
+	`months_since_last_raise` int,
+	`skill_level` varchar(50),
+	`market_demand` varchar(50),
+	`turnover_probability` decimal(5,2),
+	`risk_level` varchar(50) NOT NULL,
+	`risk_score` decimal(5,2) NOT NULL,
+	`recommended_action` text,
+	`estimated_time_to_offer` int,
+	`status` varchar(50) NOT NULL DEFAULT 'active',
+	`resolved_at` timestamp,
+	`resolution_notes` text,
+	`alert_date` timestamp NOT NULL DEFAULT (now()),
+	`last_updated` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `external_offer_risk_alerts_id` PRIMARY KEY(`id`)
+);

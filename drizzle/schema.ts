@@ -4333,3 +4333,116 @@ export const compensationReportsHistory = mysqlTable("compensation_reports_histo
 
 export type CompensationReportsHistory = typeof compensationReportsHistory.$inferSelect;
 export type InsertCompensationReportsHistory = typeof compensationReportsHistory.$inferInsert;
+
+// Historial de cambios salariales para análisis de tendencias
+export const salaryHistory = mysqlTable("salary_history", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Empleado
+  employeeId: int("employee_id").notNull(),
+  employeeName: varchar("employee_name", { length: 255 }).notNull(),
+  department: varchar("department", { length: 255 }),
+  position: varchar("position", { length: 255 }),
+  
+  // Datos salariales
+  previousSalary: decimal("previous_salary", { precision: 10, scale: 2 }),
+  newSalary: decimal("new_salary", { precision: 10, scale: 2 }).notNull(),
+  adjustmentPercentage: decimal("adjustment_percentage", { precision: 5, scale: 2 }),
+  adjustmentType: varchar("adjustment_type", { length: 50 }), // annual_review, promotion, market_adjustment, retention
+  
+  // Contexto de mercado
+  marketRate: decimal("market_rate", { precision: 10, scale: 2 }),
+  salaryGapPercentage: decimal("salary_gap_percentage", { precision: 5, scale: 2 }),
+  
+  // Metadata
+  effectiveDate: date("effective_date").notNull(),
+  reason: text("reason"),
+  approvedBy: int("approved_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SalaryHistory = typeof salaryHistory.$inferSelect;
+export type InsertSalaryHistory = typeof salaryHistory.$inferInsert;
+
+// Alertas de riesgo de ofertas externas
+export const externalOfferRiskAlerts = mysqlTable("external_offer_risk_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Empleado
+  employeeId: int("employee_id").notNull(),
+  employeeName: varchar("employee_name", { length: 255 }).notNull(),
+  department: varchar("department", { length: 255 }),
+  position: varchar("position", { length: 255 }),
+  
+  // Factores de riesgo
+  salaryGapPercentage: decimal("salary_gap_percentage", { precision: 5, scale: 2 }),
+  monthsSinceLastRaise: int("months_since_last_raise"),
+  skillLevel: varchar("skill_level", { length: 50 }), // junior, mid, senior, expert
+  marketDemand: varchar("market_demand", { length: 50 }), // low, medium, high, critical
+  turnoverProbability: decimal("turnover_probability", { precision: 5, scale: 2 }),
+  
+  // Nivel de riesgo
+  riskLevel: varchar("risk_level", { length: 50 }).notNull(), // low, medium, high, critical
+  riskScore: decimal("risk_score", { precision: 5, scale: 2 }).notNull(), // 0-100
+  
+  // Recomendaciones
+  recommendedAction: text("recommended_action"),
+  estimatedTimeToOffer: int("estimated_time_to_offer"), // días estimados
+  
+  // Estado
+  status: varchar("status", { length: 50 }).default("active").notNull(), // active, resolved, dismissed
+  resolvedAt: timestamp("resolved_at"),
+  resolutionNotes: text("resolution_notes"),
+  
+  // Metadata
+  alertDate: timestamp("alert_date").defaultNow().notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow().onUpdateNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ExternalOfferRiskAlerts = typeof externalOfferRiskAlerts.$inferSelect;
+export type InsertExternalOfferRiskAlerts = typeof externalOfferRiskAlerts.$inferInsert;
+
+// Escenarios de planificación presupuestaria de ajustes salariales
+export const budgetAdjustmentScenarios = mysqlTable("budget_adjustment_scenarios", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Metadata del escenario
+  scenarioName: varchar("scenario_name", { length: 255 }).notNull(),
+  description: text("description"),
+  createdBy: int("created_by").notNull(),
+  
+  // Presupuesto
+  totalBudget: decimal("total_budget", { precision: 12, scale: 2 }).notNull(),
+  budgetUsed: decimal("budget_used", { precision: 12, scale: 2 }).default("0"),
+  budgetRemaining: decimal("budget_remaining", { precision: 12, scale: 2 }),
+  
+  // Ajustes incluidos (JSON array de employee IDs y montos)
+  adjustments: json("adjustments"), // [{employeeId, employeeName, currentSalary, newSalary, increase, priority}]
+  
+  // Secuencia óptima (orden de implementación)
+  implementationSequence: json("implementation_sequence"), // [employeeId1, employeeId2, ...]
+  
+  // Métricas del escenario
+  totalEmployeesAffected: int("total_employees_affected").default(0),
+  averageIncreasePercentage: decimal("average_increase_percentage", { precision: 5, scale: 2 }),
+  highRiskEmployeesCovered: int("high_risk_employees_covered").default(0),
+  estimatedRetentionRate: decimal("estimated_retention_rate", { precision: 5, scale: 2 }),
+  
+  // ROI proyectado
+  estimatedTurnoverCostSavings: decimal("estimated_turnover_cost_savings", { precision: 12, scale: 2 }),
+  roi: decimal("roi", { precision: 5, scale: 2 }), // (savings - cost) / cost * 100
+  
+  // Estado
+  status: varchar("status", { length: 50 }).default("draft").notNull(), // draft, approved, implemented
+  approvedBy: int("approved_by"),
+  approvedAt: timestamp("approved_at"),
+  implementedAt: timestamp("implemented_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow().onUpdateNow(),
+});
+
+export type BudgetAdjustmentScenarios = typeof budgetAdjustmentScenarios.$inferSelect;
+export type InsertBudgetAdjustmentScenarios = typeof budgetAdjustmentScenarios.$inferInsert;

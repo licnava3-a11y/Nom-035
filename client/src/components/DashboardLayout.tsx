@@ -132,6 +132,9 @@ const hierarchicalMenuItems = [
       { label: "Predicción de Efectividad", path: "/intervention-prediction", description: "Simula intervenciones y predice su probabilidad de éxito" },
       { label: "Compensación y Nómina", path: "/payroll-compensation", description: "Análisis de brecha salarial y correlación con riesgo de rotación" },
       { label: "Dashboard Consolidado", path: "/retention-consolidated", description: "Vista unificada de riesgo, recomendaciones y análisis salarial" },
+      { label: "Tendencias Salariales", path: "/salary-trends", description: "Análisis histórico y proyecciones de mercado" },
+      { label: "Alertas de Ofertas Externas", path: "/external-offer-alerts", description: "Empleados clave en riesgo de recibir ofertas externas" },
+      { label: "Planificador Presupuestario", path: "/budget-planner", description: "Simula y optimiza ajustes salariales múltiples" },
     ],
   },
   {

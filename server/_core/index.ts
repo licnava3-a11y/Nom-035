@@ -18,6 +18,7 @@ import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
 import { startModelPerformanceMonitorJob } from "../jobs/model-performance-monitor-job";
 import { startModelAutoRetrainingJob } from "../jobs/model-auto-retraining-job";
 import { startPayrollCompensationAlertsJob } from "../jobs/payroll-compensation-alerts-job";
+import { startExternalOfferRiskMonitorJob } from "../jobs/external-offer-risk-monitor-job";
 import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
 import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
 import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
@@ -144,6 +145,7 @@ async function startServer() {
     startModelPerformanceMonitorJob();
     startModelAutoRetrainingJob();
     startPayrollCompensationAlertsJob();
+    startExternalOfferRiskMonitorJob();
     startAgreementsAlertsJob();
     startCorrectiveActionsRemindersJob();
     startStaleCasesJob();

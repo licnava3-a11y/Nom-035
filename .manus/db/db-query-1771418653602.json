@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `salary_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`employee_id` int NOT NULL,\n\t`employee_name` varchar(255) NOT NULL,\n\t`department` varchar(255),\n\t`position` varchar(255),\n\t`previous_salary` decimal(10,2),\n\t`new_salary` decimal(10,2) NOT NULL,\n\t`adjustment_percentage` decimal(5,2),\n\t`adjustment_type` varchar(50),\n\t`market_rate` decimal(10,2),\n\t`salary_gap_percentage` decimal(5,2),\n\t`effective_date` date NOT NULL,\n\t`reason` text,\n\t`approved_by` int,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `salary_history_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `salary_history` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`employee_id` int NOT NULL,\n\t`employee_name` varchar(255) NOT NULL,\n\t`department` varchar(255),\n\t`position` varchar(255),\n\t`previous_salary` decimal(10,2),\n\t`new_salary` decimal(10,2) NOT NULL,\n\t`adjustment_percentage` decimal(5,2),\n\t`adjustment_type` varchar(50),\n\t`market_rate` decimal(10,2),\n\t`salary_gap_percentage` decimal(5,2),\n\t`effective_date` date NOT NULL,\n\t`reason` text,\n\t`approved_by` int,\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `salary_history_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 557
+}

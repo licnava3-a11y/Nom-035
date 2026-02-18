@@ -2857,3 +2857,46 @@
 - [x] Agregar botón "Exportar a PDF" en PayrollCompensationDashboard
 - [x] Agregar botón "Exportar a PDF" en RetentionConsolidatedDashboard
 - [x] Implementar descarga automática del PDF generado
+
+## Nuevas Tareas - Análisis Avanzado de Compensación y Planificación
+
+### 1. Dashboard de Tendencias Salariales
+- [x] Crear tabla salary_history para almacenar histórico de cambios salariales
+- [x] Aplicar migración SQL
+- [x] Crear router salaryTrends con procedures (getTrendsByDepartment, getTrendsByPosition, getMarketProjections)
+- [x] Implementar cálculo de evolución salarial histórica (últimos 12 meses)
+- [x] Calcular proyecciones de mercado basadas en tendencias
+- [x] Crear página SalaryTrendsDashboard.tsx
+- [x] Implementar gráfico de línea de evolución salarial por departamento
+- [x] Agregar gráfico de línea de evolución salarial por puesto
+- [x] Mostrar proyecciones de mercado para próximos 6 meses
+- [x] Agregar tabla de ajustes recomendados anticipados
+- [x] Agregar enlace en navegación lateral
+
+### 2. Alertas Proactivas de Ofertas Externas
+- [x] Crear tabla external_offer_risk_alerts en schema
+- [x] Aplicar migración SQL
+- [x] Crear job external-offer-risk-monitor-job.ts (ejecuta semanalmente)
+- [x] Implementar lógica de detección de riesgo basada en patrones de mercado
+- [x] Considerar factores: brecha salarial, tiempo sin aumento, nivel de habilidades, demanda de mercado
+- [x] Generar alertas automáticas para empleados clave en riesgo
+- [x] Crear router externalOfferAlerts con queries (getActiveAlerts, getAlertHistory)
+- [x] Registrar job en server startup
+- [x] Crear página ExternalOfferAlertsDashboard.tsx
+- [x] Agregar enlace en navegación lateral
+
+### 3. Planificador Presupuestario de Ajustes
+- [x] Crear tabla budget_adjustment_scenarios en schema
+- [x] Aplicar migración SQL
+- [x] Crear router budgetPlanner con procedures (createScenario, simulateMultipleAdjustments, optimizeSequence)
+- [x] Implementar simulación de múltiples ajustes salariales simultáneos
+- [x] Calcular impacto en presupuesto anual
+- [x] Implementar algoritmo de optimización de secuencia de ajustes
+- [x] Priorizar por: riesgo de rotación, impacto en equipo, ROI
+- [x] Crear página BudgetPlannerDashboard.tsx
+- [x] Implementar selector múltiple de empleados
+- [x] Agregar configuración de presupuesto disponible
+- [x] Mostrar tabla de ajustes propuestos con secuencia óptima
+- [x] Implementar gráfico de impacto presupuestario mensual
+- [x] Agregar análisis de ROI consolidado
+- [x] Agregar enlace en navegación lateral
