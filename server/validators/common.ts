@@ -23,7 +23,27 @@ export const commonValidators = {
   email: z.string().email("Formato de email inválido").toLowerCase(),
   
   // Fecha en formato ISO (YYYY-MM-DD)
-  isoDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido (YYYY-MM-DD)"),
+  isoDate: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato de fecha inválido (YYYY-MM-DD)")
+    .refine(
+      (dateStr) => {
+        // Parsear componentes de la fecha
+        const [year, month, day] = dateStr.split('-').map(Number);
+        
+        // Crear fecha en UTC para evitar problemas de zona horaria
+        const date = new Date(Date.UTC(year, month - 1, day));
+        
+        // Verificar que la fecha sea válida comparando componentes
+        // (evita fechas como 2024-13-01 o 2024-02-30)
+        return (
+          !isNaN(date.getTime()) &&
+          date.getUTCFullYear() === year &&
+          date.getUTCMonth() + 1 === month &&
+          date.getUTCDate() === day
+        );
+      },
+      { message: "Fecha inválida (mes o día fuera de rango)" }
+    ),
   
   // Porcentaje (0-100)
   percentage: z.number()
