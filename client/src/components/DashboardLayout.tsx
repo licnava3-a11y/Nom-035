@@ -135,6 +135,7 @@ const hierarchicalMenuItems = [
       { label: "Tendencias Salariales", path: "/salary-trends", description: "Análisis histórico y proyecciones de mercado" },
       { label: "Alertas de Ofertas Externas", path: "/external-offer-alerts", description: "Empleados clave en riesgo de recibir ofertas externas" },
       { label: "Planificador Presupuestario", path: "/budget-planner", description: "Simula y optimiza ajustes salariales múltiples" },
+      { label: "Análisis de Equidad Salarial", path: "/salary-equity", description: "NMX-R-025-SCFI-2015 - Igualdad laboral" },
     ],
   },
   {

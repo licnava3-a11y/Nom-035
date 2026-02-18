@@ -2900,3 +2900,33 @@
 - [x] Implementar gráfico de impacto presupuestario mensual
 - [x] Agregar análisis de ROI consolidado
 - [x] Agregar enlace en navegación lateral
+
+## Nuevas Tareas - Dashboard de Análisis de Equidad Salarial (NMX-R-025-SCFI-2015)
+
+### 1. Infraestructura de Análisis de Equidad
+- [x] Crear tabla salary_equity_analysis en schema (análisis por género, edad, antigüedad)
+- [x] Aplicar migración SQL
+- [x] Crear router salaryEquity con procedures (analyzeByGender, analyzeByAge, analyzeByTenure, getEquityMetrics)
+- [x] Implementar cálculo de brechas salariales por categoría
+- [x] Calcular índice de equidad global (0-100)
+- [x] Identificar casos críticos de inequidad
+
+### 2. Dashboard de Equidad Salarial
+- [x] Crear página SalaryEquityDashboard.tsx
+- [x] Implementar tabs: Análisis por Género, Análisis por Edad, Análisis por Antigüedad
+- [x] Agregar gráfico de distribución salarial por género
+- [x] Agregar gráfico de distribución salarial por rango de edad
+- [x] Agregar gráfico de distribución salarial por antigüedad
+- [x] Mostrar índice de equidad global con semáforo
+- [x] Agregar tabla de casos críticos de inequidad
+- [x] Agregar ruta y enlace en navegación lateral
+
+### 3. Generación de Reportes de Equidad PDF
+- [x] Crear procedure generateEquityReport en router salaryEquity
+- [x] Implementar generación de PDF con pdfkit (portada, resumen ejecutivo)
+- [x] Incluir análisis por género con gráficos
+- [x] Incluir análisis por edad y antigüedad
+- [x] Agregar tabla de casos críticos
+- [x] Incluir recomendaciones de acción correctiva
+- [x] Subir PDF a S3 y almacenar en tabla equity_reports_history
+- [x] Agregar botón "Exportar Reporte PDF" en SalaryEquityDashboard

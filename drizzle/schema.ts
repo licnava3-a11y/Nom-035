@@ -4446,3 +4446,87 @@ export const budgetAdjustmentScenarios = mysqlTable("budget_adjustment_scenarios
 
 export type BudgetAdjustmentScenarios = typeof budgetAdjustmentScenarios.$inferSelect;
 export type InsertBudgetAdjustmentScenarios = typeof budgetAdjustmentScenarios.$inferInsert;
+
+// Análisis de Equidad Salarial (NMX-R-025-SCFI-2015)
+// Detecta brechas salariales por género, edad y antigüedad
+export const salaryEquityAnalysis = mysqlTable("salary_equity_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Metadata del análisis
+  analysisDate: timestamp("analysis_date").defaultNow().notNull(),
+  analyzedBy: int("analyzed_by").notNull(),
+  
+  // Análisis por Género
+  maleAverageSalary: decimal("male_average_salary", { precision: 12, scale: 2 }),
+  femaleAverageSalary: decimal("female_average_salary", { precision: 12, scale: 2 }),
+  genderPayGapPercentage: decimal("gender_pay_gap_percentage", { precision: 5, scale: 2 }), // (male - female) / male * 100
+  genderEquityScore: int("gender_equity_score").default(0), // 0-100
+  
+  // Análisis por Edad
+  ageGroupAnalysis: json("age_group_analysis").$type<Array<{
+    ageRange: string; // "18-25", "26-35", "36-45", "46-55", "56+"
+    averageSalary: number;
+    employeeCount: number;
+    gapPercentage: number;
+  }>>(),
+  ageEquityScore: int("age_equity_score").default(0), // 0-100
+  
+  // Análisis por Antigüedad
+  tenureGroupAnalysis: json("tenure_group_analysis").$type<Array<{
+    tenureRange: string; // "0-1", "1-3", "3-5", "5-10", "10+"
+    averageSalary: number;
+    employeeCount: number;
+    gapPercentage: number;
+  }>>(),
+  tenureEquityScore: int("tenure_equity_score").default(0), // 0-100
+  
+  // Casos Críticos de Inequidad
+  criticalCases: json("critical_cases").$type<Array<{
+    employeeId: number;
+    employeeName: string;
+    department: string;
+    position: string;
+    gender: string;
+    age: number;
+    tenure: number;
+    currentSalary: number;
+    expectedSalary: number;
+    gapPercentage: number;
+    inequityType: "gender" | "age" | "tenure" | "multiple";
+  }>>(),
+  
+  // Índice de Equidad Global
+  globalEquityIndex: int("global_equity_index").default(0), // 0-100, promedio ponderado
+  
+  // Cumplimiento NMX-R-025-SCFI-2015
+  nmxComplianceStatus: varchar("nmx_compliance_status", { length: 50 }).default("non_compliant"), // compliant, partial, non_compliant
+  complianceScore: int("compliance_score").default(0), // 0-100
+  
+  // Recomendaciones
+  recommendations: json("recommendations").$type<Array<{
+    priority: "high" | "medium" | "low";
+    category: string;
+    description: string;
+    estimatedCost: number;
+    expectedImpact: string;
+  }>>(),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SalaryEquityAnalysis = typeof salaryEquityAnalysis.$inferSelect;
+export type InsertSalaryEquityAnalysis = typeof salaryEquityAnalysis.$inferInsert;
+
+// Historial de Reportes de Equidad Salarial
+export const equityReportsHistory = mysqlTable("equity_reports_history", {
+  id: int("id").autoincrement().primaryKey(),
+  analysisId: int("analysis_id").notNull().references(() => salaryEquityAnalysis.id),
+  reportUrl: varchar("report_url", { length: 512 }).notNull(), // URL de S3
+  reportKey: varchar("report_key", { length: 512 }).notNull(), // Key de S3
+  generatedBy: int("generated_by").notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+});
+
+export type EquityReportsHistory = typeof equityReportsHistory.$inferSelect;
+export type InsertEquityReportsHistory = typeof equityReportsHistory.$inferInsert;
