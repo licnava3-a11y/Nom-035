@@ -4,6 +4,7 @@ import { eq, desc } from "drizzle-orm";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { getCSRFTokenForUser, csrfConfig } from "./_core/csrf";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { employeesRouter } from "./routers/employees";
@@ -260,6 +261,22 @@ export const appRouter = router({
   careerPlanning: careerPlanningRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    /**
+     * Obtener token CSRF para el usuario actual
+     * Debe ser llamado al cargar la aplicación
+     */
+    getCSRFToken: publicProcedure.query(({ ctx }) => {
+      // Generar sessionId basado en usuario o IP
+      const sessionId = ctx.user?.id?.toString() || ctx.req.sessionID || ctx.req.ip || 'anonymous';
+      const token = getCSRFTokenForUser(sessionId);
+      
+      return {
+        token,
+        headerName: csrfConfig.headerName,
+      };
+    }),
+    
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

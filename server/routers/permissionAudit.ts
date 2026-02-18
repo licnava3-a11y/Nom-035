@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { requirePermission } from "../permissions";
+import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { permissionChangeHistory, users } from "../../drizzle/schema";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
@@ -90,6 +91,7 @@ export const permissionAuditRouter = router({
    */
   getStatistics: protectedProcedure
     .use(requirePermission("can_view"))
+    .input(z.object({}).optional()) // Validación vacía para consistencia
     .query(async () => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -110,6 +112,7 @@ export const permissionAuditRouter = router({
    */
   getRecentChanges: protectedProcedure
     .use(requirePermission("can_view"))
+    .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -178,6 +181,7 @@ export const permissionAuditRouter = router({
    */
   getMonthlyChangesCount: protectedProcedure
     .use(requirePermission("can_view"))
+    .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -220,6 +224,7 @@ export const permissionAuditRouter = router({
    */
   getUsersWithCustomPermissionsCount: protectedProcedure
     .use(requirePermission("can_view"))
+    .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -237,6 +242,7 @@ export const permissionAuditRouter = router({
    */
   getTopAdministrators: protectedProcedure
     .use(requirePermission("can_view"))
+    .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
@@ -270,6 +276,7 @@ export const permissionAuditRouter = router({
    */
   getRecentCriticalChanges: protectedProcedure
     .use(requirePermission("can_view"))
+    .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });

@@ -3039,3 +3039,77 @@
 - [x] Aplicar middleware en server/_core/index.ts
 - [x] Agregar headers de rate limit en respuestas (standardHeaders: true)
 - [x] Crear archivo rateLimiter.ts con configuraciones reutilizables
+
+
+## Nuevas Tareas - Seguridad Avanzada y Tests Automatizados
+
+### Fase 1: Extender Validaciones Zod a Todos los Procedures
+- [x] Analizar todos los routers para identificar procedures sin validación Zod
+- [x] Crear script de análisis automático para detectar procedures sin .input()
+- [x] Priorizar routers por criticidad (auth > payments > data mutations > queries)
+- [x] Implementar validaciones en routers de autenticación y permisos (permissionAudit.ts: 25% → 100%)
+- [x] Implementar validaciones en routers de gestión de usuarios (executiveDashboard.ts: 33% → 100%)
+- [x] Implementar validaciones en routers de encuestas y evaluaciones (postCaseSurveys.ts: 43% → 100%)
+- [x] Implementar validaciones en routers de capacitación y cursos (trainingDashboard.ts: 33% → 100%)
+- [ ] Implementar validaciones en routers de reportes y analytics
+- [ ] Implementar validaciones en routers de notificaciones
+- [ ] Implementar validaciones en routers de configuración
+- [ ] Verificar cobertura final de validaciones (objetivo: 100%)
+- [ ] Documentar esquemas de validación en README
+
+### Fase 2: Implementar CSRF Protection en Formularios Críticos ✅ COMPLETADA (Backend)
+- [x] Crear módulo CSRF moderno basado en tokens en headers HTTP
+- [x] Configurar generación y validación de tokens CSRF
+- [x] Generar tokens CSRF en procedure auth.getCSRFToken
+- [x] Implementar middleware requireCSRF para mutations críticas
+- [x] Agregar invalidación de tokens en logout
+- [x] Implementar protección contra timing attacks
+- [x] Configurar expiración automática de tokens (1 hora)
+- [ ] Agregar campo CSRF token en formularios de casos (pendiente frontend)
+- [ ] Agregar campo CSRF token en formularios de encuestas NOM-035 (pendiente frontend)
+- [ ] Agregar campo CSRF token en formularios de nómina (pendiente frontend)
+- [ ] Agregar campo CSRF token en formularios de reconocimientos (pendiente frontend)
+- [ ] Agregar campo CSRF token en formularios de capacitación (pendiente frontend)
+- [ ] Implementar manejo de errores 403 Forbidden en frontend (pendiente frontend)
+- [ ] Documentar flujo de CSRF protection en README
+
+### Fase 3: Crear Tests Automatizados con Vitest
+- [x] Configurar Vitest para tests de backend (ya existía)
+- [x] Crear suite de tests para validaciones Zod (27/28 tests pasando)
+  - [ ] Test: IDs positivos rechazan valores negativos
+  - [ ] Test: Strings no vacíos rechazan strings vacíos
+  - [ ] Test: Emails validan formato correcto
+  - [ ] Test: Fechas ISO validan formato correcto
+  - [ ] Test: Porcentajes validan rango 0-100
+  - [ ] Test: Montos validan valores positivos
+- [ ] Crear suite de tests para rate limiters (pendiente)
+  - [ ] Test: Global limiter bloquea después de 100 requests
+  - [ ] Test: Auth limiter bloquea después de 5 intentos
+  - [ ] Test: Contact form limiter bloquea después de 3 envíos
+  - [ ] Test: API limiter bloquea después de 20 requests
+  - [ ] Test: Export limiter bloquea después de 10 exportaciones
+  - [ ] Test: Headers de rate limit se retornan correctamente
+- [x] Crear suite de tests para CSRF protection (18/18 tests pasando)
+  - [ ] Test: Mutations sin token CSRF son rechazadas
+  - [ ] Test: Mutations con token inválido son rechazadas
+  - [ ] Test: Mutations con token válido son aceptadas
+  - [ ] Test: Tokens CSRF expiran después de tiempo configurado
+- [ ] Crear suite de tests de seguridad
+  - [ ] Test: SQL injection es prevenido por validaciones
+  - [ ] Test: XSS es prevenido por sanitización
+  - [ ] Test: Path traversal es prevenido en uploads
+- [ ] Configurar CI/CD para ejecutar tests automáticamente
+- [ ] Agregar coverage report de tests (objetivo: >80%)
+
+### Fase 4: Optimizaciones Adicionales de Seguridad
+- [ ] Implementar sanitización de inputs en todos los procedures
+- [ ] Agregar logging de intentos de ataque detectados
+- [ ] Implementar sistema de blacklist de IPs maliciosas
+- [ ] Configurar headers de seguridad adicionales (HSTS, X-Frame-Options)
+- [ ] Implementar Content Security Policy estricto
+- [ ] Agregar validación de tamaño de archivos en uploads
+- [ ] Implementar escaneo de malware en archivos subidos
+- [ ] Configurar rotación automática de secrets y tokens
+- [ ] Implementar auditoría de accesos a datos sensibles
+- [ ] Crear dashboard de métricas de seguridad
+

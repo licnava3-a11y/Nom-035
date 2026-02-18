@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
+import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { 
   users, 
@@ -378,6 +379,7 @@ export const executiveDashboardRouter = router({
    * Para visualizar mejoras en cumplimiento NOM-035
    */
   getHistoricalComparison: protectedProcedure
+    .input(z.object({}).optional())
     .query(async () => {
       const db = await getDb();
       if (!db) {

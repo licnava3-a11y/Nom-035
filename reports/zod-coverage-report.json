@@ -1,0 +1,6595 @@
+{
+  "totalRouters": 123,
+  "totalProcedures": 782,
+  "proceduresWithValidation": 640,
+  "proceduresWithoutValidation": 142,
+  "globalCoveragePercentage": 82,
+  "routers": [
+    {
+      "routerFile": "actionPlan.ts",
+      "totalProcedures": 10,
+      "proceduresWithValidation": 10,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "actionPlan",
+          "procedureName": "getOrganizationalAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 86
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getDepartmentalAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 153
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getPositionAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 199
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getAgeRangeAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 242
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getGenderAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 304
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getMaritalStatusAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 347
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getWorkScheduleAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 390
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getContractTypeAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 433
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "getTenureAnalysis",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 476
+        },
+        {
+          "router": "actionPlan",
+          "procedureName": "exportToExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 537
+        }
+      ]
+    },
+    {
+      "routerFile": "administrative.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "administrative",
+          "procedureName": "getFinancialStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 18
+        },
+        {
+          "router": "administrative",
+          "procedureName": "getPendingPayments",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 46
+        },
+        {
+          "router": "administrative",
+          "procedureName": "getPurchaseOrders",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 63
+        },
+        {
+          "router": "administrative",
+          "procedureName": "getExpenseRequests",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 86
+        }
+      ]
+    },
+    {
+      "routerFile": "alertThresholds.ts",
+      "totalProcedures": 2,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "alertThresholds",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 9
+        },
+        {
+          "router": "alertThresholds",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 18
+        }
+      ]
+    },
+    {
+      "routerFile": "alerts.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 71,
+      "procedures": [
+        {
+          "router": "alerts",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "alerts",
+          "procedureName": "getHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 65
+        },
+        {
+          "router": "alerts",
+          "procedureName": "resolve",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 103
+        },
+        {
+          "router": "alerts",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 128
+        },
+        {
+          "router": "alerts",
+          "procedureName": "getTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 147
+        },
+        {
+          "router": "alerts",
+          "procedureName": "sendSummary",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 176
+        },
+        {
+          "router": "alerts",
+          "procedureName": "getResolutionMetrics",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 189
+        }
+      ]
+    },
+    {
+      "routerFile": "alertsDashboard.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "alertsDashboard",
+          "procedureName": "getConsolidatedAlerts",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 17
+        },
+        {
+          "router": "alertsDashboard",
+          "procedureName": "resolveAlert",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 179
+        },
+        {
+          "router": "alertsDashboard",
+          "procedureName": "silenceAlert",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 190
+        }
+      ]
+    },
+    {
+      "routerFile": "algorithmEffectiveness.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "algorithmEffectiveness",
+          "procedureName": "getAccuracyMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 11
+        },
+        {
+          "router": "algorithmEffectiveness",
+          "procedureName": "getPredictionTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 107
+        },
+        {
+          "router": "algorithmEffectiveness",
+          "procedureName": "getPredictionHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 156
+        },
+        {
+          "router": "algorithmEffectiveness",
+          "procedureName": "updateActualData",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 214
+        }
+      ]
+    },
+    {
+      "routerFile": "assessments.ts",
+      "totalProcedures": 12,
+      "proceduresWithValidation": 12,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "assessments",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "assessments",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 49
+        },
+        {
+          "router": "assessments",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 94
+        },
+        {
+          "router": "assessments",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 139
+        },
+        {
+          "router": "assessments",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 169
+        },
+        {
+          "router": "assessments",
+          "procedureName": "addQuestion",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 199
+        },
+        {
+          "router": "assessments",
+          "procedureName": "updateQuestion",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 243
+        },
+        {
+          "router": "assessments",
+          "procedureName": "deleteQuestion",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 296
+        },
+        {
+          "router": "assessments",
+          "procedureName": "startAttempt",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 316
+        },
+        {
+          "router": "assessments",
+          "procedureName": "submitAnswers",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 380
+        },
+        {
+          "router": "assessments",
+          "procedureName": "getAttemptResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 502
+        },
+        {
+          "router": "assessments",
+          "procedureName": "listEmployeeAttempts",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 541
+        }
+      ]
+    },
+    {
+      "routerFile": "benchmarking.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "benchmarking",
+          "procedureName": "listSectors",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "benchmarking",
+          "procedureName": "getSectorBenchmarks",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "benchmarking",
+          "procedureName": "getComparison",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 32
+        },
+        {
+          "router": "benchmarking",
+          "procedureName": "generateRecommendations",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 150
+        },
+        {
+          "router": "benchmarking",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 251
+        },
+        {
+          "router": "benchmarking",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 308
+        }
+      ]
+    },
+    {
+      "routerFile": "budgetPlanner.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "budgetPlanner",
+          "procedureName": "createScenario",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "budgetPlanner",
+          "procedureName": "getScenarios",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 85
+        },
+        {
+          "router": "budgetPlanner",
+          "procedureName": "getScenarioDetails",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 96
+        },
+        {
+          "router": "budgetPlanner",
+          "procedureName": "simulateMultipleAdjustments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 117
+        },
+        {
+          "router": "budgetPlanner",
+          "procedureName": "optimizeSequence",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 178
+        },
+        {
+          "router": "budgetPlanner",
+          "procedureName": "approveScenario",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 221
+        },
+        {
+          "router": "budgetPlanner",
+          "procedureName": "deleteScenario",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 238
+        }
+      ]
+    },
+    {
+      "routerFile": "careerPlanning.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 86,
+      "procedures": [
+        {
+          "router": "careerPlanning",
+          "procedureName": "createPath",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 15
+        },
+        {
+          "router": "careerPlanning",
+          "procedureName": "getActivePaths",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 49
+        },
+        {
+          "router": "careerPlanning",
+          "procedureName": "suggestPath",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 62
+        },
+        {
+          "router": "careerPlanning",
+          "procedureName": "createPlan",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 136
+        },
+        {
+          "router": "careerPlanning",
+          "procedureName": "getEmployeePlan",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 196
+        },
+        {
+          "router": "careerPlanning",
+          "procedureName": "updateMilestone",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 232
+        },
+        {
+          "router": "careerPlanning",
+          "procedureName": "getVacancyProjections",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 271
+        }
+      ]
+    },
+    {
+      "routerFile": "casesManagement.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "casesManagement",
+          "procedureName": "createCase",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "casesManagement",
+          "procedureName": "listCases",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 66
+        },
+        {
+          "router": "casesManagement",
+          "procedureName": "getCaseById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 137
+        },
+        {
+          "router": "casesManagement",
+          "procedureName": "updateCase",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 174
+        },
+        {
+          "router": "casesManagement",
+          "procedureName": "assignCase",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 217
+        },
+        {
+          "router": "casesManagement",
+          "procedureName": "getCasesStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 250
+        }
+      ]
+    },
+    {
+      "routerFile": "climateAnalysis.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "climateAnalysis",
+          "procedureName": "createSurvey",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "climateAnalysis",
+          "procedureName": "getActiveSurveys",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 46
+        },
+        {
+          "router": "climateAnalysis",
+          "procedureName": "submitResponse",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 59
+        },
+        {
+          "router": "climateAnalysis",
+          "procedureName": "getCurrentAnalytics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 84
+        },
+        {
+          "router": "climateAnalysis",
+          "procedureName": "getHistoricalTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 186
+        },
+        {
+          "router": "climateAnalysis",
+          "procedureName": "getDetailedCorrelations",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 211
+        }
+      ]
+    },
+    {
+      "routerFile": "committeeDocuments.ts",
+      "totalProcedures": 2,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "committeeDocuments",
+          "procedureName": "generateConstitutiveAct",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "committeeDocuments",
+          "procedureName": "generateOperatingRules",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 107
+        }
+      ]
+    },
+    {
+      "routerFile": "committeeMinutes.ts",
+      "totalProcedures": 10,
+      "proceduresWithValidation": 10,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "committeeMinutes",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 40
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 93
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 200
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 349
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "publish",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 388
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "uploadSignature",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 423
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "uploadFile",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 450
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "getAgreements",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 480
+        },
+        {
+          "router": "committeeMinutes",
+          "procedureName": "updateAgreementStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 515
+        }
+      ]
+    },
+    {
+      "routerFile": "committeePositionAcceptance.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 67,
+      "procedures": [
+        {
+          "router": "committeePositionAcceptance",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "committeePositionAcceptance",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 61
+        },
+        {
+          "router": "committeePositionAcceptance",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 143
+        },
+        {
+          "router": "committeePositionAcceptance",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 188
+        },
+        {
+          "router": "committeePositionAcceptance",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 209
+        },
+        {
+          "router": "committeePositionAcceptance",
+          "procedureName": "listMembers",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 230
+        }
+      ]
+    },
+    {
+      "routerFile": "committeeTraining.ts",
+      "totalProcedures": 9,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "committeeTraining",
+          "procedureName": "createProgram",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "listPrograms",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 34
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "getProgramById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 61
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "createSession",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 81
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "listSessions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 106
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "recordAttendance",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 137
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "generateCertificate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 196
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "getAttendanceReport",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 282
+        },
+        {
+          "router": "committeeTraining",
+          "procedureName": "updateProgramStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 339
+        }
+      ]
+    },
+    {
+      "routerFile": "committeeTrainings.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "committeeTrainings",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "committeeTrainings",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 45
+        },
+        {
+          "router": "committeeTrainings",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 67
+        },
+        {
+          "router": "committeeTrainings",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 105
+        },
+        {
+          "router": "committeeTrainings",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 140
+        },
+        {
+          "router": "committeeTrainings",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 158
+        }
+      ]
+    },
+    {
+      "routerFile": "company.ts",
+      "totalProcedures": 19,
+      "proceduresWithValidation": 19,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "company",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 19
+        },
+        {
+          "router": "company",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 23
+        },
+        {
+          "router": "company",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 59
+        },
+        {
+          "router": "company",
+          "procedureName": "upload",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 63
+        },
+        {
+          "router": "company",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 120
+        },
+        {
+          "router": "company",
+          "procedureName": "listActive",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 124
+        },
+        {
+          "router": "company",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 130
+        },
+        {
+          "router": "company",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 136
+        },
+        {
+          "router": "company",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 205
+        },
+        {
+          "router": "company",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 229
+        },
+        {
+          "router": "company",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 250
+        },
+        {
+          "router": "company",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 254
+        },
+        {
+          "router": "company",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 260
+        },
+        {
+          "router": "company",
+          "procedureName": "authorize",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 312
+        },
+        {
+          "router": "company",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 331
+        },
+        {
+          "router": "company",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 352
+        },
+        {
+          "router": "company",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 356
+        },
+        {
+          "router": "company",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 362
+        },
+        {
+          "router": "company",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 431
+        }
+      ]
+    },
+    {
+      "routerFile": "compensationReports.ts",
+      "totalProcedures": 2,
+      "proceduresWithValidation": 0,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 0,
+      "procedures": [
+        {
+          "router": "compensationReports",
+          "procedureName": "generateCompensationPDF",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 14
+        },
+        {
+          "router": "compensationReports",
+          "procedureName": "getReportHistory",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 217
+        }
+      ]
+    },
+    {
+      "routerFile": "competenciesStats.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "competenciesStats",
+          "procedureName": "getByDepartment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "competenciesStats",
+          "procedureName": "getByType",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 146
+        },
+        {
+          "router": "competenciesStats",
+          "procedureName": "getTopGaps",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 205
+        },
+        {
+          "router": "competenciesStats",
+          "procedureName": "getOverallStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 327
+        }
+      ]
+    },
+    {
+      "routerFile": "compliance.ts",
+      "totalProcedures": 19,
+      "proceduresWithValidation": 14,
+      "proceduresWithoutValidation": 5,
+      "coveragePercentage": 74,
+      "procedures": [
+        {
+          "router": "compliance",
+          "procedureName": "getChecklist",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 11
+        },
+        {
+          "router": "compliance",
+          "procedureName": "getComplianceStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 40
+        },
+        {
+          "router": "compliance",
+          "procedureName": "updateCompliance",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 83
+        },
+        {
+          "router": "compliance",
+          "procedureName": "getTraceabilityMatrix",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 129
+        },
+        {
+          "router": "compliance",
+          "procedureName": "getPendingItems",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 153
+        },
+        {
+          "router": "compliance",
+          "procedureName": "getRequirements",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 181
+        },
+        {
+          "router": "compliance",
+          "procedureName": "verifyNumeral71",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 193
+        },
+        {
+          "router": "compliance",
+          "procedureName": "verifyNumeral72",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 240
+        },
+        {
+          "router": "compliance",
+          "procedureName": "verifyNumeral82",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 289
+        },
+        {
+          "router": "compliance",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 342
+        },
+        {
+          "router": "compliance",
+          "procedureName": "generateReport",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 396
+        },
+        {
+          "router": "compliance",
+          "procedureName": "verifyReport",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 437
+        },
+        {
+          "router": "compliance",
+          "procedureName": "generateNumeralsPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 484
+        },
+        {
+          "router": "compliance",
+          "procedureName": "listReports",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 705
+        },
+        {
+          "router": "compliance",
+          "procedureName": "getReportData",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 778
+        },
+        {
+          "router": "compliance",
+          "procedureName": "generateRiskAnalysisPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 820
+        },
+        {
+          "router": "compliance",
+          "procedureName": "generateCommitteeMinutesPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1073
+        },
+        {
+          "router": "compliance",
+          "procedureName": "generateTrainingCertificatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1318
+        },
+        {
+          "router": "compliance",
+          "procedureName": "uploadSignature",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1505
+        }
+      ]
+    },
+    {
+      "routerFile": "complianceNOM035.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "complianceNOM035",
+          "procedureName": "getComplianceByNumeral",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 18
+        },
+        {
+          "router": "complianceNOM035",
+          "procedureName": "getGlobalStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 102
+        },
+        {
+          "router": "complianceNOM035",
+          "procedureName": "markAsCompleted",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 155
+        },
+        {
+          "router": "complianceNOM035",
+          "procedureName": "setDueDate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 215
+        },
+        {
+          "router": "complianceNOM035",
+          "procedureName": "markAsIncomplete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 272
+        },
+        {
+          "router": "complianceNOM035",
+          "procedureName": "generateComplianceReport",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 319
+        }
+      ]
+    },
+    {
+      "routerFile": "correctiveActionPlans.ts",
+      "totalProcedures": 11,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 82,
+      "procedures": [
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "list",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 11
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 83
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 118
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 165
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "changeStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 198
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "sign",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 228
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "uploadEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 277
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "deleteEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 311
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "autoAssign",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 323
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 399
+        },
+        {
+          "router": "correctiveActionPlans",
+          "procedureName": "getExpiringSoon",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 457
+        }
+      ]
+    },
+    {
+      "routerFile": "correctiveActions.ts",
+      "totalProcedures": 14,
+      "proceduresWithValidation": 10,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 71,
+      "procedures": [
+        {
+          "router": "correctiveActions",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 72
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 115
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 153
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "updateStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 205
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "getStatistics",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 273
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "getDueSoon",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 340
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "sendDueReminders",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 377
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "sendOverdueAlerts",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 446
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "sendOverdueSummaryToCoordinator",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 512
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 592
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 609
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "generateMultiLevelActions",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 740
+        },
+        {
+          "router": "correctiveActions",
+          "procedureName": "getByLevel",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 862
+        }
+      ]
+    },
+    {
+      "routerFile": "customPermissions.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 75,
+      "procedures": [
+        {
+          "router": "customPermissions",
+          "procedureName": "getUserCustomPermissions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 20
+        },
+        {
+          "router": "customPermissions",
+          "procedureName": "updateUserCustomPermissions",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 55
+        },
+        {
+          "router": "customPermissions",
+          "procedureName": "resetUserCustomPermissions",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 130
+        },
+        {
+          "router": "customPermissions",
+          "procedureName": "getUsersWithCustomPermissions",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 197
+        }
+      ]
+    },
+    {
+      "routerFile": "dashboard.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 0,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 0,
+      "procedures": [
+        {
+          "router": "dashboard",
+          "procedureName": "getManagerStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 14
+        },
+        {
+          "router": "dashboard",
+          "procedureName": "getTeamPerformance",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 75
+        },
+        {
+          "router": "dashboard",
+          "procedureName": "getNOM035Compliance",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 96
+        }
+      ]
+    },
+    {
+      "routerFile": "departmentMetrics.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "departmentMetrics",
+          "procedureName": "getRotationMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "departmentMetrics",
+          "procedureName": "getGrowthMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 135
+        },
+        {
+          "router": "departmentMetrics",
+          "procedureName": "getDistributionMetrics",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 211
+        },
+        {
+          "router": "departmentMetrics",
+          "procedureName": "getYearOverYearComparison",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 250
+        },
+        {
+          "router": "departmentMetrics",
+          "procedureName": "getEmployeeDetails",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 516
+        }
+      ]
+    },
+    {
+      "routerFile": "departmentalTrends.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "departmentalTrends",
+          "procedureName": "getDepartmentalRiskMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "departmentalTrends",
+          "procedureName": "getDepartmentTrend",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 159
+        },
+        {
+          "router": "departmentalTrends",
+          "procedureName": "getDepartmentalAlerts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 201
+        },
+        {
+          "router": "departmentalTrends",
+          "procedureName": "getThresholds",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 271
+        },
+        {
+          "router": "departmentalTrends",
+          "procedureName": "updateThresholds",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 323
+        }
+      ]
+    },
+    {
+      "routerFile": "departments.ts",
+      "totalProcedures": 18,
+      "proceduresWithValidation": 13,
+      "proceduresWithoutValidation": 5,
+      "coveragePercentage": 72,
+      "procedures": [
+        {
+          "router": "departments",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 11
+        },
+        {
+          "router": "departments",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 78
+        },
+        {
+          "router": "departments",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 100
+        },
+        {
+          "router": "departments",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 146
+        },
+        {
+          "router": "departments",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 339
+        },
+        {
+          "router": "departments",
+          "procedureName": "getHierarchy",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 379
+        },
+        {
+          "router": "departments",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 434
+        },
+        {
+          "router": "departments",
+          "procedureName": "getHierarchyAtDate",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 481
+        },
+        {
+          "router": "departments",
+          "procedureName": "getChangeHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 541
+        },
+        {
+          "router": "departments",
+          "procedureName": "getChangeStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 584
+        },
+        {
+          "router": "departments",
+          "procedureName": "bulkReassign",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 635
+        },
+        {
+          "router": "departments",
+          "procedureName": "getActiveAlerts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 755
+        },
+        {
+          "router": "departments",
+          "procedureName": "getReassignmentHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 802
+        },
+        {
+          "router": "departments",
+          "procedureName": "exportAll",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 863
+        },
+        {
+          "router": "departments",
+          "procedureName": "getPredictiveTurnoverAlerts",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 988
+        },
+        {
+          "router": "departments",
+          "procedureName": "generatePredictiveAlertsPDF",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 1029
+        },
+        {
+          "router": "departments",
+          "procedureName": "getAlgorithmConfig",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 1170
+        },
+        {
+          "router": "departments",
+          "procedureName": "updateAlgorithmConfig",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1194
+        }
+      ]
+    },
+    {
+      "routerFile": "digitalCertificates.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 67,
+      "procedures": [
+        {
+          "router": "digitalCertificates",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 11
+        },
+        {
+          "router": "digitalCertificates",
+          "procedureName": "upload",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 34
+        },
+        {
+          "router": "digitalCertificates",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 89
+        },
+        {
+          "router": "digitalCertificates",
+          "procedureName": "getActiveCertificate",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 123
+        },
+        {
+          "router": "digitalCertificates",
+          "procedureName": "validateWithSAT",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 168
+        },
+        {
+          "router": "digitalCertificates",
+          "procedureName": "signDocument",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 214
+        }
+      ]
+    },
+    {
+      "routerFile": "documentAudit.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "documentAudit",
+          "procedureName": "logAccess",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 11
+        },
+        {
+          "router": "documentAudit",
+          "procedureName": "getAuditLog",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 40
+        },
+        {
+          "router": "documentAudit",
+          "procedureName": "getStatistics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 132
+        },
+        {
+          "router": "documentAudit",
+          "procedureName": "getTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 178
+        }
+      ]
+    },
+    {
+      "routerFile": "documentFormats.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "documentFormats",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "documentFormats",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 23
+        },
+        {
+          "router": "documentFormats",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 41
+        },
+        {
+          "router": "documentFormats",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 73
+        },
+        {
+          "router": "documentFormats",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 110
+        },
+        {
+          "router": "documentFormats",
+          "procedureName": "incrementConsecutive",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 129
+        }
+      ]
+    },
+    {
+      "routerFile": "documents.ts",
+      "totalProcedures": 9,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "documents",
+          "procedureName": "saveActaConstitutiva",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 152
+        },
+        {
+          "router": "documents",
+          "procedureName": "saveFuncionesComite",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 243
+        },
+        {
+          "router": "documents",
+          "procedureName": "saveAceptacionCargo",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 320
+        },
+        {
+          "router": "documents",
+          "procedureName": "saveActaRecorrido",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 403
+        },
+        {
+          "router": "documents",
+          "procedureName": "saveActaFinalResultados",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 470
+        },
+        {
+          "router": "documents",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 526
+        },
+        {
+          "router": "documents",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 560
+        },
+        {
+          "router": "documents",
+          "procedureName": "generateActaRecorridoPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 574
+        },
+        {
+          "router": "documents",
+          "procedureName": "generateActaFinalResultadosPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 649
+        }
+      ]
+    },
+    {
+      "routerFile": "earlyWarnings.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 20,
+      "procedures": [
+        {
+          "router": "earlyWarnings",
+          "procedureName": "getCasesAboutToExpire",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "earlyWarnings",
+          "procedureName": "getPendingSurveys",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 85
+        },
+        {
+          "router": "earlyWarnings",
+          "procedureName": "getActionsWithoutFollowUp",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 136
+        },
+        {
+          "router": "earlyWarnings",
+          "procedureName": "getSummary",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 185
+        },
+        {
+          "router": "earlyWarnings",
+          "procedureName": "getSurveyCoverageAlerts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 238
+        }
+      ]
+    },
+    {
+      "routerFile": "employeeDocuments.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "employeeDocuments",
+          "procedureName": "upload",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "employeeDocuments",
+          "procedureName": "list",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 99
+        },
+        {
+          "router": "employeeDocuments",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 151
+        },
+        {
+          "router": "employeeDocuments",
+          "procedureName": "getMissing",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 196
+        },
+        {
+          "router": "employeeDocuments",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 234
+        }
+      ]
+    },
+    {
+      "routerFile": "employees.ts",
+      "totalProcedures": 22,
+      "proceduresWithValidation": 21,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 95,
+      "procedures": [
+        {
+          "router": "employees",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 14
+        },
+        {
+          "router": "employees",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 33
+        },
+        {
+          "router": "employees",
+          "procedureName": "getHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 49
+        },
+        {
+          "router": "employees",
+          "procedureName": "getWithUser",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 65
+        },
+        {
+          "router": "employees",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 81
+        },
+        {
+          "router": "employees",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 234
+        },
+        {
+          "router": "employees",
+          "procedureName": "deactivate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 298
+        },
+        {
+          "router": "employees",
+          "procedureName": "reactivate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 330
+        },
+        {
+          "router": "employees",
+          "procedureName": "getDepartments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 351
+        },
+        {
+          "router": "employees",
+          "procedureName": "getPositions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 358
+        },
+        {
+          "router": "employees",
+          "procedureName": "getPositionsByDepartment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 365
+        },
+        {
+          "router": "employees",
+          "procedureName": "getAddressByPostalCode",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 375
+        },
+        {
+          "router": "employees",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 400
+        },
+        {
+          "router": "employees",
+          "procedureName": "isCommitteeMember",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 415
+        },
+        {
+          "router": "employees",
+          "procedureName": "validateCURP",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 424
+        },
+        {
+          "router": "employees",
+          "procedureName": "terminate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 434
+        },
+        {
+          "router": "employees",
+          "procedureName": "getTurnoverStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 491
+        },
+        {
+          "router": "employees",
+          "procedureName": "getMonthlyTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 504
+        },
+        {
+          "router": "employees",
+          "procedureName": "getTerminationsByReason",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 514
+        },
+        {
+          "router": "employees",
+          "procedureName": "getTerminationsByDepartment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 527
+        },
+        {
+          "router": "employees",
+          "procedureName": "importFromFile",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 541
+        },
+        {
+          "router": "employees",
+          "procedureName": "generateImportTemplate",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 666
+        }
+      ]
+    },
+    {
+      "routerFile": "equality.ts",
+      "totalProcedures": 21,
+      "proceduresWithValidation": 21,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "equality",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 20
+        },
+        {
+          "router": "equality",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 24
+        },
+        {
+          "router": "equality",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 28
+        },
+        {
+          "router": "equality",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 70
+        },
+        {
+          "router": "equality",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 112
+        },
+        {
+          "router": "equality",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 124
+        },
+        {
+          "router": "equality",
+          "procedureName": "calculate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 135
+        },
+        {
+          "router": "equality",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 198
+        },
+        {
+          "router": "equality",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 210
+        },
+        {
+          "router": "equality",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 216
+        },
+        {
+          "router": "equality",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 257
+        },
+        {
+          "router": "equality",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 293
+        },
+        {
+          "router": "equality",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 308
+        },
+        {
+          "router": "equality",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 320
+        },
+        {
+          "router": "equality",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 326
+        },
+        {
+          "router": "equality",
+          "procedureName": "updateStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 369
+        },
+        {
+          "router": "equality",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 407
+        },
+        {
+          "router": "equality",
+          "procedureName": "get",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 413
+        },
+        {
+          "router": "equality",
+          "procedureName": "addMember",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 419
+        },
+        {
+          "router": "equality",
+          "procedureName": "removeMember",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 440
+        },
+        {
+          "router": "equality",
+          "procedureName": "updateMember",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 447
+        }
+      ]
+    },
+    {
+      "routerFile": "evidenceFolder.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "evidenceFolder",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 26
+        },
+        {
+          "router": "evidenceFolder",
+          "procedureName": "getByCategory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 76
+        },
+        {
+          "router": "evidenceFolder",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 92
+        },
+        {
+          "router": "evidenceFolder",
+          "procedureName": "addEvidence",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 114
+        },
+        {
+          "router": "evidenceFolder",
+          "procedureName": "deleteEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 160
+        }
+      ]
+    },
+    {
+      "routerFile": "evidencesFolder.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "evidencesFolder",
+          "procedureName": "getEvidences",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 44
+        },
+        {
+          "router": "evidencesFolder",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 343
+        },
+        {
+          "router": "evidencesFolder",
+          "procedureName": "uploadEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 446
+        },
+        {
+          "router": "evidencesFolder",
+          "procedureName": "deleteEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 489
+        }
+      ]
+    },
+    {
+      "routerFile": "executiveDashboard.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 33,
+      "procedures": [
+        {
+          "router": "executiveDashboard",
+          "procedureName": "getMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 25
+        },
+        {
+          "router": "executiveDashboard",
+          "procedureName": "getTrendsData",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 229
+        },
+        {
+          "router": "executiveDashboard",
+          "procedureName": "getHistoricalComparison",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 380
+        },
+        {
+          "router": "executiveDashboard",
+          "procedureName": "getConsolidatedKPIs",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 569
+        },
+        {
+          "router": "executiveDashboard",
+          "procedureName": "getComplianceTrends",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 620
+        },
+        {
+          "router": "executiveDashboard",
+          "procedureName": "getConsolidatedAlerts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 653
+        }
+      ]
+    },
+    {
+      "routerFile": "executiveReports.ts",
+      "totalProcedures": 2,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "executiveReports",
+          "procedureName": "generateReport",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 229
+        },
+        {
+          "router": "executiveReports",
+          "procedureName": "getHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 304
+        }
+      ]
+    },
+    {
+      "routerFile": "externalOfferAlerts.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 67,
+      "procedures": [
+        {
+          "router": "externalOfferAlerts",
+          "procedureName": "getActiveAlerts",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "externalOfferAlerts",
+          "procedureName": "getAlertHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 25
+        },
+        {
+          "router": "externalOfferAlerts",
+          "procedureName": "resolveAlert",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 43
+        },
+        {
+          "router": "externalOfferAlerts",
+          "procedureName": "dismissAlert",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 65
+        },
+        {
+          "router": "externalOfferAlerts",
+          "procedureName": "getAlertStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 87
+        },
+        {
+          "router": "externalOfferAlerts",
+          "procedureName": "getAlertsByDepartment",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 105
+        }
+      ]
+    },
+    {
+      "routerFile": "financial.ts",
+      "totalProcedures": 17,
+      "proceduresWithValidation": 13,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 76,
+      "procedures": [
+        {
+          "router": "financial",
+          "procedureName": "getDashboardSummary",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 21
+        },
+        {
+          "router": "financial",
+          "procedureName": "getAllInvoices",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 41
+        },
+        {
+          "router": "financial",
+          "procedureName": "getInvoicesSummary",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 51
+        },
+        {
+          "router": "financial",
+          "procedureName": "createInvoice",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 61
+        },
+        {
+          "router": "financial",
+          "procedureName": "updateInvoice",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 95
+        },
+        {
+          "router": "financial",
+          "procedureName": "deleteInvoice",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 131
+        },
+        {
+          "router": "financial",
+          "procedureName": "getAllPurchaseOrders",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 153
+        },
+        {
+          "router": "financial",
+          "procedureName": "getPurchaseOrdersSummary",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 163
+        },
+        {
+          "router": "financial",
+          "procedureName": "createPurchaseOrder",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 173
+        },
+        {
+          "router": "financial",
+          "procedureName": "updatePurchaseOrder",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 207
+        },
+        {
+          "router": "financial",
+          "procedureName": "deletePurchaseOrder",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 243
+        },
+        {
+          "router": "financial",
+          "procedureName": "getAllExpenseRequests",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 265
+        },
+        {
+          "router": "financial",
+          "procedureName": "getExpenseRequestsSummary",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 275
+        },
+        {
+          "router": "financial",
+          "procedureName": "createExpenseRequest",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 285
+        },
+        {
+          "router": "financial",
+          "procedureName": "updateExpenseRequest",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 319
+        },
+        {
+          "router": "financial",
+          "procedureName": "deleteExpenseRequest",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 354
+        },
+        {
+          "router": "financial",
+          "procedureName": "approveExpenseRequest",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 374
+        }
+      ]
+    },
+    {
+      "routerFile": "hiring.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "hiring",
+          "procedureName": "createEmployeeAccount",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 35
+        },
+        {
+          "router": "hiring",
+          "procedureName": "getExpiringContracts",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 182
+        },
+        {
+          "router": "hiring",
+          "procedureName": "sendExpiringContractsReport",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 269
+        }
+      ]
+    },
+    {
+      "routerFile": "import.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 67,
+      "procedures": [
+        {
+          "router": "import",
+          "procedureName": "downloadTemplate",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 117
+        },
+        {
+          "router": "import",
+          "procedureName": "processExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 134
+        },
+        {
+          "router": "import",
+          "procedureName": "importWorkers",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 302
+        }
+      ]
+    },
+    {
+      "routerFile": "intelligentAlerts.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 71,
+      "procedures": [
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "runPredictiveAnalysis",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 13
+        },
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 53
+        },
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 86
+        },
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "resolve",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 112
+        },
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "dismiss",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 141
+        },
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "assign",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 163
+        },
+        {
+          "router": "intelligentAlerts",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 180
+        }
+      ]
+    },
+    {
+      "routerFile": "interventionImpact.ts",
+      "totalProcedures": 9,
+      "proceduresWithValidation": 8,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 89,
+      "procedures": [
+        {
+          "router": "interventionImpact",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 35
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 51
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "calculateMetrics",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 77
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "generateInsights",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 209
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "exportPDF",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 301
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "exportExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 531
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "shareReportByEmail",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 673
+        },
+        {
+          "router": "interventionImpact",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 777
+        }
+      ]
+    },
+    {
+      "routerFile": "interventionPrediction.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "interventionPrediction",
+          "procedureName": "predictEffectiveness",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 17
+        }
+      ]
+    },
+    {
+      "routerFile": "interventionRecommendations.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "interventionRecommendations",
+          "procedureName": "getRecommendations",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 27
+        }
+      ]
+    },
+    {
+      "routerFile": "investigations.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "investigations",
+          "procedureName": "sendQuestionnaire",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "investigations",
+          "procedureName": "getByToken",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 84
+        },
+        {
+          "router": "investigations",
+          "procedureName": "saveResponses",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 120
+        },
+        {
+          "router": "investigations",
+          "procedureName": "listByCaseId",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 179
+        },
+        {
+          "router": "investigations",
+          "procedureName": "validateTokenAndCurp",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 208
+        },
+        {
+          "router": "investigations",
+          "procedureName": "submitPublicResponses",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 275
+        },
+        {
+          "router": "investigations",
+          "procedureName": "getResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 347
+        }
+      ]
+    },
+    {
+      "routerFile": "jobMonitoring.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 20,
+      "procedures": [
+        {
+          "router": "jobMonitoring",
+          "procedureName": "getJobExecutions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 22
+        },
+        {
+          "router": "jobMonitoring",
+          "procedureName": "getJobStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 64
+        },
+        {
+          "router": "jobMonitoring",
+          "procedureName": "runPostCaseSurveysJob",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 101
+        },
+        {
+          "router": "jobMonitoring",
+          "procedureName": "runDepartmentalAlertsJob",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 152
+        },
+        {
+          "router": "jobMonitoring",
+          "procedureName": "runSurveyRemindersJob",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 199
+        }
+      ]
+    },
+    {
+      "routerFile": "jobProfiles.ts",
+      "totalProcedures": 12,
+      "proceduresWithValidation": 10,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "jobProfiles",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "getByPosition",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 39
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 62
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 91
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "addEmployeeCompetency",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 110
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "getEmployeeCompetencies",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 143
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "generateDNC",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 167
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "getTrainingNeeds",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 351
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "getAllTrainingNeeds",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 374
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "updateTrainingNeedStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 394
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "prefillCompetenciesFromPosition",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 429
+        },
+        {
+          "router": "jobProfiles",
+          "procedureName": "getAllPositionsWithProfiles",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 503
+        }
+      ]
+    },
+    {
+      "routerFile": "leads.ts",
+      "totalProcedures": 12,
+      "proceduresWithValidation": 10,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "leads",
+          "procedureName": "createLead",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "leads",
+          "procedureName": "getLeadsPipeline",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 82
+        },
+        {
+          "router": "leads",
+          "procedureName": "updateLeadStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 154
+        },
+        {
+          "router": "leads",
+          "procedureName": "updateLead",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 197
+        },
+        {
+          "router": "leads",
+          "procedureName": "deleteLead",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 235
+        },
+        {
+          "router": "leads",
+          "procedureName": "convertWhatsAppEventToLead",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 248
+        },
+        {
+          "router": "leads",
+          "procedureName": "getLeadById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 307
+        },
+        {
+          "router": "leads",
+          "procedureName": "assignLead",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 328
+        },
+        {
+          "router": "leads",
+          "procedureName": "addLeadNote",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 374
+        },
+        {
+          "router": "leads",
+          "procedureName": "getUpcomingReminders",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 414
+        },
+        {
+          "router": "leads",
+          "procedureName": "getPipelineStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 439
+        },
+        {
+          "router": "leads",
+          "procedureName": "bulkConvertWhatsAppEventsToLeads",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 466
+        }
+      ]
+    },
+    {
+      "routerFile": "massiveImport.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 60,
+      "procedures": [
+        {
+          "router": "massiveImport",
+          "procedureName": "importDepartments",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "massiveImport",
+          "procedureName": "importPositions",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 47
+        },
+        {
+          "router": "massiveImport",
+          "procedureName": "importEmployees",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 88
+        },
+        {
+          "router": "massiveImport",
+          "procedureName": "getDepartmentsForImport",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 166
+        },
+        {
+          "router": "massiveImport",
+          "procedureName": "getPositionsForImport",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 180
+        }
+      ]
+    },
+    {
+      "routerFile": "meetingMinutes.ts",
+      "totalProcedures": 10,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 90,
+      "procedures": [
+        {
+          "router": "meetingMinutes",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 60
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 125
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 163
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 206
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "finalize",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 237
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "addSignature",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 253
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "uploadAttachment",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 292
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "deleteAttachment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 325
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "getMeetingTypes",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 337
+        },
+        {
+          "router": "meetingMinutes",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 351
+        }
+      ]
+    },
+    {
+      "routerFile": "menuCounters.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 0,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 0,
+      "procedures": [
+        {
+          "router": "menuCounters",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 15
+        }
+      ]
+    },
+    {
+      "routerFile": "modelEvolution.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "modelEvolution",
+          "procedureName": "getMetricsByMonth",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 8
+        }
+      ]
+    },
+    {
+      "routerFile": "modelPerformanceAlerts.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "modelPerformanceAlerts",
+          "procedureName": "getActiveAlerts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 17
+        },
+        {
+          "router": "modelPerformanceAlerts",
+          "procedureName": "getAlertHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 46
+        },
+        {
+          "router": "modelPerformanceAlerts",
+          "procedureName": "resolveAlert",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 88
+        },
+        {
+          "router": "modelPerformanceAlerts",
+          "procedureName": "getAlertStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 129
+        }
+      ]
+    },
+    {
+      "routerFile": "modelRetraining.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 33,
+      "procedures": [
+        {
+          "router": "modelRetraining",
+          "procedureName": "getRetrainingHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 17
+        },
+        {
+          "router": "modelRetraining",
+          "procedureName": "getLastRetraining",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 73
+        },
+        {
+          "router": "modelRetraining",
+          "procedureName": "getRetrainingStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 120
+        }
+      ]
+    },
+    {
+      "routerFile": "modelThresholds.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 40,
+      "procedures": [
+        {
+          "router": "modelThresholds",
+          "procedureName": "getActiveThresholds",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 12
+        },
+        {
+          "router": "modelThresholds",
+          "procedureName": "getThresholdsHistory",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 58
+        },
+        {
+          "router": "modelThresholds",
+          "procedureName": "updateThresholds",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 82
+        },
+        {
+          "router": "modelThresholds",
+          "procedureName": "resetToDefaults",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 163
+        },
+        {
+          "router": "modelThresholds",
+          "procedureName": "activateConfig",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 208
+        }
+      ]
+    },
+    {
+      "routerFile": "nineBoxGrid.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "nineBoxGrid",
+          "procedureName": "calculateAutomatic",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 14
+        },
+        {
+          "router": "nineBoxGrid",
+          "procedureName": "calculateAll",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 156
+        },
+        {
+          "router": "nineBoxGrid",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 267
+        },
+        {
+          "router": "nineBoxGrid",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 345
+        }
+      ]
+    },
+    {
+      "routerFile": "nmx025EvidencesFolder.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "nmx025EvidencesFolder",
+          "procedureName": "getEvidences",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 50
+        },
+        {
+          "router": "nmx025EvidencesFolder",
+          "procedureName": "uploadEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 302
+        },
+        {
+          "router": "nmx025EvidencesFolder",
+          "procedureName": "deleteEvidence",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 353
+        },
+        {
+          "router": "nmx025EvidencesFolder",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 394
+        }
+      ]
+    },
+    {
+      "routerFile": "nom035.ts",
+      "totalProcedures": 8,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 88,
+      "procedures": [
+        {
+          "router": "nom035",
+          "procedureName": "getQuestions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 7
+        },
+        {
+          "router": "nom035",
+          "procedureName": "saveResponse",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "nom035",
+          "procedureName": "getProgress",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 30
+        },
+        {
+          "router": "nom035",
+          "procedureName": "getResponses",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 42
+        },
+        {
+          "router": "nom035",
+          "procedureName": "calculateResults",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 54
+        },
+        {
+          "router": "nom035",
+          "procedureName": "getResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 66
+        },
+        {
+          "router": "nom035",
+          "procedureName": "createPeriod",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 85
+        },
+        {
+          "router": "nom035",
+          "procedureName": "getActivePeriod",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 109
+        }
+      ]
+    },
+    {
+      "routerFile": "nom035Admin.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "nom035Admin",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "nom035Admin",
+          "procedureName": "getResultsByDepartment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 93
+        },
+        {
+          "router": "nom035Admin",
+          "procedureName": "comparePeriods",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 162
+        },
+        {
+          "router": "nom035Admin",
+          "procedureName": "getTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 261
+        },
+        {
+          "router": "nom035Admin",
+          "procedureName": "getRecommendations",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 351
+        },
+        {
+          "router": "nom035Admin",
+          "procedureName": "exportToExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 484
+        },
+        {
+          "router": "nom035Admin",
+          "procedureName": "exportToPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 554
+        }
+      ]
+    },
+    {
+      "routerFile": "nom035Policies.ts",
+      "totalProcedures": 9,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "nom035Policies",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 15
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 30
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 55
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 87
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 158
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "generatePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 177
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "uploadPolicyFile",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 223
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "getPolicyVersions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 309
+        },
+        {
+          "router": "nom035Policies",
+          "procedureName": "restorePolicyVersion",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 327
+        }
+      ]
+    },
+    {
+      "routerFile": "notificationHistory.ts",
+      "totalProcedures": 2,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "notificationHistory",
+          "procedureName": "getHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 9
+        },
+        {
+          "router": "notificationHistory",
+          "procedureName": "getCount",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 51
+        }
+      ]
+    },
+    {
+      "routerFile": "notificationLogs.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 67,
+      "procedures": [
+        {
+          "router": "notificationLogs",
+          "procedureName": "getAll",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 11
+        },
+        {
+          "router": "notificationLogs",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 114
+        },
+        {
+          "router": "notificationLogs",
+          "procedureName": "getRecipients",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 182
+        }
+      ]
+    },
+    {
+      "routerFile": "notificationPreferences.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "notificationPreferences",
+          "procedureName": "getPreferences",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 15
+        },
+        {
+          "router": "notificationPreferences",
+          "procedureName": "updatePreferences",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 61
+        },
+        {
+          "router": "notificationPreferences",
+          "procedureName": "resetToDefaults",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 115
+        },
+        {
+          "router": "notificationPreferences",
+          "procedureName": "isNotificationEnabled",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 148
+        }
+      ]
+    },
+    {
+      "routerFile": "notifications.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 67,
+      "procedures": [
+        {
+          "router": "notifications",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "notifications",
+          "procedureName": "getUnreadCount",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 42
+        },
+        {
+          "router": "notifications",
+          "procedureName": "markAsRead",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 62
+        },
+        {
+          "router": "notifications",
+          "procedureName": "markAllAsRead",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 85
+        },
+        {
+          "router": "notifications",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 107
+        },
+        {
+          "router": "notifications",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 179
+        }
+      ]
+    },
+    {
+      "routerFile": "organizationalCompetencies.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "organizationalCompetencies",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "organizationalCompetencies",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 44
+        },
+        {
+          "router": "organizationalCompetencies",
+          "procedureName": "getApplicableToEmployee",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 91
+        },
+        {
+          "router": "organizationalCompetencies",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 160
+        },
+        {
+          "router": "organizationalCompetencies",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 203
+        }
+      ]
+    },
+    {
+      "routerFile": "payrollIntegration.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "payrollIntegration",
+          "procedureName": "getAllPayrollData",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 18
+        },
+        {
+          "router": "payrollIntegration",
+          "procedureName": "getPayrollDataByEmployee",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 42
+        },
+        {
+          "router": "payrollIntegration",
+          "procedureName": "upsertPayrollData",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 73
+        },
+        {
+          "router": "payrollIntegration",
+          "procedureName": "deletePayrollData",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 193
+        },
+        {
+          "router": "payrollIntegration",
+          "procedureName": "getCriticalSalaryGaps",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 219
+        },
+        {
+          "router": "payrollIntegration",
+          "procedureName": "getCompensationRiskCorrelation",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 247
+        }
+      ]
+    },
+    {
+      "routerFile": "permissionAudit.ts",
+      "totalProcedures": 8,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 6,
+      "coveragePercentage": 25,
+      "procedures": [
+        {
+          "router": "permissionAudit",
+          "procedureName": "getHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 17
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getStatistics",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 91
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getRecentChanges",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 111
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getChangesTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 145
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getMonthlyChangesCount",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 179
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getUsersWithCustomPermissionsCount",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 221
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getTopAdministrators",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 238
+        },
+        {
+          "router": "permissionAudit",
+          "procedureName": "getRecentCriticalChanges",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 271
+        }
+      ]
+    },
+    {
+      "routerFile": "positions.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "positions",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 10
+        },
+        {
+          "router": "positions",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 83
+        },
+        {
+          "router": "positions",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 116
+        },
+        {
+          "router": "positions",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 160
+        },
+        {
+          "router": "positions",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 215
+        },
+        {
+          "router": "positions",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 241
+        }
+      ]
+    },
+    {
+      "routerFile": "postCaseSurveys.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 43,
+      "procedures": [
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "getSurveysByCase",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 17
+        },
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "getAllSurveys",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 39
+        },
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "completeSurvey",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 79
+        },
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "getEffectivenessStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 111
+        },
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "createPendingSurveys",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 236
+        },
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "sendPendingSurveys",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 301
+        },
+        {
+          "router": "postCaseSurveys",
+          "procedureName": "expireSurveys",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 337
+        }
+      ]
+    },
+    {
+      "routerFile": "predictiveAlerts.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "predictiveAlerts",
+          "procedureName": "getPrediction",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "predictiveAlerts",
+          "procedureName": "getAllPredictions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 137
+        },
+        {
+          "router": "predictiveAlerts",
+          "procedureName": "getFrequencyStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 218
+        }
+      ]
+    },
+    {
+      "routerFile": "predictiveAnalytics.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "predictiveAnalytics",
+          "procedureName": "getRiskPredictions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 18
+        }
+      ]
+    },
+    {
+      "routerFile": "predictiveCorrelation.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 25,
+      "procedures": [
+        {
+          "router": "predictiveCorrelation",
+          "procedureName": "getModelAccuracy",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "predictiveCorrelation",
+          "procedureName": "getTruePositives",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 143
+        },
+        {
+          "router": "predictiveCorrelation",
+          "procedureName": "getFalsePositives",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 178
+        },
+        {
+          "router": "predictiveCorrelation",
+          "procedureName": "getFalseNegatives",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 234
+        }
+      ]
+    },
+    {
+      "routerFile": "predictiveReports.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "predictiveReports",
+          "procedureName": "generatePredictivePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 20
+        }
+      ]
+    },
+    {
+      "routerFile": "predictiveTurnoverDashboard.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "predictiveTurnoverDashboard",
+          "procedureName": "getPredictiveMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 22
+        },
+        {
+          "router": "predictiveTurnoverDashboard",
+          "procedureName": "getHighRiskEmployees",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 181
+        },
+        {
+          "router": "predictiveTurnoverDashboard",
+          "procedureName": "generateRetentionRecommendations",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 281
+        }
+      ]
+    },
+    {
+      "routerFile": "recognitions.ts",
+      "totalProcedures": 10,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 90,
+      "procedures": [
+        {
+          "router": "recognitions",
+          "procedureName": "getCategories",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 26
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 108
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 185
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "getMonthlyReport",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 237
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "addReaction",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 314
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "removeReaction",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 371
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "getReactions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 393
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "getUnreadCount",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 440
+        },
+        {
+          "router": "recognitions",
+          "procedureName": "markAsRead",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 463
+        }
+      ]
+    },
+    {
+      "routerFile": "recommendationsTracking.ts",
+      "totalProcedures": 8,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 88,
+      "procedures": [
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 51
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 80
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 128
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "delete",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 199
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 213
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "updateEffectiveness",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 291
+        },
+        {
+          "router": "recommendationsTracking",
+          "procedureName": "calculateEffectiveness",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 335
+        }
+      ]
+    },
+    {
+      "routerFile": "recruitment.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "recruitment",
+          "procedureName": "createJobOpening",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "recruitment",
+          "procedureName": "getJobOpenings",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 50
+        },
+        {
+          "router": "recruitment",
+          "procedureName": "createCandidate",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 69
+        },
+        {
+          "router": "recruitment",
+          "procedureName": "getCandidatesByJob",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 173
+        },
+        {
+          "router": "recruitment",
+          "procedureName": "getCandidateDetail",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 195
+        },
+        {
+          "router": "recruitment",
+          "procedureName": "updateCandidateStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 228
+        }
+      ]
+    },
+    {
+      "routerFile": "reportConfigurations.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "reportConfigurations",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 17
+        },
+        {
+          "router": "reportConfigurations",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 40
+        },
+        {
+          "router": "reportConfigurations",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 71
+        },
+        {
+          "router": "reportConfigurations",
+          "procedureName": "update",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 127
+        },
+        {
+          "router": "reportConfigurations",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 207
+        },
+        {
+          "router": "reportConfigurations",
+          "procedureName": "toggleEnabled",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 233
+        }
+      ]
+    },
+    {
+      "routerFile": "reportTemplates.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "reportTemplates",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "reportTemplates",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 43
+        },
+        {
+          "router": "reportTemplates",
+          "procedureName": "getDefault",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 68
+        },
+        {
+          "router": "reportTemplates",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 96
+        },
+        {
+          "router": "reportTemplates",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 141
+        },
+        {
+          "router": "reportTemplates",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 202
+        },
+        {
+          "router": "reportTemplates",
+          "procedureName": "setDefault",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 238
+        }
+      ]
+    },
+    {
+      "routerFile": "reports.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 60,
+      "procedures": [
+        {
+          "router": "reports",
+          "procedureName": "generateNom035Report",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 25
+        },
+        {
+          "router": "reports",
+          "procedureName": "getAvailablePeriods",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 210
+        },
+        {
+          "router": "reports",
+          "procedureName": "getAvailableSigners",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 232
+        },
+        {
+          "router": "reports",
+          "procedureName": "generateCasesPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 253
+        },
+        {
+          "router": "reports",
+          "procedureName": "generateOrgStructurePDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 380
+        }
+      ]
+    },
+    {
+      "routerFile": "reportsExport.ts",
+      "totalProcedures": 2,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "reportsExport",
+          "procedureName": "generateRootCauseAnalysisPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 15
+        },
+        {
+          "router": "reportsExport",
+          "procedureName": "generateTrainingsExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 145
+        }
+      ]
+    },
+    {
+      "routerFile": "retentionInterventions.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 75,
+      "procedures": [
+        {
+          "router": "retentionInterventions",
+          "procedureName": "createIntervention",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 17
+        },
+        {
+          "router": "retentionInterventions",
+          "procedureName": "updateOutcome",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 60
+        },
+        {
+          "router": "retentionInterventions",
+          "procedureName": "getInterventions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 139
+        },
+        {
+          "router": "retentionInterventions",
+          "procedureName": "getEffectivenessStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 179
+        }
+      ]
+    },
+    {
+      "routerFile": "rolesPermissions.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "rolesPermissions",
+          "procedureName": "getAllRoles",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 19
+        },
+        {
+          "router": "rolesPermissions",
+          "procedureName": "getUsersByRole",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 194
+        },
+        {
+          "router": "rolesPermissions",
+          "procedureName": "updateUserRole",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 257
+        },
+        {
+          "router": "rolesPermissions",
+          "procedureName": "getRoleDistribution",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 360
+        }
+      ]
+    },
+    {
+      "routerFile": "rootCauseAnalysis.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 75,
+      "procedures": [
+        {
+          "router": "rootCauseAnalysis",
+          "procedureName": "analyzeClosedCases",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "rootCauseAnalysis",
+          "procedureName": "getLatestAnalysis",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 295
+        },
+        {
+          "router": "rootCauseAnalysis",
+          "procedureName": "getAnalysisHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 312
+        },
+        {
+          "router": "rootCauseAnalysis",
+          "procedureName": "getAnalysisById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 352
+        }
+      ]
+    },
+    {
+      "routerFile": "salaryEquity.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 25,
+      "procedures": [
+        {
+          "router": "salaryEquity",
+          "procedureName": "generateAnalysis",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 12
+        },
+        {
+          "router": "salaryEquity",
+          "procedureName": "getLatestAnalysis",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 209
+        },
+        {
+          "router": "salaryEquity",
+          "procedureName": "getAnalysisHistory",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 229
+        },
+        {
+          "router": "salaryEquity",
+          "procedureName": "generateEquityReport",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 249
+        }
+      ]
+    },
+    {
+      "routerFile": "salaryImpactSimulator.ts",
+      "totalProcedures": 1,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "salaryImpactSimulator",
+          "procedureName": "simulateImpact",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 7
+        }
+      ]
+    },
+    {
+      "routerFile": "salaryTrends.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 1,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 20,
+      "procedures": [
+        {
+          "router": "salaryTrends",
+          "procedureName": "getTrendsByDepartment",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 12
+        },
+        {
+          "router": "salaryTrends",
+          "procedureName": "getTrendsByPosition",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 31
+        },
+        {
+          "router": "salaryTrends",
+          "procedureName": "getMarketProjections",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 50
+        },
+        {
+          "router": "salaryTrends",
+          "procedureName": "getHistoricalAdjustments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 81
+        },
+        {
+          "router": "salaryTrends",
+          "procedureName": "getDepartmentSummary",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 133
+        }
+      ]
+    },
+    {
+      "routerFile": "salespeople.ts",
+      "totalProcedures": 9,
+      "proceduresWithValidation": 9,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "salespeople",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 20
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "getActive",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 27
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 34
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 47
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 63
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "toggleActive",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 81
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "getDistributionStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 91
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "getIndividualPerformance",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 98
+        },
+        {
+          "router": "salespeople",
+          "procedureName": "getComparativeMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 116
+        }
+      ]
+    },
+    {
+      "routerFile": "securityAlerts.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "securityAlerts",
+          "procedureName": "detectSuspiciousActivity",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "securityAlerts",
+          "procedureName": "getAlerts",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 134
+        },
+        {
+          "router": "securityAlerts",
+          "procedureName": "updateAlertStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 196
+        },
+        {
+          "router": "securityAlerts",
+          "procedureName": "getStatistics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 224
+        }
+      ]
+    },
+    {
+      "routerFile": "sentimentAnalysis.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "sentimentAnalysis",
+          "procedureName": "getTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "sentimentAnalysis",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 64
+        },
+        {
+          "router": "sentimentAnalysis",
+          "procedureName": "getCriticalComments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 136
+        },
+        {
+          "router": "sentimentAnalysis",
+          "procedureName": "markAsReviewed",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 203
+        },
+        {
+          "router": "sentimentAnalysis",
+          "procedureName": "runManualAnalysis",
+          "type": "mutation",
+          "hasInput": false,
+          "lineNumber": 242
+        }
+      ]
+    },
+    {
+      "routerFile": "sentimentCasesCorrelation.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "sentimentCasesCorrelation",
+          "procedureName": "getCorrelationData",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "sentimentCasesCorrelation",
+          "procedureName": "getAutoCases",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 88
+        },
+        {
+          "router": "sentimentCasesCorrelation",
+          "procedureName": "getInterventionMetrics",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 120
+        },
+        {
+          "router": "sentimentCasesCorrelation",
+          "procedureName": "getCasesByDepartment",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 195
+        }
+      ]
+    },
+    {
+      "routerFile": "sharedReports.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 75,
+      "procedures": [
+        {
+          "router": "sharedReports",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 9
+        },
+        {
+          "router": "sharedReports",
+          "procedureName": "logShare",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 63
+        },
+        {
+          "router": "sharedReports",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 99
+        },
+        {
+          "router": "sharedReports",
+          "procedureName": "exportHistoryToExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 135
+        }
+      ]
+    },
+    {
+      "routerFile": "signatures.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "signatures",
+          "procedureName": "saveSignature",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 27
+        },
+        {
+          "router": "signatures",
+          "procedureName": "getSignaturesByDocument",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 102
+        },
+        {
+          "router": "signatures",
+          "procedureName": "deleteSignature",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 126
+        }
+      ]
+    },
+    {
+      "routerFile": "skillsMatrix.ts",
+      "totalProcedures": 10,
+      "proceduresWithValidation": 8,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "skillsMatrix",
+          "procedureName": "createCompetency",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 11
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "listCompetencies",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 30
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "setEmployeeSkillLevel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 50
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "getMatrix",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 96
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "importFromExcel",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 207
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "exportToExcel",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 307
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "getImportHistory",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 471
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "getActiveDepartments",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 484
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "getMatrixByDepartment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 502
+        },
+        {
+          "router": "skillsMatrix",
+          "procedureName": "generateTrainingProgram",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 562
+        }
+      ]
+    },
+    {
+      "routerFile": "skillsMatrixSnapshots.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "skillsMatrixSnapshots",
+          "procedureName": "saveSnapshot",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "skillsMatrixSnapshots",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 145
+        },
+        {
+          "router": "skillsMatrixSnapshots",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 181
+        },
+        {
+          "router": "skillsMatrixSnapshots",
+          "procedureName": "compareSnapshots",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 205
+        },
+        {
+          "router": "skillsMatrixSnapshots",
+          "procedureName": "deleteSnapshot",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 323
+        },
+        {
+          "router": "skillsMatrixSnapshots",
+          "procedureName": "getTrendData",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 357
+        }
+      ]
+    },
+    {
+      "routerFile": "smtpConfig.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 2,
+      "coveragePercentage": 50,
+      "procedures": [
+        {
+          "router": "smtpConfig",
+          "procedureName": "getConfig",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 35
+        },
+        {
+          "router": "smtpConfig",
+          "procedureName": "updateConfig",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 63
+        },
+        {
+          "router": "smtpConfig",
+          "procedureName": "testConnection",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 124
+        },
+        {
+          "router": "smtpConfig",
+          "procedureName": "getDecryptedConfig",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 194
+        }
+      ]
+    },
+    {
+      "routerFile": "stpsReports.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "stpsReports",
+          "procedureName": "generateDC2",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 83
+        },
+        {
+          "router": "stpsReports",
+          "procedureName": "generateDC3",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 197
+        },
+        {
+          "router": "stpsReports",
+          "procedureName": "generateDC4",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 312
+        },
+        {
+          "router": "stpsReports",
+          "procedureName": "listReports",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 416
+        },
+        {
+          "router": "stpsReports",
+          "procedureName": "getReportById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 455
+        }
+      ]
+    },
+    {
+      "routerFile": "surveyAlerts.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "surveyAlerts",
+          "procedureName": "checkLowCoverageAlerts",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 21
+        },
+        {
+          "router": "surveyAlerts",
+          "procedureName": "checkPendingWorkersAlerts",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 155
+        },
+        {
+          "router": "surveyAlerts",
+          "procedureName": "getAlertHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 308
+        }
+      ]
+    },
+    {
+      "routerFile": "surveyAnonymousTokens.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "surveyAnonymousTokens",
+          "procedureName": "generateBatch",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 26
+        },
+        {
+          "router": "surveyAnonymousTokens",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 86
+        },
+        {
+          "router": "surveyAnonymousTokens",
+          "procedureName": "validateToken",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 169
+        },
+        {
+          "router": "surveyAnonymousTokens",
+          "procedureName": "revokeToken",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 233
+        },
+        {
+          "router": "surveyAnonymousTokens",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 265
+        },
+        {
+          "router": "surveyAnonymousTokens",
+          "procedureName": "exportTokens",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 343
+        }
+      ]
+    },
+    {
+      "routerFile": "surveyDistribution.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "surveyDistribution",
+          "procedureName": "getRequiredSurveys",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 14
+        },
+        {
+          "router": "surveyDistribution",
+          "procedureName": "getEligibleEmployees",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 58
+        },
+        {
+          "router": "surveyDistribution",
+          "procedureName": "sendSurveyInvitations",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 113
+        },
+        {
+          "router": "surveyDistribution",
+          "procedureName": "getSurveyStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 276
+        },
+        {
+          "router": "surveyDistribution",
+          "procedureName": "sendReminders",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 327
+        }
+      ]
+    },
+    {
+      "routerFile": "surveyPeriods.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 6,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 86,
+      "procedures": [
+        {
+          "router": "surveyPeriods",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "surveyPeriods",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 110
+        },
+        {
+          "router": "surveyPeriods",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 183
+        },
+        {
+          "router": "surveyPeriods",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 242
+        },
+        {
+          "router": "surveyPeriods",
+          "procedureName": "delete",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 286
+        },
+        {
+          "router": "surveyPeriods",
+          "procedureName": "generateTokens",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 321
+        },
+        {
+          "router": "surveyPeriods",
+          "procedureName": "getActiveEmployees",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 408
+        }
+      ]
+    },
+    {
+      "routerFile": "surveyTokensAdvanced.ts",
+      "totalProcedures": 8,
+      "proceduresWithValidation": 8,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "getTokenInfo",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "exportTokensToExcel",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 109
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "getTokenStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 145
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "submitSurveyResponse",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 170
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "regenerateToken",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 306
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "generateToken",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 333
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "generateBulkTokens",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 367
+        },
+        {
+          "router": "surveyTokensAdvanced",
+          "procedureName": "getActiveTokens",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 400
+        }
+      ]
+    },
+    {
+      "routerFile": "surveys.ts",
+      "totalProcedures": 43,
+      "proceduresWithValidation": 43,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "surveys",
+          "procedureName": "getAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 41
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 52
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getQuestions",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 66
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getApplicableGuide",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 82
+        },
+        {
+          "router": "surveys",
+          "procedureName": "hasResponded",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 93
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generateToken",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 116
+        },
+        {
+          "router": "surveys",
+          "procedureName": "validateToken",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 145
+        },
+        {
+          "router": "surveys",
+          "procedureName": "savePartialResponse",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 173
+        },
+        {
+          "router": "surveys",
+          "procedureName": "submitResponse",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 286
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getResponsesByUser",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 506
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getStatistics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 523
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getCalculatedResult",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 550
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getRiskStatistics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 616
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generateIndividualPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 710
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generateAggregatedPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 812
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getCoverageByDepartment",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 938
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getPendingWorkers",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 985
+        },
+        {
+          "router": "surveys",
+          "procedureName": "sendPendingWorkersReminders",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1033
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generatePendingWorkersPDF",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1111
+        },
+        {
+          "router": "surveys",
+          "procedureName": "reactivateSurvey",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1159
+        },
+        {
+          "router": "surveys",
+          "procedureName": "sendSurveyInvitations",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1185
+        },
+        {
+          "router": "surveys",
+          "procedureName": "sendSurveyReminders",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1265
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1339
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getNotificationsLog",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1389
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getAggregatedResponses",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1425
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getSurveyStatistics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1466
+        },
+        {
+          "router": "surveys",
+          "procedureName": "comparePeriods",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1538
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getDepartments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1651
+        },
+        {
+          "router": "surveys",
+          "procedureName": "exportToExcel",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1665
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generateTokenByCURP",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1737
+        },
+        {
+          "router": "surveys",
+          "procedureName": "validateSurveyToken",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 1816
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generateTokensForAllEmployees",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1872
+        },
+        {
+          "router": "surveys",
+          "procedureName": "markTokenAsUsed",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 1983
+        },
+        {
+          "router": "surveys",
+          "procedureName": "exportTokensToExcel",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2000
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getSampleSizeStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2037
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getTokenStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2086
+        },
+        {
+          "router": "surveys",
+          "procedureName": "generateConsolidatedReport",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 2189
+        },
+        {
+          "router": "surveys",
+          "procedureName": "sendMassEmail",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 2339
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getRecommendedGuides",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2485
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getEmployeeResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2543
+        },
+        {
+          "router": "surveys",
+          "procedureName": "calculateGuideII",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 2561
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getGuideIIResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2630
+        },
+        {
+          "router": "surveys",
+          "procedureName": "getGuideIIAggregatedResults",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 2660
+        }
+      ]
+    },
+    {
+      "routerFile": "surveysAdmin.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "surveysAdmin",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "surveysAdmin",
+          "procedureName": "getResponses",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 89
+        },
+        {
+          "router": "surveysAdmin",
+          "procedureName": "getResponseDetails",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 175
+        },
+        {
+          "router": "surveysAdmin",
+          "procedureName": "getDepartments",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 233
+        },
+        {
+          "router": "surveysAdmin",
+          "procedureName": "exportData",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 246
+        }
+      ]
+    },
+    {
+      "routerFile": "systemSettings.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "systemSettings",
+          "procedureName": "getSetting",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 13
+        },
+        {
+          "router": "systemSettings",
+          "procedureName": "getAllSettings",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 40
+        },
+        {
+          "router": "systemSettings",
+          "procedureName": "updateSetting",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 56
+        },
+        {
+          "router": "systemSettings",
+          "procedureName": "deleteSetting",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 106
+        },
+        {
+          "router": "systemSettings",
+          "procedureName": "updateAlertSummaryFrequency",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 129
+        }
+      ]
+    },
+    {
+      "routerFile": "thresholdExperiments.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 75,
+      "procedures": [
+        {
+          "router": "thresholdExperiments",
+          "procedureName": "createExperiment",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 17
+        },
+        {
+          "router": "thresholdExperiments",
+          "procedureName": "getExperiments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 99
+        },
+        {
+          "router": "thresholdExperiments",
+          "procedureName": "getAvailableConfigs",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 155
+        },
+        {
+          "router": "thresholdExperiments",
+          "procedureName": "compareConfigs",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 183
+        }
+      ]
+    },
+    {
+      "routerFile": "training.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 0,
+      "proceduresWithoutValidation": 3,
+      "coveragePercentage": 0,
+      "procedures": [
+        {
+          "router": "training",
+          "procedureName": "getInstructorStats",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 15
+        },
+        {
+          "router": "training",
+          "procedureName": "getInstructorUpcomingCourses",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 56
+        },
+        {
+          "router": "training",
+          "procedureName": "getInstructorPendingConfirmations",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 91
+        }
+      ]
+    },
+    {
+      "routerFile": "trainingAssignments.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "trainingAssignments",
+          "procedureName": "assignToMember",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "trainingAssignments",
+          "procedureName": "assignToRole",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 74
+        },
+        {
+          "router": "trainingAssignments",
+          "procedureName": "updateStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 162
+        },
+        {
+          "router": "trainingAssignments",
+          "procedureName": "getMyTrainings",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 224
+        },
+        {
+          "router": "trainingAssignments",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 259
+        },
+        {
+          "router": "trainingAssignments",
+          "procedureName": "listAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 324
+        }
+      ]
+    },
+    {
+      "routerFile": "trainingCertificates.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "trainingCertificates",
+          "procedureName": "generateCertificate",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 242
+        },
+        {
+          "router": "trainingCertificates",
+          "procedureName": "verifyCertificate",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 357
+        },
+        {
+          "router": "trainingCertificates",
+          "procedureName": "downloadCertificate",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 405
+        },
+        {
+          "router": "trainingCertificates",
+          "procedureName": "getMyCertificates",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 443
+        },
+        {
+          "router": "trainingCertificates",
+          "procedureName": "listAll",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 465
+        }
+      ]
+    },
+    {
+      "routerFile": "trainingDashboard.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 2,
+      "proceduresWithoutValidation": 4,
+      "coveragePercentage": 33,
+      "procedures": [
+        {
+          "router": "trainingDashboard",
+          "procedureName": "getStats",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 9
+        },
+        {
+          "router": "trainingDashboard",
+          "procedureName": "getCertificatesByMonth",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 81
+        },
+        {
+          "router": "trainingDashboard",
+          "procedureName": "getEmployeesByDepartment",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 110
+        },
+        {
+          "router": "trainingDashboard",
+          "procedureName": "getPopularCourses",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 133
+        },
+        {
+          "router": "trainingDashboard",
+          "procedureName": "getRenewalAlerts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 164
+        },
+        {
+          "router": "trainingDashboard",
+          "procedureName": "getRecentCertificates",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 217
+        }
+      ]
+    },
+    {
+      "routerFile": "trainingEvaluations.ts",
+      "totalProcedures": 6,
+      "proceduresWithValidation": 5,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 83,
+      "procedures": [
+        {
+          "router": "trainingEvaluations",
+          "procedureName": "create",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 12
+        },
+        {
+          "router": "trainingEvaluations",
+          "procedureName": "getByAssignmentId",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 83
+        },
+        {
+          "router": "trainingEvaluations",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 104
+        },
+        {
+          "router": "trainingEvaluations",
+          "procedureName": "getTrainingDashboard",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 143
+        },
+        {
+          "router": "trainingEvaluations",
+          "procedureName": "getGlobalDashboard",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 235
+        },
+        {
+          "router": "trainingEvaluations",
+          "procedureName": "getImprovementComments",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 308
+        }
+      ]
+    },
+    {
+      "routerFile": "trainingNeeds.test.ts",
+      "totalProcedures": 0,
+      "proceduresWithValidation": 0,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 0,
+      "procedures": []
+    },
+    {
+      "routerFile": "trainingNeeds.ts",
+      "totalProcedures": 8,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 88,
+      "procedures": [
+        {
+          "router": "trainingNeeds",
+          "procedureName": "create",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 49
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "update",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 66
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "delete",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 95
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "getById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 106
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "list",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 146
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "generateFromPerformanceEvaluation",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 206
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "getCriticalGaps",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 311
+        },
+        {
+          "router": "trainingNeeds",
+          "procedureName": "generateFromSkillsMatrix",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 353
+        }
+      ]
+    },
+    {
+      "routerFile": "trainingROI.ts",
+      "totalProcedures": 5,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 1,
+      "coveragePercentage": 80,
+      "procedures": [
+        {
+          "router": "trainingROI",
+          "procedureName": "upsertCosts",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 9
+        },
+        {
+          "router": "trainingROI",
+          "procedureName": "getCosts",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 61
+        },
+        {
+          "router": "trainingROI",
+          "procedureName": "calculateROI",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 72
+        },
+        {
+          "router": "trainingROI",
+          "procedureName": "getDashboard",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 200
+        },
+        {
+          "router": "trainingROI",
+          "procedureName": "listWithCosts",
+          "type": "query",
+          "hasInput": false,
+          "lineNumber": 270
+        }
+      ]
+    },
+    {
+      "routerFile": "trends.ts",
+      "totalProcedures": 3,
+      "proceduresWithValidation": 3,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "trends",
+          "procedureName": "getCasesTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 20
+        },
+        {
+          "router": "trends",
+          "procedureName": "getSurveyCoverageTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 106
+        },
+        {
+          "router": "trends",
+          "procedureName": "getComplianceTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 191
+        }
+      ]
+    },
+    {
+      "routerFile": "turnoverManagement.ts",
+      "totalProcedures": 4,
+      "proceduresWithValidation": 4,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "turnoverManagement",
+          "procedureName": "getAllTurnoverRecords",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 18
+        },
+        {
+          "router": "turnoverManagement",
+          "procedureName": "createTurnoverRecord",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 60
+        },
+        {
+          "router": "turnoverManagement",
+          "procedureName": "updateTurnoverRecord",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 144
+        },
+        {
+          "router": "turnoverManagement",
+          "procedureName": "deleteTurnoverRecord",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 192
+        }
+      ]
+    },
+    {
+      "routerFile": "whatsappTracking.ts",
+      "totalProcedures": 8,
+      "proceduresWithValidation": 8,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "whatsappTracking",
+          "procedureName": "trackEvent",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 16
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "getConversionMetrics",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 71
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "getNormativasPopularity",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 151
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "getConversionTrends",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 218
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "getRecentEvents",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 291
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "updateConversionStatus",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 351
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "getComparisonMetrics",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 390
+        },
+        {
+          "router": "whatsappTracking",
+          "procedureName": "checkSignificantChanges",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 502
+        }
+      ]
+    },
+    {
+      "routerFile": "workplaceViolence.ts",
+      "totalProcedures": 7,
+      "proceduresWithValidation": 7,
+      "proceduresWithoutValidation": 0,
+      "coveragePercentage": 100,
+      "procedures": [
+        {
+          "router": "workplaceViolence",
+          "procedureName": "createCase",
+          "type": "unknown",
+          "hasInput": true,
+          "lineNumber": 9
+        },
+        {
+          "router": "workplaceViolence",
+          "procedureName": "listCases",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 77
+        },
+        {
+          "router": "workplaceViolence",
+          "procedureName": "getCaseById",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 122
+        },
+        {
+          "router": "workplaceViolence",
+          "procedureName": "updateProtocolStep",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 168
+        },
+        {
+          "router": "workplaceViolence",
+          "procedureName": "getProtocolHistory",
+          "type": "query",
+          "hasInput": true,
+          "lineNumber": 202
+        },
+        {
+          "router": "workplaceViolence",
+          "procedureName": "closeCase",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 227
+        },
+        {
+          "router": "workplaceViolence",
+          "procedureName": "assignResponsible",
+          "type": "mutation",
+          "hasInput": true,
+          "lineNumber": 264
+        }
+      ]
+    }
+  ],
+  "priorityRouters": [
+    "permissionAudit.ts",
+    "executiveDashboard.ts",
+    "trainingDashboard.ts",
+    "postCaseSurveys.ts"
+  ]
+}

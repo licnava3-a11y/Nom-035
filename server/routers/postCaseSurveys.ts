@@ -6,6 +6,7 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
+import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { postCaseSurveys, cases } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc, isNull } from "drizzle-orm";
@@ -108,7 +109,9 @@ export const postCaseSurveysRouter = router({
   /**
    * Obtener estadísticas de efectividad
    */
-  getEffectivenessStats: protectedProcedure.query(async () => {
+  getEffectivenessStats: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
@@ -233,7 +236,9 @@ export const postCaseSurveysRouter = router({
    * Job automático: Crear encuestas pendientes para casos cerrados
    * Se ejecuta diariamente para detectar casos que cumplan 30/60/90 días desde cierre
    */
-  createPendingSurveys: protectedProcedure.mutation(async () => {
+  createPendingSurveys: protectedProcedure
+    .input(z.object({}).optional())
+    .mutation(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 

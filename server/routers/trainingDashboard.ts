@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc.js";
+import { commonValidators } from "../validators/common.js";
 import { getDb } from '../db.js';
 import { complianceReports, employees, departments, courses } from "../../drizzle/schema.js";
 import { eq, desc, and, gte, lte, count, sql } from "drizzle-orm";
@@ -78,7 +79,9 @@ export const trainingDashboardRouter = router({
     }),
 
   // Certificados por mes (últimos 12 meses)
-  getCertificatesByMonth: protectedProcedure.query(async () => {
+  getCertificatesByMonth: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new Error('Database not available');
 
@@ -107,7 +110,9 @@ export const trainingDashboardRouter = router({
   }),
 
   // Empleados capacitados por departamento
-  getEmployeesByDepartment: protectedProcedure.query(async () => {
+  getEmployeesByDepartment: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new Error('Database not available');
 
@@ -130,7 +135,9 @@ export const trainingDashboardRouter = router({
   }),
 
   // Cursos más populares (basado en certificados emitidos)
-  getPopularCourses: protectedProcedure.query(async () => {
+  getPopularCourses: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new Error('Database not available');
 
@@ -161,7 +168,9 @@ export const trainingDashboardRouter = router({
   }),
 
   // Alertas de renovación (certificados próximos a vencer)
-  getRenewalAlerts: protectedProcedure.query(async () => {
+  getRenewalAlerts: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async () => {
     const db = await getDb();
     if (!db) throw new Error('Database not available');
 
