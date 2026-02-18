@@ -134,6 +134,13 @@ export const recognitionsRouter = router({
           break;
       }
 
+      // Obtener total count
+      const [{ count: totalCount }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(recognitions)
+        .where(whereCondition);
+
+      // Obtener resultados paginados
       const results = await db
         .select({
           id: recognitions.id,
@@ -158,7 +165,18 @@ export const recognitionsRouter = router({
         .limit(input.limit)
         .offset(input.offset);
 
-      return results;
+      const page = Math.floor(input.offset / input.limit) + 1;
+      const totalPages = Math.ceil(totalCount / input.limit);
+
+      return {
+        recognitions: results,
+        pagination: {
+          page,
+          pageSize: input.limit,
+          totalCount,
+          totalPages,
+        },
+      };
     }),
 
   /**

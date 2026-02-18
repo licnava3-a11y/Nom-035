@@ -1,5 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
+import { salaryEquityValidators } from "../validators/common";
 import { getDb } from "../db";
 import { salaryEquityAnalysis, equityReportsHistory, payrollData, users } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
@@ -246,7 +247,7 @@ export const salaryEquityRouter = router({
 
   // Generar reporte PDF de equidad
   generateEquityReport: protectedProcedure
-    .input(z.object({ analysisId: z.number() }))
+    .input(salaryEquityValidators.generateEquityReport)
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       

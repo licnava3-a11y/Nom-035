@@ -6,6 +6,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { payrollValidators, commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { payrollData } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
@@ -39,7 +40,7 @@ export const payrollIntegrationRouter = router({
    * Obtener datos de nómina por empleado
    */
   getPayrollDataByEmployee: protectedProcedure
-    .input(z.object({ employeeId: z.number() }))
+    .input(z.object({ employeeId: commonValidators.positiveId }))
     .query(async ({ input }) => {
       try {
         const db = await getDb();
@@ -70,19 +71,7 @@ export const payrollIntegrationRouter = router({
    * Crear o actualizar datos de nómina
    */
   upsertPayrollData: protectedProcedure
-    .input(
-      z.object({
-        employeeId: z.number(),
-        employeeName: z.string(),
-        department: z.string().optional(),
-        position: z.string().optional(),
-        salary: z.number(),
-        benefits: z.number().optional(),
-        lastRaiseDate: z.string().optional(), // YYYY-MM-DD
-        lastRaisePercentage: z.number().optional(),
-        marketRate: z.number().optional(),
-      })
-    )
+    .input(payrollValidators.upsertPayrollData)
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();
@@ -202,7 +191,7 @@ export const payrollIntegrationRouter = router({
    * Eliminar datos de nómina
    */
   deletePayrollData: protectedProcedure
-    .input(z.object({ employeeId: z.number() }))
+    .input(z.object({ employeeId: commonValidators.positiveId }))
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();

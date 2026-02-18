@@ -6,6 +6,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { complianceChecklist, complianceChecks } from "../../drizzle/schema";
 import { eq, and, count, sql } from "drizzle-orm";
@@ -154,8 +155,8 @@ export const complianceNOM035Router = router({
   markAsCompleted: protectedProcedure
     .input(
       z.object({
-        checklistItemId: z.number(),
-        notes: z.string().optional(),
+        checklistItemId: commonValidators.positiveId,
+        notes: z.string().max(1000, "Las notas no pueden exceder 1000 caracteres").optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -214,8 +215,8 @@ export const complianceNOM035Router = router({
   setDueDate: protectedProcedure
     .input(
       z.object({
-        checklistItemId: z.number(),
-        dueDate: z.string(), // ISO date string
+        checklistItemId: commonValidators.positiveId,
+        dueDate: commonValidators.isoDate,
       })
     )
     .mutation(async ({ input, ctx }) => {

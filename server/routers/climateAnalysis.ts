@@ -1,5 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
+import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { 
   organizationalClimateSurveys, 
@@ -14,17 +15,17 @@ export const climateAnalysisRouter = router({
   // Crear nueva encuesta de clima
   createSurvey: protectedProcedure
     .input(z.object({
-      title: z.string(),
-      description: z.string().optional(),
+      title: commonValidators.nonEmptyString(200),
+      description: z.string().max(1000, "La descripción no puede exceder 1000 caracteres").optional(),
       dimensions: z.array(z.object({
-        id: z.string(),
-        name: z.string(),
+        id: commonValidators.nonEmptyString(50),
+        name: commonValidators.nonEmptyString(100),
         questions: z.array(z.object({
-          id: z.string(),
-          text: z.string(),
+          id: commonValidators.nonEmptyString(50),
+          text: commonValidators.nonEmptyString(500),
           type: z.enum(["likert", "yes_no", "open"]),
-        })),
-      })),
+        })).min(1, "Debe incluir al menos una pregunta por dimensión"),
+      })).min(1, "Debe incluir al menos una dimensión"),
       frequency: z.enum(["monthly", "quarterly", "semiannual", "annual"]).default("quarterly"),
     }))
     .mutation(async ({ input, ctx }) => {
@@ -57,14 +58,14 @@ export const climateAnalysisRouter = router({
   // Enviar respuesta de encuesta
   submitResponse: protectedProcedure
     .input(z.object({
-      surveyId: z.number(),
+      surveyId: commonValidators.positiveId,
       responses: z.record(z.object({
-        dimensionId: z.string(),
-        dimensionName: z.string(),
+        dimensionId: commonValidators.nonEmptyString(50),
+        dimensionName: commonValidators.nonEmptyString(100),
         answers: z.record(z.union([z.string(), z.number()])),
-        score: z.number(),
+        score: z.number().min(0, "El score no puede ser negativo").max(100, "El score no puede exceder 100"),
       })),
-      overallScore: z.number(),
+      overallScore: z.number().min(0, "El score general no puede ser negativo").max(100, "El score general no puede exceder 100"),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -82,8 +83,8 @@ export const climateAnalysisRouter = router({
   // Obtener análisis de clima actual
   getCurrentAnalytics: protectedProcedure
     .input(z.object({
-      surveyId: z.number(),
-      period: z.string(), // "2026-Q1", "2026-02"
+      surveyId: commonValidators.positiveId,
+      period: z.string().regex(/^\d{4}-(Q[1-4]|\d{2})$/, "Formato de periodo inválido (YYYY-QN o YYYY-MM)"),
     }))
     .query(async ({ input }) => {
       const db = await getDb();

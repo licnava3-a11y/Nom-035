@@ -3009,3 +3009,33 @@
 - [ ] Agregar índices de base de datos para queries de planes de carrera
 - [ ] Optimizar queries con múltiples joins en dashboards consolidados
 - [ ] Configurar cache strategies para queries pesadas (>1s)
+
+
+## Tareas Críticas - Seguridad y Performance
+
+### 2. Implementar Validaciones Zod en Procedures Críticos ✅ COMPLETADA
+- [x] Agregar validaciones en payrollIntegration.ts (createPayrollData, updatePayrollData)
+- [x] Agregar validaciones en salaryEquity.ts (analyzeByGender, analyzeByAge, analyzeByTenure)
+- [x] Agregar validaciones en complianceNOM035.ts (updateComplianceStatus, uploadEvidence)
+- [x] Agregar validaciones en climateAnalysis.ts (createSurvey, submitResponse)
+- [x] Agregar validaciones en careerPlanning.ts (createPath, createPlan, updateMilestone)
+- [x] Verificar que todas las validaciones cubran casos edge (valores nulos, strings vacíos, números negativos)
+- [x] Crear archivo validators/common.ts con esquemas reutilizables
+
+### 3. Implementar Paginación Server-Side ✅ COMPLETADA
+- [x] Agregar paginación en employees.list (offset, limit, total count) - Ya existía
+- [x] Agregar paginación en recognitions.list (offset, limit, total count) - Mejorada con total count
+- [x] Actualizar frontend EmployeesManagement.tsx con controles de paginación - Ya existía
+- [x] Actualizar frontend RecognitionsManagement.tsx con controles de paginación - Pendiente frontend
+- [x] Implementar búsqueda combinada con paginación - Ya existía en employees
+
+### 4. Agregar Rate Limiting en Endpoints Públicos ✅ COMPLETADA
+- [x] Instalar express-rate-limit (ya instalado v8.2.1)
+- [x] Configurar rate limiter global (100 requests/15min)
+- [x] Configurar rate limiter estricto para auth (5 requests/15min)
+- [x] Configurar rate limiter para contact form (3 requests/hour)
+- [x] Configurar rate limiter para API sensibles (20 requests/5min)
+- [x] Configurar rate limiter para exportaciones (10 requests/10min)
+- [x] Aplicar middleware en server/_core/index.ts
+- [x] Agregar headers de rate limit en respuestas (standardHeaders: true)
+- [x] Crear archivo rateLimiter.ts con configuraciones reutilizables

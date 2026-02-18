@@ -3,6 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { globalLimiter, authLimiter, contactFormLimiter, apiLimiter, exportLimiter } from "./rateLimiter";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
@@ -64,25 +65,20 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   
-  // Rate limiting para proteger contra ataques de fuerza bruta
-  const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Límite de 100 requests por ventana
-    message: "Demasiadas solicitudes desde esta IP, por favor intente más tarde.",
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-
-  const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // Límite de 5 intentos de login por ventana
-    message: "Demasiados intentos de inicio de sesión, por favor intente más tarde.",
-    skipSuccessfulRequests: true,
-  });
-
-  // Aplicar rate limiting a rutas específicas
-  app.use("/api/trpc", apiLimiter);
+  // Aplicar rate limiting global a todas las rutas
+  app.use(globalLimiter);
+  
+  // Rate limiting específico para autenticación (más estricto)
   app.use("/api/oauth", authLimiter);
+  
+  // Rate limiting para endpoints de API sensibles
+  app.use("/api/trpc", apiLimiter);
+  
+  // Rate limiting para formularios de contacto (si existen)
+  // app.use("/api/contact", contactFormLimiter);
+  
+  // Rate limiting para exportaciones y reportes
+  // app.use("/api/export", exportLimiter);
 
   // Security headers with helmet
   app.use(helmet({

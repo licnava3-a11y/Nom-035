@@ -1,5 +1,6 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
+import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { 
   careerPaths, 
@@ -13,21 +14,21 @@ export const careerPlanningRouter = router({
   // Crear ruta de carrera
   createPath: protectedProcedure
     .input(z.object({
-      pathName: z.string(),
-      description: z.string().optional(),
+      pathName: commonValidators.nonEmptyString(200),
+      description: z.string().max(1000, "La descripción no puede exceder 1000 caracteres").optional(),
       positions: z.array(z.object({
-        level: z.number(),
-        positionId: z.number(),
-        positionName: z.string(),
+        level: z.number().int().positive("El nivel debe ser un número positivo"),
+        positionId: commonValidators.positiveId,
+        positionName: commonValidators.nonEmptyString(100),
         requiredCompetencies: z.array(z.object({
-          competencyId: z.number(),
-          competencyName: z.string(),
-          minimumLevel: z.number(),
+          competencyId: commonValidators.positiveId,
+          competencyName: commonValidators.nonEmptyString(100),
+          minimumLevel: z.number().int().min(1, "El nivel mínimo debe ser al menos 1").max(5, "El nivel mínimo no puede exceder 5"),
         })),
-        estimatedTimeMonths: z.number(),
-      })),
-      minimumEducation: z.string().optional(),
-      minimumExperience: z.number().optional(),
+        estimatedTimeMonths: z.number().int().positive("El tiempo estimado debe ser mayor a cero").max(120, "El tiempo estimado no puede exceder 120 meses"),
+      })).min(1, "Debe incluir al menos una posición"),
+      minimumEducation: commonValidators.nonEmptyString(100).optional(),
+      minimumExperience: z.number().int().nonnegative("La experiencia mínima no puede ser negativa").max(50, "La experiencia mínima no puede exceder 50 años").optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
@@ -60,7 +61,7 @@ export const careerPlanningRouter = router({
   // Sugerir ruta de carrera para empleado
   suggestPath: protectedProcedure
     .input(z.object({
-      employeeId: z.number(),
+      employeeId: commonValidators.positiveId,
     }))
     .query(async ({ input }) => {
       const db = await getDb();
@@ -134,20 +135,20 @@ export const careerPlanningRouter = router({
   // Crear plan de carrera individual
   createPlan: protectedProcedure
     .input(z.object({
-      employeeId: z.number(),
-      pathId: z.number(),
-      currentLevel: z.number(),
-      targetLevel: z.number(),
+      employeeId: commonValidators.positiveId,
+      pathId: commonValidators.positiveId,
+      currentLevel: z.number().int().min(1, "El nivel actual debe ser al menos 1"),
+      targetLevel: z.number().int().min(1, "El nivel objetivo debe ser al menos 1"),
       competencyGaps: z.array(z.object({
-        competencyId: z.number(),
-        competencyName: z.string(),
-        currentLevel: z.number(),
-        requiredLevel: z.number(),
-        gap: z.number(),
+        competencyId: commonValidators.positiveId,
+        competencyName: commonValidators.nonEmptyString(100),
+        currentLevel: z.number().int().min(0, "El nivel actual no puede ser negativo").max(5, "El nivel actual no puede exceder 5"),
+        requiredLevel: z.number().int().min(1, "El nivel requerido debe ser al menos 1").max(5, "El nivel requerido no puede exceder 5"),
+        gap: z.number().int().min(0, "La brecha no puede ser negativa"),
         recommendedCourses: z.array(z.object({
-          courseId: z.number(),
-          courseName: z.string(),
-          duration: z.number(),
+          courseId: commonValidators.positiveId,
+          courseName: commonValidators.nonEmptyString(200),
+          duration: z.number().int().positive("La duración debe ser mayor a cero"),
         })),
       })).optional(),
     }))
