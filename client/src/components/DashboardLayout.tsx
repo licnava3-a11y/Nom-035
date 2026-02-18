@@ -130,6 +130,7 @@ const hierarchicalMenuItems = [
       { label: "Historial de Reentrenamiento", path: "/model-retraining-history", description: "Registro de ajustes automáticos del modelo" },
       { label: "Impacto de Intervenciones", path: "/retention-interventions", description: "Efectividad de acciones de retención" },
       { label: "Predicción de Efectividad", path: "/intervention-prediction", description: "Simula intervenciones y predice su probabilidad de éxito" },
+      { label: "Compensación y Nómina", path: "/payroll-compensation", description: "Análisis de brecha salarial y correlación con riesgo de rotación" },
     ],
   },
   {

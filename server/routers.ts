@@ -115,6 +115,7 @@ import { modelRetrainingRouter } from "./routers/modelRetraining";
 import { retentionInterventionsRouter } from "./routers/retentionInterventions";
 import { interventionRecommendationsRouter } from "./routers/interventionRecommendations";
 import { interventionPredictionRouter } from "./routers/interventionPrediction";
+import { payrollIntegrationRouter } from "./routers/payrollIntegration";
 import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
@@ -240,6 +241,7 @@ export const appRouter = router({
   retentionInterventions: retentionInterventionsRouter,
   interventionRecommendations: interventionRecommendationsRouter,
   interventionPrediction: interventionPredictionRouter,
+  payrollIntegration: payrollIntegrationRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

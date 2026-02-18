@@ -4271,3 +4271,41 @@ export const retentionInterventions = mysqlTable("retention_interventions", {
 
 export type RetentionIntervention = typeof retentionInterventions.$inferSelect;
 export type InsertRetentionIntervention = typeof retentionInterventions.$inferInsert;
+
+/**
+ * Tabla: payroll_data
+ * Almacena datos de compensación y beneficios de empleados para análisis de correlación con riesgo de rotación
+ */
+export const payrollData = mysqlTable("payroll_data", {
+  id: int("id").primaryKey().autoincrement(),
+  employeeId: int("employee_id").notNull().unique(), // ID del empleado (único)
+  employeeName: varchar("employee_name", { length: 255 }).notNull(),
+  department: varchar("department", { length: 255 }),
+  position: varchar("position", { length: 255 }),
+  
+  // Compensación
+  salary: decimal("salary", { precision: 10, scale: 2 }).notNull(), // Salario mensual bruto
+  benefits: decimal("benefits", { precision: 10, scale: 2 }), // Valor mensual de beneficios
+  totalCompensation: decimal("total_compensation", { precision: 10, scale: 2 }), // Salario + beneficios
+  
+  // Historial salarial
+  lastRaiseDate: date("last_raise_date"), // Fecha del último aumento
+  lastRaisePercentage: decimal("last_raise_percentage", { precision: 5, scale: 2 }), // Porcentaje del último aumento
+  monthsSinceLastRaise: int("months_since_last_raise"), // Meses desde el último aumento
+  
+  // Comparación con mercado
+  marketRate: decimal("market_rate", { precision: 10, scale: 2 }), // Tasa de mercado para el puesto
+  salaryGapPercentage: decimal("salary_gap_percentage", { precision: 5, scale: 2 }), // Brecha salarial (%)
+  salaryGapStatus: varchar("salary_gap_status", { length: 50 }), // below_market, at_market, above_market
+  
+  // Alertas
+  compensationRiskLevel: varchar("compensation_risk_level", { length: 50 }), // low, medium, high, critical
+  requiresReview: boolean("requires_review").default(false), // Requiere revisión salarial
+  
+  // Metadata
+  lastUpdated: timestamp("last_updated").defaultNow().onUpdateNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type PayrollData = typeof payrollData.$inferSelect;
+export type InsertPayrollData = typeof payrollData.$inferInsert;

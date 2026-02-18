@@ -1,0 +1,22 @@
+CREATE TABLE `payroll_data` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`employee_id` int NOT NULL,
+	`employee_name` varchar(255) NOT NULL,
+	`department` varchar(255),
+	`position` varchar(255),
+	`salary` decimal(10,2) NOT NULL,
+	`benefits` decimal(10,2),
+	`total_compensation` decimal(10,2),
+	`last_raise_date` date,
+	`last_raise_percentage` decimal(5,2),
+	`months_since_last_raise` int,
+	`market_rate` decimal(10,2),
+	`salary_gap_percentage` decimal(5,2),
+	`salary_gap_status` varchar(50),
+	`compensation_risk_level` varchar(50),
+	`requires_review` boolean DEFAULT false,
+	`last_updated` timestamp DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `payroll_data_id` PRIMARY KEY(`id`),
+	CONSTRAINT `payroll_data_employee_id_unique` UNIQUE(`employee_id`)
+);

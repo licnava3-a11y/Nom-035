@@ -827,6 +827,13 @@
       "when": 1771383119353,
       "tag": "0117_burly_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "5",
+      "when": 1771383804450,
+      "tag": "0118_lively_kingpin",
+      "breakpoints": true
     }
   ]
 }
