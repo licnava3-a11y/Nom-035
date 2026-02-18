@@ -2980,3 +2980,32 @@
 - [ ] Agregar gráficos de posicionamiento competitivo
 - [ ] Agregar tabla de puestos con mayor brecha vs mercado
 - [ ] Agregar ruta y enlace en navegación lateral
+
+## Tareas Críticas - Refactorización TypeScript y Seguridad (NUEVA PRIORIDAD)
+
+### 1. Refactorización TypeScript (CRÍTICO - Exit Code 134)
+- [ ] Ejecutar tsc con timeout extendido para capturar errores completos
+- [ ] Identificar archivos con errores de tipos en routers recientes
+- [ ] Corregir tipos de retorno en procedures sin tipado explícito
+- [ ] Validar imports de Drizzle en routers nuevos (clima, carrera, equidad)
+- [ ] Corregir uso de enums en queries SQL
+- [ ] Regenerar tipos Drizzle y reiniciar LSP
+- [ ] Confirmar resolución con tsc --noEmit exitoso
+
+### 2. Validaciones Zod en Procedures Críticos (CRÍTICO - SEGURIDAD)
+- [ ] Auditar routers sin validación: climateAnalysis, careerPlanning, salaryEquity
+- [ ] Implementar validaciones Zod en auth procedures (login, register, changePassword)
+- [ ] Implementar validaciones Zod en payroll procedures (updateSalary, createPayrollData)
+- [ ] Implementar validaciones Zod en compliance procedures (updateCompliance, uploadEvidence)
+- [ ] Implementar validaciones Zod en employee management (createEmployee, updateEmployee)
+- [ ] Implementar validaciones Zod en survey procedures (submitResponse, createSurvey)
+- [ ] Objetivo: Alcanzar >95% coverage de validaciones
+
+### 3. Optimización de Performance (ALTA PRIORIDAD)
+- [ ] Implementar paginación server-side en employeesRouter.list
+- [ ] Implementar paginación server-side en recognitionsRouter.list
+- [ ] Implementar paginación server-side en leadsRouter (si existe)
+- [ ] Agregar índices de base de datos para queries de clima laboral
+- [ ] Agregar índices de base de datos para queries de planes de carrera
+- [ ] Optimizar queries con múltiples joins en dashboards consolidados
+- [ ] Configurar cache strategies para queries pesadas (>1s)
