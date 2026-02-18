@@ -2676,3 +2676,34 @@
 - [ ] Subir PDF a S3 y retornar URL
 - [ ] Agregar botón "Exportar a PDF" en PredictiveCorrelationDashboard.tsx
 - [ ] Abrir PDF en nueva ventana automáticamente
+
+
+## Nuevas Tareas - Corrección TypeScript, Dashboard Evolución Modelo y SMTP
+
+### Fase 1: Resolver Errores TypeScript
+- [ ] Ejecutar tsc para identificar los 12 errores específicos
+- [ ] Analizar errores relacionados con tipos de Drizzle
+- [ ] Corregir errores de validaciones Zod
+- [ ] Verificar imports y exports de tipos
+- [ ] Ejecutar tsc nuevamente para confirmar resolución
+
+### Fase 2: Dashboard de Evolución Temporal del Modelo Predictivo
+- [ ] Crear router modelEvolution con query getMetricsByMonth
+- [ ] Implementar cálculo de métricas por mes (últimos 12 meses)
+- [ ] Crear página ModelEvolutionDashboard.tsx
+- [ ] Implementar 3 gráficos de línea (precisión, recall, F1-score)
+- [ ] Implementar cards de tendencia (mejora/degradación)
+- [ ] Agregar selector de rango de fechas
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar enlace en navegación lateral
+- [ ] Registrar router en appRouter
+
+### Fase 3: Configurar SMTP para Notificaciones por Email
+- [ ] Agregar variables SMTP mediante webdev_request_secrets (host, port, user, password)
+- [ ] Crear página SMTPConfigPanel.tsx en panel de administración
+- [ ] Implementar formulario de configuración SMTP
+- [ ] Crear router smtpConfig con mutation testConnection
+- [ ] Validar envío de email de prueba
+- [ ] Actualizar job compliance-reminders para usar configuración SMTP
+- [ ] Agregar ruta en App.tsx
+- [ ] Agregar enlace en navegación lateral (Administración)
