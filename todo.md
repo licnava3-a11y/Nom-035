@@ -3144,3 +3144,36 @@
 - [x] Agregar sección de troubleshooting y FAQ (5 preguntas frecuentes)
 - [x] Incluir checklist de auditoría y cumplimiento normativo
 - [x] Documentar roadmap de mejoras futuras (4 mejoras planificadas)
+
+
+## Nueva Tarea - Tests E2E con Playwright para CSRF Protection ✅ COMPLETADA
+
+### Configurar Playwright
+- [x] Instalar dependencias de Playwright (@playwright/test v1.58.2)
+- [x] Crear configuración playwright.config.ts (5 navegadores)
+- [x] Configurar scripts de ejecución en package.json (test:e2e, test:e2e:ui, test:e2e:debug, test:e2e:report)
+- [x] Crear helpers de autenticación para tests (auth.ts)
+
+### Tests de Protección CSRF en Formularios Críticos
+- [x] Test: Crear caso sin token CSRF debe fallar con 403
+- [x] Test: Crear caso con token CSRF válido debe exitoso
+- [x] Test: Actualizar caso con token CSRF válido debe ser exitoso
+- [x] Test: Actualizar caso sin token CSRF debe fallar
+- [x] Test: Asignar caso con token CSRF válido debe ser exitoso
+- [x] Test: Token CSRF inválido debe ser rechazado
+- [x] Test: Múltiples mutations consecutivas con mismo token
+- [x] Test: Carga inicial de token CSRF al iniciar aplicación
+- [x] Test: Persistencia de token durante navegación
+- [x] Test: Renovación automática de token antes de expiración (50 min)
+- [x] Test: Manejo de token expirado con renovación automática
+- [x] Test: Renovación manual de token
+- [x] Test: Inclusión de token en headers de todas las mutations
+- [x] Test: Persistencia de token entre recargas de página
+
+### Documentación de Tests
+- [x] Crear README de tests E2E en e2e/README.md (documentación completa)
+- [x] Documentar cómo ejecutar tests localmente (4 comandos)
+- [x] Documentar cómo agregar nuevos tests de CSRF (guía paso a paso)
+- [x] Documentar helpers disponibles (auth.ts, csrf.ts)
+- [x] Documentar buenas prácticas y troubleshooting
+- [x] Documentar integración con CI/CD (GitHub Actions)
