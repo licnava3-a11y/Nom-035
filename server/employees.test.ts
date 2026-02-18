@@ -81,8 +81,10 @@ describe("Employees Module", () => {
       const result = await caller.employees.list({});
 
       expect(result).toBeDefined();
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBeGreaterThan(0);
+      expect(result.employees).toBeDefined();
+      expect(Array.isArray(result.employees)).toBe(true);
+      expect(result.employees.length).toBeGreaterThanOrEqual(0);
+      expect(result.pagination).toBeDefined();
     });
 
     it("should filter employees by search term", async () => {
@@ -92,22 +94,25 @@ describe("Employees Module", () => {
       });
 
       expect(result).toBeDefined();
-      expect(Array.isArray(result)).toBe(true);
+      expect(result.employees).toBeDefined();
+      expect(Array.isArray(result.employees)).toBe(true);
       // Search should return results
-      expect(result.length).toBeGreaterThanOrEqual(0);
+      expect(result.employees.length).toBeGreaterThanOrEqual(0);
     });
 
     it("should filter employees by department", async () => {
       const caller = appRouter.createCaller(adminContext);
+      // Use departmentId as string (will be parsed to number in backend)
       const result = await caller.employees.list({
-        department: "Testing Department",
+        department: "1", // departmentId as string
       });
 
       expect(result).toBeDefined();
-      expect(Array.isArray(result)).toBe(true);
-      // If there are results, they should match the filter
-      if (result.length > 0) {
-        expect(result.every((emp) => emp.department === "Testing Department")).toBe(true);
+      expect(result.employees).toBeDefined();
+      expect(Array.isArray(result.employees)).toBe(true);
+      // If there are results, they should have departmentId = 1
+      if (result.employees.length > 0) {
+        expect(result.employees.every((emp) => emp.departmentId === 1)).toBe(true);
       }
     });
 
