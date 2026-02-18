@@ -19,8 +19,10 @@ const generateKey = (req: Request): string => {
 /**
  * Rate limiter global para todas las rutas
  * Límite: 100 requests por 15 minutos por IP
+ * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const globalLimiter = rateLimit({
+  skip: () => process.env.NODE_ENV === 'development',
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100, // Límite de 100 requests por ventana
   message: {
@@ -44,8 +46,10 @@ export const globalLimiter = rateLimit({
  * Rate limiter estricto para endpoints de autenticación
  * Límite: 5 requests por 15 minutos por IP
  * Previene ataques de fuerza bruta en login/registro
+ * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const authLimiter = rateLimit({
+  skip: () => process.env.NODE_ENV === 'development',
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 5, // Límite de 5 intentos por ventana
   message: {
@@ -69,8 +73,10 @@ export const authLimiter = rateLimit({
  * Rate limiter para formularios de contacto y públicos
  * Límite: 3 requests por hora por IP
  * Previene spam en formularios públicos
+ * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const contactFormLimiter = rateLimit({
+  skip: () => process.env.NODE_ENV === 'development',
   windowMs: 60 * 60 * 1000, // 1 hora
   max: 3, // Límite de 3 envíos por hora
   message: {
@@ -93,8 +99,10 @@ export const contactFormLimiter = rateLimit({
  * Rate limiter para endpoints de API sensibles
  * Límite: 20 requests por 5 minutos por IP
  * Protege endpoints que realizan operaciones costosas
+ * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const apiLimiter = rateLimit({
+  skip: () => process.env.NODE_ENV === 'development',
   windowMs: 5 * 60 * 1000, // 5 minutos
   max: 20, // Límite de 20 requests por ventana
   message: {
@@ -117,8 +125,10 @@ export const apiLimiter = rateLimit({
  * Rate limiter para exportaciones y reportes
  * Límite: 10 requests por 10 minutos por IP
  * Previene abuso de endpoints que generan PDFs/Excel
+ * NOTA: Desactivado en desarrollo para evitar bloqueos durante pruebas
  */
 export const exportLimiter = rateLimit({
+  skip: () => process.env.NODE_ENV === 'development',
   windowMs: 10 * 60 * 1000, // 10 minutos
   max: 10, // Límite de 10 exportaciones por ventana
   message: {
