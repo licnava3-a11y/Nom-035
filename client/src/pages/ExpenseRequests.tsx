@@ -13,11 +13,14 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import ProtectedButton from "@/components/ProtectedButton";
 import { Receipt, Plus, Edit, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function ExpenseRequests() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState<number | null>(null);
   
   // Form state
   const [folio, setFolio] = useState("");
@@ -122,8 +125,13 @@ export default function ExpenseRequests() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm("¿Estás seguro de eliminar esta solicitud de gasto?")) {
-      deleteMutation.mutate({ id });
+    setRequestToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (requestToDelete) {
+      deleteMutation.mutate({ id: requestToDelete });
     }
   };
 
@@ -341,6 +349,18 @@ export default function ExpenseRequests() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Dialog para Eliminar */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={confirmDelete}
+        title="¿Eliminar solicitud de gasto?"
+        description="Esta acción no se puede deshacer. La solicitud será eliminada permanentemente."
+        impactMessage="Se eliminará la solicitud y todos sus documentos adjuntos"
+        variant="destructive"
+        confirmText="Eliminar"
+      />
     </div>
   );
 }

@@ -8,8 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Shield, Upload, Trash2, CheckCircle, XCircle, FileKey, Calendar, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export default function EfirmaSAT() {
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [certToDelete, setCertToDelete] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [certificateFile, setCertificateFile] = useState<string | null>(null);
@@ -52,6 +55,12 @@ export default function EfirmaSAT() {
       alert(`Error: ${error.message}`);
     },
   });
+
+  const confirmDelete = () => {
+    if (certToDelete) {
+      deleteCertificate.mutate({ id: certToDelete });
+    }
+  };
 
   const validateCertificate = trpc.digitalCertificates.validateWithSAT.useMutation({
     onSuccess: (data) => {
@@ -377,9 +386,8 @@ export default function EfirmaSAT() {
                           variant="destructive"
                           size="sm"
                           onClick={() => {
-                            if (confirm('¿Eliminar este certificado?')) {
-                              deleteCertificate.mutate({ id: cert.id });
-                            }
+                            setCertToDelete(cert.id);
+                            setDeleteConfirmOpen(true);
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -441,9 +449,8 @@ export default function EfirmaSAT() {
                           variant="ghost"
                           size="sm"
                           onClick={() => {
-                            if (confirm('¿Eliminar este certificado?')) {
-                              deleteCertificate.mutate({ id: cert.id });
-                            }
+                            setCertToDelete(cert.id);
+                            setDeleteConfirmOpen(true);
                           }}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -461,6 +468,18 @@ export default function EfirmaSAT() {
           )}
         </CardContent>
       </Card>
+
+      {/* Confirm Dialog para Eliminar */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={confirmDelete}
+        title="¿Eliminar certificado digital?"
+        description="Esta acción no se puede deshacer. El certificado será eliminado permanentemente."
+        impactMessage="Se eliminará el certificado, la llave privada y todos los registros de validación"
+        variant="destructive"
+        confirmText="Eliminar"
+      />
     </div>
   );
 }

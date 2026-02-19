@@ -25,6 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Users, AlertCircle, UserCog, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function DepartmentManagement() {
   const [page, setPage] = useState(1);
@@ -32,6 +33,8 @@ export default function DepartmentManagement() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [departmentToDelete, setDepartmentToDelete] = useState<any>(null);
   const [isReassignDialogOpen, setIsReassignDialogOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
@@ -200,15 +203,15 @@ export default function DepartmentManagement() {
   };
 
   const handleDeleteClick = (dept: any) => {
-    setSelectedDepartment(dept);
-    setIsDeleteDialogOpen(true);
+    setDepartmentToDelete(dept);
+    setDeleteConfirmOpen(true);
   };
 
-  const handleDelete = () => {
-    if (!selectedDepartment) return;
+  const confirmDelete = () => {
+    if (!departmentToDelete) return;
 
     deleteMutation.mutate({
-      id: selectedDepartment.id,
+      id: departmentToDelete.id,
     });
   };
 
@@ -816,6 +819,18 @@ export default function DepartmentManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Dialog para Eliminar */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={confirmDelete}
+        title="¿Eliminar departamento?"
+        description="Esta acción no se puede deshacer. El departamento será eliminado permanentemente."
+        impactMessage={departmentToDelete ? `Se eliminarán ${departmentToDelete.employeeCount || 0} empleados asignados y sus relaciones jerárquicas` : ""}
+        variant="destructive"
+        confirmText="Eliminar"
+      />
     </div>
   );
 }

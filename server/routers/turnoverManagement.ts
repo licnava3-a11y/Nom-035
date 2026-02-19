@@ -23,7 +23,7 @@ export const turnoverManagementRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
 
       const records = await db
         .select({
@@ -74,7 +74,7 @@ export const turnoverManagementRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
 
       // Validar que el empleado existe
       const employee = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
@@ -151,7 +151,7 @@ export const turnoverManagementRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
 
       // Verificar que el registro existe
       const existingRecord = await db
@@ -177,7 +177,7 @@ export const turnoverManagementRouter = router({
       }
 
       // Actualizar registro
-      await db.update(employeeTurnoverHistory).set(updates).where(eq(employeeTurnoverHistory.id, input.id));
+      await db!.update(employeeTurnoverHistory).set(updates).where(eq(employeeTurnoverHistory.id, input.id));
 
       return {
         success: true,
@@ -196,7 +196,7 @@ export const turnoverManagementRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
 
       // Verificar que el registro existe
       const existingRecord = await db
@@ -213,7 +213,7 @@ export const turnoverManagementRouter = router({
       }
 
       // Eliminar registro
-      await db.delete(employeeTurnoverHistory).where(eq(employeeTurnoverHistory.id, input.id));
+      await db!.delete(employeeTurnoverHistory).where(eq(employeeTurnoverHistory.id, input.id));
 
       return {
         success: true,

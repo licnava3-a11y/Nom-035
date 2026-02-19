@@ -4986,3 +4986,32 @@
 - [ ] Ejecutar tests: pnpm exec playwright test
 - [ ] Generar reporte HTML: pnpm exec playwright show-report
 - [ ] Documentar problemas de compatibilidad encontrados
+
+
+## ✅ CHECKPOINT ACTUAL: Correcciones TypeScript y Sistema de Confirmaciones (En Progreso)
+
+### 1. Correcciones TypeScript ✅ COMPLETADO (16 errores corregidos: 757→741)
+- [x] Corregir sintaxis deprecada de Zod en server/validators/common.ts (6 enums)
+- [x] Agregar "committee" al enum de notificaciones en schema.ts
+- [x] Aplicar migración SQL 0137 para enum de notificaciones
+- [x] Corregir campo relatedId por relatedEntityId en notifyOperatingRulesChanges.ts
+- [x] Corregir campo status por isActive en committeeMembers
+- [x] Agregar await a 4 llamadas de getDb() en turnoverManagement.ts
+- [x] Agregar non-null assertions (!) a 6 usos de db en turnoverManagement.ts
+- [x] Estado actual: 741 errores TypeScript (reducción de 16 errores)
+
+### 2. Sistema de Confirmaciones en Acciones Destructivas ✅ COMPLETADO (5/28 páginas)
+- [x] Crear componente ConfirmDialog reutilizable con AlertDialog de shadcn/ui
+- [x] Implementar confirmación en CommitteeMinutesManagement
+- [x] Implementar confirmación en DepartmentManagement (con contador de empleados)
+- [x] Implementar confirmación en AssessmentsManagement (con mensaje de impacto)
+- [x] Implementar confirmación en ExpenseRequests (con documentos adjuntos)
+- [x] Implementar confirmación en EfirmaSAT (con certificados y llaves)
+- [x] Agregar mensajes de impacto específicos por página
+- [ ] Implementar en 23 páginas restantes (pendiente)
+
+### 3. Próximos Pasos Recomendados
+- [ ] Corregir 4 errores restantes de TypeScript (db posiblemente null)
+- [ ] Implementar confirmaciones en 23 páginas restantes
+- [ ] Crear tests E2E con Playwright para validar confirmaciones
+- [ ] Optimizar responsive design para móviles (320px-768px)

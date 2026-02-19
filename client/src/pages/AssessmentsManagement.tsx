@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Plus, Edit, Trash2, FileText, CheckCircle, XCircle, Archive } from 'lucide-react';
 import { useLocation } from 'wouter';
 
@@ -15,6 +16,8 @@ export default function AssessmentsManagement() {
   const [, setLocation] = useLocation();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<'draft' | 'active' | 'archived' | undefined>();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [assessmentToDelete, setAssessmentToDelete] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -76,8 +79,13 @@ export default function AssessmentsManagement() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('¿Está seguro de eliminar esta evaluación?')) {
-      deleteMutation.mutate({ id });
+    setAssessmentToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (assessmentToDelete) {
+      deleteMutation.mutate({ id: assessmentToDelete });
     }
   };
 
@@ -417,6 +425,18 @@ export default function AssessmentsManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Dialog para Eliminar */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={confirmDelete}
+        title="¿Eliminar evaluación?"
+        description="Esta acción no se puede deshacer. La evaluación será eliminada permanentemente."
+        impactMessage="Se eliminarán todas las preguntas, respuestas y resultados de esta evaluación"
+        variant="destructive"
+        confirmText="Eliminar"
+      />
     </div>
   );
 }
