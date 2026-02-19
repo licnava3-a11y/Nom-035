@@ -4353,4 +4353,28 @@
 - [x] Agregar estado showSearchDialog y handler onSelectResult
 - [x] Sistema completo de búsqueda implementado
 - [x] Actualizar todo.md con progreso
-- [ ] Guardar checkpoint final
+- [x] Guardar checkpoint final (8966eff3)
+
+
+## FILTROS AVANZADOS EN BÚSQUEDA DE BASES DE FUNCIONAMIENTO
+
+### Fase 1: Actualizar Procedure con Filtros ✅
+- [x] Actualizar procedure searchOperatingRules para agregar parámetros status, dateFrom y dateTo
+- [x] Agregar filtro por estado (all/draft/active)
+- [x] Agregar filtro por rango de fechas (updatedAt >= dateFrom AND updatedAt <= dateTo)
+- [x] Mantener compatibilidad con búsqueda existente
+- [x] Agregar imports de or y like en drizzle-orm
+- [x] Usar and() con array de condiciones para combinar filtros
+
+### Fase 2: Agregar Controles de Filtros en UI ✅
+- [x] Agregar estados statusFilter, dateFrom, dateTo en SearchOperatingRules
+- [x] Agregar select de estado (Todos/Borrador/Activo)
+- [x] Agregar inputs de fecha (desde/hasta) para rango de fechas
+- [x] Actualizar query para incluir filtros seleccionados (status, dateFrom, dateTo)
+- [x] Agregar botón "Limpiar Filtros" para resetear (solo visible si hay filtros activos)
+- [x] Layout en grid de 3 columnas para filtros
+
+### Fase 3: Pruebas y Entrega
+- [x] Sistema de filtros implementado completamente
+- [x] Actualizar todo.md
+- [ ] Guardar checkpoint

@@ -18,6 +18,9 @@ interface SearchOperatingRulesProps {
 export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: SearchOperatingRulesProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "active">("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   // Debounce search query (300ms)
   useEffect(() => {
@@ -31,6 +34,9 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
   const { data: searchResults, isLoading } = trpc.committeeOperatingRules.searchOperatingRules.useQuery(
     {
       query: debouncedQuery,
+      status: statusFilter,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
       limit: 20,
       offset: 0,
     },
@@ -84,6 +90,56 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
               autoFocus
             />
           </div>
+
+          {/* Filtros avanzados */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Estado</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as "all" | "draft" | "active")}
+                className="w-full px-3 py-2 border rounded-md text-sm"
+              >
+                <option value="all">Todos</option>
+                <option value="draft">Borrador</option>
+                <option value="active">Activo</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Fecha Desde</label>
+              <Input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Fecha Hasta</label>
+              <Input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Botón limpiar filtros */}
+          {(statusFilter !== "all" || dateFrom || dateTo) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setStatusFilter("all");
+                setDateFrom("");
+                setDateTo("");
+              }}
+              className="w-full"
+            >
+              Limpiar Filtros
+            </Button>
+          )}
 
           {/* Resultados */}
           <div className="flex-1 overflow-y-auto space-y-3">

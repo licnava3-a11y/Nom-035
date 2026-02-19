@@ -7,7 +7,7 @@ import {
   operatingRulesApprovals,
   users 
 } from "../../drizzle/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, or, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateOperatingRulesPDF } from "../utils/generateOperatingRulesPDF";
 import { notifyOperatingRulesChanges } from "../utils/notifyOperatingRulesChanges";
@@ -1422,17 +1422,44 @@ export const committeeOperatingRulesRouter = router({
     .input(
       z.object({
         query: z.string().min(1, "El término de búsqueda es requerido"),
+        status: z.enum(["all", "draft", "active"]).optional().default("all"),
+        dateFrom: z.string().optional(), // YYYY-MM-DD
+        dateTo: z.string().optional(), // YYYY-MM-DD
         limit: z.number().optional().default(20),
         offset: z.number().optional().default(0),
       })
     )
     .query(async ({ input }) => {
-      const { query, limit, offset } = input;
+      const { query, status, dateFrom, dateTo, limit, offset } = input;
       const db = await getDb();
 
       try {
-        // Buscar en bases de funcionamiento activas
+        // Buscar en bases de funcionamiento
         const searchPattern = `%${query}%`;
+        
+        // Construir condiciones de filtro
+        const conditions = [
+          or(
+            like(committeeOperatingRules.title, searchPattern),
+            like(committeeOperatingRules.objectives, searchPattern),
+            like(committeeOperatingRules.structure, searchPattern),
+            like(committeeOperatingRules.roles, searchPattern),
+            like(committeeOperatingRules.members, searchPattern)
+          )
+        ];
+        
+        // Filtro por estado
+        if (status !== "all") {
+          conditions.push(eq(committeeOperatingRules.status, status));
+        }
+        
+        // Filtro por rango de fechas
+        if (dateFrom) {
+          conditions.push(sql`${committeeOperatingRules.updatedAt} >= ${dateFrom}`);
+        }
+        if (dateTo) {
+          conditions.push(sql`${committeeOperatingRules.updatedAt} <= ${dateTo}`);
+        }
         
         const results = await db
           .select({
@@ -1448,15 +1475,7 @@ export const committeeOperatingRulesRouter = router({
             updatedAt: committeeOperatingRules.updatedAt,
           })
           .from(committeeOperatingRules)
-          .where(
-            or(
-              like(committeeOperatingRules.title, searchPattern),
-              like(committeeOperatingRules.objectives, searchPattern),
-              like(committeeOperatingRules.structure, searchPattern),
-              like(committeeOperatingRules.roles, searchPattern),
-              like(committeeOperatingRules.members, searchPattern)
-            )
-          )
+          .where(and(...conditions))
           .orderBy(desc(committeeOperatingRules.updatedAt));
 
         // Calcular relevancia (coincidencias exactas primero)
