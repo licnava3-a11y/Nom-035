@@ -4424,4 +4424,44 @@
 - [x] Sistema completo implementado y funcionando
 - [x] Servidor corriendo sin errores críticos
 - [x] Actualizar todo.md
+- [x] Guardar checkpoint (9978d928)
+
+
+## DASHBOARD DE CUMPLIMIENTO DE PLAZOS
+
+### Fase 1: Crear Procedure tRPC con Métricas ✅
+- [x] Procedure getDeadlineComplianceMetrics con filtro por período (30-365 días, default 90)
+- [x] Métrica: % aprobaciones completadas a tiempo (complianceRate)
+- [x] Métrica: Tiempo promedio de respuesta en horas (avgResponseTime)
+- [x] Métrica: Tasa de aprobaciones vencidas (overdueRate)
+- [x] Métrica: Total de aprobaciones con deadline, completadas, a tiempo, vencidas
+- [x] Query: Tendencias mensuales de cumplimiento (últimos 6 meses con rate)
+- [x] Query: Distribución de tiempos de respuesta (4 rangos: <24h, 1-3d, 3-7d, >7d)
+- [x] Query: Ranking top 10 aprobadores por velocidad con onTimeRate
+- [x] Query: Top 10 documentos más lentos con tiempo de respuesta
+- [x] Análisis por rol (presidente, secretario, vocal, otro) con avg time y onTimeRate
+- [x] Identificación automática de cuellos de botella (>7 días)
+
+### Fase 2: Desarrollar Página con Visualizaciones ✅
+- [x] Crear página DeadlineComplianceDashboard.tsx con Chart.js
+- [x] 6 cards de métricas principales con iconos (cumplimiento, tiempo promedio, vencidas, total, aprobadores, tendencia)
+- [x] Gráfico de líneas: Tendencias mensuales de cumplimiento (últimos 6 meses)
+- [x] Gráfico de barras: Distribución de tiempos de respuesta (4 rangos con colores)
+- [x] Gráfico de barras horizontal: Top 10 aprobadores con colores por velocidad
+- [x] Tabla: Top 10 documentos más lentos con badges de estado
+- [x] Filtros por período (30/90/180/365 días) con Select
+- [x] Agregar ruta /deadline-compliance en App.tsx con DashboardLayout
+- [x] Agregar enlace en menú (Comité > Cumplimiento de Plazos)
+
+### Fase 3: Análisis de Cuellos de Botella ✅
+- [x] Sección de análisis por rol con cards comparativas (4 roles)
+- [x] Identificación automática de aprobadores lentos (>7 días = 168 horas)
+- [x] Alerta visual destacada para cuellos de botella detectados (card roja con badges)
+- [x] Comparativa de tiempo promedio y tasa a tiempo por rol con badges de velocidad
+- [x] Tooltips informativos en gráficos con detalles adicionales
+
+### Fase 4: Pruebas y Entrega ✅
+- [x] Sistema completo implementado y funcionando
+- [x] Servidor corriendo sin errores críticos
+- [x] Actualizar todo.md
 - [ ] Guardar checkpoint

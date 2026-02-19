@@ -1758,4 +1758,245 @@ export const committeeOperatingRulesRouter = router({
         });
       }
     }),
+
+  /**
+   * Obtener métricas de cumplimiento de plazos
+   */
+  getDeadlineComplianceMetrics: protectedProcedure
+    .input(
+      z.object({
+        days: z.number().min(30).max(365).optional().default(90),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+
+      try {
+        const now = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - input.days);
+
+        // Obtener todas las aprobaciones con deadline en el período
+        const approvals = await db
+          .select({
+            id: operatingRulesApprovals.id,
+            operatingRuleId: operatingRulesApprovals.operatingRuleId,
+            approverId: operatingRulesApprovals.approverId,
+            approverName: users.name,
+            approverRole: operatingRulesApprovals.approverRole,
+            status: operatingRulesApprovals.status,
+            deadline: operatingRulesApprovals.deadline,
+            signedAt: operatingRulesApprovals.signedAt,
+            createdAt: operatingRulesApprovals.createdAt,
+            ruleVersion: committeeOperatingRules.version,
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .leftJoin(
+            committeeOperatingRules,
+            eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+          )
+          .where(
+            and(
+              sql`${operatingRulesApprovals.deadline} IS NOT NULL`,
+              sql`${operatingRulesApprovals.createdAt} >= ${startDate}`
+            )
+          );
+
+        // Métricas principales
+        const totalWithDeadline = approvals.length;
+        const completed = approvals.filter((a) => a.status === "signed");
+        const completedOnTime = completed.filter(
+          (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+        );
+        const overdue = approvals.filter(
+          (a) => a.status === "pending" && a.deadline && new Date(a.deadline) < now
+        );
+
+        const complianceRate = totalWithDeadline > 0 ? (completedOnTime.length / totalWithDeadline) * 100 : 0;
+        const overdueRate = totalWithDeadline > 0 ? (overdue.length / totalWithDeadline) * 100 : 0;
+
+        // Tiempo promedio de respuesta (solo completadas)
+        let avgResponseTime = 0;
+        if (completed.length > 0) {
+          const responseTimes = completed
+            .filter((a) => a.signedAt && a.createdAt)
+            .map((a) => {
+              const created = new Date(a.createdAt!).getTime();
+              const signed = new Date(a.signedAt!).getTime();
+              return (signed - created) / (1000 * 60 * 60); // horas
+            });
+          avgResponseTime = responseTimes.reduce((sum, t) => sum + t, 0) / responseTimes.length;
+        }
+
+        // Tendencias mensuales (últimos 6 meses)
+        const monthlyTrends: Array<{ month: string; compliant: number; total: number; rate: number }> = [];
+        for (let i = 5; i >= 0; i--) {
+          const monthStart = new Date();
+          monthStart.setMonth(monthStart.getMonth() - i);
+          monthStart.setDate(1);
+          monthStart.setHours(0, 0, 0, 0);
+
+          const monthEnd = new Date(monthStart);
+          monthEnd.setMonth(monthEnd.getMonth() + 1);
+          monthEnd.setDate(0);
+          monthEnd.setHours(23, 59, 59, 999);
+
+          const monthApprovals = approvals.filter((a) => {
+            const created = new Date(a.createdAt);
+            return created >= monthStart && created <= monthEnd;
+          });
+
+          const monthCompleted = monthApprovals.filter((a) => a.status === "signed");
+          const monthCompliant = monthCompleted.filter(
+            (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+          );
+
+          const rate = monthApprovals.length > 0 ? (monthCompliant.length / monthApprovals.length) * 100 : 0;
+
+          monthlyTrends.push({
+            month: monthStart.toLocaleDateString("es-ES", { month: "short", year: "numeric" }),
+            compliant: monthCompliant.length,
+            total: monthApprovals.length,
+            rate,
+          });
+        }
+
+        // Distribución de tiempos de respuesta
+        const responseDistribution = {
+          lessThan24h: 0,
+          between1And3Days: 0,
+          between3And7Days: 0,
+          moreThan7Days: 0,
+        };
+
+        completed.forEach((a) => {
+          if (!a.signedAt || !a.createdAt) return;
+          const hours = (new Date(a.signedAt).getTime() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+          if (hours < 24) responseDistribution.lessThan24h++;
+          else if (hours < 72) responseDistribution.between1And3Days++;
+          else if (hours < 168) responseDistribution.between3And7Days++;
+          else responseDistribution.moreThan7Days++;
+        });
+
+        // Ranking de aprobadores por velocidad
+        const approverStats = new Map<
+          number,
+          {
+            id: number;
+            name: string;
+            role: string;
+            totalApprovals: number;
+            avgResponseTime: number;
+            onTimeRate: number;
+          }
+        >();
+
+        approvals.forEach((a) => {
+          if (!a.approverId) return;
+
+          if (!approverStats.has(a.approverId)) {
+            approverStats.set(a.approverId, {
+              id: a.approverId,
+              name: a.approverName || "Usuario desconocido",
+              role: a.approverRole,
+              totalApprovals: 0,
+              avgResponseTime: 0,
+              onTimeRate: 0,
+            });
+          }
+
+          const stats = approverStats.get(a.approverId)!;
+          stats.totalApprovals++;
+
+          if (a.status === "signed" && a.signedAt && a.createdAt) {
+            const responseTime = (new Date(a.signedAt).getTime() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+            stats.avgResponseTime += responseTime;
+
+            if (a.deadline && new Date(a.signedAt) <= new Date(a.deadline)) {
+              stats.onTimeRate++;
+            }
+          }
+        });
+
+        const approverRanking = Array.from(approverStats.values())
+          .map((stats) => ({
+            ...stats,
+            avgResponseTime: stats.totalApprovals > 0 ? stats.avgResponseTime / stats.totalApprovals : 0,
+            onTimeRate: stats.totalApprovals > 0 ? (stats.onTimeRate / stats.totalApprovals) * 100 : 0,
+          }))
+          .sort((a, b) => a.avgResponseTime - b.avgResponseTime)
+          .slice(0, 10);
+
+        // Documentos con mayor tiempo de aprobación
+        const slowestDocuments = completed
+          .filter((a) => a.signedAt && a.createdAt)
+          .map((a) => ({
+            operatingRuleId: a.operatingRuleId,
+            version: a.ruleVersion || "Sin versión",
+            approverName: a.approverName || "Usuario desconocido",
+            responseTime: (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60),
+            wasOnTime: a.deadline ? new Date(a.signedAt!) <= new Date(a.deadline) : null,
+          }))
+          .sort((a, b) => b.responseTime - a.responseTime)
+          .slice(0, 10);
+
+        // Análisis por rol
+        const roleAnalysis = [
+          { role: "president", label: "Presidente" },
+          { role: "secretary", label: "Secretario" },
+          { role: "vocal", label: "Vocal" },
+          { role: "other", label: "Otro" },
+        ].map(({ role, label }) => {
+          const roleApprovals = approvals.filter((a) => a.approverRole === role);
+          const roleCompleted = roleApprovals.filter((a) => a.status === "signed");
+          const roleCompliant = roleCompleted.filter(
+            (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+          );
+
+          let roleAvgTime = 0;
+          if (roleCompleted.length > 0) {
+            const times = roleCompleted
+              .filter((a) => a.signedAt && a.createdAt)
+              .map((a) => (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60));
+            roleAvgTime = times.reduce((sum, t) => sum + t, 0) / times.length;
+          }
+
+          return {
+            role,
+            label,
+            total: roleApprovals.length,
+            avgResponseTime: roleAvgTime,
+            onTimeRate: roleApprovals.length > 0 ? (roleCompliant.length / roleApprovals.length) * 100 : 0,
+          };
+        });
+
+        // Identificar cuellos de botella (aprobadores lentos)
+        const bottlenecks = approverRanking.filter((a) => a.avgResponseTime > 168).map((a) => a.name); // > 7 días
+
+        return {
+          summary: {
+            totalWithDeadline,
+            completed: completed.length,
+            completedOnTime: completedOnTime.length,
+            overdue: overdue.length,
+            complianceRate: Math.round(complianceRate * 10) / 10,
+            overdueRate: Math.round(overdueRate * 10) / 10,
+            avgResponseTime: Math.round(avgResponseTime * 10) / 10,
+          },
+          monthlyTrends,
+          responseDistribution,
+          approverRanking,
+          slowestDocuments,
+          roleAnalysis,
+          bottlenecks,
+        };
+      } catch (error) {
+        console.error("Error getting deadline compliance metrics:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener métricas de cumplimiento",
+        });
+      }
+    }),
 });
