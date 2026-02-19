@@ -4313,4 +4313,44 @@
 - [x] Filtros integrados y funcionales
 - [x] Paginación implementada
 - [x] Actualizar todo.md con progreso
+- [x] Guardar checkpoint final (9df2205f)
+
+
+## BÚSQUEDA GLOBAL DE BASES DE FUNCIONAMIENTO
+
+### Fase 1: Procedure de Búsqueda Global ✅
+- [x] Crear procedure searchOperatingRules en committeeOperatingRules router
+- [x] Implementar búsqueda en múltiples campos: título, objetivos, estructura, roles, miembros
+- [x] Usar búsqueda LIKE con wildcards para coincidencias parciales
+- [x] Incluir versión actual y metadata en resultados
+- [x] Ordenar por relevancia (coincidencias exactas primero con sistema de puntos)
+- [x] Implementar paginación (limit 20, offset)
+- [x] Retornar fragmentos de texto con contexto de coincidencia (snippet)
+
+### Fase 2: Componente de Búsqueda ✅
+- [x] Crear componente SearchOperatingRules.tsx
+- [x] Implementar barra de búsqueda con icono y placeholder descriptivo
+- [x] Agregar debounce de 300ms para evitar búsquedas excesivas
+- [x] Mostrar resultados en cards con información resumida
+- [x] Incluir badge de versión y estado (draft/active)
+- [x] Agregar loader durante búsqueda (Loader2 con animación spin)
+- [x] Mostrar mensaje "Sin resultados" cuando no hay coincidencias
+- [x] Mostrar contador de resultados encontrados
+
+### Fase 3: Destacado y Navegación ✅
+- [x] Implementar función de destacado de términos de búsqueda en resultados (highlightText)
+- [x] Usar <mark> con bg-yellow-200 para resaltar coincidencias
+- [x] Agregar botón "Ver Detalle" en cada resultado
+- [x] Implementar navegación directa al documento seleccionado (onClick en card)
+- [x] Actualizar selectedRuleId al hacer clic en resultado
+- [x] Cerrar panel de búsqueda después de seleccionar resultado
+- [x] Agregar contador de resultados encontrados en header
+
+### Fase 4: Integración y Pruebas ✅
+- [x] Integrar SearchOperatingRules en CommitteeOperatingRules.tsx
+- [x] Agregar botón de búsqueda en header de la página (junto a Crear desde Plantilla)
+- [x] Implementar dialog modal para resultados
+- [x] Agregar estado showSearchDialog y handler onSelectResult
+- [x] Sistema completo de búsqueda implementado
+- [x] Actualizar todo.md con progreso
 - [ ] Guardar checkpoint final

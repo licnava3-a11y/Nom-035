@@ -1414,4 +1414,108 @@ export const committeeOperatingRulesRouter = router({
         });
       }
     }),
+
+  /**
+   * Búsqueda global de bases de funcionamiento
+   */
+  searchOperatingRules: protectedProcedure
+    .input(
+      z.object({
+        query: z.string().min(1, "El término de búsqueda es requerido"),
+        limit: z.number().optional().default(20),
+        offset: z.number().optional().default(0),
+      })
+    )
+    .query(async ({ input }) => {
+      const { query, limit, offset } = input;
+      const db = await getDb();
+
+      try {
+        // Buscar en bases de funcionamiento activas
+        const searchPattern = `%${query}%`;
+        
+        const results = await db
+          .select({
+            id: committeeOperatingRules.id,
+            title: committeeOperatingRules.title,
+            version: committeeOperatingRules.version,
+            status: committeeOperatingRules.status,
+            objectives: committeeOperatingRules.objectives,
+            structure: committeeOperatingRules.structure,
+            roles: committeeOperatingRules.roles,
+            members: committeeOperatingRules.members,
+            createdAt: committeeOperatingRules.createdAt,
+            updatedAt: committeeOperatingRules.updatedAt,
+          })
+          .from(committeeOperatingRules)
+          .where(
+            or(
+              like(committeeOperatingRules.title, searchPattern),
+              like(committeeOperatingRules.objectives, searchPattern),
+              like(committeeOperatingRules.structure, searchPattern),
+              like(committeeOperatingRules.roles, searchPattern),
+              like(committeeOperatingRules.members, searchPattern)
+            )
+          )
+          .orderBy(desc(committeeOperatingRules.updatedAt));
+
+        // Calcular relevancia (coincidencias exactas primero)
+        const resultsWithRelevance = results.map(result => {
+          let relevance = 0;
+          const lowerQuery = query.toLowerCase();
+          
+          if (result.title?.toLowerCase().includes(lowerQuery)) relevance += 10;
+          if (result.objectives?.toLowerCase().includes(lowerQuery)) relevance += 5;
+          if (result.structure?.toLowerCase().includes(lowerQuery)) relevance += 3;
+          if (result.roles?.toLowerCase().includes(lowerQuery)) relevance += 3;
+          if (result.members?.toLowerCase().includes(lowerQuery)) relevance += 2;
+
+          // Extraer fragmento de contexto
+          let snippet = "";
+          if (result.title?.toLowerCase().includes(lowerQuery)) {
+            snippet = result.title;
+          } else if (result.objectives?.toLowerCase().includes(lowerQuery)) {
+            const index = result.objectives.toLowerCase().indexOf(lowerQuery);
+            const start = Math.max(0, index - 50);
+            const end = Math.min(result.objectives.length, index + query.length + 50);
+            snippet = (start > 0 ? "..." : "") + result.objectives.substring(start, end) + (end < result.objectives.length ? "..." : "");
+          } else if (result.structure?.toLowerCase().includes(lowerQuery)) {
+            const index = result.structure.toLowerCase().indexOf(lowerQuery);
+            const start = Math.max(0, index - 50);
+            const end = Math.min(result.structure.length, index + query.length + 50);
+            snippet = (start > 0 ? "..." : "") + result.structure.substring(start, end) + (end < result.structure.length ? "..." : "");
+          } else if (result.roles?.toLowerCase().includes(lowerQuery)) {
+            const index = result.roles.toLowerCase().indexOf(lowerQuery);
+            const start = Math.max(0, index - 50);
+            const end = Math.min(result.roles.length, index + query.length + 50);
+            snippet = (start > 0 ? "..." : "") + result.roles.substring(start, end) + (end < result.roles.length ? "..." : "");
+          }
+
+          return {
+            ...result,
+            relevance,
+            snippet,
+          };
+        });
+
+        // Ordenar por relevancia
+        resultsWithRelevance.sort((a, b) => b.relevance - a.relevance);
+
+        // Paginar
+        const total = resultsWithRelevance.length;
+        const paginatedResults = resultsWithRelevance.slice(offset, offset + limit);
+
+        return {
+          results: paginatedResults,
+          total,
+          hasMore: offset + limit < total,
+        };
+      } catch (error) {
+        console.error("Error searching operating rules:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al buscar bases de funcionamiento",
+        });
+      }
+    }),
 });

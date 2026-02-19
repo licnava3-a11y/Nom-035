@@ -29,6 +29,7 @@ import { es } from "date-fns/locale";
 import VersionComparison from "@/components/VersionComparison";
 import ApprovalWorkflow from "@/components/ApprovalWorkflow";
 import { OperatingRulesTimeline } from "@/components/OperatingRulesTimeline";
+import { SearchOperatingRules } from "@/components/SearchOperatingRules";
 
 export default function CommitteeOperatingRules() {
   const [selectedRuleId, setSelectedRuleId] = useState<number | null>(null);
@@ -39,6 +40,7 @@ export default function CommitteeOperatingRules() {
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [customTitle, setCustomTitle] = useState("");
+  const [showSearchDialog, setShowSearchDialog] = useState(false);
   const [compareVersionIds, setCompareVersionIds] = useState<[number | null, number | null]>([null, null]);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -459,6 +461,10 @@ export default function CommitteeOperatingRules() {
           <p className="text-muted-foreground">Gestión de bases de funcionamiento con historial de versiones</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowSearchDialog(true)}>
+            <Search className="h-4 w-4 mr-2" />
+            Buscar
+          </Button>
           <Button variant="outline" onClick={() => setShowTemplateDialog(true)}>
             <FileText className="h-4 w-4 mr-2" />
             Crear desde Plantilla
@@ -1018,6 +1024,16 @@ export default function CommitteeOperatingRules() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de búsqueda */}
+      <SearchOperatingRules
+        open={showSearchDialog}
+        onOpenChange={setShowSearchDialog}
+        onSelectResult={(ruleId) => {
+          setSelectedRuleId(ruleId);
+          setShowSearchDialog(false);
+        }}
+      />
     </div>
   );
 }
