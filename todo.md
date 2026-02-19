@@ -3844,26 +3844,50 @@
 - [ ] Formulario de capacitaciones: selección de empleado → mostrar historial de cursos
 - [ ] Formulario de evaluaciones: selección de empleado → prellenar datos de identificación
 
-### Fase 3: Optimización de Rendimiento con React.memo
+### Fase 3: Optimización de Rendimiento con React.memo 🛠️ EN PROGRESO
 - [ ] Aplicar React.memo en componente de tabla de empleados
 - [ ] Aplicar React.memo en componente de tabla de casos
 - [ ] Aplicar React.memo en componente de tabla de encuestas
 - [ ] Aplicar React.memo en componentes de filas de tablas grandes
 - [ ] Verificar reducción de re-renders con React DevTools
 
-### Fase 4: Optimización de Rendimiento con useCallback
+### Fase 4: Optimización de Rendimiento con useCallback 🛠️ EN PROGRESO
 - [ ] Identificar funciones pasadas como props en componentes memoizados
 - [ ] Aplicar useCallback en handlers de eventos
 - [ ] Aplicar useCallback en funciones de filtrado y búsqueda
 - [ ] Estabilizar referencias de funciones en useEffect dependencies
 
-### Fase 5: Mejorar Feedback Visual
+### Fase 5: Mejorar Feedback Visual 🛠️ EN PROGRESO
 - [ ] Agregar loading skeletons en tablas de empleados
 - [ ] Agregar loading skeletons en tablas de casos
 - [ ] Agregar loading skeletons en tablas de encuestas
 - [ ] Implementar toasts de confirmación en acciones exitosas (crear, editar, eliminar)
 - [ ] Mejorar mensajes de error con sugerencias de solución
 - [ ] Agregar indicadores de progreso en formularios largos
+
+### Fase 6: Extender Prellenado Automático 🛠️ EN PROGRESO
+- [ ] Formulario de empleados: departamento → prellenar jefe directo
+- [ ] Formulario de capacitaciones: empleado → prellenar departamento y puesto
+- [ ] Formulario de capacitaciones: empleado → mostrar historial de cursos
+- [ ] Formulario de comité: miembro → prellenar puesto, departamento, email
+
+### Fase 7: Guía de Configuración SMTP en Producción ✅ COMPLETADA
+- [x] Crear guía paso a paso de configuración SMTP (SMTP_Configuration_Guide.md)
+- [x] Documentar proceso de prueba de envío de emails
+- [x] Incluir troubleshooting de errores comunes
+- [x] Agregar checklist de validación
+
+### Fase 8: Guía Técnica de Optimizaciones ✅ COMPLETADA
+- [x] Crear Performance_Optimization_Guide.md con implementaciones detalladas
+- [x] Documentar React.memo con ejemplos de código
+- [x] Documentar useCallback con ejemplos de código
+- [x] Documentar loading skeletons con shadcn/ui
+- [x] Documentar toasts de confirmación
+- [x] Documentar mensajes de error mejorados
+- [x] Documentar prellenado automático extendido
+- [x] Documentar indicadores de progreso
+- [x] Incluir plan de implementación por fases
+- [x] Incluir métricas de éxito esperadas
 
 ### Fase 6: Checkpoint Final
 - [ ] Verificar que todas las optimizaciones funcionen correctamente
