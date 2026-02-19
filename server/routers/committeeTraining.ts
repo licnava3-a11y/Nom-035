@@ -275,6 +275,40 @@ export const committeeTrainingRouter = router({
         .set({ certificateUrl })
         .where(eq(committeeTrainingAttendance.id, attendance.id));
 
+      // Enviar email de notificación al empleado
+      try {
+        // Obtener email del usuario asociado al empleado
+        const [user] = await db
+          .select({ email: users.email })
+          .from(users)
+          .where(eq(users.employeeId, employee.id))
+          .limit(1);
+
+        if (user && user.email) {
+          const { sendEmail, getCertificateGeneratedTemplate } = await import("../services/emailService");
+          
+          const emailHtml = getCertificateGeneratedTemplate({
+            employeeName: memberName,
+            trainingTitle: program.title,
+            certificateNumber: `CERT-${session.id}-${member.id}`,
+            issueDate: new Date(),
+            downloadUrl: certificateUrl,
+          });
+
+          await sendEmail({
+            to: user.email,
+            subject: `🎓 Certificado Generado - ${program.title}`,
+            html: emailHtml,
+            template: "certificate_generated",
+          });
+
+          console.log(`[Generate Certificate] Email enviado a ${user.email}`);
+        }
+      } catch (emailError) {
+        console.error("[Generate Certificate] Error al enviar email:", emailError);
+        // No fallar la generación del certificado si el email falla
+      }
+
       return { success: true, certificateUrl };
     }),
 

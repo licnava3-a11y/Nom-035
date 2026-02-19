@@ -32,13 +32,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Plus, Calendar, Users, CheckCircle, Clock, Archive, HelpCircle } from "lucide-react";
+import { Plus, Calendar, Users, CheckCircle, Clock, Archive, HelpCircle, Mail, Send } from "lucide-react";
 
 export default function SurveyPeriodsManager() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<"all" | "guia_i" | "guia_ii" | "guia_iii">("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "active" | "closed" | "archived">("all");
+  const [isSendEmailDialogOpen, setIsSendEmailDialogOpen] = useState(false);
+  const [selectedPeriodForEmail, setSelectedPeriodForEmail] = useState<number | null>(null);
 
   // Queries
   const { data: periods, refetch: refetchPeriods } = trpc.surveyPeriods.list.useQuery({
@@ -85,6 +87,21 @@ export default function SurveyPeriodsManager() {
     },
     onError: (error) => {
       toast.error("Error", {
+        description: error.message,
+      });
+    },
+  });
+
+  const sendInvitationsMutation = trpc.publicSurveys.sendSurveyInvitations.useMutation({
+    onSuccess: (data) => {
+      toast.success("Invitaciones enviadas", {
+        description: `Se enviaron ${data.sent} invitaciones por email exitosamente.`,
+      });
+      setIsSendEmailDialogOpen(false);
+      setSelectedPeriodForEmail(null);
+    },
+    onError: (error) => {
+      toast.error("Error al enviar invitaciones", {
         description: error.message,
       });
     },
@@ -461,6 +478,18 @@ export default function SurveyPeriodsManager() {
                 </Button>
                 <Button
                   size="sm"
+                  variant="default"
+                  onClick={() => {
+                    setSelectedPeriodForEmail(period.id);
+                    setIsSendEmailDialogOpen(true);
+                  }}
+                  disabled={period.totalTokens === 0}
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  Enviar Invitaciones por Email
+                </Button>
+                <Button
+                  size="sm"
                   variant="outline"
                   onClick={() => setSelectedPeriod(period.id)}
                 >
@@ -482,6 +511,67 @@ export default function SurveyPeriodsManager() {
           </Card>
         )}
       </div>
+
+      {/* Dialog para enviar invitaciones por email */}
+      <Dialog open={isSendEmailDialogOpen} onOpenChange={setIsSendEmailDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Enviar Invitaciones por Email</DialogTitle>
+            <DialogDescription>
+              Se enviarán invitaciones personalizadas por email a todos los empleados con tokens generados para este periodo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-blue-900 mb-1">Contenido del Email</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Link personalizado para responder la encuesta</li>
+                    <li>• Instrucción para autenticarse con CURP</li>
+                    <li>• Fecha de expiración del token (30 días)</li>
+                    <li>• Información sobre la NOM-035 STPS</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <HelpCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-amber-900 mb-1">Requisitos Previos</h4>
+                  <ul className="text-sm text-amber-800 space-y-1">
+                    <li>• Configuración SMTP activa</li>
+                    <li>• Empleados con emails válidos</li>
+                    <li>• Tokens generados para el periodo</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsSendEmailDialogOpen(false)}
+              disabled={sendInvitationsMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <LoadingButton
+              onClick={() => {
+                if (selectedPeriodForEmail) {
+                  sendInvitationsMutation.mutate({ surveyPeriodId: selectedPeriodForEmail });
+                }
+              }}
+              loading={sendInvitationsMutation.isPending}
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Enviar Invitaciones
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { getDb, createNotification } from "../db";
 import { trainingAssignments, trainingCertificates, committeeTrainings, users } from "../../drizzle/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
+import { sendEmail, getTrainingReminderTemplate } from "../services/emailService";
 
 /**
  * Job automático para enviar recordatorios de capacitaciones pendientes
@@ -46,12 +47,41 @@ export async function runTrainingRemindersJob() {
       for (const item of pendingAssignments) {
         if (!item.member || !item.training) continue;
 
+        // Calcular días de retraso
+        const assignedDate = new Date(item.assignment.assignedDate);
+        const daysOverdue = Math.ceil((new Date().getTime() - assignedDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        // Enviar notificación interna
         await createNotification({
           userId: item.member.id,
           type: "system",
           title: "Recordatorio: Capacitación Pendiente",
           message: `Tienes pendiente iniciar la capacitación: ${item.training.title}. Fue asignada hace más de 7 días.`,
         });
+
+        // Enviar email si el usuario tiene email configurado
+        if (item.member.email) {
+          try {
+            const emailHtml = getTrainingReminderTemplate({
+              employeeName: item.member.name || "Usuario",
+              trainingTitle: item.training.title,
+              daysOverdue,
+              type: "pending",
+            });
+
+            await sendEmail({
+              to: item.member.email,
+              subject: `Recordatorio: Capacitación Pendiente - ${item.training.title}`,
+              html: emailHtml,
+              template: "training_reminder",
+            });
+
+            console.log(`[Training Reminders Job] Email enviado a ${item.member.email} para capacitación pendiente`);
+          } catch (emailError) {
+            console.error(`[Training Reminders Job] Error al enviar email a ${item.member.email}:`, emailError);
+            // No detener el proceso si falla el envío de un email
+          }
+        }
 
         pendingReminders++;
       }
@@ -94,12 +124,37 @@ export async function runTrainingRemindersJob() {
           (new Date(item.certificate.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
         );
 
+        // Enviar notificación interna
         await createNotification({
           userId: item.member.id,
           type: "system",
           title: "Certificado Próximo a Vencer",
           message: `Tu certificado de ${item.training.title} vence en ${daysUntilExpiry} días. Considera renovar tu capacitación.`,
         });
+
+        // Enviar email si el usuario tiene email configurado
+        if (item.member.email) {
+          try {
+            const emailHtml = getTrainingReminderTemplate({
+              employeeName: item.member.name || "Usuario",
+              trainingTitle: item.training.title,
+              certificateExpirationDate: new Date(item.certificate.expiryDate),
+              type: "certificate_expiring",
+            });
+
+            await sendEmail({
+              to: item.member.email,
+              subject: `⏰ Certificado Próximo a Vencer - ${item.training.title}`,
+              html: emailHtml,
+              template: "training_reminder",
+            });
+
+            console.log(`[Training Reminders Job] Email enviado a ${item.member.email} para certificado próximo a vencer`);
+          } catch (emailError) {
+            console.error(`[Training Reminders Job] Error al enviar email a ${item.member.email}:`, emailError);
+            // No detener el proceso si falla el envío de un email
+          }
+        }
 
         expiringCertificates++;
       }

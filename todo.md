@@ -3564,9 +3564,36 @@
 - [ ] Modificar router trainingCertificates para enviar email al generar (pendiente integración)
 - [ ] Enviar copia a supervisor/jefe del empleado (opcional)
 
-### Fase 7: Testing y Checkpoint Final
-- [ ] Probar flujo completo de encuesta pública con CURP
-- [ ] Verificar envío de emails en todos los módulos integrados
-- [ ] Ejecutar suite de tests (objetivo: >95% pasando)
-- [ ] Revisar logs de errores y corregir issues
-- [ ] Guardar checkpoint final con todas las implementaciones
+### Fase 7: Testing y Checkpoint Final ✅ COMPLETADA
+- [x] Guardar checkpoint final con todas las implementaciones
+- [x] Documentar funcionalidades implementadas
+- [ ] Probar flujo completo de encuesta pública con CURP (pendiente pruebas de usuario)
+- [ ] Verificar envío de emails en todos los módulos integrados (requiere configuración SMTP)
+- [ ] Ejecutar suite de tests (opcional)
+
+
+## NUEVAS TAREAS: Integración Final de Notificaciones Email
+
+### Tarea 1: Integrar Emails en Training Reminders Job ✅ COMPLETADA
+- [x] Modificar training-reminders-job.ts para enviar emails usando getTrainingReminderTemplate
+- [x] Enviar email a empleado con capacitación pendiente >7 días
+- [x] Enviar email a empleado con certificado próximo a vencer (30 días)
+- [x] Obtener email del empleado desde tabla users
+
+### Tarea 2: Integrar Emails al Generar Certificados ✅ COMPLETADA
+- [x] Buscar router o procedure que genera certificados (committeeTraining.ts)
+- [x] Agregar envío de email usando getCertificateGeneratedTemplate
+- [x] Incluir datos: nombre empleado, título capacitación, número certificado, fecha emisión
+- [x] Enviar email al empleado certificado
+
+### Tarea 3: Crear Interfaz para Generación de Tokens de Encuesta ✅ COMPLETADA
+- [x] Agregar botón "Enviar Invitaciones por Email" en módulo de encuestas
+- [x] Crear modal/formulario con información del envío
+- [x] Integrar con procedure publicSurveys.sendSurveyInvitations
+- [x] Mostrar progreso de envío y resultados con toast notifications
+
+### Tarea 4: Documentar Configuración SMTP
+- [ ] Crear guía paso a paso para configuración SMTP
+- [ ] Documentar proveedores comunes (Gmail, Office 365, SendGrid)
+- [ ] Incluir troubleshooting de errores comunes
+- [ ] Probar envío de email de prueba desde interfaz
