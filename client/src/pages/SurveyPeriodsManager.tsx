@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { Plus, Calendar, Users, CheckCircle, Clock, Archive, HelpCircle, Mail, Send } from "lucide-react";
+import { TableSkeleton } from "@/components/TableSkeleton";
 
 export default function SurveyPeriodsManager() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -43,7 +44,7 @@ export default function SurveyPeriodsManager() {
   const [selectedPeriodForEmail, setSelectedPeriodForEmail] = useState<number | null>(null);
 
   // Queries
-  const { data: periods, refetch: refetchPeriods } = trpc.surveyPeriods.list.useQuery({
+  const { data: periods, isLoading, refetch: refetchPeriods } = trpc.surveyPeriods.list.useQuery({
     surveyType: filterType === "all" ? undefined : filterType,
     status: filterStatus === "all" ? undefined : filterStatus,
   });
@@ -387,7 +388,13 @@ export default function SurveyPeriodsManager() {
 
       {/* Lista de Periodos */}
       <div className="grid gap-4">
-        {periods?.map((period) => (
+        {isLoading ? (
+          <Card>
+            <CardContent className="p-6">
+              <TableSkeleton rows={3} columns={4} />
+            </CardContent>
+          </Card>
+        ) : periods?.map((period) => (
           <Card key={period.id}>
             <CardHeader>
               <div className="flex justify-between items-start">

@@ -11,6 +11,7 @@ import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle } from "lucide-react
 import { useValidation } from "@/hooks/useValidation";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { DepartmentSelector } from "@/components/DepartmentSelector";
+import { toast } from "sonner";
 
 export default function EmployeeNew() {
   const [, setLocation] = useLocation();
@@ -63,17 +64,25 @@ export default function EmployeeNew() {
             role: "student",
             sendToPersonalEmail: !formData.email && !!formData.personalEmail,
           });
-          alert("Trabajador creado exitosamente. Las credenciales de acceso han sido enviadas por correo electrónico.");
+          toast.success("Trabajador creado exitosamente", {
+            description: "Las credenciales de acceso han sido enviadas por correo electrónico."
+          });
         } catch (error: any) {
-          alert(`Trabajador creado, pero hubo un error al enviar las credenciales: ${error.message}`);
+          toast.warning("Trabajador creado con advertencia", {
+            description: `Hubo un error al enviar las credenciales: ${error.message}`
+          });
         }
       } else {
-        alert("Trabajador creado exitosamente");
+        toast.success("Trabajador creado exitosamente", {
+          description: "El trabajador ha sido registrado en el sistema."
+        });
       }
       setLocation("/employees");
     },
     onError: (error: any) => {
-      alert(`Error: ${error.message || "No se pudo crear el trabajador"}`);
+      toast.error("Error al crear trabajador", {
+        description: error.message || "No se pudo crear el trabajador. Por favor, verifica los datos e intenta nuevamente."
+      });
     },
   });
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TableSkeleton } from "@/components/TableSkeleton";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
@@ -484,8 +485,8 @@ export default function CasesManagement() {
             <tbody className="divide-y">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
-                    Cargando casos...
+                  <td colSpan={8} className="p-0">
+                    <TableSkeleton rows={5} columns={8} />
                   </td>
                 </tr>
               ) : casesData?.cases?.length === 0 ? (

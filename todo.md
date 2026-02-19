@@ -3894,3 +3894,33 @@
 - [ ] Probar flujos críticos del sistema
 - [ ] Guardar checkpoint con todas las optimizaciones
 - [ ] Documentar cambios realizados
+
+
+## FASE 1 DE OPTIMIZACIONES: Loading Skeletons, Toasts y Mensajes de Error
+
+### Tarea 1: Loading Skeletons en Tablas ✅ COMPLETADA
+- [x] Crear componente TableSkeleton reutilizable con shadcn/ui Skeleton (ya existía)
+- [x] Implementar loading skeleton en tabla de empleados (Employees.tsx - ya existía)
+- [x] Implementar loading skeleton en tabla de casos (CasesManagement.tsx)
+- [x] Implementar loading skeleton en tabla de encuestas (SurveyPeriodsManager.tsx)
+- [x] Verificar que los skeletons se muestren durante la carga de datos
+
+### Tarea 2: Toasts de Confirmación en Mutaciones 🛠️ EN PROGRESO
+- [x] Implementar toast de confirmación al crear empleado (EmployeeNew.tsx)
+- [x] Implementar toast de error descriptivo al crear empleado
+- [x] Implementar toast de advertencia al crear empleado con error de credenciales
+- [ ] Implementar toast de confirmación al editar empleado
+- [ ] Implementar toast de confirmación al eliminar empleado
+- [ ] Implementar toast de confirmación al crear caso
+- [ ] Implementar toast de confirmación al asignar caso
+- [ ] Implementar toast de confirmación al crear encuesta
+- [ ] Implementar toast de confirmación al generar certificado
+- [ ] Verificar que los toasts se muestren correctamente en todas las mutaciones
+
+### Tarea 3: Mensajes de Error Descriptivos
+- [ ] Mejorar validación de CURP con mensaje descriptivo y formato esperado
+- [ ] Mejorar validación de email con sugerencias de formato
+- [ ] Mejorar validación de teléfono con formato esperado (10 dígitos)
+- [ ] Mejorar mensajes de error de servidor con sugerencias de solución
+- [ ] Agregar validación de fechas con mensajes claros
+- [ ] Verificar que todos los mensajes de error sean descriptivos y útiles
