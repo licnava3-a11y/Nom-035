@@ -189,6 +189,7 @@ const RiskAnalysis = lazy(() => import("./pages/RiskAnalysis"));
 const CommitteeMinutesManagement = lazy(() => import("./pages/CommitteeMinutesManagement"));
 const CommitteeAnnualReports = lazy(() => import("./pages/CommitteeAnnualReports"));
 const CommitteeOperatingRules = lazy(() => import("./pages/CommitteeOperatingRules"));
+const VerifyOperatingRules = lazy(() => import("./pages/VerifyOperatingRules"));
 const AgreementsDashboard = lazy(() => import("./pages/AgreementsDashboard"));
 const TrainingCertificates = lazy(() => import("./pages/TrainingCertificates"));
 const EfirmaSAT = lazy(() => import("./pages/EfirmaSAT"));
@@ -1386,6 +1387,11 @@ function Router() {
               <CommitteeOperatingRules />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path={"/verify-document/operating-rules/:id"}>
+          <Suspense fallback={<PageLoader />}>
+            <VerifyOperatingRules />
+          </Suspense>
         </Route>
         <Route path={"/agreements-dashboard"}>
           <DashboardLayout>

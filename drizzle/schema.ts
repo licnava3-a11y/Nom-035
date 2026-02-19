@@ -5010,3 +5010,40 @@ export const committeeOperatingRulesVersions = mysqlTable("committee_operating_r
 
 export type CommitteeOperatingRulesVersion = typeof committeeOperatingRulesVersions.$inferSelect;
 export type InsertCommitteeOperatingRulesVersion = typeof committeeOperatingRulesVersions.$inferInsert;
+
+
+/**
+ * Tabla: operating_rules_approvals
+ * Descripción: Gestiona el workflow de aprobación multi-nivel con firmas digitales
+ * para las bases de funcionamiento del comité
+ */
+export const operatingRulesApprovals = mysqlTable("operating_rules_approvals", {
+  id: int("id").primaryKey().autoincrement(),
+  operatingRuleId: int("operating_rule_id").notNull().references(() => committeeOperatingRules.id, { onDelete: "cascade" }),
+  
+  // Información del aprobador
+  approverId: int("approver_id").notNull().references(() => users.id),
+  approverRole: mysqlEnum("approver_role", ["president", "secretary", "vocal", "other"]).notNull(),
+  approverRoleDescription: varchar("approver_role_description", { length: 100 }), // Descripción personalizada del rol
+  
+  // Estado de la aprobación
+  status: mysqlEnum("status", ["pending", "signed", "rejected"]).default("pending").notNull(),
+  
+  // Firma digital
+  signatureData: text("signature_data"), // Datos de la firma digital en base64
+  signatureMethod: mysqlEnum("signature_method", ["digital_pad", "uploaded", "certificate"]).default("digital_pad"),
+  
+  // Comentarios y metadata
+  comments: text("comments"), // Comentarios del aprobador
+  signedAt: timestamp("signed_at"),
+  
+  // Orden de aprobación (para workflow secuencial)
+  approvalOrder: int("approval_order").default(0).notNull(),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OperatingRulesApproval = typeof operatingRulesApprovals.$inferSelect;
+export type InsertOperatingRulesApproval = typeof operatingRulesApprovals.$inferInsert;

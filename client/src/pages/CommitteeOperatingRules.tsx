@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, History, Eye, RotateCcw, GitCompare, Plus, Save, Check } from "lucide-react";
+import { FileText, History, Eye, RotateCcw, GitCompare, Plus, Save, Check, Download } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import VersionComparison from "@/components/VersionComparison";
@@ -77,6 +77,31 @@ export default function CommitteeOperatingRules() {
   );
 
   // Mutations
+  const generatePDFMutation = trpc.committeeOperatingRules.generatePDF.useMutation({
+    onSuccess: (data) => {
+      // Convertir base64 a blob y descargar
+      const byteCharacters = atob(data.pdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("PDF generado exitosamente");
+    },
+    onError: (error) => {
+      toast.error(`Error al generar PDF: ${error.message}`);
+    },
+  });
+
   const createMutation = trpc.committeeOperatingRules.create.useMutation({
     onSuccess: () => {
       toast.success("Bases de funcionamiento creadas exitosamente");
@@ -513,6 +538,15 @@ export default function CommitteeOperatingRules() {
                 )}
                 <Button size="sm" variant="outline" onClick={startEditing}>
                   Editar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generatePDFMutation.mutate({ id: selectedRuleId })}
+                  disabled={generatePDFMutation.isPending}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {generatePDFMutation.isPending ? "Generando..." : "Exportar PDF"}
                 </Button>
                 <Button
                   size="sm"

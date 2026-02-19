@@ -4016,8 +4016,60 @@
 - [x] Crear documentación completa (Committee_Operating_Rules_Versioning_Guide.md)
 - [x] Incluir ejemplos de flujo de trabajo, API tRPC y mejores prácticas
 
-### Fase 6: Guardar Checkpoint Final
+### Fase 6: Guardar Checkpoint Final ✅
 - [x] Verificar que todas las funcionalidades funcionan correctamente
 - [x] Actualizar todo.md marcando tareas completadas
-- [ ] Guardar checkpoint con descripción completa
-- [ ] Entregar proyecto al usuario con resumen de cambios
+- [x] Guardar checkpoint con descripción completa (88f5d2a6)
+- [x] Entregar proyecto al usuario con resumen de cambios
+
+
+## NUEVAS FUNCIONALIDADES AVANZADAS: Bases de Funcionamiento del Comité ✅ COMPLETADAS
+
+### Funcionalidad 1: Exportación a PDF con Marca de Agua y Código QR ✅
+- [x] Crear función de generación de PDF en backend (WeasyPrint)
+- [x] Diseñar plantilla HTML profesional para PDF con header/footer
+- [x] Agregar marca de agua con número de versión y fecha de vigencia
+- [x] Generar código QR único por documento (URL de verificación)
+- [x] Incluir código QR en footer del PDF (cumplimiento NOM-151)
+- [x] Implementar procedure tRPC generatePDF
+- [x] Agregar botón "Exportar a PDF" en interfaz
+- [x] Crear página de verificación de documento por código QR (ruta pública)
+- [x] Agregar ruta de verificación en App.tsx
+
+### Funcionalidad 2: Notificaciones Automáticas de Cambios ✅
+- [x] Obtener lista de miembros del comité desde base de datos
+- [x] Crear función de envío de notificaciones (email + notificación interna)
+- [x] Diseñar plantilla de email con resumen de cambios
+- [x] Implementar trigger automático al crear nueva versión
+- [x] Implementar trigger automático al aprobar base de funcionamiento
+- [x] Implementar trigger automático al restaurar versión
+- [x] Implementar trigger automático al actualizar base de funcionamiento
+- [x] Agregar notificaciones internas en sistema
+- [x] Incluir enlace directo al documento en notificación
+- [x] Instalar nodemailer para envío de emails
+- [x] Crear módulo de email en _core
+
+### Funcionalidad 3: Workflow de Aprobación Multi-Nivel ✅
+- [x] Diseñar tabla operating_rules_approvals en schema
+- [x] Campos: id, operatingRuleId, approverId, role, status, signatureData, signedAt, approvalOrder
+- [x] Generar migración SQL y aplicar
+- [x] Definir roles de aprobación (president, secretary, vocal, other)
+- [x] Crear procedure requestApprovals (solicitar aprobaciones)
+- [x] Crear procedure signApproval (firmar aprobación)
+- [x] Crear procedure getApprovalStatus (estado de aprobaciones)
+- [x] Crear procedure getMyPendingApprovals (aprobaciones pendientes del usuario)
+- [x] Implementar lógica de aprobación completa (todas las firmas)
+- [x] Crear componente DigitalSignaturePad para captura de firma
+- [x] Backend completo de workflow de aprobación implementado
+- [x] Sistema de notificaciones integrado con workflow
+
+### Integración y Pruebas Finales ✅
+- [x] Backend completo implementado con 13 procedures tRPC
+- [x] Sistema de exportación a PDF con código QR funcionando
+- [x] Sistema de notificaciones automáticas implementado
+- [x] Workflow de aprobación multi-nivel con firmas digitales
+- [x] Componente DigitalSignaturePad creado
+- [x] Página de verificación pública implementada
+- [x] Crear documentación completa (Advanced_Operating_Rules_Features.md)
+- [x] Actualizar todo.md con progreso
+- [ ] Guardar checkpoint final

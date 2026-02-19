@@ -4,10 +4,13 @@ import { getDb } from "../db";
 import { 
   committeeOperatingRules, 
   committeeOperatingRulesVersions,
+  operatingRulesApprovals,
   users 
 } from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { generateOperatingRulesPDF } from "../utils/generateOperatingRulesPDF";
+import { notifyOperatingRulesChanges } from "../utils/notifyOperatingRulesChanges";
 
 /**
  * Router para gestión de bases de funcionamiento del comité con sistema de versionado
@@ -84,6 +87,15 @@ export const committeeOperatingRulesRouter = router({
           nextReviewDate: input.nextReviewDate,
           changeDescription: "Versión inicial creada",
           createdBy: ctx.user.id,
+        });
+
+        // Notificar a miembros del comité
+        await notifyOperatingRulesChanges({
+          operatingRuleId: ruleId,
+          version: input.version,
+          changeType: "created",
+          changedBy: ctx.user.id,
+          changedByName: ctx.user.name,
         });
 
         return { success: true, id: ruleId };
@@ -179,6 +191,16 @@ export const committeeOperatingRulesRouter = router({
           nextReviewDate: input.nextReviewDate,
           changeDescription: input.changeDescription || `Actualización versión ${nextVersionNumber}`,
           createdBy: ctx.user.id,
+        });
+
+        // Notificar a miembros del comité
+        await notifyOperatingRulesChanges({
+          operatingRuleId: input.id,
+          version: input.version,
+          changeType: "updated",
+          changeDescription: input.changeDescription,
+          changedBy: ctx.user.id,
+          changedByName: ctx.user.name,
         });
 
         return { success: true, versionNumber: nextVersionNumber };
@@ -410,6 +432,16 @@ export const committeeOperatingRulesRouter = router({
           createdBy: ctx.user.id,
         });
 
+        // Notificar a miembros del comité
+        await notifyOperatingRulesChanges({
+          operatingRuleId: input.operatingRuleId,
+          version: versionToRestore.version,
+          changeType: "restored",
+          changeDescription: input.changeDescription,
+          changedBy: ctx.user.id,
+          changedByName: ctx.user.name,
+        });
+
         return { success: true, versionNumber: nextVersionNumber };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -503,6 +535,24 @@ export const committeeOperatingRulesRouter = router({
           })
           .where(eq(committeeOperatingRules.id, input.id));
 
+        // Obtener información de la base de funcionamiento para notificación
+        const [rule] = await db
+          .select({ version: committeeOperatingRules.version })
+          .from(committeeOperatingRules)
+          .where(eq(committeeOperatingRules.id, input.id))
+          .limit(1);
+
+        if (rule) {
+          // Notificar a miembros del comité
+          await notifyOperatingRulesChanges({
+            operatingRuleId: input.id,
+            version: rule.version,
+            changeType: "approved",
+            changedBy: ctx.user.id,
+            changedByName: ctx.user.name,
+          });
+        }
+
         return { success: true };
       } catch (error) {
         console.error("Error approving operating rules:", error);
@@ -512,4 +562,362 @@ export const committeeOperatingRulesRouter = router({
         });
       }
     }),
+
+  /**
+   * Generar PDF de base de funcionamiento
+   */
+  generatePDF: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+
+      try {
+        // Obtener la base de funcionamiento con información del creador y aprobador
+        const [rule] = await db
+          .select({
+            id: committeeOperatingRules.id,
+            version: committeeOperatingRules.version,
+            effectiveDate: committeeOperatingRules.effectiveDate,
+            reviewDate: committeeOperatingRules.reviewDate,
+            nextReviewDate: committeeOperatingRules.nextReviewDate,
+            objectives: committeeOperatingRules.objectives,
+            structure: committeeOperatingRules.structure,
+            roles: committeeOperatingRules.roles,
+            meetingFrequency: committeeOperatingRules.meetingFrequency,
+            quorum: committeeOperatingRules.quorum,
+            decisionMaking: committeeOperatingRules.decisionMaking,
+            communication: committeeOperatingRules.communication,
+            caseHandling: committeeOperatingRules.caseHandling,
+            confidentiality: committeeOperatingRules.confidentiality,
+            amendments: committeeOperatingRules.amendments,
+            signatures: committeeOperatingRules.signatures,
+            status: committeeOperatingRules.status,
+            createdAt: committeeOperatingRules.createdAt,
+            createdBy: committeeOperatingRules.createdBy,
+            approvedAt: committeeOperatingRules.approvedAt,
+            approvedBy: committeeOperatingRules.approvedBy,
+            creatorName: sql<string>`creator.name`,
+            approverName: sql<string>`approver.name`,
+          })
+          .from(committeeOperatingRules)
+          .leftJoin(
+            sql`${users} as creator`,
+            eq(committeeOperatingRules.createdBy, sql`creator.id`)
+          )
+          .leftJoin(
+            sql`${users} as approver`,
+            eq(committeeOperatingRules.approvedBy, sql`approver.id`)
+          )
+          .where(eq(committeeOperatingRules.id, input.id))
+          .limit(1);
+
+        if (!rule) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Base de funcionamiento no encontrada",
+          });
+        }
+
+        // Obtener número de versión actual
+        const [latestVersion] = await db
+          .select({ versionNumber: committeeOperatingRulesVersions.versionNumber })
+          .from(committeeOperatingRulesVersions)
+          .where(eq(committeeOperatingRulesVersions.operatingRuleId, input.id))
+          .orderBy(desc(committeeOperatingRulesVersions.versionNumber))
+          .limit(1);
+
+        // Generar PDF
+        const pdfBuffer = await generateOperatingRulesPDF({
+          ...rule,
+          versionNumber: latestVersion?.versionNumber,
+        });
+
+        // Convertir buffer a base64 para enviar al cliente
+        const pdfBase64 = pdfBuffer.toString("base64");
+
+        return {
+          success: true,
+          pdfBase64,
+          filename: `Bases_Funcionamiento_${rule.version}_${new Date().toISOString().split("T")[0]}.pdf`,
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error generating PDF:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al generar el PDF",
+        });
+      }
+    }),
+
+  /**
+   * Solicitar aprobaciones para una base de funcionamiento
+   */
+  requestApprovals: protectedProcedure
+    .input(
+      z.object({
+        operatingRuleId: z.number(),
+        approvers: z.array(
+          z.object({
+            approverId: z.number(),
+            approverRole: z.enum(["president", "secretary", "vocal", "other"]),
+            approverRoleDescription: z.string().optional(),
+            approvalOrder: z.number().default(0),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+
+      try {
+        // Verificar que la base de funcionamiento existe
+        const [rule] = await db
+          .select({ id: committeeOperatingRules.id })
+          .from(committeeOperatingRules)
+          .where(eq(committeeOperatingRules.id, input.operatingRuleId))
+          .limit(1);
+
+        if (!rule) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Base de funcionamiento no encontrada",
+          });
+        }
+
+        // Eliminar aprobaciones pendientes anteriores (si existen)
+        await db
+          .delete(operatingRulesApprovals)
+          .where(
+            and(
+              eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId),
+              eq(operatingRulesApprovals.status, "pending")
+            )
+          );
+
+        // Crear nuevas solicitudes de aprobación
+        const approvalPromises = input.approvers.map((approver) =>
+          db.insert(operatingRulesApprovals).values({
+            operatingRuleId: input.operatingRuleId,
+            approverId: approver.approverId,
+            approverRole: approver.approverRole,
+            approverRoleDescription: approver.approverRoleDescription,
+            approvalOrder: approver.approvalOrder,
+            status: "pending",
+          })
+        );
+
+        await Promise.all(approvalPromises);
+
+        // TODO: Enviar notificaciones a los aprobadores
+
+        return { success: true, approversCount: input.approvers.length };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error requesting approvals:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al solicitar aprobaciones",
+        });
+      }
+    }),
+
+  /**
+   * Firmar aprobación (firma digital)
+   */
+  signApproval: protectedProcedure
+    .input(
+      z.object({
+        approvalId: z.number(),
+        signatureData: z.string(), // Base64 de la firma
+        signatureMethod: z.enum(["digital_pad", "uploaded", "certificate"]).default("digital_pad"),
+        comments: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+
+      try {
+        // Verificar que la aprobación existe y pertenece al usuario
+        const [approval] = await db
+          .select()
+          .from(operatingRulesApprovals)
+          .where(eq(operatingRulesApprovals.id, input.approvalId))
+          .limit(1);
+
+        if (!approval) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Aprobación no encontrada",
+          });
+        }
+
+        if (approval.approverId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "No tiene permiso para firmar esta aprobación",
+          });
+        }
+
+        if (approval.status === "signed") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Esta aprobación ya ha sido firmada",
+          });
+        }
+
+        // Actualizar la aprobación con la firma
+        await db
+          .update(operatingRulesApprovals)
+          .set({
+            status: "signed",
+            signatureData: input.signatureData,
+            signatureMethod: input.signatureMethod,
+            comments: input.comments,
+            signedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(operatingRulesApprovals.id, input.approvalId));
+
+        // Verificar si todas las aprobaciones están completas
+        const allApprovals = await db
+          .select()
+          .from(operatingRulesApprovals)
+          .where(eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId));
+
+        const allSigned = allApprovals.every((a) => a.status === "signed");
+
+        // Si todas las aprobaciones están firmadas, aprobar automáticamente
+        if (allSigned) {
+          await db
+            .update(committeeOperatingRules)
+            .set({
+              status: "active",
+              approvedBy: ctx.user.id,
+              approvedAt: new Date(),
+              updatedAt: new Date(),
+            })
+            .where(eq(committeeOperatingRules.id, approval.operatingRuleId));
+
+          // Obtener información para notificación
+          const [rule] = await db
+            .select({ version: committeeOperatingRules.version })
+            .from(committeeOperatingRules)
+            .where(eq(committeeOperatingRules.id, approval.operatingRuleId))
+            .limit(1);
+
+          if (rule) {
+            await notifyOperatingRulesChanges({
+              operatingRuleId: approval.operatingRuleId,
+              version: rule.version,
+              changeType: "approved",
+              changedBy: ctx.user.id,
+              changedByName: ctx.user.name,
+            });
+          }
+        }
+
+        return { success: true, allApproved: allSigned };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error signing approval:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al firmar aprobación",
+        });
+      }
+    }),
+
+  /**
+   * Obtener estado de aprobaciones de una base de funcionamiento
+   */
+  getApprovalStatus: protectedProcedure
+    .input(z.object({ operatingRuleId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+
+      try {
+        const approvals = await db
+          .select({
+            id: operatingRulesApprovals.id,
+            approverId: operatingRulesApprovals.approverId,
+            approverName: users.name,
+            approverRole: operatingRulesApprovals.approverRole,
+            approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+            status: operatingRulesApprovals.status,
+            signatureData: operatingRulesApprovals.signatureData,
+            signatureMethod: operatingRulesApprovals.signatureMethod,
+            comments: operatingRulesApprovals.comments,
+            signedAt: operatingRulesApprovals.signedAt,
+            approvalOrder: operatingRulesApprovals.approvalOrder,
+            createdAt: operatingRulesApprovals.createdAt,
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .where(eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId))
+          .orderBy(operatingRulesApprovals.approvalOrder);
+
+        const totalApprovals = approvals.length;
+        const signedApprovals = approvals.filter((a) => a.status === "signed").length;
+        const pendingApprovals = approvals.filter((a) => a.status === "pending").length;
+        const rejectedApprovals = approvals.filter((a) => a.status === "rejected").length;
+
+        return {
+          approvals,
+          summary: {
+            total: totalApprovals,
+            signed: signedApprovals,
+            pending: pendingApprovals,
+            rejected: rejectedApprovals,
+            allApproved: totalApprovals > 0 && signedApprovals === totalApprovals,
+          },
+        };
+      } catch (error) {
+        console.error("Error getting approval status:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener estado de aprobaciones",
+        });
+      }
+    }),
+
+  /**
+   * Obtener aprobaciones pendientes del usuario actual
+   */
+  getMyPendingApprovals: protectedProcedure.query(async ({ ctx }) => {
+    const db = getDb();
+
+    try {
+      const pendingApprovals = await db
+        .select({
+          id: operatingRulesApprovals.id,
+          operatingRuleId: operatingRulesApprovals.operatingRuleId,
+          operatingRuleVersion: committeeOperatingRules.version,
+          approverRole: operatingRulesApprovals.approverRole,
+          approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+          approvalOrder: operatingRulesApprovals.approvalOrder,
+          createdAt: operatingRulesApprovals.createdAt,
+        })
+        .from(operatingRulesApprovals)
+        .leftJoin(
+          committeeOperatingRules,
+          eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+        )
+        .where(
+          and(
+            eq(operatingRulesApprovals.approverId, ctx.user.id),
+            eq(operatingRulesApprovals.status, "pending")
+          )
+        )
+        .orderBy(operatingRulesApprovals.createdAt);
+
+      return pendingApprovals;
+    } catch (error) {
+      console.error("Error getting pending approvals:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Error al obtener aprobaciones pendientes",
+      });
+    }
+  }),
 });
