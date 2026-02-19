@@ -30,6 +30,8 @@ import VersionComparison from "@/components/VersionComparison";
 import ApprovalWorkflow from "@/components/ApprovalWorkflow";
 import { OperatingRulesTimeline } from "@/components/OperatingRulesTimeline";
 import { SearchOperatingRules } from "@/components/SearchOperatingRules";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { LabelWithTooltip } from "@/components/InfoTooltip";
 
 export default function CommitteeOperatingRules() {
   const [selectedRuleId, setSelectedRuleId] = useState<number | null>(null);
@@ -260,6 +262,11 @@ export default function CommitteeOperatingRules() {
   if (isCreating || isEditing) {
     return (
       <div className="container mx-auto py-6">
+        <Breadcrumb items={[
+          { label: "Comité", href: "/committee" },
+          { label: "Bases de Funcionamiento", href: "/committee-operating-rules" },
+          { label: isCreating ? "Crear" : "Editar" }
+        ]} />
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -304,7 +311,12 @@ export default function CommitteeOperatingRules() {
             </div>
 
             <div>
-              <Label htmlFor="objectives">Objetivos del Comité</Label>
+              <LabelWithTooltip 
+                label="Objetivos del Comité" 
+                htmlFor="objectives"
+                tooltip="Define los propósitos generales del comité según la NOM-035: identificar, analizar y prevenir factores de riesgo psicosocial."
+                required
+              />
               <Textarea
                 id="objectives"
                 value={formData.objectives}
@@ -326,7 +338,12 @@ export default function CommitteeOperatingRules() {
             </div>
 
             <div>
-              <Label htmlFor="roles">Funciones y Responsabilidades</Label>
+              <LabelWithTooltip 
+                label="Funciones y Responsabilidades" 
+                htmlFor="roles"
+                tooltip="Especifica las funciones de cada miembro: presidente, secretario, vocales. Incluye responsabilidades de coordinación, seguimiento y toma de decisiones."
+                required
+              />
               <Textarea
                 id="roles"
                 value={formData.roles}
@@ -348,7 +365,12 @@ export default function CommitteeOperatingRules() {
                 />
               </div>
               <div>
-                <Label htmlFor="quorum">Quórum Mínimo</Label>
+                <LabelWithTooltip 
+                  label="Quórum Mínimo" 
+                  htmlFor="quorum"
+                  tooltip="Número o porcentaje mínimo de miembros requeridos para que las reuniones sean válidas. Ejemplo: 50% + 1 de los integrantes."
+                  required
+                />
                 <Textarea
                   id="quorum"
                   value={formData.quorum}
@@ -382,7 +404,12 @@ export default function CommitteeOperatingRules() {
             </div>
 
             <div>
-              <Label htmlFor="caseHandling">Procedimiento de Atención de Casos</Label>
+              <LabelWithTooltip 
+                label="Procedimiento de Atención de Casos" 
+                htmlFor="caseHandling"
+                tooltip="Describe el proceso para atender casos de riesgo psicosocial: recepción, evaluación, canalización, seguimiento y cierre."
+                required
+              />
               <Textarea
                 id="caseHandling"
                 value={formData.caseHandling}
@@ -393,7 +420,12 @@ export default function CommitteeOperatingRules() {
             </div>
 
             <div>
-              <Label htmlFor="confidentiality">Confidencialidad y Manejo de Información</Label>
+              <LabelWithTooltip 
+                label="Confidencialidad y Manejo de Información" 
+                htmlFor="confidentiality"
+                tooltip="Establece cómo se protegerá la información sensible de los trabajadores, quiénes tienen acceso y los protocolos de resguardo."
+                required
+              />
               <Textarea
                 id="confidentiality"
                 value={formData.confidentiality}
@@ -455,6 +487,10 @@ export default function CommitteeOperatingRules() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb items={[
+        { label: "Comité", href: "/committee" },
+        { label: "Bases de Funcionamiento" }
+      ]} />
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Bases de Funcionamiento del Comité</h1>

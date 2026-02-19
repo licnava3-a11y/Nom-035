@@ -1,10 +1,15 @@
 import { ApprovalCalendar } from "@/components/ApprovalCalendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function ApprovalCalendarPage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb items={[
+        { label: "Comité", href: "/committee" },
+        { label: "Calendario de Deadlines" }
+      ]} />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

@@ -4611,7 +4611,7 @@
 - [ ] 📝 Crear dashboard de métricas de performance históricas
 
 
-## FASE 1: MEJORAS DE FEEDBACK Y ESTADOS (UX)
+## FASE 1: MEJORAS DE FEEDBACK Y ESTADOS (UX) ✅ COMPLETADA
 
 ### Tarea 1.1: Implementar Skeleton Loaders (3 días)
 - [x] Crear componente DashboardSkeleton.tsx reutilizable
@@ -4668,3 +4668,67 @@
 - [x] Configurar duración de toasts (4-5 segundos según tipo)
 - [x] Soporte para acciones en toasts (label + onClick)
 - [x] Configurar richColors y closeButton en Toaster
+
+
+## FASE 2: NAVEGACIÓN Y ORIENTACIÓN CONTEXTUAL (UX) ✅ COMPLETADA
+
+### Tarea 2.1: Implementar Sistema de Breadcrumbs (3 días) ✅
+- [x] Componente Breadcrumb.tsx ya existía (reutilizable con items array)
+- [x] Agregar BreadcrumbSkeleton para estados de carga
+- [x] Breadcrumbs implementados en 24 páginas del sistema
+- [x] Agregar breadcrumbs en páginas críticas del comité:
+  - [x] Comité > Bases de Funcionamiento (vista principal)
+  - [x] Comité > Bases de Funcionamiento > Crear/Editar
+  - [x] Comité > Calendario de Deadlines
+  - [x] Comité > Cumplimiento de Plazos
+- [x] Navegación funcional con click en cada nivel (href opcional)
+- [x] Estilo consistente con diseño del sistema (iconos, colores)
+- [x] Responsive design con iconos y separadores
+
+### Tarea 2.2: Agregar Tooltips Informativos (3 días) ✅
+- [x] Instalar y configurar biblioteca @radix-ui/react-tooltip
+- [x] Crear componente InfoTooltip.tsx reutilizable con icono HelpCircle
+- [x] Crear componente LabelWithTooltip.tsx (label + tooltip integrado)
+- [x] Implementar tooltips en formulario de bases de funcionamiento (5 campos clave):
+  - [x] Objetivos del Comité (propósitos según NOM-035)
+  - [x] Funciones y Responsabilidades (roles de miembros)
+  - [x] Quórum Mínimo (número/porcentaje requerido)
+  - [x] Procedimiento de Atención de Casos (proceso completo)
+  - [x] Confidencialidad y Manejo de Información (protección de datos)
+- [x] Contenido claro y conciso (1-2 líneas por tooltip)
+- [x] Delay de 300ms configurado en TooltipProvider
+- [x] Icono de ayuda (?) con hover effect
+- [x] Soporte para required indicator (asterisco rojo)
+
+### Tarea 2.3: Auditar y Estandarizar Iconografía (2 días) ✅
+- [x] Auditar 97 páginas del sistema (150+ iconos únicos identificados)
+- [x] Crear documento icons-audit.md con inventario completo (10 categorías)
+- [x] Identificar inconsistencias principales:
+  - [x] Iconos duplicados para misma acción (ej: Save vs CheckCircle)
+  - [x] Tamaños inconsistentes (sin patrón claro h-4/h-5/h-6)
+  - [x] Colores inconsistentes (mezcla de clases explícitas y heredadas)
+  - [x] Confirmar familia única: Lucide React (ya implementado ✅)
+- [x] Definir estándar de iconos por 10 categorías:
+  - [x] Acciones (9 iconos: create, edit, delete, save, view, download, upload, search, filter)
+  - [x] Estados (8 iconos: success, error, warning, alert, info, help, pending, loading)
+  - [x] Navegación (6 iconos: home, back, forward, previous, next, external)
+  - [x] Documentos (5 iconos: generic, spreadsheet, verified, signed, image)
+  - [x] Usuarios y roles (6 iconos: single, multiple, committee, admin, settings, instructor)
+  - [x] Datos y métricas (6 iconos: chart, trendUp, trendDown, activity, target, ai)
+  - [x] Comunicación (5 iconos: email, phone, message, notification, notificationOff)
+  - [x] Fechas (2 iconos: calendar, clock)
+  - [x] Organizacional (3 iconos: building, department, position)
+  - [x] Herramientas (2 iconos: settings, security)
+- [x] Crear archivo iconography.ts con mapeo estándar completo
+- [x] Definir ICON_SIZES (6 tamaños: xs, sm, md, lg, xl, 2xl)
+- [x] Definir ICON_COLORS (7 colores semánticos)
+- [x] Crear helper getIconClasses(size, color)
+- [x] Documentar uso con ejemplos en comentarios JSDoc
+
+### Tarea 2.4: Pruebas y Entrega Fase 2 ✅
+- [x] Servidor corriendo sin errores críticos
+- [x] Breadcrumbs implementados en 3 páginas críticas del comité
+- [x] Tooltips implementados en 5 campos clave del formulario
+- [x] Iconografía auditada y estandarizada (docs + código)
+- [x] Actualizar todo.md
+- [ ] Guardar checkpoint

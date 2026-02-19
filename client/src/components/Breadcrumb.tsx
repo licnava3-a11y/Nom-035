@@ -52,3 +52,18 @@ export function Breadcrumb({ items, showHome = true }: BreadcrumbProps) {
     </nav>
   );
 }
+
+/**
+ * BreadcrumbSkeleton - Skeleton loader para breadcrumbs
+ */
+export function BreadcrumbSkeleton() {
+  return (
+    <div className="flex items-center space-x-2 mb-4">
+      <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+      <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+      <div className="h-4 w-20 bg-muted animate-pulse rounded" />
+      <div className="h-4 w-4 bg-muted animate-pulse rounded" />
+      <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+    </div>
+  );
+}

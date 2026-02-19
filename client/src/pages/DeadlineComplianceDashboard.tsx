@@ -25,6 +25,7 @@ import {
   ArcElement,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 ChartJS.register(
   CategoryScale,
@@ -202,6 +203,10 @@ export default function DeadlineComplianceDashboard() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <Breadcrumb items={[
+        { label: "Comité", href: "/committee" },
+        { label: "Cumplimiento de Plazos" }
+      ]} />
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
