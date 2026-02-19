@@ -3775,3 +3775,53 @@
 - [x] Documentar pruebas de formatos del comité (actas, reportes, bases)
 - [x] Incluir troubleshooting de errores comunes
 - [x] Crear checklist de validación completa del sistema (6 secciones)
+
+
+## AUDITORÍA Y OPTIMIZACIÓN FINAL DEL SISTEMA
+
+### Fase 1: Auditoría de Código ✅ COMPLETADA
+- [x] Analizar errores en logs del servidor y consola del navegador (sin errores críticos)
+- [x] Identificar duplicidades en componentes y routers
+- [x] Revisar queries SQL para detectar N+1 problems
+- [x] Identificar componentes con re-renders excesivos
+- [x] Detectar memory leaks en useEffect y subscripciones
+- [x] Revisar manejo de errores y validaciones faltantes
+
+### Fase 2: Optimización de Menús y Navegación ✅ COMPLETADA
+- [x] Revisar DashboardLayout para identificar duplicados
+- [x] Verificar coherencia de rutas en App.tsx
+- [x] Eliminar enlaces duplicados o redundantes (eliminados: Gestión de Minutas, Minutas de Reunión)
+- [x] Consolidar menús con funcionalidad similar
+- [x] Mejorar organización jerárquica de menús
+- [x] Verificar que todos los enlaces funcionen correctamente
+
+### Fase 3: Mejora de Correlación de Datos
+- [ ] Identificar formularios con campos que pueden prellenarse
+- [ ] Implementar prellenado automático en formularios de empleados
+- [ ] Implementar prellenado automático en formularios de casos
+- [ ] Implementar prellenado automático en formularios de comité
+- [ ] Agregar validaciones de CURP con prellenado de datos
+- [ ] Evitar capturas dobles de información ya existente
+
+### Fase 4: Optimización de Rendimiento
+- [ ] Implementar React.memo en componentes que se renderizan frecuentemente
+- [ ] Usar useMemo para cálculos costosos
+- [ ] Usar useCallback para funciones pasadas como props
+- [ ] Estabilizar referencias de objetos/arrays en useQuery inputs
+- [ ] Optimizar componentes con muchos estados
+- [ ] Reducir bundle size con code splitting adicional
+
+### Fase 5: Mejora de UX
+- [ ] Simplificar flujos de creación de entidades
+- [ ] Mejorar feedback visual (loading states, success/error messages)
+- [ ] Optimizar formularios largos con secciones colapsables
+- [ ] Agregar validaciones en tiempo real
+- [ ] Mejorar mensajes de error para que sean más descriptivos
+- [ ] Implementar confirmaciones antes de acciones destructivas
+
+### Fase 6: Checkpoint Final
+- [ ] Ejecutar suite de tests
+- [ ] Verificar que no haya errores en consola
+- [ ] Probar flujos críticos del sistema
+- [ ] Guardar checkpoint con todas las optimizaciones
+- [ ] Documentar cambios realizados
