@@ -447,6 +447,7 @@ export const notifications = mysqlTable("notifications", {
     "survey_expiring",
     "training_due",
     "recognition", // Reconocimientos y felicitaciones
+    "committee", // Notificaciones del comité
     "system" // Notificaciones del sistema
   ]).notNull(),
   title: varchar("title", { length: 255 }).notNull(),

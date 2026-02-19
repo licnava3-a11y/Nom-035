@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import SignatureCanvas from "@/components/SignatureCanvas";
 import FileUpload from "@/components/FileUpload";
 import ProtectedButton from "@/components/ProtectedButton";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 // Tipos para secciones dinámicas
 interface Attendee {
@@ -41,6 +42,8 @@ export default function CommitteeMinutesManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'borrador' | 'finalizada' | 'archivada'>('all');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [minuteToDelete, setMinuteToDelete] = useState<number | null>(null);
 
   // Form state básico
   const [formData, setFormData] = useState({
@@ -291,8 +294,13 @@ export default function CommitteeMinutesManagement() {
   };
 
   const handleDelete = (id: number) => {
-    if (confirm('¿Está seguro de eliminar esta minuta?')) {
-      deleteMutation.mutate({ id });
+    setMinuteToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (minuteToDelete) {
+      deleteMutation.mutate({ id: minuteToDelete });
     }
   };
 
@@ -858,6 +866,18 @@ export default function CommitteeMinutesManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Confirm Dialog para Eliminar */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={confirmDelete}
+        title="¿Eliminar minuta?"
+        description="Esta acción no se puede deshacer. La minuta será eliminada permanentemente."
+        impactMessage="Se eliminarán todos los acuerdos, asistentes y firmas asociadas"
+        variant="destructive"
+        confirmText="Eliminar"
+      />
 
       {/* Modal de Firma Digital */}
       <Dialog open={signatureModalOpen} onOpenChange={setSignatureModalOpen}>

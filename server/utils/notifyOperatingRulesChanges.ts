@@ -17,14 +17,14 @@ interface NotificationData {
  * Notificar a todos los miembros del comité sobre cambios en las bases de funcionamiento
  */
 export async function notifyOperatingRulesChanges(data: NotificationData) {
-  const db = getDb();
+  const db = await getDb();
 
   try {
     // Obtener todos los miembros activos del comité
     const committeeUserIds = await db
       .select({ userId: committeeMembers.userId })
       .from(committeeMembers)
-      .where(eq(committeeMembers.status, "active"));
+      .where(eq(committeeMembers.isActive, true));
 
     if (committeeUserIds.length === 0) {
       console.log("No active committee members to notify");
@@ -32,7 +32,7 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
     }
 
     // Obtener información de usuarios
-    const committeeUsers = await db
+    const committeeUsers = await db!
       .select({
         id: users.id,
         name: users.name,
@@ -40,11 +40,8 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
       })
       .from(users)
       .where(
-        and(
-          sql`${users.id} IN (${sql.join(committeeUserIds.map(m => sql`${m.userId}`), sql`, `)})`,
-          eq(users.active, true)
-        )
-      );
+        sql`${users.id} IN (${sql.join(committeeUserIds.map((m: typeof committeeUserIds[number]) => sql`${m.userId}`), sql`, `)})`,
+      );;
 
     // Preparar mensaje según tipo de cambio
     let notificationTitle = "";
@@ -146,16 +143,16 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
     }
 
     // Crear notificaciones internas para cada miembro
-    const notificationPromises = committeeUsers.map(async (user) => {
+    const notificationPromises = committeeUsers.map(async (user: typeof committeeUsers[number]) => {
       // Crear notificación interna
-      await db.insert(notifications).values({
+      await db!.insert(notifications).values({
         userId: user.id,
         title: notificationTitle,
         message: notificationMessage,
         type: "committee",
-        relatedId: data.operatingRuleId,
-        read: false,
-        createdAt: new Date(),
+        relatedEntityType: "operating_rule",
+        relatedEntityId: data.operatingRuleId,
+        isRead: false,
       });
 
       // Enviar email si el usuario tiene email configurado

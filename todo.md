@@ -4944,3 +4944,45 @@
 - [ ] Medir First Contentful Paint (FCP) antes y después - PENDIENTE
 - [ ] Implementar preload para rutas frecuentes (hover en nav) - OPCIONAL
 - [ ] Documentar estrategia de code splitting en docs/performance.md - PENDIENTE
+
+
+## FASE ACTUAL: Correcciones Críticas y Testing (PRIORIDAD MÁXIMA)
+
+### 1. Corregir 4 Errores Restantes de TypeScript ✅ COMPLETADO (12 errores corregidos)
+- [x] Leer server/utils/notifyOperatingRulesChanges.ts para identificar errores
+- [x] Error 1 (línea 44): Tipar parámetro 'm' con tipo correcto
+- [x] Error 2 (línea 45): Corregir acceso a propiedad 'active' en users
+- [x] Error 3 (línea 149): Tipar parámetro 'user' con tipo correcto
+- [x] Error 4 (línea 151): Corregir uso de 'insert' en Promise de db
+- [x] Agregar "committee" al enum de notificaciones
+- [x] Aplicar migración SQL para enum
+- [x] Corregir campo relatedId por relatedEntityId
+- [x] Corregir campo status por isActive en committeeMembers
+- [x] Agregar non-null assertions para db
+- [ ] Verificar compilación TypeScript sin errores (745 errores restantes)
+- [ ] Ejecutar servidor y verificar que no hay errores en runtime
+
+### 2. Implementar Confirmaciones en Acciones Destructivas 🔴 CRÍTICO (1/28 completado)
+- [x] Crear componente ConfirmDialog reutilizable con AlertDialog
+- [x] Identificar páginas con botones de eliminar (28 páginas identificadas)
+- [x] Implementar confirmación en CommitteeMinutesManagement (eliminar minuta)
+- [ ] Implementar confirmación en DepartmentManagement (eliminar departamento)
+- [ ] Implementar confirmación en AssessmentsManagement (eliminar evaluación)
+- [ ] Implementar confirmación en ExpenseRequests (eliminar solicitud)
+- [ ] Implementar confirmación en EfirmaSAT (eliminar certificado)
+- [x] Agregar mensajes de impacto ("Se eliminarán X registros relacionados")
+- [ ] Probar flujo completo de confirmación en cada página
+- [ ] Implementar en 23 páginas restantes
+
+### 3. Crear Tests E2E con Playwright 🟠 ALTO
+- [ ] Instalar navegadores: pnpm exec playwright install chromium firefox webkit
+- [ ] Crear directorio tests/e2e/
+- [ ] Test 1: tests/e2e/operating-rules-workflow.spec.ts
+- [ ] Test 2: tests/e2e/approval-calendar.spec.ts
+- [ ] Test 3: tests/e2e/charts-rendering.spec.ts
+- [ ] Test 4: tests/e2e/real-time-validation.spec.ts
+- [ ] Test 5: tests/e2e/auto-save.spec.ts
+- [ ] Test 6: tests/e2e/global-search.spec.ts
+- [ ] Ejecutar tests: pnpm exec playwright test
+- [ ] Generar reporte HTML: pnpm exec playwright show-report
+- [ ] Documentar problemas de compatibilidad encontrados

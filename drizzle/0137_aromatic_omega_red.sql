@@ -1,0 +1,1 @@
+ALTER TABLE `notifications` MODIFY COLUMN `type` enum('new_case','case_status_change','case_assigned','deadline_approaching','new_mailbox_request','mailbox_status_change','employee_hire','employee_termination','department_change','survey_expiring','training_due','recognition','committee','system') NOT NULL;
