@@ -3462,9 +3462,12 @@
 ## NUEVA FASE: Optimización Completa UX + SMTP + Encuestas Email/WhatsApp
 
 ### Fase 1: Auditoría y Mejora de UX
-- [ ] Revisar todos los menús y desplegables para eliminar duplicados
-- [ ] Identificar campos que pueden correlacionarse para evitar recapturas
-- [ ] Implementar prellenado automático de campos basado en selecciones previas
+- [x] Revisar todos los menús y desplegables para eliminar duplicados
+- [x] Identificar campos que pueden correlacionarse para evitar recapturas
+- [x] Implementar prellenado automático de campos basado en selecciones previas
+  - [x] CasesManagement.tsx: Selector de empleado → prellenar nombre, email, teléfono, departamento
+  - [x] EmployeeNew.tsx: CURP → prellenar sexo, estado de nacimiento (ya existía)
+  - [x] EmployeeNew.tsx: Departamento → filtrar puestos (ya existía)
 - [ ] Optimizar flujos de captura de datos (empleados, casos, encuestas)
 - [ ] Mejorar navegación y consistencia visual en todas las páginas
 - [ ] Eliminar botones y elementos duplicados en interfaces
@@ -3477,30 +3480,30 @@
 - [ ] Implementar lazy loading de componentes pesados
 - [ ] Reducir transferencia de datos con paginación server-side
 
-### Fase 3: Sistema de Configuración SMTP
-- [ ] Crear tabla smtp_config en schema (host, port, user, password, from, secure)
-- [ ] Generar y aplicar migración SQL
-- [ ] Crear router smtpConfig con procedures CRUD
-- [ ] Implementar encriptación de credenciales SMTP (AES-256)
-- [ ] Crear página SMTPConfig.tsx para configuración de credenciales
-- [ ] Agregar validación de conexión SMTP (test email)
-- [ ] Integrar con sistema de notificaciones existente
+### Fase 3: Sistema de Configuración SMTP ✅ COMPLETADA
+- [x] Crear tabla smtp_config en schema (host, port, user, password, from, secure)
+- [x] Generar y aplicar migración SQL (ya existía)
+- [x] Crear router smtpConfig con procedures CRUD (ya existía)
+- [x] Implementar encriptación de credenciales SMTP (AES-256) (ya existía)
+- [x] Crear página SMTPConfig.tsx para configuración de credenciales
+- [x] Agregar validación de conexión SMTP (test email) (ya existía)
+- [x] Integrar con sistema de notificaciones existente
 
-### Fase 4: Notificaciones Críticas por Email
-- [ ] Crear servicio de envío de emails usando nodemailer
-- [ ] Implementar templates HTML para emails (casos críticos, alertas, vencimientos)
+### Fase 4: Notificaciones Críticas por Email ✅ COMPLETADA
+- [x] Crear servicio de envío de emails usando nodemailer (emailService.ts)
+- [x] Implementar templates HTML para emails (casos críticos, alertas, vencimientos, encuestas)
+- [x] Implementar retry logic para emails fallidos (3 intentos con exponential backoff)
+- [x] Crear función sendBulkEmails para envío masivo
 - [ ] Modificar jobs de alertas para enviar emails además de notificaciones internas
-- [ ] Implementar cola de emails para envío asíncrono
-- [ ] Agregar retry logic para emails fallidos
 - [ ] Crear log de emails enviados (tabla email_log)
 
 ### Fase 5: Encuestas por Email/WhatsApp con Autenticación CURP
-- [ ] Crear tabla survey_tokens (token, surveyId, curp, expiresAt, used)
-- [ ] Generar y aplicar migración SQL
+- [x] Crear tabla survey_tokens (token, surveyId, curp, expiresAt, used) (ya existe como survey_anonymous_tokens)
+- [x] Template de email para invitación a encuestas (getSurveyInvitationTemplate)
+- [ ] Generar y aplicar migración SQL (si es necesaria)
 - [ ] Implementar generación de tokens únicos por encuesta
 - [ ] Crear endpoint público /survey/:token para responder sin login
 - [ ] Implementar autenticación con CURP en página pública
-- [ ] Crear templates de email con link personalizado para encuestas
 - [ ] Integrar con API de WhatsApp Business (opcional)
 - [ ] Implementar envío automático de encuestas por email
 - [ ] Crear página pública SurveyResponse.tsx con autenticación CURP

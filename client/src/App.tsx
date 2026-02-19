@@ -206,7 +206,7 @@ const DashboardAdministrativo = lazy(() => import("./pages/DashboardAdministrati
 const RolesPermissions = lazy(() => import("./pages/RolesPermissions"));
 const CustomPermissions = lazy(() => import("./pages/CustomPermissions"));
 const PermissionAudit = lazy(() => import("./pages/PermissionAudit"));
-const SmtpConfig = lazy(() => import("./pages/administrative/SmtpConfig"));
+const SMTPConfig = lazy(() => import("./pages/SMTPConfig"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1508,7 +1508,7 @@ function Router() {
         <Route path={"/administrative/smtp-config"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <SmtpConfig />
+              <SMTPConfig />
             </Suspense>
           </DashboardLayout>
         </Route>

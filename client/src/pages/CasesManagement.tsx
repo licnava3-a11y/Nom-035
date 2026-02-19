@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Search, Filter, FileText, User, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Plus, Search, Filter, FileText, User, AlertCircle, CheckCircle, Clock, UserCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -29,7 +29,8 @@ export default function CasesManagement() {
     reporterName: "",
     reporterEmail: "",
     reporterPhone: "",
-    description: ""
+    description: "",
+    reporterEmployeeId: "" // Nuevo campo para seleccionar empleado
   });
 
   const utils = trpc.useUtils();
@@ -45,6 +46,14 @@ export default function CasesManagement() {
 
   const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
   const { data: stats } = trpc.casesManagement.getCasesStats.useQuery();
+  
+  // Nueva query para obtener empleados (para selector de reportante)
+  const { data: employeesData } = trpc.employees.getAll.useQuery({
+    page: 1,
+    pageSize: 1000,
+    search: "",
+    department: undefined
+  });
 
   // Mutations
   const createCase = trpc.casesManagement.createCase.useMutation({
@@ -58,7 +67,8 @@ export default function CasesManagement() {
         reporterName: "",
         reporterEmail: "",
         reporterPhone: "",
-        description: ""
+        description: "",
+        reporterEmployeeId: ""
       });
       utils.casesManagement.listCases.invalidate();
       utils.casesManagement.getCasesStats.invalidate();
@@ -111,6 +121,26 @@ export default function CasesManagement() {
     updateCase.mutate({ id: caseId, status });
   };
 
+  // Nueva función para prellenar datos cuando se selecciona un empleado
+  const handleEmployeeSelect = (employeeId: string) => {
+    const employee = employeesData?.employees?.find((emp: any) => emp.id.toString() === employeeId);
+    
+    if (employee) {
+      setNewCase(prev => ({
+        ...prev,
+        reporterEmployeeId: employeeId,
+        reporterName: `${employee.firstName} ${employee.lastName}`,
+        reporterEmail: employee.email || "",
+        reporterPhone: employee.phone || "",
+        departmentId: employee.departmentId?.toString() || prev.departmentId
+      }));
+      
+      toast.success("Datos del empleado prellenados automáticamente", {
+        description: "Puedes modificar los campos si es necesario"
+      });
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "critical": return "bg-red-100 text-red-800";
@@ -151,37 +181,27 @@ export default function CasesManagement() {
     return labels[priority] || priority;
   };
 
-  const getCaseTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      harassment: "Acoso",
-      violence: "Violencia",
-      discrimination: "Discriminación",
-      stress: "Estrés",
-      other: "Otro"
-    };
-    return labels[type] || type;
-  };
-
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Gestión de Casos</h1>
-          <p className="text-muted-foreground">Administra y da seguimiento a casos de riesgos psicosociales</p>
+          <p className="text-muted-foreground mt-1">
+            Administra y da seguimiento a los casos de riesgos psicosociales
+          </p>
         </div>
-        
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Crear Caso
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Caso
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Crear Nuevo Caso</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="caseType">Tipo de Caso *</Label>
@@ -193,10 +213,11 @@ export default function CasesManagement() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="mobbing">Mobbing</SelectItem>
+                      <SelectItem value="burnout">Burnout</SelectItem>
                       <SelectItem value="harassment">Acoso</SelectItem>
-                      <SelectItem value="violence">Violencia</SelectItem>
                       <SelectItem value="discrimination">Discriminación</SelectItem>
-                      <SelectItem value="stress">Estrés</SelectItem>
+                      <SelectItem value="violence">Violencia</SelectItem>
                       <SelectItem value="other">Otro</SelectItem>
                     </SelectContent>
                   </Select>
@@ -238,6 +259,35 @@ export default function CasesManagement() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Nuevo selector de empleado para prellenado automático */}
+              <div className="space-y-2">
+                <Label htmlFor="reporterEmployeeId">
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Seleccionar Empleado (Opcional - Prellenado Automático)
+                  </div>
+                </Label>
+                <Select
+                  value={newCase.reporterEmployeeId}
+                  onValueChange={handleEmployeeSelect}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Buscar empleado existente..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">-- Captura manual --</SelectItem>
+                    {employeesData?.employees?.map((emp: any) => (
+                      <SelectItem key={emp.id} value={emp.id.toString()}>
+                        {emp.firstName} {emp.lastName} - {emp.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Al seleccionar un empleado, se prellenarán automáticamente nombre, email, teléfono y departamento
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -309,34 +359,34 @@ export default function CasesManagement() {
                 <p className="text-sm text-muted-foreground">Total de Casos</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
               </div>
-              <FileText className="h-8 w-8 text-blue-500" />
+              <FileText className="h-8 w-8 text-muted-foreground" />
             </div>
           </Card>
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Casos Abiertos</p>
-                <p className="text-2xl font-bold">{stats.open}</p>
+                <p className="text-2xl font-bold text-blue-600">{stats.open}</p>
               </div>
-              <AlertCircle className="h-8 w-8 text-orange-500" />
+              <AlertCircle className="h-8 w-8 text-blue-600" />
             </div>
           </Card>
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">En Investigación</p>
-                <p className="text-2xl font-bold">{stats.investigating}</p>
+                <p className="text-2xl font-bold text-purple-600">{stats.investigating}</p>
               </div>
-              <Clock className="h-8 w-8 text-purple-500" />
+              <Search className="h-8 w-8 text-purple-600" />
             </div>
           </Card>
           <Card className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Resueltos</p>
-                <p className="text-2xl font-bold">{stats.resolved}</p>
+                <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
           </Card>
         </div>
@@ -344,69 +394,74 @@ export default function CasesManagement() {
 
       {/* Filters */}
       <Card className="p-4 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="h-4 w-4" />
-          <h3 className="font-semibold">Filtros</h3>
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por folio, nombre..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="pl-10"
-            />
+          <div className="space-y-2">
+            <Label>Buscar</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar casos..."
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                className="pl-8"
+              />
+            </div>
           </div>
-
-          <Select
-            value={filters.departmentId}
-            onValueChange={(value) => setFilters({ ...filters, departmentId: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los departamentos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
-              {departments?.data?.map((dept: { id: number; name: string }) => (
-                <SelectItem key={dept.id} value={dept.id.toString()}>
-                  {dept.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filters.status}
-            onValueChange={(value) => setFilters({ ...filters, status: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los estados" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
-              <SelectItem value="open">Abierto</SelectItem>
-              <SelectItem value="investigating">Investigando</SelectItem>
-              <SelectItem value="resolved">Resuelto</SelectItem>
-              <SelectItem value="closed">Cerrado</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filters.priority}
-            onValueChange={(value) => setFilters({ ...filters, priority: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las prioridades" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">Todas</SelectItem>
-              <SelectItem value="critical">Crítica</SelectItem>
-              <SelectItem value="high">Alta</SelectItem>
-              <SelectItem value="medium">Media</SelectItem>
-              <SelectItem value="low">Baja</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <Label>Estado</Label>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => setFilters({ ...filters, status: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="open">Abierto</SelectItem>
+                <SelectItem value="investigating">Investigando</SelectItem>
+                <SelectItem value="resolved">Resuelto</SelectItem>
+                <SelectItem value="closed">Cerrado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Prioridad</Label>
+            <Select
+              value={filters.priority}
+              onValueChange={(value) => setFilters({ ...filters, priority: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todas</SelectItem>
+                <SelectItem value="critical">Crítica</SelectItem>
+                <SelectItem value="high">Alta</SelectItem>
+                <SelectItem value="medium">Media</SelectItem>
+                <SelectItem value="low">Baja</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Departamento</Label>
+            <Select
+              value={filters.departmentId}
+              onValueChange={(value) => setFilters({ ...filters, departmentId: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todos</SelectItem>
+                {departments?.data?.map((dept: { id: number; name: string }) => (
+                  <SelectItem key={dept.id} value={dept.id.toString()}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </Card>
 
@@ -414,36 +469,52 @@ export default function CasesManagement() {
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Folio</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Tipo</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Prioridad</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Estado</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Departamento</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Reportante</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Fecha</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Acciones</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Folio</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Tipo</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Reportante</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Departamento</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Prioridad</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Estado</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Fecha</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y">
               {isLoading ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                     Cargando casos...
                   </td>
                 </tr>
-              ) : casesData?.cases.length === 0 ? (
+              ) : casesData?.cases?.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                     No se encontraron casos
                   </td>
                 </tr>
               ) : (
-                casesData?.cases.map((caso) => (
-                  <tr key={caso.id} className="border-b hover:bg-muted/50">
-                    <td className="px-4 py-3 text-sm font-mono">{caso.caseNumber}</td>
-                    <td className="px-4 py-3 text-sm">{getCaseTypeLabel(caso.caseType)}</td>
+                casesData?.cases?.map((caso: any) => (
+                  <tr key={caso.id} className="hover:bg-muted/50">
+                    <td className="px-4 py-3">
+                      <span className="font-mono text-sm">{caso.folio}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant="outline">{caso.caseType}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium">{caso.reporterName}</p>
+                          <p className="text-xs text-muted-foreground">{caso.reporterEmail}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-sm">{caso.departmentName || "N/A"}</span>
+                    </td>
                     <td className="px-4 py-3">
                       <Badge className={getPriorityColor(caso.priority)}>
                         {getPriorityLabel(caso.priority)}
@@ -454,10 +525,10 @@ export default function CasesManagement() {
                         {getStatusLabel(caso.status)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-sm">{caso.departmentId || "N/A"}</td>
-                    <td className="px-4 py-3 text-sm">{caso.reporterName}</td>
-                    <td className="px-4 py-3 text-sm">
-                      {new Date(caso.createdAt).toLocaleDateString()}
+                    <td className="px-4 py-3">
+                      <span className="text-sm">
+                        {new Date(caso.createdAt).toLocaleDateString('es-MX')}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
@@ -466,32 +537,20 @@ export default function CasesManagement() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleAssignCase(caso.id)}
-                            disabled={assignCase.isPending}
                           >
-                            <User className="h-3 w-3 mr-1" />
                             Asignar
                           </Button>
                         )}
-                        {caso.status === "open" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUpdateStatus(caso.id, "investigating")}
-                            disabled={updateCase.isPending}
-                          >
-                            Investigar
-                          </Button>
-                        )}
-                        {caso.status === "investigating" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUpdateStatus(caso.id, "resolved")}
-                            disabled={updateCase.isPending}
-                          >
-                            Resolver
-                          </Button>
-                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            // TODO: Implementar vista de detalle
+                            toast.info("Vista de detalle próximamente");
+                          }}
+                        >
+                          Ver Detalle
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -502,15 +561,16 @@ export default function CasesManagement() {
         </div>
 
         {/* Pagination */}
-        {casesData && casesData.pagination.totalPages > 1 && (
+        {casesData && casesData.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t">
             <div className="text-sm text-muted-foreground">
-           Página {casesData.pagination.page} de {casesData.pagination.totalPages} ({casesData.pagination.totalCount} casos)    </div>
+              Mostrando {((page - 1) * 20) + 1} a {Math.min(page * 20, casesData.totalCount)} de {casesData.totalCount} casos
+            </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(page - 1)}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
                 Anterior
@@ -518,8 +578,8 @@ export default function CasesManagement() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(page + 1)}
-                disabled={page === casesData.pagination.totalPages}
+                onClick={() => setPage(p => Math.min(casesData.totalPages, p + 1))}
+                disabled={page === casesData.totalPages}
               >
                 Siguiente
               </Button>

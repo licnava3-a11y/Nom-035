@@ -2,8 +2,9 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { cases, employees } from "../../drizzle/schema";
+import { cases, employees, departments, users } from "../../drizzle/schema";
 import { eq, desc, and, or, like, isNull, sql } from "drizzle-orm";
+import { sendEmail, getCaseCriticalTemplate, getCaseAssignedTemplate } from "../services/emailService";
 
 export const casesManagementRouter = router({
   // Crear nuevo caso manualmente
@@ -47,6 +48,79 @@ export const casesManagementRouter = router({
           assignedTo: input.assignedTo || null,
           createdAt: new Date(),
         });
+
+        // Enviar notificación por email si el caso es crítico o alto
+        if (input.priority === "critical" || input.priority === "high") {
+          try {
+            // Obtener información del departamento
+            const [department] = await db.select().from(departments).where(eq(departments.id, input.departmentId)).limit(1);
+            
+            // Obtener emails de administradores y responsables de NOM-035
+            const admins = await db.select().from(users).where(
+              or(
+                eq(users.role, "admin"),
+                eq(users.role, "responsable_nom035"),
+                eq(users.role, "director")
+              )
+            );
+            
+            const adminEmails = admins
+              .map(admin => admin.email)
+              .filter((email): email is string => email !== null && email !== undefined);
+
+            if (adminEmails.length > 0) {
+              const emailHtml = getCaseCriticalTemplate({
+                folio: caseNumber,
+                caseType: input.caseType,
+                reporterName: input.reporterName,
+                description: input.description,
+                priority: input.priority,
+                departmentName: department?.name,
+              });
+
+              // Enviar email de forma asíncrona (no bloquear la respuesta)
+              sendEmail({
+                to: adminEmails,
+                subject: `🚨 Caso Crítico: ${caseNumber} - ${input.caseType}`,
+                html: emailHtml,
+                template: "case_critical",
+              }).catch(error => {
+                console.error("[CasesManagement] Error al enviar email de caso crítico:", error);
+              });
+            }
+          } catch (emailError) {
+            console.error("[CasesManagement] Error al preparar email de notificación:", emailError);
+            // No lanzar error, solo registrar - el caso ya fue creado exitosamente
+          }
+        }
+
+        // Si se asignó a alguien, enviar notificación
+        if (input.assignedTo) {
+          try {
+            const [assignedUser] = await db.select().from(users).where(eq(users.id, input.assignedTo)).limit(1);
+            
+            if (assignedUser && assignedUser.email) {
+              const emailHtml = getCaseAssignedTemplate({
+                folio: caseNumber,
+                caseType: input.caseType,
+                assignedToName: assignedUser.name || "Usuario",
+                reporterName: input.reporterName,
+                description: input.description,
+              });
+
+              sendEmail({
+                to: assignedUser.email,
+                subject: `📋 Nuevo Caso Asignado: ${caseNumber}`,
+                html: emailHtml,
+                template: "case_assigned",
+              }).catch(error => {
+                console.error("[CasesManagement] Error al enviar email de asignación:", error);
+              });
+            }
+          } catch (emailError) {
+            console.error("[CasesManagement] Error al preparar email de asignación:", emailError);
+          }
+        }
 
         return {
           success: true,
