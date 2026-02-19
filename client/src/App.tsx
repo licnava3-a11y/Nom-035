@@ -8,7 +8,8 @@ import DashboardLayout from "./components/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SkeletonLoader from "./components/SkeletonLoader";
 import SkipLink from "./components/SkipLink";
-import { useShortcutsHelp } from "./hooks/useKeyboardShortcuts";
+import { KeyboardShortcutsHelp, useGlobalShortcutsHelp } from "./components/KeyboardShortcutsHelp";
+import { GlobalSearch, useGlobalSearch } from "./components/GlobalSearch";
 
 // Lazy load all page components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -1582,7 +1583,9 @@ function Router() {
 
 export default function App() {
   // Hook para ayuda de atajos de teclado (Ctrl+/)
-  useShortcutsHelp();
+  const { showHelp, setShowHelp } = useGlobalShortcutsHelp();
+  // Hook para búsqueda global (Ctrl+K)
+  const { showSearch, setShowSearch } = useGlobalSearch();
 
   return (
     <ErrorBoundary>
@@ -1590,6 +1593,8 @@ export default function App() {
         <TooltipProvider>
           <SkipLink />
           <Router />
+          <KeyboardShortcutsHelp open={showHelp} onOpenChange={setShowHelp} />
+          <GlobalSearch open={showSearch} onOpenChange={setShowSearch} />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

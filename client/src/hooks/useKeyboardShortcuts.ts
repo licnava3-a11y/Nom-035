@@ -32,21 +32,8 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
 }
 
 // Hook para mostrar ayuda de atajos de teclado
+// DEPRECATED: Use useGlobalShortcutsHelp from KeyboardShortcutsHelp component instead
 export function useShortcutsHelp() {
-  useEffect(() => {
-    const handleHelp = (event: KeyboardEvent) => {
-      // Ctrl+/ o Cmd+/ muestra ayuda
-      if ((event.ctrlKey || event.metaKey) && event.key === "/") {
-        event.preventDefault();
-        console.log("Atajos de teclado disponibles:");
-        console.log("Ctrl+S: Guardar");
-        console.log("Ctrl+K: Búsqueda rápida");
-        console.log("Escape: Cerrar diálogos");
-        console.log("Ctrl+/: Mostrar esta ayuda");
-      }
-    };
-
-    window.addEventListener("keydown", handleHelp);
-    return () => window.removeEventListener("keydown", handleHelp);
-  }, []);
+  // This hook is kept for backward compatibility but does nothing
+  // The actual shortcuts help is now handled by KeyboardShortcutsHelp component
 }

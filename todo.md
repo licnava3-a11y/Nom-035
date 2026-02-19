@@ -4839,3 +4839,42 @@
 - [ ] Verificar flujos optimizados
 - [ ] Actualizar todo.md
 - [ ] Guardar checkpoint final
+
+
+## EXPANSIÓN DE ATAJOS DE TECLADO
+
+### Fase 1: Atajos Globales y Componente de Ayuda
+- [x] Implementar Ctrl+K para búsqueda global de documentos (GlobalSearch component)
+- [ ] Implementar Ctrl+N para crear nuevo documento
+- [x] Crear componente KeyboardShortcutsHelp.tsx con 10 atajos en 4 categorías
+- [x] Implementar Ctrl+/ para mostrar/ocultar ayuda de atajos (global)
+- [x] Integrar componente en App.tsx con useGlobalShortcutsHelp hook
+- [ ] Agregar indicadores visuales de atajos en botones principales
+- [x] Documentar todos los atajos disponibles en el componente
+
+## OPTIMIZACIÓN DE FORMULARIOS
+
+### Fase 2: Validación y Guardado Automático
+- [ ] Implementar validación en tiempo real con mensajes inline
+- [ ] Agregar guardado automático de borradores cada 30 segundos
+- [ ] Implementar confirmación de salida con cambios sin guardar
+- [ ] Agregar indicador visual de "Guardando..." y "Guardado"
+- [ ] Optimizar performance de validación (debounce 300ms)
+
+## AUDITORÍA DE CORRELACIONES
+
+### Fase 3: Integridad de Datos y Optimización de Flujos
+- [ ] Auditar correlación: bases de funcionamiento ↔ aprobaciones
+- [ ] Auditar correlación: aprobaciones ↔ deadlines
+- [ ] Auditar correlación: deadlines ↔ calendario
+- [ ] Identificar y eliminar registros huérfanos
+- [ ] Optimizar flujos de usuario (reducir pasos innecesarios)
+- [ ] Documentar hallazgos y recomendaciones
+
+### Fase 4: Pruebas y Entrega Final
+- [ ] Probar atajos de teclado globales
+- [ ] Probar validación en tiempo real
+- [ ] Probar guardado automático
+- [ ] Verificar integridad de correlaciones
+- [ ] Actualizar todo.md
+- [ ] Guardar checkpoint final
