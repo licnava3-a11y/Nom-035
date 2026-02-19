@@ -3597,3 +3597,51 @@
 - [ ] Documentar proveedores comunes (Gmail, Office 365, SendGrid)
 - [ ] Incluir troubleshooting de errores comunes
 - [ ] Probar envío de email de prueba desde interfaz
+
+
+## NUEVAS TAREAS: Optimización de Rendimiento y Configuración SMTP
+
+### Fase 1: Code Splitting y Lazy Loading ✅ COMPLETADA
+- [x] Implementar lazy loading en rutas principales de App.tsx (ya implementado)
+- [x] Identificar componentes pesados (>100KB) para code splitting
+- [x] Usar React.lazy() y Suspense para componentes grandes (ya implementado)
+- [x] Reducir bundle size inicial del cliente
+
+### Fase 2: Optimización de Queries SQL ✅ COMPLETADA
+- [x] Analizar queries lentas en logs de base de datos
+- [x] Crear índices en tablas críticas (employees, cases, users, notifications)
+- [x] Aplicar índices SQL a la base de datos
+- [x] Índices compuestos para queries complejas frecuentes
+
+### Fase 3: Optimización de Componentes React ⏭️ OMITIDA
+- [ ] Usar React.memo en componentes que se renderizan frecuentemente
+- [ ] Implementar useMemo y useCallback para evitar re-renders innecesarios
+- [ ] Estabilizar referencias de objetos/arrays en useQuery inputs
+- [ ] Revisar y optimizar componentes con muchos estados
+(Nota: Esta fase se puede implementar gradualmente según necesidad)
+
+### Fase 4: Guía de Configuración SMTP ✅ COMPLETADA
+- [x] Crear documento con pasos para Gmail (App Passwords)
+- [x] Documentar configuración para Office 365/Outlook
+- [x] Incluir ejemplos para SendGrid y Mailgun
+- [x] Agregar troubleshooting de errores comunes
+- [x] Documento creado: docs/SMTP_Configuration_Guide.md
+
+### Fase 5: Documentación de Encuestas Públicas ✅ COMPLETADA
+- [x] Documentar flujo completo desde creación de periodo
+- [x] Incluir pasos detallados del proceso
+- [x] Explicar autenticación CURP y validación de tokens
+- [x] Crear guía de pruebas para usuarios finales
+- [x] Documento creado: docs/Public_Surveys_CURP_Guide.md
+
+
+## TAREA ADICIONAL: Formato de Reporte Final
+
+### Crear Formato de Reporte Final Profesional
+- [ ] Diseñar template de reporte final con logo y branding de la empresa
+- [ ] Incluir secciones: Resumen Ejecutivo, Métricas Clave, Análisis de Casos, Cumplimiento NOM-035
+- [ ] Agregar gráficas y visualizaciones de datos (casos por departamento, tendencias, alertas)
+- [ ] Implementar exportación a PDF con formato profesional
+- [ ] Incluir firma digital y fecha de generación
+- [ ] Agregar opción de personalización de periodos (mensual, trimestral, anual)
+- [ ] Crear página de generación de reportes en el dashboard administrativo
