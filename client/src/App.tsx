@@ -188,6 +188,7 @@ const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
 const RiskAnalysis = lazy(() => import("./pages/RiskAnalysis"));
 const CommitteeMinutesManagement = lazy(() => import("./pages/CommitteeMinutesManagement"));
 const CommitteeAnnualReports = lazy(() => import("./pages/CommitteeAnnualReports"));
+const CommitteeOperatingRules = lazy(() => import("./pages/CommitteeOperatingRules"));
 const AgreementsDashboard = lazy(() => import("./pages/AgreementsDashboard"));
 const TrainingCertificates = lazy(() => import("./pages/TrainingCertificates"));
 const EfirmaSAT = lazy(() => import("./pages/EfirmaSAT"));
@@ -1376,6 +1377,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <CommitteeAnnualReports />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee-operating-rules"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeOperatingRules />
             </Suspense>
           </DashboardLayout>
         </Route>

@@ -3962,3 +3962,62 @@
 - [ ] Crear checklist de validación de configuración SMTP
 - [ ] Crear checklist de validación de encuestas públicas
 - [ ] Documentar troubleshooting de errores comunes
+
+
+## NUEVA FUNCIONALIDAD: Sistema de Versionado de Bases de Funcionamiento del Comité ✅ COMPLETADA
+
+### Fase 1: Diseño de Schema y Migración SQL ✅
+- [x] Diseñar tabla committee_operating_rules_versions en schema
+- [x] Agregar campos: id, operatingRuleId, versionNumber, version, objectives, structure, roles, etc.
+- [x] Generar migración SQL con drizzle-kit generate
+- [x] Aplicar migración con webdev_execute_sql (constraints acortados)
+- [x] Verificar que tabla se creó correctamente
+
+### Fase 2: Router tRPC con Procedures de Versionado ✅
+- [x] Crear router committeeOperatingRules.ts
+- [x] Implementar procedure create (crear nueva base de funcionamiento)
+- [x] Implementar procedure update (actualizar y crear versión automáticamente)
+- [x] Implementar procedure list (listar bases de funcionamiento activas)
+- [x] Implementar procedure getById (obtener base específica con última versión)
+- [x] Implementar procedure listVersions (historial de versiones)
+- [x] Implementar procedure getVersion (obtener versión específica)
+- [x] Implementar procedure restoreVersion (restaurar versión anterior)
+- [x] Implementar procedure compareVersions (comparar dos versiones)
+- [x] Implementar procedure approve (aprobar base de funcionamiento)
+- [x] Registrar router en appRouter
+
+### Fase 3: Página de Gestión con Versionado ✅
+- [x] Crear página CommitteeOperatingRules.tsx
+- [x] Implementar formulario de creación/edición de bases de funcionamiento
+- [x] Agregar tabla de historial de versiones con columnas: versión, fecha, autor, acciones
+- [x] Implementar botón "Ver Versión" para cada versión histórica
+- [x] Implementar botón "Restaurar" con dialog de confirmación
+- [x] Implementar botón "Comparar Versiones" en header del historial
+- [x] Agregar indicador visual de versión actual (badge "Actual")
+- [x] Agregar ruta en App.tsx (/committee-operating-rules)
+- [x] Actualizar enlace en menú de navegación (Comité > Bases de Funcionamiento)
+
+### Fase 4: Funcionalidad de Comparación entre Versiones ✅
+- [x] Crear componente VersionComparison.tsx
+- [x] Implementar vista lado a lado de dos versiones
+- [x] Agregar highlighting de diferencias (amarillo/verde)
+- [x] Mostrar campos modificados con badges "Modificado"
+- [x] Implementar dialog de comparación con selectores de versiones
+- [x] Agregar resumen de cambios al final
+- [x] Implementar botones "Comparar Otras Versiones" y "Cerrar"
+
+### Fase 5: Pruebas y Documentación ✅
+- [x] Sistema implementado y funcionando correctamente
+- [x] Versionado automático al editar (crea V2, V3, etc.)
+- [x] Historial de versiones con metadatos completos
+- [x] Comparación visual de versiones con highlighting
+- [x] Restauración de versiones con nueva versión creada
+- [x] Aprobación de bases de funcionamiento (draft → active)
+- [x] Crear documentación completa (Committee_Operating_Rules_Versioning_Guide.md)
+- [x] Incluir ejemplos de flujo de trabajo, API tRPC y mejores prácticas
+
+### Fase 6: Guardar Checkpoint Final
+- [x] Verificar que todas las funcionalidades funcionan correctamente
+- [x] Actualizar todo.md marcando tareas completadas
+- [ ] Guardar checkpoint con descripción completa
+- [ ] Entregar proyecto al usuario con resumen de cambios

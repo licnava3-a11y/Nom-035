@@ -4968,3 +4968,45 @@ export const committeeOperatingRules = mysqlTable("committee_operating_rules", {
 
 export type CommitteeOperatingRules = typeof committeeOperatingRules.$inferSelect;
 export type InsertCommitteeOperatingRules = typeof committeeOperatingRules.$inferInsert;
+
+/**
+ * Committee Operating Rules Versions table
+ * Historial de versiones de las bases de funcionamiento del comité
+ * Permite mantener un registro completo de cambios y restaurar versiones anteriores
+ */
+export const committeeOperatingRulesVersions = mysqlTable("committee_operating_rules_versions", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Referencia a la base de funcionamiento principal
+  operatingRuleId: int("operating_rule_id").notNull().references(() => committeeOperatingRules.id, { onDelete: "cascade" }),
+  
+  // Número de versión
+  versionNumber: int("version_number").notNull(), // 1, 2, 3, etc.
+  version: varchar("version", { length: 10 }).notNull(), // V1.0, V2.0, etc.
+  
+  // Snapshot completo del contenido en esta versión
+  objectives: text("objectives").notNull(),
+  structure: text("structure").notNull(),
+  roles: text("roles").notNull(),
+  meetingFrequency: text("meeting_frequency").notNull(),
+  quorum: text("quorum").notNull(),
+  decisionMaking: text("decision_making").notNull(),
+  communication: text("communication").notNull(),
+  caseHandling: text("case_handling").notNull(),
+  confidentiality: text("confidentiality").notNull(),
+  amendments: text("amendments"),
+  signatures: text("signatures").notNull(),
+  
+  // Fechas del documento en esta versión
+  effectiveDate: date("effective_date").notNull(),
+  reviewDate: date("review_date"),
+  nextReviewDate: date("next_review_date"),
+  
+  // Metadata de la versión
+  changeDescription: text("change_description"), // Descripción de los cambios realizados
+  createdBy: int("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type CommitteeOperatingRulesVersion = typeof committeeOperatingRulesVersions.$inferSelect;
+export type InsertCommitteeOperatingRulesVersion = typeof committeeOperatingRulesVersions.$inferInsert;
