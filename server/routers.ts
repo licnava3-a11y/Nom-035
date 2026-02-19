@@ -45,6 +45,7 @@ import { evidenceFolderRouter } from "./routers/evidenceFolder";
 import { committeePositionAcceptanceRouter } from "./routers/committeePositionAcceptance";
 import { committeeDocumentsRouter } from "./routers/committeeDocuments";
 import { committeeOperatingRulesRouter } from "./routers/committeeOperatingRules";
+import { operatingRulesTemplatesRouter } from "./routers/operatingRulesTemplates";
 import { earlyWarningsRouter } from "./routers/earlyWarnings";
 import { investigationsRouter } from "./routers/investigations";
 import { workplaceViolenceRouter } from "./routers/workplaceViolence";
@@ -197,6 +198,7 @@ export const appRouter = router({
   committeePositionAcceptance: committeePositionAcceptanceRouter,
   committeeDocuments: committeeDocumentsRouter,
   committeeOperatingRules: committeeOperatingRulesRouter,
+  operatingRulesTemplates: operatingRulesTemplatesRouter,
   earlyWarnings: earlyWarningsRouter,
   investigations: investigationsRouter,
   workplaceViolence: workplaceViolenceRouter,

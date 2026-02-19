@@ -195,6 +195,7 @@ const hierarchicalMenuItems = [
           { label: "Acta Constitutiva", path: "/committee/constitutive-act", description: "Documento de constitución del comité" },
           { label: "Bases de Funcionamiento", path: "/committee-operating-rules", description: "Reglamento interno del comité con versionado" },
           { label: "Auditoría de Firmas", path: "/signature-audit", description: "Historial completo de firmas digitales del sistema" },
+          { label: "Métricas de Aprobaciones", path: "/approval-metrics", description: "Análisis de eficiencia del proceso de aprobación" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento de aceptación de cargo" },
           { label: "Actas de Reunión", path: "/committee-minutes", description: "Gestión de actas de reuniones del comité" },
           { label: "Reportes Anuales", path: "/committee-annual-reports", description: "Reportes anuales del comité NOM-035" },

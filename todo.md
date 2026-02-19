@@ -4173,4 +4173,63 @@
 - [x] Todas las notificaciones integradas (created, updated, approved, restored, rejected)
 - [x] Actualizar todo.md con progreso
 - [x] Servidor funcionando correctamente
+- [x] Guardar checkpoint final (d676397f)
+
+
+## EXTENSIONES FINALES: Dashboard Métricas, Plantillas y Calendario
+
+### Funcionalidad 1: Dashboard de Métricas de Aprobaciones ✅
+- [x] Crear procedure getApprovalMetrics en committeeOperatingRules router
+- [x] Implementar queries de agregación: tiempo promedio de aprobación, tasa de rechazo, aprobadores más activos
+- [x] Calcular métricas por período (30/90/180/365 días)
+- [x] Crear página ApprovalMetrics.tsx
+- [x] Implementar 4 gráficos con Chart.js (barras, líneas, dona, horizontal)
+- [x] Agregar 6 cards de métricas resumen
+- [x] Agregar filtros por período (30/90/180/365 días)
+- [x] Agregar ruta en App.tsx (/approval-metrics)
+- [x] Agregar enlace en menú de navegación (Comité > Métricas de Aprobaciones)
+
+### Funcionalidad 2: Sistema de Plantillas Predefinidas ✅ (Backend Completo)
+- [x] Crear tabla operating_rules_templates en schema (11 campos)
+- [x] Generar y aplicar migración SQL (0134_petite_shriek.sql)
+- [x] Crear 3 plantillas predefinidas completas con contenido NOM-035
+  - Empresa Pequeña (4 integrantes, reuniones trimestrales)
+  - Empresa Mediana (7 integrantes, reuniones bimestrales)
+  - Empresa Grande (12 integrantes, reuniones mensuales)
+- [x] Crear router operatingRulesTemplates.ts
+- [x] Implementar procedure list (filtro por companySize)
+- [x] Implementar procedure getById
+- [x] Implementar procedure createFromTemplate
+- [x] Registrar router en appRouter
+- [x] Corregir imports para usar getDb() correctamente
+- [ ] Agregar selector de plantilla en CommitteeOperatingRules.tsx
+- [ ] Implementar dialog de selección de plantilla con preview
+- [ ] Pre-llenar formulario con datos de plantilla seleccionada
+- [ ] Permitir edición de campos pre-llenados antes de guardar
+
+### Funcionalidad 3: Integración con Calendario Corporativo
+- [ ] Crear tabla approval_calendar_events en schema
+- [ ] Campos: id, approvalId, eventDate, eventType (deadline/reminder), notified
+- [ ] Generar y aplicar migración SQL
+- [ ] Crear procedure calendarEvents.create al solicitar aprobaciones
+- [ ] Calcular deadline (7 días desde solicitud por defecto)
+- [ ] Crear evento de recordatorio 24h antes del deadline
+- [ ] Crear job calendar-reminders-job.ts
+- [ ] Implementar lógica para enviar recordatorios 24h antes
+- [ ] Implementar lógica para enviar notificaciones de vencimiento
+- [ ] Registrar job en server/_core/index.ts
+- [ ] Programar ejecución cada 6 horas con node-cron
+- [ ] Agregar campo deadline en tabla operating_rules_approvals
+- [ ] Actualizar procedure requestApprovals para aceptar deadline personalizado
+- [ ] Agregar campo de deadline en dialog de solicitud de aprobaciones
+
+### Integración y Pruebas Finales
+- [x] Dashboard de métricas implementado y funcional
+- [x] Sistema de plantillas backend completo (3 plantillas predefinidas)
+- [x] Router de plantillas corregido y funcionando
+- [x] Servidor reiniciado exitosamente
+- [ ] Completar UI de selector de plantillas en CommitteeOperatingRules
+- [ ] Implementar integración con calendario (requiere tabla y job)
+- [ ] Probar flujo completo de creación desde plantilla
+- [ ] Actualizar documentación
 - [ ] Guardar checkpoint final

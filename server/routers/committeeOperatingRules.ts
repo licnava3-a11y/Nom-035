@@ -1162,4 +1162,130 @@ export const committeeOperatingRulesRouter = router({
         });
       }
     }),
+
+  // Obtener métricas de aprobaciones
+  getApprovalMetrics: protectedProcedure
+    .input(
+      z.object({
+        period: z.enum(["month", "quarter", "year"]).default("month"),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        // Calcular fecha de inicio según período
+        const now = new Date();
+        let startDate: Date;
+        
+        if (input.period === "month") {
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        } else if (input.period === "quarter") {
+          const quarter = Math.floor(now.getMonth() / 3);
+          startDate = new Date(now.getFullYear(), quarter * 3, 1);
+        } else {
+          startDate = new Date(now.getFullYear(), 0, 1);
+        }
+
+        // Total de aprobaciones en el período
+        const [totalApprovalsResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(operatingRulesApprovals)
+          .where(sql`${operatingRulesApprovals.createdAt} >= ${startDate}`);
+
+        const totalApprovals = Number(totalApprovalsResult?.count || 0);
+
+        // Aprobaciones por estado
+        const approvalsByStatus = await db
+          .select({
+            status: operatingRulesApprovals.status,
+            count: sql<number>`count(*)`
+          })
+          .from(operatingRulesApprovals)
+          .where(sql`${operatingRulesApprovals.createdAt} >= ${startDate}`)
+          .groupBy(operatingRulesApprovals.status);
+
+        const approved = approvalsByStatus.find(s => s.status === "approved")?.count || 0;
+        const rejected = approvalsByStatus.find(s => s.status === "rejected")?.count || 0;
+        const pending = approvalsByStatus.find(s => s.status === "pending")?.count || 0;
+
+        // Tasa de rechazo
+        const rejectionRate = totalApprovals > 0 ? (Number(rejected) / totalApprovals) * 100 : 0;
+
+        // Tiempo promedio de aprobación (en días)
+        const [avgTimeResult] = await db
+          .select({
+            avgDays: sql<number>`AVG(TIMESTAMPDIFF(DAY, ${operatingRulesApprovals.createdAt}, ${operatingRulesApprovals.signedAt}))`
+          })
+          .from(operatingRulesApprovals)
+          .where(
+            and(
+              sql`${operatingRulesApprovals.createdAt} >= ${startDate}`,
+              eq(operatingRulesApprovals.status, "approved")
+            )
+          );
+
+        const avgApprovalTime = Number(avgTimeResult?.avgDays || 0);
+
+        // Aprobadores más activos (top 5)
+        const topApprovers = await db
+          .select({
+            approverId: operatingRulesApprovals.approverId,
+            approverName: users.name,
+            approverEmail: users.email,
+            totalApprovals: sql<number>`count(*)`
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .where(
+            and(
+              sql`${operatingRulesApprovals.createdAt} >= ${startDate}`,
+              eq(operatingRulesApprovals.status, "approved")
+            )
+          )
+          .groupBy(operatingRulesApprovals.approverId, users.name, users.email)
+          .orderBy(sql`count(*) DESC`)
+          .limit(5);
+
+        // Aprobaciones por mes (últimos 6 meses)
+        const approvalsByMonth = await db
+          .select({
+            month: sql<string>`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`,
+            approved: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'approved' THEN 1 ELSE 0 END)`,
+            rejected: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'rejected' THEN 1 ELSE 0 END)`,
+            pending: sql<number>`SUM(CASE WHEN ${operatingRulesApprovals.status} = 'pending' THEN 1 ELSE 0 END)`
+          })
+          .from(operatingRulesApprovals)
+          .where(sql`${operatingRulesApprovals.createdAt} >= DATE_SUB(NOW(), INTERVAL 6 MONTH)`)
+          .groupBy(sql`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`)
+          .orderBy(sql`DATE_FORMAT(${operatingRulesApprovals.createdAt}, '%Y-%m')`);
+
+        return {
+          summary: {
+            totalApprovals,
+            approved: Number(approved),
+            rejected: Number(rejected),
+            pending: Number(pending),
+            rejectionRate: Math.round(rejectionRate * 100) / 100,
+            avgApprovalTime: Math.round(avgApprovalTime * 100) / 100,
+          },
+          topApprovers: topApprovers.map(a => ({
+            approverId: a.approverId,
+            approverName: a.approverName || "Desconocido",
+            approverEmail: a.approverEmail || "",
+            totalApprovals: Number(a.totalApprovals)
+          })),
+          approvalsByMonth: approvalsByMonth.map(m => ({
+            month: m.month,
+            approved: Number(m.approved),
+            rejected: Number(m.rejected),
+            pending: Number(m.pending)
+          }))
+        };
+      } catch (error) {
+        console.error("Error getting approval metrics:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener métricas de aprobaciones",
+        });
+      }
+    }),
 });

@@ -38,6 +38,8 @@ export default function CommitteeOperatingRules() {
   const [compareVersionIds, setCompareVersionIds] = useState<[number | null, number | null]>([null, null]);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState({
     version: "V1.0",

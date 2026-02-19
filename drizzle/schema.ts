@@ -5049,3 +5049,42 @@ export const operatingRulesApprovals = mysqlTable("operating_rules_approvals", {
 
 export type OperatingRulesApproval = typeof operatingRulesApprovals.$inferSelect;
 export type InsertOperatingRulesApproval = typeof operatingRulesApprovals.$inferInsert;
+
+
+/**
+ * Tabla: operating_rules_templates
+ * Descripción: Plantillas predefinidas de bases de funcionamiento según tamaño de empresa
+ */
+export const operatingRulesTemplates = mysqlTable("operating_rules_templates", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Información de la plantilla
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  companySize: mysqlEnum("company_size", ["small", "medium", "large"]).notNull(), // Hasta 15, 16-50, >50 empleados
+  
+  // Contenido de la plantilla (igual que committeeOperatingRules)
+  title: varchar("title", { length: 300 }).notNull(),
+  version: varchar("version", { length: 50 }).notNull().default("1.0"),
+  
+  // Contenido principal
+  objectives: text("objectives"), // Objetivos de las bases de funcionamiento
+  structure: text("structure"), // Estructura organizacional del comité
+  roles: text("roles"), // Roles y responsabilidades
+  responsibilities: text("responsibilities"), // Responsabilidades específicas
+  procedures: text("procedures"), // Procedimientos operativos
+  meetingSchedule: text("meeting_schedule"), // Calendario de reuniones
+  decisionMaking: text("decision_making"), // Proceso de toma de decisiones
+  documentation: text("documentation"), // Gestión documental
+  confidentiality: text("confidentiality"), // Políticas de confidencialidad
+  amendments: text("amendments"), // Procedimiento de modificación
+  
+  // Metadata
+  isActive: boolean("is_active").default(true).notNull(),
+  createdBy: int("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OperatingRulesTemplate = typeof operatingRulesTemplates.$inferSelect;
+export type InsertOperatingRulesTemplate = typeof operatingRulesTemplates.$inferInsert;
