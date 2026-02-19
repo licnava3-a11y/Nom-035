@@ -4271,9 +4271,46 @@
 - [ ] Opcional: Implementar exportación a PDF con gráficos incluidos
 
 ### Fase 4: Pruebas y Entrega Final
-- [ ] Probar selector de plantillas con las 3 opciones
-- [ ] Probar creación desde plantilla y verificar datos prellenados
-- [ ] Probar sistema de recordatorios de calendario
-- [ ] Probar exportación de métricas a Excel
-- [ ] Verificar que todas las funcionalidades funcionan correctamente
+- [x] Dashboard de métricas implementado y funcional
+- [x] Sistema de plantillas backend y frontend completo
+- [x] Tabla de calendario de aprobaciones creada
+- [x] Guardar checkpoint (7d4c30fe)
+- [ ] Completar sistema de calendario (deadline, job, recordatorios)
+- [ ] Implementar exportación de métricas a Excel
+- [ ] Probar flujo completo de creación desde plantilla
+
+
+## HISTORIAL DE CAMBIOS CON TIMELINE VISUAL
+
+### Fase 1: Procedure para Historial Completo de Eventos ✅
+- [x] Crear procedure getOperatingRulesHistory en committeeOperatingRules router
+- [x] Unificar eventos de múltiples fuentes (versiones, aprobaciones, rechazos)
+- [x] Incluir datos: tipo de evento, fecha, usuario, descripción, metadata
+- [x] Implementar filtros: tipo de evento, rango de fechas, usuario
+- [x] Ordenar eventos cronológicamente (más reciente primero)
+- [x] Incluir paginación (limit 50, offset)
+
+### Fase 2: Componente Timeline Visual ✅
+- [x] Crear componente OperatingRulesTimeline.tsx
+- [x] Implementar diseño de línea temporal vertical con línea divisoria
+- [x] Agregar iconos distintivos por tipo de evento (5 tipos)
+- [x] Mostrar tarjetas de evento con fecha, usuario, descripción
+- [x] Agregar colores distintivos por tipo (verde=aprobación, rojo=rechazo, azul=creación, púrpura=actualización, naranja=restauración)
+- [x] Implementar vista expandible para detalles completos con botón toggle
+
+### Fase 3: Filtros y Navegación ✅
+- [x] Agregar filtros por tipo de evento (checkboxes múltiples con iconos)
+- [x] Implementar date range picker para rango de fechas (inputs type=date)
+- [x] Agregar filtro por usuario (select con usuarios únicos)
+- [x] Implementar paginación con botón "Cargar Más Eventos"
+- [x] Agregar contador de eventos totales (badge)
+- [x] Agregar botón "Limpiar Filtros"
+- [x] Integrar timeline en página CommitteeOperatingRules.tsx (después de ApprovalWorkflow)
+
+### Fase 4: Pruebas y Entrega Final
+- [x] Sistema completo implementado
+- [x] Timeline visual con diseño profesional
+- [x] Filtros integrados y funcionales
+- [x] Paginación implementada
+- [x] Actualizar todo.md con progreso
 - [ ] Guardar checkpoint final

@@ -1288,4 +1288,130 @@ export const committeeOperatingRulesRouter = router({
         });
       }
     }),
+
+  // Obtener historial completo de eventos de una base de funcionamiento
+  getOperatingRulesHistory: protectedProcedure
+    .input(z.object({
+      operatingRuleId: z.number(),
+      eventTypes: z.array(z.enum(["created", "updated", "approved", "rejected", "restored"])).optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+      userId: z.number().optional(),
+      limit: z.number().default(50),
+      offset: z.number().default(0),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const db = await getDb();
+        const { operatingRuleId, eventTypes, startDate, endDate, userId, limit, offset } = input;
+
+        // Obtener eventos de versiones (creación, actualización, restauración)
+        const versionEvents = await db
+          .select({
+            id: committeeOperatingRulesVersions.id,
+            eventType: sql<string>`CASE 
+              WHEN ${committeeOperatingRulesVersions.versionNumber} = 1 THEN 'created'
+              WHEN ${committeeOperatingRulesVersions.changeDescription} LIKE '%Restaurada%' THEN 'restored'
+              ELSE 'updated'
+            END`,
+            eventDate: committeeOperatingRulesVersions.createdAt,
+            userId: committeeOperatingRulesVersions.createdBy,
+            userName: users.name,
+            userEmail: users.email,
+            description: committeeOperatingRulesVersions.changeDescription,
+            versionNumber: committeeOperatingRulesVersions.versionNumber,
+            metadata: sql<string>`JSON_OBJECT(
+              'versionId', ${committeeOperatingRulesVersions.id},
+              'versionNumber', ${committeeOperatingRulesVersions.versionNumber},
+              'title', ${committeeOperatingRulesVersions.title}
+            )`
+          })
+          .from(committeeOperatingRulesVersions)
+          .leftJoin(users, eq(committeeOperatingRulesVersions.createdBy, users.id))
+          .where(
+            and(
+              eq(committeeOperatingRulesVersions.operatingRuleId, operatingRuleId),
+              startDate ? sql`${committeeOperatingRulesVersions.createdAt} >= ${startDate}` : undefined,
+              endDate ? sql`${committeeOperatingRulesVersions.createdAt} <= ${endDate}` : undefined,
+              userId ? eq(committeeOperatingRulesVersions.createdBy, userId) : undefined
+            )
+          );
+
+        // Obtener eventos de aprobaciones (aprobación, rechazo)
+        const approvalEvents = await db
+          .select({
+            id: operatingRulesApprovals.id,
+            eventType: sql<string>`CASE 
+              WHEN ${operatingRulesApprovals.status} = 'approved' THEN 'approved'
+              WHEN ${operatingRulesApprovals.status} = 'rejected' THEN 'rejected'
+              ELSE 'pending'
+            END`,
+            eventDate: sql<Date>`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt})`,
+            userId: operatingRulesApprovals.approverId,
+            userName: users.name,
+            userEmail: users.email,
+            description: sql<string>`CASE 
+              WHEN ${operatingRulesApprovals.status} = 'approved' THEN CONCAT('Aprobación firmada como ', ${operatingRulesApprovals.role})
+              WHEN ${operatingRulesApprovals.status} = 'rejected' THEN CONCAT('Aprobación rechazada: ', ${operatingRulesApprovals.rejectionReason})
+              ELSE 'Aprobación solicitada'
+            END`,
+            versionNumber: sql<number>`NULL`,
+            metadata: sql<string>`JSON_OBJECT(
+              'approvalId', ${operatingRulesApprovals.id},
+              'role', ${operatingRulesApprovals.role},
+              'roleDescription', ${operatingRulesApprovals.roleDescription},
+              'status', ${operatingRulesApprovals.status},
+              'comments', ${operatingRulesApprovals.comments}
+            )`
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .where(
+            and(
+              eq(operatingRulesApprovals.operatingRuleId, operatingRuleId),
+              sql`${operatingRulesApprovals.status} IN ('approved', 'rejected')`,
+              startDate ? sql`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt}) >= ${startDate}` : undefined,
+              endDate ? sql`COALESCE(${operatingRulesApprovals.signedAt}, ${operatingRulesApprovals.rejectedAt}, ${operatingRulesApprovals.createdAt}) <= ${endDate}` : undefined,
+              userId ? eq(operatingRulesApprovals.approverId, userId) : undefined
+            )
+          );
+
+        // Unificar eventos
+        const allEvents = [
+          ...versionEvents.map(e => ({
+            ...e,
+            metadata: typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata
+          })),
+          ...approvalEvents.map(e => ({
+            ...e,
+            metadata: typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata
+          }))
+        ];
+
+        // Filtrar por tipo de evento si se especifica
+        let filteredEvents = allEvents;
+        if (eventTypes && eventTypes.length > 0) {
+          filteredEvents = allEvents.filter(e => eventTypes.includes(e.eventType as any));
+        }
+
+        // Ordenar por fecha (más reciente primero)
+        filteredEvents.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+
+        // Aplicar paginación
+        const totalEvents = filteredEvents.length;
+        const paginatedEvents = filteredEvents.slice(offset, offset + limit);
+
+        return {
+          events: paginatedEvents,
+          total: totalEvents,
+          hasMore: offset + limit < totalEvents
+        };
+      } catch (error) {
+        console.error("Error getting operating rules history:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener historial de cambios",
+        });
+      }
+    }),
 });

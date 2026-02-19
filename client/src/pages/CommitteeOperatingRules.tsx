@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import VersionComparison from "@/components/VersionComparison";
 import ApprovalWorkflow from "@/components/ApprovalWorkflow";
+import { OperatingRulesTimeline } from "@/components/OperatingRulesTimeline";
 
 export default function CommitteeOperatingRules() {
   const [selectedRuleId, setSelectedRuleId] = useState<number | null>(null);
@@ -640,6 +641,11 @@ export default function CommitteeOperatingRules() {
           operatingRuleId={selectedRuleId}
           operatingRuleVersion={selectedRule?.version || ""}
         />
+      )}
+
+      {/* Historial de Cambios con Timeline */}
+      {selectedRuleId && !showVersionHistory && (
+        <OperatingRulesTimeline operatingRuleId={selectedRuleId} />
       )}
 
       {/* Historial de versiones */}
