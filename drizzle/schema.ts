@@ -4858,3 +4858,113 @@ export const surveyEmployeeTokens = mysqlTable("survey_employee_tokens", {
 
 export type SurveyEmployeeToken = typeof surveyEmployeeTokens.$inferSelect;
 export type InsertSurveyEmployeeToken = typeof surveyEmployeeTokens.$inferInsert;
+
+/**
+ * Committee Annual Reports table
+ * Actas de reporte final anual del comité NOM-035
+ */
+export const committeeAnnualReports = mysqlTable("committee_annual_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Numeración automática del reporte
+  folioNumber: int("folio_number").notNull(), // Número consecutivo
+  folioYear: int("folio_year").notNull(), // Año del reporte
+  folioCode: varchar("folio_code", { length: 20 }).notNull().default("ARF"), // Código del formato (ARF = Acta Reporte Final)
+  folioVersion: varchar("folio_version", { length: 10 }).notNull().default("1.0"), // Versión del formato
+  
+  // Periodo del reporte
+  reportYear: int("report_year").notNull(), // Año del reporte
+  startDate: date("start_date").notNull(), // Fecha de inicio del periodo
+  endDate: date("end_date").notNull(), // Fecha de fin del periodo
+  
+  // Resumen ejecutivo
+  executiveSummary: text("executive_summary").notNull(),
+  
+  // Actividades realizadas (JSON array de actividades)
+  activities: text("activities").notNull(),
+  
+  // Métricas clave (JSON object con estadísticas)
+  metrics: text("metrics").notNull(), // totalMeetings, averageAttendance, trainingsCompleted, casesHandled, etc.
+  
+  // Capacitaciones impartidas (JSON array)
+  trainings: text("trainings").notNull(),
+  
+  // Casos atendidos (JSON array o resumen)
+  casesHandled: text("cases_handled").notNull(),
+  
+  // Cumplimiento NOM-035 (JSON object con indicadores)
+  complianceMetrics: text("compliance_metrics").notNull(),
+  
+  // Recomendaciones y plan de acción
+  recommendations: text("recommendations").notNull(),
+  actionPlan: text("action_plan").notNull(), // Plan de acción para el siguiente periodo
+  
+  // Anexos (JSON array de URLs o referencias a archivos)
+  attachments: text("attachments"), // Evidencias fotográficas, listas de asistencia, certificados
+  
+  // Firmas de todos los miembros del comité (JSON array)
+  signatures: text("signatures").notNull(),
+  
+  // Estado del documento
+  status: varchar("status", { length: 20 }).notNull().default("draft"), // 'draft', 'final', 'approved'
+  
+  // Metadata
+  createdBy: int("created_by").notNull().references(() => users.id),
+  approvedBy: int("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CommitteeAnnualReport = typeof committeeAnnualReports.$inferSelect;
+export type InsertCommitteeAnnualReport = typeof committeeAnnualReports.$inferInsert;
+
+
+/**
+ * Committee Operating Rules table
+ * Bases de funcionamiento (reglamento interno) del comité NOM-035
+ */
+export const committeeOperatingRules = mysqlTable("committee_operating_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Versión del documento
+  version: varchar("version", { length: 10 }).notNull(), // V1.0, V2.0, etc.
+  folioCode: varchar("folio_code", { length: 20 }).notNull().default("BFC"), // Código del formato (BFC = Bases de Funcionamiento del Comité)
+  
+  // Fechas del documento
+  effectiveDate: date("effective_date").notNull(), // Fecha de entrada en vigor
+  reviewDate: date("review_date"), // Fecha de revisión
+  nextReviewDate: date("next_review_date"), // Fecha de próxima revisión programada
+  
+  // Contenido del documento (JSON object con todas las secciones)
+  objectives: text("objectives").notNull(), // Objetivos del comité
+  structure: text("structure").notNull(), // Integración y estructura organizacional
+  roles: text("roles").notNull(), // Funciones y responsabilidades de cada miembro (JSON array)
+  meetingFrequency: text("meeting_frequency").notNull(), // Periodicidad de reuniones
+  quorum: text("quorum").notNull(), // Quórum mínimo para sesionar
+  decisionMaking: text("decision_making").notNull(), // Procedimiento de toma de decisiones
+  communication: text("communication").notNull(), // Mecanismos de comunicación interna
+  caseHandling: text("case_handling").notNull(), // Procedimiento de atención de casos
+  confidentiality: text("confidentiality").notNull(), // Confidencialidad y manejo de información
+  amendments: text("amendments"), // Procedimiento de modificación del documento
+  
+  // Firmas de aprobación (JSON array de todos los miembros)
+  signatures: text("signatures").notNull(),
+  
+  // Estado del documento
+  status: varchar("status", { length: 20 }).notNull().default("draft"), // 'draft', 'active', 'superseded'
+  
+  // Metadata
+  createdBy: int("created_by").notNull().references(() => users.id),
+  approvedBy: int("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type CommitteeOperatingRules = typeof committeeOperatingRules.$inferSelect;
+export type InsertCommitteeOperatingRules = typeof committeeOperatingRules.$inferInsert;

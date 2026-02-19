@@ -3635,9 +3635,59 @@
 - [x] Documento creado: docs/Public_Surveys_CURP_Guide.md
 
 
-## TAREA ADICIONAL: Formato de Reporte Final
+## TAREA ADICIONAL: Formatos y Documentos Oficiales del Comité
 
-### Crear Formato de Reporte Final Profesional
+### 1. Formato de Acta de Comité 🛠️ EN PROGRESO
+- [x] Tabla committeeMinutes ya existe en schema (línea 2464)
+- [x] Diseñar template PDF de acta de reunión del comité con logo y branding
+- [x] Incluir secciones: Datos de la reunión, asistentes, orden del día, acuerdos, seguimiento
+- [x] Agregar tabla de asistencia con firmas digitales de miembros presentes
+- [x] Implementar numeración automática de actas (consecutivo/año)
+- [x] Incluir pie de página con código de formato, versión y QR de validación
+- [x] Agregar campo para próxima fecha de reunión
+- [x] Servicio de generación de PDF profesional creado (committeeDocumentsPDF.ts)
+- [x] Instalar dependencias pdfkit y qrcode
+- [ ] Crear router committeeDocuments con procedures CRUD
+- [ ] Crear página de generación y gestión de actas en módulo de comité
+- [ ] Integrar generación de PDF en frontend
+
+### 2. Formato de Acta de Reporte Final 🛠️ EN PROGRESO
+- [x] Crear tabla committee_annual_reports en schema
+- [x] Generar y aplicar migración SQL
+- [x] Diseñar template PDF de acta de reporte final anual del comité
+- [x] Incluir secciones: Resumen Ejecutivo, Actividades Realizadas, Capacitaciones Impartidas, Casos Atendidos
+- [x] Agregar métricas clave: Total de reuniones, asistencia promedio, cumplimiento NOM-035
+- [x] Agregar sección de recomendaciones y plan de acción para el siguiente periodo
+- [x] Implementar tabla de firmas de todos los miembros del comité
+- [x] Servicio de generación de PDF profesional creado (generateAnnualReportPDF)
+- [ ] Incluir gráficas y visualizaciones de datos (tendencias anuales, casos por categoría)
+- [ ] Incluir anexos: Evidencias fotográficas, listas de asistencia, certificados
+- [ ] Crear router para gestión de reportes anuales
+- [ ] Crear página de generación de reporte final anual
+
+### 3. Formato de Bases de Funcionamiento del Comité 🛠️ EN PROGRESO
+- [x] Crear tabla committee_operating_rules en schema
+- [x] Generar y aplicar migración SQL
+- [x] Diseñar template PDF de bases de funcionamiento (reglamento interno)
+- [x] Incluir secciones obligatorias según NOM-035:
+  - [x] Objetivos del comité
+  - [x] Integración y estructura organizacional
+  - [x] Funciones y responsabilidades de cada miembro
+  - [x] Periodicidad de reuniones ordinarias y extraordinarias
+  - [x] Quórum mínimo para sesionar
+  - [x] Procedimiento de toma de decisiones y votaciones
+  - [x] Mecanismos de comunicación interna
+  - [x] Procedimiento de atención de casos
+  - [x] Confidencialidad y manejo de información sensible
+  - [x] Vigencia y actualización del documento
+- [x] Agregar tabla de firmas de aprobación de todos los miembros
+- [x] Incluir fecha de elaboración, revisión y próxima actualización
+- [x] Implementar versionado del documento (V1.0, V2.0, etc.)
+- [x] Servicio de generación de PDF profesional creado (generateOperatingRulesPDF)
+- [ ] Crear router para gestión de bases de funcionamiento
+- [ ] Crear página de gestión de bases de funcionamiento en módulo de comité
+
+### 4. Formato de Reporte Final Consolidado (General)
 - [ ] Diseñar template de reporte final con logo y branding de la empresa
 - [ ] Incluir secciones: Resumen Ejecutivo, Métricas Clave, Análisis de Casos, Cumplimiento NOM-035
 - [ ] Agregar gráficas y visualizaciones de datos (casos por departamento, tendencias, alertas)

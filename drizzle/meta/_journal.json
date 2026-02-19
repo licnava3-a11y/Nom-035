@@ -911,6 +911,13 @@
       "when": 1771463614176,
       "tag": "0129_clammy_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "5",
+      "when": 1771465137425,
+      "tag": "0130_pale_mac_gargan",
+      "breakpoints": true
     }
   ]
 }
