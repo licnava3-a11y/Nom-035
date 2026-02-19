@@ -3,15 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import {
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  TrendingUp,
-  Users,
-  FileText,
-  AlertCircle,
-} from "lucide-react";
+import { ICONS } from "@/lib/iconography";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -62,7 +54,7 @@ export default function DeadlineComplianceDashboard() {
       <div className="container mx-auto py-6">
         <Card>
           <CardContent className="py-12 text-center">
-            <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <ICONS.status.alert className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No hay datos disponibles</p>
           </CardContent>
         </Card>
@@ -233,7 +225,7 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tasa de Cumplimiento</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <ICONS.status.success className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -248,7 +240,7 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tiempo Promedio de Respuesta</CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
+            <ICONS.datetime.clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
@@ -263,7 +255,7 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Aprobaciones Vencidas</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <ICONS.status.warning className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
@@ -278,7 +270,7 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total con Deadline</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.summary.totalWithDeadline}</div>
@@ -291,7 +283,7 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Aprobadores Activos</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <ICONS.users.multiple className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.approverRanking.length}</div>
@@ -304,7 +296,7 @@ export default function DeadlineComplianceDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tendencia</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+            <ICONS.data.trendUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -323,7 +315,7 @@ export default function DeadlineComplianceDashboard() {
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400">
-              <AlertCircle className="h-5 w-5" />
+              <ICONS.status.alert className="h-5 w-5" />
               Cuellos de Botella Detectados
             </CardTitle>
             <CardDescription>

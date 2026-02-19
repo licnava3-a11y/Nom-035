@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FileText, History, Eye, RotateCcw, GitCompare, Plus, Save, Check, Download } from "lucide-react";
+import { ICONS } from "@/lib/iconography";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import VersionComparison from "@/components/VersionComparison";
@@ -32,6 +32,7 @@ import { OperatingRulesTimeline } from "@/components/OperatingRulesTimeline";
 import { SearchOperatingRules } from "@/components/SearchOperatingRules";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { LabelWithTooltip } from "@/components/InfoTooltip";
+import { TableSkeleton } from "@/components/skeletons";
 
 export default function CommitteeOperatingRules() {
   const [selectedRuleId, setSelectedRuleId] = useState<number | null>(null);
@@ -67,7 +68,7 @@ export default function CommitteeOperatingRules() {
   });
 
   // Queries
-  const { data: rules, refetch: refetchRules } = trpc.committeeOperatingRules.list.useQuery();
+  const { data: rules, refetch: refetchRules, isLoading: isLoadingRules } = trpc.committeeOperatingRules.list.useQuery();
   const { data: templates } = trpc.operatingRulesTemplates.list.useQuery();
   const { data: currentRule, refetch: refetchCurrentRule } = trpc.committeeOperatingRules.getById.useQuery(
     { id: selectedRuleId! },
@@ -270,7 +271,7 @@ export default function CommitteeOperatingRules() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+              <ICONS.documents.generic className="h-5 w-5" />
               {isCreating ? "Crear Bases de Funcionamiento" : "Editar Bases de Funcionamiento"}
             </CardTitle>
             <CardDescription>
@@ -472,7 +473,7 @@ export default function CommitteeOperatingRules() {
 
             <div className="flex gap-2">
               <Button onClick={isCreating ? handleCreate : handleUpdate} disabled={createMutation.isPending || updateMutation.isPending}>
-                <Save className="h-4 w-4 mr-2" />
+                <ICONS.actions.save className="h-4 w-4 mr-2" />
                 {isCreating ? "Crear" : "Guardar Cambios"}
               </Button>
               <Button variant="outline" onClick={cancelEditing}>
@@ -502,11 +503,11 @@ export default function CommitteeOperatingRules() {
             Buscar
           </Button>
           <Button variant="outline" onClick={() => setShowTemplateDialog(true)}>
-            <FileText className="h-4 w-4 mr-2" />
+            <ICONS.documents.generic className="h-4 w-4 mr-2" />
             Crear desde Plantilla
           </Button>
           <Button onClick={startCreating}>
-            <Plus className="h-4 w-4 mr-2" />
+            <ICONS.actions.create className="h-4 w-4 mr-2" />
             Nueva Base de Funcionamiento
           </Button>
         </div>
@@ -530,7 +531,9 @@ export default function CommitteeOperatingRules() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rules?.map((rule) => (
+              {isLoadingRules ? (
+                <TableSkeleton rows={3} columns={6} />
+              ) : rules?.map((rule) => (
                 <TableRow key={rule.id}>
                   <TableCell className="font-medium">{rule.version}</TableCell>
                   <TableCell>
@@ -559,7 +562,7 @@ export default function CommitteeOperatingRules() {
                           setShowVersionHistory(false);
                         }}
                       >
-                        <Eye className="h-4 w-4" />
+                        <ICONS.actions.view className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
@@ -569,13 +572,13 @@ export default function CommitteeOperatingRules() {
                           setShowVersionHistory(true);
                         }}
                       >
-                        <History className="h-4 w-4" />
+                        <ICONS.navigation.back className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
-              {!rules || rules.length === 0 && (
+              {!isLoadingRules && (!rules || rules.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground">
                     No hay bases de funcionamiento registradas
@@ -601,7 +604,7 @@ export default function CommitteeOperatingRules() {
               <div className="flex gap-2">
                 {currentRule.status === "draft" && (
                   <Button size="sm" onClick={handleApprove} disabled={approveMutation.isPending}>
-                    <Check className="h-4 w-4 mr-2" />
+                    <ICONS.status.success className="h-4 w-4 mr-2" />
                     Aprobar
                   </Button>
                 )}
@@ -614,7 +617,7 @@ export default function CommitteeOperatingRules() {
                   onClick={() => generatePDFMutation.mutate({ id: selectedRuleId })}
                   disabled={generatePDFMutation.isPending}
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <ICONS.actions.download className="h-4 w-4 mr-2" />
                   {generatePDFMutation.isPending ? "Generando..." : "Exportar PDF"}
                 </Button>
                 <Button
@@ -622,7 +625,7 @@ export default function CommitteeOperatingRules() {
                   variant="outline"
                   onClick={() => setShowVersionHistory(true)}
                 >
-                  <History className="h-4 w-4 mr-2" />
+                  <ICONS.navigation.back className="h-4 w-4 mr-2" />
                   Ver Historial
                 </Button>
               </div>
@@ -702,7 +705,7 @@ export default function CommitteeOperatingRules() {
                   onClick={() => setShowCompareDialog(true)}
                   disabled={!versions || versions.length < 2}
                 >
-                  <GitCompare className="h-4 w-4 mr-2" />
+                  <ICONS.data.chart className="h-4 w-4 mr-2" />
                   Comparar Versiones
                 </Button>
                 <Button variant="outline" onClick={() => setShowVersionHistory(false)}>
@@ -744,7 +747,7 @@ export default function CommitteeOperatingRules() {
                           variant="outline"
                           onClick={() => setSelectedVersionId(version.id)}
                         >
-                          <Eye className="h-4 w-4" />
+                          <ICONS.actions.view className="h-4 w-4" />
                         </Button>
                         {index !== 0 && (
                           <Button
@@ -755,7 +758,7 @@ export default function CommitteeOperatingRules() {
                               setShowRestoreDialog(true);
                             }}
                           >
-                            <RotateCcw className="h-4 w-4" />
+                            <ICONS.actions.undo className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -792,7 +795,7 @@ export default function CommitteeOperatingRules() {
               Cancelar
             </Button>
             <Button onClick={handleRestore} disabled={restoreMutation.isPending}>
-              <RotateCcw className="h-4 w-4 mr-2" />
+              <ICONS.actions.undo className="h-4 w-4 mr-2" />
               Restaurar
             </Button>
           </DialogFooter>
@@ -843,7 +846,7 @@ export default function CommitteeOperatingRules() {
         <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GitCompare className="h-5 w-5" />
+              <ICONS.data.chart className="h-5 w-5" />
               Comparar Versiones
             </DialogTitle>
             <DialogDescription>

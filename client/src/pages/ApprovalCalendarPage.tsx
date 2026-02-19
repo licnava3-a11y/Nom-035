@@ -1,6 +1,6 @@
 import { ApprovalCalendar } from "@/components/ApprovalCalendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { ICONS } from "@/lib/iconography";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function ApprovalCalendarPage() {
@@ -13,7 +13,7 @@ export default function ApprovalCalendarPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-6 w-6" />
+            <ICONS.datetime.calendar className="h-6 w-6" />
             Calendario de Aprobaciones
           </CardTitle>
           <CardDescription>

@@ -4731,4 +4731,43 @@
 - [x] Tooltips implementados en 5 campos clave del formulario
 - [x] Iconografía auditada y estandarizada (docs + código)
 - [x] Actualizar todo.md
+- [x] Guardar checkpoint (9ee1df50)
+
+
+## APLICACIÓN DE ESTÁNDAR DE ICONOGRAFÍA E INTEGRACIÓN UX
+
+### Fase 1: Refactorizar Páginas con Estándar de Iconografía
+- [x] Refactorizar CommitteeOperatingRules.tsx (14 iconos: actions, documents, status, data)
+- [x] Refactorizar ApprovalCalendarPage.tsx (1 icono: datetime.calendar)
+- [x] Refactorizar DeadlineComplianceDashboard.tsx (8 iconos: status, datetime, data, users, documents)
+- [ ] Refactorizar Dashboard.tsx (usar ICONS en cards de métricas)
+- [ ] Refactorizar Employees.tsx (usar ICONS.users, ICONS.actions)
+- [x] Tamaños consistentes aplicados (h-4 para botones, h-5 para headers, h-6 para títulos)
+- [x] Colores semánticos aplicados (green-600 success, red-600 warning, blue-600 info)
+
+### Fase 2: Integrar Skeleton Loaders
+- [ ] Integrar DashboardSkeleton en Dashboard.tsx (estado de carga inicial)
+- [x] Integrar TableSkeleton en CommitteeOperatingRules.tsx (lista de documentos con 3 filas)
+- [ ] Integrar CalendarSkeleton en ApprovalCalendarPage.tsx (calendario de deadlines)
+- [ ] Integrar ChartSkeleton en DeadlineComplianceDashboard.tsx (gráficos de métricas)
+- [ ] Integrar TableSkeleton en Employees.tsx (lista de trabajadores)
+
+### Fase 3: Integrar Estados Vacíos y Toasts
+- [ ] Integrar EmptyState en CommitteeOperatingRules.tsx (sin documentos)
+- [ ] Integrar EmptyState en ApprovalCalendarPage.tsx (sin deadlines)
+- [ ] Integrar EmptyState en DeadlineComplianceDashboard.tsx (sin datos históricos)
+- [ ] Integrar EmptyState en Employees.tsx (sin trabajadores)
+- [ ] Agregar toasts de éxito en mutaciones de CommitteeOperatingRules
+- [ ] Agregar toasts de éxito en mutaciones de ApprovalCalendar
+- [ ] Agregar toasts de error en todas las mutaciones fallidas
+- [ ] Usar AlertError component para errores contextuales
+
+### Fase 4: Pruebas y Entrega
+- [ ] Probar navegación con breadcrumbs en páginas del comité
+- [ ] Probar tooltips en formulario de bases de funcionamiento
+- [ ] Verificar skeleton loaders en estados de carga
+- [ ] Verificar estados vacíos con CTAs funcionales
+- [ ] Verificar toasts en acciones exitosas y fallidas
+- [ ] Verificar consistencia de iconos en páginas refactorizadas
+- [ ] Actualizar todo.md
 - [ ] Guardar checkpoint
