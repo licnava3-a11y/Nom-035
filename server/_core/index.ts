@@ -152,6 +152,11 @@ async function startServer() {
     startPredictiveTurnoverJob();
     startApprovalRemindersJob();
 
+    // Deadline Alerts Job (daily at 9:00 AM)
+    import("../jobs/deadlineAlertsJob").then(({ startDeadlineAlertsJob }) => {
+      startDeadlineAlertsJob();
+    });
+
     // Corrective Action Plans Reminders Job (daily at 9:00 AM)
     setInterval(async () => {
       const now = new Date();

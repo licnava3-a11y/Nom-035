@@ -26,6 +26,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
   const [selectedApprovalId, setSelectedApprovalId] = useState<number | null>(null);
   const [signComments, setSignComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [deadline, setDeadline] = useState("");
   
   const [approvers, setApprovers] = useState<Array<{
     approverId: string;
@@ -122,6 +123,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
         approverRoleDescription: a.approverRoleDescription || undefined,
         approvalOrder: a.approvalOrder,
       })),
+      deadline: deadline || undefined,
     });
   };
 
@@ -368,6 +370,22 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
               <UserPlus className="h-4 w-4 mr-2" />
               Agregar Aprobador
             </Button>
+
+            {/* Campo de fecha límite */}
+            <div className="mt-4">
+              <Label htmlFor="deadline">Fecha Límite (Opcional)</Label>
+              <Input
+                id="deadline"
+                type="date"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                className="mt-1"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Si se especifica, se enviarán recordatorios automáticos cuando se acerque la fecha límite.
+              </p>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 mt-4">

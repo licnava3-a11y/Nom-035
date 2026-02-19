@@ -5042,6 +5042,9 @@ export const operatingRulesApprovals = mysqlTable("operating_rules_approvals", {
   // Orden de aprobación (para workflow secuencial)
   approvalOrder: int("approval_order").default(0).notNull(),
   
+  // Fecha límite de aprobación
+  deadline: timestamp("deadline"), // Fecha límite para completar la aprobación
+  
   // Metadata
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),

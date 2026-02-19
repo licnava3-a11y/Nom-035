@@ -1,0 +1,1 @@
+ALTER TABLE `operating_rules_approvals` ADD `deadline` timestamp;

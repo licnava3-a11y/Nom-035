@@ -693,6 +693,7 @@ export const committeeOperatingRulesRouter = router({
             approvalOrder: z.number().default(0),
           })
         ),
+        deadline: z.string().optional(), // Fecha límite en formato ISO (YYYY-MM-DD)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -724,6 +725,7 @@ export const committeeOperatingRulesRouter = router({
           );
 
         // Crear nuevas solicitudes de aprobación
+        const deadlineDate = input.deadline ? new Date(input.deadline) : null;
         const approvalPromises = input.approvers.map((approver) =>
           db.insert(operatingRulesApprovals).values({
             operatingRuleId: input.operatingRuleId,
@@ -732,6 +734,7 @@ export const committeeOperatingRulesRouter = router({
             approverRoleDescription: approver.approverRoleDescription,
             approvalOrder: approver.approvalOrder,
             status: "pending",
+            deadline: deadlineDate,
           })
         );
 
@@ -1534,6 +1537,224 @@ export const committeeOperatingRulesRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Error al buscar bases de funcionamiento",
+        });
+      }
+    }),
+
+  /**
+   * Obtener calendario de deadlines del mes
+   */
+  getApprovalCalendar: protectedProcedure
+    .input(
+      z.object({
+        year: z.number(),
+        month: z.number().min(1).max(12),
+        status: z.enum(["all", "pending", "completed", "overdue"]).optional().default("all"),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+
+      try {
+        // Calcular rango de fechas del mes
+        const startDate = new Date(input.year, input.month - 1, 1);
+        const endDate = new Date(input.year, input.month, 0, 23, 59, 59);
+        const now = new Date();
+
+        // Query base
+        const approvals = await db
+          .select({
+            id: operatingRulesApprovals.id,
+            operatingRuleId: operatingRulesApprovals.operatingRuleId,
+            approverId: operatingRulesApprovals.approverId,
+            approverName: users.name,
+            approverRole: operatingRulesApprovals.approverRole,
+            status: operatingRulesApprovals.status,
+            deadline: operatingRulesApprovals.deadline,
+            signedAt: operatingRulesApprovals.signedAt,
+            ruleVersion: committeeOperatingRules.version,
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .leftJoin(
+            committeeOperatingRules,
+            eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+          )
+          .where(
+            and(
+              sql`${operatingRulesApprovals.deadline} >= ${startDate}`,
+              sql`${operatingRulesApprovals.deadline} <= ${endDate}`
+            )
+          );
+
+        // Filtrar por estado si se especifica
+        let filteredApprovals = approvals;
+        if (input.status !== "all") {
+          filteredApprovals = approvals.filter((approval) => {
+            if (input.status === "pending") {
+              return approval.status === "pending" && (!approval.deadline || new Date(approval.deadline) >= now);
+            } else if (input.status === "completed") {
+              return approval.status === "signed";
+            } else if (input.status === "overdue") {
+              return approval.status === "pending" && approval.deadline && new Date(approval.deadline) < now;
+            }
+            return true;
+          });
+        }
+
+        // Agrupar por día
+        const calendarEvents = filteredApprovals.reduce((acc, approval) => {
+          if (!approval.deadline) return acc;
+
+          const dateKey = new Date(approval.deadline).toISOString().split("T")[0];
+          if (!acc[dateKey]) {
+            acc[dateKey] = [];
+          }
+
+          const isOverdue = approval.status === "pending" && new Date(approval.deadline) < now;
+
+          acc[dateKey].push({
+            id: approval.id,
+            operatingRuleId: approval.operatingRuleId,
+            ruleVersion: approval.ruleVersion,
+            approverName: approval.approverName || "Usuario desconocido",
+            approverRole: approval.approverRole,
+            status: approval.status,
+            isOverdue,
+            deadline: approval.deadline,
+          });
+
+          return acc;
+        }, {} as Record<string, any[]>);
+
+        return {
+          events: calendarEvents,
+          totalEvents: filteredApprovals.length,
+        };
+      } catch (error) {
+        console.error("Error getting approval calendar:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener calendario de aprobaciones",
+        });
+      }
+    }),
+
+  /**
+   * Obtener deadlines próximos (7 días)
+   */
+  getUpcomingDeadlines: protectedProcedure
+    .input(
+      z.object({
+        days: z.number().min(1).max(30).optional().default(7),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+
+      try {
+        const now = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + input.days);
+
+        const upcomingApprovals = await db
+          .select({
+            id: operatingRulesApprovals.id,
+            operatingRuleId: operatingRulesApprovals.operatingRuleId,
+            approverId: operatingRulesApprovals.approverId,
+            approverName: users.name,
+            approverEmail: users.email,
+            approverRole: operatingRulesApprovals.approverRole,
+            status: operatingRulesApprovals.status,
+            deadline: operatingRulesApprovals.deadline,
+            ruleVersion: committeeOperatingRules.version,
+            createdBy: committeeOperatingRules.createdBy,
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .leftJoin(
+            committeeOperatingRules,
+            eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id)
+          )
+          .where(
+            and(
+              eq(operatingRulesApprovals.status, "pending"),
+              sql`${operatingRulesApprovals.deadline} >= ${now}`,
+              sql`${operatingRulesApprovals.deadline} <= ${futureDate}`
+            )
+          )
+          .orderBy(operatingRulesApprovals.deadline);
+
+        // Calcular días restantes
+        const deadlinesWithDaysLeft = upcomingApprovals.map((approval) => {
+          const daysLeft = approval.deadline
+            ? Math.ceil((new Date(approval.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+            : null;
+
+          return {
+            ...approval,
+            daysLeft,
+            urgency: daysLeft && daysLeft <= 1 ? "critical" : daysLeft && daysLeft <= 3 ? "high" : "medium",
+          };
+        });
+
+        return {
+          deadlines: deadlinesWithDaysLeft,
+          total: deadlinesWithDaysLeft.length,
+        };
+      } catch (error) {
+        console.error("Error getting upcoming deadlines:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener deadlines próximos",
+        });
+      }
+    }),
+
+  /**
+   * Actualizar deadline de una aprobación
+   */
+  updateApprovalDeadline: protectedProcedure
+    .input(
+      z.object({
+        approvalId: z.number(),
+        deadline: z.string(), // Fecha en formato ISO (YYYY-MM-DD)
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+
+      try {
+        // Verificar que la aprobación existe
+        const [approval] = await db
+          .select({ id: operatingRulesApprovals.id })
+          .from(operatingRulesApprovals)
+          .where(eq(operatingRulesApprovals.id, input.approvalId))
+          .limit(1);
+
+        if (!approval) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Aprobación no encontrada",
+          });
+        }
+
+        // Actualizar deadline
+        await db
+          .update(operatingRulesApprovals)
+          .set({
+            deadline: new Date(input.deadline),
+            updatedAt: new Date(),
+          })
+          .where(eq(operatingRulesApprovals.id, input.approvalId));
+
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error updating approval deadline:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al actualizar fecha límite",
         });
       }
     }),

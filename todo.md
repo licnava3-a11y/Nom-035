@@ -4374,7 +4374,54 @@
 - [x] Agregar botón "Limpiar Filtros" para resetear (solo visible si hay filtros activos)
 - [x] Layout en grid de 3 columnas para filtros
 
-### Fase 3: Pruebas y Entrega
+### Fase 3: Pruebas y Entrega ✅
 - [x] Sistema de filtros implementado completamente
+- [x] Actualizar todo.md
+- [x] Guardar checkpoint (857e6105)
+
+
+
+## CALENDARIO DE DEADLINES DE APROBACIÓN
+
+### Fase 1: Actualizar Schema de Base de Datos ✅
+- [x] Agregar campo deadline (timestamp) a tabla operating_rules_approvals
+- [x] Generar migración con drizzle-kit (0136_massive_leo.sql)
+- [x] Aplicar migración SQL con webdev_execute_sql
+- [x] Verificar estructura de tabla actualizada
+
+### Fase 2: Crear Procedures tRPC ✅
+- [x] Procedure getApprovalCalendar: obtener deadlines del mes con filtros (all/pending/completed/overdue)
+- [x] Procedure getUpcomingDeadlines: deadlines próximos (configurable 1-30 días, default 7)
+- [x] Procedure updateApprovalDeadline: actualizar fecha límite
+- [x] Actualizar requestApprovals para aceptar deadline opcional
+- [x] Agregar validación Zod para fechas (formato ISO YYYY-MM-DD)
+
+### Fase 3: Desarrollar Componente de Calendario ✅
+- [x] Crear componente ApprovalCalendar.tsx con vista mensual (grid 7x5)
+- [x] Calendario nativo sin librerías externas (más ligero y personalizable)
+- [x] Mostrar documentos con deadline por día (hasta 2 visibles + contador)
+- [x] Indicadores visuales por estado (amarillo=pendiente, verde=completado, rojo=vencido)
+- [x] Panel lateral de deadlines próximos (7 días) con badges de urgencia
+- [x] Filtros por estado (all/pending/completed/overdue)
+- [x] Click en evento para navegar al documento
+- [x] Navegación de mes (anterior/siguiente/hoy)
+- [x] Crear página ApprovalCalendarPage.tsx
+- [x] Agregar ruta /approval-calendar en App.tsx
+- [x] Agregar enlace en menú (Comité > Calendario de Deadlines)
+- [x] Agregar campo deadline en ApprovalWorkflow.tsx (input date opcional)
+
+### Fase 4: Implementar Job de Alertas ✅
+- [x] Crear job deadlineAlertsJob.ts con node-cron
+- [x] Detectar deadlines próximos (3 días, 1 día, vencido)
+- [x] Clasificar por urgencia (critical=1d, high=3d, overdue=vencido)
+- [x] Enviar notificaciones por email con plantilla HTML profesional
+- [x] Programar ejecución diaria (09:00 AM con cron)
+- [x] Registrar job en server/_core/index.ts (startDeadlineAlertsJob)
+- [x] Logs completos de ejecución, alertas enviadas y errores
+- [x] Función exportada sendDeadlineAlerts para testing manual
+
+### Fase 5: Pruebas y Entrega ✅
+- [x] Sistema completo implementado y funcionando
+- [x] Servidor corriendo sin errores críticos
 - [x] Actualizar todo.md
 - [ ] Guardar checkpoint
