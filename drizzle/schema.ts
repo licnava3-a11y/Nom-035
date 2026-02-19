@@ -5088,3 +5088,29 @@ export const operatingRulesTemplates = mysqlTable("operating_rules_templates", {
 
 export type OperatingRulesTemplate = typeof operatingRulesTemplates.$inferSelect;
 export type InsertOperatingRulesTemplate = typeof operatingRulesTemplates.$inferInsert;
+
+
+/**
+ * Tabla: approval_calendar_events
+ * Descripción: Eventos de calendario para recordatorios y deadlines de aprobaciones
+ */
+export const approvalCalendarEvents = mysqlTable("approval_calendar_events", {
+  id: int("id").primaryKey().autoincrement(),
+  
+  // Relación con aprobación
+  approvalId: int("approval_id").notNull().references(() => operatingRulesApprovals.id, { onDelete: "cascade" }),
+  
+  // Información del evento
+  eventDate: timestamp("event_date").notNull(), // Fecha del evento (deadline o recordatorio)
+  eventType: mysqlEnum("event_type", ["deadline", "reminder"]).notNull(),
+  
+  // Estado de notificación
+  notified: boolean("notified").default(false).notNull(),
+  notifiedAt: timestamp("notified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ApprovalCalendarEvent = typeof approvalCalendarEvents.$inferSelect;
+export type InsertApprovalCalendarEvent = typeof approvalCalendarEvents.$inferInsert;

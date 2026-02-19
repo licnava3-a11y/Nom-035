@@ -35,11 +35,12 @@ export default function CommitteeOperatingRules() {
   const [showCompareDialog, setShowCompareDialog] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [customTitle, setCustomTitle] = useState("");
   const [compareVersionIds, setCompareVersionIds] = useState<[number | null, number | null]>([null, null]);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState({
     version: "V1.0",
@@ -62,6 +63,7 @@ export default function CommitteeOperatingRules() {
 
   // Queries
   const { data: rules, refetch: refetchRules } = trpc.committeeOperatingRules.list.useQuery();
+  const { data: templates } = trpc.operatingRulesTemplates.list.useQuery();
   const { data: currentRule, refetch: refetchCurrentRule } = trpc.committeeOperatingRules.getById.useQuery(
     { id: selectedRuleId! },
     { enabled: !!selectedRuleId && !isCreating }
@@ -144,12 +146,27 @@ export default function CommitteeOperatingRules() {
 
   const approveMutation = trpc.committeeOperatingRules.approve.useMutation({
     onSuccess: () => {
-      toast.success("Bases de funcionamiento aprobadas exitosamente");
+      toast.success("Base de funcionamiento aprobada exitosamente");
       refetchRules();
       refetchCurrentRule();
     },
     onError: (error) => {
-      toast.error(`Error al aprobar: ${error.message}`);
+      toast.error(error.message || "Error al aprobar base de funcionamiento");
+    },
+  });
+
+  const createFromTemplateMutation = trpc.operatingRulesTemplates.createFromTemplate.useMutation({
+    onSuccess: (data) => {
+      toast.success("Base de funcionamiento creada exitosamente desde plantilla");
+      setShowTemplateDialog(false);
+      setSelectedTemplateId(null);
+      setCustomTitle("");
+      refetchRules();
+      setSelectedRuleId(data.id);
+      setIsCreating(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al crear desde plantilla");
     },
   });
 
@@ -440,10 +457,16 @@ export default function CommitteeOperatingRules() {
           <h1 className="text-3xl font-bold">Bases de Funcionamiento del Comité</h1>
           <p className="text-muted-foreground">Gestión de bases de funcionamiento con historial de versiones</p>
         </div>
-        <Button onClick={startCreating}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Base de Funcionamiento
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowTemplateDialog(true)}>
+            <FileText className="h-4 w-4 mr-2" />
+            Crear desde Plantilla
+          </Button>
+          <Button onClick={startCreating}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Base de Funcionamiento
+          </Button>
+        </div>
       </div>
 
       {/* Lista de bases de funcionamiento */}
@@ -868,6 +891,125 @@ export default function CommitteeOperatingRules() {
               Cargando comparación...
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de selección de plantillas */}
+      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Crear Base de Funcionamiento desde Plantilla</DialogTitle>
+            <DialogDescription>
+              Selecciona una plantilla predefinida según el tamaño de tu empresa para agilizar la creación.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Selector de plantilla */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {templates?.map((template) => (
+                <Card
+                  key={template.id}
+                  className={`cursor-pointer transition-all ${
+                    selectedTemplateId === template.id
+                      ? "ring-2 ring-primary"
+                      : "hover:border-primary"
+                  }`}
+                  onClick={() => setSelectedTemplateId(template.id)}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-lg">{template.name}</CardTitle>
+                    <CardDescription>
+                      {template.companySize === "small" && "Hasta 15 empleados"}
+                      {template.companySize === "medium" && "16-50 empleados"}
+                      {template.companySize === "large" && "Más de 50 empleados"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="text-sm">
+                      <p className="font-semibold">Características:</p>
+                      <ul className="list-disc list-inside text-muted-foreground mt-1 space-y-1">
+                        <li>{template.structure}</li>
+                        <li>{template.meetingSchedule}</li>
+                        <li>Roles predefinidos</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Preview de plantilla seleccionada */}
+            {selectedTemplateId && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vista Previa de Contenido</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {templates?.find((t) => t.id === selectedTemplateId) && (
+                    <>
+                      <div>
+                        <h4 className="font-semibold mb-2">Objetivos:</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">
+                          {templates.find((t) => t.id === selectedTemplateId)?.objectives}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Estructura:</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {templates.find((t) => t.id === selectedTemplateId)?.structure}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Roles:</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">
+                          {templates.find((t) => t.id === selectedTemplateId)?.roles}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Campo de título personalizado */}
+            {selectedTemplateId && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Título Personalizado (Opcional)</label>
+                <Input
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  placeholder="Deja en blanco para usar el título de la plantilla"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Si no especificas un título, se usará: "{templates?.find((t) => t.id === selectedTemplateId)?.title}"
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowTemplateDialog(false);
+              setSelectedTemplateId(null);
+              setCustomTitle("");
+            }}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedTemplateId) {
+                  createFromTemplateMutation.mutate({
+                    templateId: selectedTemplateId,
+                    customTitle: customTitle || undefined,
+                  });
+                }
+              }}
+              disabled={!selectedTemplateId || createFromTemplateMutation.isPending}
+            >
+              {createFromTemplateMutation.isPending ? "Creando..." : "Crear Base de Funcionamiento"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

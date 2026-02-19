@@ -4228,8 +4228,52 @@
 - [x] Sistema de plantillas backend completo (3 plantillas predefinidas)
 - [x] Router de plantillas corregido y funcionando
 - [x] Servidor reiniciado exitosamente
+- [x] Guardar checkpoint (c0647ba9)
 - [ ] Completar UI de selector de plantillas en CommitteeOperatingRules
 - [ ] Implementar integración con calendario (requiere tabla y job)
 - [ ] Probar flujo completo de creación desde plantilla
-- [ ] Actualizar documentación
+
+
+## COMPLETAR SISTEMA DE BASES DE FUNCIONAMIENTO - TAREAS FINALES
+
+### Fase 1: UI de Selector de Plantillas ✅
+- [x] Agregar estados para dialog de selección de plantillas en CommitteeOperatingRules.tsx
+- [x] Crear query para obtener lista de plantillas (trpc.operatingRulesTemplates.list)
+- [x] Implementar dialog de selección con cards de las 3 plantillas
+- [x] Mostrar preview de contenido de cada plantilla (objetivos, estructura, roles)
+- [x] Selector visual de plantillas con descripción de tamaño de empresa
+- [x] Implementar campo de título personalizado opcional
+- [x] Crear mutation createFromTemplate con toast de éxito
+- [x] Agregar botón "Crear desde Plantilla" junto a "Nueva Base de Funcionamiento"
+- [x] Redirigir automáticamente al detalle de la base creada
+
+### Fase 2: Sistema de Calendario de Aprobaciones (En Progreso)
+- [x] Crear tabla approval_calendar_events en schema
+- [x] Campos: id, approvalId, eventDate, eventType (deadline/reminder), notified, notifiedAt, createdAt
+- [x] Generar y aplicar migración SQL (0135_misty_hammerhead.sql)
+- [ ] Agregar campo deadline en tabla operating_rules_approvals
+- [ ] Generar y aplicar migración SQL para deadline
+- [ ] Actualizar procedure requestApprovals para calcular deadline (7 días por defecto)
+- [ ] Crear eventos de calendario al solicitar aprobaciones
+- [ ] Crear job calendar-reminders-job.ts
+- [ ] Implementar lógica de recordatorios 24h antes del deadline
+- [ ] Implementar lógica de notificaciones de vencimiento
+- [ ] Registrar job en server/_core/index.ts
+- [ ] Programar ejecución cada 6 horas con node-cron
+
+### Fase 3: Exportación Masiva de Métricas
+- [ ] Crear procedure getApprovalMetrics.exportToExcel en committeeOperatingRules router
+- [ ] Incluir todas las métricas calculadas (6 métricas)
+- [ ] Generar Excel con 3 hojas: Resumen, Datos Detallados, Gráficos
+- [ ] Agregar botón "Exportar a Excel" en ApprovalMetrics.tsx
+- [ ] Implementar mutation de exportación
+- [ ] Descargar archivo Excel automáticamente
+- [ ] Opcional: Implementar exportación a PDF con gráficos incluidos
+
+### Fase 4: Pruebas y Entrega Final
+- [ ] Probar selector de plantillas con las 3 opciones
+- [ ] Probar creación desde plantilla y verificar datos prellenados
+- [ ] Probar sistema de recordatorios de calendario
+- [ ] Probar exportación de métricas a Excel
+- [ ] Verificar que todas las funcionalidades funcionan correctamente
 - [ ] Guardar checkpoint final
