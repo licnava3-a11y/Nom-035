@@ -4834,3 +4834,27 @@ export const nineBoxEvaluations = mysqlTable("nine_box_evaluations", {
 
 export type NineBoxEvaluation = typeof nineBoxEvaluations.$inferSelect;
 export type InsertNineBoxEvaluation = typeof nineBoxEvaluations.$inferInsert;
+
+
+/**
+ * Survey Employee Tokens table
+ * Tokens personalizados para encuestas NOM-035 con autenticación CURP
+ * Cada token está asociado a un empleado específico
+ */
+export const surveyEmployeeTokens = mysqlTable("survey_employee_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  token: varchar("token", { length: 64 }).notNull().unique(), // UUID único
+  employeeId: int("employee_id").notNull().references(() => employees.id, { onDelete: "cascade" }), // Empleado asociado
+  curp: varchar("curp", { length: 18 }).notNull(), // CURP para autenticación
+  surveyPeriodId: int("survey_period_id").notNull().references(() => surveyPeriods.id, { onDelete: "cascade" }), // Período de encuesta
+  surveyType: varchar("survey_type", { length: 50 }).notNull(), // 'guia_i', 'guia_ii', 'guia_iii'
+  expiresAt: timestamp("expires_at").notNull(), // Fecha de expiración
+  usedAt: timestamp("used_at"), // Fecha en que se usó el token (null si no usado)
+  isRevoked: boolean("is_revoked").notNull().default(false), // Revocación manual
+  generatedBy: int("generated_by").notNull().references(() => users.id), // Admin que generó el token
+  notes: text("notes"), // Notas opcionales
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SurveyEmployeeToken = typeof surveyEmployeeTokens.$inferSelect;
+export type InsertSurveyEmployeeToken = typeof surveyEmployeeTokens.$inferInsert;

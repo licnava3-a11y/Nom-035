@@ -378,6 +378,304 @@ export function getAlertThresholdTemplate(data: {
   `;
 }
 
+export function getContractExpiringTemplate(data: {
+  contracts: Array<{
+    employeeName: string;
+    contractType: string;
+    expirationDate: Date;
+    daysRemaining: number;
+  }>;
+}): string {
+  const contractRows = data.contracts.map(contract => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.employeeName}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.contractType}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${contract.expirationDate.toLocaleDateString('es-MX')}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+        <span style="display: inline-block; padding: 4px 12px; background-color: ${contract.daysRemaining <= 2 ? '#fef2f2' : '#fff7ed'}; color: ${contract.daysRemaining <= 2 ? '#991b1b' : '#9a3412'}; border-radius: 12px; font-size: 12px; font-weight: bold;">
+          ${contract.daysRemaining} día${contract.daysRemaining !== 1 ? 's' : ''}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+        <tr>
+          <td align="center">
+            <table width="700" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <!-- Header -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #ea580c 0%, #9a3412 100%); padding: 30px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">
+                    ⏰ Alerta de Vencimiento de Contratos
+                  </h1>
+                </td>
+              </tr>
+              
+              <!-- Content -->
+              <tr>
+                <td style="padding: 30px;">
+                  <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    Los siguientes contratos están próximos a vencer:
+                  </p>
+                  
+                  <table width="100%" cellpadding="0" cellspacing="0" style="border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; margin: 20px 0;">
+                    <thead>
+                      <tr style="background-color: #f9fafb;">
+                        <th style="padding: 12px; text-align: left; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Empleado</th>
+                        <th style="padding: 12px; text-align: left; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Tipo de Contrato</th>
+                        <th style="padding: 12px; text-align: left; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Fecha de Vencimiento</th>
+                        <th style="padding: 12px; text-align: center; color: #6b7280; font-size: 12px; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Días Restantes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${contractRows}
+                    </tbody>
+                  </table>
+                  
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff7ed; border-left: 4px solid #ea580c; padding: 15px; margin: 20px 0;">
+                    <tr>
+                      <td>
+                        <p style="margin: 0; color: #9a3412; font-size: 14px; line-height: 1.6;">
+                          <strong>⚠️ Acción Requerida:</strong> Por favor revisa estos contratos y toma las medidas necesarias para su renovación o finalización.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                    <tr>
+                      <td align="center">
+                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/employees" 
+                           style="display: inline-block; padding: 12px 30px; background-color: #ea580c; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+                          Ver Contratos
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                  <p style="margin: 0; color: #6b7280; font-size: 12px;">
+                    Sistema de Gestión de Recursos Humanos<br>
+                    Este es un correo automático, por favor no responder.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+export function getTrainingReminderTemplate(data: {
+  employeeName: string;
+  trainingTitle: string;
+  daysOverdue?: number;
+  certificateExpirationDate?: Date;
+  type: "pending" | "certificate_expiring";
+}): string {
+  const isExpiring = data.type === "certificate_expiring";
+  const headerColor = isExpiring ? "#ea580c" : "#2563eb";
+  const headerGradient = isExpiring ? "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)" : "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)";
+  const icon = isExpiring ? "⏰" : "📚";
+  const title = isExpiring ? "Certificado Próximo a Vencer" : "Recordatorio de Capacitación Pendiente";
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <!-- Header -->
+              <tr>
+                <td style="background: ${headerGradient}; padding: 30px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">
+                    ${icon} ${title}
+                  </h1>
+                </td>
+              </tr>
+              
+              <!-- Content -->
+              <tr>
+                <td style="padding: 30px;">
+                  <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    Hola <strong>${data.employeeName}</strong>,
+                  </p>
+                  
+                  ${isExpiring ? `
+                    <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                      Tu certificado de <strong>${data.trainingTitle}</strong> está próximo a vencer.
+                    </p>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff7ed; border-left: 4px solid #ea580c; padding: 15px; margin: 20px 0;">
+                      <tr>
+                        <td>
+                          <p style="margin: 0 0 10px 0; color: #9a3412; font-size: 14px;"><strong>Capacitación:</strong> ${data.trainingTitle}</p>
+                          <p style="margin: 0; color: #9a3412; font-size: 14px;"><strong>Fecha de Vencimiento:</strong> ${data.certificateExpirationDate?.toLocaleDateString('es-MX')}</p>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <p style="margin: 20px 0; color: #374151; font-size: 14px; line-height: 1.6;">
+                      Por favor programa la renovación de tu certificación antes de la fecha de vencimiento.
+                    </p>
+                  ` : `
+                    <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                      Tienes pendiente completar la capacitación: <strong>${data.trainingTitle}</strong>.
+                    </p>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #eff6ff; border-left: 4px solid #2563eb; padding: 15px; margin: 20px 0;">
+                      <tr>
+                        <td>
+                          <p style="margin: 0 0 10px 0; color: #1e40af; font-size: 14px;"><strong>Capacitación:</strong> ${data.trainingTitle}</p>
+                          ${data.daysOverdue ? `<p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>Días de retraso:</strong> ${data.daysOverdue}</p>` : ''}
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <p style="margin: 20px 0; color: #374151; font-size: 14px; line-height: 1.6;">
+                      Por favor accede al sistema para completar esta capacitación a la brevedad.
+                    </p>
+                  `}
+                  
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                    <tr>
+                      <td align="center">
+                        <a href="${process.env.VITE_FRONTEND_URL || 'http://localhost:3000'}/training" 
+                           style="display: inline-block; padding: 12px 30px; background-color: ${headerColor}; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+                          Ir a Capacitaciones
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                  <p style="margin: 0; color: #6b7280; font-size: 12px;">
+                    Sistema de Gestión de Capacitación<br>
+                    Este es un correo automático, por favor no responder.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
+export function getCertificateGeneratedTemplate(data: {
+  employeeName: string;
+  trainingTitle: string;
+  certificateNumber: string;
+  issueDate: Date;
+  downloadUrl?: string;
+}): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <!-- Header -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">
+                    🎓 Certificado Generado
+                  </h1>
+                </td>
+              </tr>
+              
+              <!-- Content -->
+              <tr>
+                <td style="padding: 30px;">
+                  <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    Hola <strong>${data.employeeName}</strong>,
+                  </p>
+                  
+                  <p style="margin: 0 0 20px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                    ¡Felicidades! Se ha generado tu certificado de finalización de la capacitación.
+                  </p>
+                  
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0;">
+                    <tr>
+                      <td>
+                        <p style="margin: 0 0 10px 0; color: #166534; font-size: 14px;"><strong>Capacitación:</strong> ${data.trainingTitle}</p>
+                        <p style="margin: 0 0 10px 0; color: #166534; font-size: 14px;"><strong>Número de Certificado:</strong> ${data.certificateNumber}</p>
+                        <p style="margin: 0; color: #166534; font-size: 14px;"><strong>Fecha de Emisión:</strong> ${data.issueDate.toLocaleDateString('es-MX')}</p>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  ${data.downloadUrl ? `
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                      <tr>
+                        <td align="center">
+                          <a href="${data.downloadUrl}" 
+                             style="display: inline-block; padding: 12px 30px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">
+                            Descargar Certificado
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  ` : ''}
+                  
+                  <p style="margin: 20px 0; color: #374151; font-size: 14px; line-height: 1.6;">
+                    Puedes consultar y descargar tu certificado en cualquier momento desde el sistema.
+                  </p>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                  <p style="margin: 0; color: #6b7280; font-size: 12px;">
+                    Sistema de Gestión de Capacitación<br>
+                    Este es un correo automático, por favor no responder.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+}
+
 export function getSurveyInvitationTemplate(data: {
   employeeName: string;
   surveyType: string;

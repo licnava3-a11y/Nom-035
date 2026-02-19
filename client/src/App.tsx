@@ -154,6 +154,7 @@ const Nom035AdminPanel = lazy(() => import("./pages/Nom035AdminPanel"));
 const Policies = lazy(() => import("./pages/nom035/Policies"));
 const EvidenceFolder = lazy(() => import("./pages/nom035/EvidenceFolder"));
 const SurveyApply = lazy(() => import("./pages/SurveyApply"));
+const PublicSurveyResponse = lazy(() => import("./pages/PublicSurveyResponse"));
 const Settings = lazy(() => import("./pages/Settings"));
 const CompanySettings = lazy(() => import("./pages/company/CompanySettings"));
 const NotificationSettings = lazy(() => import("./pages/settings/NotificationSettings"));
@@ -1161,6 +1162,11 @@ function Router() {
         <Route path={"/survey-apply/:token"}>
           <Suspense fallback={<PageLoader />}>
             <SurveyApply />
+          </Suspense>
+        </Route>
+        <Route path={"/survey/public/:token"}>
+          <Suspense fallback={<PageLoader />}>
+            <PublicSurveyResponse />
           </Suspense>
         </Route>
         <Route path={"/settings"}>

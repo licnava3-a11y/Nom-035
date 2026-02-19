@@ -3516,3 +3516,57 @@
 - [ ] Validar autenticación CURP en página pública
 - [ ] Revisar logs de errores y corregir issues pendientes
 - [ ] Guardar checkpoint final con todas las optimizaciones
+
+
+## NUEVA FASE: Encuestas Públicas con CURP + Notificaciones Email Extendidas
+
+### Fase 1: Sistema de Tokens Únicos para Encuestas Públicas ✅ COMPLETADA
+- [x] Crear tabla survey_employee_tokens en schema
+- [x] Generar y aplicar migración SQL
+- [x] Crear router publicSurveys con procedure generateTokens
+- [x] Implementar generación de token UUID único por empleado
+- [x] Asociar token con employeeId y CURP para validación
+- [x] Configurar expiración de tokens (30 días por defecto)
+- [x] Crear procedure validateToken con autenticación CURP
+- [x] Crear procedures getSurveyQuestions y submitSurveyResponses
+
+### Fase 2: Endpoint Público y Página de Respuesta ✅ COMPLETADA
+- [x] Crear endpoint público /survey/public/:token (sin autenticación)
+- [x] Crear página PublicSurveyResponse.tsx para responder encuestas
+- [x] Implementar formulario de autenticación con CURP
+- [x] Validar CURP contra employeeId asociado al token
+- [x] Mostrar encuesta solo después de autenticación exitosa
+- [x] Guardar respuestas y marcar token como usado
+- [x] Agregar ruta pública en App.tsx
+
+### Fase 3: Envío Automático de Invitaciones por Email ✅ COMPLETADA
+- [x] Implementar envío masivo de invitaciones con links personalizados
+- [x] Usar template getSurveyInvitationTemplate del emailService
+- [x] Agregar procedure sendSurveyInvitations para envío manual
+- [ ] Crear job automático para recordatorios de encuestas pendientes (opcional)
+
+### Fase 4: Notificaciones de Vencimiento de Contratos ✅ COMPLETADA
+- [x] Crear template getContractExpiringTemplate en emailService
+- [x] Crear job contract-expiration-alerts-job.ts para enviar emails
+- [x] Enviar notificación 7 días antes del vencimiento
+- [x] Consolidar vencimientos del mismo día en un solo email
+- [x] Enviar a correo de Recursos Humanos configurado
+
+### Fase 5: Recordatorios de Capacitación ✅ COMPLETADA
+- [x] Crear template getTrainingReminderTemplate en emailService
+- [x] Template soporta recordatorios de pendientes y certificados próximos a vencer
+- [ ] Modificar job training-reminders-job.ts para enviar emails (pendiente integración)
+- [ ] Enviar resumen semanal a administradores (opcional)
+
+### Fase 6: Notificaciones de Certificados Generados ✅ COMPLETADA
+- [x] Crear template getCertificateGeneratedTemplate en emailService
+- [x] Template incluye número de certificado, fecha de emisión y link de descarga
+- [ ] Modificar router trainingCertificates para enviar email al generar (pendiente integración)
+- [ ] Enviar copia a supervisor/jefe del empleado (opcional)
+
+### Fase 7: Testing y Checkpoint Final
+- [ ] Probar flujo completo de encuesta pública con CURP
+- [ ] Verificar envío de emails en todos los módulos integrados
+- [ ] Ejecutar suite de tests (objetivo: >95% pasando)
+- [ ] Revisar logs de errores y corregir issues
+- [ ] Guardar checkpoint final con todas las implementaciones

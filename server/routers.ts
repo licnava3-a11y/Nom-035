@@ -78,6 +78,7 @@ import { dashboardRouter } from "./routers/dashboard";
 import { administrativeRouter } from "./routers/administrative";
 import { rolesPermissionsRouter } from "./routers/rolesPermissions";
 import { customPermissionsRouter } from "./routers/customPermissions";
+import { publicSurveysRouter } from "./routers/publicSurveys";
 import { permissionAuditRouter } from "./routers/permissionAudit";
 import { surveyAnonymousTokensRouter } from "./routers/surveyAnonymousTokens";
 import { notificationPreferencesRouter } from "./routers/notificationPreferences";
@@ -199,6 +200,7 @@ export const appRouter = router({
   committeeTraining: committeeTrainingRouter,
   massiveImport: massiveImportRouter,
   smtpConfig: smtpConfigRouter,
+  publicSurveys: publicSurveysRouter,
   nom035: nom035Router,
   departments: departmentsRouter,
   departmentMetrics: departmentMetricsRouter,
