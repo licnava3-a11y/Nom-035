@@ -196,6 +196,8 @@ const hierarchicalMenuItems = [
           { label: "Bases de Funcionamiento", path: "/committee/operating-rules", description: "Reglamento interno del comité" },
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento de aceptación de cargo" },
           { label: "Gestión de Minutas", path: "/committee-minutes-management", description: "CRUD completo de minutas de comité" },
+          { label: "Actas de Reunión", path: "/committee-minutes", description: "Gestión de actas de reuniones del comité" },
+          { label: "Reportes Anuales", path: "/committee-annual-reports", description: "Reportes anuales del comité NOM-035" },
           { label: "Seguimiento de Acuerdos", path: "/agreements-dashboard", description: "Dashboard de seguimiento de acuerdos" },
           { label: "Minutas de Reunión", path: "/meeting-minutes", description: "Registro de minutas de reuniones" },
         ]

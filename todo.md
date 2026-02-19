@@ -3748,3 +3748,30 @@
 - [ ] Documentar pruebas de encuestas públicas con CURP
 - [ ] Documentar validación de notificaciones automáticas
 - [ ] Incluir troubleshooting de errores comunes
+
+
+## TAREAS FINALES: Navegación y Documentación
+
+### Tarea 1: Actualizar Menú de Navegación ✅ COMPLETADA
+- [x] Leer DashboardLayout.tsx para identificar sección de menú del comité
+- [x] Agregar enlace "Actas de Reunión" (/committee-minutes)
+- [x] Agregar enlace "Reportes Anuales" (/committee-annual-reports)
+- [x] Verificar que los enlaces funcionen correctamente
+
+### Tarea 2: Crear Página de Bases de Funcionamiento
+- [ ] Crear página CommitteeOperatingRules.tsx
+- [ ] Implementar listado de versiones de bases de funcionamiento
+- [ ] Crear formulario con editor de secciones NOM-035
+- [ ] Implementar versionado automático (V1.0, V2.0, etc.)
+- [ ] Agregar tabla de firmas de aprobación
+- [ ] Integrar generación y descarga de PDF
+- [ ] Agregar ruta en App.tsx y enlace en menú
+
+### Tarea 3: Documentación de Configuración y Pruebas ✅ COMPLETADA
+- [x] Crear documento System_Testing_Guide.md
+- [x] Documentar configuración SMTP paso a paso (Gmail, Office 365, SendGrid, Mailgun)
+- [x] Documentar pruebas de encuestas públicas con CURP
+- [x] Documentar validación de notificaciones automáticas (6 tipos)
+- [x] Documentar pruebas de formatos del comité (actas, reportes, bases)
+- [x] Incluir troubleshooting de errores comunes
+- [x] Crear checklist de validación completa del sistema (6 secciones)
