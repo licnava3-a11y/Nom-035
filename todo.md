@@ -3825,3 +3825,48 @@
 - [ ] Probar flujos críticos del sistema
 - [ ] Guardar checkpoint con todas las optimizaciones
 - [ ] Documentar cambios realizados
+
+
+## OPTIMIZACIÓN FINAL: Prellenado, Rendimiento y UX
+
+### Fase 1: Prellenado Automático en Formularios de Empleados y Comité ⏳ PARCIALMENTE COMPLETADA
+- [x] Formulario de empleados: CURP → prellenar sexo, estado de nacimiento (ya existía)
+- [x] Formulario de empleados: departamento → filtrar puestos (ya existía)
+- [x] Formulario de casos: selección de empleado → prellenar nombre, email, teléfono, departamento
+- [ ] Formulario de empleados: departamento → prellenar jefe directo automáticamente
+- [ ] Formulario de comité: selección de miembro → prellenar puesto y departamento
+- [ ] Formulario de comité: selección de miembro → prellenar email y teléfono
+- [ ] Validar que el prellenado funcione correctamente en todos los casos
+
+### Fase 2: Prellenado Automático en Formularios de Capacitaciones
+- [ ] Formulario de capacitaciones: selección de empleado → prellenar departamento
+- [ ] Formulario de capacitaciones: selección de empleado → prellenar puesto
+- [ ] Formulario de capacitaciones: selección de empleado → mostrar historial de cursos
+- [ ] Formulario de evaluaciones: selección de empleado → prellenar datos de identificación
+
+### Fase 3: Optimización de Rendimiento con React.memo
+- [ ] Aplicar React.memo en componente de tabla de empleados
+- [ ] Aplicar React.memo en componente de tabla de casos
+- [ ] Aplicar React.memo en componente de tabla de encuestas
+- [ ] Aplicar React.memo en componentes de filas de tablas grandes
+- [ ] Verificar reducción de re-renders con React DevTools
+
+### Fase 4: Optimización de Rendimiento con useCallback
+- [ ] Identificar funciones pasadas como props en componentes memoizados
+- [ ] Aplicar useCallback en handlers de eventos
+- [ ] Aplicar useCallback en funciones de filtrado y búsqueda
+- [ ] Estabilizar referencias de funciones en useEffect dependencies
+
+### Fase 5: Mejorar Feedback Visual
+- [ ] Agregar loading skeletons en tablas de empleados
+- [ ] Agregar loading skeletons en tablas de casos
+- [ ] Agregar loading skeletons en tablas de encuestas
+- [ ] Implementar toasts de confirmación en acciones exitosas (crear, editar, eliminar)
+- [ ] Mejorar mensajes de error con sugerencias de solución
+- [ ] Agregar indicadores de progreso en formularios largos
+
+### Fase 6: Checkpoint Final
+- [ ] Verificar que todas las optimizaciones funcionen correctamente
+- [ ] Probar flujos críticos del sistema
+- [ ] Guardar checkpoint con todas las optimizaciones
+- [ ] Documentar cambios realizados
