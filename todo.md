@@ -3924,3 +3924,41 @@
 - [ ] Mejorar mensajes de error de servidor con sugerencias de solución
 - [ ] Agregar validación de fechas con mensajes claros
 - [ ] Verificar que todos los mensajes de error sean descriptivos y útiles
+
+
+## EXTENSIÓN DE OPTIMIZACIONES: Toasts y Validaciones
+
+### Fase 1: Toasts en Edición y Eliminación de Empleados ✅ COMPLETADA
+- [x] Buscar página de edición de empleados (EmployeeEdit.tsx)
+- [x] Agregar toast success al editar empleado exitosamente
+- [x] Agregar toast error descriptivo al fallar edición
+- [x] Buscar funcionalidad de eliminación de empleados (no implementada)
+- [ ] Agregar toast success al eliminar empleado (funcionalidad no existe)
+- [ ] Agregar toast error descriptivo al fallar eliminación (funcionalidad no existe)
+
+### Fase 2: Toasts en Creación y Asignación de Casos
+- [ ] Agregar toast success en CasesManagement.tsx al crear caso
+- [ ] Agregar toast error descriptivo al fallar creación de caso
+- [ ] Agregar toast success al asignar caso a responsable
+- [ ] Agregar toast error descriptivo al fallar asignación
+
+### Fase 3: Toasts en Certificados y Encuestas
+- [ ] Buscar funcionalidad de generación de certificados
+- [ ] Agregar toast success al generar certificado
+- [ ] Agregar toast error descriptivo al fallar generación
+- [ ] Agregar toast success en SurveyPeriodsManager.tsx al crear encuesta
+- [ ] Agregar toast error descriptivo al fallar creación de encuesta
+
+### Fase 4: Validaciones Mejoradas de Formularios
+- [ ] Mejorar validación de CURP con mensaje descriptivo (18 caracteres, formato AAAA999999HAAAAA99)
+- [ ] Mejorar validación de email con formato esperado y ejemplos
+- [ ] Mejorar validación de teléfono con formato esperado (10 dígitos)
+- [ ] Agregar tooltips con formato esperado en campos críticos
+- [ ] Implementar validación en tiempo real con feedback visual
+
+### Fase 5: Guía de Configuración SMTP y Pruebas
+- [ ] Verificar que SMTP_Configuration_Guide.md esté completa
+- [ ] Verificar que Public_Surveys_CURP_Guide.md esté completa
+- [ ] Crear checklist de validación de configuración SMTP
+- [ ] Crear checklist de validación de encuestas públicas
+- [ ] Documentar troubleshooting de errores comunes

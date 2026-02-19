@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 // Select components replaced with native HTML elements
 import { ArrowLeft, Save } from "lucide-react";
 import { DepartmentSelector } from "@/components/DepartmentSelector";
+import { toast } from "sonner";
 
 export default function EmployeeEdit() {
   const { id } = useParams<{ id: string }>();
@@ -65,11 +66,15 @@ export default function EmployeeEdit() {
 
   const updateMutation = trpc.employees.update.useMutation({
     onSuccess: () => {
-      alert("Trabajador actualizado exitosamente");
+      toast.success("Trabajador actualizado exitosamente", {
+        description: "Los cambios han sido guardados correctamente."
+      });
       setLocation("/employees");
     },
     onError: (error: any) => {
-      alert(`Error: ${error.message || "No se pudo actualizar el trabajador"}`);
+      toast.error("Error al actualizar trabajador", {
+        description: error.message || "No se pudo actualizar el trabajador. Por favor, verifica los datos e intenta nuevamente."
+      });
     },
   });
 
