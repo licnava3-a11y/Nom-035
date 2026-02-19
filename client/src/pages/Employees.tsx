@@ -28,6 +28,8 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaginationControls } from "@/components/ui/pagination-controls";
+import { EmptyState } from "@/components/EmptyState";
+import { EMPTY_STATES } from "@/lib/emptyStates";
 // Using alert for now instead of toast
 
 export default function Employees() {
@@ -341,28 +343,23 @@ export default function Employees() {
           ))}
         </div>
       ) : !employees || employees.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No se encontraron trabajadores</h3>
-            <p className="text-muted-foreground mb-4">
-              {search || departmentFilter
-                ? "Intenta ajustar los filtros de búsqueda"
-                : "Comienza agregando el primer trabajador"}
-            </p>
-            {!search && !departmentFilter && (
-              <Link href="/employees/new">
-                <ProtectedButton
-                  requiredPermission="can_create"
-                  fallbackMessage="Solo los administradores pueden agregar trabajadores"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Agregar Trabajador
-                </ProtectedButton>
-              </Link>
-            )}
-          </CardContent>
-        </Card>
+        search || departmentFilter ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No se encontraron trabajadores</h3>
+              <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <EmptyState
+            {...EMPTY_STATES.employees}
+            action={{
+              label: "Agregar Primer Trabajador",
+              onClick: () => window.location.href = "/employees/new"
+            }}
+          />
+        )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {employees.map((employee: any) => (

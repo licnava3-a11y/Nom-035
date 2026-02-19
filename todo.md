@@ -4754,8 +4754,8 @@
 ### Fase 3: Integrar Estados Vacíos y Toasts
 - [x] Integrar EmptyState en CommitteeOperatingRules.tsx (sin documentos con 2 CTAs)
 - [x] Integrar EmptyState en ApprovalCalendarPage.tsx (2 estados: sin deadlines en calendario + sin próximos)
-- [ ] Integrar EmptyState en DeadlineComplianceDashboard.tsx (sin datos históricos)
-- [ ] Integrar EmptyState en Employees.tsx (sin trabajadores)
+- [x] Integrar EmptyState en DeadlineComplianceDashboard.tsx (sin datos históricos con CTA a bases de funcionamiento)
+- [x] Integrar EmptyState en Employees.tsx (sin trabajadores con CTA + mensaje diferenciado para filtros)
 - [x] Agregar toasts en mutaciones de CommitteeOperatingRules (7 mutaciones: create, update, restore, approve, createFromTemplate, generatePDF + validación)
 - [x] Agregar toasts en mutaciones de ApprovalWorkflow (3 mutaciones: requestApprovals, signApproval, rejectApproval)
 - [x] Agregar toasts de error en todas las mutaciones fallidas (10 mutaciones totales con manejo de errores)
@@ -4765,6 +4765,7 @@
 - [x] Servidor corriendo sin errores críticos
 - [x] Skeleton loaders integrados en 4 páginas críticas
 - [x] Estados vacíos integrados en 2 páginas críticas
+- [x] Toasts estandarizados en 10 mutaciones críticas
 - [x] Iconografía estandarizada en 3 páginas del comité
 - [x] Actualizar todo.md
-- [x] Guardar checkpoint final (f82b275c - estados vacíos con CTAs)
+- [x] Guardar checkpoint final (1d450425 - toasts estandarizados)

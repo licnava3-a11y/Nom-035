@@ -19,6 +19,8 @@ import {
 import { Line, Bar } from "react-chartjs-2";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ChartSkeleton, DashboardSkeleton } from "@/components/skeletons";
+import { EmptyState } from "@/components/EmptyState";
+import { EMPTY_STATES } from "@/lib/emptyStates";
 
 ChartJS.register(
   CategoryScale,
@@ -51,15 +53,22 @@ export default function DeadlineComplianceDashboard() {
     );
   }
 
-  if (!metrics) {
+  if (!metrics || metrics.totalApprovals === 0) {
     return (
-      <div className="container mx-auto py-6">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <ICONS.status.alert className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No hay datos disponibles</p>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto py-6 space-y-6">
+        <Breadcrumb items={[
+          { label: "Comité", href: "/committee" },
+          { label: "Cumplimiento de Plazos" }
+        ]} />
+        <EmptyState
+          {...EMPTY_STATES.reports}
+          title="Sin datos históricos de cumplimiento"
+          description="No hay aprobaciones con deadlines registradas en el período seleccionado. Crea bases de funcionamiento y solicita aprobaciones con fechas límite para comenzar a visualizar métricas de cumplimiento."
+          action={{
+            label: "Ir a Bases de Funcionamiento",
+            onClick: () => window.location.href = "/committee-operating-rules"
+          }}
+        />
       </div>
     );
   }
