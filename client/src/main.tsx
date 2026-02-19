@@ -10,6 +10,7 @@ import "./index.css";
 import "./i18n/config";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { CSRFProvider } from "./contexts/CSRFContext";
+import { Toaster } from "sonner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,12 +118,13 @@ if (!root) {
 
 root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <CSRFProvider>
-        <NotificationProvider>
-          <App />
-        </NotificationProvider>
-      </CSRFProvider>
-    </QueryClientProvider>
+  <QueryClientProvider client={queryClient}>
+    <CSRFProvider>
+      <NotificationProvider>
+        <Toaster position="top-right" richColors closeButton />
+        <App />
+      </NotificationProvider>
+    </CSRFProvider>
+  </QueryClientProvider>
   </trpc.Provider>
 );

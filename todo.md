@@ -4464,4 +4464,207 @@
 - [x] Sistema completo implementado y funcionando
 - [x] Servidor corriendo sin errores críticos
 - [x] Actualizar todo.md
+- [x] Guardar checkpoint (db99059a)
+
+
+## EXPORTACIÓN DE REPORTES DEL DASHBOARD
+
+### Fase 1: Crear Procedures tRPC para Exportación
+- [ ] Procedure exportDeadlineComplianceToPDF con generación de PDF
+- [ ] Incluir métricas principales en PDF
+- [ ] Incluir gráficos como imágenes en PDF (Chart.js to canvas to image)
+- [ ] Incluir tablas de rankings y análisis por rol en PDF
+- [ ] Formato profesional con encabezados, pie de página y fecha
+- [ ] Procedure exportDeadlineComplianceToExcel con generación de Excel
+- [ ] Hoja 1: Resumen de métricas
+- [ ] Hoja 2: Tendencias mensuales (últimos 6 meses)
+- [ ] Hoja 3: Ranking de aprobadores
+- [ ] Hoja 4: Documentos más lentos
+- [ ] Hoja 5: Análisis por rol
+- [ ] Formato con colores, estilos y anchos de columna
+
+### Fase 2: Agregar Botones de Exportación
+- [ ] Botón "Exportar a PDF" en header del dashboard
+- [ ] Botón "Exportar a Excel" en header del dashboard
+- [ ] Estados de carga durante generación
+- [ ] Manejo de errores con toast notifications
+- [ ] Descarga automática del archivo generado
+
+### Fase 3: Pruebas y Entrega
+- [ ] Probar exportación a PDF con datos reales
+- [ ] Probar exportación a Excel con datos reales
+- [ ] Verificar formato y legibilidad de ambos archivos
+- [ ] Actualizar todo.md
 - [ ] Guardar checkpoint
+
+
+## AUDITORÍA, OPTIMIZACIÓN Y TESTING INTEGRAL
+
+### Checkpoint de Revisión
+- [ ] Crear checkpoint para revisar funcionalidades actuales antes de continuar
+
+### Auditoría de Todo.md
+- [ ] Revisar todas las tareas completadas ([x]) para verificar implementación real
+- [ ] Identificar tareas marcadas como completadas pero con implementación incompleta
+- [ ] Consolidar tareas duplicadas o redundantes
+- [ ] Reorganizar secciones por módulo funcional
+- [ ] Agregar fechas de completado a tareas críticas
+- [ ] Documentar decisiones de diseño importantes
+
+### Auditoría de Correlaciones y Funcionalidades
+- [ ] Verificar correlación entre procedures tRPC y componentes frontend
+- [ ] Identificar procedures no utilizados (dead code)
+- [ ] Verificar que todos los componentes tengan procedures correspondientes
+- [ ] Auditar flujos de datos entre componentes
+- [ ] Verificar integridad referencial en base de datos
+- [ ] Revisar permisos y roles en procedures protectedProcedure
+- [ ] Validar que todas las rutas estén registradas en App.tsx
+- [ ] Verificar que todos los enlaces del menú funcionen correctamente
+
+### Auditoría de Desplegables y Botones de Acción
+- [ ] Revisar todos los Select/Dropdown para consistencia de opciones
+- [ ] Verificar que todos los botones tengan estados de carga (loading)
+- [ ] Auditar botones deshabilitados con tooltips explicativos
+- [ ] Revisar acciones destructivas con confirmación (diálogos)
+- [ ] Verificar feedback visual en todas las acciones (toast, alertas)
+- [ ] Auditar navegación con botones "Volver" o "Cancelar"
+- [ ] Revisar accesibilidad de botones (aria-labels, keyboard navigation)
+
+### Mejora de Experiencia de Usuario (UX)
+- [ ] Auditar tiempos de carga de páginas principales
+- [ ] Implementar skeleton loaders en lugar de spinners genéricos
+- [ ] Revisar mensajes de error para que sean más descriptivos
+- [ ] Agregar estados vacíos (empty states) con CTAs claros
+- [ ] Implementar breadcrumbs en páginas profundas
+- [ ] Revisar consistencia de iconos en todo el sistema
+- [ ] Auditar espaciado y alineación de elementos
+- [ ] Implementar atajos de teclado para acciones frecuentes
+- [ ] Revisar flujos de formularios para reducir pasos
+- [ ] Agregar tooltips informativos en campos complejos
+
+### Optimización de Código
+- [ ] Identificar componentes que se pueden memoizar (React.memo)
+- [ ] Revisar queries tRPC para optimistic updates
+- [ ] Auditar re-renders innecesarios con React DevTools
+- [ ] Implementar code splitting en rutas pesadas
+- [ ] Revisar imports para tree-shaking efectivo
+- [ ] Consolidar utilidades duplicadas en helpers
+- [ ] Refactorizar componentes grandes (>500 líneas)
+- [ ] Extraer lógica de negocio a custom hooks
+- [ ] Revisar uso de useEffect para dependencias correctas
+- [ ] Implementar lazy loading de imágenes pesadas
+
+### Optimización de Rendimiento General
+- [ ] Auditar queries SQL lentas (>100ms) con EXPLAIN
+- [ ] Implementar índices en columnas frecuentemente consultadas
+- [ ] Revisar N+1 queries en procedures tRPC
+- [ ] Implementar paginación en listados grandes (>100 items)
+- [ ] Auditar tamaño de bundle con webpack-bundle-analyzer
+- [ ] Optimizar imágenes (compresión, formatos modernos webp)
+- [ ] Implementar caché de queries tRPC con staleTime
+- [ ] Revisar uso de memoria con Chrome DevTools
+- [ ] Implementar service worker para caché offline
+- [ ] Auditar tiempo de First Contentful Paint (FCP)
+
+### Pruebas en Múltiples Navegadores
+- [ ] 📝 Probar en Firefox (última versión)
+- [ ] 📝 Probar en Firefox ESR (versión empresarial)
+- [ ] 📝 Probar en WebKit/Safari (macOS/iOS)
+- [ ] 📝 Probar en Chrome/Edge (Chromium)
+- [ ] 📝 Documentar bugs específicos de navegador
+- [ ] 📝 Implementar polyfills si es necesario
+- [ ] 📝 Verificar compatibilidad de CSS Grid/Flexbox
+- [ ] 📝 Probar funcionalidades de fecha/hora en diferentes locales
+
+### Pruebas en Viewports Móviles
+- [ ] 📝 Probar en viewport 320px (iPhone SE)
+- [ ] 📝 Probar en viewport 375px (iPhone 12/13)
+- [ ] 📝 Probar en viewport 414px (iPhone 14 Pro Max)
+- [ ] 📝 Probar en viewport 768px (iPad)
+- [ ] 📝 Probar en viewport 1024px (iPad Pro)
+- [ ] 📝 Verificar menú responsive (hamburger menu)
+- [ ] 📝 Probar tablas con scroll horizontal
+- [ ] 📝 Verificar formularios en móvil (input types)
+- [ ] 📝 Probar gestos táctiles (swipe, pinch-zoom)
+- [ ] 📝 Verificar modales y diálogos en móvil
+
+### Visual Regression Testing
+- [ ] 📝 Configurar Playwright para screenshots
+- [ ] 📝 Capturar screenshots baseline de páginas principales
+- [ ] 📝 Implementar comparación automática de screenshots
+- [ ] 📝 Configurar threshold de diferencia aceptable
+- [ ] 📝 Integrar en CI/CD pipeline
+- [ ] 📝 Documentar proceso de actualización de baselines
+- [ ] 📝 Probar diferentes temas (light/dark)
+- [ ] 📝 Capturar estados de componentes (hover, focus, disabled)
+
+### Pruebas de Performance (Lighthouse CI)
+- [ ] 📝 Configurar Lighthouse CI en proyecto
+- [ ] 📝 Establecer budgets de performance (FCP, LCP, TTI)
+- [ ] 📝 Auditar Performance score (objetivo: >90)
+- [ ] 📝 Auditar Accessibility score (objetivo: 100)
+- [ ] 📝 Auditar Best Practices score (objetivo: 100)
+- [ ] 📝 Auditar SEO score (objetivo: >90)
+- [ ] 📝 Implementar alertas si scores bajan del threshold
+- [ ] 📝 Integrar en CI/CD para prevenir regresiones
+- [ ] 📝 Documentar mejoras implementadas por categoría
+- [ ] 📝 Crear dashboard de métricas de performance históricas
+
+
+## FASE 1: MEJORAS DE FEEDBACK Y ESTADOS (UX)
+
+### Tarea 1.1: Implementar Skeleton Loaders (3 días)
+- [x] Crear componente DashboardSkeleton.tsx reutilizable
+- [x] Crear componente TableSkeleton.tsx para listas
+- [x] Crear componente CalendarSkeleton.tsx para calendario
+- [x] Crear componente ChartSkeleton.tsx para gráficos
+- [x] Crear archivo central de exportación skeletons/index.ts
+- [ ] Implementar skeleton en Dashboard principal (5 cards)
+- [ ] Implementar skeleton en lista de bases de funcionamiento
+- [ ] Implementar skeleton en calendario de deadlines
+- [ ] Implementar skeleton en dashboard de cumplimiento
+- [ ] Implementar skeleton en lista de trabajadores
+- [ ] Agregar animación shimmer a todos los skeletons
+
+### Tarea 1.2: Sistema de Mensajes de Error Contextuales (2 días) ✅
+- [x] Crear archivo errorMessages.ts con mapeo de 25+ errores
+- [x] Definir estructura de ErrorMessage (title, description, action, severity)
+- [x] Mapear errores de red (timeout, sin conexión, servidor no disponible)
+- [x] Mapear errores de validación (campos requeridos, formato inválido, duplicados, email, fecha)
+- [x] Mapear errores de permisos (sin autorización, sesión expirada, acceso denegado)
+- [x] Mapear errores de negocio (reglas violadas, estado inconsistente, deadline vencido, aprobaciones)
+- [x] Mapear errores de datos (not found, database error, file too large, invalid file type)
+- [x] Crear helper getErrorMessage() para traducir códigos
+- [x] Crear helper parseTRPCError() para errores de tRPC
+- [x] Implementar AlertError component con iconos por severidad
+- [x] Implementar ErrorBoundaryFallback para errores no capturados
+
+### Tarea 1.3: Estados Vacíos con CTAs (3 días) ✅
+- [x] Crear componente EmptyState.tsx reutilizable con iconos y CTAs
+- [x] Crear componente InlineEmptyState.tsx para secciones compactas
+- [x] Crear archivo emptyStates.tsx con 10 estados predefinidos
+- [x] Diseñar estado vacío para calendario sin deadlines
+- [x] Diseñar estado vacío para dashboard sin datos históricos
+- [x] Diseñar estado vacío para lista de bases sin documentos
+- [x] Diseñar estado vacío para auditoría sin registros
+- [x] Diseñar estado vacío para acuerdos sin seguimiento
+- [x] Diseñar estado vacío para trabajadores sin registros
+- [x] Diseñar estado vacío para cuestionarios sin respuestas
+- [x] Diseñar estado vacío para encuestas sin configuración
+- [x] Diseñar estado vacío para casos sin registros
+- [x] Diseñar estado vacío para reportes sin historial
+- [x] Estructura con soporte para action y secondaryAction
+
+### Tarea 1.4: Feedback Visual con Toasts (2 días) ✅
+- [x] Instalar y configurar biblioteca sonner para toasts
+- [x] Agregar Toaster component en main.tsx con position top-right
+- [x] Crear helper showSuccessToast() con estructura estándar
+- [x] Crear helper showErrorToast() con estructura estándar
+- [x] Crear helper showWarningToast() para advertencias
+- [x] Crear helper showInfoToast() para información
+- [x] Crear helper showLoadingToast() para operaciones asíncronas
+- [x] Crear helper showCustomToast() para toasts personalizados
+- [x] Crear helpers dismissAllToasts() y dismissToast()
+- [x] Configurar duración de toasts (4-5 segundos según tipo)
+- [x] Soporte para acciones en toasts (label + onClick)
+- [x] Configurar richColors y closeButton en Toaster
