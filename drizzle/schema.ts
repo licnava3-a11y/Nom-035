@@ -4794,3 +4794,43 @@ export const csrfAlerts = mysqlTable("csrf_alerts", {
 
 export type CsrfAlert = typeof csrfAlerts.$inferSelect;
 export type InsertCsrfAlert = typeof csrfAlerts.$inferInsert;
+
+
+/**
+ * Tabla para evaluaciones de Matriz Nine Box
+ * Clasifica empleados según desempeño (performance) y potencial (potential)
+ * Metodología: 9 cuadrantes (3x3) para identificar talento y planificar desarrollo
+ */
+export const nineBoxEvaluations = mysqlTable("nine_box_evaluations", {
+  id: int("id").autoincrement().primaryKey(),
+  
+  // Empleado evaluado
+  employeeId: int("employee_id").notNull(),
+  
+  // Scores de evaluación (escala 1-3: bajo/medio/alto)
+  performanceScore: int("performance_score").notNull(), // 1=Bajo, 2=Medio, 3=Alto desempeño
+  potentialScore: int("potential_score").notNull(),     // 1=Bajo, 2=Medio, 3=Alto potencial
+  
+  // Clasificación automática por cuadrante (1-9)
+  // Cuadrantes: 1=Bajo-Bajo, 2=Bajo-Medio, 3=Bajo-Alto, 4=Medio-Bajo, 5=Medio-Medio (Core), 
+  //             6=Medio-Alto, 7=Alto-Bajo, 8=Alto-Medio, 9=Alto-Alto (High Potential)
+  quadrant: int("quadrant").notNull(),
+  
+  // Etiquetas de cuadrante para UI
+  quadrantLabel: varchar("quadrant_label", { length: 50 }).notNull(), // Ej: "High Potential", "Core Performer", "Under Performer"
+  
+  // Plan de desarrollo personalizado
+  developmentPlan: text("development_plan"), // Recomendaciones específicas según cuadrante
+  
+  // Metadata de evaluación
+  evaluationDate: date("evaluation_date").notNull(),
+  evaluatedBy: int("evaluated_by").notNull(), // ID del evaluador
+  notes: text("notes"), // Notas adicionales del evaluador
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type NineBoxEvaluation = typeof nineBoxEvaluations.$inferSelect;
+export type InsertNineBoxEvaluation = typeof nineBoxEvaluations.$inferInsert;

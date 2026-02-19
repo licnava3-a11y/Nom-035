@@ -83,6 +83,7 @@ import { surveyAnonymousTokensRouter } from "./routers/surveyAnonymousTokens";
 import { notificationPreferencesRouter } from "./routers/notificationPreferences";
 import { predictiveAlertsRouter } from "./routers/predictiveAlerts";
 import { nineBoxGridRouter } from "./routers/nineBoxGrid";
+import { nineBoxRouter } from "./routers/nineBox";
 import { notificationLogsRouter } from "./routers/notificationLogs";
 import { skillsMatrixSnapshotsRouter } from "./routers/skillsMatrixSnapshots";
 import { recognitionsRouter } from "./routers/recognitions";
@@ -1422,6 +1423,7 @@ export const appRouter = router({
   notificationPreferences: notificationPreferencesRouter,
   predictiveAlerts: predictiveAlertsRouter,
   nineBoxGrid: nineBoxGridRouter,
+  nineBox: nineBoxRouter,
   notificationLogs: notificationLogsRouter,
   skillsMatrixSnapshots: skillsMatrixSnapshotsRouter,
 });
