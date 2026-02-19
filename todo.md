@@ -4878,3 +4878,25 @@
 - [ ] Verificar integridad de correlaciones
 - [ ] Actualizar todo.md
 - [ ] Guardar checkpoint final
+
+
+## VALIDACIÓN EN TIEMPO REAL Y GUARDADO AUTOMÁTICO (FASE 3 UX)
+
+### Hooks Reutilizables
+- [x] Crear hook useFormValidation.ts para validación en tiempo real
+- [x] Crear hook useAutoSave.ts para guardado automático
+- [x] Crear hook useUnsavedChanges.ts para confirmación de salida
+- [x] Crear componente SaveIndicator.tsx para estados visuales
+
+### Validación en Tiempo Real
+- [x] Implementar validación inline en CommitteeOperatingRules
+- [x] Agregar mensajes de error contextuales debajo de campos requeridos
+- [x] Implementar debounce de 300ms para evitar validaciones excesivas
+- [x] Mostrar indicadores visuales (border rojo en campos inválidos)
+
+### Guardado Automático
+- [x] Implementar guardado automático cada 30 segundos en CommitteeOperatingRules
+- [x] Mostrar indicador SaveIndicator con estados (Guardando.../Guardado/Cambios sin guardar)
+- [x] Implementar confirmación de salida con cambios sin guardar
+- [x] Guardar borradores en localStorage y recuperarlos al volver
+- [x] Limpiar borradores después de guardar exitosamente
