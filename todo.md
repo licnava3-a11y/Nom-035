@@ -4900,3 +4900,47 @@
 - [x] Implementar confirmación de salida con cambios sin guardar
 - [x] Guardar borradores en localStorage y recuperarlos al volver
 - [x] Limpiar borradores después de guardar exitosamente
+
+
+## OPTIMIZACIONES CRÍTICAS (PRIORIDAD MÁXIMA)
+
+### 1. Estandarizar Enums en Backend y Frontend ✅ COMPLETADO
+- [x] Auditar todos los enums en drizzle/schema.ts y server/routers/*.ts
+- [ ] Cambiar valores de enum a inglés en backend (status: 'abierto'→'open', 'resuelto'→'resolved') - PENDIENTE
+- [x] Crear archivo shared/enum-labels.ts con mapeos de traducción
+- [x] Implementar objeto ENUM_LABELS con traducciones español (15 enums)
+- [x] Crear funciones utilidad getEnumLabel() y getEnumOptions()
+- [x] Exportar tipos de TypeScript para type safety
+- [ ] Actualizar componentes frontend que usan enums - PENDIENTE
+- [ ] Actualizar queries SQL que filtran por valores de enum - PENDIENTE
+- [ ] Ejecutar tests para verificar funcionalidad - PENDIENTE
+- [ ] Documentar convención de enums en docs/conventions.md - PENDIENTE
+
+### 2. Configurar Testing Multi-Navegador con Playwright ✅ CONFIGURADO
+- [x] Crear playwright.config.ts con configuración multi-navegador
+- [x] Configurar 6 proyectos: Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari, Tablet
+- [x] Configurar screenshots, videos y traces en fallos
+- [x] Configurar reportes HTML y JSON
+- [ ] Instalar navegadores: pnpm exec playwright install chromium firefox webkit - PENDIENTE
+- [ ] Crear directorio tests/e2e/ para tests end-to-end - PENDIENTE
+- [ ] Test 1: Workflow de aprobación de bases de funcionamiento - PENDIENTE
+- [ ] Test 2: Calendario de deadlines (navegación y filtros) - PENDIENTE
+- [ ] Test 3: Gráficos de Chart.js (renderizado correcto) - PENDIENTE
+- [ ] Test 4: Validación en tiempo real (eventos de teclado) - PENDIENTE
+- [ ] Test 5: Guardado automático (localStorage) - PENDIENTE
+- [ ] Test 6: Búsqueda global (Ctrl+K) - PENDIENTE
+- [ ] Ejecutar tests en Chrome, Firefox y WebKit - PENDIENTE
+- [ ] Generar reporte HTML de resultados - PENDIENTE
+- [ ] Documentar problemas de compatibilidad encontrados - PENDIENTE
+
+### 3. Implementar Code Splitting con React.lazy() ✅ YA IMPLEMENTADO
+- [x] Code splitting implementado en App.tsx con React.lazy()
+- [x] 97+ páginas cargadas dinámicamente
+- [x] Suspense configurado con PageLoader optimizado
+- [x] SkeletonLoader usado para fallback
+- [x] Lazy loading aplicado a todas las rutas principales
+- [x] Lazy loading aplicado a componentes pesados (Chart.js, formularios)
+- [ ] Analizar bundle actual con pnpm run build - PENDIENTE
+- [ ] Medir First Contentful Paint (FCP) antes y después - PENDIENTE
+- [ ] Implementar preload para rutas frecuentes (hover en nav) - OPCIONAL
+- [ ] Documentar estrategia de code splitting en docs/performance.md - PENDIENTE

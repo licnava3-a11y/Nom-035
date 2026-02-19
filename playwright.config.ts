@@ -1,13 +1,22 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Configuración de Playwright para tests E2E
- * Enfocado en validación de protección CSRF en formularios críticos
+ * Configuración de Playwright para testing multi-navegador
+ * Prueba funcionalidades críticas en Chrome, Firefox y WebKit (Safari)
+ * 
+ * Para ejecutar:
+ * - Todos los tests: pnpm exec playwright test
+ * - Solo Chrome: pnpm exec playwright test --project=chromium
+ * - Solo Firefox: pnpm exec playwright test --project=firefox
+ * - Solo WebKit: pnpm exec playwright test --project=webkit
+ * - Con UI: pnpm exec playwright test --ui
+ * - Ver reporte: pnpm exec playwright show-report
  */
 export default defineConfig({
-  testDir: './e2e',
+  // Directorio de tests
+  testDir: './tests/e2e',
   
-  // Timeout por test (30 segundos)
+  // Tiempo máximo por test
   timeout: 30 * 1000,
   
   // Configuración de expect
@@ -18,7 +27,7 @@ export default defineConfig({
   // Ejecutar tests en paralelo
   fullyParallel: true,
   
-  // Fallar en CI si quedan tests .only
+  // Fallar si hay tests con .only
   forbidOnly: !!process.env.CI,
   
   // Reintentos en CI
@@ -31,6 +40,7 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['list'],
+    ['json', { outputFile: 'test-results/results.json' }],
   ],
   
   // Configuración compartida para todos los proyectos
@@ -38,48 +48,75 @@ export default defineConfig({
     // URL base de la aplicación
     baseURL: 'http://localhost:3000',
     
-    // Capturar screenshots solo en fallos
+    // Capturar screenshots en fallos
     screenshot: 'only-on-failure',
     
-    // Capturar videos solo en fallos
+    // Capturar video en fallos
     video: 'retain-on-failure',
     
-    // Trace solo en retry
+    // Capturar trace en fallos
     trace: 'on-first-retry',
+    
+    // Timeout para acciones individuales
+    actionTimeout: 10 * 1000,
+    
+    // Timeout para navegación
+    navigationTimeout: 15 * 1000,
   },
-  
-  // Configurar proyectos para diferentes navegadores
+
+  // Proyectos de testing multi-navegador
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 900 },
+      },
     },
-    
+
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { 
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1440, height: 900 },
+      },
     },
-    
+
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { 
+        ...devices['Desktop Safari'],
+        viewport: { width: 1440, height: 900 },
+      },
     },
-    
-    // Tests en móvil
+
+    // Tests en dispositivos móviles
     {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      name: 'mobile-chrome',
+      use: { 
+        ...devices['Pixel 5'],
+      },
     },
-    
+
     {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      name: 'mobile-safari',
+      use: { 
+        ...devices['iPhone 12'],
+      },
+    },
+
+    // Tests en tablets
+    {
+      name: 'tablet',
+      use: { 
+        ...devices['iPad Pro'],
+      },
     },
   ],
-  
+
   // Servidor de desarrollo
   webServer: {
-    command: 'pnpm dev',
+    command: 'pnpm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

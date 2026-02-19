@@ -57,12 +57,12 @@ export const commonValidators = {
   
   // Enum de género
   gender: z.enum(["male", "female", "other", "prefer_not_to_say"], {
-    errorMap: () => ({ message: "Género inválido" }),
+    message: "Género inválido",
   }),
   
   // Enum de estado de cumplimiento
   complianceStatus: z.enum(["compliant", "partial", "non_compliant"], {
-    errorMap: () => ({ message: "Estado de cumplimiento inválido" }),
+    message: "Estado de cumplimiento inválido",
   }),
 };
 
@@ -129,7 +129,7 @@ export const complianceValidators = {
   uploadEvidence: z.object({
     employeeId: commonValidators.positiveId,
     evidenceType: z.enum(["survey", "training", "medical", "other"], {
-      errorMap: () => ({ message: "Tipo de evidencia inválido" }),
+      message: "Tipo de evidencia inválido",
     }),
     fileName: commonValidators.nonEmptyString(255),
     fileSize: z.number()
@@ -153,10 +153,10 @@ export const climateAnalysisValidators = {
       z.object({
         questionText: commonValidators.nonEmptyString(500),
         questionType: z.enum(["likert", "multiple_choice", "open_ended"], {
-          errorMap: () => ({ message: "Tipo de pregunta inválido" }),
+          message: "Tipo de pregunta inválido",
         }),
         category: z.enum(["leadership", "communication", "work_environment", "benefits", "growth"], {
-          errorMap: () => ({ message: "Categoría de pregunta inválida" }),
+          message: "Categoría de pregunta inválida",
         }),
       })
     ).min(1, "Debe incluir al menos una pregunta"),
@@ -232,7 +232,7 @@ export const careerPlanningValidators = {
   updateMilestone: z.object({
     milestoneId: commonValidators.positiveId,
     status: z.enum(["pending", "in_progress", "completed", "cancelled"], {
-      errorMap: () => ({ message: "Estado de hito inválido" }),
+      message: "Estado de hito inválido",
     }),
     completionPercentage: commonValidators.percentage.optional(),
     notes: z.string().max(1000, "Las notas no pueden exceder 1000 caracteres").optional(),
