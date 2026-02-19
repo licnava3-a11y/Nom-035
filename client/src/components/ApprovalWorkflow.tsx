@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
+import { showSuccessToast, showErrorToast } from "@/lib/toasts";
 import { UserPlus, CheckCircle2, Clock, FileSignature, X } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -46,22 +46,34 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
   // Mutations
   const requestApprovalsMutation = trpc.committeeOperatingRules.requestApprovals.useMutation({
     onSuccess: () => {
-      toast.success("Solicitudes de aprobación enviadas correctamente");
+      showSuccessToast(
+        "Solicitudes enviadas",
+        "Las solicitudes de aprobación se han enviado correctamente a los aprobadores"
+      );
       setShowRequestDialog(false);
       setApprovers([{ approverId: "", approverRole: "president", approverRoleDescription: "", approvalOrder: 1 }]);
       refetchApprovalStatus();
     },
     onError: (error) => {
-      toast.error(`Error al solicitar aprobaciones: ${error.message}`);
+      showErrorToast(
+        "Error al solicitar aprobaciones",
+        error.message || "No se pudieron enviar las solicitudes. Intenta nuevamente."
+      );
     },
   });
 
   const signApprovalMutation = trpc.committeeOperatingRules.signApproval.useMutation({
     onSuccess: (data) => {
       if (data.allApproved) {
-        toast.success("¡Todas las aprobaciones completadas! La base de funcionamiento ha sido aprobada automáticamente.");
+        showSuccessToast(
+          "¡Todas las aprobaciones completadas!",
+          "La base de funcionamiento ha sido aprobada automáticamente"
+        );
       } else {
-        toast.success("Firma registrada correctamente");
+        showSuccessToast(
+          "Firma registrada",
+          "Tu firma digital se ha registrado correctamente"
+        );
       }
       setShowSignDialog(false);
       setSelectedApprovalId(null);
@@ -69,20 +81,29 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
       refetchApprovalStatus();
     },
     onError: (error) => {
-      toast.error(`Error al firmar: ${error.message}`);
+      showErrorToast(
+        "Error al firmar",
+        error.message || "No se pudo registrar la firma. Intenta nuevamente."
+      );
     },
   });
 
   const rejectApprovalMutation = trpc.committeeOperatingRules.rejectApproval.useMutation({
     onSuccess: () => {
-      toast.success("Aprobación rechazada. La base de funcionamiento ha regresado a estado borrador.");
+      showSuccessToast(
+        "Aprobación rechazada",
+        "La base de funcionamiento ha regresado a estado borrador"
+      );
       setShowRejectDialog(false);
       setSelectedApprovalId(null);
       setRejectionReason("");
       refetchApprovalStatus();
     },
     onError: (error) => {
-      toast.error(`Error al rechazar: ${error.message}`);
+      showErrorToast(
+        "Error al rechazar",
+        error.message || "No se pudo rechazar la aprobación. Intenta nuevamente."
+      );
     },
   });
 

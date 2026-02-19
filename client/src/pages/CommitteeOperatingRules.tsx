@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+import { showSuccessToast, showErrorToast } from "@/lib/toasts";
 import {
   Dialog,
   DialogContent,
@@ -108,64 +108,97 @@ export default function CommitteeOperatingRules() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success("PDF generado exitosamente");
+      showSuccessToast(
+        "PDF generado",
+        "El documento PDF se ha descargado exitosamente"
+      );
     },
     onError: (error) => {
-      toast.error(`Error al generar PDF: ${error.message}`);
+      showErrorToast(
+        "Error al generar PDF",
+        error.message || "No se pudo generar el documento PDF. Intenta nuevamente."
+      );
     },
   });
 
   const createMutation = trpc.committeeOperatingRules.create.useMutation({
     onSuccess: () => {
-      toast.success("Bases de funcionamiento creadas exitosamente");
+      showSuccessToast(
+        "Bases de funcionamiento creadas",
+        "La nueva base de funcionamiento se ha registrado exitosamente"
+      );
       refetchRules();
       setIsCreating(false);
       resetForm();
     },
     onError: (error) => {
-      toast.error(`Error al crear: ${error.message}`);
+      showErrorToast(
+        "Error al crear base de funcionamiento",
+        error.message || "No se pudo crear la base de funcionamiento. Intenta nuevamente."
+      );
     },
   });
 
   const updateMutation = trpc.committeeOperatingRules.update.useMutation({
     onSuccess: () => {
-      toast.success("Bases de funcionamiento actualizadas exitosamente");
+      showSuccessToast(
+        "Bases de funcionamiento actualizadas",
+        "Los cambios se han guardado exitosamente"
+      );
       refetchCurrentRule();
       refetchVersions();
       setIsEditing(false);
     },
     onError: (error) => {
-      toast.error(`Error al actualizar: ${error.message}`);
+      showErrorToast(
+        "Error al actualizar",
+        error.message || "No se pudieron guardar los cambios. Intenta nuevamente."
+      );
     },
   });
 
   const restoreMutation = trpc.committeeOperatingRules.restoreVersion.useMutation({
     onSuccess: () => {
-      toast.success("Versión restaurada exitosamente");
+      showSuccessToast(
+        "Versión restaurada",
+        "La versión anterior se ha restaurado exitosamente"
+      );
       refetchCurrentRule();
       refetchVersions();
       setShowRestoreDialog(false);
       setSelectedVersionId(null);
     },
     onError: (error) => {
-      toast.error(`Error al restaurar: ${error.message}`);
+      showErrorToast(
+        "Error al restaurar versión",
+        error.message || "No se pudo restaurar la versión. Intenta nuevamente."
+      );
     },
   });
 
   const approveMutation = trpc.committeeOperatingRules.approve.useMutation({
     onSuccess: () => {
-      toast.success("Base de funcionamiento aprobada exitosamente");
+      showSuccessToast(
+        "Base de funcionamiento aprobada",
+        "La base de funcionamiento ha sido aprobada y activada"
+      );
       refetchRules();
       refetchCurrentRule();
     },
     onError: (error) => {
-      toast.error(error.message || "Error al aprobar base de funcionamiento");
+      showErrorToast(
+        "Error al aprobar",
+        error.message || "No se pudo aprobar la base de funcionamiento. Intenta nuevamente."
+      );
     },
   });
 
   const createFromTemplateMutation = trpc.operatingRulesTemplates.createFromTemplate.useMutation({
     onSuccess: (data) => {
-      toast.success("Base de funcionamiento creada exitosamente desde plantilla");
+      showSuccessToast(
+        "Base creada desde plantilla",
+        "La base de funcionamiento se ha creado exitosamente usando la plantilla seleccionada"
+      );
       setShowTemplateDialog(false);
       setSelectedTemplateId(null);
       setCustomTitle("");
@@ -174,7 +207,10 @@ export default function CommitteeOperatingRules() {
       setIsCreating(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Error al crear desde plantilla");
+      showErrorToast(
+        "Error al crear desde plantilla",
+        error.message || "No se pudo crear la base de funcionamiento desde la plantilla. Intenta nuevamente."
+      );
     },
   });
 
@@ -907,7 +943,10 @@ export default function CommitteeOperatingRules() {
                     if (compareVersionIds[0] && compareVersionIds[1]) {
                       // La comparación se cargará automáticamente
                     } else {
-                      toast.error("Seleccione dos versiones para comparar");
+                      showErrorToast(
+                        "Selección incompleta",
+                        "Debes seleccionar exactamente dos versiones para comparar"
+                      );
                     }
                   }}
                   disabled={!compareVersionIds[0] || !compareVersionIds[1]}

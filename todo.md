@@ -4756,14 +4756,15 @@
 - [x] Integrar EmptyState en ApprovalCalendarPage.tsx (2 estados: sin deadlines en calendario + sin próximos)
 - [ ] Integrar EmptyState en DeadlineComplianceDashboard.tsx (sin datos históricos)
 - [ ] Integrar EmptyState en Employees.tsx (sin trabajadores)
-- [ ] Agregar toasts de éxito en mutaciones de CommitteeOperatingRules
-- [ ] Agregar toasts de éxito en mutaciones de ApprovalCalendar
-- [ ] Agregar toasts de error en todas las mutaciones fallidas
+- [x] Agregar toasts en mutaciones de CommitteeOperatingRules (7 mutaciones: create, update, restore, approve, createFromTemplate, generatePDF + validación)
+- [x] Agregar toasts en mutaciones de ApprovalWorkflow (3 mutaciones: requestApprovals, signApproval, rejectApproval)
+- [x] Agregar toasts de error en todas las mutaciones fallidas (10 mutaciones totales con manejo de errores)
 - [ ] Usar AlertError component para errores contextuales
 
 ### Fase 4: Pruebas y Entrega ✅
 - [x] Servidor corriendo sin errores críticos
 - [x] Skeleton loaders integrados en 4 páginas críticas
+- [x] Estados vacíos integrados en 2 páginas críticas
 - [x] Iconografía estandarizada en 3 páginas del comité
 - [x] Actualizar todo.md
-- [x] Guardar checkpoint final (4f6a8b92 - skeleton loaders completos)
+- [x] Guardar checkpoint final (f82b275c - estados vacíos con CTAs)
