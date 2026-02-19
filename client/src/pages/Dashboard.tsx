@@ -6,6 +6,7 @@ import DashboardGerente from '@/components/DashboardGerente';
 import DashboardAdministrativo from '@/components/DashboardAdministrativo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/skeletons';
 import { Button } from '@/components/ui/button';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import TrendsCharts from '@/components/TrendsCharts';
@@ -231,6 +232,23 @@ export default function DashboardConsolidated() {
       ],
     };
   })() : null;
+
+  // Mostrar skeleton mientras carga (solo para admin con métricas ejecutivas)
+  if (user?.role === 'admin' && metricsLoading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Bienvenido, {user?.name || 'Usuario'}
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            {getRoleLabel(user?.role || 'student')} - Plataforma de Capacitación NOM-035 STPS 2018
+          </p>
+        </div>
+        <DashboardSkeleton cards={8} charts={3} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

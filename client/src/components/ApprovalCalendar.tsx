@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { useLocation } from "wouter";
+import { CalendarSkeleton } from "@/components/skeletons";
 
 interface ApprovalCalendarProps {
   onSelectDocument?: (operatingRuleId: number) => void;
@@ -141,7 +142,7 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Cargando calendario...</div>
+              <CalendarSkeleton />
             ) : (
               <div className="grid grid-cols-7 gap-2">
                 {/* Encabezados de días */}

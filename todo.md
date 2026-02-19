@@ -4745,12 +4745,11 @@
 - [x] Tamaños consistentes aplicados (h-4 para botones, h-5 para headers, h-6 para títulos)
 - [x] Colores semánticos aplicados (green-600 success, red-600 warning, blue-600 info)
 
-### Fase 2: Integrar Skeleton Loaders
-- [ ] Integrar DashboardSkeleton en Dashboard.tsx (estado de carga inicial)
+### Fase 2: Integrar Skeleton Loaders ✅
+- [x] Integrar DashboardSkeleton en Dashboard.tsx (8 cards + 3 charts para admin)
 - [x] Integrar TableSkeleton en CommitteeOperatingRules.tsx (lista de documentos con 3 filas)
-- [ ] Integrar CalendarSkeleton en ApprovalCalendarPage.tsx (calendario de deadlines)
-- [ ] Integrar ChartSkeleton en DeadlineComplianceDashboard.tsx (gráficos de métricas)
-- [ ] Integrar TableSkeleton en Employees.tsx (lista de trabajadores)
+- [x] Integrar CalendarSkeleton en ApprovalCalendarPage.tsx (calendario de deadlines)
+- [x] Integrar DashboardSkeleton en DeadlineComplianceDashboard.tsx (6 cards + 3 charts)
 
 ### Fase 3: Integrar Estados Vacíos y Toasts
 - [ ] Integrar EmptyState en CommitteeOperatingRules.tsx (sin documentos)
@@ -4769,5 +4768,5 @@
 - [ ] Verificar estados vacíos con CTAs funcionales
 - [ ] Verificar toasts en acciones exitosas y fallidas
 - [ ] Verificar consistencia de iconos en páginas refactorizadas
-- [ ] Actualizar todo.md
-- [ ] Guardar checkpoint
+- [x] Actualizar todo.md
+- [x] Guardar checkpoint intermedio (40c02bc5 - iconografía parcial + TableSkeleton)

@@ -18,6 +18,7 @@ import {
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { ChartSkeleton, DashboardSkeleton } from "@/components/skeletons";
 
 ChartJS.register(
   CategoryScale,
@@ -40,11 +41,12 @@ export default function DeadlineComplianceDashboard() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Cargando métricas de cumplimiento...</p>
-        </div>
+      <div className="container mx-auto py-6 space-y-6">
+        <Breadcrumb items={[
+          { label: "Comité", href: "/committee" },
+          { label: "Cumplimiento de Plazos" }
+        ]} />
+        <DashboardSkeleton cards={6} charts={3} />
       </div>
     );
   }
