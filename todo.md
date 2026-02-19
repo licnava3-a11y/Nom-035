@@ -3696,3 +3696,55 @@
 - [ ] Incluir firma digital y fecha de generación
 - [ ] Agregar opción de personalización de periodos (mensual, trimestral, anual)
 - [ ] Crear página de generación de reportes en el dashboard administrativo
+
+
+## NUEVAS TAREAS: Páginas de Frontend para Formatos del Comité
+
+### Tarea 1: Página de Gestión de Actas de Reunión
+- [ ] Crear página CommitteeMinutesManagement.tsx
+- [ ] Implementar listado de actas con filtros (estado, fecha, tipo de reunión)
+- [ ] Crear formulario de creación/edición de actas
+- [ ] Agregar selector de asistentes con firmas digitales
+- [ ] Implementar editor de orden del día y acuerdos
+- [ ] Agregar previsualización de PDF antes de generar
+- [ ] Integrar generación y descarga de PDF
+- [ ] Agregar ruta en App.tsx y enlace en menú de comité
+
+### Tarea 2: Página de Gestión de Reportes Anuales ✅ COMPLETADA
+- [x] Crear página CommitteeAnnualReports.tsx
+- [x] Implementar listado de reportes con filtros (año, estado)
+- [x] Crear formulario de creación/edición de reportes
+- [x] Agregar sección de métricas con visualizaciones Chart.js
+- [x] Implementar editor de resumen ejecutivo y recomendaciones
+- [x] Agregar tabla de firmas de miembros del comité
+- [x] Integrar generación y descarga de PDF
+- [x] Agregar ruta en App.tsx (/committee-annual-reports)
+- [x] Instalar dependencias chart.js y react-chartjs-2
+- [x] Implementar gráficas de reuniones, casos y cumplimiento NOM-035
+- [ ] Agregar enlace en menú de comité (DashboardLayout)
+
+### Tarea 3: Página de Gestión de Bases de Funcionamiento
+- [ ] Crear página CommitteeOperatingRules.tsx
+- [ ] Implementar listado de versiones de bases de funcionamiento
+- [ ] Crear formulario de creación/edición con secciones NOM-035
+- [ ] Agregar editor de objetivos, funciones y procedimientos
+- [ ] Implementar versionado automático (V1.0, V2.0, etc.)
+- [ ] Agregar tabla de firmas de aprobación
+- [ ] Integrar generación y descarga de PDF
+- [ ] Agregar ruta en App.tsx y enlace en menú de comité
+
+### Tarea 4: Visualizaciones de Datos con Chart.js
+- [ ] Instalar dependencias chart.js y react-chartjs-2
+- [ ] Crear componente CommitteeMetricsCharts.tsx
+- [ ] Implementar gráfica de tendencias de reuniones por mes
+- [ ] Implementar gráfica de asistencia promedio
+- [ ] Implementar gráfica de casos atendidos por categoría
+- [ ] Implementar gráfica de cumplimiento NOM-035
+- [ ] Integrar componente en página de reportes anuales
+
+### Tarea 5: Guía de Configuración y Pruebas
+- [ ] Crear documento Testing_Guide.md con guía completa
+- [ ] Documentar configuración SMTP paso a paso
+- [ ] Documentar pruebas de encuestas públicas con CURP
+- [ ] Documentar validación de notificaciones automáticas
+- [ ] Incluir troubleshooting de errores comunes
