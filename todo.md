@@ -3637,7 +3637,7 @@
 
 ## TAREA ADICIONAL: Formatos y Documentos Oficiales del Comité
 
-### 1. Formato de Acta de Comité 🛠️ EN PROGRESO
+### 1. Formato de Acta de Comité ✅ COMPLETADA (Backend)
 - [x] Tabla committeeMinutes ya existe en schema (línea 2464)
 - [x] Diseñar template PDF de acta de reunión del comité con logo y branding
 - [x] Incluir secciones: Datos de la reunión, asistentes, orden del día, acuerdos, seguimiento
@@ -3647,11 +3647,11 @@
 - [x] Agregar campo para próxima fecha de reunión
 - [x] Servicio de generación de PDF profesional creado (committeeDocumentsPDF.ts)
 - [x] Instalar dependencias pdfkit y qrcode
-- [ ] Crear router committeeDocuments con procedures CRUD
+- [x] Router committeeMinutes.ts con procedures CRUD completos (ya existía)
 - [ ] Crear página de generación y gestión de actas en módulo de comité
 - [ ] Integrar generación de PDF en frontend
 
-### 2. Formato de Acta de Reporte Final 🛠️ EN PROGRESO
+### 2. Formato de Acta de Reporte Final ✅ COMPLETADA (Backend)
 - [x] Crear tabla committee_annual_reports en schema
 - [x] Generar y aplicar migración SQL
 - [x] Diseñar template PDF de acta de reporte final anual del comité
@@ -3660,12 +3660,13 @@
 - [x] Agregar sección de recomendaciones y plan de acción para el siguiente periodo
 - [x] Implementar tabla de firmas de todos los miembros del comité
 - [x] Servicio de generación de PDF profesional creado (generateAnnualReportPDF)
+- [x] Router committeeAnnualReports.ts con procedures CRUD completos
+- [x] Router registrado en routers.ts
 - [ ] Incluir gráficas y visualizaciones de datos (tendencias anuales, casos por categoría)
 - [ ] Incluir anexos: Evidencias fotográficas, listas de asistencia, certificados
-- [ ] Crear router para gestión de reportes anuales
 - [ ] Crear página de generación de reporte final anual
 
-### 3. Formato de Bases de Funcionamiento del Comité 🛠️ EN PROGRESO
+### 3. Formato de Bases de Funcionamiento del Comité ✅ COMPLETADA (Backend)
 - [x] Crear tabla committee_operating_rules en schema
 - [x] Generar y aplicar migración SQL
 - [x] Diseñar template PDF de bases de funcionamiento (reglamento interno)
@@ -3684,7 +3685,7 @@
 - [x] Incluir fecha de elaboración, revisión y próxima actualización
 - [x] Implementar versionado del documento (V1.0, V2.0, etc.)
 - [x] Servicio de generación de PDF profesional creado (generateOperatingRulesPDF)
-- [ ] Crear router para gestión de bases de funcionamiento
+- [x] Router committeeDocuments.ts con generación de bases de funcionamiento (ya existía)
 - [ ] Crear página de gestión de bases de funcionamiento en módulo de comité
 
 ### 4. Formato de Reporte Final Consolidado (General)

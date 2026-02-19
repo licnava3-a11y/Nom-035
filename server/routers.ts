@@ -69,6 +69,7 @@ import { alertThresholdsRouter } from "./routers/alertThresholds";
 import { notificationHistoryRouter } from "./routers/notificationHistory";
 import { recruitmentRouter } from "./routers/recruitment";
 import { committeeMinutesRouter } from "./routers/committeeMinutes";
+import { committeeAnnualReportsRouter } from "./routers/committeeAnnualReports";
 import { digitalCertificatesRouter } from './routers/digitalCertificates';
 import { assessmentsRouter } from './routers/assessments';
 import { trainingDashboardRouter } from "./routers/trainingDashboard";
@@ -212,6 +213,7 @@ export const appRouter = router({
   notificationHistory: notificationHistoryRouter,
   recruitment: recruitmentRouter,
   committeeMinutes: committeeMinutesRouter,
+  committeeAnnualReports: committeeAnnualReportsRouter,
   digitalCertificates: digitalCertificatesRouter,
   assessments: assessmentsRouter,
   trainingDashboard: trainingDashboardRouter,
