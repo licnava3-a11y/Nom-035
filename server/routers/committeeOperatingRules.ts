@@ -626,10 +626,38 @@ export const committeeOperatingRulesRouter = router({
           .orderBy(desc(committeeOperatingRulesVersions.versionNumber))
           .limit(1);
 
+        // Obtener firmas digitales aprobadas
+        const digitalSignatures = await db
+          .select({
+            approverName: users.name,
+            approverRole: operatingRulesApprovals.approverRole,
+            approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+            signatureData: operatingRulesApprovals.signatureData,
+            signedAt: operatingRulesApprovals.signedAt,
+            comments: operatingRulesApprovals.comments,
+          })
+          .from(operatingRulesApprovals)
+          .innerJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .where(
+            and(
+              eq(operatingRulesApprovals.operatingRuleId, input.id),
+              eq(operatingRulesApprovals.status, "signed")
+            )
+          )
+          .orderBy(operatingRulesApprovals.approvalOrder);
+
         // Generar PDF
         const pdfBuffer = await generateOperatingRulesPDF({
           ...rule,
           versionNumber: latestVersion?.versionNumber,
+          digitalSignatures: digitalSignatures.map((sig) => ({
+            approverName: sig.approverName,
+            approverRole: sig.approverRole,
+            approverRoleDescription: sig.approverRoleDescription || undefined,
+            signatureData: sig.signatureData || "",
+            signedAt: sig.signedAt || new Date(),
+            comments: sig.comments || undefined,
+          })),
         });
 
         // Convertir buffer a base64 para enviar al cliente

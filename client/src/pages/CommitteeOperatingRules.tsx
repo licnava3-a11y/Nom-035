@@ -27,6 +27,7 @@ import { FileText, History, Eye, RotateCcw, GitCompare, Plus, Save, Check, Downl
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import VersionComparison from "@/components/VersionComparison";
+import ApprovalWorkflow from "@/components/ApprovalWorkflow";
 
 export default function CommitteeOperatingRules() {
   const [selectedRuleId, setSelectedRuleId] = useState<number | null>(null);
@@ -606,6 +607,14 @@ export default function CommitteeOperatingRules() {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Workflow de Aprobación */}
+      {selectedRuleId && !showVersionHistory && (
+        <ApprovalWorkflow
+          operatingRuleId={selectedRuleId}
+          operatingRuleVersion={selectedRule?.version || ""}
+        />
       )}
 
       {/* Historial de versiones */}

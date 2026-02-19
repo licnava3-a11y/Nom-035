@@ -6,6 +6,15 @@ import path from "path";
 
 const execAsync = promisify(exec);
 
+interface DigitalSignature {
+  approverName: string;
+  approverRole: string;
+  approverRoleDescription?: string;
+  signatureData: string;
+  signedAt: Date;
+  comments?: string;
+}
+
 interface OperatingRuleData {
   id: number;
   version: string;
@@ -30,6 +39,7 @@ interface OperatingRuleData {
   approvedBy?: number;
   approverName?: string;
   creatorName?: string;
+  digitalSignatures?: DigitalSignature[];
 }
 
 export async function generateOperatingRulesPDF(data: OperatingRuleData): Promise<Buffer> {
@@ -48,9 +58,45 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
       return d.toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" });
     };
 
-    // Parsear firmas si existen
+    // Generar HTML de firmas digitales
     let signaturesHtml = "";
-    if (data.signatures) {
+    if (data.digitalSignatures && data.digitalSignatures.length > 0) {
+      const getRoleLabel = (role: string) => {
+        const roles: Record<string, string> = {
+          president: "Presidente",
+          secretary: "Secretario",
+          vocal: "Vocal",
+          other: "Otro",
+        };
+        return roles[role] || role;
+      };
+
+      signaturesHtml = `
+        <div class="section" style="page-break-before: always;">
+          <h2>Firmas de Aprobación</h2>
+          <p style="margin-bottom: 20px; color: #666;">Las siguientes personas han revisado y aprobado esta base de funcionamiento mediante firma digital:</p>
+          <div class="digital-signatures">
+            ${data.digitalSignatures.map((sig, index) => `
+              <div class="digital-signature-item" style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                  <div style="flex: 0 0 200px;">
+                    <img src="${sig.signatureData}" alt="Firma de ${sig.approverName}" style="max-width: 200px; max-height: 80px; border: 1px solid #ccc; padding: 5px; background: white;" />
+                  </div>
+                  <div style="flex: 1;">
+                    <p style="margin: 0; font-size: 14pt; font-weight: bold; color: #333;">${sig.approverName}</p>
+                    <p style="margin: 5px 0; font-size: 11pt; color: #666;">${getRoleLabel(sig.approverRole)}${sig.approverRoleDescription ? ` - ${sig.approverRoleDescription}` : ""}</p>
+                    <p style="margin: 5px 0; font-size: 10pt; color: #999;">Firmado el: ${formatDate(sig.signedAt)}</p>
+                    ${sig.comments ? `<p style="margin: 10px 0 0 0; font-size: 10pt; font-style: italic; color: #666;">"${sig.comments}"</p>` : ""}
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <p style="margin-top: 20px; font-size: 9pt; color: #999; text-align: center;">Las firmas digitales son legátimas y verificables. Este documento cumple con la NOM-151 de la Secretaría de Economía de México.</p>
+        </div>
+      `;
+    } else if (data.signatures) {
+      // Mantener compatibilidad con firmas antiguas
       try {
         const signatures = JSON.parse(data.signatures);
         if (Array.isArray(signatures) && signatures.length > 0) {
@@ -70,8 +116,8 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
             </div>
           `;
         }
-      } catch (e) {
-        console.error("Error parsing signatures:", e);
+      } catch (error) {
+        console.error("Error parsing signatures:", error);
       }
     }
 

@@ -4072,4 +4072,56 @@
 - [x] Página de verificación pública implementada
 - [x] Crear documentación completa (Advanced_Operating_Rules_Features.md)
 - [x] Actualizar todo.md con progreso
+- [x] Guardar checkpoint final (297f0db6)
+
+
+## COMPLETAR SISTEMA DE BASES DE FUNCIONAMIENTO
+
+### Fase 1: Interfaz de Usuario para Workflow de Aprobación ✅
+- [x] Crear componente ApprovalWorkflow.tsx
+- [x] Agregar sección "Solicitar Aprobaciones" con dialog
+- [x] Implementar selector de aprobadores (usuarios del comité)
+- [x] Permitir asignar roles a cada aprobador (president, secretary, vocal, other)
+- [x] Agregar campo de descripción personalizada de rol
+- [x] Definir orden de aprobación automático
+- [x] Mostrar estado de aprobaciones pendientes/completadas en card
+- [x] Mostrar progreso visual con barra (X de Y firmas)
+- [x] Integrar componente DigitalSignaturePad para firmar
+- [x] Agregar campo de comentarios al firmar
+- [x] Mostrar lista de firmas completadas con nombres, roles y fechas
+- [x] Agregar ApprovalWorkflow a CommitteeOperatingRules.tsx
+
+### Fase 2: Firmas Digitales en PDF Exportado ✅
+- [x] Modificar generateOperatingRulesPDF.ts
+- [x] Agregar interface DigitalSignature
+- [x] Actualizar interface OperatingRuleData con digitalSignatures
+- [x] Obtener firmas digitales de la base de datos en procedure generatePDF
+- [x] Agregar sección "Firmas de Aprobación" al final del PDF con page-break
+- [x] Mostrar imagen de firma digital para cada aprobador (200x80px)
+- [x] Incluir nombre, rol, descripción de rol y fecha de firma
+- [x] Incluir comentarios de aprobador si existen
+- [x] Agregar nota legal de cumplimiento NOM-151
+- [x] Mantener compatibilidad con firmas antiguas (JSON)
+
+### Fase 3: Panel de Configuración SMTP ✅
+- [x] Tabla smtp_config ya existe en schema
+- [x] Router smtpConfig.ts ya existe con procedures CRUD
+- [x] Procedure getConfig implementado (admin only)
+- [x] Procedure updateConfig implementado con encriptación AES-256
+- [x] Procedure testConnection implementado (enviar email de prueba)
+- [x] Página SMTPConfig.tsx ya existe
+- [x] Formulario completo con todos los campos SMTP
+- [x] Toggle isActive para activar/desactivar notificaciones
+- [x] Botón "Enviar Email de Prueba" implementado
+- [x] Ruta /administrative/smtp-config ya registrada en App.tsx
+- [x] Router smtpConfig ya registrado en appRouter
+- [x] Guía de configuración para Gmail, Outlook, SendGrid, Mailgun
+
+### Fase 4: Pruebas y Entrega Final ✅
+- [x] Sistema completo implementado
+- [x] Componente ApprovalWorkflow funcional
+- [x] Firmas digitales integradas en PDF
+- [x] Panel SMTP ya existente y funcional
+- [x] Crear documentación completa (Committee_Operating_Rules_Complete_System.md)
+- [x] Actualizar todo.md con progreso
 - [ ] Guardar checkpoint final
