@@ -35,6 +35,7 @@ import { SearchOperatingRules } from "@/components/SearchOperatingRules";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { LabelWithTooltip } from "@/components/InfoTooltip";
 import { TableSkeleton } from "@/components/skeletons";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 export default function CommitteeOperatingRules() {
   const [selectedRuleId, setSelectedRuleId] = useState<number | null>(null);
@@ -278,6 +279,48 @@ export default function CommitteeOperatingRules() {
     if (!selectedRuleId) return;
     approveMutation.mutate({ id: selectedRuleId });
   };
+
+  // Atajos de teclado
+  useKeyboardShortcuts([
+    {
+      key: 's',
+      ctrl: true,
+      callback: () => {
+        if (isEditing) {
+          if (isCreating) {
+            handleCreate();
+          } else {
+            handleUpdate();
+          }
+        }
+      },
+      description: 'Guardar cambios (Ctrl+S)'
+    },
+    {
+      key: 'Escape',
+      callback: () => {
+        if (showVersionHistory) {
+          setShowVersionHistory(false);
+        } else if (showCompareDialog) {
+          setShowCompareDialog(false);
+        } else if (showRestoreDialog) {
+          setShowRestoreDialog(false);
+        } else if (showTemplateDialog) {
+          setShowTemplateDialog(false);
+        } else if (showSearchDialog) {
+          setShowSearchDialog(false);
+        } else if (isEditing) {
+          setIsEditing(false);
+          setIsCreating(false);
+          setSelectedRuleId(null);
+          resetForm();
+        }
+      },
+      description: 'Cerrar diálogo o cancelar edición (Esc)'
+    }
+  ]);
+
+
 
   const startEditing = () => {
     if (currentRule) {

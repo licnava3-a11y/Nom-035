@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, User, Mail, Phone, Building, Briefcase, Calendar, Upload } from "lucide-react";
+import { ICONS } from '@/lib/iconography';
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -252,7 +252,7 @@ export default function Employees() {
             variant="outline"
             onClick={() => setIsImportDialogOpen(true)}
           >
-            <Upload className="mr-2 h-4 w-4" />
+            <ICONS.actions.upload className="mr-2 h-4 w-4" />
             Importar Empleados
           </Button>
           <Link href="/employees/new">
@@ -261,7 +261,7 @@ export default function Employees() {
               fallbackMessage="Solo los administradores pueden agregar trabajadores"
               hideIfNoPermission
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <ICONS.actions.create className="mr-2 h-4 w-4" />
               Agregar Trabajador
             </ProtectedButton>
           </Link>
@@ -277,7 +277,7 @@ export default function Employees() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <ICONS.actions.search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nombre, email o número..."
                 value={search}
@@ -346,7 +346,7 @@ export default function Employees() {
         search || departmentFilter ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <ICONS.users.single className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">No se encontraron trabajadores</h3>
               <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
             </CardContent>
@@ -368,7 +368,7 @@ export default function Employees() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="h-6 w-6 text-primary" />
+                      <ICONS.users.single className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <CardTitle className="text-lg">
@@ -392,31 +392,31 @@ export default function Employees() {
                 <div className="space-y-2 text-sm">
                   {employee.email && (
                     <div className="flex items-center text-muted-foreground">
-                      <Mail className="mr-2 h-4 w-4" />
+                      <ICONS.communication.email className="mr-2 h-4 w-4" />
                       <span className="truncate">{employee.email}</span>
                     </div>
                   )}
                   {employee.phone && (
                     <div className="flex items-center text-muted-foreground">
-                      <Phone className="mr-2 h-4 w-4" />
+                      <ICONS.communication.phone className="mr-2 h-4 w-4" />
                       {employee.phone}
                     </div>
                   )}
                   {employee.department && (
                     <div className="flex items-center text-muted-foreground">
-                      <Building className="mr-2 h-4 w-4" />
+                      <ICONS.organizational.building className="mr-2 h-4 w-4" />
                       {employee.department}
                     </div>
                   )}
                   {employee.employeeNumber && (
                     <div className="flex items-center text-muted-foreground">
-                      <Briefcase className="mr-2 h-4 w-4" />
+                      <ICONS.organizational.position className="mr-2 h-4 w-4" />
                       No. {employee.employeeNumber}
                     </div>
                   )}
                   {employee.hireDate && (
                     <div className="flex items-center text-muted-foreground">
-                      <Calendar className="mr-2 h-4 w-4" />
+                      <ICONS.datetime.calendar className="mr-2 h-4 w-4" />
                       Ingreso: {new Date(employee.hireDate).toLocaleDateString("es-MX")}
                     </div>
                   )}

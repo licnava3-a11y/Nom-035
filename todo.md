@@ -4764,8 +4764,78 @@
 ### Fase 4: Pruebas y Entrega ✅
 - [x] Servidor corriendo sin errores críticos
 - [x] Skeleton loaders integrados en 4 páginas críticas
-- [x] Estados vacíos integrados en 2 páginas críticas
+- [x] Estados vacíos integrados en 4 páginas críticas (completo)
 - [x] Toasts estandarizados en 10 mutaciones críticas
 - [x] Iconografía estandarizada en 3 páginas del comité
 - [x] Actualizar todo.md
-- [x] Guardar checkpoint final (1d450425 - toasts estandarizados)
+- [x] Guardar checkpoint final (67aca794 - estados vacíos expandidos)
+
+
+## REFACTORIZACIÓN COMPLETA DE ICONOGRAFÍA
+
+### Fase 1: Refactorizar Dashboard y 10 Páginas Adicionales
+- [x] Refactorizar Dashboard.tsx (31 iconos: status, data, documents, users, navigation, tools)
+- [x] Refactorizar Employees.tsx (10 iconos: users, actions, communication, organizational, datetime)
+- [ ] Refactorizar Courses.tsx (iconos de cursos y acciones)
+- [ ] Refactorizar Cases.tsx (iconos de casos y estados)
+- [ ] Refactorizar Questionnaires.tsx (iconos de cuestionarios)
+- [ ] Refactorizar Surveys.tsx (iconos de encuestas)
+- [ ] Refactorizar Agreements.tsx (iconos de acuerdos)
+- [ ] Refactorizar AuditLog.tsx (iconos de auditoría)
+- [ ] Refactorizar Settings.tsx (iconos de configuración)
+- [ ] Refactorizar Profile.tsx (iconos de perfil)
+- [ ] Aplicar tamaños consistentes (ICON_SIZES) en todas las páginas
+- [ ] Aplicar colores semánticos (ICON_COLORS) para estados
+
+## FASE 3 DEL PLAN UX: ATAJOS DE TECLADO Y OPTIMIZACIÓN
+
+### Fase 2: Implementar Atajos de Teclado
+- [x] Hook useKeyboardShortcuts.ts ya existía en el sistema
+- [x] Implementar Ctrl+S para guardar en CommitteeOperatingRules
+- [x] Implementar Esc para cerrar diálogos en CommitteeOperatingRules (6 diálogos)
+- [ ] Implementar Enter para confirmar acciones
+- [ ] Implementar Ctrl+K para búsqueda global
+- [ ] Implementar Ctrl+/ para mostrar ayuda de atajos
+- [ ] Crear componente KeyboardShortcutsHelp con lista de atajos
+- [ ] Agregar indicadores visuales de atajos en botones (ej: "Guardar (Ctrl+S)")
+- [ ] Probar atajos en navegadores (Chrome, Firefox, Safari)
+
+### Fase 3: Optimizar Formularios
+- [ ] Implementar validación en tiempo real en CommitteeOperatingRules
+- [ ] Implementar validación en tiempo real en Employees
+- [ ] Implementar guardado automático de borradores (cada 30 segundos)
+- [ ] Crear hook useAutoSave.ts reutilizable
+- [ ] Agregar indicador visual de "Guardando..." y "Guardado"
+- [ ] Implementar recuperación de borradores al reabrir formulario
+- [ ] Agregar confirmación antes de abandonar formulario con cambios sin guardar
+- [ ] Optimizar performance de validaciones con debounce (300ms)
+
+## AUDITORÍA DE CORRELACIONES Y FUNCIONALIDADES
+
+### Fase 4: Auditar Correlaciones del Sistema
+- [ ] Auditar correlación entre trabajadores y cursos
+- [ ] Auditar correlación entre trabajadores y cuestionarios
+- [ ] Auditar correlación entre trabajadores y casos
+- [ ] Auditar correlación entre comité y bases de funcionamiento
+- [ ] Auditar correlación entre aprobaciones y firmantes
+- [ ] Identificar campos duplicados o innecesarios
+- [ ] Identificar datos que deberían prellenarse automáticamente
+- [ ] Crear documento de correlaciones encontradas
+
+### Fase 5: Optimizar Flujos de Usuario
+- [ ] Identificar flujos con pasos innecesarios
+- [ ] Simplificar proceso de creación de bases de funcionamiento
+- [ ] Simplificar proceso de solicitud de aprobaciones
+- [ ] Simplificar proceso de registro de trabajadores
+- [ ] Eliminar botones duplicados en interfaces
+- [ ] Consolidar formularios similares
+- [ ] Crear documento de optimizaciones implementadas
+
+### Fase 6: Pruebas y Entrega Final
+- [ ] Probar iconografía en 13 páginas refactorizadas
+- [ ] Probar atajos de teclado en formularios principales
+- [ ] Probar validación en tiempo real y guardado automático
+- [ ] Verificar correlaciones corregidas
+- [ ] Verificar flujos optimizados
+- [ ] Actualizar todo.md
+- [ ] Guardar checkpoint final

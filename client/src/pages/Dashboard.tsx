@@ -13,21 +13,7 @@ import TrendsCharts from '@/components/TrendsCharts';
 import RecognitionsCard from '@/components/RecognitionsCard';
 import AssignManagerDialog from '@/components/AssignManagerDialog';
 import { Link } from 'wouter';
-import { 
-  Users, 
-  FileSignature, 
-  Shield, 
-  AlertCircle, 
-  CheckCircle,
-  TrendingUp,
-  BarChart3,
-  BookOpen,
-  ClipboardCheck,
-  FileText,
-  Award,
-  Target,
-  ArrowRight
-} from 'lucide-react';
+import { ICONS } from '@/lib/iconography';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -283,7 +269,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Cursos Completados</CardTitle>
-                <Award className="h-4 w-4 text-muted-foreground" />
+                <ICONS.status.success className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{completedCourses}</div>
@@ -294,7 +280,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">En Progreso</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <ICONS.data.trendUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{inProgressCourses}</div>
@@ -305,7 +291,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Cursos Disponibles</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 {coursesLoading ? (
@@ -320,7 +306,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Recursos</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">Disponibles</div>
@@ -335,7 +321,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Casos Abiertos</CardTitle>
-                <AlertCircle className="h-4 w-4 text-destructive" />
+                <ICONS.status.warning className="h-4 w-4 text-destructive" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{openCases}</div>
@@ -346,7 +332,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">En Investigación</CardTitle>
-                <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+                <ICONS.actions.view className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{investigatingCases}</div>
@@ -357,7 +343,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total de Casos</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <ICONS.users.multiple className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{casesLoading ? '...' : cases?.totalCount || 0}</div>
@@ -368,7 +354,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Cursos</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
@@ -383,7 +369,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Cursos</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 {coursesLoading ? (
@@ -398,7 +384,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Estudiantes</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <ICONS.users.multiple className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">-</div>
@@ -409,7 +395,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Evaluaciones</CardTitle>
-                <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+                <ICONS.actions.view className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">-</div>
@@ -420,7 +406,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Recursos</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <ICONS.documents.generic className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">Disponibles</div>
@@ -438,7 +424,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Empleados</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <ICONS.users.multiple className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.employeesAndStructure.totalEmployees}</div>
@@ -449,7 +435,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Representantes Legales</CardTitle>
-                <FileSignature className="h-4 w-4 text-muted-foreground" />
+                <ICONS.documents.signed className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.employeesAndStructure.activeLegalReps}</div>
@@ -460,7 +446,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Firmantes Autorizados</CardTitle>
-                <Shield className="h-4 w-4 text-muted-foreground" />
+                <ICONS.tools.security className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.employeesAndStructure.authorizedSigners}</div>
@@ -471,7 +457,7 @@ export default function DashboardConsolidated() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Cobertura Encuestas</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <ICONS.data.chart className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{metrics.nom035Compliance.surveyCoverage}%</div>
@@ -487,7 +473,7 @@ export default function DashboardConsolidated() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-destructive flex items-center gap-2">
-                      <AlertCircle className="h-5 w-5" />
+                      <ICONS.status.warning className="h-5 w-5" />
                       Alertas de Departamentos sin Manager
                     </CardTitle>
                     <CardDescription className="mt-1">
@@ -497,7 +483,7 @@ export default function DashboardConsolidated() {
                   <Link href="/department-management">
                     <Button variant="outline" size="sm">
                       Gestionar Departamentos
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ICONS.navigation.forward className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
                 </div>
@@ -909,13 +895,13 @@ export default function DashboardConsolidated() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-orange-600" />
+                <ICONS.data.target className="h-5 w-5 text-orange-600" />
                 <CardTitle className="text-orange-900">Brechas Críticas de Competencias</CardTitle>
               </div>
               <Link href="/competencies-dashboard">
                 <Button variant="outline" size="sm" className="gap-2">
                   Ver Dashboard Completo
-                  <ArrowRight className="h-4 w-4" />
+                  <ICONS.navigation.forward className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -959,7 +945,7 @@ export default function DashboardConsolidated() {
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                <Target className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <ICONS.data.target className="h-12 w-12 mx-auto mb-2 text-gray-400" />
                 <p>No hay brechas críticas detectadas</p>
                 <p className="text-sm mt-1">Todos los empleados cumplen con las competencias requeridas</p>
               </div>
@@ -980,7 +966,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <BookOpen className="h-6 w-6 text-primary" />
+                        <ICONS.documents.generic className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Explorar Cursos</CardTitle>
@@ -996,7 +982,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <ClipboardCheck className="h-6 w-6 text-primary" />
+                        <ICONS.actions.view className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Mis Evaluaciones</CardTitle>
@@ -1012,7 +998,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <FileText className="h-6 w-6 text-primary" />
+                        <ICONS.documents.generic className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Recursos</CardTitle>
@@ -1032,7 +1018,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-destructive/10 rounded-lg">
-                        <AlertCircle className="h-6 w-6 text-destructive" />
+                        <ICONS.status.warning className="h-6 w-6 text-destructive" />
                       </div>
                       <div>
                         <CardTitle>Gestionar Casos</CardTitle>
@@ -1048,7 +1034,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <ClipboardCheck className="h-6 w-6 text-primary" />
+                        <ICONS.actions.view className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Encuestas NOM-035</CardTitle>
@@ -1064,7 +1050,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <FileText className="h-6 w-6 text-primary" />
+                        <ICONS.documents.generic className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Reportes Normativos</CardTitle>
@@ -1081,7 +1067,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                        <Award className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        <ICONS.status.success className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
                         <CardTitle className="text-blue-900 dark:text-blue-100">Reportes STPS</CardTitle>
@@ -1101,7 +1087,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <BookOpen className="h-6 w-6 text-primary" />
+                        <ICONS.documents.generic className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Mis Cursos</CardTitle>
@@ -1117,7 +1103,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <ClipboardCheck className="h-6 w-6 text-primary" />
+                        <ICONS.actions.view className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Evaluaciones</CardTitle>
@@ -1133,7 +1119,7 @@ export default function DashboardConsolidated() {
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
-                        <FileText className="h-6 w-6 text-primary" />
+                        <ICONS.documents.generic className="h-6 w-6 text-primary" />
                       </div>
                       <div>
                         <CardTitle>Recursos</CardTitle>
