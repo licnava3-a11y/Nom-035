@@ -5035,7 +5035,9 @@ export const operatingRulesApprovals = mysqlTable("operating_rules_approvals", {
   
   // Comentarios y metadata
   comments: text("comments"), // Comentarios del aprobador
+  rejectionReason: text("rejection_reason"), // Motivo del rechazo (obligatorio si status = rejected)
   signedAt: timestamp("signed_at"),
+  rejectedAt: timestamp("rejected_at"),
   
   // Orden de aprobación (para workflow secuencial)
   approvalOrder: int("approval_order").default(0).notNull(),

@@ -22,8 +22,10 @@ interface ApprovalWorkflowProps {
 export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion }: ApprovalWorkflowProps) {
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [showSignDialog, setShowSignDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [selectedApprovalId, setSelectedApprovalId] = useState<number | null>(null);
   const [signComments, setSignComments] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
   
   const [approvers, setApprovers] = useState<Array<{
     approverId: string;
@@ -67,6 +69,19 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
     },
     onError: (error) => {
       toast.error(`Error al firmar: ${error.message}`);
+    },
+  });
+
+  const rejectApprovalMutation = trpc.committeeOperatingRules.rejectApproval.useMutation({
+    onSuccess: () => {
+      toast.success("Aprobación rechazada. La base de funcionamiento ha regresado a estado borrador.");
+      setShowRejectDialog(false);
+      setSelectedApprovalId(null);
+      setRejectionReason("");
+      refetchApprovalStatus();
+    },
+    onError: (error) => {
+      toast.error(`Error al rechazar: ${error.message}`);
     },
   });
 
@@ -229,10 +244,23 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                     <div className="flex items-center gap-3">
                       {getStatusBadge(approval.status)}
                       {approval.status === "pending" && (
-                        <Button size="sm" onClick={() => handleSignApproval(approval.id)}>
-                          <FileSignature className="h-4 w-4 mr-2" />
-                          Firmar
-                        </Button>
+                        <>
+                          <Button size="sm" onClick={() => handleSignApproval(approval.id)}>
+                            <FileSignature className="h-4 w-4 mr-2" />
+                            Firmar
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => {
+                              setSelectedApprovalId(approval.id);
+                              setShowRejectDialog(true);
+                            }}
+                          >
+                            <X className="h-4 w-4 mr-2" />
+                            Rechazar
+                          </Button>
+                        </>
                       )}
                       {approval.status === "signed" && approval.signatureData && (
                         <img
@@ -380,6 +408,61 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                 rows={3}
               />
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Rechazar Aprobación */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Rechazar Aprobación</DialogTitle>
+            <DialogDescription>
+              Al rechazar esta aprobación, la base de funcionamiento regresará a estado borrador y se cancelarán todas las demás aprobaciones pendientes. Debe proporcionar un motivo detallado.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Motivo del Rechazo *</Label>
+              <Textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Explique detalladamente por qué rechaza esta base de funcionamiento (mínimo 10 caracteres)..."
+                rows={5}
+                className="mt-2"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {rejectionReason.length} / 10 caracteres mínimos
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => {
+              setShowRejectDialog(false);
+              setRejectionReason("");
+            }}>
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={() => {
+                if (rejectionReason.length < 10) {
+                  toast.error("El motivo de rechazo debe tener al menos 10 caracteres");
+                  return;
+                }
+                if (selectedApprovalId) {
+                  rejectApprovalMutation.mutate({
+                    approvalId: selectedApprovalId,
+                    rejectionReason,
+                  });
+                }
+              }}
+              disabled={rejectApprovalMutation.isPending || rejectionReason.length < 10}
+            >
+              {rejectApprovalMutation.isPending ? "Rechazando..." : "Confirmar Rechazo"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

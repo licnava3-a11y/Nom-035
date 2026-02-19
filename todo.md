@@ -4124,4 +4124,53 @@
 - [x] Panel SMTP ya existente y funcional
 - [x] Crear documentación completa (Committee_Operating_Rules_Complete_System.md)
 - [x] Actualizar todo.md con progreso
+- [x] Guardar checkpoint final (36abea2e)
+
+
+## MEJORAS FINALES DEL SISTEMA DE BASES DE FUNCIONAMIENTO
+
+### Fase 1: Rechazo de Aprobaciones con Motivo ✅
+- [x] Agregar campos rejectionReason y rejectedAt en tabla operating_rules_approvals
+- [x] Generar y aplicar migración SQL (0133_smiling_sister_grimm.sql)
+- [x] Crear procedure rejectApproval en committeeOperatingRules router
+- [x] Implementar lógica para cambiar estado de aprobación a "rejected"
+- [x] Implementar lógica para regresar base de funcionamiento a estado "draft"
+- [x] Cancelar todas las demás aprobaciones pendientes al rechazar
+- [x] Enviar notificación al creador con motivo de rechazo
+- [x] Agregar botón "Rechazar" en ApprovalWorkflow component (junto a Firmar)
+- [x] Implementar dialog de rechazo con campo de comentarios obligatorio (mínimo 10 caracteres)
+- [x] Mostrar rechazos en historial de aprobaciones con badge rojo
+- [x] Actualizar utilidad de notificaciones para soportar tipo "rejected"
+
+### Fase 2: Recordatorios Automáticos de Firmas Pendientes ✅
+- [x] Crear job approvalRemindersJob.ts con node-cron
+- [x] Implementar lógica para detectar aprobaciones pendientes > 48 horas
+- [x] Generar email recordatorio con enlace directo a página de aprobación
+- [x] Incluir resumen completo de documento pendiente en email (versión, rol, tiempo pendiente)
+- [x] Incluir tiempo pendiente en horas y días
+- [x] Configurar job para ejecutarse diariamente a las 09:00 AM
+- [x] Registrar job en server/_core/index.ts (startApprovalRemindersJob)
+- [x] Agregar logs de ejecución, recordatorios enviados y errores
+- [x] Exportar función sendApprovalReminders para testing manual
+
+### Fase 3: Panel de Auditoría de Firmas ✅
+- [x] Crear procedure getSignatureAuditLog en committeeOperatingRules router
+- [x] Implementar filtros: fecha desde/hasta, usuario, documento, rol, estado
+- [x] Implementar paginación (limit 50, offset) con total de registros
+- [x] Crear página SignatureAudit.tsx
+- [x] Implementar tabla con 7 columnas: fecha, usuario, documento, rol, estado, fecha de acción, acciones
+- [x] Agregar filtros interactivos (6 campos: date range, selects de usuario/documento/rol/estado)
+- [x] Implementar exportación a CSV con 9 columnas
+- [x] Agregar ruta en App.tsx (/signature-audit)
+- [x] Agregar enlace en menú de navegación (Comité > Auditoría de Firmas)
+- [x] Implementar vista de detalle de firma (dialog con información completa incluyendo motivo de rechazo)
+
+### Fase 4: Pruebas y Entrega Final ✅
+- [x] Sistema completo implementado
+- [x] Rechazo de aprobaciones con motivo obligatorio funcionando
+- [x] Job de recordatorios programado y registrado
+- [x] Panel de auditoría con filtros avanzados y exportación CSV
+- [x] Todas las notificaciones integradas (created, updated, approved, restored, rejected)
+- [x] Actualizar todo.md con progreso
+- [x] Servidor funcionando correctamente
 - [ ] Guardar checkpoint final

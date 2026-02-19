@@ -27,6 +27,7 @@ import { startCalculateRiskLevelJob } from "../jobs/calculate-risk-level-job";
 import { runRootCauseAnalysisJob } from "../jobs/root-cause-analysis-job";
 import { startTrainingRemindersJob } from "../jobs/training-reminders-job";
 import { startDepartmentsWithoutManagerJob } from "../jobs/departments-without-manager-job";
+import { startApprovalRemindersJob } from "../jobs/approvalRemindersJob";
 import { startPredictiveTurnoverJob } from "../jobs/predictive-turnover-job";
 import { runIntelligentAlertsJob } from "../jobs/intelligent-alerts-job";
 import { runCorrectiveActionPlansRemindersJob, correctiveActionPlansRemindersJobSchedule } from "../jobs/corrective-action-plans-reminders-job";
@@ -149,6 +150,7 @@ async function startServer() {
     startTrainingRemindersJob();
     startDepartmentsWithoutManagerJob();
     startPredictiveTurnoverJob();
+    startApprovalRemindersJob();
 
     // Corrective Action Plans Reminders Job (daily at 9:00 AM)
     setInterval(async () => {

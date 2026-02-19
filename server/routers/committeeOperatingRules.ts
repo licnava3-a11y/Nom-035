@@ -948,4 +948,218 @@ export const committeeOperatingRulesRouter = router({
       });
     }
   }),
+
+  /**
+   * Rechazar aprobación con motivo
+   */
+  rejectApproval: protectedProcedure
+    .input(
+      z.object({
+        approvalId: z.number(),
+        rejectionReason: z.string().min(10, "El motivo de rechazo debe tener al menos 10 caracteres"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+
+      try {
+        // Obtener la aprobación
+        const [approval] = await db
+          .select()
+          .from(operatingRulesApprovals)
+          .where(eq(operatingRulesApprovals.id, input.approvalId))
+          .limit(1);
+
+        if (!approval) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Aprobación no encontrada",
+          });
+        }
+
+        // Verificar que el usuario actual es el aprobador
+        if (approval.approverId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "No tienes permiso para rechazar esta aprobación",
+          });
+        }
+
+        // Verificar que la aprobación está pendiente
+        if (approval.status !== "pending") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Esta aprobación ya fue procesada",
+          });
+        }
+
+        // Actualizar estado de la aprobación a rechazada
+        await db
+          .update(operatingRulesApprovals)
+          .set({
+            status: "rejected",
+            rejectionReason: input.rejectionReason,
+            rejectedAt: new Date(),
+          })
+          .where(eq(operatingRulesApprovals.id, input.approvalId));
+
+        // Regresar la base de funcionamiento a estado draft
+        await db
+          .update(committeeOperatingRules)
+          .set({
+            status: "draft",
+          })
+          .where(eq(committeeOperatingRules.id, approval.operatingRuleId));
+
+        // Cancelar todas las demás aprobaciones pendientes
+        await db
+          .update(operatingRulesApprovals)
+          .set({
+            status: "rejected",
+            rejectionReason: "Cancelada debido a rechazo de otro aprobador",
+            rejectedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId),
+              eq(operatingRulesApprovals.status, "pending"),
+              sql`${operatingRulesApprovals.id} != ${input.approvalId}`
+            )
+          );
+
+        // Obtener información de la base de funcionamiento y creador
+        const [rule] = await db
+          .select({
+            id: committeeOperatingRules.id,
+            version: committeeOperatingRules.version,
+            createdBy: committeeOperatingRules.createdBy,
+            creatorName: users.name,
+            creatorEmail: users.email,
+          })
+          .from(committeeOperatingRules)
+          .leftJoin(users, eq(committeeOperatingRules.createdBy, users.id))
+          .where(eq(committeeOperatingRules.id, approval.operatingRuleId))
+          .limit(1);
+
+        // Enviar notificación al creador
+        if (rule) {
+          await notifyOperatingRulesChanges({
+            type: "rejected",
+            operatingRuleId: rule.id,
+            operatingRuleVersion: rule.version,
+            rejectedBy: ctx.user.name || "Usuario",
+            rejectionReason: input.rejectionReason,
+            creatorEmail: rule.creatorEmail || undefined,
+          });
+        }
+
+        return {
+          success: true,
+          message: "Aprobación rechazada correctamente. La base de funcionamiento ha regresado a estado borrador.",
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("Error rejecting approval:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al rechazar la aprobación",
+        });
+      }
+    }),
+
+  /**
+   * Obtener historial de auditoría de firmas
+   */
+  getSignatureAuditLog: protectedProcedure
+    .input(
+      z.object({
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        userId: z.number().optional(),
+        operatingRuleId: z.number().optional(),
+        role: z.enum(["president", "secretary", "vocal", "other"]).optional(),
+        status: z.enum(["pending", "signed", "rejected"]).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = getDb();
+
+      try {
+        // Construir condiciones de filtro
+        const conditions = [];
+
+        if (input.dateFrom) {
+          conditions.push(sql`${operatingRulesApprovals.createdAt} >= ${input.dateFrom}`);
+        }
+
+        if (input.dateTo) {
+          conditions.push(sql`${operatingRulesApprovals.createdAt} <= ${input.dateTo}`);
+        }
+
+        if (input.userId) {
+          conditions.push(eq(operatingRulesApprovals.approverId, input.userId));
+        }
+
+        if (input.operatingRuleId) {
+          conditions.push(eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId));
+        }
+
+        if (input.role) {
+          conditions.push(eq(operatingRulesApprovals.approverRole, input.role));
+        }
+
+        if (input.status) {
+          conditions.push(eq(operatingRulesApprovals.status, input.status));
+        }
+
+        // Obtener total de registros
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(operatingRulesApprovals)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+        const total = Number(countResult?.count || 0);
+
+        // Obtener registros con paginación
+        const auditLog = await db
+          .select({
+            id: operatingRulesApprovals.id,
+            operatingRuleId: operatingRulesApprovals.operatingRuleId,
+            operatingRuleVersion: committeeOperatingRules.version,
+            approverId: operatingRulesApprovals.approverId,
+            approverName: users.name,
+            approverEmail: users.email,
+            approverRole: operatingRulesApprovals.approverRole,
+            approverRoleDescription: operatingRulesApprovals.approverRoleDescription,
+            status: operatingRulesApprovals.status,
+            comments: operatingRulesApprovals.comments,
+            rejectionReason: operatingRulesApprovals.rejectionReason,
+            signedAt: operatingRulesApprovals.signedAt,
+            rejectedAt: operatingRulesApprovals.rejectedAt,
+            createdAt: operatingRulesApprovals.createdAt,
+          })
+          .from(operatingRulesApprovals)
+          .leftJoin(users, eq(operatingRulesApprovals.approverId, users.id))
+          .leftJoin(committeeOperatingRules, eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id))
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(sql`${operatingRulesApprovals.createdAt} DESC`)
+          .limit(input.limit)
+          .offset(input.offset);
+
+        return {
+          data: auditLog,
+          total,
+          limit: input.limit,
+          offset: input.offset,
+        };
+      } catch (error) {
+        console.error("Error getting signature audit log:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al obtener historial de auditoría",
+        });
+      }
+    }),
 });

@@ -4,12 +4,13 @@ import { eq, and, or, sql } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 
 interface NotificationData {
+  type: "created" | "updated" | "approved" | "restored" | "rejected";
   operatingRuleId: number;
-  version: string;
-  changeType: "created" | "updated" | "approved" | "restored";
+  operatingRuleVersion: string;
   changeDescription?: string;
-  changedBy: number;
-  changedByName: string;
+  rejectedBy?: string;
+  rejectionReason?: string;
+  creatorEmail?: string;
 }
 
 /**
@@ -53,18 +54,17 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
 
     const documentUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || "https://app.manus.space"}/committee-operating-rules`;
 
-    switch (data.changeType) {
+    switch (data.type) {
       case "created":
         notificationTitle = "Nueva Base de Funcionamiento Creada";
-        notificationMessage = `Se ha creado una nueva base de funcionamiento del comité (${data.version}) por ${data.changedByName}.`;
+        notificationMessage = `Se ha creado una nueva base de funcionamiento del comité (${data.operatingRuleVersion}).`;
         emailSubject = "Nueva Base de Funcionamiento del Comité";
         emailBody = `
           <h2>Nueva Base de Funcionamiento del Comité</h2>
           <p>Estimado miembro del comité,</p>
           <p>Se ha creado una nueva base de funcionamiento del comité:</p>
           <ul>
-            <li><strong>Versión:</strong> ${data.version}</li>
-            <li><strong>Creado por:</strong> ${data.changedByName}</li>
+            <li><strong>Versión:</strong> ${data.operatingRuleVersion}</li>
             <li><strong>Fecha:</strong> ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</li>
           </ul>
           <p>Por favor, revise el documento en el sistema.</p>
@@ -74,15 +74,14 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
 
       case "updated":
         notificationTitle = "Base de Funcionamiento Actualizada";
-        notificationMessage = `Se ha actualizado la base de funcionamiento del comité (${data.version}) por ${data.changedByName}. ${data.changeDescription ? `Cambios: ${data.changeDescription}` : ""}`;
+        notificationMessage = `Se ha actualizado la base de funcionamiento del comité (${data.operatingRuleVersion}). ${data.changeDescription ? `Cambios: ${data.changeDescription}` : ""}`;
         emailSubject = "Actualización de Base de Funcionamiento del Comité";
         emailBody = `
           <h2>Actualización de Base de Funcionamiento del Comité</h2>
           <p>Estimado miembro del comité,</p>
           <p>Se ha actualizado la base de funcionamiento del comité:</p>
           <ul>
-            <li><strong>Versión:</strong> ${data.version}</li>
-            <li><strong>Actualizado por:</strong> ${data.changedByName}</li>
+            <li><strong>Versión:</strong> ${data.operatingRuleVersion}</li>
             <li><strong>Fecha:</strong> ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</li>
             ${data.changeDescription ? `<li><strong>Descripción de cambios:</strong> ${data.changeDescription}</li>` : ""}
           </ul>
@@ -93,15 +92,14 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
 
       case "approved":
         notificationTitle = "Base de Funcionamiento Aprobada";
-        notificationMessage = `La base de funcionamiento del comité (${data.version}) ha sido aprobada por ${data.changedByName} y ahora está activa.`;
+        notificationMessage = `La base de funcionamiento del comité (${data.operatingRuleVersion}) ha sido aprobada y ahora está activa.`;
         emailSubject = "Base de Funcionamiento del Comité Aprobada";
         emailBody = `
           <h2>Base de Funcionamiento del Comité Aprobada</h2>
           <p>Estimado miembro del comité,</p>
           <p>La base de funcionamiento del comité ha sido oficialmente aprobada:</p>
           <ul>
-            <li><strong>Versión:</strong> ${data.version}</li>
-            <li><strong>Aprobado por:</strong> ${data.changedByName}</li>
+            <li><strong>Versión:</strong> ${data.operatingRuleVersion}</li>
             <li><strong>Fecha de aprobación:</strong> ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</li>
           </ul>
           <p>Esta versión ahora está activa y en vigor.</p>
@@ -111,20 +109,38 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
 
       case "restored":
         notificationTitle = "Base de Funcionamiento Restaurada";
-        notificationMessage = `Se ha restaurado una versión anterior de la base de funcionamiento del comité (${data.version}) por ${data.changedByName}. ${data.changeDescription ? `Motivo: ${data.changeDescription}` : ""}`;
+        notificationMessage = `Se ha restaurado una versión anterior de la base de funcionamiento del comité (${data.operatingRuleVersion}). ${data.changeDescription ? `Motivo: ${data.changeDescription}` : ""}`;
         emailSubject = "Restauración de Base de Funcionamiento del Comité";
         emailBody = `
           <h2>Restauración de Base de Funcionamiento del Comité</h2>
           <p>Estimado miembro del comité,</p>
           <p>Se ha restaurado una versión anterior de la base de funcionamiento del comité:</p>
           <ul>
-            <li><strong>Versión:</strong> ${data.version}</li>
-            <li><strong>Restaurado por:</strong> ${data.changedByName}</li>
+            <li><strong>Versión:</strong> ${data.operatingRuleVersion}</li>
             <li><strong>Fecha:</strong> ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</li>
             ${data.changeDescription ? `<li><strong>Motivo de restauración:</strong> ${data.changeDescription}</li>` : ""}
           </ul>
           <p>Por favor, revise la versión restaurada en el sistema.</p>
           <p><a href="${documentUrl}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px;">Ver Documento</a></p>
+         `;
+        break;
+
+      case "rejected":
+        notificationTitle = "Base de Funcionamiento Rechazada";
+        notificationMessage = `La base de funcionamiento del comité (${data.operatingRuleVersion}) ha sido rechazada por ${data.rejectedBy}. Motivo: ${data.rejectionReason}`;
+        emailSubject = "Base de Funcionamiento del Comité Rechazada";
+        emailBody = `
+          <h2 style="color: #dc2626;">Base de Funcionamiento del Comité Rechazada</h2>
+          <p>Estimado creador,</p>
+          <p>La base de funcionamiento del comité ha sido rechazada y ha regresado a estado borrador:</p>
+          <ul>
+            <li><strong>Versión:</strong> ${data.operatingRuleVersion}</li>
+            <li><strong>Rechazado por:</strong> ${data.rejectedBy}</li>
+            <li><strong>Fecha:</strong> ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</li>
+            <li><strong>Motivo de rechazo:</strong> ${data.rejectionReason}</li>
+          </ul>
+          <p>Por favor, realice las correcciones necesarias y vuelva a solicitar aprobación.</p>
+          <p><a href="${documentUrl}" style="display: inline-block; padding: 10px 20px; background-color: #dc2626; color: white; text-decoration: none; border-radius: 5px;">Revisar Documento</a></p>
         `;
         break;
     }
