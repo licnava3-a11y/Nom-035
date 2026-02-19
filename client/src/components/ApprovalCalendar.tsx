@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { useLocation } from "wouter";
 import { CalendarSkeleton } from "@/components/skeletons";
+import { EmptyState, InlineEmptyState } from "@/components/EmptyState";
+import { EMPTY_STATES } from "@/lib/emptyStates";
 
 interface ApprovalCalendarProps {
   onSelectDocument?: (operatingRuleId: number) => void;
@@ -143,6 +145,12 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
           <CardContent>
             {isLoading ? (
               <CalendarSkeleton />
+            ) : calendarData?.totalEvents === 0 ? (
+              <InlineEmptyState
+                icon={EMPTY_STATES.calendar_no_deadlines.icon}
+                title={EMPTY_STATES.calendar_no_deadlines.title}
+                description={EMPTY_STATES.calendar_no_deadlines.description}
+              />
             ) : (
               <div className="grid grid-cols-7 gap-2">
                 {/* Encabezados de días */}
@@ -259,10 +267,11 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <CheckCircle2 className="h-12 w-12 mx-auto mb-2 text-green-500" />
-                <p>No hay deadlines próximos</p>
-              </div>
+              <InlineEmptyState
+                icon={CheckCircle2}
+                title="Sin deadlines próximos"
+                description="No hay aprobaciones pendientes en los próximos 7 días"
+              />
             )}
           </CardContent>
         </Card>

@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ICONS } from "@/lib/iconography";
+import { EmptyState } from "@/components/EmptyState";
+import { EMPTY_STATES } from "@/lib/emptyStates";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import VersionComparison from "@/components/VersionComparison";
@@ -578,17 +580,28 @@ export default function CommitteeOperatingRules() {
                   </TableCell>
                 </TableRow>
               ))}
-              {!isLoadingRules && (!rules || rules.length === 0) && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    No hay bases de funcionamiento registradas
-                  </TableCell>
-                </TableRow>
-              )}
+
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Empty State cuando no hay documentos */}
+      {!isLoadingRules && (!rules || rules.length === 0) && (
+        <EmptyState
+          icon={EMPTY_STATES.operating_rules_empty.icon}
+          title={EMPTY_STATES.operating_rules_empty.title}
+          description={EMPTY_STATES.operating_rules_empty.description}
+          action={{
+            label: "Crear Primera Base de Funcionamiento",
+            onClick: startCreating
+          }}
+          secondaryAction={{
+            label: "Usar Plantilla Predefinida",
+            onClick: () => setShowTemplateDialog(true)
+          }}
+        />
+      )}
 
       {/* Detalle de la base de funcionamiento seleccionada */}
       {selectedRuleId && currentRule && !showVersionHistory && (

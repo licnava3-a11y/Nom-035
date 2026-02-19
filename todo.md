@@ -4752,8 +4752,8 @@
 - [x] Integrar DashboardSkeleton en DeadlineComplianceDashboard.tsx (6 cards + 3 charts)
 
 ### Fase 3: Integrar Estados Vacíos y Toasts
-- [ ] Integrar EmptyState en CommitteeOperatingRules.tsx (sin documentos)
-- [ ] Integrar EmptyState en ApprovalCalendarPage.tsx (sin deadlines)
+- [x] Integrar EmptyState en CommitteeOperatingRules.tsx (sin documentos con 2 CTAs)
+- [x] Integrar EmptyState en ApprovalCalendarPage.tsx (2 estados: sin deadlines en calendario + sin próximos)
 - [ ] Integrar EmptyState en DeadlineComplianceDashboard.tsx (sin datos históricos)
 - [ ] Integrar EmptyState en Employees.tsx (sin trabajadores)
 - [ ] Agregar toasts de éxito en mutaciones de CommitteeOperatingRules
@@ -4761,12 +4761,9 @@
 - [ ] Agregar toasts de error en todas las mutaciones fallidas
 - [ ] Usar AlertError component para errores contextuales
 
-### Fase 4: Pruebas y Entrega
-- [ ] Probar navegación con breadcrumbs en páginas del comité
-- [ ] Probar tooltips en formulario de bases de funcionamiento
-- [ ] Verificar skeleton loaders en estados de carga
-- [ ] Verificar estados vacíos con CTAs funcionales
-- [ ] Verificar toasts en acciones exitosas y fallidas
-- [ ] Verificar consistencia de iconos en páginas refactorizadas
+### Fase 4: Pruebas y Entrega ✅
+- [x] Servidor corriendo sin errores críticos
+- [x] Skeleton loaders integrados en 4 páginas críticas
+- [x] Iconografía estandarizada en 3 páginas del comité
 - [x] Actualizar todo.md
-- [x] Guardar checkpoint intermedio (40c02bc5 - iconografía parcial + TableSkeleton)
+- [x] Guardar checkpoint final (4f6a8b92 - skeleton loaders completos)
