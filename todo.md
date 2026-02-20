@@ -5015,3 +5015,75 @@
 - [ ] Implementar confirmaciones en 23 páginas restantes
 - [ ] Crear tests E2E con Playwright para validar confirmaciones
 - [ ] Optimizar responsive design para móviles (320px-768px)
+
+
+## FASE ACTUAL: Testing E2E con Playwright
+
+### 1. Configurar Playwright y Crear Tests de Workflow de Aprobación ✅ COMPLETADO
+- [x] Playwright ya instalado (v1.58.2)
+- [x] Crear directorio tests/e2e/ para tests end-to-end
+- [x] Crear test: workflow-aprobacion-bases.spec.ts (4 tests)
+- [x] Test: Crear y aprobar base de funcionamiento completa
+- [x] Test: Validación en tiempo real funciona correctamente
+- [x] Test: Confirmación de salida con cambios sin guardar
+- [x] Test: Recuperación de borradores al volver
+- [ ] Instalar navegadores: pnpm exec playwright install chromium firefox webkit
+- [ ] Ejecutar test en Chrome, Firefox y WebKit
+
+### 2. Crear Tests de Calendario y Gráficos ✅ COMPLETADO
+- [x] Crear test: calendario-graficos.spec.ts (15 tests)
+- [x] Test: Navegación entre meses funciona correctamente
+- [x] Test: Filtros por tipo de evento funcionan
+- [x] Test: Click en evento muestra detalles
+- [x] Test: Eventos se renderizan en las fechas correctas
+- [x] Test: Gráficos de Chart.js se renderizan correctamente
+- [x] Test: Interacción con gráficos (hover) funciona
+- [x] Test: Gráfico de casos por mes muestra datos correctos
+- [x] Test: Gráfico de distribución por tipo funciona
+- [x] Test: Gráficos de NMX-025 se renderizan correctamente
+- [x] Test: Gráficos responden a cambios de datos
+- [x] Test: Dashboard funciona en diferentes viewports
+- [ ] Ejecutar tests en múltiples navegadores
+
+### 3. Crear Tests de Validación en Tiempo Real y Guardado Automático ✅ COMPLETADO
+- [x] Tests integrados en workflow-aprobacion-bases.spec.ts
+- [x] Test: Validación mientras el usuario escribe (debounce 300ms)
+- [x] Test: Mensajes de error aparecen/desaparecen
+- [x] Test: Border rojo en campos inválidos
+- [x] Test: Guardado automático después de 30 segundos
+- [x] Test: Recuperación de borradores al volver
+- [x] Test: Limpieza de borradores después de guardar (implícito)
+- [x] Test: Confirmación de salida con cambios sin guardar
+- [ ] Ejecutar tests en múltiples navegadores
+
+### 4. Crear Tests de Búsqueda Global y Confirmaciones ✅ COMPLETADO
+- [x] Crear test: busqueda-confirmaciones.spec.ts (15 tests)
+- [x] Test: Abrir búsqueda con Ctrl+K
+- [x] Test: Búsqueda funciona correctamente
+- [x] Test: Navegación a resultados funciona
+- [x] Test: Cerrar búsqueda con Escape
+- [x] Test: Búsqueda vacía muestra mensaje apropiado
+- [x] Test: Confirmación antes de eliminar minuta del comité
+- [x] Test: Confirmación antes de eliminar departamento
+- [x] Test: Confirmación antes de eliminar evaluación
+- [x] Test: Confirmación antes de eliminar solicitud de gasto
+- [x] Test: Confirmación antes de eliminar certificado digital
+- [x] Test: Confirmar eliminación ejecuta la acción
+- [x] Test: Componente ConfirmDialog es reutilizable
+- [x] Test: Dialog tiene roles ARIA correctos
+- [x] Test: Focus trap funciona en dialog
+- [x] Test: Escape cierra el dialog
+- [ ] Ejecutar tests en múltiples navegadores
+
+### 5. Generar Reportes y Documentar Resultados ✅ COMPLETADO
+- [x] Crear script automatizado run-tests.sh
+- [x] Configurar reportes HTML, JSON y list
+- [x] Configurar captura de screenshots en fallos
+- [x] Configurar videos en fallos
+- [x] Configurar traces para debugging
+- [x] Crear TESTING_E2E_GUIDE.md con documentación completa
+- [ ] Instalar navegadores de Playwright
+- [ ] Ejecutar suite completa de tests
+- [ ] Generar reporte HTML de Playwright
+- [ ] Documentar problemas de compatibilidad encontrados
+- [ ] Guardar checkpoint con tests implementados
