@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/auth';
 
 /**
  * Test E2E: Búsqueda Global y Confirmaciones Destructivas
@@ -9,19 +9,9 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Búsqueda Global (Ctrl+K)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000');
-    await page.waitForLoadState('networkidle');
-    
-    // Login si es necesario
-    const loginButton = page.locator('text=Acceder a la Plataforma');
-    if (await loginButton.isVisible()) {
-      await loginButton.click();
-      await page.waitForLoadState('networkidle');
-    }
-  });
+  // Autenticación manejada por fixture authenticatedPage
 
-  test('Abrir búsqueda con Ctrl+K', async ({ page }) => {
+  test('Abrir búsqueda con Ctrl+K', async ({ authenticatedPage: page }) => {
     // Presionar Ctrl+K
     await page.keyboard.press('Control+K');
 
@@ -33,7 +23,7 @@ test.describe('Búsqueda Global (Ctrl+K)', () => {
     await expect(searchInput).toBeFocused();
   });
 
-  test('Búsqueda funciona correctamente', async ({ page }) => {
+  test('Búsqueda funciona correctamente', async ({ authenticatedPage: page }) => {
     // Abrir búsqueda
     await page.keyboard.press('Control+K');
 
@@ -53,7 +43,7 @@ test.describe('Búsqueda Global (Ctrl+K)', () => {
     expect(results).toBeGreaterThan(0);
   });
 
-  test('Navegación a resultados funciona', async ({ page }) => {
+  test('Navegación a resultados funciona', async ({ authenticatedPage: page }) => {
     // Abrir búsqueda
     await page.keyboard.press('Control+K');
 
@@ -71,7 +61,7 @@ test.describe('Búsqueda Global (Ctrl+K)', () => {
     await expect(page.locator('[role="dialog"]:has-text("Buscar")')).not.toBeVisible();
   });
 
-  test('Cerrar búsqueda con Escape', async ({ page }) => {
+  test('Cerrar búsqueda con Escape', async ({ authenticatedPage: page }) => {
     // Abrir búsqueda
     await page.keyboard.press('Control+K');
     await expect(page.locator('[role="dialog"]:has-text("Buscar")')).toBeVisible();
@@ -83,7 +73,7 @@ test.describe('Búsqueda Global (Ctrl+K)', () => {
     await expect(page.locator('[role="dialog"]:has-text("Buscar")')).not.toBeVisible();
   });
 
-  test('Búsqueda vacía muestra mensaje apropiado', async ({ page }) => {
+  test('Búsqueda vacía muestra mensaje apropiado', async ({ authenticatedPage: page }) => {
     await page.keyboard.press('Control+K');
 
     const searchInput = page.locator('input[placeholder*="Buscar"], input[type="search"]');
@@ -96,7 +86,7 @@ test.describe('Búsqueda Global (Ctrl+K)', () => {
 });
 
 test.describe('Confirmaciones en Acciones Destructivas', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ authenticatedPage: page }) => {
     await page.goto('http://localhost:3000');
     await page.waitForLoadState('networkidle');
     
@@ -107,7 +97,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Confirmación antes de eliminar minuta del comité', async ({ page }) => {
+  test('Confirmación antes de eliminar minuta del comité', async ({ authenticatedPage: page }) => {
     // Navegar a minutas
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Minutas del Comité');
@@ -136,7 +126,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Confirmación antes de eliminar departamento', async ({ page }) => {
+  test('Confirmación antes de eliminar departamento', async ({ authenticatedPage: page }) => {
     // Navegar a departamentos
     await page.click('text=Gestión de Talento');
     await page.click('text=Departamentos');
@@ -155,7 +145,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Confirmación antes de eliminar evaluación', async ({ page }) => {
+  test('Confirmación antes de eliminar evaluación', async ({ authenticatedPage: page }) => {
     // Navegar a evaluaciones
     await page.click('text=Evaluación de Desempeño');
     await page.click('text=Gestión de Evaluaciones');
@@ -175,7 +165,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Confirmación antes de eliminar solicitud de gasto', async ({ page }) => {
+  test('Confirmación antes de eliminar solicitud de gasto', async ({ authenticatedPage: page }) => {
     // Navegar a solicitudes de gasto
     await page.click('text=Finanzas');
     await page.click('text=Solicitudes de Gasto');
@@ -194,7 +184,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Confirmación antes de eliminar certificado digital', async ({ page }) => {
+  test('Confirmación antes de eliminar certificado digital', async ({ authenticatedPage: page }) => {
     // Navegar a certificados
     await page.click('text=Finanzas');
     await page.click('text=e.firma SAT');
@@ -213,7 +203,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Confirmar eliminación ejecuta la acción', async ({ page }) => {
+  test('Confirmar eliminación ejecuta la acción', async ({ authenticatedPage: page }) => {
     // Navegar a minutas
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Minutas del Comité');
@@ -240,7 +230,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
     }
   });
 
-  test('Componente ConfirmDialog es reutilizable', async ({ page }) => {
+  test('Componente ConfirmDialog es reutilizable', async ({ authenticatedPage: page }) => {
     // Verificar que el mismo componente se usa en múltiples páginas
     const pages = [
       { menu: 'Prevención de Riesgos', submenu: 'Minutas del Comité', url: 'committee-minutes' },
@@ -274,7 +264,7 @@ test.describe('Confirmaciones en Acciones Destructivas', () => {
 });
 
 test.describe('Accesibilidad de Confirmaciones', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ authenticatedPage: page }) => {
     await page.goto('http://localhost:3000');
     await page.waitForLoadState('networkidle');
     
@@ -285,7 +275,7 @@ test.describe('Accesibilidad de Confirmaciones', () => {
     }
   });
 
-  test('Dialog de confirmación tiene roles ARIA correctos', async ({ page }) => {
+  test('Dialog de confirmación tiene roles ARIA correctos', async ({ authenticatedPage: page }) => {
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Minutas del Comité');
 
@@ -306,7 +296,7 @@ test.describe('Accesibilidad de Confirmaciones', () => {
     }
   });
 
-  test('Focus trap funciona en dialog de confirmación', async ({ page }) => {
+  test('Focus trap funciona en dialog de confirmación', async ({ authenticatedPage: page }) => {
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Minutas del Comité');
 
@@ -330,7 +320,7 @@ test.describe('Accesibilidad de Confirmaciones', () => {
     }
   });
 
-  test('Escape cierra el dialog de confirmación', async ({ page }) => {
+  test('Escape cierra el dialog de confirmación', async ({ authenticatedPage: page }) => {
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Minutas del Comité');
 

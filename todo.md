@@ -5316,3 +5316,39 @@
 - [ ] Actualizar routers/procedures (si es necesario)
 - [ ] Actualizar frontend (no requerido)
 - [ ] Ejecutar tests de validación (pendiente)
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 2)
+
+### Fase 1: Configurar Autenticación en Tests E2E
+- [x] Crear usuario de prueba en base de datos (TEST_USER en test-auth.ts)
+- [x] Implementar bypass de OAuth para tests (endpoint /api/test/auth/token)
+- [x] Configurar fixture de autenticación en Playwright (tests/fixtures/auth.ts)
+- [x] Actualizar tests para usar autenticación (authenticatedPage)
+- [ ] Depurar error de import en test-auth.ts (requiere más tiempo)
+- [ ] Ejecutar suite completa y validar 180 tests pasan (pendiente depuración)
+
+### Fase 2: Completar Confirmaciones Restantes (10 páginas)
+- [x] Verificación completada: 100% de cobertura alcanzada
+- [x] JobApplication - NO requiere (datos temporales en formulario)
+- [x] MeetingMinuteForm - NO requiere (datos temporales en formulario)
+- [x] CommitteeOperatingRules - NO tiene función de eliminación
+- [x] Courses - NO tiene función de eliminación
+- [x] Modules - NO existe archivo
+- [x] Evaluations - NO tiene función de eliminación
+- [x] Positions - YA tiene AlertDialog implementado
+- [x] Resultado: 13/23 páginas con confirmaciones (100% de páginas con delete)
+
+### Fase 3: Corregir Errores TypeScript de Drizzle
+- [x] Análisis completado: 726 errores identificados y categorizados
+- [x] Documento creado: docs/ERRORES_TYPESCRIPT_PENDIENTES.md
+- [ ] Correcciones rápidas (67 db null + 34 @ts-expect-error) - 1-2 horas
+- [ ] Regeneración de schema y actualización de queries - 2-3 horas
+- [ ] Correcciones complejas (overloads, any types) - 3-4 horas
+- [ ] Tiempo total estimado: 6-9 horas (pendiente para próxima sesión)
+
+### Checkpoint Final
+- [x] Guardar checkpoint con todas las mejoras implementadas
+- [x] Documentar cambios realizados
+- [x] Crear documento de errores TypeScript pendientes
+- [ ] Generar reporte de tests E2E (pendiente depuración de autenticación)

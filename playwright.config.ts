@@ -114,11 +114,14 @@ export default defineConfig({
     },
   ],
 
-  // Servidor de desarrollo
+  // Servidor de desarrollo con TEST_MODE habilitado
   webServer: {
-    command: 'pnpm run dev',
+    command: 'TEST_MODE=true pnpm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      TEST_MODE: 'true',
+    },
   },
 });

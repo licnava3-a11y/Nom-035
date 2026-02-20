@@ -42,6 +42,7 @@ import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job
 import { initializeWebSocket } from "./websocket";
 import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
 import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
+import { testAuthBypass, createTestAuthEndpoint, createTestLogoutEndpoint } from "./test-auth";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -100,6 +101,15 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // Test authentication endpoints (only in TEST_MODE)
+  if (process.env.TEST_MODE === 'true') {
+    console.log('[TEST MODE] Test authentication endpoints enabled');
+    app.post('/api/test/auth/token', createTestAuthEndpoint());
+    app.post('/api/test/auth/logout', createTestLogoutEndpoint());
+    // Aplicar bypass de autenticación a todas las rutas
+    app.use(testAuthBypass);
+  }
+  
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // Upload API

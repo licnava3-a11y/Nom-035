@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/auth';
 
 /**
  * Test E2E: Workflow de Aprobación de Bases de Funcionamiento del Comité
@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Workflow de Aprobación de Bases de Funcionamiento', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ authenticatedPage: page }) => {
     // Navegar a la página de login
     await page.goto('http://localhost:3000');
     
@@ -21,7 +21,7 @@ test.describe('Workflow de Aprobación de Bases de Funcionamiento', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('Crear y aprobar base de funcionamiento completa', async ({ page }) => {
+  test('Crear y aprobar base de funcionamiento completa', async ({ authenticatedPage: page }) => {
     // 1. Login (asumiendo que hay un botón de acceso)
     const loginButton = page.locator('text=Acceder a la Plataforma');
     if (await loginButton.isVisible()) {
@@ -106,7 +106,7 @@ test.describe('Workflow de Aprobación de Bases de Funcionamiento', () => {
     await expect(page.locator('text=Base de funcionamiento aprobada')).toBeVisible({ timeout: 3000 });
   });
 
-  test('Validación en tiempo real funciona correctamente', async ({ page }) => {
+  test('Validación en tiempo real funciona correctamente', async ({ authenticatedPage: page }) => {
     // Login y navegación
     const loginButton = page.locator('text=Acceder a la Plataforma');
     if (await loginButton.isVisible()) {
@@ -143,7 +143,7 @@ test.describe('Workflow de Aprobación de Bases de Funcionamiento', () => {
     await expect(objectivesField).not.toHaveClass(/border-red/);
   });
 
-  test('Confirmación de salida con cambios sin guardar', async ({ page }) => {
+  test('Confirmación de salida con cambios sin guardar', async ({ authenticatedPage: page }) => {
     // Login y navegación
     const loginButton = page.locator('text=Acceder a la Plataforma');
     if (await loginButton.isVisible()) {
@@ -171,7 +171,7 @@ test.describe('Workflow de Aprobación de Bases de Funcionamiento', () => {
     await expect(page.locator('textarea[name="objectives"]')).toBeVisible();
   });
 
-  test('Recuperación de borradores al volver', async ({ page }) => {
+  test('Recuperación de borradores al volver', async ({ authenticatedPage: page }) => {
     // Login y navegación
     const loginButton = page.locator('text=Acceder a la Plataforma');
     if (await loginButton.isVisible()) {
