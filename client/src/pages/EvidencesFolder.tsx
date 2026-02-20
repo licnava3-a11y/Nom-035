@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, Download, CheckCircle2, AlertCircle, Clock, Upload, X, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function EvidencesFolder() {
 
@@ -29,6 +30,7 @@ export default function EvidencesFolder() {
   const [uploadDescription, setUploadDescription] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; title: string } | null>(null);
 
   // Query para obtener evidencias
   const { data: evidences, isLoading } = trpc.evidencesFolder.getEvidences.useQuery({
@@ -141,10 +143,8 @@ export default function EvidencesFolder() {
     reader.readAsDataURL(selectedFile);
   };
 
-  const handleDeleteEvidence = (evidenceId: number) => {
-    if (confirm('¿Estás seguro de eliminar esta evidencia?')) {
-      deleteEvidence.mutate({ evidenceId });
-    }
+  const handleDeleteEvidence = (evidenceId: number, title: string) => {
+    setDeleteConfirm({ id: evidenceId, title });
   };
 
   const getStatusIcon = (status: string) => {
@@ -424,7 +424,7 @@ export default function EvidencesFolder() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleDeleteEvidence(evidence.id)}
+                                  onClick={() => handleDeleteEvidence(evidence.id, evidence.title)}
                                   className="text-destructive hover:text-destructive"
                                 >
                                   <X className="h-4 w-4" />
@@ -466,6 +466,21 @@ export default function EvidencesFolder() {
           </Accordion>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteEvidence.mutate({ evidenceId: deleteConfirm.id });
+            setDeleteConfirm(null);
+          }
+        }}
+        title="Eliminar Evidencia"
+        description={`¿Estás seguro de eliminar la evidencia "${deleteConfirm?.title}"?`}
+        impactMessage="Esta evidencia se eliminará permanentemente de la carpeta de cumplimiento NOM-035."
+        variant="destructive"
+      />
     </div>
   );
 }

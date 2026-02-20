@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Trash2, Save } from "lucide-react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function JobProfileManagement() {
   const [selectedPositionId, setSelectedPositionId] = useState<number | null>(null);
@@ -16,6 +17,7 @@ export default function JobProfileManagement() {
     requiredLevel: "basico" as "basico" | "intermedio" | "avanzado" | "experto",
     description: "",
   });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
 
   const { data: positionsData } = trpc.employees.getPositions.useQuery();
   const { data: profiles, refetch } = trpc.jobProfiles.getByPosition.useQuery(
@@ -66,10 +68,8 @@ export default function JobProfileManagement() {
     });
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("¿Estás seguro de eliminar esta competencia?")) {
-      deleteMutation.mutate({ id });
-    }
+  const handleDelete = (id: number, name: string) => {
+    setDeleteConfirm({ id, name });
   };
 
   return (
@@ -222,7 +222,7 @@ export default function JobProfileManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(profile.id)}
+                              onClick={() => handleDelete(profile.id, profile.competencyName)}
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -245,6 +245,21 @@ export default function JobProfileManagement() {
           </Card>
         </>
       )}
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteMutation.mutate({ id: deleteConfirm.id });
+            setDeleteConfirm(null);
+          }
+        }}
+        title="Eliminar Competencia"
+        description={`¿Estás seguro de eliminar la competencia "${deleteConfirm?.name}"?`}
+        impactMessage="Esta competencia se eliminará del perfil del puesto."
+        variant="destructive"
+      />
     </div>
   );
 }

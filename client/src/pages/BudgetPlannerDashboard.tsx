@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { DollarSign, TrendingUp, Users, Target } from "lucide-react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function BudgetPlannerDashboard() {
   const { data: scenarios, refetch } = trpc.budgetPlanner.getScenarios.useQuery();
@@ -35,6 +36,7 @@ export default function BudgetPlannerDashboard() {
   const [scenarioDescription, setScenarioDescription] = useState("");
   const [totalBudget, setTotalBudget] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<Set<number>>(new Set());
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
 
   const handleEmployeeToggle = (employeeId: number) => {
     const newSet = new Set(selectedEmployees);
@@ -238,7 +240,7 @@ export default function BudgetPlannerDashboard() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => deleteScenario.mutate({ scenarioId: scenario.id })}
+                    onClick={() => setDeleteConfirm({ id: scenario.id, name: scenario.scenarioName })}
                   >
                     Eliminar
                   </Button>
@@ -248,6 +250,21 @@ export default function BudgetPlannerDashboard() {
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            deleteScenario.mutate({ scenarioId: deleteConfirm.id });
+            setDeleteConfirm(null);
+          }
+        }}
+        title="Eliminar Escenario Presupuestario"
+        description={`¿Estás seguro de eliminar el escenario "${deleteConfirm?.name}"?`}
+        impactMessage="Se eliminarán todas las proyecciones y ajustes salariales asociados."
+        variant="destructive"
+      />
     </div>
   );
 }
