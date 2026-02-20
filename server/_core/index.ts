@@ -42,7 +42,7 @@ import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job
 import { initializeWebSocket } from "./websocket";
 import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
 import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
-import { testAuthBypass, createTestAuthEndpoint, createTestLogoutEndpoint } from "./test-auth";
+
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -102,22 +102,7 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   
-  // Test authentication endpoints (only in TEST_MODE)
-  console.log('[SERVER INIT] TEST_MODE environment variable:', process.env.TEST_MODE);
-  console.log('[SERVER INIT] All environment variables:', Object.keys(process.env).filter(k => k.includes('TEST')));
-  
-  if (process.env.TEST_MODE === 'true') {
-    console.log('[TEST MODE] ✅ Test authentication endpoints ENABLED');
-    console.log('[TEST MODE] Registering POST /api/test/auth/token');
-    console.log('[TEST MODE] Registering POST /api/test/auth/logout');
-    app.post('/api/test/auth/token', createTestAuthEndpoint());
-    app.post('/api/test/auth/logout', createTestLogoutEndpoint());
-    // Aplicar bypass de autenticación a todas las rutas
-    app.use(testAuthBypass);
-    console.log('[TEST MODE] Test auth bypass middleware applied');
-  } else {
-    console.log('[SERVER INIT] ⚠️ TEST_MODE is NOT enabled (value:', process.env.TEST_MODE, ')');
-  }
+
   
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);

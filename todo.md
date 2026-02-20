@@ -5693,3 +5693,32 @@
 ---
 
 **Estado del sistema**: 100% operacional en producción, testing E2E pendiente de completar
+
+
+---
+
+## SESIÓN 11 - 20 FEB 2026: Limpieza de Código Obsoleto de Testing
+
+### Fase 1: Identificar y Eliminar Archivos Obsoletos
+- [x] Eliminar server/_core/test-auth.ts (sistema de bypass obsoleto) - 2,373 bytes
+- [x] Eliminar tests/fixtures/auth.ts (fixture antiguo) - 2,136 bytes
+- [x] Eliminar tests/fixtures/mock-auth.ts (mock no funcional) - 1,557 bytes
+- [x] Total eliminado: 3 archivos, 5,066 bytes
+
+### Fase 2: Limpiar Código de TEST_MODE en Servidor
+- [x] Eliminar logging de TEST_MODE en server/_core/index.ts (líneas 105-120)
+- [x] Eliminar endpoints /api/test/* en server/_core/index.ts
+- [x] Limpiar imports y referencias a test-auth (línea 45)
+- [x] Resultado: ~40 líneas de código eliminadas
+
+### Fase 3: Actualizar Configuración de Playwright
+- [x] Simplificar playwright.config.ts (eliminar TEST_MODE)
+- [x] Restaurar reuseExistingServer: true
+- [x] Actualizar webServer config (líneas 117-126)
+- [x] Resultado: Configuración simplificada, ~10 líneas modificadas
+
+### Checkpoint Final
+- [x] Documentar limpieza: docs/RESUMEN_LIMPIEZA_CODIGO_TESTING.md
+- [x] Actualizar todo.md con resultados
+- [ ] Guardar checkpoint con código limpio
+- [x] Errores TypeScript: 705 → 704 (reducción de 1 error)
