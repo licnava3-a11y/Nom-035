@@ -5523,3 +5523,39 @@
 - [ ] Guardar checkpoint con mejoras en fixture
 - [ ] Priorizar correcciones críticas (guards de null + queries obsoletas)
 - [ ] Retomar tests E2E después de correcciones críticas
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 9) - ESCENARIO 1: CALIDAD DEL CÓDIGO
+
+### Fase 1: Agregar Guards de Null para DB (1-2 horas)
+- [ ] Identificar todos los archivos con error 'db possibly null'
+- [ ] Crear patrón estándar de guard: `if (!db) throw new Error('Database not initialized')`
+- [ ] Aplicar guards en archivos del servidor (server/*.ts)
+- [ ] Aplicar guards en archivos de routers (server/routers/*.ts)
+- [ ] Aplicar guards en archivos de jobs (server/jobs/*.ts)
+- [ ] Validar reducción de errores TypeScript (67 errores)
+- [ ] Ejecutar tests unitarios para validar cambios
+
+### Fase 2: Actualizar Queries Obsoletas (2-3 horas)
+- [ ] Identificar queries que usan 'riskLevel' (campo inexistente)
+- [ ] Identificar queries que usan 'employeeId' (campo inexistente)
+- [ ] Identificar queries que usan 'severity' (campo inexistente)
+- [ ] Revisar schema actual para identificar campos correctos
+- [ ] Actualizar queries para usar campos correctos
+- [ ] Validar que queries funcionan correctamente
+- [ ] Verificar reducción de errores TypeScript (726 → ~600)
+
+### Fase 3: Simplificar Estrategia de Testing E2E (2-3 horas)
+- [ ] Evaluar 3 opciones: Continuar Playwright / Migrar Cypress / Mocks
+- [ ] Implementar Opción C (mocks) como más simple y rápida
+- [ ] Mockear trpc.auth.me.useQuery() en tests
+- [ ] Actualizar fixture de autenticación para usar mocks
+- [ ] Ejecutar suite completa de 180 tests
+- [ ] Generar reporte HTML de resultados
+- [ ] Documentar nueva estrategia de testing
+
+### Checkpoint Final
+- [ ] Guardar checkpoint con todas las correcciones
+- [ ] Documentar cambios realizados en RESUMEN_SESION_9.md
+- [ ] Actualizar RESUMEN_EJECUTIVO con resultados finales
+- [ ] Verificar que sistema está 100% funcional
