@@ -5449,3 +5449,39 @@
 - [x] Actualizar todo.md con resultados
 - [ ] Guardar checkpoint después de resolver UI
 - [ ] Generar reporte de cobertura de tests E2E exitosos
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 7)
+
+### Fase 1: Resolver Visualización de Usuario en UI
+- [x] Investigar componente que muestra nombre de usuario en UI
+  * DashboardLayout muestra user?.name en sidebar (líneas 637-648)
+- [x] Verificar flujo de autenticación en frontend (useAuth hook)
+  * useAuth usa trpc.auth.me.useQuery() para obtener usuario
+- [x] Revisar cómo se detecta la sesión después del reload
+  * Query se ejecuta después del montaje del componente
+- [x] Ajustar fixture para esperar a que query se complete
+  * Agregado waitForResponse para /api/trpc/auth.me
+  * Agregado waitForTimeout(1000) para renderizado de React
+- [ ] Ejecutar test E2E para validar corrección (pendiente)
+
+### Fase 2: Agregar Guards de Null para DB
+- [ ] Identificar archivos con error 'db possibly null' (67 ubicaciones)
+- [ ] Implementar patrón: `if (!db) throw new Error('Database not initialized')`
+- [ ] Validar reducción de errores TypeScript
+- [ ] Ejecutar tests unitarios para validar cambios
+
+### Fase 3: Actualizar Queries Obsoletas
+- [ ] Buscar queries que usan riskLevel (campo inexistente)
+- [ ] Buscar queries que usan employeeId (campo inexistente)
+- [ ] Buscar queries que usan severity (campo inexistente)
+- [ ] Actualizar queries para usar campos correctos del schema
+- [ ] Validar que queries funcionan correctamente
+- [ ] Verificar reducción de errores TypeScript (726 → ~600)
+
+### Checkpoint Final
+- [x] Documentar sesión 7: docs/RESUMEN_SESION_7.md
+- [x] Actualizar todo.md con resultados
+- [ ] Guardar checkpoint después de validar fixture
+- [ ] Ejecutar suite completa de tests E2E
+- [ ] Generar reporte de cobertura de tests

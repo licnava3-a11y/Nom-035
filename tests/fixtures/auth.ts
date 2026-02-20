@@ -39,9 +39,19 @@ export const test = base.extend<AuthFixtures>({
     // Esperar a que la aplicación cargue
     await page.waitForLoadState('networkidle');
 
+    // Esperar a que la query de autenticación se complete
+    // El frontend hace un request a /api/trpc/auth.me para obtener el usuario
+    await page.waitForResponse(
+      response => response.url().includes('/api/trpc/auth.me') && response.status() === 200,
+      { timeout: 10000 }
+    );
+
+    // Esperar un momento adicional para que React renderice el componente
+    await page.waitForTimeout(1000);
+
     // Verificar que estamos autenticados
-    // Esperar a que aparezca el nombre del usuario en la UI
-    await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible({ timeout: 10000 });
+    // Buscar el nombre del usuario en el sidebar (DashboardLayout)
+    await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible({ timeout: 5000 });
 
     await use(page);
 

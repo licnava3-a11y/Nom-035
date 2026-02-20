@@ -182,25 +182,25 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 13157,
+                      "duration": 13442,
                       "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Usuario de Prueba E2E')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Usuario de Prueba E2E')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Usuario de Prueba E2E')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Usuario de Prueba E2E')\u001b[22m\n\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:62)",
+                        "message": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"",
+                        "stack": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:16)",
                         "location": {
                           "file": "/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts",
-                          "column": 62,
+                          "column": 16,
                           "line": 44
                         },
-                        "snippet": "\u001b[90m   at \u001b[39m../fixtures/auth.ts:44\n\n  42 |     // Verificar que estamos autenticados\n  43 |     // Esperar a que aparezca el nombre del usuario en la UI\n> 44 |     await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible({ timeout: 10000 });\n     |                                                              ^\n  45 |\n  46 |     await use(page);\n  47 |"
+                        "snippet": "\u001b[90m   at \u001b[39m../fixtures/auth.ts:44\n\n  42 |     // Esperar a que la query de autenticación se complete\n  43 |     // El frontend hace un request a /api/trpc/auth.me para obtener el usuario\n> 44 |     await page.waitForResponse(\n     |                ^\n  45 |       response => response.url().includes('/api/trpc/auth.me') && response.status() === 200,\n  46 |       { timeout: 10000 }\n  47 |     );"
                       },
                       "errors": [
                         {
                           "location": {
                             "file": "/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts",
-                            "column": 62,
+                            "column": 16,
                             "line": 44
                           },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Usuario de Prueba E2E')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Usuario de Prueba E2E')\u001b[22m\n\n\n   at ../fixtures/auth.ts:44\n\n  42 |     // Verificar que estamos autenticados\n  43 |     // Esperar a que aparezca el nombre del usuario en la UI\n> 44 |     await expect(page.locator('text=Usuario de Prueba E2E')).toBeVisible({ timeout: 10000 });\n     |                                                              ^\n  45 |\n  46 |     await use(page);\n  47 |\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:62)"
+                          "message": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"\n\n   at ../fixtures/auth.ts:44\n\n  42 |     // Esperar a que la query de autenticación se complete\n  43 |     // El frontend hace un request a /api/trpc/auth.me para obtener el usuario\n> 44 |     await page.waitForResponse(\n     |                ^\n  45 |       response => response.url().includes('/api/trpc/auth.me') && response.status() === 200,\n  46 |       { timeout: 10000 }\n  47 |     );\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:16)"
                         }
                       ],
                       "stdout": [
@@ -210,7 +210,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-20T15:11:08.601Z",
+                      "startTime": "2026-02-20T15:25:51.106Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -231,7 +231,7 @@
                       ],
                       "errorLocation": {
                         "file": "/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts",
-                        "column": 62,
+                        "column": 16,
                         "line": 44
                       }
                     }
@@ -251,8 +251,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-20T15:10:59.372Z",
-    "duration": 22663.307,
+    "startTime": "2026-02-20T15:25:40.516Z",
+    "duration": 24651.569000000003,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
