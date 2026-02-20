@@ -27,8 +27,11 @@ export const budgetPlannerRouter = router({
         ),
       })
     )
-    .mutation(async ({ input, ctx }) => {
-      const db = await getDb();
+        .mutation(async ({ input, ctx }) => {
+      const db = getDb();
+      if (!db) {
+        throw new Error('Database not initialized');
+      }
 
       // Calcular métricas del escenario
       const adjustments = input.employeeAdjustments.map((emp) => ({

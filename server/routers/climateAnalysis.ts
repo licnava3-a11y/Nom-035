@@ -30,6 +30,7 @@ export const climateAnalysisRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       const [survey] = await db.insert(organizationalClimateSurveys).values({
         title: input.title,
@@ -45,6 +46,7 @@ export const climateAnalysisRouter = router({
   // Obtener encuestas activas
   getActiveSurveys: protectedProcedure.query(async () => {
     const db = await getDb();
+    if (!db) throw new Error('Database not initialized');
     
     const surveys = await db
       .select()
@@ -69,6 +71,7 @@ export const climateAnalysisRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       await db.insert(climateSurveyResponses).values({
         surveyId: input.surveyId,
@@ -88,6 +91,7 @@ export const climateAnalysisRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       // Buscar análisis existente para el periodo
       const [existingAnalysis] = await db
@@ -191,6 +195,7 @@ export const climateAnalysisRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       const trends = await db
         .select()
@@ -214,6 +219,7 @@ export const climateAnalysisRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       // Obtener análisis de clima del periodo
       const [climate] = await db

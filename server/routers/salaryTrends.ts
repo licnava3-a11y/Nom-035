@@ -11,6 +11,7 @@ import { sql } from "drizzle-orm";
 export const salaryTrendsRouter = router({
   getTrendsByDepartment: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     // Obtener histórico de últimos 12 meses por departamento
     const trends = await db.execute(sql`
@@ -30,6 +31,7 @@ export const salaryTrendsRouter = router({
 
   getTrendsByPosition: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     // Obtener histórico de últimos 12 meses por puesto
     const trends = await db.execute(sql`
@@ -49,6 +51,7 @@ export const salaryTrendsRouter = router({
 
   getMarketProjections: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     // Calcular proyecciones basadas en tendencias históricas
     const projections = await db.execute(sql`
@@ -89,6 +92,7 @@ export const salaryTrendsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       let query = sql`
         SELECT 
@@ -132,6 +136,7 @@ export const salaryTrendsRouter = router({
 
   getDepartmentSummary: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     const summary = await db.execute(sql`
       SELECT 

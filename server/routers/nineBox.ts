@@ -86,6 +86,7 @@ export const nineBoxRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         // Calcular cuadrante y etiqueta automáticamente
         const { quadrant, label, developmentPlan } = calculateQuadrant(input.performanceScore, input.potentialScore);
@@ -129,6 +130,7 @@ export const nineBoxRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         // Subquery para obtener ID de última evaluación por empleado
         const latestEvaluations = db
@@ -200,6 +202,7 @@ export const nineBoxRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         // Subquery para última evaluación por empleado
         const latestEvaluations = db
@@ -264,6 +267,7 @@ export const nineBoxRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         const evaluations = await db
           .select({
@@ -307,6 +311,7 @@ export const nineBoxRouter = router({
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         // Obtener evaluación actual
         const [current] = await db
@@ -360,6 +365,7 @@ export const nineBoxRouter = router({
     .mutation(async ({ input }) => {
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         await db
           .delete(nineBoxEvaluations)

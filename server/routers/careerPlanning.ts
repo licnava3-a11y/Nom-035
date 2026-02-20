@@ -32,6 +32,9 @@ export const careerPlanningRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) {
+        throw new Error('Database not initialized');
+      }
       
       const [path] = await db.insert(careerPaths).values({
         pathName: input.pathName,

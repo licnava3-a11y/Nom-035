@@ -19,6 +19,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       const { page, pageSize, search, isActive } = input;
       const offset = (page - 1) * pageSize;
 
@@ -79,6 +80,7 @@ export const departmentsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       // @ts-expect-error - getDb() siempre retorna instancia válida
       const [department] = await db
         .select()
@@ -110,6 +112,7 @@ export const departmentsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Verificar código único
       // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -157,6 +160,7 @@ export const departmentsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       const { id, ...updates } = input;
 
       // Verificar que existe
@@ -340,6 +344,7 @@ export const departmentsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Verificar que no tenga empleados asignados
       // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -378,6 +383,7 @@ export const departmentsRouter = router({
   // Obtener jerarquía organizacional
   getHierarchy: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     // @ts-expect-error - getDb() siempre retorna instancia válida
     const allDepartments = await db
@@ -440,6 +446,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Construir condiciones de filtrado
       const conditions = [eq(departments.isActive, true)];
@@ -482,6 +489,7 @@ export const departmentsRouter = router({
     .input(z.object({ date: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Obtener el estado de cada departamento en la fecha especificada
       // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -549,6 +557,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Construir condiciones de filtrado
       const conditions: any[] = [];
@@ -590,6 +599,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Construir condiciones de filtrado
       const conditions: any[] = [];
@@ -642,6 +652,7 @@ export const departmentsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Verificar que el departamento destino existe
       // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -754,6 +765,7 @@ export const departmentsRouter = router({
    */
   getActiveAlerts: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     if (!db) throw new Error("Database not available");
 
     // Obtener departamentos activos sin manager
@@ -808,6 +820,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       if (!db) throw new Error("Database not available");
 
       const { page, pageSize } = input;
@@ -862,6 +875,7 @@ export const departmentsRouter = router({
    */
   exportAll: protectedProcedure.mutation(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     if (!db) throw new Error("Database not available");
 
     const XLSX = await import("xlsx");
@@ -994,6 +1008,7 @@ export const departmentsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       let conditions = [];
       if (input.status) {
@@ -1028,6 +1043,7 @@ export const departmentsRouter = router({
    */
   generatePredictiveAlertsPDF: protectedProcedure.mutation(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     if (!db) throw new Error("Database not available");
 
     // Obtener alertas activas ordenadas por riesgo

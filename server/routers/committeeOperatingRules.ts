@@ -41,6 +41,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Crear la base de funcionamiento principal
@@ -135,6 +136,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Obtener el número de versión actual
@@ -218,6 +220,7 @@ export const committeeOperatingRulesRouter = router({
    */
   list: protectedProcedure.query(async () => {
     const db = getDb();
+    if (!db) throw new Error('Database not initialized');
 
     try {
       const rules = await db
@@ -254,6 +257,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const [rule] = await db
@@ -286,6 +290,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ operatingRuleId: z.number() }))
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const versions = await db
@@ -321,6 +326,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ versionId: z.number() }))
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const [version] = await db
@@ -359,6 +365,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Obtener la versión a restaurar
@@ -465,6 +472,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const [version1] = await db
@@ -523,6 +531,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         await db
@@ -570,6 +579,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Obtener la base de funcionamiento con información del creador y aprobador
@@ -698,6 +708,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Verificar que la base de funcionamiento existe
@@ -767,6 +778,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Verificar que la aprobación existe y pertenece al usuario
@@ -866,6 +878,7 @@ export const committeeOperatingRulesRouter = router({
     .input(z.object({ operatingRuleId: z.number() }))
     .query(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const approvals = await db
@@ -917,6 +930,7 @@ export const committeeOperatingRulesRouter = router({
    */
   getMyPendingApprovals: protectedProcedure.query(async ({ ctx }) => {
     const db = getDb();
+    if (!db) throw new Error('Database not initialized');
 
     try {
       const pendingApprovals = await db
@@ -964,6 +978,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Obtener la aprobación
@@ -1088,6 +1103,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Construir condiciones de filtro
@@ -1306,6 +1322,7 @@ export const committeeOperatingRulesRouter = router({
     .query(async ({ input }) => {
       try {
         const db = await getDb();
+        if (!db) throw new Error('Database not initialized');
         const { operatingRuleId, eventTypes, startDate, endDate, userId, limit, offset } = input;
 
         // Obtener eventos de versiones (creación, actualización, restauración)
@@ -1435,6 +1452,7 @@ export const committeeOperatingRulesRouter = router({
     .query(async ({ input }) => {
       const { query, status, dateFrom, dateTo, limit, offset } = input;
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Buscar en bases de funcionamiento
@@ -1554,6 +1572,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Calcular rango de fechas del mes
@@ -1651,6 +1670,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const now = new Date();
@@ -1723,6 +1743,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         // Verificar que la aprobación existe
@@ -1770,6 +1791,7 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ input }) => {
       const db = getDb();
+      if (!db) throw new Error('Database not initialized');
 
       try {
         const now = new Date();

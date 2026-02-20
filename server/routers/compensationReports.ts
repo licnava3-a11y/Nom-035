@@ -19,6 +19,7 @@ export const compensationReportsRouter = router({
     }).optional().default({}))
     .mutation(async ({ ctx, input }) => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     try {
       // Obtener datos de nómina
@@ -230,6 +231,7 @@ export const compensationReportsRouter = router({
     }).optional().default({}))
     .query(async ({ input }) => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     const reports = await db.query.compensationReportsHistory.findMany({
       orderBy: (reports, { desc }) => [desc(reports.reportDate)],
       limit: input?.limit || 20,

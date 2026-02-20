@@ -14,6 +14,7 @@ export const salaryImpactSimulatorRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Obtener datos del empleado
       const employee = await db.query.employees.findFirst({

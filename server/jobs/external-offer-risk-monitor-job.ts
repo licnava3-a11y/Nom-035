@@ -16,6 +16,7 @@ export function startExternalOfferRiskMonitorJob() {
 
     try {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Obtener empleados con datos de nómina y rotación
       const employees = await db.execute(sql`

@@ -12,6 +12,7 @@ import { eq, desc, and, sql } from "drizzle-orm";
 export const externalOfferAlertsRouter = router({
   getActiveAlerts: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     
     const alerts = await db
       .select()
@@ -30,6 +31,7 @@ export const externalOfferAlertsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       const alerts = await db
         .select()
@@ -49,6 +51,7 @@ export const externalOfferAlertsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       await db
         .update(externalOfferRiskAlerts)
@@ -71,6 +74,7 @@ export const externalOfferAlertsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       await db
         .update(externalOfferRiskAlerts)
@@ -86,6 +90,7 @@ export const externalOfferAlertsRouter = router({
 
   getAlertStats: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     const stats = await db.execute(sql`
       SELECT 
@@ -104,6 +109,7 @@ export const externalOfferAlertsRouter = router({
 
   getAlertsByDepartment: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     const byDept = await db.execute(sql`
       SELECT 

@@ -11,6 +11,7 @@ export const salaryEquityRouter = router({
   // Generar nuevo análisis de equidad salarial
   generateAnalysis: protectedProcedure.mutation(async ({ ctx }) => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     
     // Obtener datos de nómina con información de empleados
     const payrollRecords = await db
@@ -208,6 +209,7 @@ export const salaryEquityRouter = router({
   // Obtener último análisis
   getLatestAnalysis: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     const [analysis] = await db
       .select()
       .from(salaryEquityAnalysis)
@@ -228,6 +230,7 @@ export const salaryEquityRouter = router({
   // Obtener historial de análisis
   getAnalysisHistory: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     const analyses = await db
       .select()
       .from(salaryEquityAnalysis)
@@ -250,6 +253,7 @@ export const salaryEquityRouter = router({
     .input(salaryEquityValidators.generateEquityReport)
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       const [analysis] = await db
         .select()
