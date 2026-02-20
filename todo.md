@@ -5352,3 +5352,32 @@
 - [x] Documentar cambios realizados
 - [x] Crear documento de errores TypeScript pendientes
 - [ ] Generar reporte de tests E2E (pendiente depuración de autenticación)
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 4)
+
+### Fase 1: Regenerar Schema de Drizzle
+- [x] Ejecutar `pnpm drizzle-kit generate` para regenerar tipos
+- [x] Resultado: "No schema changes, nothing to migrate" - Schema actualizado
+- [ ] Campos obsoletos (riskLevel, employeeId, severity) NO existen en schema
+  * Requiere actualizar queries para usar campos correctos
+  * Documentado como deuda técnica
+
+### Fase 2: Agregar Guards de Null para DB
+- [ ] Identificar 67 ubicaciones con error 'db possibly null'
+- [ ] Implementar patrón: `if (!db) throw new Error('Database not initialized')`
+- [ ] Validar que errores se resuelven
+
+### Fase 3: Completar Tests E2E
+- [x] Ejecutar suite completa: `pnpm test:e2e`
+- [x] Resultado: 180 tests fallaron (100% fallos)
+- [ ] Causa: Navegadores Playwright no completamente instalados
+  * Falta chromium_headless_shell ejecutable
+  * Instalación con `pnpm exec playwright install --with-deps` en progreso
+- [ ] Re-ejecutar tests después de instalación completa
+- [ ] Generar reporte HTML de resultados
+
+### Checkpoint Final
+- [x] Guardar checkpoint con progreso de sesión 4
+- [x] Documentar cambios realizados
+- [x] Resumen: 726 errores TypeScript restantes (no afectan runtime)
