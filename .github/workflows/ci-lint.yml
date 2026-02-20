@@ -1,0 +1,92 @@
+name: Lint & Format Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: ESLint Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm exec eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0
+        continue-on-error: true
+        id: eslint
+
+      - name: Comment PR with lint results
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `## 🔍 ESLint Check Results\n\n❌ ESLint found issues in your code.\n\nRun \`pnpm exec eslint . --ext .ts,.tsx,.js,.jsx\` locally to see detailed warnings and errors.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+  format:
+    name: Prettier Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check code formatting
+        run: pnpm exec prettier --check "**/*.{ts,tsx,js,jsx,json,css,md}"
+        continue-on-error: true
+        id: prettier
+
+      - name: Comment PR with format results
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `## 💅 Prettier Format Check Results\n\n❌ Code formatting issues found.\n\nRun \`pnpm exec prettier --write "**/*.{ts,tsx,js,jsx,json,css,md}"\` to auto-format your code.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

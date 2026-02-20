@@ -25,7 +25,7 @@ export const turnoverManagementRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
 
-      const records = await db
+      const records = await db!
         .select({
           id: employeeTurnoverHistory.id,
           userId: employeeTurnoverHistory.userId,
@@ -34,7 +34,7 @@ export const turnoverManagementRouter = router({
           wasHighRisk: employeeTurnoverHistory.wasHighRisk,
           riskScoreAtExit: employeeTurnoverHistory.riskScoreAtExit,
           createdAt: employeeTurnoverHistory.createdAt,
-          userName: users.nombre,
+          userName: users.name,
           userEmail: users.email,
         })
         .from(employeeTurnoverHistory)
@@ -43,7 +43,7 @@ export const turnoverManagementRouter = router({
         .limit(input.limit)
         .offset(input.offset);
 
-      const totalCount = await db
+      const totalCount = await db!
         .select({ count: employeeTurnoverHistory.id })
         .from(employeeTurnoverHistory);
 
@@ -77,7 +77,7 @@ export const turnoverManagementRouter = router({
       const db = await getDb();
 
       // Validar que el empleado existe
-      const employee = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
+      const employee = await db!.select().from(users).where(eq(users.id, input.userId)).limit(1);
 
       if (employee.length === 0) {
         throw new TRPCError({
@@ -93,7 +93,7 @@ export const turnoverManagementRouter = router({
       const sevenDaysAfter = new Date(exitDate);
       sevenDaysAfter.setDate(sevenDaysAfter.getDate() + 7);
 
-      const existingRecords = await db
+      const existingRecords = await db!
         .select()
         .from(employeeTurnoverHistory)
         .where(
@@ -119,7 +119,7 @@ export const turnoverManagementRouter = router({
       const wasHighRisk = input.riskScoreAtExit >= 70;
 
       // Insertar registro
-      const [newRecord] = await db
+      const [newRecord] = await db!
         .insert(employeeTurnoverHistory)
         .values({
           userId: input.userId,
@@ -154,7 +154,7 @@ export const turnoverManagementRouter = router({
       const db = await getDb();
 
       // Verificar que el registro existe
-      const existingRecord = await db
+      const existingRecord = await db!
         .select()
         .from(employeeTurnoverHistory)
         .where(eq(employeeTurnoverHistory.id, input.id))
@@ -199,7 +199,7 @@ export const turnoverManagementRouter = router({
       const db = await getDb();
 
       // Verificar que el registro existe
-      const existingRecord = await db
+      const existingRecord = await db!
         .select()
         .from(employeeTurnoverHistory)
         .where(eq(employeeTurnoverHistory.id, input.id))

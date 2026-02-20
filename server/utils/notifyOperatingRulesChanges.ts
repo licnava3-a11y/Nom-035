@@ -21,7 +21,7 @@ export async function notifyOperatingRulesChanges(data: NotificationData) {
 
   try {
     // Obtener todos los miembros activos del comité
-    const committeeUserIds = await db
+    const committeeUserIds = await db!
       .select({ userId: committeeMembers.userId })
       .from(committeeMembers)
       .where(eq(committeeMembers.isActive, true));

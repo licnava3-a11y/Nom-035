@@ -1,0 +1,72 @@
+name: TypeScript Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  typescript-check:
+    name: TypeScript Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run TypeScript compiler
+        run: pnpm exec tsc --noEmit
+        continue-on-error: true
+        id: tsc
+
+      - name: Count TypeScript errors
+        id: count-errors
+        run: |
+          ERROR_COUNT=$(pnpm exec tsc --noEmit 2>&1 | grep -c "error TS" || echo "0")
+          echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "TypeScript errors found: $ERROR_COUNT"
+
+      - name: Comment PR with TypeScript results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const errorCount = '${{ steps.count-errors.outputs.error_count }}';
+            let message = '## 📝 TypeScript Check Results\n\n';
+            
+            if (errorCount === '0') {
+              message += '✅ No TypeScript errors found!\n';
+            } else {
+              message += `⚠️ Found ${errorCount} TypeScript errors\n\n`;
+              message += '**Action Required**: Please fix TypeScript errors before merging.\n';
+              message += 'Run `pnpm exec tsc --noEmit` locally to see detailed error messages.\n';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: Fail if TypeScript errors found
+        if: steps.count-errors.outputs.error_count != '0'
+        run: |
+          echo "❌ TypeScript validation failed with ${{ steps.count-errors.outputs.error_count }} errors"
+          exit 1
