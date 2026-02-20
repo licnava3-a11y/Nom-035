@@ -1812,6 +1812,8 @@ export const nom035Cases = mysqlTable("nom035_cases", {
   surveyResponseId: int("survey_response_id"),
   riskLevel: mysqlEnum("risk_level", ["nulo", "bajo", "medio", "alto", "muy_alto"]).notNull(),
   riskCategory: varchar("risk_category", { length: 255 }), // Category of psychosocial risk
+  source: varchar("source", { length: 100 }), // Origen del caso: "manual", "sentiment_analysis_auto", "survey"
+  reportedBy: int("reported_by").references(() => users.id), // Usuario que reportó el caso
   description: text("description").notNull(),
   identifiedDate: date("identified_date").notNull(),
   deadline: date("deadline").notNull(), // Fecha límite para atención
