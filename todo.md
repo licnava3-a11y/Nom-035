@@ -5485,3 +5485,41 @@
 - [ ] Guardar checkpoint después de validar fixture
 - [ ] Ejecutar suite completa de tests E2E
 - [ ] Generar reporte de cobertura de tests
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 8)
+
+### Fase 1: Validar Fixture Corregido
+- [x] Detener servidor actual para liberar puerto 3000
+- [x] Ejecutar test E2E (intento 1): Fixture con waitForResponse
+  * Resultado: ❌ Fallido - Cookies no persisten después de reload
+  * Error: TimeoutError esperando /api/trpc/auth.me
+- [x] Análisis profundo del problema de cookies
+  * Documento creado: docs/DEBUG_E2E_COOKIES.md
+  * Causa: context.request.post() no comparte cookies con navegación
+- [x] Implementar Solución 3: Navegar a /dashboard en lugar de reload
+- [x] Ejecutar test E2E (intento 2): Fixture con navegación
+  * Resultado: ⏳ Timeout (más de 2 minutos)
+- [ ] Probar soluciones alternativas (establecer cookies manualmente)
+- [ ] Considerar enfoque alternativo (Cypress o simplificar estrategia)
+
+### Fase 2: Agregar Guards de Null para DB
+- [ ] Identificar archivos con error 'db possibly null' (67 ubicaciones)
+- [ ] Implementar patrón: `if (!db) throw new Error('Database not initialized')`
+- [ ] Validar reducción de errores TypeScript
+- [ ] Ejecutar tests unitarios para validar cambios
+
+### Fase 3: Actualizar Queries Obsoletas
+- [ ] Buscar queries que usan riskLevel (campo inexistente)
+- [ ] Buscar queries que usan employeeId (campo inexistente)
+- [ ] Buscar queries que usan severity (campo inexistente)
+- [ ] Actualizar queries para usar campos correctos del schema
+- [ ] Validar que queries funcionan correctamente
+- [ ] Verificar reducción de errores TypeScript (726 → ~600)
+
+### Checkpoint Final
+- [x] Documentar sesión 8: docs/RESUMEN_SESION_8.md
+- [x] Actualizar todo.md con resultados
+- [ ] Guardar checkpoint con mejoras en fixture
+- [ ] Priorizar correcciones críticas (guards de null + queries obsoletas)
+- [ ] Retomar tests E2E después de correcciones críticas

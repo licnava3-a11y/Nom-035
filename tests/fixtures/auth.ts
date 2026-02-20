@@ -33,8 +33,8 @@ export const test = base.extend<AuthFixtures>({
     const data = await response.json();
     console.log('[Test Auth] Authenticated as:', data.user.name);
 
-    // Recargar la página para que la aplicación detecte la nueva sesión
-    await page.reload();
+    // Navegar al dashboard en lugar de reload para que las cookies persistan
+    await page.goto('/dashboard');
 
     // Esperar a que la aplicación cargue
     await page.waitForLoadState('networkidle');

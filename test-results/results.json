@@ -182,7 +182,7 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 13442,
+                      "duration": 12724,
                       "error": {
                         "message": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"",
                         "stack": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:16)",
@@ -210,7 +210,7 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-20T15:25:51.106Z",
+                      "startTime": "2026-02-20T15:34:09.084Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -251,8 +251,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-20T15:25:40.516Z",
-    "duration": 24651.569000000003,
+    "startTime": "2026-02-20T15:33:59.983Z",
+    "duration": 22046.16,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,
