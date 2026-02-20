@@ -182,35 +182,31 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "failed",
-                      "duration": 12724,
+                      "duration": 4681,
                       "error": {
-                        "message": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"",
-                        "stack": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:16)",
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')\nExpected: visible\nTimeout: 2000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')\nExpected: visible\nTimeout: 2000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')\u001b[22m\n\n    at /home/ubuntu/nom035_moodle_platform/tests/e2e/busqueda-confirmaciones.spec.ts:19:96",
                         "location": {
-                          "file": "/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts",
-                          "column": 16,
-                          "line": 44
+                          "file": "/home/ubuntu/nom035_moodle_platform/tests/e2e/busqueda-confirmaciones.spec.ts",
+                          "column": 96,
+                          "line": 19
                         },
-                        "snippet": "\u001b[90m   at \u001b[39m../fixtures/auth.ts:44\n\n  42 |     // Esperar a que la query de autenticación se complete\n  43 |     // El frontend hace un request a /api/trpc/auth.me para obtener el usuario\n> 44 |     await page.waitForResponse(\n     |                ^\n  45 |       response => response.url().includes('/api/trpc/auth.me') && response.status() === 200,\n  46 |       { timeout: 10000 }\n  47 |     );"
+                        "snippet": "  17 |\n  18 |     // Verificar que el dialog de búsqueda se abre\n> 19 |     await expect(page.locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')).toBeVisible({ timeout: 2000 });\n     |                                                                                                ^\n  20 |\n  21 |     // Verificar que el input de búsqueda tiene focus\n  22 |     const searchInput = page.locator('input[placeholder*=\"Buscar\"], input[type=\"search\"]');"
                       },
                       "errors": [
                         {
                           "location": {
-                            "file": "/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts",
-                            "column": 16,
-                            "line": 44
+                            "file": "/home/ubuntu/nom035_moodle_platform/tests/e2e/busqueda-confirmaciones.spec.ts",
+                            "column": 96,
+                            "line": 19
                           },
-                          "message": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\"\n\n   at ../fixtures/auth.ts:44\n\n  42 |     // Esperar a que la query de autenticación se complete\n  43 |     // El frontend hace un request a /api/trpc/auth.me para obtener el usuario\n> 44 |     await page.waitForResponse(\n     |                ^\n  45 |       response => response.url().includes('/api/trpc/auth.me') && response.status() === 200,\n  46 |       { timeout: 10000 }\n  47 |     );\n    at Object.authenticatedPage (/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts:44:16)"
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')\nExpected: visible\nTimeout: 2000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')\u001b[22m\n\n\n  17 |\n  18 |     // Verificar que el dialog de búsqueda se abre\n> 19 |     await expect(page.locator('[role=\"dialog\"]:has-text(\"Buscar\"), [class*=\"search-dialog\"]')).toBeVisible({ timeout: 2000 });\n     |                                                                                                ^\n  20 |\n  21 |     // Verificar que el input de búsqueda tiene focus\n  22 |     const searchInput = page.locator('input[placeholder*=\"Buscar\"], input[type=\"search\"]');\n    at /home/ubuntu/nom035_moodle_platform/tests/e2e/busqueda-confirmaciones.spec.ts:19:96"
                         }
                       ],
-                      "stdout": [
-                        {
-                          "text": "[Test Auth] Authenticated as: Usuario de Prueba E2E\n"
-                        }
-                      ],
+                      "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-02-20T15:34:09.084Z",
+                      "startTime": "2026-02-20T17:14:22.391Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -230,9 +226,9 @@
                         }
                       ],
                       "errorLocation": {
-                        "file": "/home/ubuntu/nom035_moodle_platform/tests/fixtures/auth.ts",
-                        "column": 16,
-                        "line": 44
+                        "file": "/home/ubuntu/nom035_moodle_platform/tests/e2e/busqueda-confirmaciones.spec.ts",
+                        "column": 96,
+                        "line": 19
                       }
                     }
                   ],
@@ -251,8 +247,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-20T15:33:59.983Z",
-    "duration": 22046.16,
+    "startTime": "2026-02-20T17:14:10.518Z",
+    "duration": 17782.216,
     "expected": 0,
     "skipped": 0,
     "unexpected": 1,

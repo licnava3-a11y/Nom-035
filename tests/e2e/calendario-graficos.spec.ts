@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth';
+import { test, expect } from '../fixtures/mock-auth';
 
 /**
  * Test E2E: Calendario de Deadlines y Gráficos del Dashboard
@@ -9,7 +9,7 @@ import { test, expect } from '../fixtures/auth';
  */
 
 test.describe('Calendario de Deadlines', () => {
-  test.beforeEach(async ({ authenticatedPage: page }) => {
+  test.beforeEach(async ({ mockedAuthPage: page }) => {
     await page.goto('http://localhost:3000');
     await page.waitForLoadState('networkidle');
     
@@ -21,7 +21,7 @@ test.describe('Calendario de Deadlines', () => {
     }
   });
 
-  test('Navegación entre meses funciona correctamente', async ({ authenticatedPage: page }) => {
+  test('Navegación entre meses funciona correctamente', async ({ mockedAuthPage: page }) => {
     // Navegar al calendario
     await page.click('text=Calendario');
     await page.waitForURL('**/calendar');
@@ -47,7 +47,7 @@ test.describe('Calendario de Deadlines', () => {
     expect(backToMonth).toBe(currentMonth);
   });
 
-  test('Filtros por tipo de evento funcionan', async ({ authenticatedPage: page }) => {
+  test('Filtros por tipo de evento funcionan', async ({ mockedAuthPage: page }) => {
     await page.click('text=Calendario');
     await page.waitForURL('**/calendar');
 
@@ -75,7 +75,7 @@ test.describe('Calendario de Deadlines', () => {
     }
   });
 
-  test('Click en evento muestra detalles', async ({ authenticatedPage: page }) => {
+  test('Click en evento muestra detalles', async ({ mockedAuthPage: page }) => {
     await page.click('text=Calendario');
     await page.waitForURL('**/calendar');
 
@@ -92,7 +92,7 @@ test.describe('Calendario de Deadlines', () => {
     await expect(page.locator('text=Título, text=Descripción, text=Fecha')).toBeVisible();
   });
 
-  test('Eventos se renderizan en las fechas correctas', async ({ authenticatedPage: page }) => {
+  test('Eventos se renderizan en las fechas correctas', async ({ mockedAuthPage: page }) => {
     await page.click('text=Calendario');
     await page.waitForURL('**/calendar');
 
@@ -108,7 +108,7 @@ test.describe('Calendario de Deadlines', () => {
 });
 
 test.describe('Gráficos del Dashboard', () => {
-  test.beforeEach(async ({ authenticatedPage: page }) => {
+  test.beforeEach(async ({ mockedAuthPage: page }) => {
     await page.goto('http://localhost:3000');
     await page.waitForLoadState('networkidle');
     
@@ -124,7 +124,7 @@ test.describe('Gráficos del Dashboard', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('Gráficos de Chart.js se renderizan correctamente', async ({ authenticatedPage: page }) => {
+  test('Gráficos de Chart.js se renderizan correctamente', async ({ mockedAuthPage: page }) => {
     // Verificar que los canvas de Chart.js existen
     const charts = await page.locator('canvas').count();
     expect(charts).toBeGreaterThan(0);
@@ -140,7 +140,7 @@ test.describe('Gráficos del Dashboard', () => {
     expect(box!.height).toBeGreaterThan(100);
   });
 
-  test('Interacción con gráficos (hover) funciona', async ({ authenticatedPage: page }) => {
+  test('Interacción con gráficos (hover) funciona', async ({ mockedAuthPage: page }) => {
     // Esperar a que los gráficos carguen
     await page.waitForSelector('canvas', { timeout: 5000 });
 
@@ -155,7 +155,7 @@ test.describe('Gráficos del Dashboard', () => {
     await expect(firstCanvas).toBeVisible();
   });
 
-  test('Gráfico de casos por mes muestra datos correctos', async ({ authenticatedPage: page }) => {
+  test('Gráfico de casos por mes muestra datos correctos', async ({ mockedAuthPage: page }) => {
     // Navegar a métricas de casos
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Métricas de Casos');
@@ -171,7 +171,7 @@ test.describe('Gráficos del Dashboard', () => {
     await expect(page.locator('text=/\\d+/')).toBeVisible(); // Cualquier número
   });
 
-  test('Gráfico de distribución por tipo funciona', async ({ authenticatedPage: page }) => {
+  test('Gráfico de distribución por tipo funciona', async ({ mockedAuthPage: page }) => {
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Métricas de Casos');
     await page.waitForURL('**/cases-metrics');
@@ -184,7 +184,7 @@ test.describe('Gráficos del Dashboard', () => {
     await expect(page.locator('text=Acoso, text=Violencia, text=Estrés')).toBeVisible();
   });
 
-  test('Gráficos de NMX-025 se renderizan correctamente', async ({ authenticatedPage: page }) => {
+  test('Gráficos de NMX-025 se renderizan correctamente', async ({ mockedAuthPage: page }) => {
     // Navegar al dashboard principal
     await page.click('text=Dashboard, text=Inicio');
 
@@ -205,7 +205,7 @@ test.describe('Gráficos del Dashboard', () => {
     expect(nmxCharts).toBeGreaterThanOrEqual(3);
   });
 
-  test('Gráficos responden a cambios de datos', async ({ authenticatedPage: page }) => {
+  test('Gráficos responden a cambios de datos', async ({ mockedAuthPage: page }) => {
     await page.click('text=Prevención de Riesgos');
     await page.click('text=Métricas de Casos');
 
@@ -226,7 +226,7 @@ test.describe('Gráficos del Dashboard', () => {
 });
 
 test.describe('Compatibilidad Multi-Navegador', () => {
-  test('Dashboard funciona en diferentes viewports', async ({ authenticatedPage: page }) => {
+  test('Dashboard funciona en diferentes viewports', async ({ mockedAuthPage: page }) => {
     // Test en desktop
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('http://localhost:3000');
