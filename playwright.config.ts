@@ -118,7 +118,7 @@ export default defineConfig({
   webServer: {
     command: 'TEST_MODE=true pnpm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false, // Deshabilitado para forzar TEST_MODE=true
     timeout: 120 * 1000,
     env: {
       TEST_MODE: 'true',

@@ -5413,3 +5413,39 @@
 - [x] Actualizar todo.md con resultados
 - [ ] Guardar checkpoint después de correcciones
 - [ ] Generar reporte de cobertura de tests E2E exitosos
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 6)
+
+### Fase 1: Depurar Autenticación E2E
+- [x] Investigar por qué TEST_MODE=true no se aplica al servidor de Playwright
+  * Causa: reuseExistingServer=true reusaba servidor sin TEST_MODE
+- [x] Agregar logging en server/_core/index.ts para confirmar TEST_MODE
+- [x] Deshabilitar reuseExistingServer en playwright.config.ts
+- [x] Corregir fixture de autenticación (usar context.request)
+- [x] Validar que endpoint /api/test/auth/token responde con JSON
+  * Resultado: ✅ Endpoint funciona correctamente
+- [ ] Resolver problema: Usuario autenticado no aparece en UI
+  * Backend: ✅ Autenticación exitosa
+  * Frontend: ❌ No muestra usuario (requiere investigación)
+- [ ] Re-ejecutar suite completa de 180 tests
+- [ ] Generar reporte HTML de resultados
+
+### Fase 2: Agregar Guards de Null para DB
+- [ ] Identificar archivos con error 'db possibly null'
+- [ ] Implementar patrón: `if (!db) throw new Error('Database not initialized')`
+- [ ] Validar reducción de errores TypeScript
+- [ ] Ejecutar tests unitarios para validar cambios
+
+### Fase 3: Actualizar Queries Obsoletas
+- [ ] Buscar queries que usan riskLevel (campo inexistente)
+- [ ] Buscar queries que usan employeeId (campo inexistente)
+- [ ] Buscar queries que usan severity (campo inexistente)
+- [ ] Actualizar queries para usar campos correctos
+- [ ] Validar que queries funcionan correctamente
+
+### Checkpoint Final
+- [x] Documentar sesión 6: docs/RESUMEN_SESION_6.md
+- [x] Actualizar todo.md con resultados
+- [ ] Guardar checkpoint después de resolver UI
+- [ ] Generar reporte de cobertura de tests E2E exitosos
