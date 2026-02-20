@@ -28,7 +28,7 @@ export const budgetPlannerRouter = router({
       })
     )
         .mutation(async ({ input, ctx }) => {
-      const db = getDb();
+      const db = await getDb();
       if (!db) {
         throw new Error('Database not initialized');
       }

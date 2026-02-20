@@ -27,7 +27,7 @@ interface DeadlineAlert {
  * Detectar y enviar alertas de deadlines
  */
 export async function sendDeadlineAlerts() {
-  const db = getDb();
+  const db = await getDb();
   const now = new Date();
   const threeDaysFromNow = new Date();
   threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);

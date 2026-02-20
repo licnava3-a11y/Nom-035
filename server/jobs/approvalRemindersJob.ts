@@ -24,7 +24,7 @@ interface PendingApproval {
 }
 
 async function sendApprovalReminders() {
-  const db = getDb();
+  const db = await getDb();
   const now = new Date();
   const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 

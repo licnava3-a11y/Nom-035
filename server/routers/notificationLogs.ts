@@ -22,7 +22,7 @@ export const notificationLogsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       const { page, pageSize, type, status, recipientEmail, dateFrom, dateTo, search } = input;
       const offset = (page - 1) * pageSize;
 
@@ -119,7 +119,7 @@ export const notificationLogsRouter = router({
       })
     )
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       const { dateFrom, dateTo } = input;
 
       const conditions = [];

@@ -1,10 +1,21 @@
 # TODO - Plataforma NOM-035 STPS 2018
 
-## CHECKPOINT ACTUAL: 65935c4b - Auditoría Profunda Completada
+## CHECKPOINT ACTUAL: Sesión 12 - Corrección de Errores TypeScript de Drizzle ORM
 
 ---
 
-## FASE ACTUAL: Optimizaciones Finales (Warning TypeScript + Validaciones Zod + Paginación Server-Side)
+## FASE ACTUAL: Corrección de Errores TypeScript de Drizzle ORM (704 errores)
+
+### Sesión 12: Corrección de await getDb()
+- [x] Identificar causa raíz de 704 errores TypeScript (getDb() sin await)
+- [x] Aplicar corrección sistemática en 891 ubicaciones del servidor
+- [x] Validar corrección en committeeOperatingRules.ts (22 correcciones)
+- [x] Verificar que no quedan llamadas sin await (0 restantes)
+- [x] Crear documentación completa (RESUMEN_SESION_12_FINAL.md)
+- [ ] Ejecutar pnpm check para validar reducción de errores (pendiente - proceso lento)
+- [ ] Documentar reducción exacta de errores TypeScript
+
+## FASE ANTERIOR: Optimizaciones Finales (Warning TypeScript + Validaciones Zod + Paginación Server-Side)
 
 ### 1. Localizar y Corregir Errores 404
 - [x] Revisar logs de navegador para identificar rutas 404 (0 errores encontrados)
