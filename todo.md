@@ -5196,3 +5196,95 @@
 - [ ] Documentar los 3 workflows que deben estar activos
 - [ ] Agregar troubleshooting común
 - [ ] Guardar en docs/GITHUB_BRANCH_PROTECTION_SETUP.md
+
+
+## AUDITORÍA EXHAUSTIVA DEL SISTEMA COMPLETO
+
+### 1. Auditoría de Código y Arquitectura 🔴 CRÍTICO
+- [ ] Revisar correlaciones entre módulos (empleados, departamentos, casos, evaluaciones)
+- [ ] Auditar validaciones en procedures tRPC (500+ procedures)
+- [ ] Identificar código duplicado y oportunidades de refactorización
+- [ ] Revisar optimizaciones de performance (índices SQL, cache, paginación)
+- [ ] Documentar patrones de arquitectura utilizados
+- [ ] Identificar deuda técnica y priorizar correcciones
+
+### 2. Auditoría de Backend 🔴 CRÍTICO
+- [ ] Revisar todos los routers en server/routers/*.ts (23 archivos)
+- [ ] Auditar procedures tRPC (public vs protected)
+- [ ] Revisar queries SQL (joins, subqueries, performance)
+- [ ] Verificar manejo de errores y rollbacks
+- [ ] Auditar autenticación y autorización
+- [ ] Revisar migraciones de Drizzle (0001-0138)
+- [ ] Identificar queries N+1 y optimizar
+
+### 3. Auditoría de Frontend 🔴 CRÍTICO
+- [ ] Revisar formularios (validación, UX, guardado automático)
+- [ ] Auditar tablas (paginación, filtros, ordenamiento)
+- [ ] Revisar dropdowns y selects (correlaciones, pre-llenado)
+- [ ] Auditar experiencia de usuario (loading states, error handling)
+- [ ] Verificar responsive design (móviles, tablets)
+- [ ] Revisar accesibilidad (ARIA, keyboard navigation)
+- [ ] Identificar componentes duplicados
+
+### 4. Auditoría de Reportes Legales 🔴 CRÍTICO
+- [ ] Revisar cumplimiento NOM-035 STPS 2018
+- [ ] Auditar cumplimiento NOM-036 (factores de riesgo ergonómico)
+- [ ] Verificar documentos oficiales (minutas, bases de funcionamiento)
+- [ ] Revisar generación de PDFs (formato, contenido, firmas)
+- [ ] Auditar trazabilidad de documentos (NOM-151)
+- [ ] Verificar códigos QR únicos en documentos
+- [ ] Revisar nomenclatura de folios (CÓDIGO + CONSECUTIVO / AÑO)
+
+### 5. Auditoría de Generador de Carpetas de Evidencias 🔴 CRÍTICO
+- [ ] Revisar compilación automática de evidencias
+- [ ] Auditar estructura de carpetas generadas
+- [ ] Verificar inclusión de todos los documentos requeridos
+- [ ] Revisar formato de nombres de archivos
+- [ ] Auditar metadatos de documentos
+- [ ] Verificar compresión y empaquetado (ZIP)
+- [ ] Revisar permisos y acceso a carpetas
+
+### 6. Auditoría de Pre-llenado 🔴 CRÍTICO
+- [ ] Revisar correlaciones de datos entre formularios
+- [ ] Auditar dropdowns con datos pre-cargados
+- [ ] Verificar que no haya recaptura innecesaria de datos
+- [ ] Revisar flujo de contratación (datos de reclutamiento → empleado)
+- [ ] Auditar expediente digital (documentos correlacionados)
+- [ ] Verificar pre-llenado en evaluaciones de desempeño
+- [ ] Revisar pre-llenado en perfiles de puesto
+
+### 7. Auditoría de Mejoras y Robustez 🟡 ALTO
+- [ ] Identificar puntos de fallo críticos
+- [ ] Revisar manejo de errores en toda la aplicación
+- [ ] Auditar validaciones de entrada (SQL injection, XSS)
+- [ ] Verificar rate limiting y protección contra ataques
+- [ ] Revisar logs y monitoreo
+- [ ] Auditar backup y recuperación de datos
+- [ ] Identificar mejoras de performance
+
+---
+
+## IMPLEMENTACIONES CRÍTICAS PENDIENTES
+
+### 1. Expandir Confirmaciones a 5 Páginas Adicionales 🔴 CRÍTICO (2/5 completado)
+- [x] CommitteeTrainingsManagement (eliminar capacitación)
+- [ ] JobProfileManagement (eliminar perfil de puesto)
+- [ ] Positions (eliminar puesto)
+- [x] DocumentFormats (eliminar formato)
+- [ ] EmployeeDocuments (eliminar documento)
+
+### 2. Resolver Inconsistencias de Schema 🔴 CRÍTICO
+- [ ] Auditar todos los campos de tablas (español vs inglés)
+- [ ] Estandarizar tabla employees (firstName, lastName, etc.)
+- [ ] Estandarizar tabla departments
+- [ ] Estandarizar tabla positions
+- [ ] Crear documento de convenciones de naming
+- [ ] Generar migraciones SQL para estandarización
+- [ ] Actualizar código que usa campos antiguos
+
+### 3. Documentar Branch Protection Rules 📝
+- [ ] Crear guía paso a paso con screenshots
+- [ ] Documentar configuración en GitHub Settings
+- [ ] Listar los 3 workflows requeridos
+- [ ] Incluir troubleshooting común
+- [ ] Agregar a docs/CI_CD_GUIDE.md

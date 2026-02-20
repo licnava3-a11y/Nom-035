@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
@@ -92,14 +93,19 @@ export default function DocumentFormats() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("¿Está seguro de eliminar este formato? Esta acción no se puede deshacer.")) {
-      return;
-    }
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+
+  const handleDelete = (id: number, name: string) => {
+    setDeleteConfirm({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
 
     try {
-      await deleteMutation.mutateAsync({ id });
+      await deleteMutation.mutateAsync({ id: deleteConfirm.id });
       toast.success("Formato eliminado exitosamente");
+      setDeleteConfirm(null);
       refetch();
     } catch (error: any) {
       toast.error(error.message || "Error al eliminar formato");
@@ -122,13 +128,13 @@ export default function DocumentFormats() {
   if (isLoading) {
     return (
       <div className="p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Cargando formatos...</CardTitle>
-          </CardHeader>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Cargando formatos...</CardTitle>
+        </CardHeader>
+      </Card>
       </div>
-    );
+    );  
   }
 
   return (
@@ -231,7 +237,7 @@ export default function DocumentFormats() {
                         <ProtectedButton
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(format.id)}
+                          onClick={() => handleDelete(format.id, format.name)}
                           className="text-red-600 hover:text-red-700"
                           requiredPermission="can_delete"
                           fallbackMessage="No tienes permisos para eliminar formatos"
@@ -361,6 +367,16 @@ export default function DocumentFormats() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={confirmDelete}
+        title="Eliminar Formato"
+        description={`¿Estás seguro de eliminar el formato "${deleteConfirm?.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 }

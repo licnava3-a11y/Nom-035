@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -140,9 +141,16 @@ export default function CommitteeTrainingsManagement() {
     });
   };
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; title: string } | null>(null);
+
   const handleDelete = (id: number, title: string) => {
-    if (confirm(`¿Estás seguro de eliminar la capacitación "${title}"?`)) {
-      deleteMutation.mutate({ id });
+    setDeleteConfirm({ id, title });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm) {
+      deleteMutation.mutate({ id: deleteConfirm.id });
+      setDeleteConfirm(null);
     }
   };
 
@@ -507,6 +515,16 @@ export default function CommitteeTrainingsManagement() {
           )}
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={confirmDelete}
+        title="Eliminar Capacitación"
+        description={`¿Estás seguro de eliminar la capacitación "${deleteConfirm?.title}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 }
