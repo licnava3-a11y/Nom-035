@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useParams, useLocation } from "wouter";
 import { useDropzone } from "react-dropzone";
 import { trpc } from "@/lib/trpc";
@@ -103,9 +104,16 @@ export default function EmployeeDocuments() {
     maxFiles: 1,
   });
 
-  const handleDelete = (documentId: number) => {
-    if (confirm("¿Estás seguro de eliminar este documento?")) {
-      deleteMutation.mutate({ documentId });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+
+  const handleDelete = (documentId: number, documentName: string) => {
+    setDeleteConfirm({ id: documentId, name: documentName });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm) {
+      deleteMutation.mutate({ documentId: deleteConfirm.id });
+      setDeleteConfirm(null);
     }
   };
 
@@ -271,7 +279,7 @@ export default function EmployeeDocuments() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(doc.id)}
+                          onClick={() => handleDelete(doc.id, doc.documentType)}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -325,6 +333,16 @@ export default function EmployeeDocuments() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={confirmDelete}
+        title="Eliminar Documento"
+        description={`¿Estás seguro de eliminar el documento "${deleteConfirm?.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 }

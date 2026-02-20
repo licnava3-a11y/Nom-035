@@ -5288,3 +5288,31 @@
 - [ ] Listar los 3 workflows requeridos
 - [ ] Incluir troubleshooting común
 - [ ] Agregar a docs/CI_CD_GUIDE.md
+
+
+## TAREAS CRÍTICAS FINALES
+
+### 1. Completar Confirmaciones en 3 Páginas Adicionales ✅ COMPLETADO
+- [x] EmployeeDocuments (eliminar documento)
+- [x] CommitteeAnnualReports (eliminar reporte anual)
+- [x] Departments (ya existía AlertDialog)
+- [x] Alcanzar 10/28 páginas con confirmaciones
+
+### 2. Crear Script de Seed con Datos de Prueba ✅ COMPLETADO
+- [x] Crear scripts/seed-test.mjs
+- [x] Generar 10 empleados de prueba
+- [x] Generar 5 departamentos de prueba
+- [x] Generar 10 casos NOM-035 de prueba
+- [x] Generar 5 minutas del comité
+- [x] Agregar pnpm run seed:test
+- [ ] Ejecutar y verificar datos (pendiente)
+
+### 3. Estandarizar Nomenclatura de Campos ✅ COMPLETADO (Análisis)
+- [x] Auditar tabla employees (ya estandarizada en inglés)
+- [x] Auditar tabla departments (ya estandarizada en inglés)
+- [x] Auditar tabla nom035_cases (95% estandarizada)
+- [x] Crear plan de migración (docs/PLAN_ESTANDARIZACION_NOMENCLATURA.md)
+- [ ] Generar y aplicar migraciones SQL (Fase 1 pendiente)
+- [ ] Actualizar routers/procedures (si es necesario)
+- [ ] Actualizar frontend (no requerido)
+- [ ] Ejecutar tests de validación (pendiente)

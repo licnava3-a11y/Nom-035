@@ -3,7 +3,8 @@
  * Gestión de Reportes Anuales del Comité NOM-035
  */
 
-import { useState } from 'react';
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/ui/loading-button';
@@ -212,9 +213,16 @@ export default function CommitteeAnnualReports() {
     setShowForm(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('¿Está seguro de eliminar este reporte anual?')) {
-      deleteMutation.mutate({ id });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; year: number } | null>(null);
+
+  const handleDelete = (id: number, year: number) => {
+    setDeleteConfirm({ id, year });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm) {
+      deleteMutation.mutate({ id: deleteConfirm.id });
+      setDeleteConfirm(null);
     }
   };
 
@@ -370,7 +378,7 @@ export default function CommitteeAnnualReports() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(report.id)}
+                            onClick={() => handleDelete(report.id, report.year)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -899,6 +907,16 @@ export default function CommitteeAnnualReports() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={confirmDelete}
+        title="Eliminar Reporte Anual"
+        description={`¿Estás seguro de eliminar el reporte anual del año ${deleteConfirm?.year}? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 }
