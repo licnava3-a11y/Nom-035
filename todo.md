@@ -5381,3 +5381,35 @@
 - [x] Guardar checkpoint con progreso de sesión 4
 - [x] Documentar cambios realizados
 - [x] Resumen: 726 errores TypeScript restantes (no afectan runtime)
+
+
+## NUEVAS TAREAS - 20 FEB 2026 (Sesión 5)
+
+### Fase 1: Completar Instalación de Playwright y Tests E2E
+- [x] Verificar estado de instalación de navegadores Playwright
+- [x] Navegadores instalados: chromium, firefox, webkit, ffmpeg
+- [x] Ejecutar suite completa: `pnpm test:e2e`
+- [x] Resultado: 180 tests fallaron (100% fallos)
+- [ ] Causa: Endpoint /api/test/auth/token devuelve HTML en lugar de JSON
+  * TEST_MODE=true no se aplica correctamente al servidor de Playwright
+  * Requiere depuración de configuración de entorno (2-3h)
+- [ ] Re-ejecutar tests después de corrección
+- [ ] Generar reporte HTML de resultados exitosos
+
+### Fase 2: Agregar Guards de Null para DB
+- [ ] Identificar 67 ubicaciones con error 'db possibly null'
+- [ ] Implementar patrón: `if (!db) throw new Error('Database not initialized')`
+- [ ] Validar reducción de errores TypeScript
+- [ ] Ejecutar tests unitarios para validar cambios
+
+### Fase 3: Actualizar Queries Obsoletas
+- [ ] Identificar queries que usan campos inexistentes (riskLevel, employeeId, severity)
+- [ ] Actualizar queries para usar campos correctos del schema actual
+- [ ] Validar que queries funcionan correctamente
+- [ ] Documentar cambios realizados
+
+### Checkpoint Final
+- [x] Documentar sesión 5: docs/RESUMEN_SESION_5.md
+- [x] Actualizar todo.md con resultados
+- [ ] Guardar checkpoint después de correcciones
+- [ ] Generar reporte de cobertura de tests E2E exitosos
