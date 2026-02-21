@@ -11,11 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Search, Filter, FileText, User, AlertCircle, CheckCircle, Clock, UserCheck } from "lucide-react";
+import { Pagination } from "@/components/Pagination";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
 export default function CasesManagement() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
   const [filters, setFilters] = useState({
     departmentId: "",
     status: "",
@@ -36,14 +38,15 @@ export default function CasesManagement() {
 
   const utils = trpc.useUtils();
   
-  // Queries
-  const { data: casesData, isLoading } = trpc.casesManagement.listCases.useQuery({
+  // Queries - Usar router optimizado
+  const { data: casesData, isLoading } = trpc.casesPaginated.list.useQuery({
     page,
-    pageSize: 20,
-    status: filters.status || "all",
-    priority: filters.priority || "all",
+    pageSize,
+    status: filters.status || undefined,
+    priority: filters.priority || undefined,
     departmentId: filters.departmentId ? parseInt(filters.departmentId) : undefined,
-  } as any);
+    search: filters.search || undefined,
+  });
 
   const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
   const { data: stats } = trpc.casesManagement.getCasesStats.useQuery();
@@ -561,30 +564,15 @@ export default function CasesManagement() {
           </table>
         </div>
 
-        {/* Pagination */}
-        {casesData && casesData.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t">
-            <div className="text-sm text-muted-foreground">
-              Mostrando {((page - 1) * 20) + 1} a {Math.min(page * 20, casesData.totalCount)} de {casesData.totalCount} casos
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Anterior
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.min(casesData.totalPages, p + 1))}
-                disabled={page === casesData.totalPages}
-              >
-                Siguiente
-              </Button>
-            </div>
+        {/* Pagination con componente reutilizable */}
+        {casesData && casesData.pagination && (
+          <div className="px-4">
+            <Pagination
+              pagination={casesData.pagination}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+              showPageSizeSelector={true}
+            />
           </div>
         )}
       </Card>
