@@ -35,6 +35,7 @@ const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
 const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
 const SentimentAnalysisDashboard = lazy(() => import("./pages/SentimentAnalysisDashboard"));
 const ExecutiveReportsPanel = lazy(() => import("./pages/ExecutiveReportsPanel"));
+const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 const ComplianceNOM035Dashboard = lazy(() => import("./pages/ComplianceNOM035Dashboard"));
 const SentimentCasesCorrelationDashboard = lazy(() => import("./pages/SentimentCasesCorrelationDashboard"));
 const PredictiveTurnoverDashboard = lazy(() => import("./pages/PredictiveTurnoverDashboard"));
@@ -969,13 +970,20 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/executive-reports"}>
+        <Route path={"executive-reports"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <ExecutiveReportsPanel />
             </Suspense>
           </DashboardLayout>
         </Route>
+        <Route path={"executive-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ExecutiveDashboard />
+            </Suspense>
+          </DashboardLayout>
+          </Route>
         <Route path={"/compliance/nom035"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>

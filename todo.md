@@ -5802,3 +5802,35 @@
 - [ ] Actualizar Drizzle ORM (0.44.6 → 0.45.1+) para resolver 625 warnings TypeScript
 - [ ] Implementar caché inteligente de tRPC para reducir llamadas al servidor en 70%
 - [ ] Agregar índices SQL compuestos para mejorar velocidad de queries en 10x
+
+## SESIÓN 20: Optimización y Dashboard Ejecutivo
+
+### 1. Actualizar Drizzle ORM
+- [ ] Ejecutar pnpm add drizzle-orm@latest drizzle-kit@latest
+- [ ] Validar reducción de warnings TypeScript
+- [ ] Ejecutar pnpm check para confirmar
+
+### 2. Implementar Caché Inteligente de tRPC
+- [ ] Crear helper cacheInvalidation.ts con 4 niveles de caché
+- [ ] Implementar funciones de invalidación por módulo
+- [ ] Crear hook useOptimisticInvalidation
+
+### 3. Agregar Índices SQL Compuestos
+- [ ] Crear índices compuestos en nom035_cases
+- [ ] Crear índices compuestos en committee_minute_agreements
+- [ ] Crear índices compuestos en survey_responses
+- [ ] Crear índices compuestos en users
+
+### 4. Dashboard Ejecutivo de Métricas NOM-035
+- [ ] Crear router tRPC executiveDashboard
+- [ ] Implementar query para KPIs principales
+- [ ] Crear página ExecutiveDashboard.tsx
+- [ ] Implementar gráficas de tendencias de riesgo
+- [ ] Implementar gráficas de cumplimiento NOM-035
+- [ ] Implementar tabla de casos críticos
+- [ ] Agregar filtros por período (mes, trimestre, año)
+
+### 5. Validación y Checkpoint
+- [ ] Ejecutar suite completa de tests
+- [ ] Validar dashboard ejecutivo con datos reales
+- [ ] Guardar checkpoint final

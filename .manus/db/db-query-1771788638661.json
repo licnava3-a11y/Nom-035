@@ -1,0 +1,9 @@
+{
+  "query": "-- Índices compuestos para nom035_cases\nCREATE INDEX IF NOT EXISTS idx_cases_status_created ON nom035_cases(status, created_at);\nCREATE INDEX IF NOT EXISTS idx_cases_status_employee ON nom035_cases(status, employee_id);\nCREATE INDEX IF NOT EXISTS idx_cases_assigned_created ON nom035_cases(assigned_to, created_at);\n\n-- Índices compuestos para committee_minute_agreements\nCREATE INDEX IF NOT EXISTS idx_agreements_status_due ON committee_minute_agreements(status, due_date);\n\n-- Índices compuestos para survey_responses\nCREATE INDEX IF NOT EXISTS idx_responses_survey_user ON survey_responses(survey_id, user_id);\n\n-- Índices compuestos para users\nCREATE INDEX IF NOT EXISTS idx_users_role_department ON users(role, departamento);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute -- Índices compuestos para nom035_cases\nCREATE INDEX IF NOT EXISTS idx_cases_status_created ON nom035_cases(status, created_at);\nCREATE INDEX IF NOT EXISTS idx_cases_status_employee ON nom035_cases(status, employee_id);\nCREATE INDEX IF NOT EXISTS idx_cases_assigned_created ON nom035_cases(assigned_to, created_at);\n\n-- Índices compuestos para committee_minute_agreements\nCREATE INDEX IF NOT EXISTS idx_agreements_status_due ON committee_minute_agreements(status, due_date);\n\n-- Índices compuestos para survey_responses\nCREATE INDEX IF NOT EXISTS idx_responses_survey_user ON survey_responses(survey_id, user_id);\n\n-- Índices compuestos para users\nCREATE INDEX IF NOT EXISTS idx_users_role_department ON users(role, departamento);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 342
+}
