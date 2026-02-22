@@ -5780,3 +5780,25 @@
 - [x] Crear documentación completa (AUDITORIA_ERRORES_SESION_18.md)
 - [x] Verificar logs de errores en navegador y servidor (solo warnings TypeScript)
 - [ ] Guardar checkpoint con auditoría completa
+
+
+## NUEVAS TAREAS PENDIENTES
+
+### Módulo de Evaluación de Desempeño (360°, 180°, 270°, 90°)
+- [ ] Diseñar esquema de base de datos para evaluaciones de desempeño
+- [ ] Implementar tabla de evaluaciones con tipos (360°, 180°, 270°, 90°)
+- [ ] Implementar tabla de preguntas de evaluación
+- [ ] Implementar tabla de respuestas de evaluación
+- [ ] Crear router tRPC para gestión de evaluaciones
+- [ ] Crear página de configuración de evaluaciones
+- [ ] Crear página de aplicación de evaluaciones
+- [ ] Crear página de resultados de evaluaciones
+- [ ] Implementar lógica de asignación de evaluadores según tipo
+- [ ] Implementar cálculo de resultados y promedios
+- [ ] Crear reportes PDF de evaluaciones de desempeño
+- [ ] Crear tests unitarios para evaluaciones
+
+### Optimizaciones Pendientes (No Críticas)
+- [ ] Actualizar Drizzle ORM (0.44.6 → 0.45.1+) para resolver 625 warnings TypeScript
+- [ ] Implementar caché inteligente de tRPC para reducir llamadas al servidor en 70%
+- [ ] Agregar índices SQL compuestos para mejorar velocidad de queries en 10x
