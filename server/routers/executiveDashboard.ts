@@ -728,4 +728,98 @@ export const executiveDashboardRouter = router({
 
     return alerts;
   }),
+
+  /**
+   * Exportar dashboard ejecutivo a Excel
+   */
+  exportToExcel: protectedProcedure
+    .input(z.object({
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }).optional())
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+      }
+
+      // Importar xlsx dinámicamente
+      const XLSX = await import('xlsx');
+
+      // Obtener métricas del dashboard
+      const metrics = await executiveDashboardRouter.createCaller({ user: ctx.user }).getMetrics(input);
+
+      // Crear workbook
+      const wb = XLSX.utils.book_new();
+
+      // === HOJA 1: KPIs PRINCIPALES ===
+      const kpisData = [
+        ['Dashboard Ejecutivo NOM-035 STPS 2018'],
+        ['Fecha de Generación:', new Date().toLocaleDateString('es-MX')],
+        [''],
+        ['KPI', 'Valor'],
+        ['Tasa de Cumplimiento NOM-035', `${metrics.complianceRate}%`],
+        ['Casos Críticos Abiertos', metrics.criticalCases],
+        ['Total de Empleados', metrics.totalEmployees],
+        ['Casos Cerrados (Mes Actual)', metrics.closedCasesThisMonth],
+        [''],
+        ['Métricas NMX-025'],
+        ['Brecha Salarial de Género', `${metrics.nmx025.genderPayGap}%`],
+        ['Mujeres en Puestos Directivos', `${metrics.nmx025.womenInLeadership}%`],
+      ];
+      const ws1 = XLSX.utils.aoa_to_sheet(kpisData);
+      XLSX.utils.book_append_sheet(wb, ws1, 'KPIs');
+
+      // === HOJA 2: TENDENCIAS DE CASOS ===
+      const trendsData = [
+        ['Tendencias de Casos por Mes'],
+        [''],
+        ['Mes', 'Casos Abiertos', 'Casos Cerrados'],
+        ...metrics.casesTrends.map((t: any) => [
+          t.month,
+          t.openCases,
+          t.closedCases,
+        ]),
+      ];
+      const ws2 = XLSX.utils.aoa_to_sheet(trendsData);
+      XLSX.utils.book_append_sheet(wb, ws2, 'Tendencias');
+
+      // === HOJA 3: DISTRIBUCIÓN DE RIESGO ===
+      const riskData = [
+        ['Distribución de Riesgo Psicosocial'],
+        [''],
+        ['Nivel de Riesgo', 'Cantidad'],
+        ...metrics.riskDistribution.map((r: any) => [
+          r.level,
+          r.count,
+        ]),
+      ];
+      const ws3 = XLSX.utils.aoa_to_sheet(riskData);
+      XLSX.utils.book_append_sheet(wb, ws3, 'Riesgo');
+
+      // === HOJA 4: DISTRIBUCIÓN POR DEPARTAMENTO ===
+      const deptData = [
+        ['Distribución por Departamento'],
+        [''],
+        ['Departamento', 'Empleados'],
+        ...metrics.departmentDistribution.map((d: any) => [
+          d.department,
+          d.count,
+        ]),
+      ];
+      const ws4 = XLSX.utils.aoa_to_sheet(deptData);
+      XLSX.utils.book_append_sheet(wb, ws4, 'Departamentos');
+
+      // Generar buffer
+      const excelBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      const base64 = excelBuffer.toString('base64');
+
+      return {
+        filename: `Dashboard-Ejecutivo-${new Date().toISOString().split('T')[0]}.xlsx`,
+        data: base64,
+      };
+    }),
 });

@@ -3,7 +3,9 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Users, FileText } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Users, FileText, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const COLORS = {
   primary: "#1e40af", // Azul marino
@@ -16,8 +18,37 @@ const COLORS = {
 export default function ExecutiveDashboard() {
   const [period, setPeriod] = useState<"day" | "week" | "month" | "quarter" | "year">("month");
 
+  const { toast } = useToast();
+
   // Obtener métricas del dashboard
   const { data: metrics, isLoading } = trpc.executiveDashboard.getMetrics.useQuery({});
+  
+  // Mutation para exportar a Excel
+  const exportMutation = trpc.executiveDashboard.exportToExcel.useMutation({
+    onSuccess: (data) => {
+      // Descargar archivo Excel
+      const link = document.createElement('a');
+      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
+      link.download = data.filename;
+      link.click();
+      
+      toast({
+        title: "Exportación exitosa",
+        description: "El dashboard se ha exportado a Excel correctamente.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error al exportar",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const handleExport = () => {
+    exportMutation.mutate({});
+  };
   
   // Obtener datos de tendencias
   const { data: trends } = trpc.executiveDashboard.getTrendsData.useQuery({
@@ -65,18 +96,29 @@ export default function ExecutiveDashboard() {
           <p className="text-muted-foreground">Métricas clave de cumplimiento y riesgo psicosocial</p>
         </div>
         
-        <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Seleccionar período" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="day">Hoy</SelectItem>
-            <SelectItem value="week">Esta semana</SelectItem>
-            <SelectItem value="month">Este mes</SelectItem>
-            <SelectItem value="quarter">Este trimestre</SelectItem>
-            <SelectItem value="year">Este año</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Seleccionar período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">Hoy</SelectItem>
+              <SelectItem value="week">Esta semana</SelectItem>
+              <SelectItem value="month">Este mes</SelectItem>
+              <SelectItem value="quarter">Este trimestre</SelectItem>
+              <SelectItem value="year">Este año</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button 
+            onClick={handleExport} 
+            disabled={exportMutation.isPending}
+            variant="outline"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {exportMutation.isPending ? "Exportando..." : "Exportar a Excel"}
+          </Button>
+        </div>
       </div>
 
       {/* KPIs Principales */}
