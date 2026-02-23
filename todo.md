@@ -5856,3 +5856,1243 @@
 ### 3. Validación y Checkpoint
 - [x] Ejecutar suite completa de tests (374 tests, 100% pasando)
 - [ ] Guardar checkpoint final
+# MÓDULO: CHECKLIST DE CUMPLIMIENTO NOM-035-STPS-2018
+
+## 📋 INTRODUCCIÓN
+
+Este módulo proporciona un checklist detallado para verificar el cumplimiento de la **NOM-035-STPS-2018** (Factores de riesgo psicosocial en el trabajo - Identificación, análisis y prevención). El checklist está organizado por categorías y desglosado punto por punto según los requisitos oficiales de la norma.
+
+**Fuente oficial**: [Diario Oficial de la Federación](https://www.dof.gob.mx/normasOficiales/7415/stps2a11_C/stps2a11_C.html)
+
+---
+
+## 🎯 DETERMINACIÓN DEL NIVEL DE CUMPLIMIENTO REQUERIDO
+
+### PASO 1: Identificar Categoría del Centro de Trabajo
+
+- [ ] **Categoría A**: Centro de trabajo con hasta 15 trabajadores
+- [ ] **Categoría B**: Centro de trabajo con 16 a 50 trabajadores
+- [ ] **Categoría C**: Centro de trabajo con más de 50 trabajadores
+- [ ] **Certificación NMX-R-025**: ¿Cuenta con certificado NMX-R-025-SCFI-2015 vigente?
+
+### PASO 2: Obligaciones Aplicables según Categoría
+
+| Obligación | Categoría A (≤15) | Categoría B (16-50) | Categoría C (>50) |
+|-----------|-------------------|---------------------|-------------------|
+| 5.1 Política de prevención | ✅ | ✅ | ✅ |
+| 5.2 Identificación y análisis | ❌ | ✅ | ❌ |
+| 5.3 Identificación, análisis y evaluación | ❌ | ❌ | ✅ |
+| 5.4 Medidas de prevención y control | ✅ | ✅ | ✅ |
+| 5.5 Atención acontecimientos traumáticos | ✅ | ✅ | ✅ |
+| 5.6 Exámenes médicos y evaluaciones | ❌ | ✅ | ✅ |
+| 5.7 Difusión de información | ✅ | ✅ | ✅ |
+| 5.8 Registros | ❌ | ✅ | ✅ |
+| Capítulo 7 (Identificación y análisis) | ❌ | ✅ | ✅ |
+| Capítulo 8 (Medidas de prevención) | ✅ | ✅ | ✅ |
+
+---
+
+## 📝 CATEGORÍA 1: POLÍTICA DE PREVENCIÓN (Numeral 5.1)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### Requisitos de Cumplimiento
+
+- [ ] **1.1** Política establecida por escrito
+- [ ] **1.2** Política implantada en el centro de trabajo
+- [ ] **1.3** Política mantenida y actualizada
+- [ ] **1.4** Política difundida entre todos los trabajadores
+
+### Contenido Obligatorio de la Política
+
+- [ ] **1.5** Incluye prevención de factores de riesgo psicosocial
+- [ ] **1.6** Incluye prevención de violencia laboral
+- [ ] **1.7** Incluye promoción de entorno organizacional favorable
+
+### Evidencias Requeridas
+
+- [ ] **1.8** Documento escrito de la política firmado por la dirección
+- [ ] **1.9** Registros de difusión (correos, carteles, juntas, capacitaciones)
+- [ ] **1.10** Constancias de recepción por parte de los trabajadores
+
+**📌 Referencia**: Ver Guía de Referencia IV de la NOM-035 para ejemplo de política
+
+---
+
+## 🔍 CATEGORÍA 2: IDENTIFICACIÓN Y ANÁLISIS (Numerales 5.2, 5.3, 7.1-7.9)
+
+### ✅ Obligatorio para: Centros de trabajo con 16+ trabajadores
+
+### 2A. Para Centros de 16 a 50 Trabajadores (Numeral 5.2)
+
+#### Identificación y Análisis de Factores de Riesgo
+
+- [ ] **2A.1** Identificación realizada con TODOS los trabajadores (no muestra)
+- [ ] **2A.2** Análisis de condiciones en el ambiente de trabajo
+- [ ] **2A.3** Análisis de cargas de trabajo
+- [ ] **2A.4** Análisis de falta de control sobre el trabajo
+- [ ] **2A.5** Análisis de jornadas de trabajo y rotación de turnos
+- [ ] **2A.6** Análisis de interferencia trabajo-familia
+- [ ] **2A.7** Análisis de liderazgo negativo y relaciones negativas
+- [ ] **2A.8** Análisis de violencia laboral (acoso, hostigamiento, malos tratos)
+
+#### Metodología de Evaluación
+
+- [ ] **2A.9** Uso de cuestionario validado (Guía de Referencia II o equivalente)
+- [ ] **2A.10** Aplicación del cuestionario según procedimiento establecido
+- [ ] **2A.11** Evaluación de resultados según niveles de riesgo
+- [ ] **2A.12** Determinación de niveles de riesgo conforme al método
+
+### 2B. Para Centros de Más de 50 Trabajadores (Numeral 5.3)
+
+#### Identificación y Análisis de Factores de Riesgo
+
+- [ ] **2B.1** Identificación realizada (puede usar muestra representativa)
+- [ ] **2B.2** Análisis de condiciones en el ambiente de trabajo
+- [ ] **2B.3** Análisis de cargas de trabajo
+- [ ] **2B.4** Análisis de falta de control sobre el trabajo
+- [ ] **2B.5** Análisis de jornadas de trabajo y rotación de turnos
+- [ ] **2B.6** Análisis de interferencia trabajo-familia
+- [ ] **2B.7** Análisis de liderazgo negativo y relaciones negativas
+- [ ] **2B.8** Análisis de violencia laboral (acoso, hostigamiento, malos tratos)
+
+#### Evaluación del Entorno Organizacional
+
+- [ ] **2B.9** Evaluación del sentido de pertenencia
+- [ ] **2B.10** Evaluación de la formación para tareas encomendadas
+- [ ] **2B.11** Evaluación de definición precisa de responsabilidades
+- [ ] **2B.12** Evaluación de participación proactiva y comunicación
+- [ ] **2B.13** Evaluación de distribución adecuada de cargas de trabajo
+- [ ] **2B.14** Evaluación y reconocimiento del desempeño
+
+#### Metodología de Evaluación
+
+- [ ] **2B.15** Uso de cuestionario validado (Guía de Referencia III o equivalente)
+- [ ] **2B.16** Cálculo de muestra representativa (si aplica)
+- [ ] **2B.17** Aplicación del cuestionario según procedimiento establecido
+- [ ] **2B.18** Evaluación de resultados según niveles de riesgo
+- [ ] **2B.19** Determinación de niveles de riesgo conforme al método
+
+### 2C. Informe de Resultados (Numeral 7.7) - Para 16+ trabajadores
+
+- [ ] **2C.1** Informe contiene datos del centro de trabajo (nombre, domicilio, actividad)
+- [ ] **2C.2** Informe incluye objetivo de la evaluación
+- [ ] **2C.3** Informe describe principales actividades del centro de trabajo
+- [ ] **2C.4** Informe especifica método utilizado
+- [ ] **2C.5** Informe presenta resultados obtenidos con niveles de riesgo
+- [ ] **2C.6** Informe incluye conclusiones
+- [ ] **2C.7** Informe incluye recomendaciones y acciones de intervención
+- [ ] **2C.8** Informe incluye datos del responsable (nombre y cédula profesional)
+
+### 2D. Gestión de Resultados
+
+- [ ] **2D.1** Resultados disponibles para consulta de trabajadores (Numeral 7.8)
+- [ ] **2D.2** Resultados integrados al diagnóstico de seguridad y salud (NOM-030) (Numeral 7.6)
+- [ ] **2D.3** Evaluación realizada al menos cada 2 años (Numeral 7.9)
+- [ ] **2D.4** Fecha de próxima evaluación programada
+
+---
+
+## 🛡️ CATEGORÍA 3: MEDIDAS DE PREVENCIÓN Y CONTROL (Numeral 5.4, Capítulo 8)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### 3A. Acciones Generales de Prevención (Numeral 8.1)
+
+#### Acciones de Apoyo Social, Difusión y Capacitación
+
+- [ ] **3A.1** Acciones establecidas para impulsar apoyo social
+- [ ] **3A.2** Acciones de difusión de información sobre riesgos psicosociales
+- [ ] **3A.3** Programa de capacitación en prevención de riesgos psicosociales
+
+#### Mecanismos de Quejas y Denuncias
+
+- [ ] **3A.4** Mecanismo seguro y confidencial para quejas por prácticas opuestas
+- [ ] **3A.5** Mecanismo seguro y confidencial para denuncias de violencia laboral
+- [ ] **3A.6** Procedimiento documentado para recepción de quejas/denuncias
+- [ ] **3A.7** Difusión del mecanismo entre todos los trabajadores
+
+#### Acciones de Promoción del Entorno Organizacional
+
+- [ ] **3A.8** Acciones que promuevan sentido de pertenencia
+- [ ] **3A.9** Capacitación para adecuada realización de tareas
+- [ ] **3A.10** Definición precisa de responsabilidades
+- [ ] **3A.11** Participación proactiva y comunicación entre trabajadores
+- [ ] **3A.12** Distribución adecuada de cargas de trabajo
+- [ ] **3A.13** Jornadas laborales regulares conforme a LFT
+- [ ] **3A.14** Evaluación y reconocimiento del desempeño
+
+### 3B. Liderazgo y Relaciones en el Trabajo (Numeral 8.2.a)
+
+- [ ] **3B.1** Acciones para manejo de conflictos en el trabajo
+- [ ] **3B.2** Acciones para distribución de tiempos de trabajo
+- [ ] **3B.3** Acciones para determinación de prioridades en el trabajo
+- [ ] **3B.4** Lineamientos para prohibir discriminación
+- [ ] **3B.5** Lineamientos para fomentar equidad y respeto
+- [ ] **3B.6** Mecanismos de comunicación supervisores-trabajadores
+- [ ] **3B.7** Mecanismos de comunicación entre trabajadores
+- [ ] **3B.8** Instrucciones claras para atención de problemas laborales
+- [ ] **3B.9** Capacitación de directivos en prevención de riesgos psicosociales
+- [ ] **3B.10** Capacitación de gerentes en prevención de riesgos psicosociales
+- [ ] **3B.11** Capacitación de supervisores en prevención de riesgos psicosociales
+- [ ] **3B.12** Sensibilización sobre manejo de conflictos y comunicación
+
+### 3C. Cargas de Trabajo (Numeral 8.2.b)
+
+- [ ] **3C.1** Revisión de distribución equitativa de cargas de trabajo
+- [ ] **3C.2** Supervisión de cargas considerando número de trabajadores
+- [ ] **3C.3** Supervisión de cargas considerando actividades y alcance
+- [ ] **3C.4** Supervisión de cargas considerando capacitación de trabajadores
+- [ ] **3C.5** Planificación del trabajo con pausas y descansos
+- [ ] **3C.6** Rotación de tareas para evitar ritmos acelerados
+- [ ] **3C.7** Medidas para evitar ritmos de trabajo excesivos
+- [ ] **3C.8** Instructivos que definen claramente tareas
+- [ ] **3C.9** Procedimientos que definen claramente responsabilidades
+
+### 3D. Control sobre el Trabajo (Numeral 8.2.c)
+
+- [ ] **3D.1** Actividades para involucrar trabajadores en toma de decisiones
+- [ ] **3D.2** Participación en mejora de condiciones de trabajo
+- [ ] **3D.3** Participación en mejora de productividad
+- [ ] **3D.4** Acciones para acordar margen de libertad sobre el trabajo
+- [ ] **3D.5** Acciones para mejorar control de trabajadores sobre su trabajo
+- [ ] **3D.6** Impulso al desarrollo de nuevas competencias y habilidades
+- [ ] **3D.7** Reuniones para abordar áreas de oportunidad
+- [ ] **3D.8** Reuniones para determinar soluciones a problemas
+
+### 3E. Apoyo Social (Numeral 8.2.d)
+
+- [ ] **3E.1** Actividades para establecer relaciones de apoyo mutuo
+- [ ] **3E.2** Relaciones entre trabajadores para apoyo
+- [ ] **3E.3** Relaciones supervisores-trabajadores para apoyo
+- [ ] **3E.4** Relaciones gerentes-trabajadores para apoyo
+- [ ] **3E.5** Reuniones semestrales de seguimiento a apoyo social
+- [ ] **3E.6** Reuniones anuales de seguimiento a apoyo social
+- [ ] **3E.7** Reuniones extraordinarias ante eventos de riesgo
+- [ ] **3E.8** Promoción de ayuda mutua entre trabajadores
+- [ ] **3E.9** Intercambio de conocimientos y experiencias
+- [ ] **3E.10** Fomento de actividades culturales
+- [ ] **3E.11** Fomento de actividades deportivas
+- [ ] **3E.12** Provisión de equipos y útiles para actividades
+
+### 3F. Equilibrio Trabajo-Familia (Numeral 8.2.e)
+
+- [ ] **3F.1** Acciones para involucrar trabajadores en definición de horarios
+- [ ] **3F.2** Lineamientos para establecer medidas contra jornadas excesivas
+- [ ] **3F.3** Límites para evitar jornadas superiores a LFT
+- [ ] **3F.4** Apoyos para atender emergencias familiares
+- [ ] **3F.5** Procedimiento para comprobar emergencias familiares
+- [ ] **3F.6** Promoción de actividades de integración familiar
+- [ ] **3F.7** Acuerdos con trabajadores para actividades familiares
+
+### 3G. Reconocimiento en el Trabajo (Numeral 8.2.f)
+
+- [ ] **3G.1** Mecanismos para reconocer desempeño sobresaliente
+- [ ] **3G.2** Difusión de logros de trabajadores sobresalientes
+- [ ] **3G.3** Comunicación de posibilidades de desarrollo al trabajador
+
+### 3H. Prevención de Violencia Laboral (Numeral 8.2.g)
+
+- [ ] **3H.1** Difusión de información sobre violencia laboral a trabajadores
+- [ ] **3H.2** Sensibilización sobre violencia laboral a trabajadores
+- [ ] **3H.3** Sensibilización sobre violencia laboral a directivos
+- [ ] **3H.4** Sensibilización sobre violencia laboral a gerentes
+- [ ] **3H.5** Sensibilización sobre violencia laboral a supervisores
+- [ ] **3H.6** Procedimientos de actuación para tratar violencia laboral
+- [ ] **3H.7** Procedimientos de seguimiento para casos de violencia
+- [ ] **3H.8** Capacitación al responsable de implementar procedimientos
+- [ ] **3H.9** Información sobre forma de denunciar violencia laboral
+
+### 3I. Información y Comunicación (Numeral 8.2.h)
+
+- [ ] **3I.1** Comunicación directa patrón/supervisor con trabajadores
+- [ ] **3I.2** Comunicación frecuente sobre problemas laborales
+- [ ] **3I.3** Difusión de cambios en la organización
+- [ ] **3I.4** Difusión de cambios en condiciones de trabajo
+- [ ] **3I.5** Canales para que trabajadores expresen opiniones
+- [ ] **3I.6** Participación de trabajadores en solución de problemas
+- [ ] **3I.7** Participación de trabajadores en mejora de condiciones
+
+### 3J. Capacitación y Adiestramiento (Numeral 8.2.i)
+
+- [ ] **3J.1** Análisis de relación capacitación-tareas encomendadas
+- [ ] **3J.2** Oportunidad para trabajadores señalen necesidades de capacitación
+- [ ] **3J.3** Detección de necesidades de capacitación cada 2 años
+- [ ] **3J.4** Programa de capacitación integrado con resultados de detección
+- [ ] **3J.5** Registro de capacitaciones impartidas
+
+### 3K. Programa de Atención (Numerales 8.3-8.5)
+
+**Nota**: Obligatorio solo si los resultados de la evaluación determinan necesidad de acciones de control
+
+- [ ] **3K.1** Programa documentado de atención a factores de riesgo
+- [ ] **3K.2** Programa especifica áreas de trabajo sujetas
+- [ ] **3K.3** Programa especifica trabajadores sujetos
+- [ ] **3K.4** Programa define tipo de acciones y medidas de control
+- [ ] **3K.5** Programa incluye fechas programadas de realización
+- [ ] **3K.6** Programa incluye control de avances de implementación
+- [ ] **3K.7** Programa incluye evaluación posterior a medidas de control
+- [ ] **3K.8** Programa designa responsable de ejecución
+
+#### Niveles de Intervención del Programa
+
+- [ ] **3K.9** Primer nivel: Acciones organizacionales (política, organización)
+- [ ] **3K.10** Segundo nivel: Acciones grupales (sensibilización, apoyo social)
+- [ ] **3K.11** Tercer nivel: Acciones individuales (clínicas/terapéuticas por profesionales)
+
+---
+
+## 🏥 CATEGORÍA 4: ATENCIÓN A ACONTECIMIENTOS TRAUMÁTICOS (Numeral 5.5)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### Identificación de Trabajadores Afectados
+
+- [ ] **4.1** Procedimiento para identificar trabajadores sujetos a acontecimientos traumáticos
+- [ ] **4.2** Definición clara de qué constituye acontecimiento traumático severo
+- [ ] **4.3** Registro de acontecimientos traumáticos ocurridos
+
+### Ejemplos de Acontecimientos Traumáticos Severos
+
+- [ ] **4.4** Explosiones
+- [ ] **4.5** Derrumbes
+- [ ] **4.6** Incendios de gran magnitud
+- [ ] **4.7** Accidentes graves o mortales
+- [ ] **4.8** Asaltos con violencia
+- [ ] **4.9** Secuestros
+- [ ] **4.10** Homicidios
+
+### Canalización y Atención
+
+- [ ] **4.11** Procedimiento de canalización a institución de seguridad social
+- [ ] **4.12** Procedimiento de canalización a institución privada
+- [ ] **4.13** Procedimiento de canalización a médico del centro de trabajo
+- [ ] **4.14** Registro de trabajadores canalizados
+- [ ] **4.15** Seguimiento de atención proporcionada
+
+**📌 Referencia**: Ver Guía de Referencia I de la NOM-035 (Cuestionario para identificar trabajadores)
+
+---
+
+## 🩺 CATEGORÍA 5: EXÁMENES MÉDICOS Y EVALUACIONES PSICOLÓGICAS (Numeral 5.6)
+
+### ✅ Obligatorio para: Centros de trabajo con 16+ trabajadores
+
+### Criterios para Practicar Exámenes
+
+- [ ] **5.1** Exámenes cuando existan signos/síntomas de alteración a la salud
+- [ ] **5.2** Exámenes cuando resultado de identificación y análisis lo sugiera
+- [ ] **5.3** Exámenes cuando existan quejas de violencia laboral
+
+### Responsables de Realizar Exámenes
+
+- [ ] **5.4** Institución de seguridad social
+- [ ] **5.5** Institución privada
+- [ ] **5.6** Médico del centro de trabajo
+- [ ] **5.7** Psiquiatra del centro de trabajo
+- [ ] **5.8** Psicólogo del centro de trabajo
+
+### Cumplimiento Normativo
+
+- [ ] **5.9** Exámenes conforme a NOMs de Secretaría de Salud (si existen)
+- [ ] **5.10** Exámenes conforme a NOMs de STPS (si existen)
+- [ ] **5.11** Exámenes conforme a indicaciones de institución de seguridad social
+- [ ] **5.12** Registro de exámenes practicados
+
+---
+
+## 📢 CATEGORÍA 6: DIFUSIÓN DE INFORMACIÓN (Numeral 5.7)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### Contenido a Difundir
+
+- [ ] **6.1** Política de prevención de riesgos psicosociales
+- [ ] **6.2** Medidas adoptadas contra prácticas opuestas al entorno organizacional
+- [ ] **6.3** Medidas adoptadas contra actos de violencia laboral
+- [ ] **6.4** Medidas y acciones de prevención de factores de riesgo
+- [ ] **6.5** Acciones de control de factores de riesgo (si aplica)
+- [ ] **6.6** Mecanismos para presentar quejas por prácticas opuestas
+- [ ] **6.7** Mecanismos para denunciar actos de violencia laboral
+- [ ] **6.8** Resultados de identificación y análisis (16+ trabajadores)
+- [ ] **6.9** Resultados de evaluación del entorno organizacional (>50 trabajadores)
+- [ ] **6.10** Posibles alteraciones a la salud por exposición a factores de riesgo
+
+### Medios de Difusión
+
+- [ ] **6.11** Juntas informativas
+- [ ] **6.12** Correos electrónicos
+- [ ] **6.13** Carteles en áreas comunes
+- [ ] **6.14** Capacitaciones
+- [ ] **6.15** Intranet o plataforma digital
+- [ ] **6.16** Trípticos o folletos
+- [ ] **6.17** Registro de difusión con evidencias
+
+---
+
+## 📊 CATEGORÍA 7: REGISTROS (Numeral 5.8)
+
+### ✅ Obligatorio para: Centros de trabajo con 16+ trabajadores
+
+### Registros de Resultados
+
+- [ ] **7.1** Registro de resultados de identificación y análisis de factores de riesgo
+- [ ] **7.2** Registro de evaluación del entorno organizacional (>50 trabajadores)
+- [ ] **7.3** Fecha de realización de evaluaciones
+- [ ] **7.4** Método utilizado en evaluaciones
+- [ ] **7.5** Niveles de riesgo identificados
+
+### Registros de Medidas de Control
+
+- [ ] **7.6** Registro de medidas de control adoptadas
+- [ ] **7.7** Fecha de implementación de medidas
+- [ ] **7.8** Responsables de implementación
+- [ ] **7.9** Seguimiento de efectividad de medidas
+
+### Registros de Trabajadores
+
+- [ ] **7.10** Nombres de trabajadores con exámenes médicos practicados
+- [ ] **7.11** Nombres de trabajadores con evaluaciones psicológicas practicadas
+- [ ] **7.12** Registro de exposición comprobada a factores de riesgo psicosocial
+- [ ] **7.13** Registro de exposición comprobada a actos de violencia laboral
+- [ ] **7.14** Registro de exposición a acontecimientos traumáticos severos
+
+### Gestión de Registros
+
+- [ ] **7.15** Registros actualizados
+- [ ] **7.16** Registros disponibles para consulta de autoridad laboral
+- [ ] **7.17** Registros protegidos (confidencialidad de datos personales)
+- [ ] **7.18** Periodo de conservación definido
+
+---
+
+## 👥 CATEGORÍA 8: OBLIGACIONES DE LOS TRABAJADORES (Capítulo 6)
+
+### Cumplimiento de Medidas
+
+- [ ] **8.1** Trabajadores observan medidas de prevención establecidas
+- [ ] **8.2** Trabajadores observan medidas de control establecidas
+- [ ] **8.3** Trabajadores se abstienen de prácticas contrarias al entorno organizacional
+- [ ] **8.4** Trabajadores se abstienen de actos de violencia laboral
+
+### Participación
+
+- [ ] **8.5** Trabajadores participan en identificación de factores de riesgo
+- [ ] **8.6** Trabajadores participan en evaluación del entorno organizacional (>50 trab.)
+- [ ] **8.7** Trabajadores participan en eventos de información
+
+### Reporte y Denuncia
+
+- [ ] **8.8** Trabajadores informan sobre prácticas opuestas al entorno organizacional
+- [ ] **8.9** Trabajadores denuncian actos de violencia laboral
+- [ ] **8.10** Trabajadores informan por escrito acontecimientos traumáticos presenciados/sufridos
+- [ ] **8.11** Formato de reporte incluye: fecha, nombre del trabajador, involucrados, fecha de ocurrencia, descripción
+
+### Atención Médica
+
+- [ ] **8.12** Trabajadores se someten a exámenes médicos cuando se requiere
+- [ ] **8.13** Trabajadores se someten a evaluaciones psicológicas cuando se requiere
+
+---
+
+## 📋 CATEGORÍA 9: INTEGRACIÓN CON OTRAS NORMAS
+
+### NOM-019-STPS-2011 (Comisiones de Seguridad e Higiene)
+
+- [ ] **9.1** Comisión de seguridad e higiene constituida (si aplica)
+- [ ] **9.2** Comisión participa en identificación de riesgos psicosociales
+- [ ] **9.3** Comisión recibe reportes de prácticas opuestas y violencia laboral
+
+### NOM-030-STPS-2009 (Servicios Preventivos)
+
+- [ ] **9.4** Identificación y análisis integrado al diagnóstico de seguridad y salud
+- [ ] **9.5** Servicios preventivos participan en evaluaciones
+- [ ] **9.6** Coordinación con servicios preventivos para seguimiento
+
+### NMX-R-025-SCFI-2015 (Igualdad Laboral y No Discriminación)
+
+- [ ] **9.7** Certificación NMX-R-025 vigente (opcional pero exime de algunas obligaciones)
+- [ ] **9.8** Políticas de igualdad laboral implementadas
+- [ ] **9.9** Políticas de no discriminación implementadas
+
+---
+
+## 🔄 CATEGORÍA 10: PERIODICIDAD Y ACTUALIZACIÓN
+
+### Evaluaciones Periódicas
+
+- [ ] **10.1** Identificación y análisis realizados al menos cada 2 años
+- [ ] **10.2** Evaluación del entorno organizacional cada 2 años (>50 trabajadores)
+- [ ] **10.3** Fecha de última evaluación documentada
+- [ ] **10.4** Fecha de próxima evaluación programada
+
+### Detección de Necesidades de Capacitación
+
+- [ ] **10.5** Detección de necesidades realizada al menos cada 2 años
+- [ ] **10.6** Programa de capacitación actualizado con resultados
+
+### Actualización de Documentos
+
+- [ ] **10.7** Política de prevención revisada y actualizada periódicamente
+- [ ] **10.8** Procedimientos actualizados conforme a cambios organizacionales
+- [ ] **10.9** Registros actualizados continuamente
+
+---
+
+## 📁 CATEGORÍA 11: EVIDENCIAS DOCUMENTALES REQUERIDAS
+
+### Documentos Obligatorios
+
+- [ ] **11.1** Política de prevención de riesgos psicosociales (escrita y firmada)
+- [ ] **11.2** Informe de identificación y análisis de factores de riesgo (16+ trab.)
+- [ ] **11.3** Informe de evaluación del entorno organizacional (>50 trab.)
+- [ ] **11.4** Programa de atención a factores de riesgo (si resultados lo requieren)
+- [ ] **11.5** Procedimiento para quejas y denuncias
+- [ ] **11.6** Procedimiento para atención de acontecimientos traumáticos
+- [ ] **11.7** Instructivos y procedimientos de tareas y responsabilidades
+
+### Registros Obligatorios
+
+- [ ] **11.8** Registro de difusión de información (listas de asistencia, correos)
+- [ ] **11.9** Registro de capacitaciones impartidas
+- [ ] **11.10** Registro de evaluaciones realizadas
+- [ ] **11.11** Registro de medidas de control implementadas
+- [ ] **11.12** Registro de trabajadores con exámenes médicos/psicológicos
+- [ ] **11.13** Registro de quejas y denuncias recibidas
+- [ ] **11.14** Registro de seguimiento a casos de violencia laboral
+- [ ] **11.15** Registro de acontecimientos traumáticos
+
+### Evidencias de Implementación
+
+- [ ] **11.16** Fotografías de carteles y material de difusión
+- [ ] **11.17** Capturas de correos electrónicos de difusión
+- [ ] **11.18** Listas de asistencia a capacitaciones
+- [ ] **11.19** Constancias de capacitación emitidas
+- [ ] **11.20** Minutas de reuniones de seguimiento
+- [ ] **11.21** Reportes de avance de programa de atención
+
+---
+
+## ✅ CATEGORÍA 12: VERIFICACIÓN DE CUMPLIMIENTO
+
+### Autoevaluación Interna
+
+- [ ] **12.1** Revisión periódica de cumplimiento de obligaciones
+- [ ] **12.2** Identificación de brechas de cumplimiento
+- [ ] **12.3** Plan de acción para cerrar brechas
+- [ ] **12.4** Seguimiento a plan de acción
+
+### Verificación Externa (Opcional)
+
+- [ ] **12.5** Contratación de Unidad de Verificación acreditada y aprobada
+- [ ] **12.6** Verificación realizada conforme a Capítulo 10 de la NOM-035
+- [ ] **12.7** Dictamen de cumplimiento emitido
+- [ ] **12.8** Dictamen vigente
+
+### Preparación para Inspección de Autoridad Laboral
+
+- [ ] **12.9** Todos los documentos obligatorios disponibles
+- [ ] **12.10** Todos los registros actualizados y disponibles
+- [ ] **12.11** Evidencias de implementación organizadas
+- [ ] **12.12** Responsables capacitados para atender inspección
+
+---
+
+## 📈 RESUMEN DE CUMPLIMIENTO POR CATEGORÍA
+
+### Categoría A (≤15 trabajadores)
+
+| Categoría | Puntos Aplicables | Puntos Cumplidos | % Cumplimiento |
+|-----------|-------------------|------------------|----------------|
+| 1. Política de prevención | 10 | ___ | ___% |
+| 3. Medidas de prevención | 130 | ___ | ___% |
+| 4. Acontecimientos traumáticos | 15 | ___ | ___% |
+| 6. Difusión de información | 17 | ___ | ___% |
+| 8. Obligaciones trabajadores | 13 | ___ | ___% |
+| **TOTAL** | **185** | **___** | **___%** |
+
+### Categoría B (16-50 trabajadores)
+
+| Categoría | Puntos Aplicables | Puntos Cumplidos | % Cumplimiento |
+|-----------|-------------------|------------------|----------------|
+| 1. Política de prevención | 10 | ___ | ___% |
+| 2A. Identificación y análisis | 12 | ___ | ___% |
+| 2C. Informe de resultados | 8 | ___ | ___% |
+| 2D. Gestión de resultados | 4 | ___ | ___% |
+| 3. Medidas de prevención | 130 | ___ | ___% |
+| 4. Acontecimientos traumáticos | 15 | ___ | ___% |
+| 5. Exámenes médicos | 12 | ___ | ___% |
+| 6. Difusión de información | 17 | ___ | ___% |
+| 7. Registros | 18 | ___ | ___% |
+| 8. Obligaciones trabajadores | 13 | ___ | ___% |
+| **TOTAL** | **239** | **___** | **___%** |
+
+### Categoría C (>50 trabajadores)
+
+| Categoría | Puntos Aplicables | Puntos Cumplidos | % Cumplimiento |
+|-----------|-------------------|------------------|----------------|
+| 1. Política de prevención | 10 | ___ | ___% |
+| 2B. Identificación, análisis y evaluación | 19 | ___ | ___% |
+| 2C. Informe de resultados | 8 | ___ | ___% |
+| 2D. Gestión de resultados | 4 | ___ | ___% |
+| 3. Medidas de prevención | 130 | ___ | ___% |
+| 4. Acontecimientos traumáticos | 15 | ___ | ___% |
+| 5. Exámenes médicos | 12 | ___ | ___% |
+| 6. Difusión de información | 17 | ___ | ___% |
+| 7. Registros | 18 | ___ | ___% |
+| 8. Obligaciones trabajadores | 13 | ___ | ___% |
+| **TOTAL** | **246** | **___** | **___%** |
+
+---
+
+## 🎯 NIVEL DE CUMPLIMIENTO GENERAL
+
+- **90-100%**: ✅ Cumplimiento excelente
+- **75-89%**: ⚠️ Cumplimiento aceptable con áreas de mejora
+- **60-74%**: ⚠️ Cumplimiento insuficiente - requiere plan de acción urgente
+- **<60%**: ❌ Incumplimiento grave - riesgo de multas y sanciones
+
+---
+
+## 💰 MULTAS POR INCUMPLIMIENTO
+
+Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-STPS-2018 oscilan entre:
+
+- **Mínimo**: 250 UMA (Unidades de Medida y Actualización)
+- **Máximo**: 5,000 UMA
+
+**Valor UMA 2026**: Consultar valor actualizado en [INEGI](https://www.inegi.org.mx/temas/uma/)
+
+---
+
+## 📞 RECURSOS Y CONTACTOS
+
+- **STPS**: [www.gob.mx/stps](https://www.gob.mx/stps)
+- **Texto oficial NOM-035**: [DOF](https://www.dof.gob.mx/normasOficiales/7415/stps2a11_C/stps2a11_C.html)
+- **Guías de referencia**: Incluidas en el texto oficial de la NOM-035
+
+---
+
+**Fecha de elaboración del checklist**: Febrero 2026  
+**Versión**: 1.0  
+**Basado en**: NOM-035-STPS-2018 publicada en el DOF
+# MÓDULO: CHECKLIST DE CUMPLIMIENTO NOM-035-STPS-2018
+
+## 📋 INTRODUCCIÓN
+
+Este módulo proporciona un checklist detallado para verificar el cumplimiento de la **NOM-035-STPS-2018** (Factores de riesgo psicosocial en el trabajo - Identificación, análisis y prevención). El checklist está organizado por categorías y desglosado punto por punto según los requisitos oficiales de la norma.
+
+**Fuente oficial**: [Diario Oficial de la Federación](https://www.dof.gob.mx/normasOficiales/7415/stps2a11_C/stps2a11_C.html)
+
+---
+
+## 🎯 DETERMINACIÓN DEL NIVEL DE CUMPLIMIENTO REQUERIDO
+
+### PASO 1: Identificar Categoría del Centro de Trabajo
+
+- [ ] **Categoría A**: Centro de trabajo con hasta 15 trabajadores
+- [ ] **Categoría B**: Centro de trabajo con 16 a 50 trabajadores
+- [ ] **Categoría C**: Centro de trabajo con más de 50 trabajadores
+- [ ] **Certificación NMX-R-025**: ¿Cuenta con certificado NMX-R-025-SCFI-2015 vigente?
+
+### PASO 2: Obligaciones Aplicables según Categoría
+
+| Obligación | Categoría A (≤15) | Categoría B (16-50) | Categoría C (>50) |
+|-----------|-------------------|---------------------|-------------------|
+| 5.1 Política de prevención | ✅ | ✅ | ✅ |
+| 5.2 Identificación y análisis | ❌ | ✅ | ❌ |
+| 5.3 Identificación, análisis y evaluación | ❌ | ❌ | ✅ |
+| 5.4 Medidas de prevención y control | ✅ | ✅ | ✅ |
+| 5.5 Atención acontecimientos traumáticos | ✅ | ✅ | ✅ |
+| 5.6 Exámenes médicos y evaluaciones | ❌ | ✅ | ✅ |
+| 5.7 Difusión de información | ✅ | ✅ | ✅ |
+| 5.8 Registros | ❌ | ✅ | ✅ |
+| Capítulo 7 (Identificación y análisis) | ❌ | ✅ | ✅ |
+| Capítulo 8 (Medidas de prevención) | ✅ | ✅ | ✅ |
+
+---
+
+## 📝 CATEGORÍA 1: POLÍTICA DE PREVENCIÓN (Numeral 5.1)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### Requisitos de Cumplimiento
+
+- [ ] **1.1** Política establecida por escrito
+- [ ] **1.2** Política implantada en el centro de trabajo
+- [ ] **1.3** Política mantenida y actualizada
+- [ ] **1.4** Política difundida entre todos los trabajadores
+
+### Contenido Obligatorio de la Política
+
+- [ ] **1.5** Incluye prevención de factores de riesgo psicosocial
+- [ ] **1.6** Incluye prevención de violencia laboral
+- [ ] **1.7** Incluye promoción de entorno organizacional favorable
+
+### Evidencias Requeridas
+
+- [ ] **1.8** Documento escrito de la política firmado por la dirección
+- [ ] **1.9** Registros de difusión (correos, carteles, juntas, capacitaciones)
+- [ ] **1.10** Constancias de recepción por parte de los trabajadores
+
+**📌 Referencia**: Ver Guía de Referencia IV de la NOM-035 para ejemplo de política
+
+---
+
+## 🔍 CATEGORÍA 2: IDENTIFICACIÓN Y ANÁLISIS (Numerales 5.2, 5.3, 7.1-7.9)
+
+### ✅ Obligatorio para: Centros de trabajo con 16+ trabajadores
+
+### 2A. Para Centros de 16 a 50 Trabajadores (Numeral 5.2)
+
+#### Identificación y Análisis de Factores de Riesgo
+
+- [ ] **2A.1** Identificación realizada con TODOS los trabajadores (no muestra)
+- [ ] **2A.2** Análisis de condiciones en el ambiente de trabajo
+- [ ] **2A.3** Análisis de cargas de trabajo
+- [ ] **2A.4** Análisis de falta de control sobre el trabajo
+- [ ] **2A.5** Análisis de jornadas de trabajo y rotación de turnos
+- [ ] **2A.6** Análisis de interferencia trabajo-familia
+- [ ] **2A.7** Análisis de liderazgo negativo y relaciones negativas
+- [ ] **2A.8** Análisis de violencia laboral (acoso, hostigamiento, malos tratos)
+
+#### Metodología de Evaluación
+
+- [ ] **2A.9** Uso de cuestionario validado (Guía de Referencia II o equivalente)
+- [ ] **2A.10** Aplicación del cuestionario según procedimiento establecido
+- [ ] **2A.11** Evaluación de resultados según niveles de riesgo
+- [ ] **2A.12** Determinación de niveles de riesgo conforme al método
+
+### 2B. Para Centros de Más de 50 Trabajadores (Numeral 5.3)
+
+#### Identificación y Análisis de Factores de Riesgo
+
+- [ ] **2B.1** Identificación realizada (puede usar muestra representativa)
+- [ ] **2B.2** Análisis de condiciones en el ambiente de trabajo
+- [ ] **2B.3** Análisis de cargas de trabajo
+- [ ] **2B.4** Análisis de falta de control sobre el trabajo
+- [ ] **2B.5** Análisis de jornadas de trabajo y rotación de turnos
+- [ ] **2B.6** Análisis de interferencia trabajo-familia
+- [ ] **2B.7** Análisis de liderazgo negativo y relaciones negativas
+- [ ] **2B.8** Análisis de violencia laboral (acoso, hostigamiento, malos tratos)
+
+#### Evaluación del Entorno Organizacional
+
+- [ ] **2B.9** Evaluación del sentido de pertenencia
+- [ ] **2B.10** Evaluación de la formación para tareas encomendadas
+- [ ] **2B.11** Evaluación de definición precisa de responsabilidades
+- [ ] **2B.12** Evaluación de participación proactiva y comunicación
+- [ ] **2B.13** Evaluación de distribución adecuada de cargas de trabajo
+- [ ] **2B.14** Evaluación y reconocimiento del desempeño
+
+#### Metodología de Evaluación
+
+- [ ] **2B.15** Uso de cuestionario validado (Guía de Referencia III o equivalente)
+- [ ] **2B.16** Cálculo de muestra representativa (si aplica)
+- [ ] **2B.17** Aplicación del cuestionario según procedimiento establecido
+- [ ] **2B.18** Evaluación de resultados según niveles de riesgo
+- [ ] **2B.19** Determinación de niveles de riesgo conforme al método
+
+### 2C. Informe de Resultados (Numeral 7.7) - Para 16+ trabajadores
+
+- [ ] **2C.1** Informe contiene datos del centro de trabajo (nombre, domicilio, actividad)
+- [ ] **2C.2** Informe incluye objetivo de la evaluación
+- [ ] **2C.3** Informe describe principales actividades del centro de trabajo
+- [ ] **2C.4** Informe especifica método utilizado
+- [ ] **2C.5** Informe presenta resultados obtenidos con niveles de riesgo
+- [ ] **2C.6** Informe incluye conclusiones
+- [ ] **2C.7** Informe incluye recomendaciones y acciones de intervención
+- [ ] **2C.8** Informe incluye datos del responsable (nombre y cédula profesional)
+
+### 2D. Gestión de Resultados
+
+- [ ] **2D.1** Resultados disponibles para consulta de trabajadores (Numeral 7.8)
+- [ ] **2D.2** Resultados integrados al diagnóstico de seguridad y salud (NOM-030) (Numeral 7.6)
+- [ ] **2D.3** Evaluación realizada al menos cada 2 años (Numeral 7.9)
+- [ ] **2D.4** Fecha de próxima evaluación programada
+
+---
+
+## 🛡️ CATEGORÍA 3: MEDIDAS DE PREVENCIÓN Y CONTROL (Numeral 5.4, Capítulo 8)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### 3A. Acciones Generales de Prevención (Numeral 8.1)
+
+#### Acciones de Apoyo Social, Difusión y Capacitación
+
+- [ ] **3A.1** Acciones establecidas para impulsar apoyo social
+- [ ] **3A.2** Acciones de difusión de información sobre riesgos psicosociales
+- [ ] **3A.3** Programa de capacitación en prevención de riesgos psicosociales
+
+#### Mecanismos de Quejas y Denuncias
+
+- [ ] **3A.4** Mecanismo seguro y confidencial para quejas por prácticas opuestas
+- [ ] **3A.5** Mecanismo seguro y confidencial para denuncias de violencia laboral
+- [ ] **3A.6** Procedimiento documentado para recepción de quejas/denuncias
+- [ ] **3A.7** Difusión del mecanismo entre todos los trabajadores
+
+#### Acciones de Promoción del Entorno Organizacional
+
+- [ ] **3A.8** Acciones que promuevan sentido de pertenencia
+- [ ] **3A.9** Capacitación para adecuada realización de tareas
+- [ ] **3A.10** Definición precisa de responsabilidades
+- [ ] **3A.11** Participación proactiva y comunicación entre trabajadores
+- [ ] **3A.12** Distribución adecuada de cargas de trabajo
+- [ ] **3A.13** Jornadas laborales regulares conforme a LFT
+- [ ] **3A.14** Evaluación y reconocimiento del desempeño
+
+### 3B. Liderazgo y Relaciones en el Trabajo (Numeral 8.2.a)
+
+- [ ] **3B.1** Acciones para manejo de conflictos en el trabajo
+- [ ] **3B.2** Acciones para distribución de tiempos de trabajo
+- [ ] **3B.3** Acciones para determinación de prioridades en el trabajo
+- [ ] **3B.4** Lineamientos para prohibir discriminación
+- [ ] **3B.5** Lineamientos para fomentar equidad y respeto
+- [ ] **3B.6** Mecanismos de comunicación supervisores-trabajadores
+- [ ] **3B.7** Mecanismos de comunicación entre trabajadores
+- [ ] **3B.8** Instrucciones claras para atención de problemas laborales
+- [ ] **3B.9** Capacitación de directivos en prevención de riesgos psicosociales
+- [ ] **3B.10** Capacitación de gerentes en prevención de riesgos psicosociales
+- [ ] **3B.11** Capacitación de supervisores en prevención de riesgos psicosociales
+- [ ] **3B.12** Sensibilización sobre manejo de conflictos y comunicación
+
+### 3C. Cargas de Trabajo (Numeral 8.2.b)
+
+- [ ] **3C.1** Revisión de distribución equitativa de cargas de trabajo
+- [ ] **3C.2** Supervisión de cargas considerando número de trabajadores
+- [ ] **3C.3** Supervisión de cargas considerando actividades y alcance
+- [ ] **3C.4** Supervisión de cargas considerando capacitación de trabajadores
+- [ ] **3C.5** Planificación del trabajo con pausas y descansos
+- [ ] **3C.6** Rotación de tareas para evitar ritmos acelerados
+- [ ] **3C.7** Medidas para evitar ritmos de trabajo excesivos
+- [ ] **3C.8** Instructivos que definen claramente tareas
+- [ ] **3C.9** Procedimientos que definen claramente responsabilidades
+
+### 3D. Control sobre el Trabajo (Numeral 8.2.c)
+
+- [ ] **3D.1** Actividades para involucrar trabajadores en toma de decisiones
+- [ ] **3D.2** Participación en mejora de condiciones de trabajo
+- [ ] **3D.3** Participación en mejora de productividad
+- [ ] **3D.4** Acciones para acordar margen de libertad sobre el trabajo
+- [ ] **3D.5** Acciones para mejorar control de trabajadores sobre su trabajo
+- [ ] **3D.6** Impulso al desarrollo de nuevas competencias y habilidades
+- [ ] **3D.7** Reuniones para abordar áreas de oportunidad
+- [ ] **3D.8** Reuniones para determinar soluciones a problemas
+
+### 3E. Apoyo Social (Numeral 8.2.d)
+
+- [ ] **3E.1** Actividades para establecer relaciones de apoyo mutuo
+- [ ] **3E.2** Relaciones entre trabajadores para apoyo
+- [ ] **3E.3** Relaciones supervisores-trabajadores para apoyo
+- [ ] **3E.4** Relaciones gerentes-trabajadores para apoyo
+- [ ] **3E.5** Reuniones semestrales de seguimiento a apoyo social
+- [ ] **3E.6** Reuniones anuales de seguimiento a apoyo social
+- [ ] **3E.7** Reuniones extraordinarias ante eventos de riesgo
+- [ ] **3E.8** Promoción de ayuda mutua entre trabajadores
+- [ ] **3E.9** Intercambio de conocimientos y experiencias
+- [ ] **3E.10** Fomento de actividades culturales
+- [ ] **3E.11** Fomento de actividades deportivas
+- [ ] **3E.12** Provisión de equipos y útiles para actividades
+
+### 3F. Equilibrio Trabajo-Familia (Numeral 8.2.e)
+
+- [ ] **3F.1** Acciones para involucrar trabajadores en definición de horarios
+- [ ] **3F.2** Lineamientos para establecer medidas contra jornadas excesivas
+- [ ] **3F.3** Límites para evitar jornadas superiores a LFT
+- [ ] **3F.4** Apoyos para atender emergencias familiares
+- [ ] **3F.5** Procedimiento para comprobar emergencias familiares
+- [ ] **3F.6** Promoción de actividades de integración familiar
+- [ ] **3F.7** Acuerdos con trabajadores para actividades familiares
+
+### 3G. Reconocimiento en el Trabajo (Numeral 8.2.f)
+
+- [ ] **3G.1** Mecanismos para reconocer desempeño sobresaliente
+- [ ] **3G.2** Difusión de logros de trabajadores sobresalientes
+- [ ] **3G.3** Comunicación de posibilidades de desarrollo al trabajador
+
+### 3H. Prevención de Violencia Laboral (Numeral 8.2.g)
+
+- [ ] **3H.1** Difusión de información sobre violencia laboral a trabajadores
+- [ ] **3H.2** Sensibilización sobre violencia laboral a trabajadores
+- [ ] **3H.3** Sensibilización sobre violencia laboral a directivos
+- [ ] **3H.4** Sensibilización sobre violencia laboral a gerentes
+- [ ] **3H.5** Sensibilización sobre violencia laboral a supervisores
+- [ ] **3H.6** Procedimientos de actuación para tratar violencia laboral
+- [ ] **3H.7** Procedimientos de seguimiento para casos de violencia
+- [ ] **3H.8** Capacitación al responsable de implementar procedimientos
+- [ ] **3H.9** Información sobre forma de denunciar violencia laboral
+
+### 3I. Información y Comunicación (Numeral 8.2.h)
+
+- [ ] **3I.1** Comunicación directa patrón/supervisor con trabajadores
+- [ ] **3I.2** Comunicación frecuente sobre problemas laborales
+- [ ] **3I.3** Difusión de cambios en la organización
+- [ ] **3I.4** Difusión de cambios en condiciones de trabajo
+- [ ] **3I.5** Canales para que trabajadores expresen opiniones
+- [ ] **3I.6** Participación de trabajadores en solución de problemas
+- [ ] **3I.7** Participación de trabajadores en mejora de condiciones
+
+### 3J. Capacitación y Adiestramiento (Numeral 8.2.i)
+
+- [ ] **3J.1** Análisis de relación capacitación-tareas encomendadas
+- [ ] **3J.2** Oportunidad para trabajadores señalen necesidades de capacitación
+- [ ] **3J.3** Detección de necesidades de capacitación cada 2 años
+- [ ] **3J.4** Programa de capacitación integrado con resultados de detección
+- [ ] **3J.5** Registro de capacitaciones impartidas
+
+### 3K. Programa de Atención (Numerales 8.3-8.5)
+
+**Nota**: Obligatorio solo si los resultados de la evaluación determinan necesidad de acciones de control
+
+- [ ] **3K.1** Programa documentado de atención a factores de riesgo
+- [ ] **3K.2** Programa especifica áreas de trabajo sujetas
+- [ ] **3K.3** Programa especifica trabajadores sujetos
+- [ ] **3K.4** Programa define tipo de acciones y medidas de control
+- [ ] **3K.5** Programa incluye fechas programadas de realización
+- [ ] **3K.6** Programa incluye control de avances de implementación
+- [ ] **3K.7** Programa incluye evaluación posterior a medidas de control
+- [ ] **3K.8** Programa designa responsable de ejecución
+
+#### Niveles de Intervención del Programa
+
+- [ ] **3K.9** Primer nivel: Acciones organizacionales (política, organización)
+- [ ] **3K.10** Segundo nivel: Acciones grupales (sensibilización, apoyo social)
+- [ ] **3K.11** Tercer nivel: Acciones individuales (clínicas/terapéuticas por profesionales)
+
+---
+
+## 🏥 CATEGORÍA 4: ATENCIÓN A ACONTECIMIENTOS TRAUMÁTICOS (Numeral 5.5)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### Identificación de Trabajadores Afectados
+
+- [ ] **4.1** Procedimiento para identificar trabajadores sujetos a acontecimientos traumáticos
+- [ ] **4.2** Definición clara de qué constituye acontecimiento traumático severo
+- [ ] **4.3** Registro de acontecimientos traumáticos ocurridos
+
+### Ejemplos de Acontecimientos Traumáticos Severos
+
+- [ ] **4.4** Explosiones
+- [ ] **4.5** Derrumbes
+- [ ] **4.6** Incendios de gran magnitud
+- [ ] **4.7** Accidentes graves o mortales
+- [ ] **4.8** Asaltos con violencia
+- [ ] **4.9** Secuestros
+- [ ] **4.10** Homicidios
+
+### Canalización y Atención
+
+- [ ] **4.11** Procedimiento de canalización a institución de seguridad social
+- [ ] **4.12** Procedimiento de canalización a institución privada
+- [ ] **4.13** Procedimiento de canalización a médico del centro de trabajo
+- [ ] **4.14** Registro de trabajadores canalizados
+- [ ] **4.15** Seguimiento de atención proporcionada
+
+**📌 Referencia**: Ver Guía de Referencia I de la NOM-035 (Cuestionario para identificar trabajadores)
+
+---
+
+## 🩺 CATEGORÍA 5: EXÁMENES MÉDICOS Y EVALUACIONES PSICOLÓGICAS (Numeral 5.6)
+
+### ✅ Obligatorio para: Centros de trabajo con 16+ trabajadores
+
+### Criterios para Practicar Exámenes
+
+- [ ] **5.1** Exámenes cuando existan signos/síntomas de alteración a la salud
+- [ ] **5.2** Exámenes cuando resultado de identificación y análisis lo sugiera
+- [ ] **5.3** Exámenes cuando existan quejas de violencia laboral
+
+### Responsables de Realizar Exámenes
+
+- [ ] **5.4** Institución de seguridad social
+- [ ] **5.5** Institución privada
+- [ ] **5.6** Médico del centro de trabajo
+- [ ] **5.7** Psiquiatra del centro de trabajo
+- [ ] **5.8** Psicólogo del centro de trabajo
+
+### Cumplimiento Normativo
+
+- [ ] **5.9** Exámenes conforme a NOMs de Secretaría de Salud (si existen)
+- [ ] **5.10** Exámenes conforme a NOMs de STPS (si existen)
+- [ ] **5.11** Exámenes conforme a indicaciones de institución de seguridad social
+- [ ] **5.12** Registro de exámenes practicados
+
+---
+
+## 📢 CATEGORÍA 6: DIFUSIÓN DE INFORMACIÓN (Numeral 5.7)
+
+### ✅ Obligatorio para: TODOS los centros de trabajo
+
+### Contenido a Difundir
+
+- [ ] **6.1** Política de prevención de riesgos psicosociales
+- [ ] **6.2** Medidas adoptadas contra prácticas opuestas al entorno organizacional
+- [ ] **6.3** Medidas adoptadas contra actos de violencia laboral
+- [ ] **6.4** Medidas y acciones de prevención de factores de riesgo
+- [ ] **6.5** Acciones de control de factores de riesgo (si aplica)
+- [ ] **6.6** Mecanismos para presentar quejas por prácticas opuestas
+- [ ] **6.7** Mecanismos para denunciar actos de violencia laboral
+- [ ] **6.8** Resultados de identificación y análisis (16+ trabajadores)
+- [ ] **6.9** Resultados de evaluación del entorno organizacional (>50 trabajadores)
+- [ ] **6.10** Posibles alteraciones a la salud por exposición a factores de riesgo
+
+### Medios de Difusión
+
+- [ ] **6.11** Juntas informativas
+- [ ] **6.12** Correos electrónicos
+- [ ] **6.13** Carteles en áreas comunes
+- [ ] **6.14** Capacitaciones
+- [ ] **6.15** Intranet o plataforma digital
+- [ ] **6.16** Trípticos o folletos
+- [ ] **6.17** Registro de difusión con evidencias
+
+---
+
+## 📊 CATEGORÍA 7: REGISTROS (Numeral 5.8)
+
+### ✅ Obligatorio para: Centros de trabajo con 16+ trabajadores
+
+### Registros de Resultados
+
+- [ ] **7.1** Registro de resultados de identificación y análisis de factores de riesgo
+- [ ] **7.2** Registro de evaluación del entorno organizacional (>50 trabajadores)
+- [ ] **7.3** Fecha de realización de evaluaciones
+- [ ] **7.4** Método utilizado en evaluaciones
+- [ ] **7.5** Niveles de riesgo identificados
+
+### Registros de Medidas de Control
+
+- [ ] **7.6** Registro de medidas de control adoptadas
+- [ ] **7.7** Fecha de implementación de medidas
+- [ ] **7.8** Responsables de implementación
+- [ ] **7.9** Seguimiento de efectividad de medidas
+
+### Registros de Trabajadores
+
+- [ ] **7.10** Nombres de trabajadores con exámenes médicos practicados
+- [ ] **7.11** Nombres de trabajadores con evaluaciones psicológicas practicadas
+- [ ] **7.12** Registro de exposición comprobada a factores de riesgo psicosocial
+- [ ] **7.13** Registro de exposición comprobada a actos de violencia laboral
+- [ ] **7.14** Registro de exposición a acontecimientos traumáticos severos
+
+### Gestión de Registros
+
+- [ ] **7.15** Registros actualizados
+- [ ] **7.16** Registros disponibles para consulta de autoridad laboral
+- [ ] **7.17** Registros protegidos (confidencialidad de datos personales)
+- [ ] **7.18** Periodo de conservación definido
+
+---
+
+## 👥 CATEGORÍA 8: OBLIGACIONES DE LOS TRABAJADORES (Capítulo 6)
+
+### Cumplimiento de Medidas
+
+- [ ] **8.1** Trabajadores observan medidas de prevención establecidas
+- [ ] **8.2** Trabajadores observan medidas de control establecidas
+- [ ] **8.3** Trabajadores se abstienen de prácticas contrarias al entorno organizacional
+- [ ] **8.4** Trabajadores se abstienen de actos de violencia laboral
+
+### Participación
+
+- [ ] **8.5** Trabajadores participan en identificación de factores de riesgo
+- [ ] **8.6** Trabajadores participan en evaluación del entorno organizacional (>50 trab.)
+- [ ] **8.7** Trabajadores participan en eventos de información
+
+### Reporte y Denuncia
+
+- [ ] **8.8** Trabajadores informan sobre prácticas opuestas al entorno organizacional
+- [ ] **8.9** Trabajadores denuncian actos de violencia laboral
+- [ ] **8.10** Trabajadores informan por escrito acontecimientos traumáticos presenciados/sufridos
+- [ ] **8.11** Formato de reporte incluye: fecha, nombre del trabajador, involucrados, fecha de ocurrencia, descripción
+
+### Atención Médica
+
+- [ ] **8.12** Trabajadores se someten a exámenes médicos cuando se requiere
+- [ ] **8.13** Trabajadores se someten a evaluaciones psicológicas cuando se requiere
+
+---
+
+## 📋 CATEGORÍA 9: INTEGRACIÓN CON OTRAS NORMAS
+
+### NOM-019-STPS-2011 (Comisiones de Seguridad e Higiene)
+
+- [ ] **9.1** Comisión de seguridad e higiene constituida (si aplica)
+- [ ] **9.2** Comisión participa en identificación de riesgos psicosociales
+- [ ] **9.3** Comisión recibe reportes de prácticas opuestas y violencia laboral
+
+### NOM-030-STPS-2009 (Servicios Preventivos)
+
+- [ ] **9.4** Identificación y análisis integrado al diagnóstico de seguridad y salud
+- [ ] **9.5** Servicios preventivos participan en evaluaciones
+- [ ] **9.6** Coordinación con servicios preventivos para seguimiento
+
+### NMX-R-025-SCFI-2015 (Igualdad Laboral y No Discriminación)
+
+- [ ] **9.7** Certificación NMX-R-025 vigente (opcional pero exime de algunas obligaciones)
+- [ ] **9.8** Políticas de igualdad laboral implementadas
+- [ ] **9.9** Políticas de no discriminación implementadas
+
+---
+
+## 🔄 CATEGORÍA 10: PERIODICIDAD Y ACTUALIZACIÓN
+
+### Evaluaciones Periódicas
+
+- [ ] **10.1** Identificación y análisis realizados al menos cada 2 años
+- [ ] **10.2** Evaluación del entorno organizacional cada 2 años (>50 trabajadores)
+- [ ] **10.3** Fecha de última evaluación documentada
+- [ ] **10.4** Fecha de próxima evaluación programada
+
+### Detección de Necesidades de Capacitación
+
+- [ ] **10.5** Detección de necesidades realizada al menos cada 2 años
+- [ ] **10.6** Programa de capacitación actualizado con resultados
+
+### Actualización de Documentos
+
+- [ ] **10.7** Política de prevención revisada y actualizada periódicamente
+- [ ] **10.8** Procedimientos actualizados conforme a cambios organizacionales
+- [ ] **10.9** Registros actualizados continuamente
+
+---
+
+## 📁 CATEGORÍA 11: EVIDENCIAS DOCUMENTALES REQUERIDAS
+
+### Documentos Obligatorios
+
+- [ ] **11.1** Política de prevención de riesgos psicosociales (escrita y firmada)
+- [ ] **11.2** Informe de identificación y análisis de factores de riesgo (16+ trab.)
+- [ ] **11.3** Informe de evaluación del entorno organizacional (>50 trab.)
+- [ ] **11.4** Programa de atención a factores de riesgo (si resultados lo requieren)
+- [ ] **11.5** Procedimiento para quejas y denuncias
+- [ ] **11.6** Procedimiento para atención de acontecimientos traumáticos
+- [ ] **11.7** Instructivos y procedimientos de tareas y responsabilidades
+
+### Registros Obligatorios
+
+- [ ] **11.8** Registro de difusión de información (listas de asistencia, correos)
+- [ ] **11.9** Registro de capacitaciones impartidas
+- [ ] **11.10** Registro de evaluaciones realizadas
+- [ ] **11.11** Registro de medidas de control implementadas
+- [ ] **11.12** Registro de trabajadores con exámenes médicos/psicológicos
+- [ ] **11.13** Registro de quejas y denuncias recibidas
+- [ ] **11.14** Registro de seguimiento a casos de violencia laboral
+- [ ] **11.15** Registro de acontecimientos traumáticos
+
+### Evidencias de Implementación
+
+- [ ] **11.16** Fotografías de carteles y material de difusión
+- [ ] **11.17** Capturas de correos electrónicos de difusión
+- [ ] **11.18** Listas de asistencia a capacitaciones
+- [ ] **11.19** Constancias de capacitación emitidas
+- [ ] **11.20** Minutas de reuniones de seguimiento
+- [ ] **11.21** Reportes de avance de programa de atención
+
+---
+
+## ✅ CATEGORÍA 12: VERIFICACIÓN DE CUMPLIMIENTO
+
+### Autoevaluación Interna
+
+- [ ] **12.1** Revisión periódica de cumplimiento de obligaciones
+- [ ] **12.2** Identificación de brechas de cumplimiento
+- [ ] **12.3** Plan de acción para cerrar brechas
+- [ ] **12.4** Seguimiento a plan de acción
+
+### Verificación Externa (Opcional)
+
+- [ ] **12.5** Contratación de Unidad de Verificación acreditada y aprobada
+- [ ] **12.6** Verificación realizada conforme a Capítulo 10 de la NOM-035
+- [ ] **12.7** Dictamen de cumplimiento emitido
+- [ ] **12.8** Dictamen vigente
+
+### Preparación para Inspección de Autoridad Laboral
+
+- [ ] **12.9** Todos los documentos obligatorios disponibles
+- [ ] **12.10** Todos los registros actualizados y disponibles
+- [ ] **12.11** Evidencias de implementación organizadas
+- [ ] **12.12** Responsables capacitados para atender inspección
+
+---
+
+## 📈 RESUMEN DE CUMPLIMIENTO POR CATEGORÍA
+
+### Categoría A (≤15 trabajadores)
+
+| Categoría | Puntos Aplicables | Puntos Cumplidos | % Cumplimiento |
+|-----------|-------------------|------------------|----------------|
+| 1. Política de prevención | 10 | ___ | ___% |
+| 3. Medidas de prevención | 130 | ___ | ___% |
+| 4. Acontecimientos traumáticos | 15 | ___ | ___% |
+| 6. Difusión de información | 17 | ___ | ___% |
+| 8. Obligaciones trabajadores | 13 | ___ | ___% |
+| **TOTAL** | **185** | **___** | **___%** |
+
+### Categoría B (16-50 trabajadores)
+
+| Categoría | Puntos Aplicables | Puntos Cumplidos | % Cumplimiento |
+|-----------|-------------------|------------------|----------------|
+| 1. Política de prevención | 10 | ___ | ___% |
+| 2A. Identificación y análisis | 12 | ___ | ___% |
+| 2C. Informe de resultados | 8 | ___ | ___% |
+| 2D. Gestión de resultados | 4 | ___ | ___% |
+| 3. Medidas de prevención | 130 | ___ | ___% |
+| 4. Acontecimientos traumáticos | 15 | ___ | ___% |
+| 5. Exámenes médicos | 12 | ___ | ___% |
+| 6. Difusión de información | 17 | ___ | ___% |
+| 7. Registros | 18 | ___ | ___% |
+| 8. Obligaciones trabajadores | 13 | ___ | ___% |
+| **TOTAL** | **239** | **___** | **___%** |
+
+### Categoría C (>50 trabajadores)
+
+| Categoría | Puntos Aplicables | Puntos Cumplidos | % Cumplimiento |
+|-----------|-------------------|------------------|----------------|
+| 1. Política de prevención | 10 | ___ | ___% |
+| 2B. Identificación, análisis y evaluación | 19 | ___ | ___% |
+| 2C. Informe de resultados | 8 | ___ | ___% |
+| 2D. Gestión de resultados | 4 | ___ | ___% |
+| 3. Medidas de prevención | 130 | ___ | ___% |
+| 4. Acontecimientos traumáticos | 15 | ___ | ___% |
+| 5. Exámenes médicos | 12 | ___ | ___% |
+| 6. Difusión de información | 17 | ___ | ___% |
+| 7. Registros | 18 | ___ | ___% |
+| 8. Obligaciones trabajadores | 13 | ___ | ___% |
+| **TOTAL** | **246** | **___** | **___%** |
+
+---
+
+## 🎯 NIVEL DE CUMPLIMIENTO GENERAL
+
+- **90-100%**: ✅ Cumplimiento excelente
+- **75-89%**: ⚠️ Cumplimiento aceptable con áreas de mejora
+- **60-74%**: ⚠️ Cumplimiento insuficiente - requiere plan de acción urgente
+- **<60%**: ❌ Incumplimiento grave - riesgo de multas y sanciones
+
+---
+
+## 💰 MULTAS POR INCUMPLIMIENTO
+
+Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-STPS-2018 oscilan entre:
+
+- **Mínimo**: 250 UMA (Unidades de Medida y Actualización)
+- **Máximo**: 5,000 UMA
+
+**Valor UMA 2026**: Consultar valor actualizado en [INEGI](https://www.inegi.org.mx/temas/uma/)
+
+---
+
+## 📞 RECURSOS Y CONTACTOS
+
+- **STPS**: [www.gob.mx/stps](https://www.gob.mx/stps)
+- **Texto oficial NOM-035**: [DOF](https://www.dof.gob.mx/normasOficiales/7415/stps2a11_C/stps2a11_C.html)
+- **Guías de referencia**: Incluidas en el texto oficial de la NOM-035
+
+---
+
+**Fecha de elaboración del checklist**: Febrero 2026  
+**Versión**: 1.0  
+**Basado en**: NOM-035-STPS-2018 publicada en el DOF

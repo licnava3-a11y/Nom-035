@@ -746,76 +746,259 @@ export const executiveDashboardRouter = router({
         });
       }
 
-      // Importar xlsx dinámicamente
-      const XLSX = await import('xlsx');
+      // Importar exceljs dinámicamente
+      const ExcelJS = await import('exceljs');
 
       // Obtener métricas del dashboard
       const metrics = await executiveDashboardRouter.createCaller({ user: ctx.user }).getMetrics(input);
 
-      // Crear workbook
-      const wb = XLSX.utils.book_new();
+      // Crear workbook con exceljs
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Sistema NOM-035';
+      workbook.created = new Date();
+
+      // Paleta de colores corporativa
+      const colors = {
+        primary: '1E3A8A',    // Azul marino
+        success: '16A34A',    // Verde
+        danger: 'DC2626',     // Rojo
+        dark: '1F2937',       // Negro/gris oscuro
+        light: 'F3F4F6',      // Gris claro
+      };
 
       // === HOJA 1: KPIs PRINCIPALES ===
-      const kpisData = [
-        ['Dashboard Ejecutivo NOM-035 STPS 2018'],
-        ['Fecha de Generación:', new Date().toLocaleDateString('es-MX')],
-        [''],
-        ['KPI', 'Valor'],
+      const ws1 = workbook.addWorksheet('KPIs');
+      
+      // Título principal
+      ws1.mergeCells('A1:B1');
+      ws1.getCell('A1').value = 'Dashboard Ejecutivo NOM-035 STPS 2018';
+      ws1.getCell('A1').font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
+      ws1.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.primary } };
+      ws1.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws1.getRow(1).height = 30;
+
+      // Fecha de generación
+      ws1.getCell('A2').value = 'Fecha de Generación:';
+      ws1.getCell('B2').value = new Date().toLocaleDateString('es-MX');
+      ws1.getRow(2).font = { italic: true };
+
+      // Encabezados de KPIs
+      ws1.getCell('A4').value = 'KPI';
+      ws1.getCell('B4').value = 'Valor';
+      ws1.getRow(4).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      ws1.getRow(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
+      ws1.getRow(4).alignment = { horizontal: 'center' };
+
+      // Datos de KPIs
+      const kpisRows = [
         ['Tasa de Cumplimiento NOM-035', `${metrics.complianceRate}%`],
         ['Casos Críticos Abiertos', metrics.criticalCases],
         ['Total de Empleados', metrics.totalEmployees],
         ['Casos Cerrados (Mes Actual)', metrics.closedCasesThisMonth],
-        [''],
-        ['Métricas NMX-025'],
-        ['Brecha Salarial de Género', `${metrics.nmx025.genderPayGap}%`],
-        ['Mujeres en Puestos Directivos', `${metrics.nmx025.womenInLeadership}%`],
       ];
-      const ws1 = XLSX.utils.aoa_to_sheet(kpisData);
-      XLSX.utils.book_append_sheet(wb, ws1, 'KPIs');
+      
+      kpisRows.forEach((row, idx) => {
+        const rowNum = idx + 5;
+        ws1.getCell(`A${rowNum}`).value = row[0];
+        ws1.getCell(`B${rowNum}`).value = row[1];
+        ws1.getCell(`B${rowNum}`).alignment = { horizontal: 'right' };
+      });
+
+      // Sección NMX-025
+      ws1.getCell('A9').value = 'Métricas NMX-025';
+      ws1.getCell('A9').font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      ws1.getCell('A9').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.success } };
+      ws1.mergeCells('A9:B9');
+      ws1.getCell('A9').alignment = { horizontal: 'center' };
+
+      ws1.getCell('A10').value = 'Brecha Salarial de Género';
+      ws1.getCell('B10').value = `${metrics.nmx025.genderPayGap}%`;
+      ws1.getCell('B10').alignment = { horizontal: 'right' };
+
+      ws1.getCell('A11').value = 'Mujeres en Puestos Directivos';
+      ws1.getCell('B11').value = `${metrics.nmx025.womenInLeadership}%`;
+      ws1.getCell('B11').alignment = { horizontal: 'right' };
+
+      // Aplicar bordes y ajustar anchos
+      ws1.columns = [
+        { key: 'kpi', width: 35 },
+        { key: 'valor', width: 20 },
+      ];
+
+      // Bordes a todas las celdas con datos
+      for (let row = 4; row <= 11; row++) {
+        ['A', 'B'].forEach(col => {
+          ws1.getCell(`${col}${row}`).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+        });
+      }
 
       // === HOJA 2: TENDENCIAS DE CASOS ===
-      const trendsData = [
-        ['Tendencias de Casos por Mes'],
-        [''],
-        ['Mes', 'Casos Abiertos', 'Casos Cerrados'],
-        ...metrics.casesTrends.map((t: any) => [
-          t.month,
-          t.openCases,
-          t.closedCases,
-        ]),
+      const ws2 = workbook.addWorksheet('Tendencias');
+      
+      // Título
+      ws2.mergeCells('A1:C1');
+      ws2.getCell('A1').value = 'Tendencias de Casos por Mes';
+      ws2.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
+      ws2.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.primary } };
+      ws2.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws2.getRow(1).height = 25;
+
+      // Encabezados
+      ws2.getCell('A3').value = 'Mes';
+      ws2.getCell('B3').value = 'Casos Abiertos';
+      ws2.getCell('C3').value = 'Casos Cerrados';
+      ws2.getRow(3).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      ws2.getRow(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
+      ws2.getRow(3).alignment = { horizontal: 'center' };
+
+      // Datos
+      metrics.casesTrends.forEach((t: any, idx: number) => {
+        const rowNum = idx + 4;
+        ws2.getCell(`A${rowNum}`).value = t.month;
+        ws2.getCell(`B${rowNum}`).value = t.openCases;
+        ws2.getCell(`C${rowNum}`).value = t.closedCases;
+      });
+
+      // Ajustar anchos
+      ws2.columns = [
+        { key: 'mes', width: 20 },
+        { key: 'abiertos', width: 18 },
+        { key: 'cerrados', width: 18 },
       ];
-      const ws2 = XLSX.utils.aoa_to_sheet(trendsData);
-      XLSX.utils.book_append_sheet(wb, ws2, 'Tendencias');
+
+      // Gráfica de barras para tendencias
+      const chartDataRows = metrics.casesTrends.length;
+      ws2.addChart({
+        name: 'Tendencias de Casos',
+        chartType: 'bar',
+        categories: {
+          formula: `Tendencias!$A$4:$A$${3 + chartDataRows}`,
+        },
+        values: [
+          {
+            formula: `Tendencias!$B$4:$B$${3 + chartDataRows}`,
+            name: 'Casos Abiertos',
+          },
+          {
+            formula: `Tendencias!$C$4:$C$${3 + chartDataRows}`,
+            name: 'Casos Cerrados',
+          },
+        ],
+        position: { x: 350, y: 50 },
+        width: 500,
+        height: 300,
+      } as any);
 
       // === HOJA 3: DISTRIBUCIÓN DE RIESGO ===
-      const riskData = [
-        ['Distribución de Riesgo Psicosocial'],
-        [''],
-        ['Nivel de Riesgo', 'Cantidad'],
-        ...metrics.riskDistribution.map((r: any) => [
-          r.level,
-          r.count,
-        ]),
+      const ws3 = workbook.addWorksheet('Riesgo');
+      
+      // Título
+      ws3.mergeCells('A1:B1');
+      ws3.getCell('A1').value = 'Distribución de Riesgo Psicosocial';
+      ws3.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
+      ws3.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.danger } };
+      ws3.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws3.getRow(1).height = 25;
+
+      // Encabezados
+      ws3.getCell('A3').value = 'Nivel de Riesgo';
+      ws3.getCell('B3').value = 'Cantidad';
+      ws3.getRow(3).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      ws3.getRow(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
+      ws3.getRow(3).alignment = { horizontal: 'center' };
+
+      // Datos
+      metrics.riskDistribution.forEach((r: any, idx: number) => {
+        const rowNum = idx + 4;
+        ws3.getCell(`A${rowNum}`).value = r.level;
+        ws3.getCell(`B${rowNum}`).value = r.count;
+        ws3.getCell(`B${rowNum}`).alignment = { horizontal: 'right' };
+      });
+
+      // Ajustar anchos
+      ws3.columns = [
+        { key: 'nivel', width: 25 },
+        { key: 'cantidad', width: 15 },
       ];
-      const ws3 = XLSX.utils.aoa_to_sheet(riskData);
-      XLSX.utils.book_append_sheet(wb, ws3, 'Riesgo');
+
+      // Gráfica de pie para distribución de riesgo
+      const riskDataRows = metrics.riskDistribution.length;
+      ws3.addChart({
+        name: 'Distribución de Riesgo',
+        chartType: 'pie',
+        categories: {
+          formula: `Riesgo!$A$4:$A$${3 + riskDataRows}`,
+        },
+        values: [
+          {
+            formula: `Riesgo!$B$4:$B$${3 + riskDataRows}`,
+            name: 'Cantidad',
+          },
+        ],
+        position: { x: 250, y: 50 },
+        width: 450,
+        height: 300,
+      } as any);
 
       // === HOJA 4: DISTRIBUCIÓN POR DEPARTAMENTO ===
-      const deptData = [
-        ['Distribución por Departamento'],
-        [''],
-        ['Departamento', 'Empleados'],
-        ...metrics.departmentDistribution.map((d: any) => [
-          d.department,
-          d.count,
-        ]),
+      const ws4 = workbook.addWorksheet('Departamentos');
+      
+      // Título
+      ws4.mergeCells('A1:B1');
+      ws4.getCell('A1').value = 'Distribución por Departamento';
+      ws4.getCell('A1').font = { bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
+      ws4.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.success } };
+      ws4.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws4.getRow(1).height = 25;
+
+      // Encabezados
+      ws4.getCell('A3').value = 'Departamento';
+      ws4.getCell('B3').value = 'Empleados';
+      ws4.getRow(3).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      ws4.getRow(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.dark } };
+      ws4.getRow(3).alignment = { horizontal: 'center' };
+
+      // Datos
+      metrics.departmentDistribution.forEach((d: any, idx: number) => {
+        const rowNum = idx + 4;
+        ws4.getCell(`A${rowNum}`).value = d.department;
+        ws4.getCell(`B${rowNum}`).value = d.count;
+        ws4.getCell(`B${rowNum}`).alignment = { horizontal: 'right' };
+      });
+
+      // Ajustar anchos
+      ws4.columns = [
+        { key: 'departamento', width: 30 },
+        { key: 'empleados', width: 15 },
       ];
-      const ws4 = XLSX.utils.aoa_to_sheet(deptData);
-      XLSX.utils.book_append_sheet(wb, ws4, 'Departamentos');
+
+      // Gráfica de columnas para departamentos
+      const deptDataRows = metrics.departmentDistribution.length;
+      ws4.addChart({
+        name: 'Distribución por Departamento',
+        chartType: 'column',
+        categories: {
+          formula: `Departamentos!$A$4:$A$${3 + deptDataRows}`,
+        },
+        values: [
+          {
+            formula: `Departamentos!$B$4:$B$${3 + deptDataRows}`,
+            name: 'Empleados',
+          },
+        ],
+        position: { x: 300, y: 50 },
+        width: 500,
+        height: 300,
+      } as any);
 
       // Generar buffer
-      const excelBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-      const base64 = excelBuffer.toString('base64');
+      const excelBuffer = await workbook.xlsx.writeBuffer();
+      const base64 = Buffer.from(excelBuffer).toString('base64');
 
       return {
         filename: `Dashboard-Ejecutivo-${new Date().toISOString().split('T')[0]}.xlsx`,
