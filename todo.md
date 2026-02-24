@@ -7096,3 +7096,37 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 **Fecha de elaboración del checklist**: Febrero 2026  
 **Versión**: 1.0  
 **Basado en**: NOM-035-STPS-2018 publicada en el DOF
+
+
+## SESIÓN 26: Correcciones SQL + Evaluación 360° + Alertas Tempranas
+
+**Prioridad**: CRÍTICA  
+**Objetivo**: Corregir errores SQL críticos, implementar Evaluación 360° completa con metodologías avanzadas y sistema de alertas automáticas
+
+### 1. Correcciones SQL Críticas ✅ COMPLETADA
+- [x] Executive Reports Job: severity → priority (6 correcciones)
+- [x] Compliance Reminders Job: validar manejo null/undefined
+- [x] departments.ts: agregar imports (predictiveTurnoverAlerts, gte)
+
+### 2. Evaluación de Desempeño 360°
+- [ ] Crear router performanceEvaluation360.ts
+- [ ] Implementar procedures (getEvaluations, createEvaluation, submitFeedback)
+- [ ] Implementar calculateSkillsGap (brecha de habilidades)
+- [ ] Implementar generateDNC (detección necesidades capacitación)
+- [ ] Crear página PerformanceEvaluation360.tsx
+- [ ] Integrar con metodologías: Nine Box, Leadership Pipeline, Pivotal Roles
+- [ ] Agregar ruta en App.tsx
+
+### 3. Sistema de Alertas Tempranas
+- [ ] Crear router riskAlerts.ts
+- [ ] Implementar checkRiskLevels (monitoreo automático)
+- [ ] Implementar triggerAlert (notificaciones cuando umbral > 30%)
+- [ ] Implementar getAlertHistory
+- [ ] Crear página RiskAlerts.tsx
+- [ ] Agregar ruta en App.tsx
+
+### 4. Validación y Checkpoint
+- [ ] Ejecutar tests
+- [ ] Verificar funcionalidad completa
+- [ ] Actualizar todo.md con progreso
+- [ ] Guardar checkpoint final

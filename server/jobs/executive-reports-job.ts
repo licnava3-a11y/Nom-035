@@ -59,7 +59,7 @@ interface ExecutiveReportData {
     id: number;
     employeeName: string;
     department: string;
-    severity: string;
+    priority: string;
     daysOpen: number;
     status: string;
   }>;
@@ -114,7 +114,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .select({ count: sql<number>`COUNT(*)` })
     .from(cases)
     .where(and(
-      eq(cases.severity, 'critical'),
+      eq(cases.priority, 'critical'),
       sql`${cases.status} IN ('open', 'in_progress')`
     ));
   
@@ -230,7 +230,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
       id: cases.id,
       employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
       departmentName: departments.name,
-      severity: cases.severity,
+      priority: cases.priority,
       status: cases.status,
       createdAt: cases.createdAt
     })
@@ -238,7 +238,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .leftJoin(employees, eq(cases.employeeId, employees.id))
     .leftJoin(departments, eq(employees.departmentId, departments.id))
     .where(and(
-      eq(cases.severity, 'critical'),
+      eq(cases.priority, 'critical'),
       sql`${cases.status} IN ('open', 'in_progress')`
     ))
     .orderBy(cases.createdAt)
@@ -248,7 +248,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     id: c.id,
     employeeName: c.employeeName || 'N/A',
     department: c.departmentName || 'N/A',
-    severity: c.severity || 'N/A',
+    priority: c.priority || 'N/A',
     daysOpen: Math.floor((now.getTime() - c.createdAt.getTime()) / (1000 * 60 * 60 * 24)),
     status: c.status || 'N/A'
   }));
@@ -537,7 +537,7 @@ function generateReportHTML(data: ExecutiveReportData): string {
               <td>#${c.id}</td>
               <td>${c.employeeName}</td>
               <td>${c.department}</td>
-              <td><span class="badge critical">${c.severity}</span></td>
+              <td><span class="badge critical">${c.priority}</span></td>
               <td>${c.daysOpen}</td>
               <td>${c.status}</td>
             </tr>

@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, departmentHistory, positions, employees, systemSettings, bulkReassignments, bulkReassignmentDetails } from "../../drizzle/schema";
+import { departments, departmentHistory, positions, employees, systemSettings, bulkReassignments, bulkReassignmentDetails, predictiveTurnoverAlerts } from "../../drizzle/schema";
 import { sendEmail } from "../lib/email-sender";
-import { eq, like, and, sql, count, desc, isNull } from "drizzle-orm";
+import { eq, like, and, sql, count, desc, isNull, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const departmentsRouter = router({
