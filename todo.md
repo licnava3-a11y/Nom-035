@@ -7458,3 +7458,18 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Agregar navegación en menú lateral (Gestión de Talento)
 - [ ] Agregar ruta en App.tsx (/consolidated-talent-dashboard)
 
+
+
+---
+
+## SESIÓN 31: Gráfico de Radar para Competencias Individuales
+
+### Implementar Gráfico de Radar en PerformanceEvaluation360 (ALTA) ✅ COMPLETADO
+- [x] Crear componente RadarChart.tsx con Chart.js
+- [x] Implementar procedure getEmployeeCompetencies en performanceEvaluation360Router
+- [x] Integrar RadarChart en PerformanceEvaluation360.tsx
+- [x] Agregar selector de empleado para visualizar competencias
+- [x] Implementar tooltip con detalles de competencias
+- [x] Agregar leyenda con escala de evaluación (1-4: Básico, Intermedio, Avanzado, Experto)
+- [x] Optimizar colores para visualización profesional (verde para nivel actual, azul punteado para nivel requerido)
+

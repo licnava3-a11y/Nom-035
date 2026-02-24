@@ -435,4 +435,39 @@ export const performanceEvaluation360Router = router({
           : "0.00",
       };
     }),
+
+  /**
+   * Obtener competencias de un empleado con niveles actuales y requeridos
+   */
+  getEmployeeCompetencies: protectedProcedure
+    .input(
+      z.object({
+        employeeId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Obtener competencias del empleado con niveles actuales y requeridos
+      const employeeCompetencies = await db
+        .select({
+          competencyId: competencies.id,
+          competencyName: competencies.name,
+          currentLevel: sql<number>`COALESCE(ec.level, 0)`,
+          requiredLevel: sql<number>`COALESCE(c.required_level, 3)`,
+        })
+        .from(competencies)
+        .leftJoin(
+          sql`employee_competencies ec`,
+          sql`ec.competency_id = ${competencies.id} AND ec.employee_id = ${input.employeeId}`
+        )
+        .leftJoin(
+          sql`competencies c`,
+          sql`c.id = ${competencies.id}`
+        )
+        .limit(10); // Limitar a 10 competencias para mejor visualización
+
+      return employeeCompetencies;
+    }),
 });

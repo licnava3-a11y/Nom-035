@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Badge } from "../components/ui/badge";
 import { Loader2, Users, TrendingUp, Award, Target } from "lucide-react";
 import { toast } from "sonner";
+import RadarChart from "../components/RadarChart";
 
 export default function PerformanceEvaluation360() {
   const [selectedCycleId, setSelectedCycleId] = useState<number | null>(null);
@@ -24,6 +25,10 @@ export default function PerformanceEvaluation360() {
   const { data: stats, isLoading: statsLoading } = trpc.performanceEvaluation360.getEvaluationStats.useQuery(
     { cycleId: selectedCycleId! },
     { enabled: !!selectedCycleId }
+  );
+  const { data: employeeCompetencies, isLoading: competenciesLoading } = trpc.performanceEvaluation360.getEmployeeCompetencies.useQuery(
+    { employeeId: selectedEmployeeId! },
+    { enabled: !!selectedEmployeeId }
   );
 
   // Mutations
@@ -250,6 +255,7 @@ export default function PerformanceEvaluation360() {
           <TabsList>
             <TabsTrigger value="ninebox">Nine Box Matrix</TabsTrigger>
             <TabsTrigger value="pipeline">Leadership Pipeline</TabsTrigger>
+            <TabsTrigger value="competencies">Competencias Individuales</TabsTrigger>
             <TabsTrigger value="actions">Acciones</TabsTrigger>
           </TabsList>
 
@@ -298,6 +304,63 @@ export default function PerformanceEvaluation360() {
                   </div>
                 ) : (
                   renderLeadershipPipeline()
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="competencies" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Competencias Individuales</CardTitle>
+                <CardDescription>
+                  Visualización de competencias de empleados con gráfico de radar
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Selector de empleado */}
+                <div className="space-y-2">
+                  <Label htmlFor="employee-select">Seleccionar Empleado</Label>
+                  <Select
+                    value={selectedEmployeeId?.toString() || ""}
+                    onValueChange={(value) => setSelectedEmployeeId(Number(value))}
+                  >
+                    <SelectTrigger id="employee-select">
+                      <SelectValue placeholder="Selecciona un empleado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {nineBoxMatrix?.matrix.map((emp: any) => (
+                        <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
+                          {emp.employeeName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Gráfico de radar */}
+                {competenciesLoading ? (
+                  <div className="flex items-center justify-center h-64">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : employeeCompetencies && employeeCompetencies.length > 0 ? (
+                  <RadarChart
+                    data={employeeCompetencies.map((comp: any) => ({
+                      competencyName: comp.competencyName,
+                      currentLevel: comp.currentLevel,
+                      requiredLevel: comp.requiredLevel,
+                    }))}
+                    employeeName={nineBoxMatrix?.matrix.find((e: any) => e.employeeId === selectedEmployeeId)?.employeeName}
+                    className="mt-6"
+                  />
+                ) : selectedEmployeeId ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    No se encontraron competencias para este empleado
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    Selecciona un empleado para visualizar sus competencias
+                  </div>
                 )}
               </CardContent>
             </Card>
