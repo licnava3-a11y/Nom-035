@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS \nWHERE TABLE_NAME = 'evaluation_360_cycles' AND COLUMN_NAME = 'status';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS \nWHERE TABLE_NAME = 'evaluation_360_cycles' AND COLUMN_NAME = 'status';",
+  "rows": [
+    {
+      "COLUMN_TYPE": "enum('draft','active','closed','archived')"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_TYPE\nenum('draft','active','closed','archived')\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

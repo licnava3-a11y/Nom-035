@@ -7423,3 +7423,38 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - ✅ 3 enlaces agregados en DashboardLayout.tsx
 - ✅ Sistema 100% funcional y navegable
 
+
+
+---
+
+## SESIÓN 30: Datos de Prueba, Visualizaciones Avanzadas y Dashboard Consolidado de Talento
+
+### 1. Agregar Datos de Prueba para Validación (ALTA) ✅ COMPLETADO
+- [x] Crear ciclos de evaluación 360° de prueba (2-3 ciclos con diferentes estados)
+- [x] Asignar evaluadores y evaluados para ciclos de prueba
+- [x] Configurar umbrales de alertas tempranas (30% riesgo alto por defecto)
+- [x] Crear reportes programados de prueba (mensual/trimestral)
+- [x] Agregar destinatarios para reportes (3-5 directivos)
+- [x] Router testData.ts creado con procedure seedSession29
+- [x] Página TestDataSeeder.tsx creada (/test-data-seeder)
+- [ ] Validar funcionamiento de los 3 módulos con datos de prueba
+
+### 2. Visualizaciones Avanzadas en PerformanceEvaluation360 (ALTA)
+- [ ] Implementar gráfico radar para competencias individuales (Chart.js radar)
+- [ ] Crear timeline de evolución de desempeño (gráfico de línea temporal)
+- [ ] Agregar comparativas departamentales (bar chart comparativo)
+- [ ] Implementar filtros por departamento y período
+- [ ] Agregar exportación PDF de visualizaciones
+- [ ] Optimizar rendimiento de queries con agregaciones
+
+### 3. Dashboard Consolidado de Talento (ALTA)
+- [ ] Crear router consolidatedTalentDashboard.ts
+- [ ] Implementar query unificado (Nine Box + Alertas + Reportes)
+- [ ] Crear página ConsolidatedTalentDashboard.tsx
+- [ ] Integrar Nine Box Matrix en vista consolidada
+- [ ] Integrar Alertas de Riesgo en vista consolidada
+- [ ] Integrar Métricas de Reportes en vista consolidada
+- [ ] Implementar filtros por departamento y período
+- [ ] Agregar navegación en menú lateral (Gestión de Talento)
+- [ ] Agregar ruta en App.tsx (/consolidated-talent-dashboard)
+

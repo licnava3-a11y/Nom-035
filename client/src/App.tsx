@@ -220,6 +220,7 @@ const SMTPConfig = lazy(() => import("./pages/SMTPConfig"));
 const PerformanceEvaluation360 = lazy(() => import("./pages/PerformanceEvaluation360"));
 const RiskAlerts = lazy(() => import("./pages/RiskAlerts"));
 const ScheduledReports = lazy(() => import("./pages/ScheduledReports"));
+const TestDataSeeder = lazy(() => import("./pages/TestDataSeeder"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1602,6 +1603,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <ScheduledReports />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/test-data-seeder"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TestDataSeeder />
             </Suspense>
           </DashboardLayout>
         </Route>
