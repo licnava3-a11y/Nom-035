@@ -13,6 +13,7 @@ import {
   nineBoxEvaluations,
 } from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
+import { generatePDFFromHTML } from "../_core/pdfGenerator";
 
 export const performanceEvaluation360Router = router({
   /**
@@ -515,5 +516,254 @@ export const performanceEvaluation360Router = router({
         .orderBy(evaluation360Cycles.endDate);
 
       return competencyEvolution;
+    }),
+
+  /**
+   * Generar reporte individual en PDF para un empleado
+   */
+  generateEmployeeReport: protectedProcedure
+    .input(
+      z.object({
+        employeeId: z.number(),
+        cycleId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // 1. Obtener datos del empleado
+      const [employee] = await db
+        .select({
+          name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          position: employees.position,
+        })
+        .from(employees)
+        .where(eq(employees.id, input.employeeId));
+
+      if (!employee) throw new Error("Empleado no encontrado");
+
+      // 2. Obtener datos del ciclo
+      const [cycle] = await db
+        .select({
+          cycleName: evaluation360Cycles.cycleName,
+        })
+        .from(evaluation360Cycles)
+        .where(eq(evaluation360Cycles.id, input.cycleId));
+
+      if (!cycle) throw new Error("Ciclo no encontrado");
+
+      // 3. Obtener competencias del empleado (brechas)
+      const employeeCompetencies = await db
+        .select({
+          competencyId: competencies.id,
+          competencyName: competencies.name,
+          currentLevel: sql<number>`AVG(${evaluation360Responses.rating})`,
+          requiredLevel: competencies.requiredLevel,
+        })
+        .from(evaluation360Responses)
+        .innerJoin(
+          evaluation360Evaluators,
+          eq(evaluation360Responses.evaluatorId, evaluation360Evaluators.id)
+        )
+        .innerJoin(
+          evaluation360Assignments,
+          eq(evaluation360Evaluators.assignmentId, evaluation360Assignments.id)
+        )
+        .innerJoin(
+          competencies,
+          sql`${evaluation360Responses.competencyId} = ${competencies.id}`
+        )
+        .where(
+          and(
+            eq(evaluation360Assignments.employeeId, input.employeeId),
+            eq(evaluation360Assignments.cycleId, input.cycleId)
+          )
+        )
+        .groupBy(competencies.id, competencies.name, competencies.requiredLevel)
+        .limit(10);
+
+      // 4. Obtener evolución de competencias (primeras 3 competencias)
+      const topCompetencies = employeeCompetencies.slice(0, 3);
+      const evolutionData: any[] = [];
+
+      for (const comp of topCompetencies) {
+        const evolution = await db
+          .select({
+            cycleName: evaluation360Cycles.cycleName,
+            cycleDate: evaluation360Cycles.endDate,
+            competencyLevel: sql<number>`AVG(${evaluation360Responses.rating})`,
+          })
+          .from(evaluation360Responses)
+          .innerJoin(
+            evaluation360Evaluators,
+            eq(evaluation360Responses.evaluatorId, evaluation360Evaluators.id)
+          )
+          .innerJoin(
+            evaluation360Assignments,
+            eq(evaluation360Evaluators.assignmentId, evaluation360Assignments.id)
+          )
+          .innerJoin(
+            evaluation360Cycles,
+            eq(evaluation360Assignments.cycleId, evaluation360Cycles.id)
+          )
+          .where(
+            and(
+              eq(evaluation360Assignments.employeeId, input.employeeId),
+              eq(evaluation360Responses.competencyId, comp.competencyId)
+            )
+          )
+          .groupBy(evaluation360Cycles.id, evaluation360Cycles.cycleName, evaluation360Cycles.endDate)
+          .orderBy(evaluation360Cycles.endDate);
+
+        evolutionData.push(...evolution);
+      }
+
+      // 5. Generar plan de desarrollo personalizado
+      const competenciesWithGaps = employeeCompetencies.filter(
+        (c) => c.currentLevel < c.requiredLevel
+      );
+
+      let developmentPlan = "";
+      if (competenciesWithGaps.length > 0) {
+        developmentPlan = `Se han identificado ${competenciesWithGaps.length} competencias con brechas que requieren desarrollo:\n\n`;
+        competenciesWithGaps.forEach((comp, index) => {
+          const gap = comp.requiredLevel - comp.currentLevel;
+          developmentPlan += `${index + 1}. ${comp.competencyName}: Brecha de ${gap.toFixed(1)} puntos\n`;
+          developmentPlan += `   - Nivel actual: ${comp.currentLevel.toFixed(1)}\n`;
+          developmentPlan += `   - Nivel requerido: ${comp.requiredLevel}\n`;
+          developmentPlan += `   - Acciones recomendadas: Capacitación especializada, mentoría, proyectos prácticos\n\n`;
+        });
+      } else {
+        developmentPlan =
+          "¡Felicidades! El empleado cumple o supera el nivel requerido en todas las competencias evaluadas. Se recomienda continuar con el desarrollo de habilidades avanzadas y liderazgo.";
+      }
+
+      // 6. Generar HTML del reporte
+      const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte Individual de Evaluación 360°</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      color: #333;
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #2980b9;
+      margin-top: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .header-info {
+      margin-bottom: 30px;
+      line-height: 1.8;
+    }
+    .development-plan {
+      background-color: #ecf0f1;
+      padding: 20px;
+      border-left: 4px solid #3498db;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+    .footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 12px;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reporte Individual de Evaluación 360°</h1>
+  
+  <div class="header-info">
+    <strong>Empleado:</strong> ${employee.name}<br>
+    <strong>Puesto:</strong> ${employee.position || "No especificado"}<br>
+    <strong>Ciclo de Evaluación:</strong> ${cycle.cycleName}<br>
+    <strong>Fecha de Generación:</strong> ${new Date().toLocaleDateString("es-MX")}
+  </div>
+
+  <h2>1. Análisis de Brechas de Competencias</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Competencia</th>
+        <th>Nivel Actual</th>
+        <th>Nivel Requerido</th>
+        <th>Brecha</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${employeeCompetencies
+        .map(
+          (comp) => `
+        <tr>
+          <td>${comp.competencyName}</td>
+          <td>${comp.currentLevel.toFixed(1)}</td>
+          <td>${comp.requiredLevel}</td>
+          <td>${(comp.requiredLevel - comp.currentLevel).toFixed(1)}</td>
+          <td>${
+            comp.currentLevel < comp.requiredLevel
+              ? "⚠️ Brecha"
+              : comp.currentLevel === comp.requiredLevel
+              ? "✅ Cumple"
+              : "✅ Supera"
+          }</td>
+        </tr>
+      `
+        )
+        .join("")}
+    </tbody>
+  </table>
+
+  <h2>2. Evolución de Competencias</h2>
+  <p>Se han registrado ${evolutionData.length} evaluaciones a lo largo de ${new Set(evolutionData.map((e) => e.cycleName)).size} ciclos.</p>
+
+  <h2>3. Plan de Desarrollo Personalizado</h2>
+  <div class="development-plan">
+    ${developmentPlan}
+  </div>
+
+  <div class="footer">
+    <p>Plataforma NOM-035 STPS 2018 | Generado automáticamente</p>
+  </div>
+</body>
+</html>
+      `;
+
+      // 7. Generar PDF y subir a S3
+      const fileName = `reporte-360-${input.employeeId}-${input.cycleId}`;
+      const pdfUrl = await generatePDFFromHTML(html, fileName, {
+        format: "Letter",
+        orientation: "portrait",
+      });
+
+      return { success: true, pdfUrl };
     }),
 });

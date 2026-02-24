@@ -7490,3 +7490,20 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Implementar detección automática de tendencias
 - [x] Mejorar UX del timeline con selectores en cascada
 - [ ] Guardar checkpoint
+
+
+---
+
+## SESIÓN 33: Exportación de Reportes Individuales en PDF
+
+### Implementar Exportación de Reportes en PDF (ALTA) ✅ COMPLETADO
+- [x] Crear procedure generateEmployeeReport en performanceEvaluation360Router
+- [x] Implementar generación de PDF con Puppeteer (generatePDFFromHTML)
+- [x] Incluir tabla de brechas de competencias (HTML)
+- [x] Incluir resumen de evolución de competencias
+- [x] Incluir plan de desarrollo personalizado generado automáticamente
+- [x] Agregar botón de exportación en PerformanceEvaluation360.tsx (tab Competencias Individuales)
+- [x] Implementar apertura automática del PDF en nueva ventana
+- [x] Implementar notificaciones de éxito/error con toast
+- [x] Mejorar UX de exportación (botón con estado de carga)
+- [ ] Guardar checkpoint

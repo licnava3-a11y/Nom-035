@@ -37,6 +37,18 @@ export default function PerformanceEvaluation360() {
     { enabled: !!selectedEmployeeId && !!selectedCompetencyId }
   );
 
+  // Mutation para generar reporte PDF
+  const generateReportMutation = trpc.performanceEvaluation360.generateEmployeeReport.useMutation({
+    onSuccess: (data) => {
+      toast.success("¡Reporte generado exitosamente!");
+      // Abrir PDF en nueva ventana
+      window.open(data.pdfUrl, "_blank");
+    },
+    onError: (error) => {
+      toast.error(`Error al generar reporte: ${error.message}`);
+    },
+  });
+
   // Mutations
   const createCycleMutation = trpc.performanceEvaluation360.createCycle.useMutation({
     onSuccess: () => {
@@ -344,6 +356,30 @@ export default function PerformanceEvaluation360() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Botón de exportación */}
+                {selectedEmployeeId && selectedCycleId && (
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() =>
+                        generateReportMutation.mutate({
+                          employeeId: selectedEmployeeId,
+                          cycleId: selectedCycleId,
+                        })
+                      }
+                      disabled={generateReportMutation.isPending}
+                    >
+                      {generateReportMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generando PDF...
+                        </>
+                      ) : (
+                        "📄 Exportar Reporte Individual (PDF)"
+                      )}
+                    </Button>
+                  </div>
+                )}
 
                 {/* Gráfico de radar */}
                 {competenciesLoading ? (
