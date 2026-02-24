@@ -42,6 +42,7 @@ import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job
 import { initializeWebSocket } from "./websocket";
 import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
 import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
+import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -260,6 +261,15 @@ async function startServer() {
     
     // Compliance Reminders Job
     initializeComplianceRemindersJob();
+    
+    // Monthly Reports Job (1st day of month at 8:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getDate() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
+        console.log("[Monthly Reports Job] Triggering automated monthly reports");
+        runMonthlyReportsJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
   });
 }
 

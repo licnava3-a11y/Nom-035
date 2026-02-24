@@ -138,6 +138,9 @@ import { sharedReportsRouter } from "./routers/sharedReports";
 import { whatsappTrackingRouter } from "./routers/whatsappTracking";
 import { leadsRouter } from "./routers/leads";
 import { salespeopleRouter } from "./routers/salespeople";
+import { performanceEvaluation360Router } from "./routers/performanceEvaluation360";
+import { riskAlertsRouter } from "./routers/riskAlerts";
+import { scheduledReportsRouter } from "./routers/scheduledReports";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -247,6 +250,9 @@ export const appRouter = router({
   whatsappTracking: whatsappTrackingRouter,
   leads: leadsRouter,
   salespeople: salespeopleRouter,
+  performanceEvaluation360: performanceEvaluation360Router,
+  riskAlerts: riskAlertsRouter,
+  scheduledReports: scheduledReportsRouter,
   reportConfigurations: reportConfigurationsRouter,
   sentimentAnalysis: sentimentAnalysisRouter,
   executiveReports: executiveReportsRouter,

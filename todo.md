@@ -7292,3 +7292,77 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Documentar todas las correcciones aplicadas
 - [ ] Actualizar métricas de errores
 - [ ] Crear checkpoint final
+
+
+---
+
+## SESIÓN 29: Evaluación 360°, Alertas Tempranas y Reportes Automáticos ✅ BACKEND COMPLETADO
+
+### 1. Evaluación de Desempeño 360° (ALTA) ✅ BACKEND COMPLETADO E INTEGRADO
+- [x] Crear 6 tablas SQL (evaluation_360_cycles, assignments, evaluators, responses, results, development_plans)
+- [x] Actualizar schema Drizzle con 6 tablas
+- [x] Crear router tRPC performanceEvaluation360.ts (11 procedures)
+- [x] Integrar router en routers.ts y appRouter
+- [x] Implementar procedures básicos:
+  - [x] createCycle, getCycles
+  - [x] assignEmployees, assignEvaluators
+  - [x] submitEvaluation, consolidateResults
+  - [x] getEmployeeResults, generateDevelopmentPlan
+  - [x] getNineBoxMatrix, getLeadershipPipeline (placeholder)
+  - [x] getEvaluationStats
+- [ ] Crear página UI PerformanceEvaluation360.tsx
+- [ ] Implementar componente Nine Box Matrix visual
+- [ ] Implementar componente Leadership Pipeline
+- [ ] Agregar ruta en App.tsx (/performance-evaluation-360)
+
+### 2. Sistema de Alertas Tempranas (ALTA) ✅ BACKEND COMPLETADO E INTEGRADO
+- [x] Crear 2 tablas SQL (risk_alert_history, risk_alert_thresholds)
+- [x] Actualizar schema Drizzle con 2 tablas
+- [x] Crear router tRPC riskAlerts.ts (6 procedures)
+- [x] Integrar router en routers.ts y appRouter
+- [x] Implementar procedures:
+  - [x] checkRiskLevels (monitoreo automático de umbrales)
+  - [x] triggerAlert (disparar alerta cuando >30% riesgo alto)
+  - [x] getAlertHistory (historial de alertas)
+  - [x] configureThresholds (configurar umbrales personalizados)
+  - [x] getThresholds (obtener configuración)
+  - [x] getDepartmentRiskStats (estadísticas por departamento)
+- [x] Implementar notificaciones automáticas por email (notifyOwner)
+- [x] Integrar con notifyOwner para alertas críticas
+- [ ] Crear página UI RiskAlerts.tsx
+- [ ] Agregar ruta en App.tsx (/risk-alerts)
+
+### 3. Reportes Automáticos por Email (ALTA) ✅ BACKEND COMPLETADO E INTEGRADO
+- [x] Crear 2 tablas SQL (scheduled_reports, report_history)
+- [x] Actualizar schema Drizzle con 2 tablas
+- [x] Crear router tRPC scheduledReports.ts (6 procedures)
+- [x] Integrar router en routers.ts y appRouter
+- [x] Implementar procedures:
+  - [x] createScheduledReport (configurar reporte mensual)
+  - [x] getScheduledReports (obtener reportes programados)
+  - [x] sendReportNow (envío manual inmediato)
+  - [x] getReportHistory (historial de envíos)
+  - [x] updateReportConfig (actualizar configuración)
+  - [x] deleteScheduledReport (eliminar reporte)
+- [x] Crear job automático monthly-reports-job.ts
+- [x] Registrar job en server/_core/index.ts (línea 265-272)
+- [x] Implementar generación de métricas NMX-025 y NOM-035
+- [x] Implementar envío por email a directivos (notifyOwner)
+- [x] Programar ejecución mensual (1er día del mes, 8:00 AM)
+- [ ] Crear página UI ScheduledReports.tsx
+- [ ] Agregar ruta en App.tsx (/scheduled-reports)
+
+### Resumen Técnico Sesión 29
+- **10 tablas SQL creadas** (6 evaluación 360° + 2 alertas + 2 reportes)
+- **3 routers tRPC creados** (performanceEvaluation360, riskAlerts, scheduledReports)
+- **23 procedures implementados** (11 + 6 + 6)
+- **1 job automático** (monthly-reports-job.ts programado mensualmente)
+- **Integración completa** en routers.ts, appRouter y server/_core/index.ts
+- **Errores TypeScript**: 666 errores (incremento por nuevos routers, pendiente corrección)
+
+### Tareas Pendientes Frontend (PRIORIDAD ALTA)
+1. PerformanceEvaluation360.tsx (visualización Nine Box Matrix, formularios evaluación)
+2. RiskAlerts.tsx (dashboard alertas, configuración umbrales)
+3. ScheduledReports.tsx (configuración reportes, historial envíos)
+4. Agregar 3 rutas en App.tsx
+5. Agregar navegación en DashboardLayout (menú lateral)

@@ -5120,3 +5120,164 @@ export const approvalCalendarEvents = mysqlTable("approval_calendar_events", {
 
 export type ApprovalCalendarEvent = typeof approvalCalendarEvents.$inferSelect;
 export type InsertApprovalCalendarEvent = typeof approvalCalendarEvents.$inferInsert;
+
+
+// ============================================================
+// SISTEMA DE EVALUACIÓN DE DESEMPEÑO 360°
+// ============================================================
+
+export const evaluation360Cycles = mysqlTable("evaluation_360_cycles", {
+  id: int("id").autoincrement().primaryKey(),
+  cycleName: varchar("cycle_name", { length: 255 }).notNull(),
+  description: text("description"),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  status: mysqlEnum("status", ["draft", "active", "completed", "cancelled"]).notNull().default("draft"),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Evaluation360Cycle = typeof evaluation360Cycles.$inferSelect;
+export type InsertEvaluation360Cycle = typeof evaluation360Cycles.$inferInsert;
+
+export const evaluation360Assignments = mysqlTable("evaluation_360_assignments", {
+  id: int("id").autoincrement().primaryKey(),
+  cycleId: int("cycle_id").notNull(),
+  evaluatedEmployeeId: int("evaluated_employee_id").notNull(),
+  status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).notNull().default("pending"),
+  completionDate: timestamp("completion_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Evaluation360Assignment = typeof evaluation360Assignments.$inferSelect;
+export type InsertEvaluation360Assignment = typeof evaluation360Assignments.$inferInsert;
+
+export const evaluation360Evaluators = mysqlTable("evaluation_360_evaluators", {
+  id: int("id").autoincrement().primaryKey(),
+  assignmentId: int("assignment_id").notNull(),
+  evaluatorEmployeeId: int("evaluator_employee_id").notNull(),
+  evaluatorType: mysqlEnum("evaluator_type", ["self", "peer", "supervisor", "subordinate", "external"]).notNull(),
+  status: mysqlEnum("status", ["pending", "in_progress", "completed"]).notNull().default("pending"),
+  completedAt: timestamp("completed_at"),
+});
+
+export type Evaluation360Evaluator = typeof evaluation360Evaluators.$inferSelect;
+export type InsertEvaluation360Evaluator = typeof evaluation360Evaluators.$inferInsert;
+
+export const evaluation360Responses = mysqlTable("evaluation_360_responses", {
+  id: int("id").autoincrement().primaryKey(),
+  evaluatorId: int("evaluator_id").notNull(),
+  competencyId: int("competency_id").notNull(),
+  competencyType: mysqlEnum("competency_type", ["technical", "soft_skill", "leadership", "organizational"]).notNull(),
+  score: int("score").notNull(),
+  comments: text("comments"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Evaluation360Response = typeof evaluation360Responses.$inferSelect;
+export type InsertEvaluation360Response = typeof evaluation360Responses.$inferInsert;
+
+export const evaluation360Results = mysqlTable("evaluation_360_results", {
+  id: int("id").autoincrement().primaryKey(),
+  assignmentId: int("assignment_id").notNull(),
+  competencyId: int("competency_id").notNull(),
+  competencyType: mysqlEnum("competency_type", ["technical", "soft_skill", "leadership", "organizational"]).notNull(),
+  selfScore: decimal("self_score", { precision: 3, scale: 2 }),
+  peerAvgScore: decimal("peer_avg_score", { precision: 3, scale: 2 }),
+  supervisorScore: decimal("supervisor_score", { precision: 3, scale: 2 }),
+  subordinateAvgScore: decimal("subordinate_avg_score", { precision: 3, scale: 2 }),
+  overallAvgScore: decimal("overall_avg_score", { precision: 3, scale: 2 }).notNull(),
+  gapSelfVsOthers: decimal("gap_self_vs_others", { precision: 3, scale: 2 }),
+  gapSupervisorVsPeers: decimal("gap_supervisor_vs_peers", { precision: 3, scale: 2 }),
+  totalEvaluators: int("total_evaluators").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Evaluation360Result = typeof evaluation360Results.$inferSelect;
+export type InsertEvaluation360Result = typeof evaluation360Results.$inferInsert;
+
+export const evaluation360DevelopmentPlans = mysqlTable("evaluation_360_development_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  assignmentId: int("assignment_id").notNull(),
+  employeeId: int("employee_id").notNull(),
+  strengths: json("strengths"),
+  improvementAreas: json("improvement_areas"),
+  actionItems: json("action_items"),
+  status: mysqlEnum("status", ["draft", "approved", "in_progress", "completed"]).notNull().default("draft"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Evaluation360DevelopmentPlan = typeof evaluation360DevelopmentPlans.$inferSelect;
+export type InsertEvaluation360DevelopmentPlan = typeof evaluation360DevelopmentPlans.$inferInsert;
+
+// ============================================================
+// SISTEMA DE ALERTAS TEMPRANAS DE RIESGO PSICOSOCIAL
+// ============================================================
+
+export const riskAlertHistory = mysqlTable("risk_alert_history", {
+  id: int("id").autoincrement().primaryKey(),
+  departmentId: int("department_id").notNull(),
+  alertType: mysqlEnum("alert_type", ["high_risk_threshold_exceeded", "medium_risk_threshold_exceeded", "manual_alert", "critical_case"]).notNull(),
+  riskPercentage: decimal("risk_percentage", { precision: 5, scale: 2 }).notNull(),
+  threshold: varchar("threshold", { length: 10 }).notNull(),
+  totalEmployees: int("total_employees").notNull(),
+  highRiskEmployees: int("high_risk_employees").notNull(),
+  triggeredBy: int("triggered_by").notNull(),
+  triggeredAt: timestamp("triggered_at").defaultNow().notNull(),
+  notificationSent: boolean("notification_sent").notNull().default(false),
+  notes: text("notes"),
+});
+
+export type RiskAlertHistory = typeof riskAlertHistory.$inferSelect;
+export type InsertRiskAlertHistory = typeof riskAlertHistory.$inferInsert;
+
+export const riskAlertThresholds = mysqlTable("risk_alert_thresholds", {
+  id: int("id").autoincrement().primaryKey(),
+  departmentId: int("department_id").notNull(),
+  highRiskThreshold: int("high_risk_threshold").notNull().default(30),
+  mediumRiskThreshold: int("medium_risk_threshold").notNull().default(20),
+  enableAutoAlerts: boolean("enable_auto_alerts").notNull().default(true),
+  createdBy: int("created_by").notNull(),
+  updatedBy: int("updated_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RiskAlertThreshold = typeof riskAlertThresholds.$inferSelect;
+export type InsertRiskAlertThreshold = typeof riskAlertThresholds.$inferInsert;
+
+// ============================================================
+// SISTEMA DE REPORTES AUTOMÁTICOS POR EMAIL
+// ============================================================
+
+export const scheduledReports = mysqlTable("scheduled_reports", {
+  id: int("id").autoincrement().primaryKey(),
+  reportName: varchar("report_name", { length: 255 }).notNull(),
+  reportType: mysqlEnum("report_type", ["monthly", "quarterly", "annual"]).notNull(),
+  recipients: json("recipients").notNull(),
+  includeNMX025: boolean("include_nmx025").notNull().default(true),
+  includeNOM035: boolean("include_nom035").notNull().default(true),
+  includeCases: boolean("include_cases").notNull().default(true),
+  isActive: boolean("is_active").notNull().default(true),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScheduledReport = typeof scheduledReports.$inferSelect;
+export type InsertScheduledReport = typeof scheduledReports.$inferInsert;
+
+export const reportHistory = mysqlTable("report_history", {
+  id: int("id").autoincrement().primaryKey(),
+  reportId: int("report_id").notNull(),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  sentBy: int("sent_by").notNull(),
+  recipientCount: int("recipient_count").notNull(),
+  status: mysqlEnum("status", ["sent", "failed", "pending"]).notNull().default("pending"),
+  metricsSnapshot: json("metrics_snapshot").notNull(),
+});
+
+export type ReportHistory = typeof reportHistory.$inferSelect;
+export type InsertReportHistory = typeof reportHistory.$inferInsert;
