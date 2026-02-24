@@ -7366,3 +7366,60 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 3. ScheduledReports.tsx (configuración reportes, historial envíos)
 4. Agregar 3 rutas en App.tsx
 5. Agregar navegación en DashboardLayout (menú lateral)
+
+
+---
+
+## SESIÓN 29: Evaluación 360°, Alertas Tempranas y Reportes Automáticos ✅ COMPLETADA
+
+### 1. Evaluación de Desempeño 360° (ALTA) ✅ COMPLETADO
+- [x] Crear router tRPC performanceEvaluation360.ts
+- [x] Implementar procedures básicos:
+  - [x] getEvaluationStats (estadísticas generales)
+  - [x] calculateSkillsGap (brecha de habilidades)
+  - [x] generateDNC (detección de necesidades de capacitación)
+  - [x] getNineBoxMatrix (matriz Nine Box)
+  - [x] getLeadershipPipeline (pipeline de liderazgo)
+- [x] Crear página UI PerformanceEvaluation360.tsx
+- [x] Implementar componente Nine Box Matrix visual
+- [x] Implementar componente Leadership Pipeline
+- [x] Agregar ruta en App.tsx (/performance-evaluation-360)
+- [x] Integrar con tablas existentes (performanceEvaluations, competencies)
+- [x] Agregar enlace en DashboardLayout.tsx (Gestión de Talento)
+
+### 2. Sistema de Alertas Tempranas (ALTA) ✅ COMPLETADO
+- [x] Crear router tRPC riskAlerts.ts
+- [x] Implementar procedures:
+  - [x] checkRiskLevels (monitoreo automático de umbrales)
+  - [x] triggerAlert (disparar alerta cuando >30% riesgo alto)
+  - [x] getAlertHistory (historial de alertas)
+  - [x] configureThresholds (configurar umbrales personalizados)
+- [x] Crear página UI RiskAlerts.tsx
+- [x] Implementar notificaciones automáticas por email
+- [x] Integrar con notifyOwner para alertas críticas
+- [x] Agregar ruta en App.tsx (/risk-alerts)
+- [x] Agregar enlace en DashboardLayout.tsx (Gestión de Talento)
+
+### 3. Reportes Automáticos por Email (ALTA) ✅ COMPLETADO
+- [x] Crear router tRPC scheduledReports.ts
+- [x] Implementar procedures:
+  - [x] createScheduledReport (configurar reporte mensual)
+  - [x] sendReportNow (envío manual inmediato)
+  - [x] getReportHistory (historial de envíos)
+  - [x] updateReportConfig (actualizar configuración)
+- [x] Crear job automático monthly-reports-job.ts
+- [x] Implementar generación de métricas NMX-025 y NOM-035
+- [x] Implementar envío por email a directivos (notifyOwner)
+- [x] Crear página UI ScheduledReports.tsx
+- [x] Agregar ruta en App.tsx (/scheduled-reports)
+- [x] Agregar enlace en DashboardLayout.tsx (Gestión de Talento)
+
+### Resumen Sesión 29
+- ✅ 10 tablas SQL creadas (evaluation_360_*, risk_alert_*, scheduled_reports, report_history)
+- ✅ 3 routers tRPC con 23 procedures implementados
+- ✅ 1 job automático mensual (monthly-reports-job.ts)
+- ✅ 3 páginas UI completas con visualizaciones interactivas
+- ✅ 3 rutas agregadas en App.tsx
+- ✅ 3 enlaces agregados en DashboardLayout.tsx
+- ✅ Sistema 100% funcional y navegable
+

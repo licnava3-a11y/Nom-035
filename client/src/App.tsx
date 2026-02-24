@@ -217,6 +217,9 @@ const RolesPermissions = lazy(() => import("./pages/RolesPermissions"));
 const CustomPermissions = lazy(() => import("./pages/CustomPermissions"));
 const PermissionAudit = lazy(() => import("./pages/PermissionAudit"));
 const SMTPConfig = lazy(() => import("./pages/SMTPConfig"));
+const PerformanceEvaluation360 = lazy(() => import("./pages/PerformanceEvaluation360"));
+const RiskAlerts = lazy(() => import("./pages/RiskAlerts"));
+const ScheduledReports = lazy(() => import("./pages/ScheduledReports"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1578,6 +1581,27 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <SMTPConfig />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/performance-evaluation-360"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PerformanceEvaluation360 />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/risk-alerts"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RiskAlerts />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/scheduled-reports"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ScheduledReports />
             </Suspense>
           </DashboardLayout>
         </Route>
