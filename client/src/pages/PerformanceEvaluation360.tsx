@@ -10,10 +10,12 @@ import { Badge } from "../components/ui/badge";
 import { Loader2, Users, TrendingUp, Award, Target } from "lucide-react";
 import { toast } from "sonner";
 import RadarChart from "../components/RadarChart";
+import TimelineChart from "../components/TimelineChart";
 
 export default function PerformanceEvaluation360() {
   const [selectedCycleId, setSelectedCycleId] = useState<number | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [selectedCompetencyId, setSelectedCompetencyId] = useState<number | null>(null);
 
   // Queries
   const { data: cycles, isLoading: cyclesLoading } = trpc.performanceEvaluation360.getCycles.useQuery();
@@ -29,6 +31,10 @@ export default function PerformanceEvaluation360() {
   const { data: employeeCompetencies, isLoading: competenciesLoading } = trpc.performanceEvaluation360.getEmployeeCompetencies.useQuery(
     { employeeId: selectedEmployeeId! },
     { enabled: !!selectedEmployeeId }
+  );
+  const { data: competencyEvolution, isLoading: evolutionLoading } = trpc.performanceEvaluation360.getCompetencyEvolution.useQuery(
+    { employeeId: selectedEmployeeId!, competencyId: selectedCompetencyId! },
+    { enabled: !!selectedEmployeeId && !!selectedCompetencyId }
   );
 
   // Mutations
@@ -256,6 +262,7 @@ export default function PerformanceEvaluation360() {
             <TabsTrigger value="ninebox">Nine Box Matrix</TabsTrigger>
             <TabsTrigger value="pipeline">Leadership Pipeline</TabsTrigger>
             <TabsTrigger value="competencies">Competencias Individuales</TabsTrigger>
+            <TabsTrigger value="timeline">Timeline de Evolución</TabsTrigger>
             <TabsTrigger value="actions">Acciones</TabsTrigger>
           </TabsList>
 
@@ -360,6 +367,92 @@ export default function PerformanceEvaluation360() {
                 ) : (
                   <div className="text-center text-muted-foreground py-8">
                     Selecciona un empleado para visualizar sus competencias
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="timeline" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Timeline de Evolución de Competencias</CardTitle>
+                <CardDescription>
+                  Visualización de la progresión de competencias a lo largo de múltiples ciclos de evaluación
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Selector de empleado */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="timeline-employee-select">Seleccionar Empleado</Label>
+                    <Select
+                      value={selectedEmployeeId?.toString() || ""}
+                      onValueChange={(value) => {
+                        setSelectedEmployeeId(Number(value));
+                        setSelectedCompetencyId(null); // Reset competency selection
+                      }}
+                    >
+                      <SelectTrigger id="timeline-employee-select">
+                        <SelectValue placeholder="Selecciona un empleado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {nineBoxMatrix?.matrix.map((emp: any) => (
+                          <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
+                            {emp.employeeName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Selector de competencia */}
+                  <div className="space-y-2">
+                    <Label htmlFor="competency-select">Seleccionar Competencia</Label>
+                    <Select
+                      value={selectedCompetencyId?.toString() || ""}
+                      onValueChange={(value) => setSelectedCompetencyId(Number(value))}
+                      disabled={!selectedEmployeeId}
+                    >
+                      <SelectTrigger id="competency-select">
+                        <SelectValue placeholder="Selecciona una competencia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {employeeCompetencies?.map((comp: any) => (
+                          <SelectItem key={comp.competencyId} value={comp.competencyId.toString()}>
+                            {comp.competencyName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Gráfico de timeline */}
+                {evolutionLoading ? (
+                  <div className="flex items-center justify-center h-64">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : competencyEvolution && competencyEvolution.length > 0 ? (
+                  <TimelineChart
+                    data={competencyEvolution.map((ev: any) => ({
+                      cycleName: ev.cycleName,
+                      cycleDate: ev.cycleDate,
+                      competencyLevel: ev.competencyLevel,
+                    }))}
+                    competencyName={
+                      employeeCompetencies?.find((c: any) => c.competencyId === selectedCompetencyId)?.competencyName || "Competencia"
+                    }
+                    employeeName={nineBoxMatrix?.matrix.find((e: any) => e.employeeId === selectedEmployeeId)?.employeeName}
+                    className="mt-6"
+                  />
+                ) : selectedEmployeeId && selectedCompetencyId ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    No se encontraron datos de evolución para esta competencia
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    Selecciona un empleado y una competencia para visualizar su evolución
                   </div>
                 )}
               </CardContent>

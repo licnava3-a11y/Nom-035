@@ -7473,3 +7473,20 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Agregar leyenda con escala de evaluación (1-4: Básico, Intermedio, Avanzado, Experto)
 - [x] Optimizar colores para visualización profesional (verde para nivel actual, azul punteado para nivel requerido)
 
+
+
+---
+
+## SESIÓN 32: Timeline de Evolución del Desempeño
+
+### Implementar Timeline de Evolución de Competencias (ALTA) ✅ COMPLETADO
+- [x] Crear componente TimelineChart.tsx con Chart.js (gráfico de línea temporal)
+- [x] Implementar procedure getCompetencyEvolution en performanceEvaluation360Router
+- [x] Integrar TimelineChart en PerformanceEvaluation360.tsx
+- [x] Agregar selector de empleado y competencia para visualizar evolución
+- [x] Implementar tooltip con detalles de evaluaciones por ciclo (nivel, fecha, ciclo)
+- [x] Agregar leyenda con tendencias (ascendente/descendente/estable)
+- [x] Optimizar colores para visualización de tendencias (verde ascendente, rojo descendente, gris estable)
+- [x] Implementar detección automática de tendencias
+- [x] Mejorar UX del timeline con selectores en cascada
+- [ ] Guardar checkpoint

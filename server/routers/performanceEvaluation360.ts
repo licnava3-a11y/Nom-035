@@ -470,4 +470,50 @@ export const performanceEvaluation360Router = router({
 
       return employeeCompetencies;
     }),
+
+  /**
+   * Obtener evolución de una competencia específica a lo largo de múltiples ciclos
+   */
+  getCompetencyEvolution: protectedProcedure
+    .input(
+      z.object({
+        employeeId: z.number(),
+        competencyId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Obtener evaluaciones de la competencia a través de múltiples ciclos
+      const competencyEvolution = await db
+        .select({
+          cycleName: evaluation360Cycles.cycleName,
+          cycleDate: evaluation360Cycles.endDate,
+          competencyLevel: sql<number>`AVG(${evaluation360Responses.rating})`,
+        })
+        .from(evaluation360Responses)
+        .innerJoin(
+          evaluation360Evaluators,
+          eq(evaluation360Responses.evaluatorId, evaluation360Evaluators.id)
+        )
+        .innerJoin(
+          evaluation360Assignments,
+          eq(evaluation360Evaluators.assignmentId, evaluation360Assignments.id)
+        )
+        .innerJoin(
+          evaluation360Cycles,
+          eq(evaluation360Assignments.cycleId, evaluation360Cycles.id)
+        )
+        .where(
+          and(
+            eq(evaluation360Assignments.employeeId, input.employeeId),
+            eq(evaluation360Responses.competencyId, input.competencyId)
+          )
+        )
+        .groupBy(evaluation360Cycles.id, evaluation360Cycles.cycleName, evaluation360Cycles.endDate)
+        .orderBy(evaluation360Cycles.endDate);
+
+      return competencyEvolution;
+    }),
 });
