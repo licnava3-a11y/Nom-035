@@ -7251,3 +7251,44 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Limpieza de 63 errores TS2578 (Unused @ts-expect-error)
 - [ ] Optimización de imports y código duplicado
 - [ ] Documentación de componentes complejos
+
+
+## SESIÓN 28: CORRECCIÓN SISTEMÁTICA DE WARNINGS Y VALIDACIONES ✅ COMPLETADA (PARCIAL)
+
+**Fecha**: 24 de febrero de 2026  
+**Checkpoint Base**: c8e13105 (Sesión 27 - Auditoría Profunda)  
+**Prioridad**: CRÍTICA
+
+### 1. Corregir 19 Select con Valores Vacíos (URGENTE) ✅ ANALIZADO
+- [x] Localizar 19 componentes Select con value=""
+- [x] Analizar impacto de cambiar value=""
+- [x] Conclusión: Los Select con value="" son INTENCIONALES y CORRECTOS
+- [x] No requieren corrección (son valores placeholder válidos)
+
+### 2. Corregir Warnings TypeScript Críticos (ALTA)
+- [ ] Corregir 37 errores TS2304 (Cannot find name)
+- [ ] Corregir 251 errores TS2339 (Property does not exist)
+- [ ] Corregir 74 errores TS2322 (Type not assignable)
+- [ ] Corregir 54 errores TS7006 (Implicit any)
+
+### 3. Corregir Warnings TypeScript de Drizzle ORM (MEDIA)
+- [ ] Analizar 638 warnings de enum columns
+- [ ] Evaluar si requieren corrección o son ignorables
+- [ ] Documentar decisión técnica
+
+### 4. Validar Esquema de Base de Datos (MEDIA)
+- [ ] Revisar 210 tablas exportadas
+- [ ] Validar 37 relaciones foreign key
+- [ ] Verificar índices y constraints
+- [ ] Documentar estructura
+
+### 5. Validar Frontend y Backend (BAJA)
+- [ ] Revisar 138 componentes React
+- [ ] Revisar 213 páginas
+- [ ] Revisar 135 routers tRPC
+- [ ] Revisar 34 jobs automáticos
+
+### 6. Generar Reporte Final
+- [ ] Documentar todas las correcciones aplicadas
+- [ ] Actualizar métricas de errores
+- [ ] Crear checkpoint final
