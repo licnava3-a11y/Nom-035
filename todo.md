@@ -7505,3 +7505,52 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Revisar errores y optimizar código
 - [ ] Mejorar UX de los 3 módulos
 - [ ] Guardar checkpoint
+
+
+---
+
+## SESIÓN 36: Dashboard Consolidado de Talento, Exportación Masiva y Sistema de Intervenciones
+
+### 1. Dashboard Consolidado de Talento (ALTA) ✅ COMPLETADO
+- [x] Crear página TalentDashboard.tsx para vista ejecutiva unificada
+- [x] Implementar procedure getDashboardMetrics en router talentDashboard.ts
+- [x] Integrar Nine Box Matrix con datos en tiempo real (grid 3x3 con colores)
+- [x] Integrar Alertas de Riesgo Psicosocial (total, activas, críticas)
+- [x] Integrar Score de Retención (top 10 empleados con menor score)
+- [x] Integrar Métricas de Reportes (enviados, pendientes, fallidos)
+- [x] Implementar filtros por departamento
+- [x] Implementar filtros por período (mes, trimestre, año)
+- [x] Agregar 4 KPIs principales (empleados activos, tasa retención, riesgo crítico, reportes enviados)
+- [x] Implementar visualizaciones con Chart.js (línea de tendencias, pie de distribución de riesgo)
+- [x] Agregar 4 tabs (Vista General, Nine Box Matrix, Retención, Alertas de Riesgo)
+- [x] Agregar ruta /talent-dashboard en App.tsx
+- [x] Agregar enlace en DashboardLayout.tsx (Gestión de Talento)
+
+### 2. Exportación Masiva de Reportes Departamentales en PDF (ALTA)
+- [ ] Crear procedure generateDepartmentReport en performanceEvaluation360Router
+- [ ] Implementar generación de PDF con comparativas de competencias
+- [ ] Incluir ranking de departamentos (fortaleza/oportunidad)
+- [ ] Incluir análisis de brechas departamentales
+- [ ] Incluir planes de desarrollo colectivos generados automáticamente
+- [ ] Agregar botón de exportación masiva en TalentDashboard.tsx
+- [ ] Implementar descarga automática de PDF generado
+- [ ] Implementar notificaciones de éxito/error
+
+### 3. Sistema de Intervenciones Personalizadas (ALTA)
+- [ ] Crear router interventions.ts para gestión de intervenciones
+- [ ] Implementar procedure generateInterventionPlan (empleados en riesgo crítico)
+- [ ] Implementar asignación automática de mentores
+- [ ] Implementar recomendación automática de cursos
+- [ ] Implementar seguimiento trimestral automático
+- [ ] Crear página Interventions.tsx para gestión de planes
+- [ ] Agregar visualización de planes activos
+- [ ] Implementar notificaciones automáticas para mentores asignados
+- [ ] Agregar ruta /interventions en App.tsx
+- [ ] Agregar enlace en DashboardLayout.tsx
+
+### 4. Revisión y Optimización Final
+- [ ] Revisar errores TypeScript críticos
+- [ ] Optimizar código duplicado
+- [ ] Mejorar UX de los 3 módulos
+- [ ] Validar funcionamiento con datos de prueba
+- [ ] Guardar checkpoint final

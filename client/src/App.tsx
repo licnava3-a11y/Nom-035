@@ -219,6 +219,7 @@ const PermissionAudit = lazy(() => import("./pages/PermissionAudit"));
 const SMTPConfig = lazy(() => import("./pages/SMTPConfig"));
 const PerformanceEvaluation360 = lazy(() => import("./pages/PerformanceEvaluation360"));
 const RetentionAnalytics = lazy(() => import("./pages/RetentionAnalytics"));
+const TalentDashboard = lazy(() => import("./pages/TalentDashboard"));
 const RiskAlerts = lazy(() => import("./pages/RiskAlerts"));
 const ScheduledReports = lazy(() => import("./pages/ScheduledReports"));
 const TestDataSeeder = lazy(() => import("./pages/TestDataSeeder"));
@@ -1593,10 +1594,17 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/retention-analytics"}>
+        <Route path="/retention-analytics">
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <RetentionAnalytics />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/talent-dashboard">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TalentDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
