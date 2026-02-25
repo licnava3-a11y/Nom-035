@@ -167,4 +167,278 @@ export const predictiveAnalyticsRouter = router({
         },
       };
     }),
+
+  /**
+   * Identificar empleados en riesgo de rotación basado en tendencias descendentes
+   * de competencias clave (Evaluación 360°)
+   */
+  identifyAtRiskEmployees: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().optional(),
+        minScore: z.number().min(0).max(100).default(50),
+      })
+    )
+    .query(async ({ input }) => {
+      const { getDb } = await import("../db");
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      const { employees, evaluation360Responses, evaluation360Cycles, departments } = await import('../../drizzle/schema');
+      const { eq, and, desc, sql } = await import('drizzle-orm');
+
+      // Obtener empleados con sus evaluaciones 360° históricas
+      const employeesWithEvaluations = await db
+        .select({
+          employeeId: employees.id,
+          employeeName: employees.name,
+          employeeEmail: employees.email,
+          departmentId: employees.departmentId,
+          departmentName: departments.name,
+          cycleId: evaluation360Cycles.id,
+          cycleName: evaluation360Cycles.cycleName,
+          cycleEndDate: evaluation360Cycles.endDate,
+          avgScore: sql<number>`AVG(${evaluation360Responses.rating})`.as("avgScore"),
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(evaluation360Responses, eq(employees.id, evaluation360Responses.evaluatedEmployeeId))
+        .leftJoin(evaluation360Cycles, eq(evaluation360Responses.cycleId, evaluation360Cycles.id))
+        .where(
+          and(
+            employees.isActive ? eq(employees.isActive, true) : sql`1=1`,
+            input.departmentId ? eq(employees.departmentId, input.departmentId) : sql`1=1`
+          )
+        )
+        .groupBy(
+          employees.id,
+          employees.name,
+          employees.email,
+          employees.departmentId,
+          departments.name,
+          evaluation360Cycles.id,
+          evaluation360Cycles.cycleName,
+          evaluation360Cycles.endDate
+        )
+        .orderBy(employees.id, desc(evaluation360Cycles.endDate));
+
+      // Agrupar evaluaciones por empleado
+      const employeeMap = new Map<
+        number,
+        {
+          employeeId: number;
+          employeeName: string;
+          employeeEmail: string;
+          departmentId: number | null;
+          departmentName: string | null;
+          evaluations: Array<{
+            cycleId: number;
+            cycleName: string;
+            cycleEndDate: Date | null;
+            avgScore: number;
+          }>;
+        }
+      >();
+
+      for (const row of employeesWithEvaluations) {
+        if (!employeeMap.has(row.employeeId)) {
+          employeeMap.set(row.employeeId, {
+            employeeId: row.employeeId,
+            employeeName: row.employeeName,
+            employeeEmail: row.employeeEmail,
+            departmentId: row.departmentId,
+            departmentName: row.departmentName,
+            evaluations: [],
+          });
+        }
+
+        if (row.cycleId && row.avgScore) {
+          employeeMap.get(row.employeeId)!.evaluations.push({
+            cycleId: row.cycleId,
+            cycleName: row.cycleName,
+            cycleEndDate: row.cycleEndDate,
+            avgScore: row.avgScore,
+          });
+        }
+      }
+
+      // Calcular score de retención y detectar tendencias descendentes
+      const atRiskEmployees = [];
+
+      for (const [employeeId, data] of employeeMap.entries()) {
+        if (data.evaluations.length < 2) continue; // Necesitamos al menos 2 evaluaciones
+
+        // Ordenar evaluaciones por fecha (más reciente primero)
+        data.evaluations.sort((a, b) => {
+          if (!a.cycleEndDate || !b.cycleEndDate) return 0;
+          return new Date(b.cycleEndDate).getTime() - new Date(a.cycleEndDate).getTime();
+        });
+
+        // Calcular tendencia (comparar últimas 2-3 evaluaciones)
+        const recentEvaluations = data.evaluations.slice(0, Math.min(3, data.evaluations.length));
+        let trend = "stable";
+        let trendValue = 0;
+
+        if (recentEvaluations.length >= 2) {
+          const latest = recentEvaluations[0].avgScore;
+          const previous = recentEvaluations[1].avgScore;
+          trendValue = latest - previous;
+
+          if (trendValue < -0.3) {
+            // Descenso significativo (>0.3 puntos)
+            trend = "descending";
+          } else if (trendValue > 0.3) {
+            trend = "ascending";
+          }
+        }
+
+        // Calcular score de retención (0-100)
+        // Factores: promedio reciente, tendencia, volatilidad
+        const avgRecentScore = recentEvaluations.reduce((sum, e) => sum + e.avgScore, 0) / recentEvaluations.length;
+        const volatility =
+          recentEvaluations.length >= 3
+            ? Math.abs(recentEvaluations[0].avgScore - recentEvaluations[2].avgScore)
+            : 0;
+
+        let retentionScore = avgRecentScore * 25; // Base: 0-100 (asumiendo escala 1-4)
+
+        // Ajustar por tendencia
+        if (trend === "descending") {
+          retentionScore -= 20;
+        } else if (trend === "ascending") {
+          retentionScore += 10;
+        }
+
+        // Ajustar por volatilidad
+        retentionScore -= volatility * 5;
+
+        // Normalizar a 0-100
+        retentionScore = Math.max(0, Math.min(100, retentionScore));
+
+        // Agregar a lista si está en riesgo
+        if (retentionScore < input.minScore) {
+          atRiskEmployees.push({
+            employeeId: data.employeeId,
+            employeeName: data.employeeName,
+            employeeEmail: data.employeeEmail,
+            departmentId: data.departmentId,
+            departmentName: data.departmentName,
+            retentionScore: Math.round(retentionScore),
+            trend,
+            trendValue: Math.round(trendValue * 100) / 100,
+            avgRecentScore: Math.round(avgRecentScore * 100) / 100,
+            evaluationCount: data.evaluations.length,
+            lastEvaluationDate: recentEvaluations[0].cycleEndDate,
+            riskLevel: retentionScore < 30 ? "critical" : retentionScore < 50 ? "high" : "medium",
+          });
+        }
+      }
+
+      // Ordenar por score de retención (menor primero = mayor riesgo)
+      atRiskEmployees.sort((a, b) => a.retentionScore - b.retentionScore);
+
+      return {
+        totalAtRisk: atRiskEmployees.length,
+        criticalRisk: atRiskEmployees.filter((e) => e.riskLevel === "critical").length,
+        highRisk: atRiskEmployees.filter((e) => e.riskLevel === "high").length,
+        mediumRisk: atRiskEmployees.filter((e) => e.riskLevel === "medium").length,
+        employees: atRiskEmployees,
+      };
+    }),
+
+  /**
+   * Generar alertas automáticas para RH cuando empleados tienen score < 50
+   */
+  generateRetentionAlerts: protectedProcedure
+    .input(
+      z.object({
+        minScore: z.number().min(0).max(100).default(50),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { notifyOwner } = await import("../_core/notification");
+      
+      // Reutilizar lógica de identifyAtRiskEmployees
+      const caller = predictiveAnalyticsRouter.createCaller(ctx);
+      const result = await caller.identifyAtRiskEmployees({
+        minScore: input.minScore,
+      });
+
+      if (result.totalAtRisk === 0) {
+        return {
+          success: true,
+          alertsSent: 0,
+          message: "No hay empleados en riesgo de rotación",
+        };
+      }
+
+      // Generar contenido de alerta
+      const alertContent = `
+**ALERTA DE RIESGO DE ROTACIÓN**
+
+Se han identificado **${result.totalAtRisk} empleados** con score de retención < ${input.minScore}:
+
+- **Riesgo Crítico** (score < 30): ${result.criticalRisk} empleados
+- **Riesgo Alto** (score 30-49): ${result.highRisk} empleados
+- **Riesgo Medio** (score 50-69): ${result.mediumRisk} empleados
+
+**Empleados en riesgo crítico:**
+${result.employees
+  .filter((e) => e.riskLevel === "critical")
+  .slice(0, 5)
+  .map((e) => `- ${e.employeeName} (${e.departmentName}): Score ${e.retentionScore} - Tendencia ${e.trend}`)
+  .join("\n")}
+
+${result.criticalRisk > 5 ? `... y ${result.criticalRisk - 5} más` : ""}
+
+**Acción recomendada:** Revisar el módulo de Análisis Predictivo de Rotación para ver el detalle completo y tomar acciones preventivas.
+      `.trim();
+
+      // Enviar notificación al owner (RH)
+      const notificationSent = await notifyOwner({
+        title: `⚠️ Alerta de Rotación: ${result.totalAtRisk} empleados en riesgo`,
+        content: alertContent,
+      });
+
+      return {
+        success: notificationSent,
+        alertsSent: notificationSent ? 1 : 0,
+        totalAtRisk: result.totalAtRisk,
+        criticalRisk: result.criticalRisk,
+        message: notificationSent
+          ? `Alerta enviada exitosamente para ${result.totalAtRisk} empleados en riesgo`
+          : "Error al enviar alerta",
+      };
+    }),
+
+  /**
+   * Obtener estadísticas generales de retención
+   */
+  getRetentionStats: protectedProcedure.query(async ({ ctx }) => {
+    const { getDb } = await import("../db");
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+    const { employees } = await import('../../drizzle/schema');
+    const { eq, sql } = await import('drizzle-orm');
+
+    // Obtener todos los empleados activos
+    const activeEmployees = await db.select({ count: sql<number>`COUNT(*)` }).from(employees).where(eq(employees.isActive, true));
+
+    // Obtener empleados en riesgo
+    const caller = predictiveAnalyticsRouter.createCaller(ctx);
+    const atRiskResult = await caller.identifyAtRiskEmployees({ minScore: 70 }); // Umbral más alto para stats generales
+
+    const totalActive = activeEmployees[0]?.count || 0;
+    const totalAtRisk = atRiskResult.totalAtRisk;
+    const retentionRate = totalActive > 0 ? Math.round(((totalActive - totalAtRisk) / totalActive) * 100) : 0;
+
+    return {
+      totalActiveEmployees: totalActive,
+      totalAtRisk,
+      criticalRisk: atRiskResult.criticalRisk,
+      highRisk: atRiskResult.highRisk,
+      mediumRisk: atRiskResult.mediumRisk,
+      retentionRate,
+      atRiskPercentage: totalActive > 0 ? Math.round((totalAtRisk / totalActive) * 100) : 0,
+    };
+  }),
 });

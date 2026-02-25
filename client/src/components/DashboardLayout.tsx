@@ -78,6 +78,7 @@ const hierarchicalMenuItems = [
       { label: "Dashboard de Rotación", path: "/employees/turnover", description: "Análisis de rotación de personal" },
       { label: "Reconocimientos", path: "/talent/recognitions", description: "Sistema de reconocimientos y felicitaciones corporativas" },
       { label: "Evaluación 360°", path: "/performance-evaluation-360", description: "Evaluación de desempeño 360° con Nine Box y Leadership Pipeline" },
+      { label: "Análisis de Retención", path: "/retention-analytics", description: "Análisis predictivo de rotación basado en tendencias de competencias" },
       { label: "Alertas Tempranas", path: "/risk-alerts", description: "Sistema de alertas automáticas de riesgo psicosocial" },
       { label: "Reportes Automáticos", path: "/scheduled-reports", description: "Dashboards ejecutivos mensuales con métricas NMX-025 y NOM-035" },
       { label: "Importación Masiva", path: "/admin/import", description: "Importar datos desde Excel" },

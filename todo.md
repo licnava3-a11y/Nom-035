@@ -7473,9 +7473,15 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Optimizar colores para visualización profesional (verde/rojo dinámico)
 - [x] Agregar tabla de detalles por departamento con brechas y estado
 
-### 2. Implementar Análisis Predictivo de Rotación (ALTA)
+### 2. Implementar Análisis Predictivo de Rotación (ALTA) - EN PROGRESO
 - [ ] Crear router predictiveAnalytics.ts para análisis predictivo
-- [ ] Implementar procedure identifyAtRiskEmployees (tendencias descendentes)
+- [ ] Implementar procedure identifyAtRiskEmployees (tendencias descendentes sostenidas)
+- [ ] Implementar cálculo de score de retención (0-100)
+- [ ] Generar alertas automáticas para RH cuando score < 50
+- [ ] Integrar con notifyOwner para notificaciones críticas
+- [ ] Crear página PredictiveAnalytics.tsx
+- [ ] Agregar visualización de empleados en riesgo con score
+- [ ] Implementar filtros por departamento y nivel de riesgo
 - [ ] Implementar procedure calculateRetentionScore (score de retención 0-100)
 - [ ] Crear página PredictiveAnalytics.tsx
 - [ ] Implementar tabla de empleados en riesgo con score de retención
