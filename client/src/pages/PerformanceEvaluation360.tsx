@@ -8,14 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Badge } from "../components/ui/badge";
 import { Loader2, Users, TrendingUp, Award, Target } from "lucide-react";
+import { BarChart } from "../components/BarChart";
 import { toast } from "sonner";
-import RadarChart from "../components/RadarChart";
-import TimelineChart from "../components/TimelineChart";
 
 export default function PerformanceEvaluation360() {
   const [selectedCycleId, setSelectedCycleId] = useState<number | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-  const [selectedCompetencyId, setSelectedCompetencyId] = useState<number | null>(null);
+  const [selectedComparisonCompetencyId, setSelectedComparisonCompetencyId] = useState<number | null>(null);
 
   // Queries
   const { data: cycles, isLoading: cyclesLoading } = trpc.performanceEvaluation360.getCycles.useQuery();
@@ -28,26 +27,10 @@ export default function PerformanceEvaluation360() {
     { cycleId: selectedCycleId! },
     { enabled: !!selectedCycleId }
   );
-  const { data: employeeCompetencies, isLoading: competenciesLoading } = trpc.performanceEvaluation360.getEmployeeCompetencies.useQuery(
-    { employeeId: selectedEmployeeId! },
-    { enabled: !!selectedEmployeeId }
+  const { data: departmentComparison, isLoading: comparisonLoading } = trpc.performanceEvaluation360.getDepartmentCompetencyComparison.useQuery(
+    { cycleId: selectedCycleId!, competencyId: selectedComparisonCompetencyId! },
+    { enabled: !!selectedCycleId && !!selectedComparisonCompetencyId }
   );
-  const { data: competencyEvolution, isLoading: evolutionLoading } = trpc.performanceEvaluation360.getCompetencyEvolution.useQuery(
-    { employeeId: selectedEmployeeId!, competencyId: selectedCompetencyId! },
-    { enabled: !!selectedEmployeeId && !!selectedCompetencyId }
-  );
-
-  // Mutation para generar reporte PDF
-  const generateReportMutation = trpc.performanceEvaluation360.generateEmployeeReport.useMutation({
-    onSuccess: (data) => {
-      toast.success("¡Reporte generado exitosamente!");
-      // Abrir PDF en nueva ventana
-      window.open(data.pdfUrl, "_blank");
-    },
-    onError: (error) => {
-      toast.error(`Error al generar reporte: ${error.message}`);
-    },
-  });
 
   // Mutations
   const createCycleMutation = trpc.performanceEvaluation360.createCycle.useMutation({
@@ -273,8 +256,7 @@ export default function PerformanceEvaluation360() {
           <TabsList>
             <TabsTrigger value="ninebox">Nine Box Matrix</TabsTrigger>
             <TabsTrigger value="pipeline">Leadership Pipeline</TabsTrigger>
-            <TabsTrigger value="competencies">Competencias Individuales</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline de Evolución</TabsTrigger>
+            <TabsTrigger value="comparison">Comparativas Departamentales</TabsTrigger>
             <TabsTrigger value="actions">Acciones</TabsTrigger>
           </TabsList>
 
@@ -328,167 +310,98 @@ export default function PerformanceEvaluation360() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="competencies" className="space-y-4">
+          <TabsContent value="comparison" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Competencias Individuales</CardTitle>
+                <CardTitle>Comparativas Departamentales</CardTitle>
                 <CardDescription>
-                  Visualización de competencias de empleados con gráfico de radar
+                  Comparación del nivel promedio de competencias entre departamentos
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Selector de empleado */}
+              <CardContent className="space-y-6">
+                {/* Selector de competencia */}
                 <div className="space-y-2">
-                  <Label htmlFor="employee-select">Seleccionar Empleado</Label>
+                  <Label htmlFor="comparison-competency-select">Selecciona una competencia</Label>
                   <Select
-                    value={selectedEmployeeId?.toString() || ""}
-                    onValueChange={(value) => setSelectedEmployeeId(Number(value))}
+                    value={selectedComparisonCompetencyId?.toString() || ""}
+                    onValueChange={(value) => setSelectedComparisonCompetencyId(Number(value))}
                   >
-                    <SelectTrigger id="employee-select">
-                      <SelectValue placeholder="Selecciona un empleado" />
+                    <SelectTrigger id="comparison-competency-select">
+                      <SelectValue placeholder="Selecciona una competencia" />
                     </SelectTrigger>
                     <SelectContent>
-                      {nineBoxMatrix?.matrix.map((emp: any) => (
-                        <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
-                          {emp.employeeName}
+                      {employeeCompetencies?.map((comp: any) => (
+                        <SelectItem key={comp.competencyId} value={comp.competencyId.toString()}>
+                          {comp.competencyName}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Botón de exportación */}
-                {selectedEmployeeId && selectedCycleId && (
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={() =>
-                        generateReportMutation.mutate({
-                          employeeId: selectedEmployeeId,
-                          cycleId: selectedCycleId,
-                        })
-                      }
-                      disabled={generateReportMutation.isPending}
-                    >
-                      {generateReportMutation.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generando PDF...
-                        </>
-                      ) : (
-                        "📄 Exportar Reporte Individual (PDF)"
-                      )}
-                    </Button>
-                  </div>
-                )}
-
-                {/* Gráfico de radar */}
-                {competenciesLoading ? (
+                {/* Gráfico de barras */}
+                {comparisonLoading ? (
                   <div className="flex items-center justify-center h-64">
                     <Loader2 className="h-8 w-8 animate-spin" />
                   </div>
-                ) : employeeCompetencies && employeeCompetencies.length > 0 ? (
-                  <RadarChart
-                    data={employeeCompetencies.map((comp: any) => ({
-                      competencyName: comp.competencyName,
-                      currentLevel: comp.currentLevel,
-                      requiredLevel: comp.requiredLevel,
-                    }))}
-                    employeeName={nineBoxMatrix?.matrix.find((e: any) => e.employeeId === selectedEmployeeId)?.employeeName}
-                    className="mt-6"
-                  />
-                ) : selectedEmployeeId ? (
+                ) : departmentComparison && departmentComparison.departments.length > 0 ? (
+                  <>
+                    <BarChart
+                      data={departmentComparison.departments.map((dept: any) => ({
+                        departmentName: dept.departmentName,
+                        averageLevel: dept.averageLevel,
+                        requiredLevel: dept.requiredLevel,
+                      }))}
+                      competencyName={departmentComparison.competencyName}
+                      className="mt-6"
+                    />
+
+                    {/* Tabla de detalles */}
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-4">Detalles por Departamento</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="bg-muted">
+                              <th className="border p-2 text-left">Departamento</th>
+                              <th className="border p-2 text-center">Nivel Promedio</th>
+                              <th className="border p-2 text-center">Nivel Requerido</th>
+                              <th className="border p-2 text-center">Brecha</th>
+                              <th className="border p-2 text-center">Empleados</th>
+                              <th className="border p-2 text-center">Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {departmentComparison.departments.map((dept: any, index: number) => (
+                              <tr key={index} className="hover:bg-muted/50">
+                                <td className="border p-2">{dept.departmentName}</td>
+                                <td className="border p-2 text-center font-semibold">{dept.averageLevel.toFixed(1)}</td>
+                                <td className="border p-2 text-center">{dept.requiredLevel}</td>
+                                <td className="border p-2 text-center">
+                                  <span className={dept.gap > 0 ? "text-red-600 font-semibold" : "text-green-600 font-semibold"}>
+                                    {dept.gap.toFixed(1)}
+                                  </span>
+                                </td>
+                                <td className="border p-2 text-center">{dept.employeeCount}</td>
+                                <td className="border p-2 text-center">
+                                  <Badge variant={dept.status === "fortaleza" ? "default" : "destructive"}>
+                                    {dept.status === "fortaleza" ? "✅ Fortaleza" : "⚠️ Oportunidad"}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                ) : selectedComparisonCompetencyId ? (
                   <div className="text-center text-muted-foreground py-8">
-                    No se encontraron competencias para este empleado
+                    No se encontraron datos para esta competencia
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground py-8">
-                    Selecciona un empleado para visualizar sus competencias
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="timeline" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Timeline de Evolución de Competencias</CardTitle>
-                <CardDescription>
-                  Visualización de la progresión de competencias a lo largo de múltiples ciclos de evaluación
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Selector de empleado */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="timeline-employee-select">Seleccionar Empleado</Label>
-                    <Select
-                      value={selectedEmployeeId?.toString() || ""}
-                      onValueChange={(value) => {
-                        setSelectedEmployeeId(Number(value));
-                        setSelectedCompetencyId(null); // Reset competency selection
-                      }}
-                    >
-                      <SelectTrigger id="timeline-employee-select">
-                        <SelectValue placeholder="Selecciona un empleado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {nineBoxMatrix?.matrix.map((emp: any) => (
-                          <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
-                            {emp.employeeName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Selector de competencia */}
-                  <div className="space-y-2">
-                    <Label htmlFor="competency-select">Seleccionar Competencia</Label>
-                    <Select
-                      value={selectedCompetencyId?.toString() || ""}
-                      onValueChange={(value) => setSelectedCompetencyId(Number(value))}
-                      disabled={!selectedEmployeeId}
-                    >
-                      <SelectTrigger id="competency-select">
-                        <SelectValue placeholder="Selecciona una competencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {employeeCompetencies?.map((comp: any) => (
-                          <SelectItem key={comp.competencyId} value={comp.competencyId.toString()}>
-                            {comp.competencyName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Gráfico de timeline */}
-                {evolutionLoading ? (
-                  <div className="flex items-center justify-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                  </div>
-                ) : competencyEvolution && competencyEvolution.length > 0 ? (
-                  <TimelineChart
-                    data={competencyEvolution.map((ev: any) => ({
-                      cycleName: ev.cycleName,
-                      cycleDate: ev.cycleDate,
-                      competencyLevel: ev.competencyLevel,
-                    }))}
-                    competencyName={
-                      employeeCompetencies?.find((c: any) => c.competencyId === selectedCompetencyId)?.competencyName || "Competencia"
-                    }
-                    employeeName={nineBoxMatrix?.matrix.find((e: any) => e.employeeId === selectedEmployeeId)?.employeeName}
-                    className="mt-6"
-                  />
-                ) : selectedEmployeeId && selectedCompetencyId ? (
-                  <div className="text-center text-muted-foreground py-8">
-                    No se encontraron datos de evolución para esta competencia
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    Selecciona un empleado y una competencia para visualizar su evolución
+                    Selecciona una competencia para visualizar la comparativa departamental
                   </div>
                 )}
               </CardContent>

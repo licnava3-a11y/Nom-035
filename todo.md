@@ -7429,14 +7429,12 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 
 ## SESIÓN 30: Datos de Prueba, Visualizaciones Avanzadas y Dashboard Consolidado de Talento
 
-### 1. Agregar Datos de Prueba para Validación (ALTA) ✅ COMPLETADO
-- [x] Crear ciclos de evaluación 360° de prueba (2-3 ciclos con diferentes estados)
-- [x] Asignar evaluadores y evaluados para ciclos de prueba
-- [x] Configurar umbrales de alertas tempranas (30% riesgo alto por defecto)
-- [x] Crear reportes programados de prueba (mensual/trimestral)
-- [x] Agregar destinatarios para reportes (3-5 directivos)
-- [x] Router testData.ts creado con procedure seedSession29
-- [x] Página TestDataSeeder.tsx creada (/test-data-seeder)
+### 1. Agregar Datos de Prueba para Validación (ALTA)
+- [ ] Crear ciclos de evaluación 360° de prueba (2-3 ciclos con diferentes estados)
+- [ ] Asignar evaluadores y evaluados para ciclos de prueba
+- [ ] Configurar umbrales de alertas tempranas (30% riesgo alto por defecto)
+- [ ] Crear reportes programados de prueba (mensual/trimestral)
+- [ ] Agregar destinatarios para reportes (3-5 directivos)
 - [ ] Validar funcionamiento de los 3 módulos con datos de prueba
 
 ### 2. Visualizaciones Avanzadas en PerformanceEvaluation360 (ALTA)
@@ -7462,48 +7460,42 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 
 ---
 
-## SESIÓN 31: Gráfico de Radar para Competencias Individuales
+## SESIÓN 34: Comparativas Departamentales, Análisis Predictivo y Dashboard Consolidado
 
-### Implementar Gráfico de Radar en PerformanceEvaluation360 (ALTA) ✅ COMPLETADO
-- [x] Crear componente RadarChart.tsx con Chart.js
-- [x] Implementar procedure getEmployeeCompetencies en performanceEvaluation360Router
-- [x] Integrar RadarChart en PerformanceEvaluation360.tsx
-- [x] Agregar selector de empleado para visualizar competencias
-- [x] Implementar tooltip con detalles de competencias
-- [x] Agregar leyenda con escala de evaluación (1-4: Básico, Intermedio, Avanzado, Experto)
-- [x] Optimizar colores para visualización profesional (verde para nivel actual, azul punteado para nivel requerido)
+### 1. Implementar Comparativas Departamentales (ALTA) ✅ COMPLETADO
+- [x] Crear componente BarChart.tsx con Chart.js para comparativas departamentales
+- [x] Implementar procedure getDepartmentCompetencyComparison en performanceEvaluation360Router
+- [x] Agregar tab "Comparativas Departamentales" en PerformanceEvaluation360.tsx
+- [x] Implementar selector de competencia para comparar entre departamentos
+- [x] Mostrar nivel promedio por departamento con barras agrupadas
+- [x] Agregar indicadores de fortaleza (verde) y oportunidad (rojo)
+- [x] Implementar tooltip con detalles de cada departamento (brecha, empleados, estado)
+- [x] Optimizar colores para visualización profesional (verde/rojo dinámico)
+- [x] Agregar tabla de detalles por departamento con brechas y estado
 
+### 2. Implementar Análisis Predictivo de Rotación (ALTA)
+- [ ] Crear router predictiveAnalytics.ts para análisis predictivo
+- [ ] Implementar procedure identifyAtRiskEmployees (tendencias descendentes)
+- [ ] Implementar procedure calculateRetentionScore (score de retención 0-100)
+- [ ] Crear página PredictiveAnalytics.tsx
+- [ ] Implementar tabla de empleados en riesgo con score de retención
+- [ ] Agregar indicadores de tendencia (ascendente/descendente/estable)
+- [ ] Implementar alertas automáticas para RH cuando score < 50
+- [ ] Agregar ruta en App.tsx (/predictive-analytics)
+- [ ] Agregar enlace en DashboardLayout (Gestión de Talento)
 
+### 3. Crear Dashboard Consolidado de Talento (ALTA)
+- [ ] Crear página TalentDashboard.tsx
+- [ ] Integrar Nine Box Matrix (resumen ejecutivo)
+- [ ] Integrar Alertas de Riesgo Psicosocial (últimas 5 alertas)
+- [ ] Integrar Métricas de Reportes (reportes enviados este mes)
+- [ ] Implementar filtros por departamento y período
+- [ ] Agregar KPIs principales (empleados evaluados, brechas críticas, alertas activas)
+- [ ] Implementar gráfico de tendencia de competencias organizacionales
+- [ ] Agregar ruta en App.tsx (/talent-dashboard)
+- [ ] Agregar enlace destacado en DashboardLayout
 
----
-
-## SESIÓN 32: Timeline de Evolución del Desempeño
-
-### Implementar Timeline de Evolución de Competencias (ALTA) ✅ COMPLETADO
-- [x] Crear componente TimelineChart.tsx con Chart.js (gráfico de línea temporal)
-- [x] Implementar procedure getCompetencyEvolution en performanceEvaluation360Router
-- [x] Integrar TimelineChart en PerformanceEvaluation360.tsx
-- [x] Agregar selector de empleado y competencia para visualizar evolución
-- [x] Implementar tooltip con detalles de evaluaciones por ciclo (nivel, fecha, ciclo)
-- [x] Agregar leyenda con tendencias (ascendente/descendente/estable)
-- [x] Optimizar colores para visualización de tendencias (verde ascendente, rojo descendente, gris estable)
-- [x] Implementar detección automática de tendencias
-- [x] Mejorar UX del timeline con selectores en cascada
-- [ ] Guardar checkpoint
-
-
----
-
-## SESIÓN 33: Exportación de Reportes Individuales en PDF
-
-### Implementar Exportación de Reportes en PDF (ALTA) ✅ COMPLETADO
-- [x] Crear procedure generateEmployeeReport en performanceEvaluation360Router
-- [x] Implementar generación de PDF con Puppeteer (generatePDFFromHTML)
-- [x] Incluir tabla de brechas de competencias (HTML)
-- [x] Incluir resumen de evolución de competencias
-- [x] Incluir plan de desarrollo personalizado generado automáticamente
-- [x] Agregar botón de exportación en PerformanceEvaluation360.tsx (tab Competencias Individuales)
-- [x] Implementar apertura automática del PDF en nueva ventana
-- [x] Implementar notificaciones de éxito/error con toast
-- [x] Mejorar UX de exportación (botón con estado de carga)
+### 4. Finalización y Checkpoint
+- [ ] Revisar errores y optimizar código
+- [ ] Mejorar UX de los 3 módulos
 - [ ] Guardar checkpoint
