@@ -142,7 +142,7 @@ export default function InterventionPlans() {
                   ) : (
                     cycles?.map((cycle) => (
                       <SelectItem key={cycle.id} value={cycle.id.toString()}>
-                        {cycle.name} ({cycle.startDate} - {cycle.endDate})
+                        {cycle.name} ({new Date(cycle.startDate).toLocaleDateString('es-MX')} - {new Date(cycle.endDate).toLocaleDateString('es-MX')})
                       </SelectItem>
                     ))
                   )}
