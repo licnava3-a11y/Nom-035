@@ -7526,9 +7526,15 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Agregar ruta /talent-dashboard en App.tsx
 - [x] Agregar enlace en DashboardLayout.tsx (Gestión de Talento)
 
-### 2. Exportación Masiva de Reportes Departamentales en PDF (ALTA)
-- [ ] Crear procedure generateDepartmentReport en performanceEvaluation360Router
-- [ ] Implementar generación de PDF con comparativas de competencias
+### 2. Exportación Masiva de Reportes Departamentales en PDF (ALTA) ✅ COMPLETADO
+- [x] Crear procedure generateDepartmentReport en performanceEvaluation360Router
+- [x] Implementar generación de PDF con comparativas de competencias
+- [x] Incluir rankings de departamentos (ordenados por score de fortaleza)
+- [x] Incluir análisis de brechas por departamento y competencia
+- [x] Incluir planes de desarrollo colectivos generados automáticamente
+- [x] Agregar botón de exportación en tab Comparativas Departamentales
+- [x] Implementar apertura automática del PDF en nueva ventana
+- [x] Implementar notificaciones de éxito con resumen (departamentos, top departamento)
 - [ ] Incluir ranking de departamentos (fortaleza/oportunidad)
 - [ ] Incluir análisis de brechas departamentales
 - [ ] Incluir planes de desarrollo colectivos generados automáticamente

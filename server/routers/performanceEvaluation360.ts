@@ -505,4 +505,225 @@ export const performanceEvaluation360Router = router({
         })),
       };
     }),
+
+  // Exportación Masiva de Reportes Departamentales en PDF
+  generateDepartmentReport: protectedProcedure
+    .input(
+      z.object({
+        cycleId: z.number(),
+        departmentIds: z.array(z.number()).optional(), // Si no se especifica, genera para todos los departamentos
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+
+      // Obtener todos los departamentos o los especificados
+      const departmentsQuery = input.departmentIds
+        ? await db
+            .select()
+            .from(departments)
+            .where(sql`${departments.id} IN (${sql.join(input.departmentIds.map((id) => sql`${id}`), sql`, `)})`)
+        : await db.select().from(departments);
+
+      // Obtener todas las competencias
+      const competenciesData = await db.select().from(competencies);
+
+      const reportData = [];
+
+      for (const dept of departmentsQuery) {
+        const departmentCompetencies = [];
+
+        for (const comp of competenciesData) {
+          // Calcular nivel promedio de la competencia en el departamento
+          const avgLevelQuery = await db
+            .select({
+              averageLevel: sql<number>`AVG(${evaluation360Responses.rating})`,
+              employeeCount: sql<number>`COUNT(DISTINCT ${employees.id})`,
+            })
+            .from(evaluation360Responses)
+            .innerJoin(
+              evaluation360Evaluators,
+              eq(evaluation360Responses.evaluatorId, evaluation360Evaluators.id)
+            )
+            .innerJoin(
+              evaluation360Assignments,
+              eq(evaluation360Evaluators.assignmentId, evaluation360Assignments.id)
+            )
+            .innerJoin(
+              employees,
+              eq(evaluation360Assignments.employeeId, employees.id)
+            )
+            .where(
+              and(
+                eq(evaluation360Assignments.cycleId, input.cycleId),
+                eq(evaluation360Responses.competencyId, comp.id),
+                eq(employees.departmentId, dept.id)
+              )
+            );
+
+          const avgLevel = avgLevelQuery[0]?.averageLevel || 0;
+          const employeeCount = avgLevelQuery[0]?.employeeCount || 0;
+          const gap = comp.requiredLevel - avgLevel;
+
+          departmentCompetencies.push({
+            competencyName: comp.name,
+            averageLevel: avgLevel,
+            requiredLevel: comp.requiredLevel,
+            gap: gap,
+            status: avgLevel >= comp.requiredLevel ? "fortaleza" : "oportunidad",
+            employeeCount: employeeCount,
+          });
+        }
+
+        // Generar plan de desarrollo colectivo
+        const developmentPlan = departmentCompetencies
+          .filter((c) => c.status === "oportunidad")
+          .map((c) => ({
+            competency: c.competencyName,
+            gap: c.gap.toFixed(2),
+            recommendation:
+              c.gap > 1.5
+                ? "Capacitación intensiva requerida (talleres presenciales, mentorías)"
+                : c.gap > 0.5
+                ? "Capacitación estándar recomendada (cursos en línea, webinars)"
+                : "Refuerzo ligero sugerido (lecturas, videos cortos)",
+          }));
+
+        reportData.push({
+          departmentId: dept.id,
+          departmentName: dept.name,
+          competencies: departmentCompetencies,
+          developmentPlan: developmentPlan,
+          ranking:
+            departmentCompetencies.filter((c) => c.status === "fortaleza").length /
+            departmentCompetencies.length,
+        });
+      }
+
+      // Ordenar departamentos por ranking (mayor a menor)
+      reportData.sort((a, b) => b.ranking - a.ranking);
+
+      // Generar HTML para PDF
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #1e40af; text-align: center; }
+            h2 { color: #059669; margin-top: 30px; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #1e40af; color: white; }
+            .fortaleza { background-color: #d1fae5; }
+            .oportunidad { background-color: #fee2e2; }
+            .ranking { font-size: 24px; font-weight: bold; color: #1e40af; }
+          </style>
+        </head>
+        <body>
+          <h1>Reporte Departamental de Competencias</h1>
+          <p style="text-align: center; color: #6b7280;">Ciclo de Evaluación 360° - ${new Date().toLocaleDateString()}</p>
+          
+          <h2>Ranking de Departamentos</h2>
+          <table>
+            <tr>
+              <th>Posición</th>
+              <th>Departamento</th>
+              <th>Score de Fortaleza</th>
+              <th>Competencias Fortaleza</th>
+              <th>Competencias Oportunidad</th>
+            </tr>
+            ${reportData
+              .map(
+                (dept, index) => `
+              <tr>
+                <td class="ranking">${index + 1}</td>
+                <td>${dept.departmentName}</td>
+                <td>${(dept.ranking * 100).toFixed(1)}%</td>
+                <td>${dept.competencies.filter((c) => c.status === "fortaleza").length}</td>
+                <td>${dept.competencies.filter((c) => c.status === "oportunidad").length}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </table>
+
+          ${reportData
+            .map(
+              (dept) => `
+            <div style="page-break-before: always;">
+              <h2>${dept.departmentName}</h2>
+              
+              <h3>Comparativa de Competencias</h3>
+              <table>
+                <tr>
+                  <th>Competencia</th>
+                  <th>Nivel Promedio</th>
+                  <th>Nivel Requerido</th>
+                  <th>Brecha</th>
+                  <th>Estado</th>
+                  <th>Empleados Evaluados</th>
+                </tr>
+                ${dept.competencies
+                  .map(
+                    (comp) => `
+                  <tr class="${comp.status}">
+                    <td>${comp.competencyName}</td>
+                    <td>${comp.averageLevel.toFixed(2)}</td>
+                    <td>${comp.requiredLevel}</td>
+                    <td>${comp.gap.toFixed(2)}</td>
+                    <td>${comp.status === "fortaleza" ? "✅ Fortaleza" : "⚠️ Oportunidad"}</td>
+                    <td>${comp.employeeCount}</td>
+                  </tr>
+                `
+                  )
+                  .join("")}
+              </table>
+
+              <h3>Plan de Desarrollo Colectivo</h3>
+              ${dept.developmentPlan.length > 0
+                ? `
+                <table>
+                  <tr>
+                    <th>Competencia</th>
+                    <th>Brecha</th>
+                    <th>Recomendación</th>
+                  </tr>
+                  ${dept.developmentPlan
+                    .map(
+                      (plan) => `
+                    <tr>
+                      <td>${plan.competency}</td>
+                      <td>${plan.gap}</td>
+                      <td>${plan.recommendation}</td>
+                    </tr>
+                  `
+                    )
+                    .join("")}
+                </table>
+              `
+                : `<p style="color: #059669;">✅ Este departamento no requiere plan de desarrollo. Todas las competencias están en nivel de fortaleza.</p>`}
+            </div>
+          `
+            )
+            .join("")}
+        </body>
+        </html>
+      `;
+
+      // Generar PDF
+      const pdfUrl = await generatePDFFromHTML(htmlContent);
+
+      return {
+        success: true,
+        pdfUrl: pdfUrl,
+        departmentsCount: reportData.length,
+        summary: {
+          totalCompetencies: competenciesData.length,
+          topDepartment: reportData[0]?.departmentName || "N/A",
+          topDepartmentScore: reportData[0] ? (reportData[0].ranking * 100).toFixed(1) : "0",
+        },
+      };
+    }),
 });

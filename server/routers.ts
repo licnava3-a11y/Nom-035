@@ -143,6 +143,7 @@ import { riskAlertsRouter } from "./routers/riskAlerts";
 import { scheduledReportsRouter } from "./routers/scheduledReports";
 import { talentDashboardRouter } from "./routers/talentDashboard";
 import { testDataRouter } from "./routers/testData";
+import { interventionsRouter } from "./routers/interventions";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -257,6 +258,7 @@ export const appRouter = router({
   scheduledReports: scheduledReportsRouter,
   talentDashboard: talentDashboardRouter,
   testData: testDataRouter,
+  interventions: interventionsRouter,
   reportConfigurations: reportConfigurationsRouter,
   sentimentAnalysis: sentimentAnalysisRouter,
   executiveReports: executiveReportsRouter,

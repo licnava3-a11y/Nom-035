@@ -220,6 +220,7 @@ const SMTPConfig = lazy(() => import("./pages/SMTPConfig"));
 const PerformanceEvaluation360 = lazy(() => import("./pages/PerformanceEvaluation360"));
 const RetentionAnalytics = lazy(() => import("./pages/RetentionAnalytics"));
 const TalentDashboard = lazy(() => import("./pages/TalentDashboard"));
+const InterventionPlans = lazy(() => import("./pages/InterventionPlans"));
 const RiskAlerts = lazy(() => import("./pages/RiskAlerts"));
 const ScheduledReports = lazy(() => import("./pages/ScheduledReports"));
 const TestDataSeeder = lazy(() => import("./pages/TestDataSeeder"));
@@ -1605,6 +1606,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <TalentDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/intervention-plans">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <InterventionPlans />
             </Suspense>
           </DashboardLayout>
         </Route>

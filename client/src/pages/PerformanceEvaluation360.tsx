@@ -51,6 +51,16 @@ export default function PerformanceEvaluation360() {
     },
   });
 
+  const generateDepartmentReportMutation = trpc.performanceEvaluation360.generateDepartmentReport.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Reporte generado: ${data.departmentsCount} departamentos`);
+      window.open(data.pdfUrl, "_blank");
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
   // Nine Box Matrix Visualization
   const renderNineBoxMatrix = () => {
     if (!nineBoxMatrix) return null;
@@ -393,6 +403,27 @@ export default function PerformanceEvaluation360() {
                           </tbody>
                         </table>
                       </div>
+                    </div>
+
+                    {/* Botón de exportación masiva */}
+                    <div className="mt-6 flex justify-end">
+                      <Button
+                        onClick={() => {
+                          if (selectedCycleId) {
+                            generateDepartmentReportMutation.mutate({ cycleId: selectedCycleId });
+                          }
+                        }}
+                        disabled={generateDepartmentReportMutation.isPending}
+                      >
+                        {generateDepartmentReportMutation.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Generando reporte...
+                          </>
+                        ) : (
+                          "Exportar Reporte Departamental (PDF)"
+                        )}
+                      </Button>
                     </div>
                   </>
                 ) : selectedComparisonCompetencyId ? (
