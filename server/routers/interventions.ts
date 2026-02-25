@@ -161,6 +161,29 @@ export const interventionsRouter = router({
           criticalCompetencies.length) *
           25;
 
+      // Determinar nivel de riesgo
+      const riskLevel =
+        retentionScore < 30
+          ? "crítico"
+          : retentionScore < 50
+          ? "alto"
+          : retentionScore < 70
+          ? "medio"
+          : "bajo";
+
+      // Guardar plan en la base de datos
+      const planResult = await db.execute(sql`
+        INSERT INTO intervention_plans (
+          employee_id, cycle_id, retention_score, risk_level, 
+          critical_competencies_count, assigned_mentor_id, 
+          course_recommendations, follow_up_plan, created_by
+        ) VALUES (
+          ${input.employeeId}, ${input.cycleId}, ${retentionScore.toFixed(2)}, ${riskLevel},
+          ${criticalCompetencies.length}, ${assignedMentor?.mentorId || null},
+          ${JSON.stringify(courseRecommendations)}, ${JSON.stringify(followUpPlan)}, ${1}
+        )
+      `);
+
       // Enviar alerta al propietario si score < 30 (riesgo crítico)
       if (retentionScore < 30) {
         await notifyOwner({

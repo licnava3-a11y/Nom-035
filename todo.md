@@ -7560,3 +7560,20 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Mejorar UX de los 3 módulos
 - [ ] Validar funcionamiento con datos de prueba
 - [ ] Guardar checkpoint final
+
+
+---
+
+## Sesión 37 - Sistema de Intervenciones Personalizadas
+
+### Implementación Completada
+- [x] Router interventions.ts con procedures generateInterventionPlan y getEmployeeInterventions
+- [x] Página InterventionPlans.tsx con 3 tabs (Cursos, Mentor, Seguimiento)
+- [x] Integración en App.tsx y DashboardLayout.tsx
+- [x] Checkpoint guardado (28afd351)
+
+### Validación y Mejoras Completadas
+- [x] Crear tabla SQL intervention_plans para persistencia de planes
+- [x] Implementar notificaciones automáticas por email para riesgo crítico (score < 30)
+- [x] Agregar persistencia de planes en interventions.ts (INSERT INTO intervention_plans)
+- [ ] Validar sistema con datos de prueba usando /test-data-seeder (pendiente por problemas SQL)

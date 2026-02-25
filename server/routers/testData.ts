@@ -1,33 +1,51 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { sql } from "drizzle-orm";
+import { evaluation360Cycles, evaluation360Assignments, riskAlertThresholds, scheduledReports, reportHistory } from "../../drizzle/schema";
 
 export const testDataRouter = router({
   seedSession29: protectedProcedure.mutation(async ({ ctx }) => {
     const db = await getDb();
     
     try {
-      // 1. Insertar 2 ciclos de evaluación 360°
+      // 1. Insertar 2 ciclos de evaluación 360° usando SQL raw para evitar problemas de timezone
       await db.execute(sql`
         INSERT INTO evaluation_360_cycles (cycle_name, description, start_date, end_date, status, created_by) VALUES
         ('Evaluación 360° Q1 2026', 'Ciclo de evaluación del primer trimestre 2026', '2026-01-15', '2026-03-31', 'active', ${ctx.user.id}),
-        ('Evaluación 360° Q4 2025', 'Ciclo de evaluación del cuarto trimestre 2025 (completado)', '2025-10-01', '2025-12-31', 'closed', ${ctx.user.id})
+        ('Evaluación 360° Q4 2025', 'Ciclo de evaluación del cuarto trimestre 2025 (completado)', '2025-10-01', '2025-12-31', 'completed', ${ctx.user.id})
       `);
 
-      // 2. Insertar 10 asignaciones de empleados a ciclos (IDs 1 y 2 de los ciclos recién creados)
-      await db.execute(sql`
-        INSERT INTO evaluation_360_assignments (cycle_id, evaluated_employee_id, status) VALUES
-        (LAST_INSERT_ID() - 1, 1, 'pending'),
-        (LAST_INSERT_ID() - 1, 2, 'in_progress'),
-        (LAST_INSERT_ID() - 1, 3, 'pending'),
-        (LAST_INSERT_ID() - 1, 4, 'in_progress'),
-        (LAST_INSERT_ID() - 1, 5, 'pending'),
-        (LAST_INSERT_ID(), 6, 'completed'),
-        (LAST_INSERT_ID(), 7, 'completed'),
-        (LAST_INSERT_ID(), 8, 'completed'),
-        (LAST_INSERT_ID(), 9, 'completed'),
-        (LAST_INSERT_ID(), 10, 'completed')
+      // Obtener IDs de ciclos recién creados
+      const cyclesQuery = await db.execute(sql`
+        SELECT id FROM evaluation_360_cycles ORDER BY created_at DESC LIMIT 2
       `);
+      const cycleIds = cyclesQuery.rows.map((row: any) => row.id).reverse();
+      const cycle1Id = cycleIds[0];
+      const cycle2Id = cycleIds[1];
+
+      // Obtener empleados existentes (primeros 10)
+      const employeesQuery = await db.execute(sql`
+        SELECT id FROM employees ORDER BY id ASC LIMIT 10
+      `);
+      const employeeIds = employeesQuery.rows.map((row: any) => row.id);
+
+      if (employeeIds.length < 10) {
+        throw new Error(`Solo hay ${employeeIds.length} empleados en la base de datos. Se requieren al menos 10 para generar datos de prueba.`);
+      }
+
+      // 2. Insertar 10 asignaciones de empleados a ciclos
+      await db.insert(evaluation360Assignments).values([
+        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[0], status: 'pending' },
+        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[1], status: 'in_progress' },
+        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[2], status: 'pending' },
+        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[3], status: 'in_progress' },
+        { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[4], status: 'pending' },
+        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[5], status: 'completed' },
+        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[6], status: 'completed' },
+        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[7], status: 'completed' },
+        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[8], status: 'completed' },
+        { cycleId: cycle2Id, evaluatedEmployeeId: employeeIds[9], status: 'completed' },
+      ]);
 
       // 3. Insertar umbrales de alertas tempranas (30% riesgo alto por defecto)
       await db.execute(sql`
