@@ -7577,3 +7577,52 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Implementar notificaciones automáticas por email para riesgo crítico (score < 30)
 - [x] Agregar persistencia de planes en interventions.ts (INSERT INTO intervention_plans)
 - [ ] Validar sistema con datos de prueba usando /test-data-seeder (pendiente por problemas SQL)
+
+
+---
+
+## Sesión 41 - Auditoría Profunda y Corrección de Errores Críticos
+
+### Fase 1: Errores removeChild y SelectItem vacíos
+- [x] Buscar todos los errores removeChild en logs del navegador (no se encontraron logs activos)
+- [x] Identificar componentes problemáticos (Selects, modales, listas dinámicas)
+- [x] Encontrados 285 SelectItem en 35 archivos - 4 con value="" en CasesManagement.tsx
+- [x] Corregir SelectItem con value vacío en CasesManagement.tsx (4 correcciones)
+- [x] Actualizar lógica de filtros para manejar "all" en vez de ""
+- [x] Corregir error removeChild en RootCauseAnalysis.tsx (filtro de departamento)
+- [x] Corregir error removeChild en SkillsMatrix.tsx (filtros departamento y puesto con parseInt("all"))
+- [ ] Buscar y corregir otros archivos con SelectItem value vacío
+- [ ] Probar todos los componentes corregidos
+
+### Fase 2: Correlaciones SQL y Backend
+- [ ] Auditar todas las tablas SQL y sus relaciones (FOREIGN KEYS)
+- [ ] Verificar campos que referencian IDs de otras tablas
+- [ ] Corregir consultas SQL con JOINs incorrectos
+- [ ] Validar que todos los campos calculados usan datos correctos
+- [ ] Probar procedures con datos de prueba
+
+### Fase 3: Rutas 404 y Navegación
+- [ ] Revisar todas las rutas en App.tsx
+- [ ] Verificar que todos los enlaces en DashboardLayout.tsx apuntan a rutas existentes
+- [ ] Probar navegación completa del sistema
+- [ ] Corregir rutas rotas o mal escritas
+- [ ] Agregar página 404 personalizada si no existe
+
+### Fase 4: Desplegables (Selects)
+- [ ] Buscar todos los Select con valores vacíos o undefined
+- [ ] Verificar que todos los SelectItem tienen value no vacío
+- [ ] Corregir desplegables que no cargan opciones correctamente
+- [ ] Validar que los valores seleccionados se guardan correctamente
+- [ ] Probar todos los formularios con desplegables
+
+### Fase 5: Campos Duplicados y Correlaciones
+- [ ] Buscar campos duplicados en formularios (títulos, fechas, nombres)
+- [ ] Verificar correlación entre campos relacionados (empleado-departamento, curso-competencia)
+- [ ] Corregir campos que no se prellenan automáticamente
+- [ ] Eliminar campos redundantes o mal correlacionados
+- [ ] Validar que todos los campos guardan datos correctamente
+
+### Fase 6: Entrega Final
+- [ ] Ejecutar auditoría completa con datos de prueba
+- [ ] Corregir todos los errores encontrados
+- [ ] Guardar checkpoint final con todas las correcciones

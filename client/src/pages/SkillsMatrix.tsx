@@ -517,9 +517,9 @@ export default function SkillsMatrix() {
             <div>
               <Label>Departamento</Label>
               <Select
-                value={filters.departmentId?.toString()}
+                value={filters.departmentId?.toString() || "all"}
                 onValueChange={(value) =>
-                  setFilters({ ...filters, departmentId: value ? parseInt(value) : undefined })
+                  setFilters({ ...filters, departmentId: value === "all" ? undefined : parseInt(value) })
                 }
               >
                 <SelectTrigger>
@@ -536,9 +536,9 @@ export default function SkillsMatrix() {
             <div>
               <Label>Puesto</Label>
               <Select
-                value={filters.positionId?.toString()}
+                value={filters.positionId?.toString() || "all"}
                 onValueChange={(value) =>
-                  setFilters({ ...filters, positionId: value ? parseInt(value) : undefined })
+                  setFilters({ ...filters, positionId: value === "all" ? undefined : parseInt(value) })
                 }
               >
                 <SelectTrigger>

@@ -42,9 +42,9 @@ export default function CasesManagement() {
   const { data: casesData, isLoading } = trpc.casesPaginated.list.useQuery({
     page,
     pageSize,
-    status: filters.status || undefined,
-    priority: filters.priority || undefined,
-    departmentId: filters.departmentId ? parseInt(filters.departmentId) : undefined,
+    status: filters.status && filters.status !== "all" ? filters.status : undefined,
+    priority: filters.priority && filters.priority !== "all" ? filters.priority : undefined,
+    departmentId: filters.departmentId && filters.departmentId !== "all" ? parseInt(filters.departmentId) : undefined,
     search: filters.search || undefined,
   });
 
@@ -130,13 +130,40 @@ export default function CasesManagement() {
     const employee = employeesData?.employees?.find((emp: any) => emp.id.toString() === employeeId);
     
     if (employee) {
+      // Solo prellenar si no es "manual"
+      if (employeeId !== "manual") {
+        setNewCase(prev => ({
+          ...prev,
+          reporterEmployeeId: employeeId,
+          reporterName: `${employee.firstName} ${employee.lastName}`,
+          reporterEmail: employee.email || "",
+          reporterPhone: employee.phone || "",
+          departmentId: employee.departmentId?.toString() || prev.departmentId
+        }));
+        
+        toast.success("Datos del empleado prellenados automáticamente", {
+          description: "Puedes modificar los campos si es necesario"
+        });
+      } else {
+        // Limpiar campos si se selecciona "manual"
+        setNewCase(prev => ({
+          ...prev,
+          reporterEmployeeId: "",
+          reporterName: "",
+          reporterEmail: "",
+          reporterPhone: "",
+          departmentId: ""
+        }));
+      }
+    } else if (employeeId === "manual") {
+      // Limpiar campos si se selecciona "manual" directamente
       setNewCase(prev => ({
         ...prev,
-        reporterEmployeeId: employeeId,
-        reporterName: `${employee.firstName} ${employee.lastName}`,
-        reporterEmail: employee.email || "",
-        reporterPhone: employee.phone || "",
-        departmentId: employee.departmentId?.toString() || prev.departmentId
+        reporterEmployeeId: "",
+        reporterName: "",
+        reporterEmail: "",
+        reporterPhone: "",
+        departmentId: ""
       }));
       
       toast.success("Datos del empleado prellenados automáticamente", {
@@ -281,7 +308,7 @@ export default function CasesManagement() {
                     <SelectValue placeholder="Buscar empleado existente..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">-- Captura manual --</SelectItem>
+                    <SelectItem value="manual">-- Captura manual --</SelectItem>
                     {employeesData?.employees?.map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
                         {emp.firstName} {emp.lastName} - {emp.email}
@@ -421,7 +448,7 @@ export default function CasesManagement() {
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="open">Abierto</SelectItem>
                 <SelectItem value="investigating">Investigando</SelectItem>
                 <SelectItem value="resolved">Resuelto</SelectItem>
@@ -439,7 +466,7 @@ export default function CasesManagement() {
                 <SelectValue placeholder="Todas" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="critical">Crítica</SelectItem>
                 <SelectItem value="high">Alta</SelectItem>
                 <SelectItem value="medium">Media</SelectItem>
@@ -457,7 +484,7 @@ export default function CasesManagement() {
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {departments?.data?.map((dept: { id: number; name: string }) => (
                   <SelectItem key={dept.id} value={dept.id.toString()}>
                     {dept.name}
