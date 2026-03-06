@@ -172,12 +172,12 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Usuario</Label>
-              <Select value={userId?.toString() || ""} onValueChange={(value) => setUserId(value ? Number(value) : undefined)}>
+              <Select value={userId?.toString() || "all"} onValueChange={(value) => setUserId(value === "all" ? undefined : Number(value))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los usuarios" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los usuarios</SelectItem>
+                  <SelectItem value="all">Todos los usuarios</SelectItem>
                   {users?.map((user) => (
                     <SelectItem key={user.id} value={user.id.toString()}>
                       {user.name}
@@ -190,14 +190,14 @@ export default function SignatureAudit() {
             <div>
               <Label>Documento</Label>
               <Select
-                value={operatingRuleId?.toString() || ""}
-                onValueChange={(value) => setOperatingRuleId(value ? Number(value) : undefined)}
+                value={operatingRuleId?.toString() || "all"}
+                onValueChange={(value) => setOperatingRuleId(value === "all" ? undefined : Number(value))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los documentos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los documentos</SelectItem>
+                  <SelectItem value="all">Todos los documentos</SelectItem>
                   {operatingRules?.map((rule) => (
                     <SelectItem key={rule.id} value={rule.id.toString()}>
                       {rule.version}
@@ -209,12 +209,12 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Rol</Label>
-              <Select value={role || ""} onValueChange={(value) => setRole(value as any || undefined)}>
+              <Select value={role || "all"} onValueChange={(value) => setRole(value === "all" ? undefined : value as any)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los roles" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los roles</SelectItem>
+                  <SelectItem value="all">Todos los roles</SelectItem>
                   <SelectItem value="president">Presidente</SelectItem>
                   <SelectItem value="secretary">Secretario</SelectItem>
                   <SelectItem value="vocal">Vocal</SelectItem>
@@ -225,12 +225,12 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Estado</Label>
-              <Select value={status || ""} onValueChange={(value) => setStatus(value as any || undefined)}>
+              <Select value={status || "all"} onValueChange={(value) => setStatus(value === "all" ? undefined : value as any)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los estados</SelectItem>
+                  <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="pending">Pendiente</SelectItem>
                   <SelectItem value="signed">Firmado</SelectItem>
                   <SelectItem value="rejected">Rechazado</SelectItem>

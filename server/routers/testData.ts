@@ -34,6 +34,9 @@ export const testDataRouter = router({
       }
 
       // 2. Insertar 10 asignaciones de empleados a ciclos
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
       await db.insert(evaluation360Assignments).values([
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[0], status: 'pending' },
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[1], status: 'in_progress' },
@@ -48,6 +51,9 @@ export const testDataRouter = router({
       ]);
 
       // 3. Insertar umbrales de alertas tempranas (30% riesgo alto por defecto)
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
       await db.execute(sql`
         INSERT INTO risk_alert_thresholds (department_id, high_risk_threshold, medium_risk_threshold, alert_enabled, created_by) VALUES
         (1, 30, 20, 1, ${ctx.user.id}),
@@ -56,6 +62,9 @@ export const testDataRouter = router({
       `);
 
       // 4. Insertar 2 reportes programados
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
       await db.execute(sql`
         INSERT INTO scheduled_reports (report_name, description, frequency, recipients, include_nmx025, include_nom035, is_active, created_by) VALUES
         ('Reporte Ejecutivo Mensual', 'Dashboard ejecutivo con métricas NMX-025 y NOM-035', 'monthly', 'director@empresa.com,rh@empresa.com', 1, 1, 1, ${ctx.user.id}),
@@ -63,6 +72,9 @@ export const testDataRouter = router({
       `);
 
       // 5. Insertar historial de reportes (simulando envíos previos)
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
       await db.execute(sql`
         INSERT INTO report_history (report_id, sent_at, status, recipients) VALUES
         (LAST_INSERT_ID() - 1, '2026-01-01 08:00:00', 'sent', 'director@empresa.com,rh@empresa.com'),

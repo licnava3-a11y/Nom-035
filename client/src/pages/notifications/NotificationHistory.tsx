@@ -13,8 +13,8 @@ import { toast } from "sonner";
 export default function NotificationHistory() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
-    type: "",
-    status: "",
+    type: "all",
+    status: "all",
     recipientEmail: "",
     dateFrom: "",
     dateTo: "",
@@ -23,8 +23,8 @@ export default function NotificationHistory() {
   const { data: logsData, isLoading, refetch } = trpc.notificationLogs.getAll.useQuery({
     page,
     pageSize: 50,
-    type: filters.type || undefined,
-    status: filters.status as "failed" | "sent" | "bounced" | undefined,
+    type: filters.type === "all" ? undefined : filters.type || undefined,
+    status: (filters.status === "all" ? undefined : filters.status) as "failed" | "sent" | "bounced" | undefined,
     recipientEmail: filters.recipientEmail || undefined,
     dateFrom: filters.dateFrom || undefined,
     dateTo: filters.dateTo || undefined,
@@ -162,7 +162,7 @@ export default function NotificationHistory() {
                   <SelectValue placeholder="Todos los tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los tipos</SelectItem>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
                   <SelectItem value="alert">Alertas</SelectItem>
                   <SelectItem value="survey">Encuestas</SelectItem>
                   <SelectItem value="training">Capacitación</SelectItem>
@@ -180,7 +180,7 @@ export default function NotificationHistory() {
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los estados</SelectItem>
+                  <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="sent">Enviada</SelectItem>
                   <SelectItem value="failed">Fallida</SelectItem>
                   <SelectItem value="bounced">Rebotada</SelectItem>
@@ -199,7 +199,7 @@ export default function NotificationHistory() {
                   <SelectValue placeholder="Todos los destinatarios" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los destinatarios</SelectItem>
+                  <SelectItem value="all">Todos los destinatarios</SelectItem>
                   {recipients?.map((r: any) => (
                     <SelectItem key={r} value={r || ""}>
                       {r}

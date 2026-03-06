@@ -26,7 +26,7 @@ import { toast } from "sonner";
 
 export default function ReportsHistory() {
   const [filters, setFilters] = useState({
-    tipo: "",
+    tipo: "all",
     startDate: "",
     endDate: "",
   });
@@ -34,7 +34,7 @@ export default function ReportsHistory() {
   const pageSize = 20;
 
   const { data, isLoading, refetch } = trpc.compliance.listReports.useQuery({
-    tipo: filters.tipo || undefined,
+    tipo: filters.tipo === "all" ? undefined : filters.tipo || undefined,
     startDate: filters.startDate || undefined,
     endDate: filters.endDate || undefined,
     limit: pageSize,
@@ -42,7 +42,7 @@ export default function ReportsHistory() {
   });
 
   const handleClearFilters = () => {
-    setFilters({ tipo: "", startDate: "", endDate: "" });
+    setFilters({ tipo: "all", startDate: "", endDate: "" });
     setPage(0);
   };
 
@@ -255,7 +255,7 @@ export default function ReportsHistory() {
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="verificacion_numerales">Verificación de Numerales</SelectItem>
                 </SelectContent>
               </Select>

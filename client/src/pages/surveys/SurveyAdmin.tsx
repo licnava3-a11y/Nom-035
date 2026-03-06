@@ -54,7 +54,7 @@ const RISK_LEVEL_LABELS = {
 export default function SurveyAdmin() {
   const utils = trpc.useContext();
   const [selectedSurvey, setSelectedSurvey] = useState<number>(1);
-  const [department, setDepartment] = useState<string>('');
+  const [department, setDepartment] = useState<string>('all');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   
@@ -73,7 +73,7 @@ export default function SurveyAdmin() {
   // Obtener respuestas agregadas
   const { data: responses, isLoading: loadingResponses } = trpc.surveys.getAggregatedResponses.useQuery({
     surveyId: selectedSurvey,
-    department: department || undefined,
+    department: department === 'all' ? undefined : department || undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
@@ -81,7 +81,7 @@ export default function SurveyAdmin() {
   // Obtener estadísticas
   const { data: statistics, isLoading: loadingStats } = trpc.surveys.getSurveyStatistics.useQuery({
     surveyId: selectedSurvey,
-    department: department || undefined,
+    department: department === 'all' ? undefined : department || undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
@@ -193,7 +193,7 @@ export default function SurveyAdmin() {
   };
 
   const handleClearFilters = () => {
-    setDepartment('');
+    setDepartment('all');
     setStartDate('');
     setEndDate('');
   };
@@ -244,12 +244,12 @@ export default function SurveyAdmin() {
 
             <div className="space-y-2">
               <Label htmlFor="department">Departamento</Label>
-              <Select value={department} onValueChange={setDepartment}>
+              <Select value={department} onValueChange={(v) => setDepartment(v)}>
                 <SelectTrigger id="department">
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {departments?.filter(Boolean).map((dept) => (
                     <SelectItem key={dept!} value={dept!}>
                       {dept}

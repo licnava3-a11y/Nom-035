@@ -405,12 +405,12 @@ export default function TokenManagement() {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Select value={filterPeriodId ? String(filterPeriodId) : ""} onValueChange={(value) => setFilterPeriodId(value ? parseInt(value) : undefined)}>
+                  <Select value={filterPeriodId ? String(filterPeriodId) : "all"} onValueChange={(value) => setFilterPeriodId(value === "all" ? undefined : parseInt(value))}>
                     <SelectTrigger className="w-48">
                       <SelectValue placeholder="Filtrar por periodo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos los periodos</SelectItem>
+                      <SelectItem value="all">Todos los periodos</SelectItem>
                       {periods?.map((period: any) => (
                         <SelectItem key={period.id} value={String(period.id)}>
                           {period.name}

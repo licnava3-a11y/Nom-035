@@ -19,8 +19,8 @@ export default function Users() {
   const [pageSize, setPageSize] = useState(20);
   const [filters, setFilters] = useState({
     search: "",
-    role: "",
-    department: "",
+    role: "all",
+    department: "all",
   });
 
   // Query con paginación real
@@ -28,8 +28,8 @@ export default function Users() {
     page,
     pageSize,
     search: filters.search || undefined,
-    role: filters.role || undefined,
-    departmentId: filters.department ? parseInt(filters.department) : undefined,
+    role: filters.role === "all" ? undefined : filters.role || undefined,
+    departmentId: filters.department === "all" ? undefined : filters.department ? parseInt(filters.department) : undefined,
   });
 
   const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
@@ -158,7 +158,7 @@ export default function Users() {
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="admin">Administrador</SelectItem>
                 <SelectItem value="instructor">Instructor</SelectItem>
                 <SelectItem value="student">Estudiante</SelectItem>
@@ -176,7 +176,7 @@ export default function Users() {
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 {departments?.data?.map((dept: { id: number; name: string }) => (
                   <SelectItem key={dept.id} value={dept.id.toString()}>
                     {dept.name}

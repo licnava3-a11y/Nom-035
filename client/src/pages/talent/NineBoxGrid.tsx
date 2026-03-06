@@ -11,15 +11,15 @@ import { Sparkles, TrendingUp, Users, AlertTriangle } from "lucide-react";
 
 export default function NineBoxGrid() {
   const [search, setSearch] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState<string>("");
-  const [quadrantFilter, setQuadrantFilter] = useState<string>("");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [quadrantFilter, setQuadrantFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
 
   // Queries
   const { data: assessmentsData, isLoading } = trpc.nineBoxGrid.getAll.useQuery({
     search,
-    departmentId: departmentFilter ? Number(departmentFilter) : undefined,
-    quadrant: quadrantFilter || undefined,
+    departmentId: departmentFilter === "all" ? undefined : departmentFilter ? Number(departmentFilter) : undefined,
+    quadrant: quadrantFilter === "all" ? undefined : quadrantFilter || undefined,
     page,
     pageSize: 50,
   });
@@ -209,7 +209,7 @@ export default function NineBoxGrid() {
                   <SelectValue placeholder="Todos los departamentos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {departments?.map((dept: { id: number; name: string }) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
@@ -226,7 +226,7 @@ export default function NineBoxGrid() {
                   <SelectValue placeholder="Todos los cuadrantes" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   {quadrants.map((q) => (
                     <SelectItem key={q.name} value={q.name}>
                       {q.name}
@@ -243,8 +243,8 @@ export default function NineBoxGrid() {
               size="sm"
               onClick={() => {
                 setSearch("");
-                setDepartmentFilter("");
-                setQuadrantFilter("");
+                setDepartmentFilter("all");
+                setQuadrantFilter("all");
               }}
             >
               Limpiar filtros
