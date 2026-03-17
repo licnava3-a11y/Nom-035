@@ -39,8 +39,9 @@ export const retentionInterventionsRouter = router({
           });
         }
 
-        await db.insert(retentionInterventions).values({
+        await (db.insert(retentionInterventions) as any).values({
           ...input,
+          implementationDate: new Date(input.implementationDate),
           createdBy: ctx.user?.id,
         });
 
@@ -116,7 +117,7 @@ export const retentionInterventionsRouter = router({
             riskScoreAfter: input.riskScoreAfter?.toString(),
             turnoverProbabilityAfter: input.turnoverProbabilityAfter?.toString(),
             outcome: input.outcome,
-            outcomeDate: input.outcomeDate,
+            outcomeDate: input.outcomeDate ? new Date(input.outcomeDate) : undefined,
             outcomeNotes: input.outcomeNotes,
             riskReduction: riskReduction?.toFixed(2),
             effectivenessScore: effectivenessScore?.toFixed(2),

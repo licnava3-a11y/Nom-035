@@ -7737,3 +7737,11 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Guardar checkpoint final con 494 errores
 - [ ] Continuar reduciendo errores TypeScript restantes (TS2339, TS2322)
 - [ ] Publicar versión estable
+
+---
+
+## SESIÓN 45: Correcciones y nuevas funcionalidades
+
+- [ ] Corregir riskAlerts.ts - surveyResponses.employeeId → userId con join a employees
+- [ ] Implementar encuestas post-caso (tabla, router, UI, job programado 30/60/90 días)
+- [ ] Guardar checkpoint final

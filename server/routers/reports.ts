@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { generateNom035Report } from '../pdfGenerators/nom035Report';
@@ -437,7 +438,7 @@ export const reportsRouter = router({
             if (manager[0]) {
               managersByDept.set(
                 dept.id,
-                `${manager[0].firstName} ${manager[0].lastName}`
+                `${manager[0].name || 'Sin nombre'}`
               );
             }
           }
@@ -525,7 +526,7 @@ export const reportsRouter = router({
               col3X,
               currentY
             )
-            .text(employeesByDept.get(dept.id) || 0, col4X, currentY);
+            .text(String(employeesByDept.get(dept.id) || 0), col4X, currentY);
 
           currentY += 20;
           doc.y = currentY;

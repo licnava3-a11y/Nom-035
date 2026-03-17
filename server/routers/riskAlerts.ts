@@ -7,6 +7,7 @@ import {
   surveyResponses,
   employees,
   departments,
+  users,
 } from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
@@ -38,21 +39,22 @@ export const riskAlertsRouter = router({
       const highRiskThreshold = thresholds?.highRiskThreshold || 30;
       const mediumRiskThreshold = thresholds?.mediumRiskThreshold || 20;
 
-      // Obtener encuestas recientes por departamento
+      // Obtener encuestas recientes
       const surveys = await db
         .select()
         .from(surveyResponses)
         .orderBy(desc(surveyResponses.completedAt));
 
-      // Agrupar por departamento
+      // Agrupar por departamento usando userId → employees.userId
       const departmentGroups: Record<number, any[]> = {};
       for (const survey of surveys) {
-        if (!survey.employeeId) continue;
+        if (!survey.userId) continue;
 
+        // Buscar el empleado por userId
         const [employee] = await db
           .select()
           .from(employees)
-          .where(eq(employees.id, survey.employeeId));
+          .where(eq(employees.userId, survey.userId));
 
         if (!employee || !employee.departmentId) continue;
 
@@ -60,15 +62,21 @@ export const riskAlertsRouter = router({
         if (!departmentGroups[deptId]) {
           departmentGroups[deptId] = [];
         }
-        departmentGroups[deptId].push(survey);
+        departmentGroups[deptId].push({ survey, employee });
       }
 
       const alertsTriggered = [];
 
       // Verificar cada departamento
-      for (const [deptId, deptSurveys] of Object.entries(departmentGroups)) {
-        const totalEmployees = deptSurveys.length;
-        const highRiskEmployees = deptSurveys.filter((s) => (s as any).riskLevel === "high").length;
+      for (const [deptId, deptEntries] of Object.entries(departmentGroups)) {
+        const totalEmployees = deptEntries.length;
+        // riskLevel viene del campo results (JSON) de surveyResponses
+        const highRiskEmployees = deptEntries.filter((e) => {
+          try {
+            const results = JSON.parse(e.survey.results || "{}");
+            return results.riskLevel === "high" || results.globalRiskLevel === "high";
+          } catch { return false; }
+        }).length;
         const riskPercentage = (highRiskEmployees / totalEmployees) * 100;
 
         let alertType: "high_risk_threshold_exceeded" | "medium_risk_threshold_exceeded" | null = null;
@@ -141,7 +149,7 @@ export const riskAlertsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // Obtener estadísticas del departamento
+      // Obtener encuestas del departamento via userId → employees
       const surveys = await db
         .select()
         .from(surveyResponses)
@@ -149,20 +157,25 @@ export const riskAlertsRouter = router({
 
       const deptEmployees = [];
       for (const survey of surveys) {
-        if (!survey.employeeId) continue;
+        if (!survey.userId) continue;
 
         const [employee] = await db
           .select()
           .from(employees)
-          .where(eq(employees.id, survey.employeeId));
+          .where(eq(employees.userId, survey.userId));
 
         if (employee && employee.departmentId === input.departmentId) {
-          deptEmployees.push(survey);
+          deptEmployees.push({ survey, employee });
         }
       }
 
       const totalEmployees = deptEmployees.length;
-        const highRiskEmployees = deptEmployees.filter((s) => (s as any).riskLevel === "high").length;
+      const highRiskEmployees = deptEmployees.filter((e) => {
+        try {
+          const results = JSON.parse(e.survey.results || "{}");
+          return results.riskLevel === "high" || results.globalRiskLevel === "high";
+        } catch { return false; }
+      }).length;
       const riskPercentage = totalEmployees > 0 ? (highRiskEmployees / totalEmployees) * 100 : 0;
 
       // Insertar alerta manual
@@ -213,17 +226,17 @@ export const riskAlertsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      let query = db
+      const alerts = await db
         .select()
         .from(riskAlertHistory)
+        .where(
+          input?.departmentId
+            ? eq(riskAlertHistory.departmentId, input.departmentId)
+            : undefined
+        )
         .orderBy(desc(riskAlertHistory.triggeredAt))
         .limit(input?.limit || 50);
 
-      if (input?.departmentId) {
-        query = query.where(eq(riskAlertHistory.departmentId, input.departmentId));
-      }
-
-      const alerts = await query;
       return alerts;
     }),
 
@@ -306,7 +319,7 @@ export const riskAlertsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      // Obtener encuestas del departamento
+      // Obtener encuestas del departamento via userId → employees
       const surveys = await db
         .select()
         .from(surveyResponses)
@@ -314,22 +327,30 @@ export const riskAlertsRouter = router({
 
       const deptSurveys = [];
       for (const survey of surveys) {
-        if (!survey.employeeId) continue;
+        if (!survey.userId) continue;
 
         const [employee] = await db
           .select()
           .from(employees)
-          .where(eq(employees.id, survey.employeeId));
+          .where(eq(employees.userId, survey.userId));
 
         if (employee && employee.departmentId === input.departmentId) {
-          deptSurveys.push(survey);
+          deptSurveys.push({ survey, employee });
         }
       }
 
       const totalEmployees = deptSurveys.length;
-      const highRiskCount = deptSurveys.filter((s) => (s as any).riskLevel === "high").length;
-      const mediumRiskCount = deptSurveys.filter((s) => (s as any).riskLevel === "medium").length;
-      const lowRiskCount = deptSurveys.filter((s) => (s as any).riskLevel === "low").length;
+
+      const getRiskLevel = (entry: any): string => {
+        try {
+          const results = JSON.parse(entry.survey.results || "{}");
+          return results.riskLevel || results.globalRiskLevel || "low";
+        } catch { return "low"; }
+      };
+
+      const highRiskCount = deptSurveys.filter((e) => getRiskLevel(e) === "high").length;
+      const mediumRiskCount = deptSurveys.filter((e) => getRiskLevel(e) === "medium").length;
+      const lowRiskCount = deptSurveys.filter((e) => getRiskLevel(e) === "low").length;
 
       const highRiskPercentage = totalEmployees > 0 ? (highRiskCount / totalEmployees) * 100 : 0;
       const mediumRiskPercentage = totalEmployees > 0 ? (mediumRiskCount / totalEmployees) * 100 : 0;

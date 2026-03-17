@@ -110,7 +110,7 @@ export const recruitmentRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
       // Insertar candidato
-      const [result] = await db.insert(candidates).values({
+      const [result] = await (db.insert(candidates) as any).values({
         jobOpeningId: input.jobOpeningId,
         firstName: input.firstName,
         lastName: input.lastName,
