@@ -73,7 +73,7 @@ export default function OrganizationDashboard() {
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-1/3"></div>
           <div className="grid gap-4 md:grid-cols-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map((i: any) => (
               <div key={i} className="h-32 bg-muted rounded"></div>
             ))}
           </div>

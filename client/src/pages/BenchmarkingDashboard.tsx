@@ -88,11 +88,11 @@ export default function BenchmarkingDashboard() {
   // Preparar datos para gráfico de radar
   const radarData = comparison
     ? {
-        labels: comparison.comparisons.map((c) => c.metric),
+        labels: comparison.comparisons.map((c: any) => c.metric),
         datasets: [
           {
             label: "Organización",
-            data: comparison.comparisons.map((c) => {
+            data: comparison.comparisons.map((c: any) => {
               // Normalizar a escala 0-100
               if (c.unit === "porcentaje") return c.orgValue;
               if (c.unit === "días") return (c.orgValue / 50) * 100; // Normalizar días (max 50)
@@ -106,7 +106,7 @@ export default function BenchmarkingDashboard() {
           },
           {
             label: "Promedio Sectorial",
-            data: comparison.comparisons.map((c) => {
+            data: comparison.comparisons.map((c: any) => {
               // Normalizar a escala 0-100
               if (c.unit === "porcentaje") return c.sectorValue;
               if (c.unit === "días") return (c.sectorValue / 50) * 100;
@@ -125,16 +125,16 @@ export default function BenchmarkingDashboard() {
   // Preparar datos para gráfico de barras comparativas
   const barData = comparison
     ? {
-        labels: comparison.comparisons.map((c) => c.metric),
+        labels: comparison.comparisons.map((c: any) => c.metric),
         datasets: [
           {
             label: "Organización",
-            data: comparison.comparisons.map((c) => c.orgValue),
+            data: comparison.comparisons.map((c: any) => c.orgValue),
             backgroundColor: "rgba(59, 130, 246, 0.8)",
           },
           {
             label: "Promedio Sectorial",
-            data: comparison.comparisons.map((c) => c.sectorValue),
+            data: comparison.comparisons.map((c: any) => c.sectorValue),
             backgroundColor: "rgba(34, 197, 94, 0.8)",
           },
         ],
@@ -177,7 +177,7 @@ export default function BenchmarkingDashboard() {
               <SelectValue placeholder="Selecciona un sector" />
             </SelectTrigger>
             <SelectContent>
-              {sectors?.map((sector) => (
+              {sectors?.map((sector: any) => (
                 <SelectItem key={sector.id} value={sector.id.toString()}>
                   {sector.name}
                 </SelectItem>

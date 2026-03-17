@@ -560,7 +560,7 @@ export default function SkillsMatrixSnapshots() {
                   <SelectValue placeholder="Selecciona snapshot..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {snapshots.map((s) => (
+                  {snapshots.map((s: any) => (
                     <SelectItem key={s.id} value={s.id.toString()}>
                       {s.name} - {new Date(s.snapshotDate).toLocaleDateString()}
                     </SelectItem>
@@ -578,7 +578,7 @@ export default function SkillsMatrixSnapshots() {
                   <SelectValue placeholder="Selecciona snapshot..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {snapshots.map((s) => (
+                  {snapshots.map((s: any) => (
                     <SelectItem key={s.id} value={s.id.toString()}>
                       {s.name} - {new Date(s.snapshotDate).toLocaleDateString()}
                     </SelectItem>
@@ -867,7 +867,7 @@ export default function SkillsMatrixSnapshots() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {snapshots.map((snapshot) => {
+              {snapshots.map((snapshot: any) => {
                 const data = snapshot.data as any;
                 return (
                   <TableRow key={snapshot.id}>

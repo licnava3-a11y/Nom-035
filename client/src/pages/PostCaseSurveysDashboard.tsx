@@ -412,7 +412,7 @@ export default function PostCaseSurveysDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {surveys.map((item) => {
+                      {surveys.map((item: any) => {
                         const avgScore = item.survey.improvementRating
                           ? (
                               ((item.survey.improvementRating || 0) +

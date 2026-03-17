@@ -126,7 +126,7 @@ export function ReassignLeadModal({ open, onOpenChange, lead }: ReassignLeadModa
                   <SelectValue placeholder="Selecciona un vendedor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {salespeople?.map((salesperson) => (
+                  {salespeople?.map((salesperson: any) => (
                     <SelectItem key={salesperson.id} value={salesperson.id.toString()}>
                       <div className="flex flex-col">
                         <span className="font-medium">{salesperson.nombre}</span>

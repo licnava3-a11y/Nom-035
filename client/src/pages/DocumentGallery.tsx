@@ -253,7 +253,7 @@ export default function DocumentGallery() {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            {documents.map((doc) => (
+            {documents.map((doc: any) => (
               <Card key={doc.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-start gap-4">
                   {/* Checkbox de selección */}

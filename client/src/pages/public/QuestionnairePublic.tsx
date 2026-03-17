@@ -262,7 +262,7 @@ export default function QuestionnairePublic() {
                         }));
                       }}
                     >
-                      {Array.from({ length: scaleMax }, (_, i) => i + 1).map((value) => (
+                      {Array.from({ length: scaleMax }, (_, i) => i + 1).map((value: any) => (
                         <div key={value} className="flex items-center space-x-2">
                           <RadioGroupItem value={value.toString()} id={`q${index}-${value}`} />
                           <Label htmlFor={`q${index}-${value}`} className="font-normal cursor-pointer">

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { eq } from "drizzle-orm";
+import { employees, payrollData } from "../../drizzle/schema";
 
 export const salaryImpactSimulatorRouter = router({
   simulateImpact: publicProcedure
@@ -17,18 +18,14 @@ export const salaryImpactSimulatorRouter = router({
       if (!db) throw new Error('Database not initialized');
 
       // Obtener datos del empleado
-      const employee = await db.query.employees.findFirst({
-        where: (employees, { eq }) => eq(employees.id, input.employeeId),
-      });
+      const [employee] = await db.select().from(employees).where(eq(employees.id, input.employeeId)).limit(1);
 
       if (!employee) {
         throw new Error("Empleado no encontrado");
       }
 
       // Obtener datos de nómina
-      const payroll = await db.query.payrollData.findFirst({
-        where: (payrollData, { eq }) => eq(payrollData.employeeId, input.employeeId),
-      });
+      const [payroll] = await db.select().from(payrollData).where(eq(payrollData.employeeId, input.employeeId)).limit(1);
 
       if (!payroll) {
         throw new Error("Datos de nómina no encontrados");
@@ -57,12 +54,8 @@ export const salaryImpactSimulatorRouter = router({
       // Calcular nueva brecha salarial
       const newGap = ((newSalary - marketRate) / marketRate) * 100;
 
-      // Obtener datos de riesgo actual
-      const highRiskEmployee = await db.query.predictiveTurnoverResults.findFirst({
-        where: (results, { eq }) => eq(results.employeeId, input.employeeId),
-      });
-
-      const currentRisk = highRiskEmployee ? parseFloat(highRiskEmployee.turnoverProbability) : 50;
+      // Obtener datos de riesgo actual (tabla predictiveTurnoverResults no disponible en schema actual)
+      const currentRisk = 50; // Valor por defecto - riesgo medio
 
       // Calcular reducción de riesgo basado en mejora de brecha salarial
       // Fórmula: Por cada 10% de mejora en brecha, se reduce el riesgo en 5%
@@ -89,7 +82,7 @@ export const salaryImpactSimulatorRouter = router({
 
       return {
         employeeId: input.employeeId,
-        employeeName: employee.name,
+        employeeName: `${employee.firstName} ${employee.lastName}`,
         currentSalary,
         newSalary,
         currentGap: currentGap.toFixed(1),

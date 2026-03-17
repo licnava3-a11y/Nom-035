@@ -172,7 +172,7 @@ export default function ReportTemplates() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {["logo", "razonSocial", "rfc", "folio", "fecha", "titulo", "contenido"].map((variable) => (
+            {["logo", "razonSocial", "rfc", "folio", "fecha", "titulo", "contenido"].map((variable: any) => (
               <Badge key={variable} variant="secondary" className="font-mono">
                 {`{${variable}}`}
               </Badge>
@@ -183,7 +183,7 @@ export default function ReportTemplates() {
 
       {/* Lista de plantillas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {templates?.map((template) => (
+        {templates?.map((template: any) => (
           <Card key={template.id} className="relative">
             <CardHeader>
               <div className="flex items-start justify-between">

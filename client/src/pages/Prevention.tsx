@@ -74,7 +74,7 @@ export default function Prevention() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {preventionModules.map((module) => {
+          {preventionModules.map((module: any) => {
             const Icon = module.icon;
             return (
               <Link key={module.id} href={module.route}>

@@ -94,7 +94,7 @@ export default function JobMonitoringDashboard() {
 
       {/* Estadísticas por Job */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats?.map((stat) => (
+        {stats?.map((stat: any) => (
           <Card key={stat.jobName}>
             <CardHeader>
               <CardTitle className="text-lg">{stat.jobName}</CardTitle>
@@ -213,7 +213,7 @@ export default function JobMonitoringDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {executions?.executions.map((exec) => (
+              {executions?.executions.map((exec: any) => (
                 <TableRow key={exec.id}>
                   <TableCell className="font-medium">{exec.jobName}</TableCell>
                   <TableCell>{getStatusBadge(exec.status)}</TableCell>

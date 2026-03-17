@@ -48,7 +48,7 @@ export function Pagination({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {pageSizeOptions.map((size) => (
+                {pageSizeOptions.map((size: any) => (
                   <SelectItem key={size} value={size.toString()}>
                     {size}
                   </SelectItem>

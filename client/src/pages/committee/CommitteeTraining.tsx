@@ -180,7 +180,7 @@ export default function CommitteeTraining() {
                 </TableHeader>
                 <TableBody>
                   {programs && programs.length > 0 ? (
-                    programs.map((program) => (
+                    programs.map((program: any) => (
                       <TableRow key={program.id}>
                         <TableCell className="font-medium">{program.title}</TableCell>
                         <TableCell>
@@ -229,7 +229,7 @@ export default function CommitteeTraining() {
                       <SelectValue placeholder="Selecciona un programa" />
                     </SelectTrigger>
                     <SelectContent>
-                      {programs?.map((program) => (
+                      {programs?.map((program: any) => (
                         <SelectItem key={program.id} value={program.id.toString()}>
                           {program.title}
                         </SelectItem>
@@ -317,7 +317,7 @@ export default function CommitteeTraining() {
                 </TableHeader>
                 <TableBody>
                   {sessions && sessions.length > 0 ? (
-                    sessions.map((session) => (
+                    sessions.map((session: any) => (
                       <TableRow key={session.id}>
                         <TableCell>{new Date(session.sessionDate).toLocaleDateString()}</TableCell>
                         <TableCell>{session.sessionTime}</TableCell>

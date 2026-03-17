@@ -77,7 +77,7 @@ export function ImportMassiveData({
       const warnings: ImportError[] = [];
 
       data.forEach((row, index) => {
-        columns.forEach((column) => {
+        columns.forEach((column: any) => {
           const value = row[column.key];
 
           // Check required fields
@@ -195,15 +195,15 @@ export function ImportMassiveData({
             // Validate structure
             const firstRow = jsonData[0] as any;
             const missingColumns = columns
-              .filter((col) => col.required)
-              .filter((col) => !(col.key in firstRow));
+              .filter((col: any) => col.required)
+              .filter((col: any) => !(col.key in firstRow));
 
             if (missingColumns.length > 0) {
               setErrors([
                 {
                   row: 0,
                   column: "Estructura",
-                  message: `Columnas requeridas faltantes: ${missingColumns.map((c) => c.label).join(", ")}`,
+                  message: `Columnas requeridas faltantes: ${missingColumns.map((c: any) => c.label).join(", ")}`,
                   type: "error",
                 },
               ]);
@@ -447,7 +447,7 @@ export function ImportMassiveData({
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-16">#</TableHead>
-                      {columns.map((column) => (
+                      {columns.map((column: any) => (
                         <TableHead key={column.key}>
                           {column.label}
                           {column.required && (
@@ -463,7 +463,7 @@ export function ImportMassiveData({
                     {previewData.slice(0, 50).map((row, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">{index + 1}</TableCell>
-                        {columns.map((column) => (
+                        {columns.map((column: any) => (
                           <TableCell key={column.key}>
                             {row[column.key]?.toString() || "-"}
                           </TableCell>

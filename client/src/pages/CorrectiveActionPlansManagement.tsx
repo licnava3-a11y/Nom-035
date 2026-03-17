@@ -326,7 +326,7 @@ export default function CorrectiveActionPlansManagement() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {plans.map((plan) => (
+            {plans.map((plan: any) => (
               <div
                 key={plan.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent cursor-pointer"

@@ -338,13 +338,13 @@ export default function TokensDashboard() {
               <tbody>
                 {stats.tokens
                   .filter(t => t.status === 'pendiente')
-                  .sort((a, b) => {
+                  .sort((a: any, b: any) => {
                     // Ordenar por días restantes (ascendente)
                     const daysA = a.expiresAt ? Math.ceil((new Date(a.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
                     const daysB = b.expiresAt ? Math.ceil((new Date(b.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
                     return daysA - daysB;
                   })
-                  .map((token) => {
+                  .map((token: any) => {
                     const daysRemaining = token.expiresAt
                       ? Math.ceil((new Date(token.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
                       : 0;
@@ -412,7 +412,7 @@ export default function TokensDashboard() {
               </tr>
             </thead>
             <tbody>
-              {filteredTokens.map((token) => (
+              {filteredTokens.map((token: any) => (
                 <tr key={token.tokenId} className="border-b hover:bg-muted/50">
                   <td className="p-3">{token.employeeName}</td>
                   <td className="p-3 text-sm text-muted-foreground">{token.employeeEmail}</td>

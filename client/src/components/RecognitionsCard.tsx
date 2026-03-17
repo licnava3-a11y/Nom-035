@@ -46,10 +46,10 @@ export default function RecognitionsCard() {
 
   // Preparar datos para gráfico de categorías
   const categoryData = {
-    labels: report.byCategory.map((c) => c.categoryName),
+    labels: report.byCategory.map((c: any) => c.categoryName),
     datasets: [
       {
-        data: report.byCategory.map((c) => c.count),
+        data: report.byCategory.map((c: any) => c.count),
         backgroundColor: [
           "rgba(34, 197, 94, 0.8)", // green-500
           "rgba(59, 130, 246, 0.8)", // blue-500

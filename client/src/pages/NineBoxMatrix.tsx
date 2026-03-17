@@ -80,7 +80,7 @@ export default function NineBoxMatrix() {
           <Badge variant="secondary" className="text-xs">{employees.length}</Badge>
         </div>
         <div className="space-y-1 max-h-[120px] overflow-y-auto">
-          {employees.map((emp) => (
+          {employees.map((emp: any) => (
             <div
               key={emp.id}
               className="text-xs p-2 bg-white/60 rounded cursor-pointer hover:bg-white/90 transition-colors"
@@ -321,7 +321,7 @@ export default function NineBoxMatrix() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {employeeHistory.evaluations.map((evaluation) => (
+              {employeeHistory.evaluations.map((evaluation: any) => (
                 <div key={evaluation.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <div className="font-medium">{evaluation.quadrantLabel}</div>

@@ -148,7 +148,7 @@ export default function NotificationHistory() {
                     </tr>
                   </thead>
                   <tbody>
-                    {notifications.map((notification) => (
+                    {notifications.map((notification: any) => (
                       <tr key={notification.id} className="border-b hover:bg-muted/50">
                         <td className="p-2 font-mono text-sm">{notification.id}</td>
                         <td className="p-2 text-sm">

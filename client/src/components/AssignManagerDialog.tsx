@@ -93,7 +93,7 @@ export default function AssignManagerDialog({
                     <SelectValue placeholder="Selecciona un manager" />
                   </SelectTrigger>
                   <SelectContent>
-                    {potentialManagers?.map((user) => (
+                    {potentialManagers?.map((user: any) => (
                       <SelectItem key={user.id} value={user.id.toString()}>
                         {user.name} ({user.email})
                       </SelectItem>

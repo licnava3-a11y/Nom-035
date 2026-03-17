@@ -109,11 +109,11 @@ export default function DocumentActaFinalResultados() {
   };
 
   const eliminarAccion = (id: string) => {
-    setAccionesControl(accionesControl.filter((accion) => accion.id !== id));
+    setAccionesControl(accionesControl.filter((accion: any) => accion.id !== id));
   };
 
   const actualizarAccion = (id: string, campo: keyof AccionControl, valor: string) => {
-    setAccionesControl(accionesControl.map((accion) => (accion.id === id ? { ...accion, [campo]: valor } : accion)));
+    setAccionesControl(accionesControl.map((accion: any) => (accion.id === id ? { ...accion, [campo]: valor } : accion)));
   };
 
   const agregarFirmante = () => {
@@ -129,11 +129,11 @@ export default function DocumentActaFinalResultados() {
   };
 
   const eliminarFirmante = (id: string) => {
-    setFirmantes(firmantes.filter((firmante) => firmante.id !== id));
+    setFirmantes(firmantes.filter((firmante: any) => firmante.id !== id));
   };
 
   const actualizarFirmante = (id: string, campo: keyof Firmante, valor: string) => {
-    setFirmantes(firmantes.map((firmante) => (firmante.id === id ? { ...firmante, [campo]: valor } : firmante)));
+    setFirmantes(firmantes.map((firmante: any) => (firmante.id === id ? { ...firmante, [campo]: valor } : firmante)));
   };
 
   const handleSave = async () => {

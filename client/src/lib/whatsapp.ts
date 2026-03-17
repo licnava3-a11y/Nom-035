@@ -67,7 +67,7 @@ export function generateDemoRequestMessage(data: DemoRequestData): string {
   
   if (normativas && normativas.length > 0) {
     message += `\n📋 *Normativas de interés:*\n`;
-    normativas.forEach((norm) => {
+    normativas.forEach((norm: any) => {
       message += `• ${norm}\n`;
     });
   }

@@ -260,7 +260,7 @@ export function ActaConstitutiva() {
         )}
 
         <div className="space-y-4">
-          {formData.attendees.map((attendee) => (
+          {formData.attendees.map((attendee: any) => (
             <div key={attendee.id} className="border rounded-lg p-4 space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2 md:col-span-2">

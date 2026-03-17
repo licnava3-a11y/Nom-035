@@ -69,7 +69,7 @@ export default function EmployeeCompetencyEvaluation() {
   // Stabilize employee options
   const employeeOptions = useMemo(() => {
     if (!employees) return [];
-    return employees.map((emp) => ({
+    return employees.map((emp: any) => ({
       value: emp.id.toString(),
       label: `${emp.firstName} ${emp.lastName} - ${emp.position} (${emp.department})`,
     }));
@@ -101,7 +101,7 @@ export default function EmployeeCompetencyEvaluation() {
   useEffect(() => {
     if (employeeCompetencies && applicableCompetencies) {
       const levels: Record<number, CompetencyLevel> = {};
-      applicableCompetencies.forEach((comp) => {
+      applicableCompetencies.forEach((comp: any) => {
         const existing = employeeCompetencies.find(
           (ec) => ec.competencyName === comp.competencyName
         );
@@ -201,7 +201,7 @@ export default function EmployeeCompetencyEvaluation() {
             <SelectValue placeholder="-- Selecciona un empleado --" />
           </SelectTrigger>
           <SelectContent>
-            {employeeOptions.map((option) => (
+            {employeeOptions.map((option: any) => (
               <SelectItem key={`employee-${option.value}`} value={option.value}>
                 {option.label}
               </SelectItem>
@@ -228,7 +228,7 @@ export default function EmployeeCompetencyEvaluation() {
             </Card>
           )}
 
-          {applicableCompetencies.map((comp) => {
+          {applicableCompetencies.map((comp: any) => {
             const currentLevel = competencyLevels[comp.id];
             const gap = currentLevel ? calculateGap(comp.requiredLevel as CompetencyLevel, currentLevel) : levelValue[comp.requiredLevel as CompetencyLevel];
 
@@ -278,7 +278,7 @@ export default function EmployeeCompetencyEvaluation() {
                           <SelectValue placeholder="-- Seleccionar nivel --" />
                         </SelectTrigger>
                         <SelectContent>
-                          {levelOptions.map((option) => (
+                          {levelOptions.map((option: any) => (
                             <SelectItem key={`level-${comp.id}-${option.value}`} value={option.value}>
                               {option.label}
                             </SelectItem>

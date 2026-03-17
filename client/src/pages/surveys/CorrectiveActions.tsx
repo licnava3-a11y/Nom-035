@@ -149,7 +149,7 @@ export default function CorrectiveActions() {
   };
 
   // Filter actions
-  const filteredActions = actions?.filter((action) => {
+  const filteredActions = actions?.filter((action: any) => {
     if (statusFilter !== "todas" && action.status !== statusFilter) return false;
     if (departmentFilter && action.departamento !== departmentFilter) return false;
     if (riskLevelFilter !== "todos" && action.riskLevel !== riskLevelFilter) return false;
@@ -165,7 +165,7 @@ export default function CorrectiveActions() {
   );
 
   // Get upcoming actions (due in next 7 days)
-  const upcomingActions = actions?.filter((action) => {
+  const upcomingActions = actions?.filter((action: any) => {
     if (action.status === "completada" || action.status === "cancelada") return false;
     if (!action.dueDate) return false;
     const dueDate = new Date(action.dueDate);
@@ -173,13 +173,13 @@ export default function CorrectiveActions() {
     const diffTime = dueDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays >= 0 && diffDays <= 7;
-  }).sort((a, b) => {
+  }).sort((a: any, b: any) => {
     if (!a.dueDate || !b.dueDate) return 0;
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
 
   // Get unique departments
-  const departments = Array.from(new Set(actions?.map((a) => a.departamento).filter(Boolean) || []));
+  const departments = Array.from(new Set(actions?.map((a: any) => a.departamento).filter(Boolean) || []));
 
   const getRiskLevelColor = (level: RiskLevel) => {
     switch (level) {
@@ -378,7 +378,7 @@ export default function CorrectiveActions() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Todos</option>
-                    {departments.map((dept) => (
+                    {departments.map((dept: any) => (
                       <option key={dept} value={dept || ""}>
                         {dept}
                       </option>
@@ -430,7 +430,7 @@ export default function CorrectiveActions() {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedActions?.map((action) => (
+                    {paginatedActions?.map((action: any) => (
                       <tr key={action.id} className="border-b hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{action.id}</td>
                         <td className="px-4 py-3 text-sm max-w-xs truncate">{action.description}</td>
@@ -527,7 +527,7 @@ export default function CorrectiveActions() {
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <div className="flex items-center gap-2">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page: any) => (
                         <Button
                           key={page}
                           variant={currentPage === page ? "default" : "outline"}
@@ -618,7 +618,7 @@ export default function CorrectiveActions() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {upcomingActions.slice(0, 5).map((action) => {
+                  {upcomingActions.slice(0, 5).map((action: any) => {
                     if (!action.dueDate) return null;
                     const dueDate = new Date(action.dueDate);
                     const today = new Date();
@@ -659,7 +659,7 @@ export default function CorrectiveActions() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {stats?.byStatus.map((item) => {
+                  {stats?.byStatus.map((item: any) => {
                     const percentage = actions?.length ? (item.count / actions.length) * 100 : 0;
                     return (
                       <div key={item.status} className="space-y-2">
@@ -692,7 +692,7 @@ export default function CorrectiveActions() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {departments.map((dept) => {
+                  {departments.map((dept: any) => {
                     const deptActions = actions?.filter(a => a.departamento === dept) || [];
                     const completed = deptActions.filter(a => a.status === 'completada').length;
                     const percentage = deptActions.length ? (completed / deptActions.length) * 100 : 0;

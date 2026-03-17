@@ -175,7 +175,7 @@ export default function OrganizationalCompetenciesManager() {
   };
 
   // Filtering
-  const filteredCompetencies = competencies.filter((comp) => {
+  const filteredCompetencies = competencies.filter((comp: any) => {
     const matchesSearch = comp.competencyName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === "all" || comp.competencyCategory === categoryFilter;
     const matchesStatus =
@@ -187,9 +187,9 @@ export default function OrganizationalCompetenciesManager() {
 
   // Statistics
   const totalCompetencies = competencies.length;
-  const activeCompetencies = competencies.filter((c) => c.isActive).length;
-  const softSkills = competencies.filter((c) => c.competencyCategory === "soft_skill").length;
-  const leadership = competencies.filter((c) => c.competencyCategory === "leadership").length;
+  const activeCompetencies = competencies.filter((c: any) => c.isActive).length;
+  const softSkills = competencies.filter((c: any) => c.competencyCategory === "soft_skill").length;
+  const leadership = competencies.filter((c: any) => c.competencyCategory === "leadership").length;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -300,7 +300,7 @@ export default function OrganizationalCompetenciesManager() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCompetencies.map((comp) => (
+              filteredCompetencies.map((comp: any) => (
                 <TableRow key={comp.id}>
                   <TableCell className="font-medium">{comp.competencyName}</TableCell>
                   <TableCell>

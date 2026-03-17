@@ -191,7 +191,7 @@ export default function InterventionImpactDashboard() {
   const handleShareByEmail = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const recipients = (formData.get("recipients") as string).split(",").map((email) => email.trim());
+    const recipients = (formData.get("recipients") as string).split(",").map((email: any) => email.trim());
 
     shareReportMutation.mutate({
       reportUrl: shareReportUrl,
@@ -223,11 +223,11 @@ export default function InterventionImpactDashboard() {
 
   // Datos para gráfico de línea temporal
   const chartData = {
-    labels: interventions?.slice(0, 10).map((i) => i.interventionName.substring(0, 20)) || [],
+    labels: interventions?.slice(0, 10).map((i: any) => i.interventionName.substring(0, 20)) || [],
     datasets: [
       {
         label: "Score de Efectividad",
-        data: interventions?.slice(0, 10).map((i) => Number(i.effectivenessScore) || 0) || [],
+        data: interventions?.slice(0, 10).map((i: any) => Number(i.effectivenessScore) || 0) || [],
         borderColor: "rgb(59, 130, 246)",
         backgroundColor: "rgba(59, 130, 246, 0.1)",
         tension: 0.4,
@@ -479,7 +479,7 @@ export default function InterventionImpactDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {interventions?.map((intervention) => (
+                {interventions?.map((intervention: any) => (
                   <tr key={intervention.id} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{intervention.interventionName}</td>
                     <td className="p-2">

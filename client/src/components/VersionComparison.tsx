@@ -41,7 +41,7 @@ export default function VersionComparison({ version1, version2, differences }: V
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {fields.map((field) => (
+            {fields.map((field: any) => (
               <div
                 key={field.key}
                 className={`p-3 rounded-lg ${
@@ -78,7 +78,7 @@ export default function VersionComparison({ version1, version2, differences }: V
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {fields.map((field) => (
+            {fields.map((field: any) => (
               <div
                 key={field.key}
                 className={`p-3 rounded-lg ${
@@ -122,7 +122,7 @@ export default function VersionComparison({ version1, version2, differences }: V
                 {Object.entries(differences)
                   .filter(([_, isDifferent]) => isDifferent)
                   .map(([fieldKey]) => {
-                    const field = fields.find((f) => f.key === fieldKey);
+                    const field = fields.find((f: any) => f.key === fieldKey);
                     return (
                       <li key={fieldKey} className="text-sm text-muted-foreground">
                         <span className="font-medium">{field?.label || fieldKey}</span> fue modificado

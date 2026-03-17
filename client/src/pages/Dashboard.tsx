@@ -115,10 +115,10 @@ export default function DashboardConsolidated() {
     return labels[role] || role;
   };
 
-  const completedCourses = progress?.filter((p) => p.status === 'completed').length || 0;
-  const inProgressCourses = progress?.filter((p) => p.status === 'in_progress').length || 0;
-  const openCases = cases?.cases?.filter((c) => c.status === 'open').length || 0;
-  const investigatingCases = cases?.cases?.filter((c) => c.status === 'investigating').length || 0;
+  const completedCourses = progress?.filter((p: any) => p.status === 'completed').length || 0;
+  const inProgressCourses = progress?.filter((p: any) => p.status === 'in_progress').length || 0;
+  const openCases = cases?.cases?.filter((c: any) => c.status === 'open').length || 0;
+  const investigatingCases = cases?.cases?.filter((c: any) => c.status === 'investigating').length || 0;
 
   // Preparar datos para gráficas (solo para admin)
   const departmentChartData = metrics ? {
@@ -202,7 +202,7 @@ export default function DashboardConsolidated() {
           data: uniqueLevels.map(nivel =>
             metrics.nmx025Equality.hierarchyDistribution
               .filter(h => h.nivelJerarquico === nivel && h.sexo === 'Masculino')
-              .reduce((sum, h) => sum + h.count, 0)
+              .reduce((sum: any, h: any) => sum + h.count, 0)
           ),
           backgroundColor: 'rgba(59, 130, 246, 0.8)',
         },
@@ -211,7 +211,7 @@ export default function DashboardConsolidated() {
           data: uniqueLevels.map(nivel =>
             metrics.nmx025Equality.hierarchyDistribution
               .filter(h => h.nivelJerarquico === nivel && h.sexo === 'Femenino')
-              .reduce((sum, h) => sum + h.count, 0)
+              .reduce((sum: any, h: any) => sum + h.count, 0)
           ),
           backgroundColor: 'rgba(236, 72, 153, 0.8)',
         },
@@ -490,7 +490,7 @@ export default function DashboardConsolidated() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {departmentAlerts.alerts.slice(0, 5).map((alert) => (
+                  {departmentAlerts.alerts.slice(0, 5).map((alert: any) => (
                     <div
                       key={alert.id}
                       className="flex items-center justify-between p-3 bg-background rounded-lg border"

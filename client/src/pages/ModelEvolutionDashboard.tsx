@@ -59,10 +59,10 @@ export default function ModelEvolutionDashboard() {
   const { metricsByMonth, trend, summary } = data;
 
   // Preparar datos para gráficos
-  const labels = metricsByMonth.map((m) => m.month);
-  const precisionData = metricsByMonth.map((m) => m.precision);
-  const recallData = metricsByMonth.map((m) => m.recall);
-  const f1ScoreData = metricsByMonth.map((m) => m.f1Score);
+  const labels = metricsByMonth.map((m: any) => m.month);
+  const precisionData = metricsByMonth.map((m: any) => m.precision);
+  const recallData = metricsByMonth.map((m: any) => m.recall);
+  const f1ScoreData = metricsByMonth.map((m: any) => m.f1Score);
 
   const chartData = {
     labels,

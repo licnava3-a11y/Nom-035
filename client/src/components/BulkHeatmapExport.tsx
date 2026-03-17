@@ -135,7 +135,7 @@ Fecha de generación: ${new Date().toLocaleString("es-MX")}
 Este archivo contiene las matrices de habilidades de todos los departamentos activos.
 
 Departamentos incluidos:
-${departments.map((d) => `- ${d.name}`).join("\n")}
+${departments.map((d: any) => `- ${d.name}`).join("\n")}
 
 Total de departamentos: ${departments.length}
 `;

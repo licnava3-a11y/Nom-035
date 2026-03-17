@@ -84,7 +84,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
 
           {results && results.length > 0 && (
             <div className="space-y-2">
-              {results.map((result) => (
+              {results.map((result: any) => (
                 <Card
                   key={result.id}
                   className="cursor-pointer hover:bg-accent/50 transition-colors"

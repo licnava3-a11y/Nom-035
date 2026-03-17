@@ -185,7 +185,7 @@ export function QuizComponent({ evaluationId, questions, timeLimit, onComplete }
             onValueChange={(value) => handleAnswerSelect(currentQuestion.id, parseInt(value))}
             disabled={showFeedback}
           >
-            {currentQuestion.options?.map((option) => (
+            {currentQuestion.options?.map((option: any) => (
               <div key={option.id} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent">
                 <RadioGroupItem value={option.id.toString()} id={`option-${option.id}`} />
                 <Label htmlFor={`option-${option.id}`} className="flex-1 cursor-pointer">

@@ -98,7 +98,7 @@ export function KeyboardShortcutsHelp({ open, onOpenChange }: KeyboardShortcutsH
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
-          {CATEGORIES.map((category) => {
+          {CATEGORIES.map((category: any) => {
             const categoryShortcuts = SHORTCUTS.filter(s => s.category === category);
             if (categoryShortcuts.length === 0) return null;
 

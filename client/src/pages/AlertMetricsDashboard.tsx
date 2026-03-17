@@ -125,18 +125,18 @@ export default function AlertMetricsDashboard() {
 
   // Configuración de gráfica de tendencias
   const trendsData = {
-    labels: trends?.map((t) => t.month) || [],
+    labels: trends?.map((t: any) => t.month) || [],
     datasets: [
       {
         label: "Alertas Activas",
-        data: trends?.map((t) => t.activeAlerts) || [],
+        data: trends?.map((t: any) => t.activeAlerts) || [],
         borderColor: "rgb(239, 68, 68)",
         backgroundColor: "rgba(239, 68, 68, 0.5)",
         tension: 0.3,
       },
       {
         label: "Alertas Resueltas",
-        data: trends?.map((t) => t.resolvedAlerts) || [],
+        data: trends?.map((t: any) => t.resolvedAlerts) || [],
         borderColor: "rgb(34, 197, 94)",
         backgroundColor: "rgba(34, 197, 94, 0.5)",
         tension: 0.3,

@@ -199,7 +199,7 @@ export function NotificationBell() {
               <p className="text-sm">No hay notificaciones</p>
             </div>
           ) : (
-            notifications.map((notification) => (
+            notifications.map((notification: any) => (
               <DropdownMenuItem
                 key={notification.id}
                 className={`flex flex-col items-start p-4 cursor-pointer ${

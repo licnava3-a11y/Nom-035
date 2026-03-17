@@ -67,17 +67,17 @@ export default function SalesComparativeDashboard() {
 
   const topPerformer = data.salespeople[0];
   const avgConversion =
-    data.salespeople.reduce((sum, sp) => sum + sp.conversionRate, 0) / data.salespeople.length;
-  const totalLeads = data.salespeople.reduce((sum, sp) => sum + sp.totalLeads, 0);
-  const totalWon = data.salespeople.reduce((sum, sp) => sum + sp.wonLeads, 0);
+    data.salespeople.reduce((sum: any, sp: any) => sum + sp.conversionRate, 0) / data.salespeople.length;
+  const totalLeads = data.salespeople.reduce((sum: any, sp: any) => sum + sp.totalLeads, 0);
+  const totalWon = data.salespeople.reduce((sum: any, sp: any) => sum + sp.wonLeads, 0);
 
   // Datos para gráfico de conversión
   const conversionChartData = {
-    labels: data.salespeople.map((sp) => sp.nombre),
+    labels: data.salespeople.map((sp: any) => sp.nombre),
     datasets: [
       {
         label: "Tasa de Conversión (%)",
-        data: data.salespeople.map((sp) => sp.conversionRate),
+        data: data.salespeople.map((sp: any) => sp.conversionRate),
         backgroundColor: data.salespeople.map((sp, idx) =>
           idx === 0 ? "rgba(34, 197, 94, 0.7)" : "rgba(59, 130, 246, 0.7)"
         ),
@@ -115,25 +115,25 @@ export default function SalesComparativeDashboard() {
 
   // Datos para gráfico de leads
   const leadsChartData = {
-    labels: data.salespeople.map((sp) => sp.nombre),
+    labels: data.salespeople.map((sp: any) => sp.nombre),
     datasets: [
       {
         label: "Ganados",
-        data: data.salespeople.map((sp) => sp.wonLeads),
+        data: data.salespeople.map((sp: any) => sp.wonLeads),
         backgroundColor: "rgba(34, 197, 94, 0.7)",
         borderColor: "rgba(34, 197, 94, 1)",
         borderWidth: 2,
       },
       {
         label: "Activos",
-        data: data.salespeople.map((sp) => sp.activeLeads),
+        data: data.salespeople.map((sp: any) => sp.activeLeads),
         backgroundColor: "rgba(59, 130, 246, 0.7)",
         borderColor: "rgba(59, 130, 246, 1)",
         borderWidth: 2,
       },
       {
         label: "Perdidos",
-        data: data.salespeople.map((sp) => sp.lostLeads),
+        data: data.salespeople.map((sp: any) => sp.lostLeads),
         backgroundColor: "rgba(239, 68, 68, 0.7)",
         borderColor: "rgba(239, 68, 68, 1)",
         borderWidth: 2,

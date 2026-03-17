@@ -157,7 +157,7 @@ export function ConvertToLeadModal({ open, onOpenChange, event, onSuccess }: Con
             <div className="p-3 border rounded-md bg-muted/50">
               {formData.normativas.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                  {formData.normativas.map((norm) => (
+                  {formData.normativas.map((norm: any) => (
                     <span key={norm} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
                       {NORMATIVAS_MAP[norm] || norm}
                     </span>

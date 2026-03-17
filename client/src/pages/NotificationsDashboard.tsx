@@ -125,7 +125,7 @@ export default function NotificationsDashboard() {
 
       <div className="space-y-4">
         {notifications && notifications.length > 0 ? (
-          notifications.map((notification) => (
+          notifications.map((notification: any) => (
             <Card
               key={notification.id}
               className={notification.isRead ? 'opacity-60' : 'border-primary'}

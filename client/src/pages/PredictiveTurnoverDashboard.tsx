@@ -233,9 +233,9 @@ export default function PredictiveTurnoverDashboard() {
   };
 
   // Calcular estadísticas globales
-  const totalEmployees = metrics.reduce((sum, m) => sum + m.totalEmployees, 0);
+  const totalEmployees = metrics.reduce((sum: any, m: any) => sum + m.totalEmployees, 0);
   const avgTurnoverProbability = metrics.length > 0
-    ? Math.round(metrics.reduce((sum, m) => sum + m.turnoverProbability, 0) / metrics.length)
+    ? Math.round(metrics.reduce((sum: any, m: any) => sum + m.turnoverProbability, 0) / metrics.length)
     : 0;
   const criticalDepartments = metrics.filter(m => m.riskLevel === "critical" || m.riskLevel === "high").length;
 
@@ -275,7 +275,7 @@ export default function PredictiveTurnoverDashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los departamentos</SelectItem>
-              {metrics.map((metric) => (
+              {metrics.map((metric: any) => (
                 <SelectItem key={metric.departmentId} value={metric.departmentId.toString()}>
                   {metric.departmentName}
                 </SelectItem>
@@ -385,7 +385,7 @@ export default function PredictiveTurnoverDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {highRiskEmployees.map((employee) => (
+                  {highRiskEmployees.map((employee: any) => (
                     <tr key={employee.userId} className="border-b hover:bg-muted/50">
                       <td className="p-3">
                         <div>

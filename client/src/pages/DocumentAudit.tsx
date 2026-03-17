@@ -89,7 +89,7 @@ export default function DocumentAudit() {
     }
 
     // Preparar datos para Excel
-    const excelData = auditData.logs.map((log) => ({
+    const excelData = auditData.logs.map((log: any) => ({
       "Fecha y Hora": format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss", { locale: es }),
       "Acción": getActionLabel(log.action),
       "Usuario": log.userName,
@@ -231,11 +231,11 @@ export default function DocumentAudit() {
               <div style={{ height: "300px" }}>
                 <Line
                   data={{
-                    labels: trendsData.accessesByPeriod.map((item) => item.period),
+                    labels: trendsData.accessesByPeriod.map((item: any) => item.period),
                     datasets: [
                       {
                         label: "Accesos",
-                        data: trendsData.accessesByPeriod.map((item) => item.count),
+                        data: trendsData.accessesByPeriod.map((item: any) => item.count),
                         borderColor: "rgb(59, 130, 246)",
                         backgroundColor: "rgba(59, 130, 246, 0.1)",
                         tension: 0.4,
@@ -317,11 +317,11 @@ export default function DocumentAudit() {
               <div style={{ height: "300px" }}>
                 <Bar
                   data={{
-                    labels: trendsData.topUsers.map((user) => user.userName),
+                    labels: trendsData.topUsers.map((user: any) => user.userName),
                     datasets: [
                       {
                         label: "Accesos",
-                        data: trendsData.topUsers.map((user) => user.count),
+                        data: trendsData.topUsers.map((user: any) => user.count),
                         backgroundColor: "rgba(59, 130, 246, 0.8)",
                         borderColor: "rgb(59, 130, 246)",
                         borderWidth: 1,
@@ -466,7 +466,7 @@ export default function DocumentAudit() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {auditData.logs.map((log) => (
+                    {auditData.logs.map((log: any) => (
                       <TableRow key={log.id}>
                         <TableCell>
                           {format(new Date(log.timestamp), "dd/MM/yyyy HH:mm:ss", { locale: es })}

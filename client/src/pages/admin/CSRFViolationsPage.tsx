@@ -302,7 +302,7 @@ export default function CSRFViolationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {violationsData?.violations.map((violation) => (
+                  {violationsData?.violations.map((violation: any) => (
                     <TableRow key={violation.id}>
                       <TableCell className="font-mono text-sm">{violation.id}</TableCell>
                       <TableCell className="font-mono">{violation.ipAddress}</TableCell>

@@ -67,7 +67,7 @@ export default function Users() {
   const getInitials = (name: string) => {
     return name
       .split(" ")
-      .map((n) => n[0])
+      .map((n: any) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);

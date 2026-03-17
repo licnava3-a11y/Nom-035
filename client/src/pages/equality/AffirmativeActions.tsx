@@ -323,7 +323,7 @@ export default function AffirmativeActions() {
             </p>
           ) : (
             <div className="space-y-3">
-              {actions.map((action) => (
+              {actions.map((action: any) => (
                 <div
                   key={action.id}
                   className="flex items-start justify-between p-4 border rounded-lg"

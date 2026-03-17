@@ -299,7 +299,7 @@ export default function EarlyWarnings() {
                       </tr>
                     </thead>
                     <tbody>
-                      {casesData?.cases.map((caso) => (
+                      {casesData?.cases.map((caso: any) => (
                         <tr key={caso.id} className="border-b hover:bg-muted/50">
                           <td className="py-2 px-4 font-mono text-sm">{caso.folio}</td>
                           <td className="py-2 px-4">{caso.employeeName}</td>
@@ -362,7 +362,7 @@ export default function EarlyWarnings() {
                       </tr>
                     </thead>
                     <tbody>
-                      {surveysData?.surveys.map((survey) => (
+                      {surveysData?.surveys.map((survey: any) => (
                         <tr key={survey.id} className="border-b hover:bg-muted/50">
                           <td className="py-2 px-4">{survey.title}</td>
                           <td className="py-2 px-4">
@@ -427,7 +427,7 @@ export default function EarlyWarnings() {
                       </tr>
                     </thead>
                     <tbody>
-                      {actionsData?.actions.map((action) => (
+                      {actionsData?.actions.map((action: any) => (
                         <tr key={action.id} className="border-b hover:bg-muted/50">
                           <td className="py-2 px-4">{action.title || action.description.substring(0, 50) + "..."}</td>
                           <td className="py-2 px-4">{action.assignedTo || "Sin asignar"}</td>

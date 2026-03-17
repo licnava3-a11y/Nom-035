@@ -75,7 +75,7 @@ export default function SalaryGap() {
   // Calcular estadísticas
   const totalGaps = gaps.length;
   const avgGap = gaps.length > 0
-    ? (gaps.reduce((sum, g) => sum + parseFloat(g.brechaPorcentual.toString()), 0) / gaps.length).toFixed(2)
+    ? (gaps.reduce((sum: any, g: any) => sum + parseFloat(g.brechaPorcentual.toString()), 0) / gaps.length).toFixed(2)
     : "0.00";
   const highRiskCount = gaps.filter(g => g.nivelRiesgo === "alto").length;
   const mediumRiskCount = gaps.filter(g => g.nivelRiesgo === "medio").length;
@@ -251,7 +251,7 @@ export default function SalaryGap() {
             </p>
           ) : (
             <div className="space-y-3">
-              {gaps.map((gap) => (
+              {gaps.map((gap: any) => (
                 <div
                   key={gap.id}
                   className="flex items-center justify-between p-4 border rounded-lg"

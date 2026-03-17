@@ -84,7 +84,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
   });
 
   // Obtener lista de usuarios únicos para el filtro
-  const uniqueUsers = historyData?.events.reduce((acc, event) => {
+  const uniqueUsers = historyData?.events.reduce((acc: any, event: any) => {
     if (event.userId && !acc.find(u => u.id === event.userId)) {
       acc.push({ id: event.userId, name: event.userName || "Desconocido" });
     }

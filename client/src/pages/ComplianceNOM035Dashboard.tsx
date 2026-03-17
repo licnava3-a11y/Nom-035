@@ -200,7 +200,7 @@ export default function ComplianceNOM035Dashboard() {
             <p>No hay datos de cumplimiento disponibles</p>
           </div>
         ) : (
-          complianceData.map((numeral) => {
+          complianceData.map((numeral: any) => {
             const colors = getTrafficLightColor(numeral.percentage);
             return (
               <Dialog key={numeral.numeral}>

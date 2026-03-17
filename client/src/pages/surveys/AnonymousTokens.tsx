@@ -123,7 +123,7 @@ export default function AnonymousTokens() {
 
     // Convert to CSV
     const headers = ["Token", "Tipo de Encuesta", "Departamento", "Expira", "Usado", "Revocado", "Creado"];
-    const rows = result.data.map((token) => [
+    const rows = result.data.map((token: any) => [
       token.token,
       token.surveyType,
       token.department || "",
@@ -133,7 +133,7 @@ export default function AnonymousTokens() {
       new Date(token.createdAt).toLocaleDateString("es-MX"),
     ]);
 
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
+    const csv = [headers, ...rows].map((row: any) => row.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -420,7 +420,7 @@ export default function AnonymousTokens() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tokensQuery.data.tokens.map((token) => (
+                    {tokensQuery.data.tokens.map((token: any) => (
                       <TableRow key={token.id}>
                         <TableCell className="font-mono text-xs">
                           {token.token.substring(0, 16)}...

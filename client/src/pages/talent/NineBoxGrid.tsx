@@ -73,7 +73,7 @@ export default function NineBoxGrid() {
   ];
 
   const getQuadrantCount = (quadrantName: string) => {
-    return stats?.byQuadrant.find((q) => q.quadrant === quadrantName)?.count || 0;
+    return stats?.byQuadrant.find((q: any) => q.quadrant === quadrantName)?.count || 0;
   };
 
   return (
@@ -112,7 +112,7 @@ export default function NineBoxGrid() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {stats?.byQuadrant.filter((q) => q.quadrant.includes("Alto Potencial")).reduce((sum, q) => sum + q.count, 0) || 0}
+              {stats?.byQuadrant.filter((q: any) => q.quadrant.includes("Alto Potencial")).reduce((sum: any, q: any) => sum + q.count, 0) || 0}
             </div>
             <p className="text-xs text-muted-foreground">Candidatos para sucesión</p>
           </CardContent>
@@ -125,7 +125,7 @@ export default function NineBoxGrid() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {stats?.byQuadrant.filter((q) => q.quadrant.includes("Bajo Desempeño")).reduce((sum, q) => sum + q.count, 0) || 0}
+              {stats?.byQuadrant.filter((q: any) => q.quadrant.includes("Bajo Desempeño")).reduce((sum: any, q: any) => sum + q.count, 0) || 0}
             </div>
             <p className="text-xs text-muted-foreground">Requieren atención inmediata</p>
           </CardContent>
@@ -143,7 +143,7 @@ export default function NineBoxGrid() {
         <CardContent>
           <div className="grid grid-cols-3 gap-2">
             {/* Fila 3: Alto Potencial */}
-            {quadrants.filter((q) => q.pot === 3).map((quadrant) => (
+            {quadrants.filter((q: any) => q.pot === 3).map((quadrant: any) => (
               <div
                 key={quadrant.name}
                 className={`${quadrant.color} p-4 rounded-lg text-white text-center cursor-pointer hover:opacity-80 transition-opacity`}
@@ -155,7 +155,7 @@ export default function NineBoxGrid() {
             ))}
 
             {/* Fila 2: Medio Potencial */}
-            {quadrants.filter((q) => q.pot === 2).map((quadrant) => (
+            {quadrants.filter((q: any) => q.pot === 2).map((quadrant: any) => (
               <div
                 key={quadrant.name}
                 className={`${quadrant.color} p-4 rounded-lg text-white text-center cursor-pointer hover:opacity-80 transition-opacity`}
@@ -167,7 +167,7 @@ export default function NineBoxGrid() {
             ))}
 
             {/* Fila 1: Bajo Potencial */}
-            {quadrants.filter((q) => q.pot === 1).map((quadrant) => (
+            {quadrants.filter((q: any) => q.pot === 1).map((quadrant: any) => (
               <div
                 key={quadrant.name}
                 className={`${quadrant.color} p-4 rounded-lg text-white text-center cursor-pointer hover:opacity-80 transition-opacity`}
@@ -227,7 +227,7 @@ export default function NineBoxGrid() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  {quadrants.map((q) => (
+                  {quadrants.map((q: any) => (
                     <SelectItem key={q.name} value={q.name}>
                       {q.name}
                     </SelectItem>
@@ -282,7 +282,7 @@ export default function NineBoxGrid() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {assessmentsData?.data.map((assessment) => (
+                  {assessmentsData?.data.map((assessment: any) => (
                     <TableRow key={assessment.id}>
                       <TableCell className="font-medium">{assessment.employeeName}</TableCell>
                       <TableCell>

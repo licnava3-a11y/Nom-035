@@ -59,7 +59,7 @@ export default function Resources() {
     return `${mb.toFixed(2)} MB`;
   };
 
-  const filteredResources = resources?.filter((resource) =>
+  const filteredResources = resources?.filter((resource: any) =>
     resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     resource.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -84,7 +84,7 @@ export default function Resources() {
           </div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map((i: any) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
                 <div className="h-6 bg-muted rounded w-3/4"></div>
@@ -132,7 +132,7 @@ export default function Resources() {
       {/* Resources Grid */}
       {filteredResources && filteredResources.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredResources.map((resource) => (
+          {filteredResources.map((resource: any) => (
             <Card key={resource.id} className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">

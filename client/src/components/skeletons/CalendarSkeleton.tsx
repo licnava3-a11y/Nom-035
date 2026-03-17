@@ -19,7 +19,7 @@ export function CalendarSkeleton() {
       <div className="border rounded-lg overflow-hidden">
         {/* Days header */}
         <div className="grid grid-cols-7 bg-muted/30">
-          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
+          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day: any) => (
             <div key={day} className="p-2 text-center border-r last:border-r-0">
               <div className="h-4 w-8 bg-muted rounded mx-auto" />
             </div>
@@ -49,7 +49,7 @@ export function CalendarSkeleton() {
       {/* Upcoming deadlines sidebar skeleton */}
       <div className="border rounded-lg p-4 space-y-3">
         <div className="h-6 w-48 bg-muted rounded" />
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map((i: any) => (
           <div key={i} className="flex items-center gap-3 p-2">
             <div className="h-10 w-10 bg-muted rounded" />
             <div className="flex-1 space-y-2">

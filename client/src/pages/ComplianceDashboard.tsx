@@ -143,7 +143,7 @@ export default function ComplianceDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {stats?.sections.map((section) => (
+            {stats?.sections.map((section: any) => (
               <div key={section.section} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -173,7 +173,7 @@ export default function ComplianceDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {pendingItems.map((item) => (
+              {pendingItems.map((item: any) => (
                 <div key={item.id} className="flex items-start gap-3 p-3 border rounded-lg hover:bg-gray-50">
                   <AlertCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">

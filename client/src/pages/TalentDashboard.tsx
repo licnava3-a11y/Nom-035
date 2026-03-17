@@ -75,11 +75,11 @@ export default function TalentDashboard() {
 
   // Tendencias Chart Data
   const trendsChartData = {
-    labels: metrics.trends.map((t) => t.month),
+    labels: metrics.trends.map((t: any) => t.month),
     datasets: [
       {
         label: "Score Promedio de Retención",
-        data: metrics.trends.map((t) => t.avgRetentionScore),
+        data: metrics.trends.map((t: any) => t.avgRetentionScore),
         borderColor: "rgb(34, 197, 94)",
         backgroundColor: "rgba(34, 197, 94, 0.1)",
         fill: true,
@@ -87,7 +87,7 @@ export default function TalentDashboard() {
       },
       {
         label: "Empleados en Riesgo Alto",
-        data: metrics.trends.map((t) => t.highRiskCount),
+        data: metrics.trends.map((t: any) => t.highRiskCount),
         borderColor: "rgb(239, 68, 68)",
         backgroundColor: "rgba(239, 68, 68, 0.1)",
         fill: true,
@@ -146,7 +146,7 @@ export default function TalentDashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los departamentos</SelectItem>
-              {departments?.map((dept) => (
+              {departments?.map((dept: any) => (
                 <SelectItem key={dept.id} value={dept.id.toString()}>
                   {dept.name}
                 </SelectItem>
@@ -347,7 +347,7 @@ export default function TalentDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {metrics.retentionScores.map((emp) => (
+                {metrics.retentionScores.map((emp: any) => (
                   <div
                     key={emp.employeeId}
                     className="flex items-center justify-between p-3 border rounded-lg"

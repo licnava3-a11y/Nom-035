@@ -279,7 +279,7 @@ export default function TrainingROIDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {trainingsWithCosts?.map((training) => (
+                {trainingsWithCosts?.map((training: any) => (
                   <tr key={training.trainingId} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{training.title}</td>
                     <td className="p-2">

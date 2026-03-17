@@ -265,7 +265,7 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {trendsData?.casesTrend.created.reduce((sum, c) => sum + c.count, 0) || 0}
+              {trendsData?.casesTrend.created.reduce((sum: any, c: any) => sum + c.count, 0) || 0}
             </div>
             <p className="text-xs text-muted-foreground">Casos en proceso</p>
           </CardContent>
@@ -498,7 +498,7 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {metrics.employeesAndStructure.departmentDistribution.map((dept) => (
+              {metrics.employeesAndStructure.departmentDistribution.map((dept: any) => (
                 <div key={dept.department} className="flex items-center justify-between">
                   <span className="text-sm font-medium">{dept.department}</span>
                   <div className="flex items-center gap-2">

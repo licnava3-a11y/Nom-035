@@ -71,12 +71,12 @@ export default function ExecutiveDashboard() {
   const structure = metrics?.employeesAndStructure;
 
   // Preparar datos para gráficas
-  const riskDistributionData = trends?.riskDistribution?.map((item) => ({
+  const riskDistributionData = trends?.riskDistribution?.map((item: any) => ({
     name: item.level === "low" ? "Bajo" : item.level === "medium" ? "Medio" : item.level === "high" ? "Alto" : "Crítico",
     value: item.count,
   })) || [];
 
-  const genderDistributionData = nmx025?.genderDistribution?.map((item) => ({
+  const genderDistributionData = nmx025?.genderDistribution?.map((item: any) => ({
     name: item.sexo,
     value: item.count,
   })) || [];

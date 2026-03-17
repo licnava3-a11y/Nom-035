@@ -213,7 +213,7 @@ export default function IntelligentAlertsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {dashboard.criticalAlerts.map((item) => (
+              {dashboard.criticalAlerts.map((item: any) => (
                 <div key={item.alert.id} className="flex items-start justify-between p-4 bg-white border border-red-200 rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -308,7 +308,7 @@ export default function IntelligentAlertsDashboard() {
             <div className="text-center py-8 text-muted-foreground">Cargando alertas...</div>
           ) : alerts && alerts.length > 0 ? (
             <div className="space-y-3">
-              {alerts.map((item) => (
+              {alerts.map((item: any) => (
                 <div key={item.alert.id} className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">

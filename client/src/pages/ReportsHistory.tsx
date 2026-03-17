@@ -325,7 +325,7 @@ export default function ReportsHistory() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.reports.map((report) => (
+                  {data.reports.map((report: any) => (
                     <TableRow key={report.id}>
                       <TableCell className="font-mono font-semibold">
                         {report.folio || '-'}

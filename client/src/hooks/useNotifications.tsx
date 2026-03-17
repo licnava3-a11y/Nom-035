@@ -105,7 +105,7 @@ export function useNotifications() {
   // Marcar notificación como leída
   const markAsRead = useCallback((notificationId: number) => {
     setNotifications((prev) =>
-      prev.map((n) =>
+      prev.map((n: any) =>
         n.id === notificationId ? { ...n, read: true } : n
       )
     );
@@ -115,7 +115,7 @@ export function useNotifications() {
   // Marcar todas como leídas
   const markAllAsRead = useCallback(() => {
     setNotifications((prev) =>
-      prev.map((n) => ({ ...n, read: true }))
+      prev.map((n: any) => ({ ...n, read: true }))
     );
     setUnreadCount(0);
   }, []);

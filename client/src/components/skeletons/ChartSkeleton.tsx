@@ -72,7 +72,7 @@ export function ChartSkeleton({
       
       {/* Legend skeleton */}
       <div className="flex flex-wrap gap-4 justify-center">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map((i: any) => (
           <div key={i} className="flex items-center gap-2 animate-pulse">
             <div className="w-4 h-4 bg-muted rounded" />
             <div className="h-3 w-20 bg-muted rounded" />

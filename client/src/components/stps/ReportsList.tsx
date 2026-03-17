@@ -115,7 +115,7 @@ export function ReportsList() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reports.map((report) => (
+                {reports.map((report: any) => (
                   <TableRow key={report.id}>
                     <TableCell>{getReportTypeBadge(report.tipo)}</TableCell>
                     <TableCell className="font-mono text-sm">{report.folio || "N/A"}</TableCell>

@@ -189,7 +189,7 @@ export default function WhatsAppMetrics() {
     onSuccess: (data) => {
       if (data.hasSignificantChanges) {
         // Mostrar alertas en toast
-        data.alerts.forEach((alert) => {
+        data.alerts.forEach((alert: any) => {
           toast({
             title: `Alerta: ${alert.type}`,
             description: alert.message,
@@ -394,13 +394,13 @@ export default function WhatsAppMetrics() {
 
   // Datos para gráfico de tendencias
   const trendsChartData = {
-    labels: trends?.map((t) => t.period) || [],
+    labels: trends?.map((t: any) => t.period) || [],
     datasets: comparisonEnabled && comparisonTrends
       ? [
           // Período actual - líneas sólidas azul y verde
           {
             label: `Total de Clics (${dateRange.from && dateRange.to ? format(dateRange.from, "dd/MM", { locale: es }) + " - " + format(dateRange.to, "dd/MM", { locale: es }) : "Actual"})`,
-            data: trends?.map((t) => t.totalEvents) || [],
+            data: trends?.map((t: any) => t.totalEvents) || [],
             borderColor: "rgb(34, 197, 94)",
             backgroundColor: "rgba(34, 197, 94, 0.1)",
             tension: 0.4,
@@ -408,7 +408,7 @@ export default function WhatsAppMetrics() {
           },
           {
             label: `Conversiones (${dateRange.from && dateRange.to ? format(dateRange.from, "dd/MM", { locale: es }) + " - " + format(dateRange.to, "dd/MM", { locale: es }) : "Actual"})`,
-            data: trends?.map((t) => t.conversions) || [],
+            data: trends?.map((t: any) => t.conversions) || [],
             borderColor: "rgb(59, 130, 246)",
             backgroundColor: "rgba(59, 130, 246, 0.1)",
             tension: 0.4,
@@ -417,7 +417,7 @@ export default function WhatsAppMetrics() {
           // Período de comparación - líneas punteadas grises
           {
             label: `Total de Clics (${effectiveComparisonPeriod.from && effectiveComparisonPeriod.to ? format(effectiveComparisonPeriod.from, "dd/MM", { locale: es }) + " - " + format(effectiveComparisonPeriod.to, "dd/MM", { locale: es }) : "Comparación"})`,
-            data: comparisonTrends?.map((t) => t.totalEvents) || [],
+            data: comparisonTrends?.map((t: any) => t.totalEvents) || [],
             borderColor: "rgb(156, 163, 175)",
             backgroundColor: "rgba(156, 163, 175, 0.05)",
             tension: 0.4,
@@ -426,7 +426,7 @@ export default function WhatsAppMetrics() {
           },
           {
             label: `Conversiones (${effectiveComparisonPeriod.from && effectiveComparisonPeriod.to ? format(effectiveComparisonPeriod.from, "dd/MM", { locale: es }) + " - " + format(effectiveComparisonPeriod.to, "dd/MM", { locale: es }) : "Comparación"})`,
-            data: comparisonTrends?.map((t) => t.conversions) || [],
+            data: comparisonTrends?.map((t: any) => t.conversions) || [],
             borderColor: "rgb(107, 114, 128)",
             backgroundColor: "rgba(107, 114, 128, 0.05)",
             tension: 0.4,
@@ -438,14 +438,14 @@ export default function WhatsAppMetrics() {
           // Vista normal sin comparación
           {
             label: "Total de Clics",
-            data: trends?.map((t) => t.totalEvents) || [],
+            data: trends?.map((t: any) => t.totalEvents) || [],
             borderColor: "rgb(34, 197, 94)",
             backgroundColor: "rgba(34, 197, 94, 0.1)",
             tension: 0.4,
           },
           {
             label: "Conversiones",
-            data: trends?.map((t) => t.conversions) || [],
+            data: trends?.map((t: any) => t.conversions) || [],
             borderColor: "rgb(59, 130, 246)",
             backgroundColor: "rgba(59, 130, 246, 0.1)",
             tension: 0.4,
@@ -463,7 +463,7 @@ export default function WhatsAppMetrics() {
     : normativas?.map(n => n.normativa) || [];
 
   const normativasChartData = {
-    labels: allNormativas.map((n) => NORMATIVAS_MAP[n] || n),
+    labels: allNormativas.map((n: any) => NORMATIVAS_MAP[n] || n),
     datasets: comparisonEnabled && comparisonNormativas
       ? [
           {
@@ -490,7 +490,7 @@ export default function WhatsAppMetrics() {
       : [
           {
             label: "Solicitudes",
-            data: normativas?.map((n) => n.count) || [],
+            data: normativas?.map((n: any) => n.count) || [],
             backgroundColor: [
               "rgba(34, 197, 94, 0.8)",
               "rgba(59, 130, 246, 0.8)",
@@ -1012,7 +1012,7 @@ export default function WhatsAppMetrics() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentEvents.events.map((event) => (
+                  {recentEvents.events.map((event: any) => (
                     <tr key={event.id} className="border-b hover:bg-muted/50">
                       <td className="p-2">
                         <Checkbox
@@ -1038,7 +1038,7 @@ export default function WhatsAppMetrics() {
                       </td>
                       <td className="p-2 text-sm">
                         {event.normativas && Array.isArray(event.normativas)
-                          ? event.normativas.map((n) => NORMATIVAS_MAP[n] || n).join(", ")
+                          ? event.normativas.map((n: any) => NORMATIVAS_MAP[n] || n).join(", ")
                           : "N/A"}
                       </td>
                       <td className="p-2 text-sm">

@@ -102,7 +102,7 @@ export default function TokenManagement() {
       return;
     }
 
-    const exportData = tokensData.tokens.map((token) => ({
+    const exportData = tokensData.tokens.map((token: any) => ({
       Token: token.token,
       "Tipo de Encuesta": token.surveyType === "guia_i" ? "Guía I" : token.surveyType === "guia_ii" ? "Guía II" : "Guía III",
       "URL de Acceso": `${window.location.origin}/survey/anonymous/${token.token}`,
@@ -309,7 +309,7 @@ export default function TokenManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tokensData.tokens.map((token) => {
+                  {tokensData.tokens.map((token: any) => {
                     const status = getTokenStatus(token);
                     return (
                       <TableRow key={token.id}>

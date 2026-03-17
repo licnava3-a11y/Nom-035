@@ -68,7 +68,7 @@ export default function NotificationsHistory() {
   });
 
   // Filtrar datos localmente
-  const filteredData = data?.filter((n) => {
+  const filteredData = data?.filter((n: any) => {
     // Filtro por tipo
     if (typeFilter !== "all" && n.type !== typeFilter) return false;
 
@@ -291,7 +291,7 @@ export default function NotificationsHistory() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.map((notification) => (
+                {filteredData.map((notification: any) => (
                   <TableRow
                     key={notification.id}
                     className={!notification.isRead ? "bg-blue-50/50" : ""}

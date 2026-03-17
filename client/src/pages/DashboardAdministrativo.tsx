@@ -136,7 +136,7 @@ export default function DashboardAdministrativo() {
   const filterData = (data: any[] | undefined, type: string) => {
     if (!data) return [];
     
-    return data.filter((item) => {
+    return data.filter((item: any) => {
       // Filtro por departamento
       if (departamento !== "todos" && item.departamento !== departamento) return false;
       
@@ -164,9 +164,9 @@ export default function DashboardAdministrativo() {
   const totalPurchaseOrders = filteredPurchaseOrders.length;
   const totalExpenseRequests = filteredExpenseRequests.length;
 
-  const totalInvoiceAmount = filteredInvoices.reduce((sum, inv) => sum + parseFloat(inv.monto), 0);
-  const totalPurchaseAmount = filteredPurchaseOrders.reduce((sum, po) => sum + parseFloat(po.monto), 0);
-  const totalExpenseAmount = filteredExpenseRequests.reduce((sum, exp) => sum + parseFloat(exp.monto), 0);
+  const totalInvoiceAmount = filteredInvoices.reduce((sum: any, inv: any) => sum + parseFloat(inv.monto), 0);
+  const totalPurchaseAmount = filteredPurchaseOrders.reduce((sum: any, po: any) => sum + parseFloat(po.monto), 0);
+  const totalExpenseAmount = filteredExpenseRequests.reduce((sum: any, exp: any) => sum + parseFloat(exp.monto), 0);
 
   // Preparar datos para gráfico de tendencias
   useEffect(() => {
@@ -181,7 +181,7 @@ export default function DashboardAdministrativo() {
     const monthlyData = new Map<string, { invoices: number; purchaseOrders: number; expenseRequests: number }>();
 
     const processData = (items: any[], key: string) => {
-      items.forEach((item) => {
+      items.forEach((item: any) => {
         const date = new Date(item.fecha || item.fechaSolicitud);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         
@@ -205,15 +205,15 @@ export default function DashboardAdministrativo() {
     const monthsToShow = periodo === "mes" ? 6 : periodo === "trimestre" ? 12 : 24;
     const recentMonths = sortedMonths.slice(-monthsToShow);
 
-    const labels = recentMonths.map((month) => {
+    const labels = recentMonths.map((month: any) => {
       const [year, monthNum] = month.split("-");
       const date = new Date(parseInt(year), parseInt(monthNum) - 1);
       return date.toLocaleDateString("es-MX", { month: "short", year: "numeric" });
     });
 
-    const invoicesData = recentMonths.map((month) => monthlyData.get(month)?.invoices || 0);
-    const purchaseOrdersData = recentMonths.map((month) => monthlyData.get(month)?.purchaseOrders || 0);
-    const expenseRequestsData = recentMonths.map((month) => monthlyData.get(month)?.expenseRequests || 0);
+    const invoicesData = recentMonths.map((month: any) => monthlyData.get(month)?.invoices || 0);
+    const purchaseOrdersData = recentMonths.map((month: any) => monthlyData.get(month)?.purchaseOrders || 0);
+    const expenseRequestsData = recentMonths.map((month: any) => monthlyData.get(month)?.expenseRequests || 0);
 
     // Crear gráfico con Chart.js
     const ctx = chartRef.current.getContext("2d");
@@ -317,7 +317,7 @@ export default function DashboardAdministrativo() {
     const departmentData = new Map<string, { invoices: number; purchaseOrders: number; expenseRequests: number }>();
 
     const processByDepartment = (items: any[], key: string) => {
-      items.forEach((item) => {
+      items.forEach((item: any) => {
         const dept = item.departamento || "Sin departamento";
         
         if (!departmentData.has(dept)) {
@@ -337,9 +337,9 @@ export default function DashboardAdministrativo() {
     processByDepartment(filteredExpenseRequests, "expenseRequests");
 
     const departments = Array.from(departmentData.keys());
-    const invoicesAmounts = departments.map((dept) => departmentData.get(dept)?.invoices || 0);
-    const purchaseOrdersAmounts = departments.map((dept) => departmentData.get(dept)?.purchaseOrders || 0);
-    const expenseRequestsAmounts = departments.map((dept) => departmentData.get(dept)?.expenseRequests || 0);
+    const invoicesAmounts = departments.map((dept: any) => departmentData.get(dept)?.invoices || 0);
+    const purchaseOrdersAmounts = departments.map((dept: any) => departmentData.get(dept)?.purchaseOrders || 0);
+    const expenseRequestsAmounts = departments.map((dept: any) => departmentData.get(dept)?.expenseRequests || 0);
 
     // Crear bar chart con Chart.js
     const ctx = barChartRef.current.getContext("2d");
@@ -353,23 +353,23 @@ export default function DashboardAdministrativo() {
           {
             label: "Facturas",
             data: invoicesAmounts,
-            backgroundColor: departments.map((dept) => dept === departamento ? "#059669" : "#10b981"), // Verde más intenso si filtrado
+            backgroundColor: departments.map((dept: any) => dept === departamento ? "#059669" : "#10b981"), // Verde más intenso si filtrado
             borderColor: "#10b981",
-            borderWidth: departments.map((dept) => dept === departamento ? 3 : 1),
+            borderWidth: departments.map((dept: any) => dept === departamento ? 3 : 1),
           },
           {
             label: "Órdenes de Compra",
             data: purchaseOrdersAmounts,
-            backgroundColor: departments.map((dept) => dept === departamento ? "#1e3a8a" : "rgba(30, 58, 138, 0.8)"), // Azul más intenso si filtrado
+            backgroundColor: departments.map((dept: any) => dept === departamento ? "#1e3a8a" : "rgba(30, 58, 138, 0.8)"), // Azul más intenso si filtrado
             borderColor: "#1e3a8a",
-            borderWidth: departments.map((dept) => dept === departamento ? 3 : 1),
+            borderWidth: departments.map((dept: any) => dept === departamento ? 3 : 1),
           },
           {
             label: "Solicitudes de Gasto",
             data: expenseRequestsAmounts,
-            backgroundColor: departments.map((dept) => dept === departamento ? "#b91c1c" : "#dc2626"), // Rojo más intenso si filtrado
+            backgroundColor: departments.map((dept: any) => dept === departamento ? "#b91c1c" : "#dc2626"), // Rojo más intenso si filtrado
             borderColor: "#dc2626",
-            borderWidth: departments.map((dept) => dept === departamento ? 3 : 1),
+            borderWidth: departments.map((dept: any) => dept === departamento ? 3 : 1),
           },
         ],
       },

@@ -170,7 +170,7 @@ export default function ModelPerformanceAlerts() {
             </Card>
           ) : (
             <div className="space-y-4">
-              {activeAlerts.map((alert) => (
+              {activeAlerts.map((alert: any) => (
                 <Card key={alert.id} className="border-l-4 border-l-orange-600">
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -240,7 +240,7 @@ export default function ModelPerformanceAlerts() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {alertHistory.map((alert) => (
+                  {alertHistory.map((alert: any) => (
                     <TableRow key={alert.id}>
                       <TableCell className="text-sm">
                         {format(new Date(alert.createdAt), "dd/MM/yyyy HH:mm")}

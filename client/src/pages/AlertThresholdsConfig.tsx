@@ -42,7 +42,7 @@ export default function AlertThresholdsConfig() {
   useEffect(() => {
     if (thresholds) {
       const data: any = {};
-      thresholds.forEach((t) => {
+      thresholds.forEach((t: any) => {
         data[t.alertType] = t.threshold;
       });
       setFormData(data);

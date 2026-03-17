@@ -209,7 +209,7 @@ export default function ExecutiveReportsPanel() {
             </div>
           ) : (
             <div className="space-y-3">
-              {history.map((report) => (
+              {history.map((report: any) => (
                 <div
                   key={report.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"

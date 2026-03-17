@@ -44,7 +44,7 @@ export const sentimentCasesCorrelationRouter = router({
           and(
             eq(sentimentAnalysis.riskLevel, "critical"),
             gte(sentimentAnalysis.analyzedAt, start),
-            departmentId ? eq(users.departamento, departmentId) : sql`1=1`
+            departmentId ? sql`${users.departamento} = ${String(departmentId)}` : sql`1=1`
           )
         )
         .groupBy(sql`DATE_FORMAT(${sentimentAnalysis.analyzedAt}, '%Y-%m')`)

@@ -338,7 +338,7 @@ export default function SurveysTracking() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                {departments.map((dept) => (
+                {departments.map((dept: any) => (
                   <SelectItem key={`dept-${dept.value}`} value={dept.value}>
                     {dept.label}
                   </SelectItem>

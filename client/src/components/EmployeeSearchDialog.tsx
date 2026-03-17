@@ -77,7 +77,7 @@ export default function EmployeeSearchDialog({
             </div>
           ) : (
             <div className="space-y-2">
-              {employees.map((employee) => (
+              {employees.map((employee: any) => (
                 <Card
                   key={employee.id}
                   className="cursor-pointer hover:bg-accent transition-colors"

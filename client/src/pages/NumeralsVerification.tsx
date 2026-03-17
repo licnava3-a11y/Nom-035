@@ -367,9 +367,9 @@ export default function NumeralsVerification() {
     }
   };
 
-  const numeral71 = requirements?.find((r) => r.numeral === "7.1");
-  const numeral72 = requirements?.find((r) => r.numeral === "7.2");
-  const numeral82 = requirements?.find((r) => r.numeral === "8.2");
+  const numeral71 = requirements?.find((r: any) => r.numeral === "7.1");
+  const numeral72 = requirements?.find((r: any) => r.numeral === "7.2");
+  const numeral82 = requirements?.find((r: any) => r.numeral === "8.2");
 
   return (
     <div className="container py-8 space-y-6">

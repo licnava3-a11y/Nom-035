@@ -14,7 +14,7 @@ export default function SalaryTrendsDashboard() {
 
   // Procesar datos para gráficos
   const processedDeptTrends = departmentTrends?.reduce((acc: any[], row: any) => {
-    const existing = acc.find((item) => item.month === row.month);
+    const existing = acc.find((item: any) => item.month === row.month);
     if (existing) {
       existing[row.department] = parseFloat(row.avg_salary);
     } else {
@@ -27,7 +27,7 @@ export default function SalaryTrendsDashboard() {
   }, []) || [];
 
   const processedPosTrends = positionTrends?.reduce((acc: any[], row: any) => {
-    const existing = acc.find((item) => item.month === row.month);
+    const existing = acc.find((item: any) => item.month === row.month);
     if (existing) {
       existing[row.position] = parseFloat(row.avg_salary);
     } else {

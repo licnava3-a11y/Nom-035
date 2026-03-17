@@ -127,7 +127,7 @@ export default function SignatureTest() {
             Firmas del Documento (Total: {signatures.length})
           </h2>
           <div className="space-y-4">
-            {signatures.map((sig) => (
+            {signatures.map((sig: any) => (
               <div
                 key={sig.id}
                 className="border rounded-lg p-4 space-y-3"

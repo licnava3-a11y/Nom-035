@@ -380,13 +380,13 @@ function AnalysisView({ data, title }: { data: any[]; title: string }) {
           </div>
           <div className="text-center">
             <p className="text-3xl font-bold text-primary">
-              {data.reduce((sum, d) => sum + d.totalResponses, 0)}
+              {data.reduce((sum: any, d: any) => sum + d.totalResponses, 0)}
             </p>
             <p className="text-sm text-muted-foreground">Total de Respuestas</p>
           </div>
           <div className="text-center">
             <p className="text-3xl font-bold text-primary">
-              {(data.reduce((sum, d) => sum + d.avgScore, 0) / data.length).toFixed(1)}
+              {(data.reduce((sum: any, d: any) => sum + d.avgScore, 0) / data.length).toFixed(1)}
             </p>
             <p className="text-sm text-muted-foreground">Score Promedio General</p>
           </div>

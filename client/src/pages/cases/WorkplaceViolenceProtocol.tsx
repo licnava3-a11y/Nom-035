@@ -207,7 +207,7 @@ export default function WorkplaceViolenceProtocol() {
                       <SelectValue placeholder="Seleccione al denunciante" />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees?.map((emp) => (
+                      {employees?.map((emp: any) => (
                         <SelectItem key={emp.id} value={emp.id.toString()}>
                           {emp.firstName} {emp.lastName} - Depto ID: {emp.departmentId || "N/A"}
                         </SelectItem>
@@ -225,7 +225,7 @@ export default function WorkplaceViolenceProtocol() {
                     <SelectValue placeholder="Seleccione a la persona acusada" />
                   </SelectTrigger>
                   <SelectContent>
-                    {employees?.map((emp) => (
+                    {employees?.map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
                         {emp.firstName} {emp.lastName} - Puesto ID: {emp.positionId || "N/A"}
                       </SelectItem>
@@ -364,7 +364,7 @@ export default function WorkplaceViolenceProtocol() {
         <CardContent>
           {cases && cases.length > 0 ? (
             <div className="space-y-4">
-              {cases.map((caseItem) => (
+              {cases.map((caseItem: any) => (
                 <div key={caseItem.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

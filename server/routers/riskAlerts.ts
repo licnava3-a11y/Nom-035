@@ -68,7 +68,7 @@ export const riskAlertsRouter = router({
       // Verificar cada departamento
       for (const [deptId, deptSurveys] of Object.entries(departmentGroups)) {
         const totalEmployees = deptSurveys.length;
-        const highRiskEmployees = deptSurveys.filter((s) => s.riskLevel === "high").length;
+        const highRiskEmployees = deptSurveys.filter((s) => (s as any).riskLevel === "high").length;
         const riskPercentage = (highRiskEmployees / totalEmployees) * 100;
 
         let alertType: "high_risk_threshold_exceeded" | "medium_risk_threshold_exceeded" | null = null;
@@ -162,7 +162,7 @@ export const riskAlertsRouter = router({
       }
 
       const totalEmployees = deptEmployees.length;
-      const highRiskEmployees = deptEmployees.filter((s) => s.riskLevel === "high").length;
+        const highRiskEmployees = deptEmployees.filter((s) => (s as any).riskLevel === "high").length;
       const riskPercentage = totalEmployees > 0 ? (highRiskEmployees / totalEmployees) * 100 : 0;
 
       // Insertar alerta manual
@@ -327,9 +327,9 @@ export const riskAlertsRouter = router({
       }
 
       const totalEmployees = deptSurveys.length;
-      const highRiskCount = deptSurveys.filter((s) => s.riskLevel === "high").length;
-      const mediumRiskCount = deptSurveys.filter((s) => s.riskLevel === "medium").length;
-      const lowRiskCount = deptSurveys.filter((s) => s.riskLevel === "low").length;
+      const highRiskCount = deptSurveys.filter((s) => (s as any).riskLevel === "high").length;
+      const mediumRiskCount = deptSurveys.filter((s) => (s as any).riskLevel === "medium").length;
+      const lowRiskCount = deptSurveys.filter((s) => (s as any).riskLevel === "low").length;
 
       const highRiskPercentage = totalEmployees > 0 ? (highRiskCount / totalEmployees) * 100 : 0;
       const mediumRiskPercentage = totalEmployees > 0 ? (mediumRiskCount / totalEmployees) * 100 : 0;

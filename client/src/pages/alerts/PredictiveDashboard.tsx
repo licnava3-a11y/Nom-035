@@ -190,7 +190,7 @@ export default function PredictiveDashboard() {
     );
   }
 
-  const urgentPredictions = predictions?.filter((p) => p.shouldNotify) || [];
+  const urgentPredictions = predictions?.filter((p: any) => p.shouldNotify) || [];
 
   return (
     <div className="container py-8">

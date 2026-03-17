@@ -170,7 +170,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
     ? REQUIRED_DOCUMENTS[data.terminationReason as keyof typeof REQUIRED_DOCUMENTS] || []
     : [];
 
-  const allDocsChecked = requiredDocs.every((doc) => data.documentChecklist[doc]);
+  const allDocsChecked = requiredDocs.every((doc: any) => data.documentChecklist[doc]);
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -213,7 +213,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
                   <SelectValue placeholder="Selecciona un motivo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {TERMINATION_REASONS.map((reason) => (
+                  {TERMINATION_REASONS.map((reason: any) => (
                     <SelectItem key={reason.value} value={reason.value}>
                       {reason.label}
                     </SelectItem>
@@ -256,7 +256,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
             </Alert>
 
             <div className="space-y-4">
-              {requiredDocs.map((doc) => (
+              {requiredDocs.map((doc: any) => (
                 <div key={doc} className="flex items-center space-x-2">
                   <Checkbox
                     id={doc}
@@ -361,7 +361,7 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
               <div>
                 <p className="text-sm font-medium text-gray-600">Motivo de Terminación</p>
                 <p className="text-base">
-                  {TERMINATION_REASONS.find((r) => r.value === data.terminationReason)?.label}
+                  {TERMINATION_REASONS.find((r: any) => r.value === data.terminationReason)?.label}
                 </p>
               </div>
 

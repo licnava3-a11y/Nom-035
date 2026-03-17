@@ -125,7 +125,7 @@ export default function RegulatoryReports() {
                     Cargando períodos...
                   </SelectItem>
                 ) : periods && periods.length > 0 ? (
-                  periods.map((period) => (
+                  periods.map((period: any) => (
                     <SelectItem key={period.id} value={period.id.toString()}>
                       {period.year} - {period.description || 'Sin descripción'}
                     </SelectItem>
@@ -282,7 +282,7 @@ export default function RegulatoryReports() {
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : signers && signers.length > 0 ? (
-              signers.map((signer) => (
+              signers.map((signer: any) => (
                 <div
                   key={signer.id}
                   className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"

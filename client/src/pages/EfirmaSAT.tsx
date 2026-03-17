@@ -353,7 +353,7 @@ export default function EfirmaSAT() {
               <div className="text-center py-8 text-muted-foreground">Cargando...</div>
             ) : certificates && certificates.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {certificates.map((cert) => (
+                {certificates.map((cert: any) => (
                   <div
                     key={cert.id}
                     className="border rounded-lg p-4 hover:bg-accent/50 transition-colors"
@@ -427,7 +427,7 @@ export default function EfirmaSAT() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {certificates.map((cert) => (
+                {certificates.map((cert: any) => (
                   <TableRow key={cert.id}>
                     <TableCell className="font-medium">{cert.certificateName}</TableCell>
                     <TableCell>{cert.issuer || 'N/A'}</TableCell>

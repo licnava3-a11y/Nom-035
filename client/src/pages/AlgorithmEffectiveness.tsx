@@ -35,25 +35,25 @@ export default function AlgorithmEffectiveness() {
 
   // Preparar datos para gráfico de tendencias
   const trendsChartData = {
-    labels: trends.map((t) => t.month),
+    labels: trends.map((t: any) => t.month),
     datasets: [
       {
         label: "Tasa Predicha (%)",
-        data: trends.map((t) => t.avgPredictedRate),
+        data: trends.map((t: any) => t.avgPredictedRate),
         borderColor: "rgb(59, 130, 246)",
         backgroundColor: "rgba(59, 130, 246, 0.1)",
         tension: 0.4,
       },
       {
         label: "Tasa Real (%)",
-        data: trends.map((t) => t.avgActualRate),
+        data: trends.map((t: any) => t.avgActualRate),
         borderColor: "rgb(239, 68, 68)",
         backgroundColor: "rgba(239, 68, 68, 0.1)",
         tension: 0.4,
       },
       {
         label: "Precisión (%)",
-        data: trends.map((t) => t.avgAccuracy),
+        data: trends.map((t: any) => t.avgAccuracy),
         borderColor: "rgb(34, 197, 94)",
         backgroundColor: "rgba(34, 197, 94, 0.1)",
         tension: 0.4,
@@ -188,7 +188,7 @@ export default function AlgorithmEffectiveness() {
                     </tr>
                   </thead>
                   <tbody>
-                    {history.predictions.map((pred) => (
+                    {history.predictions.map((pred: any) => (
                       <tr key={pred.id} className="border-b hover:bg-muted/50">
                         <td className="py-3 px-4">{pred.departmentName}</td>
                         <td className="py-3 px-4">

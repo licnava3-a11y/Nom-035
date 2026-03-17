@@ -294,7 +294,7 @@ export default function Employees() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                {departments?.map((dept) => (
+                {departments?.map((dept: any) => (
                   <SelectItem key={dept.id} value={dept.id.toString()}>
                     {dept.name}
                   </SelectItem>

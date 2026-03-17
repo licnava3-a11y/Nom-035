@@ -199,7 +199,7 @@ async function getLayoutedElements(
 
   // Función recursiva para construir nodos y edges
   function buildGraph(depts: DepartmentNode[], parentId: string | null = null, currentLevel = 0) {
-    depts.forEach((dept) => {
+    depts.forEach((dept: any) => {
       const nodeId = dept.id.toString();
       
       nodes.push({
@@ -249,12 +249,12 @@ async function getLayoutedElements(
   const graph = {
     id: 'root',
     layoutOptions: elkOptions,
-    children: nodes.map((node) => ({
+    children: nodes.map((node: any) => ({
       id: node.id,
       width: isCompactMode ? 200 : 300,
       height: isCompactMode ? 60 : 150,
     })),
-    edges: edges.map((edge) => ({
+    edges: edges.map((edge: any) => ({
       id: edge.id,
       sources: [edge.source],
       targets: [edge.target],
@@ -265,8 +265,8 @@ async function getLayoutedElements(
   const layoutedGraph = await elk.layout(graph);
 
   // Actualizar posiciones de nodos
-  const layoutedNodes = nodes.map((node) => {
-    const layoutedNode = layoutedGraph.children?.find((n) => n.id === node.id);
+  const layoutedNodes = nodes.map((node: any) => {
+    const layoutedNode = layoutedGraph.children?.find((n: any) => n.id === node.id);
     return {
       ...node,
       position: {
@@ -353,7 +353,7 @@ export default function OrganizationChart() {
     if (!searchTerm.trim()) {
       // Limpiar resaltado
       setNodes((nds) =>
-        nds.map((node) => ({
+        nds.map((node: any) => ({
           ...node,
           data: { ...node.data, isHighlighted: false },
         }))
@@ -367,7 +367,7 @@ export default function OrganizationChart() {
     const matches: string[] = [];
 
     setNodes((nds) =>
-      nds.map((node) => {
+      nds.map((node: any) => {
         const isMatch =
           node.data.name.toLowerCase().includes(term) ||
           node.data.code.toLowerCase().includes(term);
@@ -394,7 +394,7 @@ export default function OrganizationChart() {
     const currentNodeId = matchedNodeIds[currentMatchIndex];
 
     setNodes((nds) =>
-      nds.map((node) => ({
+      nds.map((node: any) => ({
         ...node,
         data: {
           ...node.data,
@@ -404,7 +404,7 @@ export default function OrganizationChart() {
     );
 
     // Centrar en el nodo resaltado
-    const currentNode = nodes.find((n) => n.id === currentNodeId);
+    const currentNode = nodes.find((n: any) => n.id === currentNodeId);
     if (currentNode) {
       const nodeWidth = isCompactMode ? 200 : 300;
       const nodeHeight = isCompactMode ? 60 : 150;
@@ -474,7 +474,7 @@ export default function OrganizationChart() {
     const flattenHierarchy = (depts: DepartmentNode[], parentName = '', level = 0): any[] => {
       const result: any[] = [];
       
-      depts.forEach((dept) => {
+      depts.forEach((dept: any) => {
         result.push({
           'Nivel': level,
           'Código': dept.code,

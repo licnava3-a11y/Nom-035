@@ -89,7 +89,7 @@ export default function JobProfileManagement() {
           onValueChange={(value) => setSelectedPositionId(parseInt(value))}
         >
           <option value="">Seleccionar puesto...</option>
-          {positionsData?.map((pos) => (
+          {positionsData?.map((pos: any) => (
             <option key={pos.id} value={pos.id}>
               {pos.title}
             </option>
@@ -186,7 +186,7 @@ export default function JobProfileManagement() {
                     </tr>
                   </thead>
                   <tbody>
-                    {profiles.map((profile) => (
+                    {profiles.map((profile: any) => (
                       <tr key={profile.id} className="border-b hover:bg-muted/50">
                         <td className="p-3 font-medium">{profile.competencyName}</td>
                         <td className="p-3">

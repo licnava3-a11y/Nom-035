@@ -72,11 +72,11 @@ export default function ApprovalMetrics() {
 
   // Datos para gráfico de aprobadores más activos
   const topApproversData = {
-    labels: metrics.topApprovers.map((a) => a.approverName),
+    labels: metrics.topApprovers.map((a: any) => a.approverName),
     datasets: [
       {
         label: "Aprobaciones",
-        data: metrics.topApprovers.map((a) => a.totalApprovals),
+        data: metrics.topApprovers.map((a: any) => a.totalApprovals),
         backgroundColor: "#3b82f6",
         borderColor: "#2563eb",
         borderWidth: 1,
@@ -86,7 +86,7 @@ export default function ApprovalMetrics() {
 
   // Datos para gráfico de tendencia mensual
   const monthlyTrendData = {
-    labels: metrics.approvalsByMonth.map((m) => {
+    labels: metrics.approvalsByMonth.map((m: any) => {
       const [year, month] = m.month.split("-");
       const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
       return `${monthNames[parseInt(month) - 1]} ${year}`;
@@ -94,21 +94,21 @@ export default function ApprovalMetrics() {
     datasets: [
       {
         label: "Aprobadas",
-        data: metrics.approvalsByMonth.map((m) => m.approved),
+        data: metrics.approvalsByMonth.map((m: any) => m.approved),
         borderColor: "#10b981",
         backgroundColor: "rgba(16, 185, 129, 0.1)",
         tension: 0.4,
       },
       {
         label: "Rechazadas",
-        data: metrics.approvalsByMonth.map((m) => m.rejected),
+        data: metrics.approvalsByMonth.map((m: any) => m.rejected),
         borderColor: "#ef4444",
         backgroundColor: "rgba(239, 68, 68, 0.1)",
         tension: 0.4,
       },
       {
         label: "Pendientes",
-        data: metrics.approvalsByMonth.map((m) => m.pending),
+        data: metrics.approvalsByMonth.map((m: any) => m.pending),
         borderColor: "#f59e0b",
         backgroundColor: "rgba(245, 158, 11, 0.1)",
         tension: 0.4,

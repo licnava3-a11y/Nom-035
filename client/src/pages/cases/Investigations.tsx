@@ -39,7 +39,7 @@ export default function Investigations() {
       return;
     }
 
-    const selectedCase = cases?.cases.find((c) => c.id === selectedCaseId);
+    const selectedCase = cases?.cases.find((c: any) => c.id === selectedCaseId);
     if (!selectedCase) {
       toast.error("Caso no encontrado");
       return;
@@ -238,7 +238,7 @@ export default function Investigations() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {questionnaires.map((q) => (
+                  {questionnaires.map((q: any) => (
                     <TableRow key={q.id}>
                       <TableCell>{getTypeBadge(q.questionnaireType)}</TableCell>
                       <TableCell>{q.employeeName}</TableCell>

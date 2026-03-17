@@ -32,7 +32,7 @@ export default function TrainingEvaluationsDashboard() {
   const renderStars = (rating: number) => {
     return (
       <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
+        {[1, 2, 3, 4, 5].map((star: any) => (
           <Star
             key={star}
             className={`h-4 w-4 ${star <= Math.round(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
@@ -94,7 +94,7 @@ export default function TrainingEvaluationsDashboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas las Capacitaciones</SelectItem>
-                  {globalDashboard?.allTrainings?.map((item) => (
+                  {globalDashboard?.allTrainings?.map((item: any) => (
                     <SelectItem key={item.training.id} value={item.training.id.toString()}>
                       {item.training.title} ({item.totalEvaluations} evaluaciones)
                     </SelectItem>
@@ -310,7 +310,7 @@ export default function TrainingEvaluationsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {comments.map((item) => (
+              {comments.map((item: any) => (
                 <div key={item.evaluation.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>

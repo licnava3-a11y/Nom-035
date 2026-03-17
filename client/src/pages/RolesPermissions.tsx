@@ -114,10 +114,10 @@ export default function RolesPermissions() {
 
     // Tomar top 5 roles + agrupar el resto como "Otros"
     const top5 = distribution.slice(0, 5);
-    const othersCount = distribution.slice(5).reduce((sum, item) => sum + Number(item.count), 0);
+    const othersCount = distribution.slice(5).reduce((sum: any, item: any) => sum + Number(item.count), 0);
     
-    const labels = top5.map((item) => getRoleName(item.role));
-    const data = top5.map((item) => Number(item.count));
+    const labels = top5.map((item: any) => getRoleName(item.role));
+    const data = top5.map((item: any) => Number(item.count));
     
     if (othersCount > 0) {
       labels.push("Otros");
@@ -134,7 +134,7 @@ export default function RolesPermissions() {
           {
             data,
             backgroundColor: colors,
-            borderWidth: top5.map((item) => (selectedRole === item.role ? 4 : 2)).concat(othersCount > 0 ? [2] : []),
+            borderWidth: top5.map((item: any) => (selectedRole === item.role ? 4 : 2)).concat(othersCount > 0 ? [2] : []),
             borderColor: "#ffffff",
             hoverBorderWidth: 4,
           },
@@ -186,7 +186,7 @@ export default function RolesPermissions() {
               },
               label: function(context) {
                 const value = context.parsed;
-                const total = data.reduce((sum, d) => sum + d, 0);
+                const total = data.reduce((sum: any, d: any) => sum + d, 0);
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
                 return `${value} usuarios (${percentage}%)`;
               },
@@ -257,7 +257,7 @@ export default function RolesPermissions() {
 
     let csv = "Rol," + Object.values(permissionLabels).join(",") + "\n";
 
-    roles.forEach((role) => {
+    roles.forEach((role: any) => {
       const row = [
         getRoleName(role.role),
         role.permissions.can_view ? "Sí" : "No",
@@ -333,7 +333,7 @@ export default function RolesPermissions() {
       {/* Role Distribution Stats and Pie Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {distribution.slice(0, 5).map((item) => (
+          {distribution.slice(0, 5).map((item: any) => (
             <Card key={item.role}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -404,7 +404,7 @@ export default function RolesPermissions() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {roles.map((role) => (
+                {roles.map((role: any) => (
                   <TableRow key={role.role}>
                     <TableCell className="font-medium">
                       {getRoleName(role.role)}
@@ -482,7 +482,7 @@ export default function RolesPermissions() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los roles</SelectItem>
-                  {roles.map((role) => (
+                  {roles.map((role: any) => (
                     <SelectItem key={role.role} value={role.role}>
                       {getRoleName(role.role)} ({role.userCount})
                     </SelectItem>
@@ -515,7 +515,7 @@ export default function RolesPermissions() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {usersData.users.map((user) => (
+                    {usersData.users.map((user: any) => (
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.name || "Sin nombre"}</TableCell>
                         <TableCell>{user.email || "Sin correo"}</TableCell>
@@ -605,7 +605,7 @@ export default function RolesPermissions() {
                   <SelectValue placeholder="Selecciona un rol" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
+                  {roles.map((role: any) => (
                     <SelectItem key={role.role} value={role.role}>
                       {getRoleName(role.role)}
                     </SelectItem>

@@ -361,7 +361,7 @@ export default function RetentionInterventionsDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {interventions.map((intervention) => (
+                {interventions.map((intervention: any) => (
                   <TableRow key={intervention.id}>
                     <TableCell>
                       <div>

@@ -113,7 +113,7 @@ export function NotificationsDropdown() {
           </div>
         ) : (
           <>
-            {recentNotifications.map((notification) => (
+            {recentNotifications.map((notification: any) => (
               <DropdownMenuItem
                 key={notification.id}
                 className={`flex flex-col items-start p-3 cursor-pointer ${

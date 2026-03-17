@@ -151,7 +151,7 @@ export default function ModelRetrainingHistory() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {retrainingHistory.map((record) => (
+                {retrainingHistory.map((record: any) => (
                   <TableRow key={record.id}>
                     <TableCell className="text-sm">
                       {format(new Date(record.appliedAt), "dd/MM/yyyy HH:mm")}

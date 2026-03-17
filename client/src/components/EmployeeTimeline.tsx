@@ -86,7 +86,7 @@ export function EmployeeTimeline({ history, employeeName }: EmployeeTimelineProp
   }
 
   // Ordenar eventos por fecha descendente (más reciente primero)
-  const sortedHistory = [...history].sort((a, b) => 
+  const sortedHistory = [...history].sort((a: any, b: any) => 
     new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
   );
 

@@ -19,7 +19,7 @@ export default function Committee() {
   const getInitials = (name: string) => {
     return name
       .split(" ")
-      .map((n) => n[0])
+      .map((n: any) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
@@ -48,8 +48,8 @@ export default function Committee() {
     );
   }
 
-  const activeMembers = committeeMembers?.filter((m) => m.isActive) || [];
-  const coordinators = committeeMembers?.filter((m) => m.position?.toLowerCase().includes("coordinador")) || [];
+  const activeMembers = committeeMembers?.filter((m: any) => m.isActive) || [];
+  const coordinators = committeeMembers?.filter((m: any) => m.position?.toLowerCase().includes("coordinador")) || [];
 
   return (
     <div className="space-y-6">
@@ -106,7 +106,7 @@ export default function Committee() {
         <h2 className="text-xl font-semibold">Miembros del Comité</h2>
         {committeeMembers && committeeMembers.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {committeeMembers.map((member) => (
+            {committeeMembers.map((member: any) => (
               <Card key={member.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start gap-4">

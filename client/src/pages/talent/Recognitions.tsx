@@ -113,7 +113,7 @@ export default function Recognitions() {
   const getInitials = (name: string) => {
     return name
       .split(" ")
-      .map((n) => n[0])
+      .map((n: any) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
@@ -161,7 +161,7 @@ export default function Recognitions() {
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {employeesQuery.data?.map((emp) => (
+                    {employeesQuery.data?.map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
                         {emp.firstName} {emp.lastName} - {emp.position || "Sin puesto"}
                       </SelectItem>
@@ -178,7 +178,7 @@ export default function Recognitions() {
                     <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categoriesQuery.data?.map((cat) => (
+                    {categoriesQuery.data?.map((cat: any) => (
                       <SelectItem key={cat.id} value={cat.id.toString()}>
                         {cat.icon} {cat.name}
                       </SelectItem>
@@ -246,7 +246,7 @@ export default function Recognitions() {
             </div>
           ) : recognitionsQuery.data && recognitionsQuery.data.length > 0 ? (
             <div className="grid gap-4">
-              {recognitionsQuery.data.map((recognition) => (
+              {recognitionsQuery.data.map((recognition: any) => (
                 <Card key={recognition.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -297,7 +297,7 @@ export default function Recognitions() {
                     
                     {/* Reacciones */}
                     <div className="flex items-center space-x-2 pt-4 border-t">
-                      {(Object.keys(reactionIcons) as ReactionType[]).map((type) => (
+                      {(Object.keys(reactionIcons) as ReactionType[]).map((type: any) => (
                         <Button
                           key={type}
                           variant="ghost"

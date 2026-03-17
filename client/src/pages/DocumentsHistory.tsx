@@ -38,7 +38,7 @@ export default function DocumentsHistory() {
   });
 
   // Filtrar por folio localmente
-  const filteredDocuments = documents?.filter((doc) =>
+  const filteredDocuments = documents?.filter((doc: any) =>
     searchFolio ? doc.folio.toLowerCase().includes(searchFolio.toLowerCase()) : true
   );
 
@@ -194,7 +194,7 @@ export default function DocumentsHistory() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredDocuments.map((doc) => (
+                  {filteredDocuments.map((doc: any) => (
                     <TableRow key={doc.id}>
                       <TableCell className="font-mono font-semibold">{doc.folio}</TableCell>
                       <TableCell>{doc.title}</TableCell>

@@ -128,7 +128,7 @@ export default function Compliance() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {complianceModules.map((module) => {
+          {complianceModules.map((module: any) => {
             const Icon = module.icon;
             return (
               <Link key={module.id} href={module.route}>

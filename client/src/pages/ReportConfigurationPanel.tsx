@@ -142,8 +142,8 @@ export default function ReportConfigurationPanel() {
   };
 
   const handleCreate = () => {
-    const recipientsList = recipients.split(",").map((r) => r.trim()).filter((r) => r);
-    const ccRecipientsList = ccRecipients ? ccRecipients.split(",").map((r) => r.trim()).filter((r) => r) : [];
+    const recipientsList = recipients.split(",").map((r: any) => r.trim()).filter((r: any) => r);
+    const ccRecipientsList = ccRecipients ? ccRecipients.split(",").map((r: any) => r.trim()).filter((r: any) => r) : [];
 
     createMutation.mutate({
       reportType,
@@ -162,8 +162,8 @@ export default function ReportConfigurationPanel() {
   const handleEdit = () => {
     if (!selectedConfig) return;
 
-    const recipientsList = recipients.split(",").map((r) => r.trim()).filter((r) => r);
-    const ccRecipientsList = ccRecipients ? ccRecipients.split(",").map((r) => r.trim()).filter((r) => r) : [];
+    const recipientsList = recipients.split(",").map((r: any) => r.trim()).filter((r: any) => r);
+    const ccRecipientsList = ccRecipients ? ccRecipients.split(",").map((r: any) => r.trim()).filter((r: any) => r) : [];
 
     updateMutation.mutate({
       id: selectedConfig.id,
@@ -258,7 +258,7 @@ export default function ReportConfigurationPanel() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {configs?.filter((c) => c.enabled).length || 0}
+              {configs?.filter((c: any) => c.enabled).length || 0}
             </div>
           </CardContent>
         </Card>
@@ -268,7 +268,7 @@ export default function ReportConfigurationPanel() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-400">
-              {configs?.filter((c) => !c.enabled).length || 0}
+              {configs?.filter((c: any) => !c.enabled).length || 0}
             </div>
           </CardContent>
         </Card>
@@ -278,7 +278,7 @@ export default function ReportConfigurationPanel() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {configs?.reduce((sum, c) => sum + c.executionCount, 0) || 0}
+              {configs?.reduce((sum: any, c: any) => sum + c.executionCount, 0) || 0}
             </div>
           </CardContent>
         </Card>
@@ -313,7 +313,7 @@ export default function ReportConfigurationPanel() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {configs.map((config) => (
+                {configs.map((config: any) => (
                   <TableRow key={config.id}>
                     <TableCell className="font-medium">{config.reportType}</TableCell>
                     <TableCell>{getFrequencyBadge(config.frequency)}</TableCell>

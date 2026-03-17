@@ -398,7 +398,7 @@ export default function AlertHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {alerts.map((alert) => (
+                  {alerts.map((alert: any) => (
                     <tr key={alert.id} className="border-b hover:bg-muted/50">
                       <td className="p-3 text-sm">
                         {new Date(alert.triggeredAt).toLocaleString("es-MX", {

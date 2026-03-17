@@ -28,10 +28,10 @@ export function WorkerSelector({ value, onChange, placeholder = "Seleccionar tra
   const [open, setOpen] = useState(false);
   const { filteredWorkers, isLoading, setSearchTerm } = useWorkerSearch();
 
-  const selectedWorker = filteredWorkers?.find((w) => w.id === value);
+  const selectedWorker = filteredWorkers?.find((w: any) => w.id === value);
 
   const handleSelect = (workerId: number) => {
-    const worker = filteredWorkers?.find((w) => w.id === workerId);
+    const worker = filteredWorkers?.find((w: any) => w.id === workerId);
     if (worker) {
       onChange(workerId, {
         fullName: `${worker.firstName} ${worker.lastName}`,
@@ -90,7 +90,7 @@ export function WorkerSelector({ value, onChange, placeholder = "Seleccionar tra
               {isLoading ? "Cargando..." : "No se encontraron trabajadores"}
             </CommandEmpty>
             <CommandGroup>
-              {filteredWorkers?.map((worker) => (
+              {filteredWorkers?.map((worker: any) => (
                 <CommandItem
                   key={worker.id}
                   value={worker.id.toString()}

@@ -244,7 +244,7 @@ export default function NOM035Questionnaire() {
                   onValueChange={(value) => handleResponseChange(question.id, value)}
                 >
                   <div className="space-y-2">
-                    {LIKERT_OPTIONS.map((option) => (
+                    {LIKERT_OPTIONS.map((option: any) => (
                       <div key={option.value} className="flex items-center space-x-2">
                         <RadioGroupItem value={option.value} id={`q${question.id}-${option.value}`} />
                         <Label

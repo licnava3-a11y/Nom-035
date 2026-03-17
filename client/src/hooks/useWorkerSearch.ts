@@ -43,7 +43,7 @@ export function useWorkerSearch() {
   // Obtener trabajador seleccionado
   const selectedWorker = useMemo(() => {
     if (!selectedWorkerId || !workers) return null;
-    return workers.find((w) => w.id === selectedWorkerId) || null;
+    return workers.find((w: any) => w.id === selectedWorkerId) || null;
   }, [selectedWorkerId, workers]);
 
   // Función para seleccionar trabajador

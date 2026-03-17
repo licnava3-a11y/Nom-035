@@ -173,7 +173,7 @@ export function SearchOperatingRules({ open, onOpenChange, onSelectResult }: Sea
                   </p>
                 </div>
 
-                {searchResults.results.map((result) => (
+                {searchResults.results.map((result: any) => (
                   <Card
                     key={result.id}
                     className="hover:shadow-md transition-shadow cursor-pointer"

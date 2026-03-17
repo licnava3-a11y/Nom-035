@@ -401,7 +401,7 @@ export default function Nom035AdminPanel() {
                 <div className="text-2xl font-bold">
                   {stats?.riskDistribution
                     .filter(r => r.level === "Alto" || r.level === "Muy Alto")
-                    .reduce((sum, r) => sum + r.count, 0) || 0}
+                    .reduce((sum: any, r: any) => sum + r.count, 0) || 0}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Requieren atención
@@ -617,7 +617,7 @@ export default function Nom035AdminPanel() {
                         </tr>
                       </thead>
                       <tbody>
-                        {comparison.stats.map((stat) => (
+                        {comparison.stats.map((stat: any) => (
                           <tr key={stat.periodId} className="border-b">
                             <td className="p-2 font-medium">{stat.periodName}</td>
                             <td className="text-right p-2">{stat.totalResponses}</td>

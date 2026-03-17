@@ -39,7 +39,7 @@ export default function ComplianceChecklist() {
   };
 
   const handleSaveNotes = (itemId: number) => {
-    const item = checklist?.find((i) => i.id === itemId);
+    const item = checklist?.find((i: any) => i.id === itemId);
     if (!item) return;
 
     updateCompliance.mutate({
@@ -71,16 +71,16 @@ export default function ComplianceChecklist() {
     G: "Registros y Difusión",
   };
 
-  const groupedChecklist = sections.map((section) => ({
+  const groupedChecklist = sections.map((section: any) => ({
     section,
     title: sectionTitles[section],
-    items: checklist?.filter((item) => item.section === section) || [],
+    items: checklist?.filter((item: any) => item.section === section) || [],
   }));
 
   const getSectionProgress = (section: string) => {
-    const sectionItems = checklist?.filter((item) => item.section === section) || [];
+    const sectionItems = checklist?.filter((item: any) => item.section === section) || [];
     if (sectionItems.length === 0) return 0;
-    const compliantCount = sectionItems.filter((item) => item.isCompliant).length;
+    const compliantCount = sectionItems.filter((item: any) => item.isCompliant).length;
     return Math.round((compliantCount / sectionItems.length) * 100);
   };
 
@@ -121,7 +121,7 @@ export default function ComplianceChecklist() {
       <Accordion type="multiple" className="space-y-4">
         {groupedChecklist.map(({ section, title, items }) => {
           const sectionProgress = getSectionProgress(section);
-          const compliantCount = items.filter((item) => item.isCompliant).length;
+          const compliantCount = items.filter((item: any) => item.isCompliant).length;
 
           return (
             <AccordionItem key={section} value={section} className="border rounded-lg">
@@ -147,7 +147,7 @@ export default function ComplianceChecklist() {
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6">
                 <div className="space-y-4 mt-4">
-                  {items.map((item) => (
+                  {items.map((item: any) => (
                     <Card key={item.id} className={item.isCompliant ? "border-green-200 bg-green-50/50" : ""}>
                       <CardContent className="pt-6">
                         <div className="flex gap-4">

@@ -155,7 +155,7 @@ export default function CommitteeTrainingsManagement() {
   };
 
   const getTypeLabel = (type: string) => {
-    return TRAINING_TYPES.find((t) => t.value === type)?.label || type;
+    return TRAINING_TYPES.find((t: any) => t.value === type)?.label || type;
   };
 
   return (
@@ -235,7 +235,7 @@ export default function CommitteeTrainingsManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  {TRAINING_TYPES.map((type) => (
+                  {TRAINING_TYPES.map((type: any) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
                     </SelectItem>
@@ -271,7 +271,7 @@ export default function CommitteeTrainingsManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trainings.map((training) => (
+                {trainings.map((training: any) => (
                   <TableRow key={training.id}>
                     <TableCell className="font-medium">{training.title}</TableCell>
                     <TableCell>
@@ -355,7 +355,7 @@ export default function CommitteeTrainingsManagement() {
                     <SelectValue placeholder="Selecciona tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {TRAINING_TYPES.map((type) => (
+                    {TRAINING_TYPES.map((type: any) => (
                       <SelectItem key={type.value} value={type.value}>
                         {type.label}
                       </SelectItem>
@@ -427,7 +427,7 @@ export default function CommitteeTrainingsManagement() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {TRAINING_TYPES.map((type) => (
+                      {TRAINING_TYPES.map((type: any) => (
                         <SelectItem key={type.value} value={type.value}>
                           {type.label}
                         </SelectItem>

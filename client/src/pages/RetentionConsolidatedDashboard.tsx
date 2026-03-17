@@ -56,14 +56,14 @@ export default function RetentionConsolidatedDashboard() {
   // Calcular métricas consolidadas
   const totalHighRisk = highRiskEmployees.length;
   const criticalSalaryGaps = criticalGaps.length;
-  const activeInterventions = interventions.filter((i) => i.outcome === "pending").length;
-  const successfulInterventions = interventions.filter((i) => i.outcome === "retained").length;
-  const totalInterventionCost = interventions.reduce((sum, i) => sum + parseFloat(i.cost || "0"), 0);
+  const activeInterventions = interventions.filter((i: any) => i.outcome === "pending").length;
+  const successfulInterventions = interventions.filter((i: any) => i.outcome === "retained").length;
+  const totalInterventionCost = interventions.reduce((sum: any, i: any) => sum + parseFloat(i.cost || "0"), 0);
   const retentionROI = successfulInterventions > 0 ? ((successfulInterventions * 50000 - totalInterventionCost) / totalInterventionCost) * 100 : 0;
 
   // Preparar datos para gráfico de priorización
-  const priorityData = highRiskEmployees.slice(0, 10).map((emp) => {
-    const payroll = payrollData.find((p) => p.employeeId === emp.employeeId);
+  const priorityData = highRiskEmployees.slice(0, 10).map((emp: any) => {
+    const payroll = payrollData.find((p: any) => p.employeeId === emp.employeeId);
     return {
       name: emp.employeeName,
       riesgo: parseFloat(emp.turnoverProbability),
@@ -205,8 +205,8 @@ export default function RetentionConsolidatedDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {highRiskEmployees.slice(0, 10).map((emp) => {
-                      const payroll = payrollData.find((p) => p.employeeId === emp.employeeId);
+                    {highRiskEmployees.slice(0, 10).map((emp: any) => {
+                      const payroll = payrollData.find((p: any) => p.employeeId === emp.employeeId);
                       return (
                         <tr key={emp.employeeId} className="border-b hover:bg-muted/50">
                           <td className="p-3">{emp.employeeName}</td>
@@ -259,7 +259,7 @@ export default function RetentionConsolidatedDashboard() {
                     <SelectValue placeholder="Seleccionar empleado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {highRiskEmployees.map((emp) => (
+                    {highRiskEmployees.map((emp: any) => (
                       <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
                         {emp.employeeName} - {emp.department}
                       </SelectItem>
@@ -333,7 +333,7 @@ export default function RetentionConsolidatedDashboard() {
                       <SelectValue placeholder="Seleccionar empleado" />
                     </SelectTrigger>
                     <SelectContent>
-                      {criticalGaps.map((emp) => (
+                      {criticalGaps.map((emp: any) => (
                         <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
                           {emp.employeeName} - Brecha: {emp.salaryGapPercentage}%
                         </SelectItem>

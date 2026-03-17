@@ -296,7 +296,7 @@ export default function CaseDetail() {
                 <p className="text-center text-muted-foreground py-4">Cargando cuestionarios...</p>
               ) : questionnaires && questionnaires.length > 0 ? (
                 <div className="space-y-4">
-                  {questionnaires.map((q) => (
+                  {questionnaires.map((q: any) => (
                     <div key={q.id} className="border rounded-lg p-4 space-y-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">

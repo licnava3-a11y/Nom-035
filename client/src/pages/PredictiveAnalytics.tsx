@@ -25,7 +25,7 @@ export default function PredictiveAnalytics() {
   const statistics = data?.statistics;
 
   // Preparar datos para gráfico de distribución por nivel de riesgo
-  const riskDistribution = predictions.reduce((acc, pred) => {
+  const riskDistribution = predictions.reduce((acc: any, pred: any) => {
     const level = pred.riskLevel;
     acc[level] = (acc[level] || 0) + 1;
     return acc;
@@ -229,7 +229,7 @@ export default function PredictiveAnalytics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {predictions.map((pred) => (
+                {predictions.map((pred: any) => (
                   <TableRow key={pred.userId}>
                     <TableCell className="font-medium">{pred.name}</TableCell>
                     <TableCell>{pred.department || "N/A"}</TableCell>

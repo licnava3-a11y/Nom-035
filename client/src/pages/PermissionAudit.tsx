@@ -68,12 +68,12 @@ export default function PermissionAudit() {
     const ctx = pieChartRef.current.getContext("2d");
     if (!ctx) return;
 
-    const labels = stats.map((stat) => {
+    const labels = stats.map((stat: any) => {
       if (stat.changeType === "role_change") return "Cambios de Rol";
       if (stat.changeType === "custom_permission_update") return "Actualizaciones";
       return "Resets";
     });
-    const data = stats.map((stat) => Number(stat.count));
+    const data = stats.map((stat: any) => Number(stat.count));
 
     pieChartInstanceRef.current = new Chart(ctx, {
       type: "pie",
@@ -81,9 +81,9 @@ export default function PermissionAudit() {
         labels,
         datasets: [
           {
-            data: stats.map((s) => s.count),
+            data: stats.map((s: any) => s.count),
             backgroundColor: ["#10b981", "#1e3a8a", "#dc2626"],
-            borderWidth: stats.map((s) => (changeType === s.changeType ? 4 : 2)),
+            borderWidth: stats.map((s: any) => (changeType === s.changeType ? 4 : 2)),
             borderColor: "#ffffff",
             hoverBorderWidth: 4,
           },
@@ -126,7 +126,7 @@ export default function PermissionAudit() {
               },
               label: function(context) {
                 const value = context.parsed;
-                const total = stats.reduce((sum, s) => sum + s.count, 0);
+                const total = stats.reduce((sum: any, s: any) => sum + s.count, 0);
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
                 return `${value} cambios (${percentage}%)`;
               },
@@ -156,17 +156,17 @@ export default function PermissionAudit() {
     }
 
     // Preparar datos para Chart.js
-    const months = Array.from(new Set(trendsData.map((t) => t.month))).sort();
-    const roleChanges = months.map((month) => {
-      const item = trendsData.find((t) => t.month === month && t.changeType === "role_change");
+    const months = Array.from(new Set(trendsData.map((t: any) => t.month))).sort();
+    const roleChanges = months.map((month: any) => {
+      const item = trendsData.find((t: any) => t.month === month && t.changeType === "role_change");
       return item ? Number(item.count) : 0;
     });
-    const permissionUpdates = months.map((month) => {
-      const item = trendsData.find((t) => t.month === month && t.changeType === "custom_permission_update");
+    const permissionUpdates = months.map((month: any) => {
+      const item = trendsData.find((t: any) => t.month === month && t.changeType === "custom_permission_update");
       return item ? Number(item.count) : 0;
     });
-    const permissionResets = months.map((month) => {
-      const item = trendsData.find((t) => t.month === month && t.changeType === "custom_permission_reset");
+    const permissionResets = months.map((month: any) => {
+      const item = trendsData.find((t: any) => t.month === month && t.changeType === "custom_permission_reset");
       return item ? Number(item.count) : 0;
     });
 
@@ -357,7 +357,7 @@ export default function PermissionAudit() {
       {stats && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {stats.map((stat) => (
+            {stats.map((stat: any) => (
               <Card key={stat.changeType}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">
@@ -551,7 +551,7 @@ export default function PermissionAudit() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {historyData.history.map((entry) => (
+                  {historyData.history.map((entry: any) => (
                     <TableRow key={entry.id}>
                       <TableCell className="whitespace-nowrap">
                         {new Date(entry.createdAt).toLocaleString("es-MX")}

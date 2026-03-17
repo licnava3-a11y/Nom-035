@@ -155,7 +155,7 @@ export default function AssessmentsManagement() {
       {/* Lista de evaluaciones */}
       <div className="grid gap-4">
         {assessments && assessments.length > 0 ? (
-          assessments.map((assessment) => (
+          assessments.map((assessment: any) => (
             <Card key={assessment.id}>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -325,7 +325,7 @@ export default function AssessmentsManagement() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Sin curso asociado</SelectItem>
-                  {courses?.map((course) => (
+                  {courses?.map((course: any) => (
                     <SelectItem key={course.id} value={course.id.toString()}>
                       {course.title}
                     </SelectItem>

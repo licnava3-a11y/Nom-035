@@ -54,13 +54,9 @@ export const scheduledReportsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      let query = db.select().from(scheduledReports).orderBy(desc(scheduledReports.createdAt));
-
-      if (input?.isActive !== undefined) {
-        query = query.where(eq(scheduledReports.isActive, input.isActive));
-      }
-
-      const reports = await query;
+      const reports = await (input?.isActive !== undefined
+        ? db.select().from(scheduledReports).where(eq(scheduledReports.isActive, input.isActive)).orderBy(desc(scheduledReports.createdAt))
+        : db.select().from(scheduledReports).orderBy(desc(scheduledReports.createdAt)));
       return reports;
     }),
 

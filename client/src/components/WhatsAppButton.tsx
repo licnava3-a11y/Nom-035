@@ -98,7 +98,7 @@ export function WhatsAppDemoButton({
 }: WhatsAppDemoButtonProps) {
   // Mapear códigos de normativas a nombres completos
   const normativasNombres = normativasSeleccionadas
-    .map((codigo) => NORMATIVAS_MAP[codigo] || codigo)
+    .map((codigo: any) => NORMATIVAS_MAP[codigo] || codigo)
     .filter(Boolean);
 
   const userData: DemoRequestData = {

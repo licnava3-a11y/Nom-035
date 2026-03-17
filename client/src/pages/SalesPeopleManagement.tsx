@@ -147,9 +147,9 @@ export default function SalesPeopleManagement() {
 
   // Calcular estadísticas generales
   const totalSalespeople = distributionStats?.length || 0;
-  const activeSalespeople = distributionStats?.filter((s) => s.activo).length || 0;
-  const totalLeadsAssigned = distributionStats?.reduce((sum, s) => sum + (s.totalLeadsAsignados || 0), 0) || 0;
-  const totalLeadsWon = distributionStats?.reduce((sum, s) => sum + (s.leadsGanados || 0), 0) || 0;
+  const activeSalespeople = distributionStats?.filter((s: any) => s.activo).length || 0;
+  const totalLeadsAssigned = distributionStats?.reduce((sum: any, s: any) => sum + (s.totalLeadsAsignados || 0), 0) || 0;
+  const totalLeadsWon = distributionStats?.reduce((sum: any, s: any) => sum + (s.leadsGanados || 0), 0) || 0;
 
   if (isLoading) {
     return (
@@ -261,7 +261,7 @@ export default function SalesPeopleManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {distributionStats?.map((salesperson) => {
+              {distributionStats?.map((salesperson: any) => {
                 const conversionRate = salesperson.totalLeadsAsignados > 0
                   ? ((salesperson.leadsGanados / salesperson.totalLeadsAsignados) * 100).toFixed(1)
                   : "0.0";

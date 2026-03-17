@@ -196,7 +196,7 @@ export default function AgreementsDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {agreements.map((agreement) => (
+                  {agreements.map((agreement: any) => (
                     <TableRow key={agreement.id}>
                       <TableCell className="font-medium max-w-md">
                         {agreement.description}

@@ -300,7 +300,7 @@ export default function LeadsPipeline() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los vendedores</SelectItem>
-                {salespeople?.map((salesperson) => (
+                {salespeople?.map((salesperson: any) => (
                   <SelectItem key={salesperson.id} value={salesperson.id.toString()}>
                     {salesperson.nombre}
                   </SelectItem>

@@ -83,9 +83,9 @@ export default function MyCommitteeTrainings() {
     );
   };
 
-  const pendingCount = myTrainings?.filter((t) => t.assignment.status === "pending").length || 0;
-  const inProgressCount = myTrainings?.filter((t) => t.assignment.status === "in_progress").length || 0;
-  const completedCount = myTrainings?.filter((t) => t.assignment.status === "completed").length || 0;
+  const pendingCount = myTrainings?.filter((t: any) => t.assignment.status === "pending").length || 0;
+  const inProgressCount = myTrainings?.filter((t: any) => t.assignment.status === "in_progress").length || 0;
+  const completedCount = myTrainings?.filter((t: any) => t.assignment.status === "completed").length || 0;
   const totalCount = myTrainings?.length || 0;
   const completionPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -161,7 +161,7 @@ export default function MyCommitteeTrainings() {
         {isLoading ? (
           <div className="col-span-2 text-center py-8">Cargando...</div>
         ) : myTrainings && myTrainings.length > 0 ? (
-          myTrainings.map((item) => (
+          myTrainings.map((item: any) => (
             <Card key={item.assignment.id}>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -271,7 +271,7 @@ export default function MyCommitteeTrainings() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {myCertificates.map((item) => (
+              {myCertificates.map((item: any) => (
                 <Card key={item.certificate.id} className="border-2 border-primary/20">
                   <CardHeader>
                     <div className="flex items-center gap-2">

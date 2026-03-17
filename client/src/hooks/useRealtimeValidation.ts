@@ -219,7 +219,7 @@ export function useRealtimeValidation() {
    * Verifica si todos los campos son válidos
    */
   const isAllValid = useCallback((): boolean => {
-    return Object.values(validationState).every((v) => v.isValid);
+    return Object.values(validationState).every((v: any) => v.isValid);
   }, [validationState]);
 
   return {

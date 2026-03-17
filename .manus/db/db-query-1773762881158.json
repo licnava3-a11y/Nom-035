@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, name, role FROM users LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute SELECT id, name, role FROM users LIMIT 5",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Vero Nava",
+      "role": "admin"
+    },
+    {
+      "id": "270044",
+      "name": "María González",
+      "role": "admin"
+    },
+    {
+      "id": "270045",
+      "name": "Carlos Ramírez",
+      "role": "instructor"
+    },
+    {
+      "id": "270046",
+      "name": "Ana López",
+      "role": "instructor"
+    },
+    {
+      "id": "270047",
+      "name": "Pedro Martínez",
+      "role": "student"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\trole\n1\tVero Nava\tadmin\n270044\tMaría González\tadmin\n270045\tCarlos Ramírez\tinstructor\n270046\tAna López\tinstructor\n270047\tPedro Martínez\tstudent\n",
+  "stderr": "",
+  "execution_time_ms": 80
+}

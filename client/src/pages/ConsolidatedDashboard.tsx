@@ -274,7 +274,7 @@ export default function ConsolidatedDashboard() {
         <CardContent>
           {alerts.length > 0 ? (
             <div className="space-y-3">
-              {alerts.map((alert) => {
+              {alerts.map((alert: any) => {
                 const badgeConfig = getAlertBadge(alert.type);
                 return (
                   <div

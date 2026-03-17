@@ -96,25 +96,25 @@ export default function DepartmentMetrics() {
 
   // Configuración de gráfico de rotación (Line Chart)
   const rotationChartData = {
-    labels: rotationData?.metrics.map((m) => m.departmentName) || [],
+    labels: rotationData?.metrics.map((m: any) => m.departmentName) || [],
     datasets: [
       {
         label: 'Altas',
-        data: rotationData?.metrics.map((m) => m.hires) || [],
+        data: rotationData?.metrics.map((m: any) => m.hires) || [],
         borderColor: 'rgb(34, 197, 94)', // Verde
         backgroundColor: 'rgba(34, 197, 94, 0.2)',
         tension: 0.3,
       },
       {
         label: 'Bajas',
-        data: rotationData?.metrics.map((m) => m.terminations) || [],
+        data: rotationData?.metrics.map((m: any) => m.terminations) || [],
         borderColor: 'rgb(239, 68, 68)', // Rojo
         backgroundColor: 'rgba(239, 68, 68, 0.2)',
         tension: 0.3,
       },
       {
         label: 'Cambio Neto',
-        data: rotationData?.metrics.map((m) => m.netChange) || [],
+        data: rotationData?.metrics.map((m: any) => m.netChange) || [],
         borderColor: 'rgb(59, 130, 246)', // Azul
         backgroundColor: 'rgba(59, 130, 246, 0.2)',
         tension: 0.3,
@@ -143,10 +143,10 @@ export default function DepartmentMetrics() {
 
   // Configuración de gráfico de distribución (Pie Chart)
   const distributionChartData = {
-    labels: distributionData?.distribution.map((d) => d.departmentName || 'Sin departamento') || [],
+    labels: distributionData?.distribution.map((d: any) => d.departmentName || 'Sin departamento') || [],
     datasets: [
       {
-        data: distributionData?.distribution.map((d) => d.employeeCount) || [],
+        data: distributionData?.distribution.map((d: any) => d.employeeCount) || [],
         backgroundColor: [
           'rgb(34, 197, 94)', // Verde
           'rgb(59, 130, 246)', // Azul
@@ -181,7 +181,7 @@ export default function DepartmentMetrics() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los departamentos</SelectItem>
-              {departmentsData?.departments.map((dept) => (
+              {departmentsData?.departments.map((dept: any) => (
                 <SelectItem key={dept.id} value={dept.id.toString()}>
                   {dept.name}
                 </SelectItem>
@@ -433,18 +433,18 @@ export default function DepartmentMetrics() {
                   <div className="h-64">
                     <Bar
                       data={{
-                        labels: yoyData.comparison.map((c) => c.departmentName),
+                        labels: yoyData.comparison.map((c: any) => c.departmentName),
                         datasets: [
                           {
                             label: `${yoyData.currentYear}`,
-                            data: yoyData.comparison.map((c) => (c as any).currentYear?.employeeCount || 0),
+                            data: yoyData.comparison.map((c: any) => (c as any).currentYear?.employeeCount || 0),
                             backgroundColor: 'rgba(34, 197, 94, 0.7)',
                             borderColor: 'rgb(34, 197, 94)',
                             borderWidth: 1,
                           },
                           {
                             label: `${yoyData.lastYear}`,
-                            data: yoyData.comparison.map((c) => (c as any).lastYear?.employeeCount || 0),
+                            data: yoyData.comparison.map((c: any) => (c as any).lastYear?.employeeCount || 0),
                             backgroundColor: 'rgba(59, 130, 246, 0.7)',
                             borderColor: 'rgb(59, 130, 246)',
                             borderWidth: 1,
@@ -500,18 +500,18 @@ export default function DepartmentMetrics() {
                   <div className="h-64">
                     <Line
                       data={{
-                        labels: yoyData.comparison.map((c) => c.departmentName),
+                        labels: yoyData.comparison.map((c: any) => c.departmentName),
                         datasets: [
                           {
                             label: `Altas ${yoyData.currentYear}`,
-                            data: yoyData.comparison.map((c) => (c as any).currentYear?.hires || 0),
+                            data: yoyData.comparison.map((c: any) => (c as any).currentYear?.hires || 0),
                             borderColor: 'rgb(34, 197, 94)',
                             backgroundColor: 'rgba(34, 197, 94, 0.1)',
                             tension: 0.4,
                           },
                           {
                             label: `Altas ${yoyData.lastYear}`,
-                            data: yoyData.comparison.map((c) => (c as any).lastYear?.hires || 0),
+                            data: yoyData.comparison.map((c: any) => (c as any).lastYear?.hires || 0),
                             borderColor: 'rgb(59, 130, 246)',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
                             tension: 0.4,
@@ -519,14 +519,14 @@ export default function DepartmentMetrics() {
                           },
                           {
                             label: `Bajas ${yoyData.currentYear}`,
-                            data: yoyData.comparison.map((c) => (c as any).currentYear?.terminations || 0),
+                            data: yoyData.comparison.map((c: any) => (c as any).currentYear?.terminations || 0),
                             borderColor: 'rgb(239, 68, 68)',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             tension: 0.4,
                           },
                           {
                             label: `Bajas ${yoyData.lastYear}`,
-                            data: yoyData.comparison.map((c) => (c as any).lastYear?.terminations || 0),
+                            data: yoyData.comparison.map((c: any) => (c as any).lastYear?.terminations || 0),
                             borderColor: 'rgb(249, 115, 22)',
                             backgroundColor: 'rgba(249, 115, 22, 0.1)',
                             tension: 0.4,
@@ -598,10 +598,10 @@ export default function DepartmentMetrics() {
                   <div className="h-64">
                     <Pie
                       data={{
-                        labels: yoyData.comparison.map((c) => c.departmentName),
+                        labels: yoyData.comparison.map((c: any) => c.departmentName),
                         datasets: [
                           {
-                            data: yoyData.comparison.map((c) => (c as any).employeeCount),
+                            data: yoyData.comparison.map((c: any) => (c as any).employeeCount),
                             backgroundColor: [
                               'rgba(34, 197, 94, 0.7)',
                               'rgba(59, 130, 246, 0.7)',
@@ -703,7 +703,7 @@ export default function DepartmentMetrics() {
               </div>
 
               <div className="space-y-3">
-                {predictiveAlerts.alerts.map((alert) => (
+                {predictiveAlerts.alerts.map((alert: any) => (
                   <div
                     key={alert.id}
                     className={`p-4 rounded-lg border-l-4 ${
@@ -801,7 +801,7 @@ export default function DepartmentMetrics() {
             <Eye className="mr-2 h-4 w-4" />
             Ver Empleados
             {selectedDepartmentId && departmentsData
-              ? ` de ${departmentsData.find((d) => d.id === selectedDepartmentId)?.name}`
+              ? ` de ${departmentsData.find((d: any) => d.id === selectedDepartmentId)?.name}`
               : ' de Todos los Departamentos'}
           </Button>
         </CardContent>
@@ -814,7 +814,7 @@ export default function DepartmentMetrics() {
             <DialogTitle>Empleados - Métricas Individuales</DialogTitle>
             <DialogDescription>
               {selectedDepartmentId && departmentsData
-                ? `Departamento: ${departmentsData.find((d) => d.id === selectedDepartmentId)?.name}`
+                ? `Departamento: ${departmentsData.find((d: any) => d.id === selectedDepartmentId)?.name}`
                 : 'Todos los departamentos'}
             </DialogDescription>
           </DialogHeader>
@@ -855,7 +855,7 @@ export default function DepartmentMetrics() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {employeesData.employees.map((emp) => (
+                      {employeesData.employees.map((emp: any) => (
                         <TableRow key={emp.id}>
                           <TableCell className="font-medium">
                             <div>

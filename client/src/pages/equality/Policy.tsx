@@ -216,7 +216,7 @@ export default function Policy() {
             </p>
           ) : (
             <div className="space-y-3">
-              {policies.map((policy) => (
+              {policies.map((policy: any) => (
                 <div
                   key={policy.id}
                   className="flex items-center justify-between p-4 border rounded-lg"

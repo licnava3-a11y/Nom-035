@@ -69,16 +69,16 @@ export default function DNCDashboard() {
   // Get unique departments
   const departments = useMemo(() => {
     if (!employees) return [];
-    const depts = Array.from(new Set(employees.map((e) => e.department)));
-    return depts.filter((d) => d);
+    const depts = Array.from(new Set(employees.map((e: any) => e.department)));
+    return depts.filter((d: any) => d);
   }, [employees]);
 
   // Filter training needs
   const filteredNeeds = useMemo(() => {
     if (!trainingNeeds) return [];
 
-    return trainingNeeds.filter((need) => {
-      const employee = employees?.find((e) => e.id === need.employeeId);
+    return trainingNeeds.filter((need: any) => {
+      const employee = employees?.find((e: any) => e.id === need.employeeId);
       const departmentMatch = selectedDepartment === "all" || employee?.department === selectedDepartment;
       const priorityMatch = selectedPriority === "all" || need.priority === selectedPriority;
       const statusMatch = selectedStatus === "all" || need.status === selectedStatus;
@@ -94,10 +94,10 @@ export default function DNCDashboard() {
 
     return {
       total: filteredNeeds.length,
-      pendiente: filteredNeeds.filter((n) => n.status === "pendiente").length,
-      en_progreso: filteredNeeds.filter((n) => n.status === "en_proceso").length,
-      completada: filteredNeeds.filter((n) => n.status === "completada").length,
-      critica: filteredNeeds.filter((n) => n.priority === "critica").length,
+      pendiente: filteredNeeds.filter((n: any) => n.status === "pendiente").length,
+      en_progreso: filteredNeeds.filter((n: any) => n.status === "en_proceso").length,
+      completada: filteredNeeds.filter((n: any) => n.status === "completada").length,
+      critica: filteredNeeds.filter((n: any) => n.priority === "critica").length,
     };
   }, [filteredNeeds]);
 
@@ -112,7 +112,7 @@ export default function DNCDashboard() {
       leadership: 0,
     };
 
-    filteredNeeds.forEach((need) => {
+    filteredNeeds.forEach((need: any) => {
       const category = need.competencyType as Category;
       if (category in distribution) {
         distribution[category]++;
@@ -137,7 +137,7 @@ export default function DNCDashboard() {
       critica: 0,
     };
 
-    filteredNeeds.forEach((need) => {
+    filteredNeeds.forEach((need: any) => {
       const priority = need.priority as Priority;
       if (priority in distribution) {
         distribution[priority]++;
@@ -258,7 +258,7 @@ export default function DNCDashboard() {
               onChange={(e) => setSelectedDepartment(e.target.value)}
             >
               <option value="all">Todos los departamentos</option>
-              {departments.map((dept) => (
+              {departments.map((dept: any) => (
                 <option key={dept} value={dept || ""}>
                   {dept}
                 </option>
@@ -318,7 +318,7 @@ export default function DNCDashboard() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Distribución por Categoría</h2>
           <div className="space-y-4">
-            {categoryDistribution.map((item) => (
+            {categoryDistribution.map((item: any) => (
               <div key={item.category}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">{item.category}</span>
@@ -341,7 +341,7 @@ export default function DNCDashboard() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Distribución por Prioridad</h2>
           <div className="space-y-4">
-            {priorityDistribution.map((item) => (
+            {priorityDistribution.map((item: any) => (
               <div key={item.priority}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium">{item.priority}</span>
@@ -393,8 +393,8 @@ export default function DNCDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {filteredNeeds.map((need) => {
-                  const employee = employees?.find((e) => e.id === need.employeeId);
+                {filteredNeeds.map((need: any) => {
+                  const employee = employees?.find((e: any) => e.id === need.employeeId);
                   return (
                     <tr key={need.id} className="border-b hover:bg-gray-50">
                       <td className="p-3 text-sm">

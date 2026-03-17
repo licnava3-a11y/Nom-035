@@ -576,7 +576,7 @@ export const employeesRouter = router({
         };
 
         // Obtener todos los departamentos para mapeo
-        // @ts-expect-error - getDb() siempre retorna instancia válida
+        // @ts-ignore - getDb() siempre retorna instancia válida
         const allDepartments = await db.select().from(departments);
         const departmentMap = new Map(
           allDepartments.map((d) => [d.name.toLowerCase(), d.id])

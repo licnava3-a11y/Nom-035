@@ -138,7 +138,7 @@ export default function Committee() {
                   required
                 >
                   <option value="">Seleccionar usuario...</option>
-                  {users.map((user) => (
+                  {users.map((user: any) => (
                     <option key={user.id} value={user.id}>
                       {user.firstName} {user.lastName} - Puesto ID: {user.positionId || "N/A"}
                     </option>
@@ -200,7 +200,7 @@ export default function Committee() {
             </p>
           ) : (
             <div className="space-y-3">
-              {members.map((member) => (
+              {members.map((member: any) => (
                 <div
                   key={member.id}
                   className="flex items-center justify-between p-4 border rounded-lg"

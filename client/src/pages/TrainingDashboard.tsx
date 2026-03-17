@@ -40,7 +40,7 @@ export default function TrainingDashboard() {
     monthlyChartInstance.current = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: monthlyData.map((d) => {
+        labels: monthlyData.map((d: any) => {
           const [year, month] = d.month.split('-');
           return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString('es-MX', {
             month: 'short',
@@ -50,7 +50,7 @@ export default function TrainingDashboard() {
         datasets: [
           {
             label: 'Certificados Emitidos',
-            data: monthlyData.map((d) => d.count),
+            data: monthlyData.map((d: any) => d.count),
             borderColor: 'rgb(34, 197, 94)',
             backgroundColor: 'rgba(34, 197, 94, 0.1)',
             fill: true,
@@ -99,11 +99,11 @@ export default function TrainingDashboard() {
     departmentChartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: departmentData.map((d) => d.department),
+        labels: departmentData.map((d: any) => d.department),
         datasets: [
           {
             label: 'Empleados Capacitados',
-            data: departmentData.map((d) => d.count),
+            data: departmentData.map((d: any) => d.count),
             backgroundColor: 'rgb(59, 130, 246)',
           },
         ],
@@ -286,7 +286,7 @@ export default function TrainingDashboard() {
               <div className="text-center py-8 text-muted-foreground">Cargando...</div>
             ) : renewalAlerts && renewalAlerts.length > 0 ? (
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {renewalAlerts.map((alert) => (
+                {renewalAlerts.map((alert: any) => (
                   <div
                     key={alert.id}
                     className="border border-orange-300 rounded-lg p-3 bg-white"
@@ -332,7 +332,7 @@ export default function TrainingDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentCertificates.map((cert) => (
+                {recentCertificates.map((cert: any) => (
                   <TableRow key={cert.id}>
                     <TableCell className="font-mono text-sm">{cert.folio}</TableCell>
                     <TableCell>{cert.employeeName}</TableCell>

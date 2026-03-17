@@ -116,7 +116,7 @@ export default function MeetingMinutes() {
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <option value="all">Todos los tipos</option>
-              {meetingTypes?.map((type) => (
+              {meetingTypes?.map((type: any) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
@@ -141,7 +141,7 @@ export default function MeetingMinutes() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {minutes.map((minute) => (
+          {minutes.map((minute: any) => (
             <Card
               key={minute.id}
               className="p-6 hover:shadow-md transition-shadow cursor-pointer"
@@ -202,7 +202,7 @@ export default function MeetingMinutes() {
             <div>
               <p className="text-sm text-muted-foreground">Borradores</p>
               <p className="text-2xl font-bold">
-                {minutes?.filter((m) => m.status === "draft").length || 0}
+                {minutes?.filter((m: any) => m.status === "draft").length || 0}
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ export default function MeetingMinutes() {
             <div>
               <p className="text-sm text-muted-foreground">Firmadas</p>
               <p className="text-2xl font-bold">
-                {minutes?.filter((m) => m.status === "signed").length || 0}
+                {minutes?.filter((m: any) => m.status === "signed").length || 0}
               </p>
             </div>
           </div>

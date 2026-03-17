@@ -75,11 +75,11 @@ export default function DeadlineComplianceDashboard() {
 
   // Configuración de gráfico de tendencias mensuales
   const monthlyTrendsData = {
-    labels: metrics.monthlyTrends.map((t) => t.month),
+    labels: metrics.monthlyTrends.map((t: any) => t.month),
     datasets: [
       {
         label: "Tasa de Cumplimiento (%)",
-        data: metrics.monthlyTrends.map((t) => t.rate),
+        data: metrics.monthlyTrends.map((t: any) => t.rate),
         borderColor: "rgb(34, 197, 94)",
         backgroundColor: "rgba(34, 197, 94, 0.1)",
         tension: 0.4,
@@ -163,12 +163,12 @@ export default function DeadlineComplianceDashboard() {
 
   // Configuración de gráfico de ranking de aprobadores
   const approverRankingData = {
-    labels: metrics.approverRanking.map((a) => a.name),
+    labels: metrics.approverRanking.map((a: any) => a.name),
     datasets: [
       {
         label: "Tiempo Promedio (horas)",
-        data: metrics.approverRanking.map((a) => a.avgResponseTime),
-        backgroundColor: metrics.approverRanking.map((a) =>
+        data: metrics.approverRanking.map((a: any) => a.avgResponseTime),
+        backgroundColor: metrics.approverRanking.map((a: any) =>
           a.avgResponseTime > 168 ? "rgba(239, 68, 68, 0.8)" : "rgba(59, 130, 246, 0.8)"
         ),
       },
@@ -397,7 +397,7 @@ export default function DeadlineComplianceDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {metrics.roleAnalysis.map((role) => (
+            {metrics.roleAnalysis.map((role: any) => (
               <div key={role.role} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
                   <div className="font-medium">{role.label}</div>

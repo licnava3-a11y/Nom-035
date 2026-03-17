@@ -133,7 +133,7 @@ export default function CustomPermissions() {
 
     let csv = "Usuario,Email,Rol," + Object.values(permissionLabels).join(",") + "\n";
 
-    usersData.users.forEach((user) => {
+    usersData.users.forEach((user: any) => {
       const perms = user.customPermissions as CustomPermissions;
       const row = [
         user.name,
@@ -236,7 +236,7 @@ export default function CustomPermissions() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {usersData?.users.map((user) => {
+                {usersData?.users.map((user: any) => {
                   const perms = user.customPermissions as CustomPermissions;
                   return (
                     <TableRow key={user.id}>
@@ -312,7 +312,7 @@ export default function CustomPermissions() {
                 value=""
               >
                 <option value="">-- Selecciona un usuario --</option>
-                {allUsersData?.users.map((user) => (
+                {allUsersData?.users.map((user: any) => (
                   <option key={user.id} value={user.id}>
                     {user.name} ({user.email}) - {user.role}
                   </option>

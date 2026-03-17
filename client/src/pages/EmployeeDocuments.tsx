@@ -121,7 +121,7 @@ export default function EmployeeDocuments() {
     setViewerDocument({ url, type: mimeType });
   };
 
-  const filteredDocuments = documents?.filter((doc) =>
+  const filteredDocuments = documents?.filter((doc: any) =>
     filterType === "all" ? true : doc.documentType === filterType
   );
 
@@ -154,7 +154,7 @@ export default function EmployeeDocuments() {
               <h3 className="font-semibold text-amber-900">Documentos Faltantes</h3>
               <p className="text-sm text-amber-700 mt-1">
                 Los siguientes documentos no han sido cargados:{" "}
-                {missingDocs.map((doc) => DOCUMENT_TYPES.find((t) => t.value === doc)?.label || doc).join(", ")}
+                {missingDocs.map((doc: any) => DOCUMENT_TYPES.find((t: any) => t.value === doc)?.label || doc).join(", ")}
               </p>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function EmployeeDocuments() {
                 <SelectValue placeholder="Seleccionar tipo..." />
               </SelectTrigger>
               <SelectContent>
-                {DOCUMENT_TYPES.map((type) => (
+                {DOCUMENT_TYPES.map((type: any) => (
                   <SelectItem key={`doc-type-${type.value}`} value={type.value}>
                     {type.label}
                   </SelectItem>
@@ -219,7 +219,7 @@ export default function EmployeeDocuments() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                {DOCUMENT_TYPES.map((type) => (
+                {DOCUMENT_TYPES.map((type: any) => (
                   <SelectItem key={`filter-${type.value}`} value={type.value}>
                     {type.label}
                   </SelectItem>
@@ -242,7 +242,7 @@ export default function EmployeeDocuments() {
                 </tr>
               </thead>
               <tbody>
-                {filteredDocuments.map((doc) => (
+                {filteredDocuments.map((doc: any) => (
                   <tr key={doc.id} className="border-b hover:bg-muted/50">
                     <td className="p-3">
                       <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ export default function EmployeeDocuments() {
                           <FileText className="h-4 w-4 text-red-600" />
                         )}
                         <span className="font-medium">
-                          {DOCUMENT_TYPES.find((t) => t.value === doc.documentType)?.label ||
+                          {DOCUMENT_TYPES.find((t: any) => t.value === doc.documentType)?.label ||
                             doc.documentType}
                         </span>
                       </div>

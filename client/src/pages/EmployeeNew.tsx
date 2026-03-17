@@ -441,7 +441,7 @@ export default function EmployeeNew() {
                       ? "Seleccionar puesto" 
                       : "Seleccione departamento primero"}
                   </option>
-                  {positions?.map((pos) => pos && (
+                  {positions?.map((pos: any) => pos && (
                     <option key={pos.id} value={pos.id}>
                       {pos.title}
                     </option>

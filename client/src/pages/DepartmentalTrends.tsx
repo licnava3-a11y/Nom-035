@@ -43,13 +43,13 @@ export default function DepartmentalTrends() {
 
     // Preparar datos para heat map (matriz de departamentos)
     const departments = metrics.departments;
-    const labels = departments.map((d) => d.departmentName);
-    const riskScores = departments.map((d) => d.riskScore);
-    const criticalCases = departments.map((d) => d.criticalCases);
-    const openCases = departments.map((d) => d.openCases);
+    const labels = departments.map((d: any) => d.departmentName);
+    const riskScores = departments.map((d: any) => d.riskScore);
+    const criticalCases = departments.map((d: any) => d.criticalCases);
+    const openCases = departments.map((d: any) => d.openCases);
 
     // Colores basados en nivel de riesgo
-    const backgroundColors = departments.map((d) => {
+    const backgroundColors = departments.map((d: any) => {
       if (d.alertLevel === "critical") return "rgba(220, 38, 38, 0.8)"; // red-600
       if (d.alertLevel === "high") return "rgba(234, 88, 12, 0.8)"; // orange-600
       if (d.alertLevel === "medium") return "rgba(234, 179, 8, 0.8)"; // yellow-600
@@ -65,7 +65,7 @@ export default function DepartmentalTrends() {
             label: "Score de Riesgo",
             data: riskScores,
             backgroundColor: backgroundColors,
-            borderColor: backgroundColors.map((c) => c.replace("0.8", "1")),
+            borderColor: backgroundColors.map((c: any) => c.replace("0.8", "1")),
             borderWidth: 2,
           },
         ],
@@ -341,7 +341,7 @@ export default function DepartmentalTrends() {
                 </tr>
               </thead>
               <tbody>
-                {metrics.departments.map((dept) => (
+                {metrics.departments.map((dept: any) => (
                   <tr key={dept.departmentId} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">{dept.departmentName}</td>
                     <td className="text-center p-2">

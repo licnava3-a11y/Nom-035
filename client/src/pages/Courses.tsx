@@ -75,7 +75,7 @@ export default function Courses() {
           </div>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map((i: any) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
                 <div className="h-6 bg-muted rounded w-3/4"></div>
@@ -116,7 +116,7 @@ export default function Courses() {
       {/* Courses Grid */}
       {courses && courses.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {courses.map((course) => (
+          {courses.map((course: any) => (
             <Card key={course.id} className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">

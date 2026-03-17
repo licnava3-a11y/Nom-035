@@ -72,7 +72,7 @@ export default function RiskAnalysisPage() {
   };
 
   const selectedEmployee = employees?.find((e: any) => e.id === selectedEmployeeId);
-  const selectedResult = results?.find((r) => r.id === selectedResultId);
+  const selectedResult = results?.find((r: any) => r.id === selectedResultId);
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -147,7 +147,7 @@ export default function RiskAnalysisPage() {
                       Este empleado no tiene resultados de encuestas
                     </div>
                   ) : (
-                    results?.map((result) => (
+                    results?.map((result: any) => (
                       <SelectItem key={result.id} value={result.id.toString()}>
                         {new Date(result.completedAt).toLocaleDateString("es-MX")} - Nivel:{" "}
                         {result.globalRiskLevel.toUpperCase()}

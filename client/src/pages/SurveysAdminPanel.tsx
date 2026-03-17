@@ -383,7 +383,7 @@ export default function SurveysAdminPanel() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los departamentos</SelectItem>
-                  {departments?.map((dept) => dept && (
+                  {departments?.map((dept: any) => dept && (
                     <SelectItem key={dept} value={dept}>
                       {dept}
                     </SelectItem>
@@ -486,7 +486,7 @@ export default function SurveysAdminPanel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredResponses.map((response) => (
+                  {filteredResponses.map((response: any) => (
                     <TableRow key={response.id}>
                       <TableCell>
                         <Badge variant="outline">
@@ -563,7 +563,7 @@ export default function SurveysAdminPanel() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats.responsesBySurvey.map((item) => (
+              {stats.responsesBySurvey.map((item: any) => (
                 <div key={item.surveyType} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline">

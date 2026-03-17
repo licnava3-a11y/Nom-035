@@ -156,7 +156,7 @@ export default function TurnoverManagementPanel() {
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {employees?.map((emp) => (
+                    {employees?.map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
                         {emp.nombre} - {emp.email}
                       </SelectItem>
@@ -242,7 +242,7 @@ export default function TurnoverManagementPanel() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recordsData?.records.map((record) => (
+                  {recordsData?.records.map((record: any) => (
                     <TableRow key={record.id}>
                       <TableCell className="font-medium">{record.userName}</TableCell>
                       <TableCell>{record.userEmail}</TableCell>

@@ -130,11 +130,11 @@ export default function SalespersonPerformance() {
     : [];
 
   const pieChartData = {
-    labels: sourceData.map((s) => s.source),
+    labels: sourceData.map((s: any) => s.source),
     datasets: [
       {
         label: "Leads por Fuente",
-        data: sourceData.map((s) => s.total),
+        data: sourceData.map((s: any) => s.total),
         backgroundColor: [
           "rgba(59, 130, 246, 0.8)",
           "rgba(34, 197, 94, 0.8)",
@@ -174,7 +174,7 @@ export default function SalespersonPerformance() {
               <SelectValue placeholder="Selecciona un vendedor" />
             </SelectTrigger>
             <SelectContent>
-              {salespeople?.map((salesperson) => (
+              {salespeople?.map((salesperson: any) => (
                 <SelectItem key={salesperson.id} value={salesperson.id.toString()}>
                   {salesperson.nombre} - {salesperson.email}
                 </SelectItem>
@@ -376,7 +376,7 @@ export default function SalespersonPerformance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sourceData.map((source) => {
+                  {sourceData.map((source: any) => {
                     const conversionRate =
                       source.total > 0 ? (source.won / source.total) * 100 : 0;
                     return (

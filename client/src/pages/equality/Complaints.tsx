@@ -250,7 +250,7 @@ export default function Complaints() {
             </p>
           ) : (
             <div className="space-y-3">
-              {complaints.map((complaint) => (
+              {complaints.map((complaint: any) => (
                 <div
                   key={complaint.id}
                   className="flex items-start justify-between p-4 border rounded-lg"

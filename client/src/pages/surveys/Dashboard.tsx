@@ -290,7 +290,7 @@ export default function SurveysDashboard() {
       <div>
         <h2 className="text-2xl font-bold mb-4">Cuestionarios Disponibles</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {surveys.map((survey) => {
+          {surveys.map((survey: any) => {
             const Icon = survey.icon;
             return (
               <Card key={survey.id} className="hover:shadow-lg transition-shadow">

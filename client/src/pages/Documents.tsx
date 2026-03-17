@@ -75,7 +75,7 @@ export default function Documents() {
 
       {/* Document Types */}
       <div className="grid gap-4 md:grid-cols-2">
-        {documentTypes.map((doc) => {
+        {documentTypes.map((doc: any) => {
           const Icon = doc.icon;
           return (
             <Link key={doc.id} href={doc.route}>

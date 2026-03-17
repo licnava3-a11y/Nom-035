@@ -106,7 +106,7 @@ export default function DocumentAceptacionCargo() {
                   <SelectValue placeholder="Seleccione el cargo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {cargos.map((cargo) => (
+                  {cargos.map((cargo: any) => (
                     <SelectItem key={cargo} value={cargo}>
                       {cargo}
                     </SelectItem>

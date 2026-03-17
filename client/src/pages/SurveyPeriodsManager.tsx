@@ -261,7 +261,7 @@ export default function SurveyPeriodsManager() {
                       <SelectValue placeholder="Seleccione el tipo de encuesta" />
                     </SelectTrigger>
                     <SelectContent>
-                      {createSurveyTypeOptions.map((option) => (
+                      {createSurveyTypeOptions.map((option: any) => (
                         <SelectItem key={`create-survey-${option.value}`} value={option.value}>
                           {option.label}
                         </SelectItem>
@@ -359,7 +359,7 @@ export default function SurveyPeriodsManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {surveyTypeOptions.map((option) => (
+                  {surveyTypeOptions.map((option: any) => (
                     <SelectItem key={`filter-type-${option.value}`} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -374,7 +374,7 @@ export default function SurveyPeriodsManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {statusOptions.map((option) => (
+                  {statusOptions.map((option: any) => (
                     <SelectItem key={`filter-status-${option.value}`} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -394,7 +394,7 @@ export default function SurveyPeriodsManager() {
               <TableSkeleton rows={3} columns={4} />
             </CardContent>
           </Card>
-        ) : periods?.map((period) => (
+        ) : periods?.map((period: any) => (
           <Card key={period.id}>
             <CardHeader>
               <div className="flex justify-between items-start">

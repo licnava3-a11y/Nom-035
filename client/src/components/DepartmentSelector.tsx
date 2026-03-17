@@ -133,7 +133,7 @@ export function DepartmentSelector({
         }`}
       >
         <option value="">{isLoading ? "Cargando..." : placeholder}</option>
-        {validDepartments.map((dept) => (
+        {validDepartments.map((dept: any) => (
           <option key={dept.id} value={dept.id}>
             {dept.name}
           </option>

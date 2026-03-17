@@ -154,7 +154,7 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
             ) : (
               <div className="grid grid-cols-7 gap-2">
                 {/* Encabezados de días */}
-                {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day) => (
+                {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day: any) => (
                   <div key={day} className="text-center font-semibold text-sm text-muted-foreground py-2">
                     {day}
                   </div>

@@ -63,7 +63,7 @@ export function BulkConvertToLeadModal({
         </DialogHeader>
 
         <div className="space-y-3 mt-4">
-          {selectedEvents.map((event) => {
+          {selectedEvents.map((event: any) => {
             const isConverted = event.conversionStatus === "converted";
             const isDeselected = deselectedEvents.has(event.id);
             const userData = event.userData && typeof event.userData === "object" ? event.userData as any : {};

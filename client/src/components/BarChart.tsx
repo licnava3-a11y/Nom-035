@@ -35,17 +35,17 @@ export function BarChart({ data, competencyName, className }: BarChartProps) {
   }, []);
 
   const chartData = {
-    labels: data.map((d) => d.departmentName),
+    labels: data.map((d: any) => d.departmentName),
     datasets: [
       {
         label: "Nivel Actual",
-        data: data.map((d) => d.averageLevel),
-        backgroundColor: data.map((d) =>
+        data: data.map((d: any) => d.averageLevel),
+        backgroundColor: data.map((d: any) =>
           d.averageLevel >= d.requiredLevel
             ? "rgba(34, 197, 94, 0.8)" // Verde si cumple
             : "rgba(239, 68, 68, 0.8)" // Rojo si no cumple
         ),
-        borderColor: data.map((d) =>
+        borderColor: data.map((d: any) =>
           d.averageLevel >= d.requiredLevel
             ? "rgba(34, 197, 94, 1)"
             : "rgba(239, 68, 68, 1)"
@@ -54,7 +54,7 @@ export function BarChart({ data, competencyName, className }: BarChartProps) {
       },
       {
         label: "Nivel Requerido",
-        data: data.map((d) => d.requiredLevel),
+        data: data.map((d: any) => d.requiredLevel),
         backgroundColor: "rgba(59, 130, 246, 0.5)",
         borderColor: "rgba(59, 130, 246, 1)",
         borderWidth: 2,

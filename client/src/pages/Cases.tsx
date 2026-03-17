@@ -435,7 +435,7 @@ export default function Cases() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cases.map((caseItem) => (
+                {cases.map((caseItem: any) => (
                   <TableRow key={caseItem.id}>
                     <TableCell className="font-medium">{caseItem.caseNumber}</TableCell>
                     <TableCell>{getCaseTypeLabel(caseItem.caseType)}</TableCell>

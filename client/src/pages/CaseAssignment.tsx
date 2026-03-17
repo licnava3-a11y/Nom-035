@@ -39,7 +39,7 @@ export default function CaseAssignment() {
   const getInitials = (name: string) => {
     return name
       .split(" ")
-      .map((n) => n[0])
+      .map((n: any) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
@@ -115,7 +115,7 @@ export default function CaseAssignment() {
             </div>
           ) : (
             <div className="space-y-4">
-              {unassignedCases.map((caso) => (
+              {unassignedCases.map((caso: any) => (
                 <div key={caso.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -151,8 +151,8 @@ export default function CaseAssignment() {
             </div>
           ) : (
             <div className="space-y-4">
-              {assignedCases.map((caso) => {
-                const assignedMember = committeeMembers?.find((m) => m.userId === caso.assignedTo);
+              {assignedCases.map((caso: any) => {
+                const assignedMember = committeeMembers?.find((m: any) => m.userId === caso.assignedTo);
                 return (
                   <div key={caso.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex-1">

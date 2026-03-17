@@ -33,8 +33,8 @@ export const salaryEquityRouter = router({
     }
 
     // Análisis por Género
-    const maleRecords = payrollRecords.filter(r => r.gender === "male");
-    const femaleRecords = payrollRecords.filter(r => r.gender === "female");
+    const maleRecords = payrollRecords.filter(r => (r.gender as string) === "Masculino" || (r.gender as string) === "male");
+    const femaleRecords = payrollRecords.filter(r => (r.gender as string) === "Femenino" || (r.gender as string) === "female");
     
     const maleAvgSalary = maleRecords.length > 0
       ? maleRecords.reduce((sum, r) => sum + parseFloat(r.salary || "0"), 0) / maleRecords.length
@@ -179,8 +179,8 @@ export const salaryEquityRouter = router({
     }
 
     // Insertar análisis en BD
-    const [analysis] = await db.insert(salaryEquityAnalysis).values({
-      analyzedBy: ctx.user.id,
+    const [analysis] = await (db.insert(salaryEquityAnalysis) as any).values({
+      analyzedBy: typeof ctx.user.id === 'string' ? parseInt(ctx.user.id) : ctx.user.id,
       maleAverageSalary: maleAvgSalary.toString(),
       femaleAverageSalary: femaleAvgSalary.toString(),
       genderPayGapPercentage: genderPayGap.toString(),
@@ -220,10 +220,10 @@ export const salaryEquityRouter = router({
 
     return {
       ...analysis,
-      ageGroupAnalysis: JSON.parse(analysis.ageGroupAnalysis as string),
-      tenureGroupAnalysis: JSON.parse(analysis.tenureGroupAnalysis as string),
-      criticalCases: JSON.parse(analysis.criticalCases as string),
-      recommendations: JSON.parse(analysis.recommendations as string),
+      ageGroupAnalysis: JSON.parse(analysis.ageGroupAnalysis as unknown as string),
+      tenureGroupAnalysis: JSON.parse(analysis.tenureGroupAnalysis as unknown as string),
+      criticalCases: JSON.parse(analysis.criticalCases as unknown as string),
+      recommendations: JSON.parse(analysis.recommendations as unknown as string),
     };
   }),
 
@@ -244,7 +244,7 @@ export const salaryEquityRouter = router({
       nmxComplianceStatus: a.nmxComplianceStatus,
       complianceScore: a.complianceScore,
       genderPayGapPercentage: parseFloat(a.genderPayGapPercentage || "0"),
-      criticalCasesCount: (JSON.parse(a.criticalCases as string) as any[]).length,
+      criticalCasesCount: (JSON.parse(a.criticalCases as unknown as string) as any[]).length,
     }));
   }),
 
@@ -285,7 +285,7 @@ export const salaryEquityRouter = router({
         doc.fontSize(18).text("Resumen Ejecutivo");
         doc.moveDown();
         doc.fontSize(12).text(`Índice de Equidad Global: ${analysis.globalEquityIndex}/100`);
-        doc.text(`Estado de Cumplimiento NMX: ${analysis.nmxComplianceStatus.toUpperCase()}`);
+        doc.text(`Estado de Cumplimiento NMX: ${(analysis.nmxComplianceStatus ?? 'non_compliant').toUpperCase()}`);
         doc.text(`Puntuación de Cumplimiento: ${analysis.complianceScore}/100`);
         doc.text(`Brecha Salarial de Género: ${parseFloat(analysis.genderPayGapPercentage || "0").toFixed(1)}%`);
         doc.moveDown(2);
@@ -299,7 +299,7 @@ export const salaryEquityRouter = router({
         doc.moveDown(2);
 
         // Casos Críticos
-        const criticalCases = JSON.parse(analysis.criticalCases as string);
+        const criticalCases = JSON.parse(analysis.criticalCases as unknown as string);
         doc.fontSize(16).text("Casos Críticos de Inequidad");
         doc.moveDown();
         doc.fontSize(12).text(`Total de Casos Críticos: ${criticalCases.length}`);
@@ -316,7 +316,7 @@ export const salaryEquityRouter = router({
         doc.moveDown(2);
 
         // Recomendaciones
-        const recommendations = JSON.parse(analysis.recommendations as string);
+        const recommendations = JSON.parse(analysis.recommendations as unknown as string);
         doc.fontSize(16).text("Recomendaciones");
         doc.moveDown();
         recommendations.forEach((r: any, i: number) => {

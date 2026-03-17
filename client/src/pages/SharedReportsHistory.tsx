@@ -150,7 +150,7 @@ export default function SharedReportsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats?.byChannel?.find((c) => c.channel === "email")?.count || 0}
+              {stats?.byChannel?.find((c: any) => c.channel === "email")?.count || 0}
             </div>
             <p className="text-xs text-muted-foreground">Envíos directos</p>
           </CardContent>
@@ -163,8 +163,8 @@ export default function SharedReportsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(stats?.byChannel?.find((c) => c.channel === "linkedin")?.count || 0) +
-                (stats?.byChannel?.find((c) => c.channel === "twitter")?.count || 0)}
+              {(stats?.byChannel?.find((c: any) => c.channel === "linkedin")?.count || 0) +
+                (stats?.byChannel?.find((c: any) => c.channel === "twitter")?.count || 0)}
             </div>
             <p className="text-xs text-muted-foreground">LinkedIn + Twitter/X</p>
           </CardContent>
@@ -177,9 +177,9 @@ export default function SharedReportsHistory() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats?.byReportType?.find((t) => t.type === "pdf")?.count || 0}
+              {stats?.byReportType?.find((t: any) => t.type === "pdf")?.count || 0}
             </div>
-            <p className="text-xs text-muted-foreground">vs {stats?.byReportType?.find((t) => t.type === "excel")?.count || 0} Excel</p>
+            <p className="text-xs text-muted-foreground">vs {stats?.byReportType?.find((t: any) => t.type === "excel")?.count || 0} Excel</p>
           </CardContent>
         </Card>
       </div>
@@ -278,7 +278,7 @@ export default function SharedReportsHistory() {
               </TableHeader>
               <TableBody>
                 {data?.logs && data.logs.length > 0 ? (
-                  data.logs.map((log) => (
+                  data.logs.map((log: any) => (
                     <TableRow key={log.id}>
                       <TableCell>
                         <div className="flex items-center gap-2">

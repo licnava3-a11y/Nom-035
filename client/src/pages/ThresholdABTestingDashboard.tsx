@@ -151,7 +151,7 @@ export default function ThresholdABTestingDashboard() {
                     <SelectValue placeholder="Selecciona configuración A" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableConfigs.map((config) => (
+                    {availableConfigs.map((config: any) => (
                       <SelectItem key={config.id} value={config.id.toString()}>
                         {config.description || `Config ${config.id}`} - Críticos: {config.criticalCommentsWeight}%, Casos: {config.openCasesWeight}%, Riesgo: {config.highRiskSurveysWeight}%
                       </SelectItem>
@@ -166,7 +166,7 @@ export default function ThresholdABTestingDashboard() {
                     <SelectValue placeholder="Selecciona configuración B" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableConfigs.map((config) => (
+                    {availableConfigs.map((config: any) => (
                       <SelectItem key={config.id} value={config.id.toString()}>
                         {config.description || `Config ${config.id}`} - Críticos: {config.criticalCommentsWeight}%, Casos: {config.openCasesWeight}%, Riesgo: {config.highRiskSurveysWeight}%
                       </SelectItem>
@@ -246,7 +246,7 @@ export default function ThresholdABTestingDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {experiments.map((exp) => (
+                {experiments.map((exp: any) => (
                   <TableRow key={exp.id}>
                     <TableCell className="font-medium">{exp.name}</TableCell>
                     <TableCell className="text-sm">{format(new Date(exp.createdAt), "dd/MM/yyyy")}</TableCell>

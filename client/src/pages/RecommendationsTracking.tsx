@@ -342,7 +342,7 @@ export default function RecommendationsTracking() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {dashboard.upcomingDeadlines.map((item) => (
+              {dashboard.upcomingDeadlines.map((item: any) => (
                 <div key={item.recommendation.id} className="flex items-start justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium">{item.recommendation.recommendation}</p>
@@ -383,7 +383,7 @@ export default function RecommendationsTracking() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {dashboard.topEffective.map((item) => (
+              {dashboard.topEffective.map((item: any) => (
                 <div key={item.recommendation.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium">{item.recommendation.recommendation}</p>
@@ -457,7 +457,7 @@ export default function RecommendationsTracking() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recommendations?.map((item) => (
+            {recommendations?.map((item: any) => (
               <div key={item.recommendation.id} className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

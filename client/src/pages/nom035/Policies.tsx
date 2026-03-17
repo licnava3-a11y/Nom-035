@@ -460,7 +460,7 @@ export default function Policies() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {policies.map((policy) => (
+                {policies.map((policy: any) => (
                   <TableRow key={policy.id}>
                     <TableCell className="font-medium">{policy.nombre}</TableCell>
                     <TableCell>
@@ -679,7 +679,7 @@ export default function Policies() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {policyVersions.map((version) => (
+                {policyVersions.map((version: any) => (
                   <TableRow key={version.id}>
                     <TableCell className="font-medium">
                       <Badge variant="outline">v{version.versionNumber}</Badge>

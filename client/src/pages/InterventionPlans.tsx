@@ -115,7 +115,7 @@ export default function InterventionPlans() {
                       Cargando...
                     </SelectItem>
                   ) : (
-                    atRiskEmployees?.employees.map((emp) => (
+                    atRiskEmployees?.employees.map((emp: any) => (
                       <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
                         {emp.employeeName} - Score: {emp.retentionScore}
                       </SelectItem>
@@ -140,7 +140,7 @@ export default function InterventionPlans() {
                       Cargando...
                     </SelectItem>
                   ) : (
-                    cycles?.map((cycle) => (
+                    cycles?.map((cycle: any) => (
                       <SelectItem key={cycle.id} value={cycle.id.toString()}>
                         {cycle.name} ({new Date(cycle.startDate).toLocaleDateString('es-MX')} - {new Date(cycle.endDate).toLocaleDateString('es-MX')})
                       </SelectItem>

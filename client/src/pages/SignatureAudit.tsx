@@ -76,7 +76,7 @@ export default function SignatureAudit() {
       "Motivo de Rechazo",
     ];
 
-    const rows = auditData.data.map((item) => [
+    const rows = auditData.data.map((item: any) => [
       format(new Date(item.createdAt), "dd/MM/yyyy HH:mm", { locale: es }),
       item.approverName || "N/A",
       item.approverEmail || "N/A",
@@ -88,7 +88,7 @@ export default function SignatureAudit() {
       item.rejectionReason || "N/A",
     ]);
 
-    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\\n");
+    const csvContent = [headers, ...rows].map((row: any) => row.map((cell: any) => `"${cell}"`).join(",")).join("\\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -178,7 +178,7 @@ export default function SignatureAudit() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los usuarios</SelectItem>
-                  {users?.map((user) => (
+                  {users?.map((user: any) => (
                     <SelectItem key={user.id} value={user.id.toString()}>
                       {user.name}
                     </SelectItem>
@@ -198,7 +198,7 @@ export default function SignatureAudit() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los documentos</SelectItem>
-                  {operatingRules?.map((rule) => (
+                  {operatingRules?.map((rule: any) => (
                     <SelectItem key={rule.id} value={rule.id.toString()}>
                       {rule.version}
                     </SelectItem>
@@ -276,7 +276,7 @@ export default function SignatureAudit() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {auditData.data.map((item) => (
+                    {auditData.data.map((item: any) => (
                       <TableRow key={item.id}>
                         <TableCell>{format(new Date(item.createdAt), "dd/MM/yyyy HH:mm", { locale: es })}</TableCell>
                         <TableCell>

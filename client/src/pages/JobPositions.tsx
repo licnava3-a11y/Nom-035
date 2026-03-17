@@ -149,7 +149,7 @@ export default function JobPositions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">
-              {displayPositions.filter((p) => p.riskLevel === "alto").length}
+              {displayPositions.filter((p: any) => p.riskLevel === "alto").length}
             </div>
             <p className="text-xs text-muted-foreground">Requieren atención</p>
           </CardContent>
@@ -162,7 +162,7 @@ export default function JobPositions() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {displayPositions.reduce((acc, p) => acc + p.employees, 0)}
+              {displayPositions.reduce((acc: any, p: any) => acc + p.employees, 0)}
             </div>
             <p className="text-xs text-muted-foreground">Total evaluados</p>
           </CardContent>
@@ -192,7 +192,7 @@ export default function JobPositions() {
             </CardContent>
           </Card>
         )}
-        {displayPositions.map((position) => (
+        {displayPositions.map((position: any) => (
           <Card key={position.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">

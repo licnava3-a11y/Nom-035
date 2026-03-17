@@ -195,7 +195,7 @@ export default function TrainingCertificates() {
                     <div className="p-4 text-center text-muted-foreground">Cargando...</div>
                   ) : filteredEmployees && filteredEmployees.length > 0 ? (
                     <div className="divide-y">
-                      {filteredEmployees.map((emp) => (
+                      {filteredEmployees.map((emp: any) => (
                         <button
                           key={emp.id}
                           onClick={() => {

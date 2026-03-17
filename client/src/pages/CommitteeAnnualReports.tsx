@@ -324,7 +324,7 @@ export default function CommitteeAnnualReports() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {reportsData?.reports.map((report) => (
+            {reportsData?.reports.map((report: any) => (
               <Card key={report.id}>
                 <CardContent className="pt-6">
                   <div className="flex justify-between items-start">

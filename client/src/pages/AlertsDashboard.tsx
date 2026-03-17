@@ -203,7 +203,7 @@ export default function AlertsDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.alerts.map((alert) => (
+                {data.alerts.map((alert: any) => (
                   <TableRow key={alert.id}>
                     <TableCell>{getPriorityBadge(alert.priority)}</TableCell>
                     <TableCell>{getCategoryBadge(alert.category)}</TableCell>

@@ -335,7 +335,7 @@ export default function CompetenciesDashboard() {
       )}
 
       {/* Action Recommendations */}
-      {departmentStats && departmentStats.some((d) => d.criticalGaps > 0) && (
+      {departmentStats && departmentStats.some((d: any) => d.criticalGaps > 0) && (
         <Card className="p-6 mt-6 bg-blue-50 border-blue-200">
           <div className="flex items-start gap-3">
             <Target className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />

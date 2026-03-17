@@ -227,7 +227,7 @@ export default function SkillsMatrix() {
       // === HOJA 3: Candidatos para Sucesión ===
       if (data.successionAnalysis) {
         const successionData: any[] = [];
-        Object.keys(data.successionAnalysis).forEach((dept) => {
+        Object.keys(data.successionAnalysis).forEach((dept: any) => {
           successionData.push({ departamento: dept, nombre: '', puesto: '', nivelPromedio: '', potencial: '' });
           data.successionAnalysis[dept].forEach((candidate: any) => {
             successionData.push({
@@ -255,7 +255,7 @@ export default function SkillsMatrix() {
       // === HOJA 4: Sugerencias de Capacitación ===
       if (data.trainingRecommendations) {
         const trainingData: any[] = [];
-        Object.keys(data.trainingRecommendations).forEach((dept) => {
+        Object.keys(data.trainingRecommendations).forEach((dept: any) => {
           trainingData.push({ departamento: dept, competencia: '', nivelPromedio: '', prioridad: '' });
           data.trainingRecommendations[dept].forEach((rec: any) => {
             trainingData.push({

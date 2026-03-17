@@ -131,14 +131,14 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
 
   const handleRequestApprovals = () => {
     // Validar que todos los aprobadores tengan un usuario seleccionado
-    if (approvers.some((a) => !a.approverId)) {
+    if (approvers.some((a: any) => !a.approverId)) {
       toast.error("Debe seleccionar un usuario para cada aprobador");
       return;
     }
 
     requestApprovalsMutation.mutate({
       operatingRuleId,
-      approvers: approvers.map((a) => ({
+      approvers: approvers.map((a: any) => ({
         approverId: parseInt(a.approverId),
         approverRole: a.approverRole,
         approverRoleDescription: a.approverRoleDescription || undefined,
@@ -233,7 +233,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
 
               {/* Lista de Aprobadores */}
               <div className="space-y-3">
-                {approvalStatus.approvals.map((approval) => (
+                {approvalStatus.approvals.map((approval: any) => (
                   <div
                     key={approval.id}
                     className="flex items-center justify-between p-4 border rounded-lg bg-card"
@@ -332,7 +332,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                           <SelectValue placeholder="Seleccionar usuario" />
                         </SelectTrigger>
                         <SelectContent>
-                          {committeeMembers?.map((member) => (
+                          {committeeMembers?.map((member: any) => (
                             <SelectItem key={member.id} value={member.id.toString()}>
                               {member.name}
                             </SelectItem>

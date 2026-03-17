@@ -615,7 +615,7 @@ export default function CommitteeOperatingRules() {
             <TableBody>
               {isLoadingRules ? (
                 <TableSkeleton rows={3} columns={6} />
-              ) : rules?.map((rule) => (
+              ) : rules?.map((rule: any) => (
                 <TableRow key={rule.id}>
                   <TableCell className="font-medium">{rule.version}</TableCell>
                   <TableCell>
@@ -958,7 +958,7 @@ export default function CommitteeOperatingRules() {
                     onChange={(e) => setCompareVersionIds([Number(e.target.value), compareVersionIds[1]])}
                   >
                     <option value="">Seleccione una versión</option>
-                    {versions?.map((v) => (
+                    {versions?.map((v: any) => (
                       <option key={v.id} value={v.id}>
                         V{v.versionNumber} - {v.version} ({format(new Date(v.createdAt), "dd/MM/yyyy", { locale: es })})
                       </option>
@@ -973,7 +973,7 @@ export default function CommitteeOperatingRules() {
                     onChange={(e) => setCompareVersionIds([compareVersionIds[0], Number(e.target.value)])}
                   >
                     <option value="">Seleccione una versión</option>
-                    {versions?.map((v) => (
+                    {versions?.map((v: any) => (
                       <option key={v.id} value={v.id}>
                         V{v.versionNumber} - {v.version} ({format(new Date(v.createdAt), "dd/MM/yyyy", { locale: es })})
                       </option>
@@ -1054,7 +1054,7 @@ export default function CommitteeOperatingRules() {
           <div className="space-y-6">
             {/* Selector de plantilla */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {templates?.map((template) => (
+              {templates?.map((template: any) => (
                 <Card
                   key={template.id}
                   className={`cursor-pointer transition-all ${
@@ -1093,24 +1093,24 @@ export default function CommitteeOperatingRules() {
                   <CardTitle>Vista Previa de Contenido</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {templates?.find((t) => t.id === selectedTemplateId) && (
+                  {templates?.find((t: any) => t.id === selectedTemplateId) && (
                     <>
                       <div>
                         <h4 className="font-semibold mb-2">Objetivos:</h4>
                         <p className="text-sm text-muted-foreground whitespace-pre-line">
-                          {templates.find((t) => t.id === selectedTemplateId)?.objectives}
+                          {templates.find((t: any) => t.id === selectedTemplateId)?.objectives}
                         </p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-2">Estructura:</h4>
                         <p className="text-sm text-muted-foreground">
-                          {templates.find((t) => t.id === selectedTemplateId)?.structure}
+                          {templates.find((t: any) => t.id === selectedTemplateId)?.structure}
                         </p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-2">Roles:</h4>
                         <p className="text-sm text-muted-foreground whitespace-pre-line">
-                          {templates.find((t) => t.id === selectedTemplateId)?.roles}
+                          {templates.find((t: any) => t.id === selectedTemplateId)?.roles}
                         </p>
                       </div>
                     </>
@@ -1129,7 +1129,7 @@ export default function CommitteeOperatingRules() {
                   placeholder="Deja en blanco para usar el título de la plantilla"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Si no especificas un título, se usará: "{templates?.find((t) => t.id === selectedTemplateId)?.title}"
+                  Si no especificas un título, se usará: "{templates?.find((t: any) => t.id === selectedTemplateId)?.title}"
                 </p>
               </div>
             )}

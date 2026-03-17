@@ -236,7 +236,7 @@ export default function DepartmentManagement() {
   const toggleEmployeeSelection = (employeeId: number) => {
     setSelectedEmployees((prev) =>
       prev.includes(employeeId)
-        ? prev.filter((id) => id !== employeeId)
+        ? prev.filter((id: any) => id !== employeeId)
         : [...prev, employeeId]
     );
   };
@@ -332,7 +332,7 @@ export default function DepartmentManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {departmentsData.data.map((dept) => (
+                  {departmentsData.data.map((dept: any) => (
                     <TableRow key={dept.id}>
                       <TableCell className="font-mono text-sm">
                         <Badge variant="outline">{dept.code || "N/A"}</Badge>
@@ -728,7 +728,7 @@ export default function DepartmentManagement() {
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">Seleccionar departamento</option>
-                {departmentsData?.data.map((dept) => (
+                {departmentsData?.data.map((dept: any) => (
                   <option key={dept.id} value={dept.id}>
                     {dept.name} ({dept.code})
                   </option>

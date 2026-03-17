@@ -14,7 +14,7 @@ export function DashboardSkeleton() {
 
       {/* Cards grid skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {[1, 2, 3, 4, 5, 6].map((i: any) => (
           <div key={i} className="border rounded-lg p-6 space-y-3">
             <div className="flex items-center justify-between">
               <div className="h-4 w-32 bg-muted rounded" />

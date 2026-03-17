@@ -233,7 +233,7 @@ export default function SurveyAdmin() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {surveys?.map((survey) => (
+                  {surveys?.map((survey: any) => (
                     <SelectItem key={survey.id} value={survey.id.toString()}>
                       {survey.title}
                     </SelectItem>
@@ -250,7 +250,7 @@ export default function SurveyAdmin() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  {departments?.filter(Boolean).map((dept) => (
+                  {departments?.filter(Boolean).map((dept: any) => (
                     <SelectItem key={dept!} value={dept!}>
                       {dept}
                     </SelectItem>
@@ -350,7 +350,7 @@ export default function SurveyAdmin() {
                       style={{
                         backgroundColor:
                           RISK_LEVEL_COLORS[
-                            statistics.distribution.reduce((prev, current) =>
+                            statistics.distribution.reduce((prev: any, current: any) =>
                               current.count > prev.count ? current : prev
                             ).level as keyof typeof RISK_LEVEL_COLORS
                           ],
@@ -359,7 +359,7 @@ export default function SurveyAdmin() {
                     >
                       {
                         RISK_LEVEL_LABELS[
-                          statistics.distribution.reduce((prev, current) =>
+                          statistics.distribution.reduce((prev: any, current: any) =>
                             current.count > prev.count ? current : prev
                           ).level as keyof typeof RISK_LEVEL_LABELS
                         ]
@@ -431,7 +431,7 @@ export default function SurveyAdmin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {statistics.distribution.map((item) => (
+                      {statistics.distribution.map((item: any) => (
                         <TableRow key={item.level}>
                           <TableCell>
                             <Badge
@@ -489,7 +489,7 @@ export default function SurveyAdmin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {responses.map((response) => {
+                      {responses.map((response: any) => {
                         let riskLevel = 'N/A';
                         if (response.results) {
                           try {
@@ -692,7 +692,7 @@ export default function SurveyAdmin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {comparison.comparison.riskLevelChanges.map((change) => (
+                      {comparison.comparison.riskLevelChanges.map((change: any) => (
                         <TableRow key={change.level}>
                           <TableCell>
                             <Badge

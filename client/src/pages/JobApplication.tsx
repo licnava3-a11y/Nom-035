@@ -98,7 +98,7 @@ export default function JobApplication() {
   const { data: jobOpening, isLoading: loadingJob } = trpc.recruitment.getJobOpenings.useQuery(
     { status: "open" },
     {
-      select: (data) => data.find((job) => job.id === jobId),
+      select: (data) => data.find((job: any) => job.id === jobId),
     }
   );
 
@@ -267,8 +267,8 @@ export default function JobApplication() {
         fieldOfStudy,
         arcoAccepted,
         verificationAuthorized,
-        workHistory: workHistory.filter((wh) => wh.companyName && wh.position),
-        references: references.filter((ref) => ref.name && ref.phone),
+        workHistory: workHistory.filter((wh: any) => wh.companyName && wh.position),
+        references: references.filter((ref: any) => ref.name && ref.phone),
       });
     } catch (error) {
       console.error("Error submitting application:", error);

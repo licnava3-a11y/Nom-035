@@ -117,8 +117,8 @@ export default function PayrollCompensationDashboard() {
 
   // Preparar datos para gráfico de dispersión (salario vs brecha salarial)
   const scatterData = payrollData
-    .filter((d) => d.salary && d.salaryGapPercentage)
-    .map((d) => ({
+    .filter((d: any) => d.salary && d.salaryGapPercentage)
+    .map((d: any) => ({
       salary: parseFloat(d.salary),
       gap: parseFloat(d.salaryGapPercentage || "0"),
       name: d.employeeName,
@@ -399,7 +399,7 @@ export default function PayrollCompensationDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {criticalGaps.map((employee) => (
+                  {criticalGaps.map((employee: any) => (
                     <tr key={employee.id} className="border-b hover:bg-muted/50">
                       <td className="p-3">{employee.employeeName}</td>
                       <td className="p-3">{employee.department}</td>

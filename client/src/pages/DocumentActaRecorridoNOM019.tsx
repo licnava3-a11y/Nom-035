@@ -81,11 +81,11 @@ export default function DocumentActaRecorridoNOM019() {
   };
 
   const eliminarObservacion = (id: string) => {
-    setObservaciones(observaciones.filter((obs) => obs.id !== id));
+    setObservaciones(observaciones.filter((obs: any) => obs.id !== id));
   };
 
   const actualizarObservacion = (id: string, campo: keyof Observacion, valor: string) => {
-    setObservaciones(observaciones.map((obs) => (obs.id === id ? { ...obs, [campo]: valor } : obs)));
+    setObservaciones(observaciones.map((obs: any) => (obs.id === id ? { ...obs, [campo]: valor } : obs)));
   };
 
   const agregarParticipante = () => {
@@ -101,11 +101,11 @@ export default function DocumentActaRecorridoNOM019() {
   };
 
   const eliminarParticipante = (id: string) => {
-    setParticipantes(participantes.filter((part) => part.id !== id));
+    setParticipantes(participantes.filter((part: any) => part.id !== id));
   };
 
   const actualizarParticipante = (id: string, campo: keyof Participante, valor: string) => {
-    setParticipantes(participantes.map((part) => (part.id === id ? { ...part, [campo]: valor } : part)));
+    setParticipantes(participantes.map((part: any) => (part.id === id ? { ...part, [campo]: valor } : part)));
   };
 
   const handleSave = async () => {

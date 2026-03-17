@@ -79,7 +79,7 @@ export default function PerformanceEvaluation360() {
 
     return (
       <div className="grid grid-cols-3 gap-2 w-full max-w-3xl mx-auto">
-        {boxes.map((box) => {
+        {boxes.map((box: any) => {
           const employeesInBox = nineBoxMatrix.matrix.filter(
             (e: any) => Math.floor(e.potential / 34) === box.x && Math.floor(e.performance / 34) === (2 - box.y)
           );
@@ -127,7 +127,7 @@ export default function PerformanceEvaluation360() {
 
     return (
       <div className="space-y-4">
-        {levels.map((lvl) => {
+        {levels.map((lvl: any) => {
           const employeesAtLevel = leadershipPipeline.pipeline.filter((e: any) => e.leadershipLevel === lvl.level);
 
           return (

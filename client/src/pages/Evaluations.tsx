@@ -84,7 +84,7 @@ export default function Evaluations() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Evaluaciones Disponibles</h2>
         {evaluations && evaluations.length > 0 ? (
-          evaluations.map((evaluation) => (
+          evaluations.map((evaluation: any) => (
             <Card key={evaluation.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">

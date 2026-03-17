@@ -39,7 +39,7 @@ export default function InterventionPredictionDashboard() {
   });
 
   // Generar datos para gráfico de costo vs probabilidad
-  const costVsProbabilityData = [1000, 3000, 5000, 10000, 15000, 20000, 30000].map((c) => ({
+  const costVsProbabilityData = [1000, 3000, 5000, 10000, 15000, 20000, 30000].map((c: any) => ({
     cost: c,
     probability: prediction ? prediction.successProbability * (c / (parseFloat(cost) || 5000)) * 0.95 : 50,
   }));

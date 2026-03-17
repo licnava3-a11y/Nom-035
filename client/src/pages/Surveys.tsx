@@ -50,7 +50,7 @@ export default function Surveys() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {surveyCategories.map((category) => {
+          {surveyCategories.map((category: any) => {
             const Icon = category.icon;
             return (
               <Card 

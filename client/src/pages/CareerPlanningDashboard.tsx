@@ -64,7 +64,7 @@ export default function CareerPlanningDashboard() {
         {/* Tab: Rutas Disponibles */}
         <TabsContent value="paths" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            {activePaths?.map((path) => (
+            {activePaths?.map((path: any) => (
               <Card key={path.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

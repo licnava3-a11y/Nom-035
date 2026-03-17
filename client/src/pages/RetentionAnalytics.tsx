@@ -153,7 +153,7 @@ export default function RetentionAnalytics() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                {departments?.map((dept) => (
+                {departments?.map((dept: any) => (
                   <SelectItem key={dept.id} value={dept.id.toString()}>
                     {dept.name}
                   </SelectItem>
@@ -212,7 +212,7 @@ export default function RetentionAnalytics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {atRiskData?.employees.map((employee) => (
+                {atRiskData?.employees.map((employee: any) => (
                   <TableRow key={employee.employeeId}>
                     <TableCell className="font-medium">
                       <div>

@@ -374,7 +374,7 @@ export default function LegalRepresentatives() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {representatives.map((rep) => (
+              {representatives.map((rep: any) => (
                 <TableRow key={rep.id}>
                   <TableCell className="font-medium">{rep.nombre}</TableCell>
                   <TableCell>{rep.cargo}</TableCell>

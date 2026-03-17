@@ -112,7 +112,7 @@ export default function SentimentAnalysisDashboard() {
     // Agrupar por fecha
     const byDate: Record<string, { positive: number; neutral: number; negative: number; critical: number }> = {};
 
-    trends.forEach((t) => {
+    trends.forEach((t: any) => {
       const date = new Date(t.analyzedAt).toLocaleDateString("es-MX", { month: "short", day: "numeric" });
       if (!byDate[date]) {
         byDate[date] = { positive: 0, neutral: 0, negative: 0, critical: 0 };
@@ -124,28 +124,28 @@ export default function SentimentAnalysisDashboard() {
     const datasets = [
       {
         label: "Positivo",
-        data: labels.map((l) => byDate[l].positive),
+        data: labels.map((l: any) => byDate[l].positive),
         borderColor: "rgb(34, 197, 94)",
         backgroundColor: "rgba(34, 197, 94, 0.1)",
         fill: true,
       },
       {
         label: "Neutral",
-        data: labels.map((l) => byDate[l].neutral),
+        data: labels.map((l: any) => byDate[l].neutral),
         borderColor: "rgb(59, 130, 246)",
         backgroundColor: "rgba(59, 130, 246, 0.1)",
         fill: true,
       },
       {
         label: "Negativo",
-        data: labels.map((l) => byDate[l].negative),
+        data: labels.map((l: any) => byDate[l].negative),
         borderColor: "rgb(251, 146, 60)",
         backgroundColor: "rgba(251, 146, 60, 0.1)",
         fill: true,
       },
       {
         label: "Crítico",
-        data: labels.map((l) => byDate[l].critical),
+        data: labels.map((l: any) => byDate[l].critical),
         borderColor: "rgb(239, 68, 68)",
         backgroundColor: "rgba(239, 68, 68, 0.1)",
         fill: true,
@@ -476,7 +476,7 @@ export default function SentimentAnalysisDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {criticalComments.map((comment) => (
+                  {criticalComments.map((comment: any) => (
                     <div key={comment.id} className="border rounded-lg p-4 space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">

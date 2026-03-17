@@ -192,7 +192,7 @@ export default function SentimentCasesCorrelationDashboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los departamentos</SelectItem>
-                  {departments.map((dept) => (
+                  {departments.map((dept: any) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
                     </SelectItem>
@@ -315,7 +315,7 @@ export default function SentimentCasesCorrelationDashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {autoCases.map((caso) => (
+              {autoCases.map((caso: any) => (
                 <div key={caso.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">

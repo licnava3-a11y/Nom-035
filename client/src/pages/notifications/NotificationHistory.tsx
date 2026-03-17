@@ -282,7 +282,7 @@ export default function NotificationHistory() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {logsData?.logs.map((log) => (
+                    {logsData?.logs.map((log: any) => (
                       <TableRow key={log.id}>
                         <TableCell className="font-mono text-xs">{log.queueId ? String(log.queueId).slice(0, 8) : 'N/A'}</TableCell>
                         <TableCell>

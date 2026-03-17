@@ -185,7 +185,7 @@ export default function DocumentFormats() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {formats.map((format) => (
+                {formats.map((format: any) => (
                   <TableRow key={format.id}>
                     <TableCell className="font-mono font-semibold">{format.codigo}</TableCell>
                     <TableCell>
