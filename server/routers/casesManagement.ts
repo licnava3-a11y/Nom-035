@@ -163,10 +163,10 @@ export const casesManagementRouter = router({
 
         let conditions = [];
         if (input?.status && input.status !== "all") {
-          conditions.push(eq(cases.status, input.status));
+          conditions.push(sql`${cases.status} = ${input.status}`);
         }
         if (input?.priority && input.priority !== "all") {
-          conditions.push(eq(cases.priority, input.priority));
+          conditions.push(sql`${cases.priority} = ${input.priority}`);
         }
         if (input?.departmentId) {
           conditions.push(eq(cases.departmentId, input.departmentId));

@@ -100,7 +100,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
   const [resolvedCasesResult] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(cases)
-    .where(eq(cases.status, 'resolved'));
+    .where(sql`${cases.status} = 'resolved'`);
   
   const [newCasesResult] = await db
     .select({ count: sql<number>`COUNT(*)` })
@@ -114,7 +114,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .select({ count: sql<number>`COUNT(*)` })
     .from(cases)
     .where(and(
-      eq(cases.priority, 'critical'),
+      sql`${cases.priority} = 'critical'`,
       sql`${cases.status} IN ('open', 'in_progress')`
     ));
   
@@ -125,7 +125,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
       resolvedAt: cases.resolvedAt
     })
     .from(cases)
-    .where(eq(cases.status, 'resolved'))
+    .where(sql`${cases.status} = 'resolved'`)
     .limit(100);
   
   const avgResolutionDays = resolvedCasesWithDates.length > 0
@@ -238,7 +238,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .leftJoin(employees, eq(cases.employeeId, employees.id))
     .leftJoin(departments, eq(employees.departmentId, departments.id))
     .where(and(
-      eq(cases.priority, 'critical'),
+      sql`${cases.priority} = 'critical'`,
       sql`${cases.status} IN ('open', 'in_progress')`
     ))
     .orderBy(cases.createdAt)

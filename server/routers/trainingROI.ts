@@ -97,7 +97,7 @@ export const trainingROIRouter = router({
         .from(trainingAssignments)
         .where(and(
           eq(trainingAssignments.trainingId, input.trainingId),
-          eq(trainingAssignments.status, "completed")
+          sql`${trainingAssignments.status} = 'completed'`
         ));
 
       const completedCount = assignments.length;

@@ -14,7 +14,7 @@ export default function EmployeeTrainingNeeds() {
   const employeeId = parseInt(params.id || "0");
 
   const { data: employee } = trpc.employees.getById.useQuery({ id: employeeId }) as { data: any };
-  const { data: dnc, mutate: generateDNC, isPending: isLoading } = trpc.jobProfiles.generateDNC.useMutation();
+  const { data: dnc, mutate: generateDNC, isPending: isPending } = trpc.jobProfiles.generateDNC.useMutation();
 
   // Generate DNC on mount
   React.useEffect(() => {

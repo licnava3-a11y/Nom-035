@@ -39,7 +39,7 @@ export async function runTrainingRemindersJob() {
         .leftJoin(users, eq(trainingAssignments.committeeMemberId, users.id))
         .where(
           and(
-            eq(trainingAssignments.status, "pending"),
+            sql`${trainingAssignments.status} = 'pending'`,
             sql`${trainingAssignments.assignedDate} <= ${sevenDaysAgo.toISOString()}`
           )
         );

@@ -34,7 +34,6 @@ export const departmentsRouter = router({
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       // Obtener departamentos con conteo de empleados
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const results = await db
         .select({
           id: departments.id,
@@ -58,7 +57,6 @@ export const departmentsRouter = router({
         .orderBy(desc(departments.createdAt));
 
       // Contar total
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [{ total }] = await db
         .select({ total: count() })
         .from(departments)
@@ -81,7 +79,6 @@ export const departmentsRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not initialized');
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [department] = await db
         .select()
         .from(departments)
@@ -115,7 +112,6 @@ export const departmentsRouter = router({
       if (!db) throw new Error('Database not initialized');
 
       // Verificar código único
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [existing] = await db
         .select()
         .from(departments)
@@ -128,8 +124,6 @@ export const departmentsRouter = router({
           message: "Ya existe un departamento con este código",
         });
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [newDepartment] = await db
         .insert(departments)
         .values({
@@ -164,7 +158,6 @@ export const departmentsRouter = router({
       const { id, ...updates } = input;
 
       // Verificar que existe
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [existing] = await db
         .select()
         .from(departments)
@@ -184,8 +177,6 @@ export const departmentsRouter = router({
         const wouldCreateCycle = async (deptId: number, targetParentId: number | null): Promise<boolean> => {
           if (targetParentId === null) return false; // Raíz no crea ciclo
           if (targetParentId === deptId) return true; // Ciclo directo
-          
-          // @ts-expect-error - getDb() siempre retorna instancia válida
           const [parent] = await db
             .select()
             .from(departments)
@@ -210,7 +201,6 @@ export const departmentsRouter = router({
 
       // Si se actualiza el código, verificar que sea único
       if (updates.code && updates.code !== existing.code) {
-        // @ts-expect-error - getDb() siempre retorna instancia válida
         const [duplicate] = await db
           .select()
           .from(departments)
@@ -224,12 +214,9 @@ export const departmentsRouter = router({
           });
         }
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.update(departments).set(updates).where(eq(departments.id, id));
 
       // Guardar en historial
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [updated] = await db
         .select()
         .from(departments)
@@ -237,7 +224,6 @@ export const departmentsRouter = router({
         .limit(1);
 
       if (updated) {
-        // @ts-expect-error - getDb() siempre retorna instancia válida
         await db.insert(departmentHistory).values({
           departmentId: updated.id,
           name: updated.name,
@@ -254,7 +240,6 @@ export const departmentsRouter = router({
         if (updates.parentId !== undefined && updates.parentId !== existing.parentId) {
           try {
             // Obtener configuración del sistema para correo de notificaciones
-            // @ts-expect-error - getDb() siempre retorna instancia válida
             const [settings] = await db
               .select()
               .from(systemSettings)
@@ -269,7 +254,6 @@ export const departmentsRouter = router({
               let newParentName = 'Raíz (sin padre)';
               
               if (existing.parentId) {
-                // @ts-expect-error - getDb() siempre retorna instancia válida
                 const [oldParent] = await db
                   .select()
                   .from(departments)
@@ -279,7 +263,6 @@ export const departmentsRouter = router({
               }
               
               if (updated.parentId) {
-                // @ts-expect-error - getDb() siempre retorna instancia válida
                 const [newParent] = await db
                   .select()
                   .from(departments)
@@ -289,7 +272,6 @@ export const departmentsRouter = router({
               }
               
               // Obtener empleados afectados
-              // @ts-expect-error - getDb() siempre retorna instancia válida
               const affectedEmployees = await db
                 .select({
                   id: employees.id,
@@ -347,7 +329,6 @@ export const departmentsRouter = router({
       if (!db) throw new Error('Database not initialized');
 
       // Verificar que no tenga empleados asignados
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [{ employeeCount }] = await db
         .select({ employeeCount: count() })
         .from(employees)
@@ -361,7 +342,6 @@ export const departmentsRouter = router({
       }
 
       // Verificar que no tenga puestos asignados
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [{ positionCount }] = await db
         .select({ positionCount: count() })
         .from(positions)
@@ -373,8 +353,6 @@ export const departmentsRouter = router({
           message: `No se puede eliminar el departamento porque tiene ${positionCount} puesto(s) asignado(s)`,
         });
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.delete(departments).where(eq(departments.id, input.id));
 
       return { success: true };
@@ -384,8 +362,6 @@ export const departmentsRouter = router({
   getHierarchy: protectedProcedure.query(async () => {
     const db = await getDb();
       if (!db) throw new Error('Database not initialized');
-
-    // @ts-expect-error - getDb() siempre retorna instancia válida
     const allDepartments = await db
       .select({
         id: departments.id,
@@ -459,8 +435,6 @@ export const departmentsRouter = router({
           ) as any
         );
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const stats = await db
         .select({
           departmentId: departments.id,
@@ -492,7 +466,6 @@ export const departmentsRouter = router({
       if (!db) throw new Error('Database not initialized');
 
       // Obtener el estado de cada departamento en la fecha especificada
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const historicalDepartments = await db
         .select({
           id: sql<number>`dh.departmentId`,
@@ -577,8 +550,6 @@ export const departmentsRouter = router({
       if (input?.departmentId) {
         conditions.push(eq(departmentHistory.departmentId, input.departmentId));
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const changes = await db
         .select()
         .from(departmentHistory)
@@ -613,7 +584,6 @@ export const departmentsRouter = router({
       }
 
       // Obtener conteo por tipo de cambio
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const statsByType = await db
         .select({
           changeType: departmentHistory.changeType,
@@ -624,7 +594,6 @@ export const departmentsRouter = router({
         .groupBy(departmentHistory.changeType);
 
       // Obtener conteo por mes
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const statsByMonth = await db
         .select({
           month: sql<string>`DATE_FORMAT(${departmentHistory.changedAt}, '%Y-%m')`,
@@ -655,7 +624,6 @@ export const departmentsRouter = router({
       if (!db) throw new Error('Database not initialized');
 
       // Verificar que el departamento destino existe
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [targetDept] = await db
         .select()
         .from(departments)
@@ -670,7 +638,6 @@ export const departmentsRouter = router({
       }
 
       // Obtener información de empleados a reasignar
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const employeesToReassign = await db
         .select({
           id: employees.id,
@@ -690,7 +657,6 @@ export const departmentsRouter = router({
       }
 
       // Actualizar departamento de empleados
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await db
         .update(employees)
         .set({ departmentId: input.newDepartmentId })
@@ -698,7 +664,6 @@ export const departmentsRouter = router({
         .execute();
 
       // Registrar reasignación masiva en tabla de auditoría
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [reassignmentRecord] = await db
         .insert(bulkReassignments)
         .values({
@@ -724,8 +689,6 @@ export const departmentsRouter = router({
         employeeName: emp.name,
         employeeEmail: emp.email || null,
       }));
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.insert(bulkReassignmentDetails).values(detailRecords);
 
       // Enviar notificaciones por email a empleados afectados (opcional)
@@ -769,7 +732,6 @@ export const departmentsRouter = router({
     if (!db) throw new Error("Database not available");
 
     // Obtener departamentos activos sin manager
-    // @ts-expect-error - getDb() siempre retorna instancia válida
     const deptsWithoutManager = await db
       .select({
         id: departments.id,
@@ -827,7 +789,6 @@ export const departmentsRouter = router({
       const offset = (page - 1) * pageSize;
 
       // Obtener reasignaciones con paginación
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const reassignments = await db
         .select()
         .from(bulkReassignments)
@@ -837,7 +798,6 @@ export const departmentsRouter = router({
         .execute();
 
       // Contar total de reasignaciones
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [{ total }] = await db
         .select({ total: count() })
         .from(bulkReassignments)
@@ -846,7 +806,6 @@ export const departmentsRouter = router({
       // Obtener detalles de empleados para cada reasignación
       const reassignmentsWithDetails = await Promise.all(
         reassignments.map(async (reassignment) => {
-          // @ts-expect-error - getDb() siempre retorna instancia válida
           const details = await db
             .select()
             .from(bulkReassignmentDetails)
@@ -881,7 +840,6 @@ export const departmentsRouter = router({
     const XLSX = await import("xlsx");
 
     // Obtener todos los departamentos con manager
-    // @ts-expect-error - getDb() siempre retorna instancia válida
     const allDepartments = await db
       .select({
         id: departments.id,
@@ -900,7 +858,6 @@ export const departmentsRouter = router({
     // Contar empleados por departamento
     const employeeCounts = await Promise.all(
       allDepartments.map(async (dept) => {
-        // @ts-expect-error - getDb() siempre retorna instancia válida
         const [result] = await db
           .select({ count: count() })
           .from(employees)
@@ -933,7 +890,6 @@ export const departmentsRouter = router({
     // Hoja 2: Empleados por Departamento
     const employeesByDept = await Promise.all(
       allDepartments.map(async (dept) => {
-        // @ts-expect-error - getDb() siempre retorna instancia válida
         const deptEmployees = await db
           .select({
             id: employees.id,

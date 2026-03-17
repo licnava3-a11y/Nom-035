@@ -103,7 +103,7 @@ export const alertsDashboardRouter = router({
         const unassignedCritical = await db
           .select()
           .from(cases)
-          .where(and(eq(cases.priority, "critical"), isNull(cases.assignedTo), eq(cases.status, "open")));
+          .where(and(sql`${cases.priority} = 'critical'`, isNull(cases.assignedTo), sql`${cases.status} = 'open'`));
 
         if (unassignedCritical.length > 0) {
           alerts.push({

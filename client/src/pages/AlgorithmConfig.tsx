@@ -211,10 +211,10 @@ export default function AlgorithmConfig() {
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={handleSave}
-                  disabled={!isValid || updateConfig.isLoading}
+                  disabled={!isValid || updateConfig.isPending}
                   className="flex-1"
                 >
-                  {updateConfig.isLoading ? (
+                  {updateConfig.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Guardando...
@@ -229,7 +229,7 @@ export default function AlgorithmConfig() {
                 <Button
                   onClick={handleReset}
                   variant="outline"
-                  disabled={updateConfig.isLoading}
+                  disabled={updateConfig.isPending}
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Restablecer

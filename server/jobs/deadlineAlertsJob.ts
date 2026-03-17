@@ -55,7 +55,7 @@ export async function sendDeadlineAlerts() {
       )
       .where(
         and(
-          eq(operatingRulesApprovals.status, "pending"),
+          sql`${operatingRulesApprovals.status} = 'pending'`,
           sql`${operatingRulesApprovals.deadline} IS NOT NULL`
         )
       );

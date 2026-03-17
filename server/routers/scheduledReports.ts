@@ -5,9 +5,9 @@ import {
   scheduledReports,
   reportHistory,
   surveyResponses,
-  nmx025Surveys,
   nom035Cases,
   employees,
+  nom035Results,
 } from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
@@ -104,11 +104,11 @@ export const scheduledReportsRouter = router({
 
       // NOM-035 (Riesgo Psicosocial)
       if (report.includeNOM035) {
-        const surveys = await db.select().from(surveyResponses);
+        const surveys = await db.select().from(nom035Results);
         const totalSurveys = surveys.length;
-        const highRiskCount = surveys.filter((s) => s.riskLevel === "high" || s.riskLevel === "very_high").length;
-        const mediumRiskCount = surveys.filter((s) => s.riskLevel === "medium").length;
-        const lowRiskCount = surveys.filter((s) => s.riskLevel === "low").length;
+        const highRiskCount = surveys.filter((s) => s.globalRiskLevel === "alto" || s.globalRiskLevel === "muy_alto").length;
+        const mediumRiskCount = surveys.filter((s) => s.globalRiskLevel === "medio").length;
+        const lowRiskCount = surveys.filter((s) => s.globalRiskLevel === "bajo" || s.globalRiskLevel === "nulo").length;
 
         const highRiskPercentage = totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
 
@@ -202,17 +202,9 @@ Reporte enviado a ${recipients.length} destinatario(s).
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      let query = db
-        .select()
-        .from(reportHistory)
-        .orderBy(desc(reportHistory.sentAt))
-        .limit(input?.limit || 50);
-
-      if (input?.reportId) {
-        query = query.where(eq(reportHistory.reportId, input.reportId));
-      }
-
-      const history = await query;
+      const history = await (input?.reportId
+        ? db.select().from(reportHistory).where(eq(reportHistory.reportId, input.reportId)).orderBy(desc(reportHistory.sentAt)).limit(input?.limit || 50)
+        : db.select().from(reportHistory).orderBy(desc(reportHistory.sentAt)).limit(input?.limit || 50));
       return history;
     }),
 

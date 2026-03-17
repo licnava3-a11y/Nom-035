@@ -32,6 +32,7 @@ import VersionComparison from "@/components/VersionComparison";
 import ApprovalWorkflow from "@/components/ApprovalWorkflow";
 import { OperatingRulesTimeline } from "@/components/OperatingRulesTimeline";
 import { SearchOperatingRules } from "@/components/SearchOperatingRules";
+import { Search } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { LabelWithTooltip } from "@/components/InfoTooltip";
 import { TableSkeleton } from "@/components/skeletons";

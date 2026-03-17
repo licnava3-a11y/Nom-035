@@ -32,7 +32,7 @@ async function createPendingSurveys() {
       .from(cases)
       .where(
         and(
-          eq(cases.status, 'resolved'),
+          sql`${cases.status} = 'resolved'`,
           sql`${cases.closedAt} IS NOT NULL`
         )
       );

@@ -143,7 +143,7 @@ export const salespeopleRouter = router({
             .where(
               and(
                 eq(leads.asignadoA, sp.id),
-                gte(leads.fechaCreacion, startDate)
+                gte(leads.createdAt, startDate)
               )
             );
 
@@ -155,7 +155,7 @@ export const salespeopleRouter = router({
               and(
                 eq(leads.asignadoA, sp.id),
                 eq(leads.estado, "ganado"),
-                gte(leads.fechaCreacion, startDate)
+                gte(leads.createdAt, startDate)
               )
             );
 
@@ -167,7 +167,7 @@ export const salespeopleRouter = router({
               and(
                 eq(leads.asignadoA, sp.id),
                 eq(leads.estado, "perdido"),
-                gte(leads.fechaCreacion, startDate)
+                gte(leads.createdAt, startDate)
               )
             );
 

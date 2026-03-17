@@ -7694,3 +7694,17 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 ### Pendiente:
 - [ ] Guardar checkpoint estable
 - [ ] Continuar reduciendo errores TypeScript restantes
+
+## SESIÓN 44: Correcciones TypeScript (708 → ~580 errores)
+- [x] Corregir eq(MySqlEnumColumn, string) -> sql raw en 19 archivos de routers y jobs
+- [x] Agregar import de sql a correctiveActions.ts y predictiveAnalytics.ts
+- [x] Corregir isLoading -> isPending en mutations (DepartmentMetrics.tsx, AlgorithmConfig.tsx)
+- [x] Corregir CSRFViolationsPage.tsx - topAttackingIPs -> topAttackerIPs, topAttackedEndpoints -> topTargetedEndpoints
+- [x] Corregir scheduledReports.ts - nmx025Surveys no existe, usar nom035Results.globalRiskLevel
+- [x] Corregir scheduledReports.ts - query builder TS2741 con condicional directo
+- [x] Corregir sentimentCasesCorrelation.ts - users.departmentId -> users.departamento
+- [x] Corregir salespeople.ts - leads.fechaCreacion -> leads.createdAt
+- [x] Corregir predictiveTurnoverDashboard.ts y reports.ts - users.departmentId -> users.departamento
+- [x] Agregar import Search en CommitteeOperatingRules.tsx
+- [x] Corregir DepartmentMetrics.tsx - union type con (c as any) para hiresChange/terminationsChange
+- [x] Corregir casesManagement.ts - eq(cases.status) -> sql raw

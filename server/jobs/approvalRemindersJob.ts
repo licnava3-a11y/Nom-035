@@ -49,7 +49,7 @@ async function sendApprovalReminders() {
       .leftJoin(committeeOperatingRules, eq(operatingRulesApprovals.operatingRuleId, committeeOperatingRules.id))
       .where(
         and(
-          eq(operatingRulesApprovals.status, "pending"),
+          sql`${operatingRulesApprovals.status} = 'pending'`,
           lt(operatingRulesApprovals.createdAt, fortyEightHoursAgo)
         )
       );

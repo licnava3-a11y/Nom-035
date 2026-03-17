@@ -187,9 +187,9 @@ export default function QuestionnairePublic() {
             <Button
               onClick={handleAuth}
               className="w-full"
-              disabled={validateMutation.isLoading || curp.length !== 18}
+              disabled={validateMutation.isPending || curp.length !== 18}
             >
-              {validateMutation.isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {validateMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Acceder al cuestionario
             </Button>
 

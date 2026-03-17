@@ -108,7 +108,7 @@ export const earlyWarningsRouter = router({
         .leftJoin(surveyResponses, eq(surveys.id, surveyResponses.surveyId))
         .where(
           and(
-            eq(surveys.status, "active"),
+            sql`${surveys.status} = 'active'`,
             sql`${surveys.endDate} IS NOT NULL AND ${surveys.endDate} < CURDATE()`
           )
         )
@@ -208,7 +208,7 @@ export const earlyWarningsRouter = router({
         .from(surveys)
         .where(
           and(
-            eq(surveys.status, "active"),
+            sql`${surveys.status} = 'active'`,
             sql`${surveys.endDate} IS NOT NULL AND ${surveys.endDate} < CURDATE()`
           )
         );
@@ -248,7 +248,7 @@ export const earlyWarningsRouter = router({
           title: surveys.title,
         })
         .from(surveys)
-        .where(eq(surveys.status, 'active'));
+        .where(sql`${surveys.status} = 'active'`);
 
       const coverageAlerts = [];
 

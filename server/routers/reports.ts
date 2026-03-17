@@ -418,7 +418,7 @@ export const reportsRouter = router({
             .from(users)
             .where(
               and(
-                eq(users.departmentId, dept.id),
+                eq(users.departamento, dept.id),
                 input.includeInactive ? undefined : eq(sql`1`, true)
               )
             );

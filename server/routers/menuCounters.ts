@@ -34,13 +34,13 @@ export const menuCountersRouter = router({
       db
         .select({ count: sql<number>`count(*)` })
         .from(cases)
-        .where(eq(cases.status, "open")),
+        .where(sql`${cases.status} = 'open'`),
       
       // Contador de casos en investigación
       db
         .select({ count: sql<number>`count(*)` })
         .from(cases)
-        .where(eq(cases.status, "investigating")),
+        .where(sql`${cases.status} = 'investigating'`),
       
       // Contador de quejas pendientes en buzón (recibidas, no atendidas)
       db

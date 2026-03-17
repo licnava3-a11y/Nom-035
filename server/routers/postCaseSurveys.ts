@@ -249,7 +249,7 @@ export const postCaseSurveysRouter = router({
     const closedCases = await db
       .select()
       .from(cases)
-      .where(and(eq(cases.status, "closed"), sql`${cases.closedAt} IS NOT NULL`));
+      .where(and(sql`${cases.status} = 'closed'`, sql`${cases.closedAt} IS NOT NULL`));
 
     for (const caseRecord of closedCases) {
       if (!caseRecord.closedAt) continue;

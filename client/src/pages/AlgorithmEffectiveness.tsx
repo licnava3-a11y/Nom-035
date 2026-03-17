@@ -1,3 +1,4 @@
+import DashboardLayout from "@/components/DashboardLayout";
 import { useState } from "react";
 // DashboardLayout is already wrapped by App.tsx route
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

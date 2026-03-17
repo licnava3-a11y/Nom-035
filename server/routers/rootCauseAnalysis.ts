@@ -45,7 +45,7 @@ export const rootCauseAnalysisRouter = router({
         .from(cases)
         .where(
           and(
-            eq(cases.status, "closed"),
+            sql`${cases.status} = 'closed'`,
             gte(cases.closedAt, periodStart),
             lte(cases.closedAt, periodEnd)
           )

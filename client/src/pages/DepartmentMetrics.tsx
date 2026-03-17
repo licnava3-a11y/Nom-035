@@ -437,14 +437,14 @@ export default function DepartmentMetrics() {
                         datasets: [
                           {
                             label: `${yoyData.currentYear}`,
-                            data: yoyData.comparison.map((c) => c.currentYear?.employeeCount || 0),
+                            data: yoyData.comparison.map((c) => (c as any).currentYear?.employeeCount || 0),
                             backgroundColor: 'rgba(34, 197, 94, 0.7)',
                             borderColor: 'rgb(34, 197, 94)',
                             borderWidth: 1,
                           },
                           {
                             label: `${yoyData.lastYear}`,
-                            data: yoyData.comparison.map((c) => c.lastYear?.employeeCount || 0),
+                            data: yoyData.comparison.map((c) => (c as any).lastYear?.employeeCount || 0),
                             backgroundColor: 'rgba(59, 130, 246, 0.7)',
                             borderColor: 'rgb(59, 130, 246)',
                             borderWidth: 1,
@@ -474,19 +474,19 @@ export default function DepartmentMetrics() {
                         <span className="text-sm">{c.departmentName}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-sm">
-                            {c.currentYear?.employeeCount || 0} → {c.lastYear?.employeeCount || 0}
+                            {(c as any).currentYear?.employeeCount || 0} → {(c as any).lastYear?.employeeCount || 0}
                           </span>
                           <span
                             className={`text-sm font-medium ${
-                              parseFloat(c.growthChange) > 0
+                              parseFloat((c as any).growthChange) > 0
                                 ? 'text-green-600'
-                                : parseFloat(c.growthChange) < 0
+                                : parseFloat((c as any).growthChange) < 0
                                 ? 'text-red-600'
                                 : 'text-gray-600'
                             }`}
                           >
-                            {parseFloat(c.growthChange) > 0 ? '↑' : parseFloat(c.growthChange) < 0 ? '↓' : '→'}{' '}
-                            {Math.abs(parseFloat(c.growthChange))}%
+                            {parseFloat((c as any).growthChange) > 0 ? '↑' : parseFloat((c as any).growthChange) < 0 ? '↓' : '→'}{' '}
+                            {Math.abs(parseFloat((c as any).growthChange))}%
                           </span>
                         </div>
                       </div>
@@ -504,14 +504,14 @@ export default function DepartmentMetrics() {
                         datasets: [
                           {
                             label: `Altas ${yoyData.currentYear}`,
-                            data: yoyData.comparison.map((c) => c.currentYear?.hires || 0),
+                            data: yoyData.comparison.map((c) => (c as any).currentYear?.hires || 0),
                             borderColor: 'rgb(34, 197, 94)',
                             backgroundColor: 'rgba(34, 197, 94, 0.1)',
                             tension: 0.4,
                           },
                           {
                             label: `Altas ${yoyData.lastYear}`,
-                            data: yoyData.comparison.map((c) => c.lastYear?.hires || 0),
+                            data: yoyData.comparison.map((c) => (c as any).lastYear?.hires || 0),
                             borderColor: 'rgb(59, 130, 246)',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
                             tension: 0.4,
@@ -519,14 +519,14 @@ export default function DepartmentMetrics() {
                           },
                           {
                             label: `Bajas ${yoyData.currentYear}`,
-                            data: yoyData.comparison.map((c) => c.currentYear?.terminations || 0),
+                            data: yoyData.comparison.map((c) => (c as any).currentYear?.terminations || 0),
                             borderColor: 'rgb(239, 68, 68)',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             tension: 0.4,
                           },
                           {
                             label: `Bajas ${yoyData.lastYear}`,
-                            data: yoyData.comparison.map((c) => c.lastYear?.terminations || 0),
+                            data: yoyData.comparison.map((c) => (c as any).lastYear?.terminations || 0),
                             borderColor: 'rgb(249, 115, 22)',
                             backgroundColor: 'rgba(249, 115, 22, 0.1)',
                             tension: 0.4,
@@ -561,30 +561,30 @@ export default function DepartmentMetrics() {
                           <span>Altas:</span>
                           <span
                             className={`font-medium ${
-                              parseFloat(c.hiresChange) > 0
+                              parseFloat((c as any).hiresChange) > 0
                                 ? 'text-green-600'
-                                : parseFloat(c.hiresChange) < 0
+                                : parseFloat((c as any).hiresChange) < 0
                                 ? 'text-red-600'
                                 : 'text-gray-600'
                             }`}
                           >
-                            {parseFloat(c.hiresChange) > 0 ? '↑' : parseFloat(c.hiresChange) < 0 ? '↓' : '→'}{' '}
-                            {Math.abs(parseFloat(c.hiresChange))}%
+                            {parseFloat((c as any).hiresChange) > 0 ? '↑' : parseFloat((c as any).hiresChange) < 0 ? '↓' : '→'}{' '}
+                            {Math.abs(parseFloat((c as any).hiresChange))}%
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
                           <span>Bajas:</span>
                           <span
                             className={`font-medium ${
-                              parseFloat(c.terminationsChange) > 0
+                              parseFloat((c as any).terminationsChange) > 0
                                 ? 'text-red-600'
-                                : parseFloat(c.terminationsChange) < 0
+                                : parseFloat((c as any).terminationsChange) < 0
                                 ? 'text-green-600'
                                 : 'text-gray-600'
                             }`}
                           >
-                            {parseFloat(c.terminationsChange) > 0 ? '↑' : parseFloat(c.terminationsChange) < 0 ? '↓' : '→'}{' '}
-                            {Math.abs(parseFloat(c.terminationsChange))}%
+                            {parseFloat((c as any).terminationsChange) > 0 ? '↑' : parseFloat((c as any).terminationsChange) < 0 ? '↓' : '→'}{' '}
+                            {Math.abs(parseFloat((c as any).terminationsChange))}%
                           </span>
                         </div>
                       </div>
@@ -601,7 +601,7 @@ export default function DepartmentMetrics() {
                         labels: yoyData.comparison.map((c) => c.departmentName),
                         datasets: [
                           {
-                            data: yoyData.comparison.map((c) => c.employeeCount),
+                            data: yoyData.comparison.map((c) => (c as any).employeeCount),
                             backgroundColor: [
                               'rgba(34, 197, 94, 0.7)',
                               'rgba(59, 130, 246, 0.7)',
@@ -639,8 +639,8 @@ export default function DepartmentMetrics() {
                       <div key={index} className="flex items-center justify-between p-2 hover:bg-accent rounded">
                         <span className="text-sm">{c.departmentName}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{c.employeeCount} empleados</span>
-                          <span className="text-xs text-muted-foreground">({c.percentage}%)</span>
+                          <span className="text-sm font-medium">{(c as any).employeeCount} empleados</span>
+                          <span className="text-xs text-muted-foreground">({(c as any).percentage}%)</span>
                         </div>
                       </div>
                     ))}
@@ -665,10 +665,10 @@ export default function DepartmentMetrics() {
             {predictiveAlerts && predictiveAlerts.alerts.length > 0 && (
               <Button
                 onClick={() => generatePredictiveAlertsPDF.mutate()}
-                disabled={generatePredictiveAlertsPDF.isLoading}
+                disabled={generatePredictiveAlertsPDF.isPending}
                 variant="outline"
               >
-                {generatePredictiveAlertsPDF.isLoading ? (
+                {generatePredictiveAlertsPDF.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Generando...

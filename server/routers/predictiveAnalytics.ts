@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";

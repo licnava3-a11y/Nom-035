@@ -65,7 +65,7 @@ export async function runRootCauseAnalysisJob() {
       .from(cases)
       .where(
         and(
-          eq(cases.status, "closed"),
+          sql`${cases.status} = 'closed'`,
           gte(cases.closedAt, new Date(periodStart)),
           lte(cases.closedAt, new Date(periodEnd))
         )

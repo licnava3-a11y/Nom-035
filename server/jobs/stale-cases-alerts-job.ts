@@ -32,7 +32,7 @@ export async function runStaleCasesCheck() {
       .from(cases)
       .where(
         and(
-          eq(cases.status, 'open'),
+          sql`${cases.status} = 'open'`,
           lt(cases.createdAt, sevenDaysAgo)
         )
       );
@@ -45,7 +45,7 @@ export async function runStaleCasesCheck() {
       .from(cases)
       .where(
         and(
-          eq(cases.status, 'open'),
+          sql`${cases.status} = 'open'`,
           sql`${cases.priority} = 'critical'`,
           lt(cases.createdAt, threeDaysAgo)
         )

@@ -175,7 +175,7 @@ export const evidencesFolderRouter = router({
           .where(
             and(
               sql`${cases.caseType} IN ('violence', 'mobbing')`,
-              eq(cases.priority, 'critical')
+              sql`${cases.priority} = 'critical'`
             )
           )
           .limit(50);
@@ -265,7 +265,7 @@ export const evidencesFolderRouter = router({
       const casesResolvedCount = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(cases)
-        .where(eq(cases.status, 'resolved'));
+        .where(sql`${cases.status} = 'resolved'`);
 
       evidences["5.6"].evidences.push({
         type: "program",

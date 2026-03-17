@@ -44,7 +44,7 @@ export const sentimentCasesCorrelationRouter = router({
           and(
             eq(sentimentAnalysis.riskLevel, "critical"),
             gte(sentimentAnalysis.analyzedAt, start),
-            departmentId ? eq(users.departmentId, departmentId) : sql`1=1`
+            departmentId ? eq(users.departamento, departmentId) : sql`1=1`
           )
         )
         .groupBy(sql`DATE_FORMAT(${sentimentAnalysis.analyzedAt}, '%Y-%m')`)
@@ -134,7 +134,7 @@ export const sentimentCasesCorrelationRouter = router({
       .where(
         and(
           eq(nom035Cases.source, "sentiment_analysis_auto"),
-          eq(nom035Cases.status, "closed")
+          sql`${nom035Cases.status} = 'closed'`
         )
       );
 
@@ -145,7 +145,7 @@ export const sentimentCasesCorrelationRouter = router({
       .where(
         and(
           eq(nom035Cases.source, "sentiment_analysis_auto"),
-          eq(nom035Cases.status, "investigating")
+          sql`${nom035Cases.status} = 'investigating'`
         )
       );
 
@@ -156,7 +156,7 @@ export const sentimentCasesCorrelationRouter = router({
       .where(
         and(
           eq(nom035Cases.source, "sentiment_analysis_auto"),
-          eq(nom035Cases.status, "open")
+          sql`${nom035Cases.status} = 'open'`
         )
       );
 
@@ -174,7 +174,7 @@ export const sentimentCasesCorrelationRouter = router({
       .where(
         and(
           eq(nom035Cases.source, "sentiment_analysis_auto"),
-          eq(nom035Cases.status, "closed"),
+          sql`${nom035Cases.status} = 'closed'`,
           sql`${nom035Cases.closedAt} IS NOT NULL`
         )
       );

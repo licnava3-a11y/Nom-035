@@ -574,8 +574,8 @@ export const executiveDashboardRouter = router({
 
     // KPIs NOM-035
     const [totalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases);
-    const [openCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(eq(cases.status, 'open'));
-    const [criticalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(eq(cases.priority, 'critical'));
+    const [openCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(sql`${cases.status} = 'open'`);
+    const [criticalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(sql`${cases.priority} = 'critical'`);
     const [nom035Evidences] = await db.select({ count: sql<number>`COUNT(*)` }).from(manualEvidences);
 
     // KPIs NMX-025
@@ -658,10 +658,10 @@ export const executiveDashboardRouter = router({
 
     const alerts: Array<{ id: string; type: 'critical' | 'warning' | 'info'; category: 'NOM-035' | 'NMX-025' | 'Encuestas' | 'Capacitación'; title: string; description: string; count?: number }> = [];
 
-    const [criticalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(and(eq(cases.status, 'open'), eq(cases.priority, 'critical')));
+    const [criticalCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(and(sql`${cases.status} = 'open'`, sql`${cases.priority} = 'critical'`));
     if (((criticalCases as any)[0]?.count || 0) > 0) alerts.push({ id: 'nom035-critical-cases', type: 'critical', category: 'NOM-035', title: 'Casos Críticos Abiertos', description: `${(criticalCases as any)[0].count} casos críticos requieren atención inmediata`, count: (criticalCases as any)[0].count });
 
-    const [unassignedCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(and(eq(cases.status, 'open'), sql`${cases.assignedTo} IS NULL`));
+    const [unassignedCases] = await db.select({ count: sql<number>`COUNT(*)` }).from(cases).where(and(sql`${cases.status} = 'open'`, sql`${cases.assignedTo} IS NULL`));
     if (((unassignedCases as any)[0]?.count || 0) > 3) alerts.push({ id: 'nom035-unassigned-cases', type: 'warning', category: 'NOM-035', title: 'Casos Sin Asignar', description: `${(unassignedCases as any)[0].count} casos abiertos sin responsable asignado`, count: (unassignedCases as any)[0].count });
 
     const [totalEmployees] = await db.select({ count: sql<number>`COUNT(*)` }).from(employees);

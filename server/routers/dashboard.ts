@@ -27,7 +27,7 @@ export const dashboardRouter = router({
       ? await db
           .select({ count: sql<number>`count(*)` })
           .from(cases)
-          .where(eq(cases.status, "open"))
+          .where(sql`${cases.status} = 'open'`)
       : [{ count: 0 }];
 
     // Casos en investigación
@@ -35,7 +35,7 @@ export const dashboardRouter = router({
       ? await db
           .select({ count: sql<number>`count(*)` })
           .from(cases)
-          .where(eq(cases.status, "investigating"))
+          .where(sql`${cases.status} = 'investigating'`)
       : [{ count: 0 }];
 
     // Total de empleados activos

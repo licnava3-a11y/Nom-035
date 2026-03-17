@@ -49,7 +49,7 @@ export const predictiveTurnoverDashboardRouter = router({
           const employeeCount = await db
             .select({ count: count() })
             .from(users)
-            .where(eq(users.departmentId, dept.id));
+            .where(eq(users.departamento, dept.id));
 
           const totalEmployees = employeeCount[0]?.count || 0;
 
@@ -78,7 +78,7 @@ export const predictiveTurnoverDashboardRouter = router({
             .innerJoin(users, eq(surveyResponses.userId, users.id))
             .where(
               and(
-                eq(users.departmentId, dept.id),
+                eq(users.departamento, dept.id),
                 eq(sentimentAnalysis.riskLevel, "critical"),
                 gte(sentimentAnalysis.analyzedAt, ninetyDaysAgo)
               )
@@ -109,7 +109,7 @@ export const predictiveTurnoverDashboardRouter = router({
             .innerJoin(users, eq(nom035Results.userId, users.id))
             .where(
               and(
-                eq(users.departmentId, dept.id),
+                eq(users.departamento, dept.id),
                 sql`${nom035Results.riskLevel} IN ('Alto', 'Muy alto')`,
                 gte(nom035Results.createdAt, sixMonthsAgo)
               )
@@ -216,7 +216,7 @@ export const predictiveTurnoverDashboardRouter = router({
             and(
               eq(sentimentAnalysis.riskLevel, "critical"),
               gte(sentimentAnalysis.analyzedAt, ninetyDaysAgo),
-              departmentId ? eq(users.departmentId, departmentId) : sql`1=1`
+              departmentId ? eq(users.departamento, departmentId) : sql`1=1`
             )
           )
           .groupBy(users.id, users.name, users.email, users.departamento)
@@ -325,7 +325,7 @@ export const predictiveTurnoverDashboardRouter = router({
           .innerJoin(users, eq(surveyResponses.userId, users.id))
           .where(
             and(
-              eq(users.departmentId, departmentId),
+              eq(users.departamento, departmentId),
               eq(sentimentAnalysis.riskLevel, "critical"),
               gte(sentimentAnalysis.analyzedAt, ninetyDaysAgo)
             )

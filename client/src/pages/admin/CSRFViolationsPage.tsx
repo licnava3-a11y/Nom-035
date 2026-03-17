@@ -71,10 +71,10 @@ export default function CSRFViolationsPage() {
   };
 
   const topIPsData = {
-    labels: statsData?.topAttackingIPs.slice(0, 10).map(v => v.ipAddress) || [],
+    labels: statsData?.topAttackerIPs.slice(0, 10).map(v => v.ipAddress) || [],
     datasets: [{
       label: 'Intentos Fallidos',
-      data: statsData?.topAttackingIPs.slice(0, 10).map(v => v.count) || [],
+      data: statsData?.topAttackerIPs.slice(0, 10).map(v => v.count) || [],
       backgroundColor: '#dc2626',
       borderColor: '#1e293b',
       borderWidth: 2,
@@ -82,10 +82,10 @@ export default function CSRFViolationsPage() {
   };
 
   const topEndpointsData = {
-    labels: statsData?.topAttackedEndpoints.slice(0, 10).map(v => v.endpoint || 'unknown') || [],
+    labels: statsData?.topTargetedEndpoints.slice(0, 10).map(v => v.endpoint || 'unknown') || [],
     datasets: [{
       label: 'Ataques',
-      data: statsData?.topAttackedEndpoints.slice(0, 10).map(v => v.count) || [],
+      data: statsData?.topTargetedEndpoints.slice(0, 10).map(v => v.count) || [],
       backgroundColor: '#0f172a', // azul marino oscuro
       borderColor: '#1e293b',
       borderWidth: 2,
@@ -197,7 +197,7 @@ export default function CSRFViolationsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {statsData?.topAttackingIPs.length || 0}
+              {statsData?.topAttackerIPs.length || 0}
             </div>
           </CardContent>
         </Card>
@@ -210,7 +210,7 @@ export default function CSRFViolationsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {statsData?.topAttackedEndpoints.length || 0}
+              {statsData?.topTargetedEndpoints.length || 0}
             </div>
           </CardContent>
         </Card>

@@ -28,8 +28,8 @@ async function checkDepartmentalAlerts() {
       .from(cases)
       .where(
         and(
-          eq(cases.status, 'open'),
-          eq(cases.priority, 'critical')
+          sql`${cases.status} = 'open'`,
+          sql`${cases.priority} = 'critical'`
         )
       );
 
@@ -59,7 +59,7 @@ async function checkDepartmentalAlerts() {
       .from(cases)
       .where(
         and(
-          eq(cases.status, 'open'),
+          sql`${cases.status} = 'open'`,
           sql`${cases.assignedTo} IS NULL`
         )
       );

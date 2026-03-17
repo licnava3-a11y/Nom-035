@@ -37,7 +37,6 @@ export const positionsRouter = router({
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       // Obtener puestos con información del departamento y conteo de empleados
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const results = await db
         .select({
           id: positions.id,
@@ -63,7 +62,6 @@ export const positionsRouter = router({
         .orderBy(desc(positions.createdAt));
 
       // Contar total
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [{ total }] = await db
         .select({ total: count() })
         .from(positions)
@@ -86,7 +84,6 @@ export const positionsRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [position] = await db
         .select({
           id: positions.id,
@@ -130,7 +127,6 @@ export const positionsRouter = router({
       if (!db) throw new Error("Database not available");
 
       // Verificar código único
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [existing] = await db
         .select()
         .from(positions)
@@ -143,8 +139,6 @@ export const positionsRouter = router({
           message: "Ya existe un puesto con este código",
         });
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [newPosition] = await db
         .insert(positions)
         .values({
@@ -178,7 +172,6 @@ export const positionsRouter = router({
       const { id, ...updates } = input;
 
       // Verificar que existe
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [existing] = await db
         .select()
         .from(positions)
@@ -194,7 +187,6 @@ export const positionsRouter = router({
 
       // Si se actualiza el código, verificar que sea único
       if (updates.code && updates.code !== existing.code) {
-        // @ts-expect-error - getDb() siempre retorna instancia válida
         const [duplicate] = await db
           .select()
           .from(positions)
@@ -208,8 +200,6 @@ export const positionsRouter = router({
           });
         }
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.update(positions).set(updates).where(eq(positions.id, id));
 
       return { success: true };
@@ -223,7 +213,6 @@ export const positionsRouter = router({
       if (!db) throw new Error("Database not available");
 
       // Verificar que no tenga empleados asignados
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [{ employeeCount }] = await db
         .select({ employeeCount: count() })
         .from(employees)
@@ -235,8 +224,6 @@ export const positionsRouter = router({
           message: `No se puede eliminar el puesto porque tiene ${employeeCount} empleado(s) asignado(s)`,
         });
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await db.delete(positions).where(eq(positions.id, input.id));
 
       return { success: true };
@@ -265,8 +252,6 @@ export const positionsRouter = router({
           ) as any
         );
       }
-
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const stats = await db
         .select({
           positionId: positions.id,

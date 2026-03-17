@@ -651,7 +651,7 @@ export const committeeOperatingRulesRouter = router({
           .where(
             and(
               eq(operatingRulesApprovals.operatingRuleId, input.id),
-              eq(operatingRulesApprovals.status, "signed")
+              sql`${operatingRulesApprovals.status} = 'signed'`
             )
           )
           .orderBy(operatingRulesApprovals.approvalOrder);
@@ -731,7 +731,7 @@ export const committeeOperatingRulesRouter = router({
           .where(
             and(
               eq(operatingRulesApprovals.operatingRuleId, input.operatingRuleId),
-              eq(operatingRulesApprovals.status, "pending")
+              sql`${operatingRulesApprovals.status} = 'pending'`
             )
           );
 
@@ -951,7 +951,7 @@ export const committeeOperatingRulesRouter = router({
         .where(
           and(
             eq(operatingRulesApprovals.approverId, ctx.user.id),
-            eq(operatingRulesApprovals.status, "pending")
+            sql`${operatingRulesApprovals.status} = 'pending'`
           )
         )
         .orderBy(operatingRulesApprovals.createdAt);
@@ -1040,7 +1040,7 @@ export const committeeOperatingRulesRouter = router({
           .where(
             and(
               eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId),
-              eq(operatingRulesApprovals.status, "pending"),
+              sql`${operatingRulesApprovals.status} = 'pending'`,
               sql`${operatingRulesApprovals.id} != ${input.approvalId}`
             )
           );
@@ -1238,7 +1238,7 @@ export const committeeOperatingRulesRouter = router({
           .where(
             and(
               sql`${operatingRulesApprovals.createdAt} >= ${startDate}`,
-              eq(operatingRulesApprovals.status, "approved")
+              sql`${operatingRulesApprovals.status} = 'approved'`
             )
           );
 
@@ -1257,7 +1257,7 @@ export const committeeOperatingRulesRouter = router({
           .where(
             and(
               sql`${operatingRulesApprovals.createdAt} >= ${startDate}`,
-              eq(operatingRulesApprovals.status, "approved")
+              sql`${operatingRulesApprovals.status} = 'approved'`
             )
           )
           .groupBy(operatingRulesApprovals.approverId, users.name, users.email)
@@ -1698,7 +1698,7 @@ export const committeeOperatingRulesRouter = router({
           )
           .where(
             and(
-              eq(operatingRulesApprovals.status, "pending"),
+              sql`${operatingRulesApprovals.status} = 'pending'`,
               sql`${operatingRulesApprovals.deadline} >= ${now}`,
               sql`${operatingRulesApprovals.deadline} <= ${futureDate}`
             )
