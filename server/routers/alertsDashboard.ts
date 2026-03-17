@@ -128,7 +128,7 @@ export const alertsDashboardRouter = router({
           .from(cases)
           .where(
             and(
-              or(eq(cases.status, "open"), eq(cases.status, "investigating")),
+              sql`(${cases.status} = 'open' OR ${cases.status} = 'investigating')`,
               lte(cases.createdAt, thirtyDaysAgo)
             )
           );

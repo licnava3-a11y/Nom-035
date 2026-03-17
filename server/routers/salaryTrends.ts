@@ -26,7 +26,7 @@ export const salaryTrendsRouter = router({
       ORDER BY department, month
     `);
 
-    return trends.rows;
+    return ((trends) as any)[0] as any[];
   }),
 
   getTrendsByPosition: protectedProcedure.query(async () => {
@@ -46,7 +46,7 @@ export const salaryTrendsRouter = router({
       ORDER BY position, month
     `);
 
-    return trends.rows;
+    return ((trends) as any)[0] as any[];
   }),
 
   getMarketProjections: protectedProcedure.query(async () => {
@@ -78,7 +78,7 @@ export const salaryTrendsRouter = router({
       ORDER BY avg_gap ASC
     `);
 
-    return projections.rows;
+    return ((projections) as any)[0] as any[];
   }),
 
   getHistoricalAdjustments: protectedProcedure
@@ -131,7 +131,7 @@ export const salaryTrendsRouter = router({
       query = sql`${query} ORDER BY effective_date DESC LIMIT 100`;
 
       const adjustments = await db.execute(query);
-      return adjustments.rows;
+      return ((adjustments) as any)[0] as any[];
     }),
 
   getDepartmentSummary: protectedProcedure.query(async () => {
@@ -162,6 +162,6 @@ export const salaryTrendsRouter = router({
       ORDER BY avg_gap ASC
     `);
 
-    return summary.rows;
+    return ((summary) as any)[0] as any[];
   }),
 });

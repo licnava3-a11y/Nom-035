@@ -23,6 +23,7 @@ export const notificationLogsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       const { page, pageSize, type, status, recipientEmail, dateFrom, dateTo, search } = input;
       const offset = (page - 1) * pageSize;
 
@@ -120,6 +121,7 @@ export const notificationLogsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       const { dateFrom, dateTo } = input;
 
       const conditions = [];

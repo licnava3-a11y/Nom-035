@@ -516,6 +516,7 @@ export const performanceEvaluation360Router = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Obtener todos los departamentos o los especificados
       const departmentsQuery = input.departmentIds

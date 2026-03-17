@@ -33,7 +33,7 @@ export const trainingAssignmentsRouter = router({
           and(
             eq(trainingAssignments.trainingId, input.trainingId),
             eq(trainingAssignments.committeeMemberId, input.committeeMemberId),
-            inArray(trainingAssignments.status, ["pending", "in_progress"])
+            sql`${trainingAssignments.status} IN ('pending', 'in_progress')`
           )
         )
         .limit(1);
@@ -120,7 +120,7 @@ export const trainingAssignmentsRouter = router({
             and(
               eq(trainingAssignments.trainingId, input.trainingId),
               eq(trainingAssignments.committeeMemberId, member.id),
-              inArray(trainingAssignments.status, ["pending", "in_progress"])
+              sql`${trainingAssignments.status} IN ('pending', 'in_progress')`
             )
           )
           .limit(1);

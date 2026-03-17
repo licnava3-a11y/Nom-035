@@ -100,7 +100,7 @@ export const predictiveReportsRouter = router({
             .where(
               and(
                 eq(nom035Cases.reportedBy, user.id),
-                inArray(nom035Cases.status, ["open", "investigating"])
+                sql`${nom035Cases.status} IN ('open', 'in_progress')`
               )
             );
 

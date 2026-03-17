@@ -567,6 +567,7 @@ export const employeesRouter = router({
         }
 
         const db = await getDb();
+      if (!db) throw new Error("Database not available");
         const results = {
           total: data.length,
           successful: 0,

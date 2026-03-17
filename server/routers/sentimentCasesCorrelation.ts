@@ -60,7 +60,7 @@ export const sentimentCasesCorrelationRouter = router({
         .where(
           and(
             gte(nom035Cases.createdAt, start),
-            departmentId ? eq(nom035Cases.departmentId, departmentId) : sql`1=1`
+            departmentId ? sql`${nom035Cases.employeeId} IN (SELECT id FROM employees WHERE department_id = ${departmentId})` : sql`1=1`
           )
         )
         .groupBy(sql`DATE_FORMAT(${nom035Cases.createdAt}, '%Y-%m')`)
@@ -98,9 +98,9 @@ export const sentimentCasesCorrelationRouter = router({
       const autoCases = await db
         .select({
           id: nom035Cases.id,
-          title: nom035Cases.title,
+          title: nom035Cases.folio,
           description: nom035Cases.description,
-          priority: nom035Cases.priority,
+          priority: nom035Cases.riskLevel,
           status: nom035Cases.status,
           createdAt: nom035Cases.createdAt,
           departmentName: users.departamento,

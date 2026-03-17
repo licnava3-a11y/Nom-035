@@ -13,6 +13,7 @@ export const dashboardRouter = router({
   // Estadísticas del gerente
   getManagerStats: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
+    if (!db) throw new Error("Database not available");
     
     // Total de usuarios
     const totalUsers = db

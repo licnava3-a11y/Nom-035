@@ -940,7 +940,7 @@ export const departmentsRouter = router({
             name: employees.name,
             email: employees.email,
             position: employees.position,
-            status: employees.status,
+            isActive: employees.isActive,
           })
           .from(employees)
           .where(eq(employees.departmentId, dept.id))

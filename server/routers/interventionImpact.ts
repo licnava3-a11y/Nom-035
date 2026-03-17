@@ -749,6 +749,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         
         // Registrar en log de reportes compartidos
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
         if (db) {
           await db.insert(sharedReportsLog).values({
             reportUrl: input.reportUrl,

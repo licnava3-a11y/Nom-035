@@ -92,8 +92,8 @@ export const predictiveTurnoverDashboardRouter = router({
             .from(nom035Cases)
             .where(
               and(
-                eq(nom035Cases.departmentId, dept.id),
-                inArray(nom035Cases.status, ["open", "investigating"])
+                sql`${nom035Cases.employeeId} IN (SELECT id FROM employees WHERE department_id = ${dept.id})`,
+                sql`${nom035Cases.status} IN ('open', 'in_progress')`
               )
             );
 
@@ -110,7 +110,7 @@ export const predictiveTurnoverDashboardRouter = router({
             .where(
               and(
                 eq(users.departmentId, dept.id),
-                inArray(nom035Results.riskLevel, ["Alto", "Muy alto"]),
+                sql`${nom035Results.riskLevel} IN ('Alto', 'Muy alto')`,
                 gte(nom035Results.createdAt, sixMonthsAgo)
               )
             );
@@ -204,7 +204,7 @@ export const predictiveTurnoverDashboardRouter = router({
         const employeesWithCriticalComments = await db
           .select({
             userId: users.id,
-            userName: users.nombre,
+            userName: users.name,
             userEmail: users.email,
             departmentName: users.departamento,
             criticalCommentsCount: count(sentimentAnalysis.id),
@@ -219,7 +219,7 @@ export const predictiveTurnoverDashboardRouter = router({
               departmentId ? eq(users.departmentId, departmentId) : sql`1=1`
             )
           )
-          .groupBy(users.id, users.nombre, users.email, users.departamento)
+          .groupBy(users.id, users.name, users.email, users.departamento)
           .having(sql`COUNT(${sentimentAnalysis.id}) >= 2`) // Al menos 2 comentarios críticos
           .limit(limit);
 
@@ -335,15 +335,15 @@ export const predictiveTurnoverDashboardRouter = router({
         // Obtener casos abiertos
         const openCases = await db
           .select({
-            title: nom035Cases.title,
+            title: nom035Cases.folio,
             description: nom035Cases.description,
-            priority: nom035Cases.priority,
+            priority: nom035Cases.riskLevel,
           })
           .from(nom035Cases)
           .where(
             and(
-              eq(nom035Cases.departmentId, departmentId),
-              inArray(nom035Cases.status, ["open", "investigating"])
+              sql`${nom035Cases.employeeId} IN (SELECT id FROM employees WHERE department_id = ${departmentId})`,
+              sql`${nom035Cases.status} IN ('open', 'in_progress')`
             )
           )
           .limit(5);

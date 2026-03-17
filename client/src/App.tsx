@@ -977,14 +977,14 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"executive-reports"}>
+        <Route path={"/executive-reports"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <ExecutiveReportsPanel />
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"executive-dashboard"}>
+        <Route path={"/executive-dashboard"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <ExecutiveDashboard />
@@ -1634,6 +1634,140 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <TestDataSeeder />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        {/* Rutas alias para compatibilidad con DashboardLayout */}
+        <Route path={"/courses"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Courses />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/employees/turnover"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TurnoverDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organization/dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organization/chart"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationChart />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/organization/changes"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationalChanges />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/competencies-manager"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <OrganizationalCompetenciesManager />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/competency-evaluation"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <EmployeeCompetencyEvaluation />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/notifications/history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NotificationHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/reports/regulatory"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RegulatoryReports />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/nom035-admin"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Nom035AdminPanel />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/periods"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SurveyPeriodsManager />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/token-management"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TokenManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/surveys/tokens-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <TokenManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/compliance/numerals"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NumeralsVerification />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/compliance/reports-history"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SharedReportsHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/admin/import"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <MassiveImport />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/company"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CompanySettings />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alerts"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertsDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/nom035/questionnaire"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <NOM035Questionnaire />
             </Suspense>
           </DashboardLayout>
         </Route>

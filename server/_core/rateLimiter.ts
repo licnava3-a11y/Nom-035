@@ -3,17 +3,15 @@
  * Implementa límites diferenciados por tipo de endpoint
  */
 
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import type { Request, Response } from "express";
 
 /**
  * Helper para generar key de rate limit compatible con IPv4 e IPv6
- * Normaliza direcciones IPv6 para evitar bypass de límites
+ * Usa ipKeyGenerator oficial para manejar correctamente IPv6
  */
 const generateKey = (req: Request): string => {
-  // Usar el helper ipKeyGenerator de express-rate-limit si está disponible
-  // Si no, usar la IP directamente
-  return req.ip || req.socket.remoteAddress || "unknown";
+  return ipKeyGenerator(req);
 };
 
 /**

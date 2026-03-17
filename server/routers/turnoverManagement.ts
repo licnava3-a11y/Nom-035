@@ -24,6 +24,7 @@ export const turnoverManagementRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       const records = await db!
         .select({
@@ -75,6 +76,7 @@ export const turnoverManagementRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Validar que el empleado existe
       const employee = await db!.select().from(users).where(eq(users.id, input.userId)).limit(1);
@@ -152,6 +154,7 @@ export const turnoverManagementRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Verificar que el registro existe
       const existingRecord = await db!
@@ -197,6 +200,7 @@ export const turnoverManagementRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Verificar que el registro existe
       const existingRecord = await db!

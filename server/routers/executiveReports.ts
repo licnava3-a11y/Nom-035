@@ -24,7 +24,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
     .select({
       total: count(),
       status: nom035Cases.status,
-      priority: nom035Cases.priority,
+      priority: nom035Cases.riskLevel,
     })
     .from(nom035Cases)
     .where(
@@ -33,7 +33,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
         lte(nom035Cases.createdAt, endDate)
       )
     )
-    .groupBy(nom035Cases.status, nom035Cases.priority);
+    .groupBy(nom035Cases.status, nom035Cases.riskLevel);
 
   const totalCases = casesData.reduce((sum, c) => sum + c.total, 0);
   const openCases = casesData.filter(c => c.status === "open").reduce((sum, c) => sum + c.total, 0);
@@ -81,7 +81,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
   const employeesCount = await db
     .select({ count: count() })
     .from(employees)
-    .where(eq(employees.activo, true));
+    .where(eq(employees.isActive, true));
 
   const totalEmployees = employeesCount[0]?.count || 0;
 

@@ -1,12 +1,13 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { sql } from "drizzle-orm";
-import { evaluation360Cycles, evaluation360Assignments, riskAlertThresholds, scheduledReports, reportHistory } from "../../drizzle/schema";
+import { evaluation360Assignments } from "../../drizzle/schema";
 
 export const testDataRouter = router({
   seedSession29: protectedProcedure.mutation(async ({ ctx }) => {
     const db = await getDb();
-    
+    if (!db) throw new Error("Database not available");
+
     try {
       // 1. Insertar 2 ciclos de evaluación 360° usando SQL raw para evitar problemas de timezone
       await db.execute(sql`
@@ -16,27 +17,26 @@ export const testDataRouter = router({
       `);
 
       // Obtener IDs de ciclos recién creados
-      const cyclesQuery = await db.execute(sql`
+      const cyclesResult = await db.execute(sql`
         SELECT id FROM evaluation_360_cycles ORDER BY created_at DESC LIMIT 2
       `);
-      const cycleIds = cyclesQuery.rows.map((row: any) => row.id).reverse();
+      const cyclesRows = (cyclesResult as any)[0] as Array<{ id: number }>;
+      const cycleIds = cyclesRows.map((row) => row.id).reverse();
       const cycle1Id = cycleIds[0];
       const cycle2Id = cycleIds[1];
 
       // Obtener empleados existentes (primeros 10)
-      const employeesQuery = await db.execute(sql`
+      const employeesResult = await db.execute(sql`
         SELECT id FROM employees ORDER BY id ASC LIMIT 10
       `);
-      const employeeIds = employeesQuery.rows.map((row: any) => row.id);
+      const employeesRows = (employeesResult as any)[0] as Array<{ id: number }>;
+      const employeeIds = employeesRows.map((row) => row.id);
 
       if (employeeIds.length < 10) {
         throw new Error(`Solo hay ${employeeIds.length} empleados en la base de datos. Se requieren al menos 10 para generar datos de prueba.`);
       }
 
       // 2. Insertar 10 asignaciones de empleados a ciclos
-      if (!db) {
-        throw new Error('Database connection not available');
-      }
       await db.insert(evaluation360Assignments).values([
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[0], status: 'pending' },
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[1], status: 'in_progress' },
@@ -51,9 +51,6 @@ export const testDataRouter = router({
       ]);
 
       // 3. Insertar umbrales de alertas tempranas (30% riesgo alto por defecto)
-      if (!db) {
-        throw new Error('Database connection not available');
-      }
       await db.execute(sql`
         INSERT INTO risk_alert_thresholds (department_id, high_risk_threshold, medium_risk_threshold, alert_enabled, created_by) VALUES
         (1, 30, 20, 1, ${ctx.user.id}),
@@ -62,9 +59,6 @@ export const testDataRouter = router({
       `);
 
       // 4. Insertar 2 reportes programados
-      if (!db) {
-        throw new Error('Database connection not available');
-      }
       await db.execute(sql`
         INSERT INTO scheduled_reports (report_name, description, frequency, recipients, include_nmx025, include_nom035, is_active, created_by) VALUES
         ('Reporte Ejecutivo Mensual', 'Dashboard ejecutivo con métricas NMX-025 y NOM-035', 'monthly', 'director@empresa.com,rh@empresa.com', 1, 1, 1, ${ctx.user.id}),
@@ -72,9 +66,6 @@ export const testDataRouter = router({
       `);
 
       // 5. Insertar historial de reportes (simulando envíos previos)
-      if (!db) {
-        throw new Error('Database connection not available');
-      }
       await db.execute(sql`
         INSERT INTO report_history (report_id, sent_at, status, recipients) VALUES
         (LAST_INSERT_ID() - 1, '2026-01-01 08:00:00', 'sent', 'director@empresa.com,rh@empresa.com'),

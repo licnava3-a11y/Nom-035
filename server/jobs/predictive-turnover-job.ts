@@ -76,7 +76,7 @@ async function analyzePredictiveTurnover() {
         .where(
           and(
             eq(employees.departmentId, dept.id),
-            sql`${employees.status} = 'activo'`
+            eq(employees.isActive, true)
           )
         )
         .execute();
@@ -106,7 +106,7 @@ async function analyzePredictiveTurnover() {
         .where(
           and(
             eq(employees.departmentId, dept.id),
-            sql`${employees.status} = 'inactivo'`,
+            eq(employees.isActive, false),
             gte(employees.updatedAt, threeMonthsAgo)
           )
         )
@@ -124,7 +124,7 @@ async function analyzePredictiveTurnover() {
         .where(
           and(
             eq(employees.departmentId, dept.id),
-            sql`${employees.status} = 'activo'`
+            eq(employees.isActive, true)
           )
         )
         .execute();

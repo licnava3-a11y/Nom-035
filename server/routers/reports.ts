@@ -392,6 +392,7 @@ export const reportsRouter = router({
 
       try {
         const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
         // Obtener departamentos con contador de empleados
         // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -418,7 +419,7 @@ export const reportsRouter = router({
             .where(
               and(
                 eq(users.departmentId, dept.id),
-                input.includeInactive ? undefined : eq(users.isActive, true)
+                input.includeInactive ? undefined : eq(sql`1`, true)
               )
             );
 

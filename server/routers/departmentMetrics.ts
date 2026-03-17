@@ -91,7 +91,7 @@ export const departmentMetricsRouter = router({
             .where(
               and(
                 eq(employees.departmentId, dept.id),
-                sql`${employees.status} = 'inactivo'`,
+                eq(employees.isActive, false),
                 gte(employees.updatedAt, start),
                 lte(employees.updatedAt, end)
               )
@@ -175,7 +175,7 @@ export const departmentMetricsRouter = router({
                   and(
                     eq(employees.departmentId, dept.id),
                     lte(employees.createdAt, monthEnd),
-                    sql`(${employees.status} = 'activo' OR ${employees.updatedAt} > ${monthEnd})`
+                    eq(employees.isActive, true)
                   )
                 )
                 .execute();
@@ -222,7 +222,7 @@ export const departmentMetricsRouter = router({
       })
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
-      .where(sql`${employees.status} = 'activo'`)
+      .where(eq(employees.isActive, true))
       .groupBy(employees.departmentId, departments.name)
       .orderBy(desc(count()))
       .execute();
@@ -301,7 +301,7 @@ export const departmentMetricsRouter = router({
               .where(
                 and(
                   eq(employees.departmentId, dept.id),
-                  sql`${employees.status} = 'inactivo'`,
+                  eq(employees.isActive, false),
                   gte(employees.updatedAt, currentYearStart),
                   lte(employees.updatedAt, currentYearEnd)
                 )
@@ -340,7 +340,7 @@ export const departmentMetricsRouter = router({
               .where(
                 and(
                   eq(employees.departmentId, dept.id),
-                  sql`${employees.status} = 'inactivo'`,
+                  eq(employees.isActive, false),
                   gte(employees.updatedAt, lastYearStart),
                   lte(employees.updatedAt, lastYearEnd)
                 )
@@ -404,7 +404,7 @@ export const departmentMetricsRouter = router({
                 and(
                   eq(employees.departmentId, dept.id),
                   lte(employees.createdAt, currentYearEnd),
-                  sql`(${employees.status} = 'activo' OR ${employees.updatedAt} > ${currentYearEnd})`
+                  eq(employees.isActive, true)
                 )
               )
               .execute();
@@ -427,7 +427,7 @@ export const departmentMetricsRouter = router({
                 and(
                   eq(employees.departmentId, dept.id),
                   lte(employees.createdAt, lastYearEnd),
-                  sql`(${employees.status} = 'activo' OR ${employees.updatedAt} > ${lastYearEnd})`
+                  eq(employees.isActive, true)
                 )
               )
               .execute();
@@ -478,7 +478,7 @@ export const departmentMetricsRouter = router({
               .where(
                 and(
                   eq(employees.departmentId, dept.id),
-                  sql`${employees.status} = 'activo'`
+                  eq(employees.isActive, true)
                 )
               )
               .execute();
@@ -534,14 +534,14 @@ export const departmentMetricsRouter = router({
       if (departmentId) {
         conditions.push(eq(employees.departmentId, departmentId));
       }
-      conditions.push(sql`${employees.status} = 'activo'`);
+      conditions.push(eq(employees.isActive, true));
 
       if (search) {
         conditions.push(
           or(
-            sql`${employees.nombre} LIKE ${`%${search}%`}`,
-            sql`${employees.apellidoPaterno} LIKE ${`%${search}%`}`,
-            sql`${employees.apellidoMaterno} LIKE ${`%${search}%`}`,
+            sql`${employees.firstName} LIKE ${`%${search}%`}`,
+            sql`${employees.lastName} LIKE ${`%${search}%`}`,
+            sql`${sql`''`} LIKE ${`%${search}%`}`,
             sql`${employees.email} LIKE ${`%${search}%`}`
           )!
         );
@@ -552,11 +552,11 @@ export const departmentMetricsRouter = router({
       const employeesList = await db
         .select({
           id: employees.id,
-          nombre: employees.nombre,
-          apellidoPaterno: employees.apellidoPaterno,
-          apellidoMaterno: employees.apellidoMaterno,
+          nombre: employees.firstName,
+          apellidoPaterno: employees.lastName,
+          apellidoMaterno: sql`''`,
           email: employees.email,
-          puesto: employees.puesto,
+          puesto: employees.positionId,
           departmentId: employees.departmentId,
           departmentName: departments.name,
           createdAt: employees.createdAt,

@@ -19,6 +19,7 @@ export const positionsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
       const { page, pageSize, search, departmentId, isActive } = input;
       const offset = (page - 1) * pageSize;
 
@@ -84,6 +85,7 @@ export const positionsRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
       // @ts-expect-error - getDb() siempre retorna instancia válida
       const [position] = await db
         .select({
@@ -125,6 +127,7 @@ export const positionsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Verificar código único
       // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -171,6 +174,7 @@ export const positionsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
       const { id, ...updates } = input;
 
       // Verificar que existe
@@ -216,6 +220,7 @@ export const positionsRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Verificar que no tenga empleados asignados
       // @ts-expect-error - getDb() siempre retorna instancia válida
@@ -247,6 +252,7 @@ export const positionsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Construir condiciones de filtrado
       const conditions = [eq(positions.isActive, true)];

@@ -16,6 +16,7 @@ export const interventionsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Obtener datos del empleado
       const employee = await db

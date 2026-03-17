@@ -241,7 +241,7 @@ export const recommendationsTrackingRouter = router({
       .leftJoin(users, eq(recommendationsTracking.assignedTo, users.id))
       .where(
         and(
-          inArray(recommendationsTracking.status, ["pending", "in_progress"]),
+          sql`${recommendationsTracking.status} IN ('pending', 'in_progress')`,
           sql`${recommendationsTracking.dueDate} IS NOT NULL`,
           sql`${recommendationsTracking.dueDate} <= ${sevenDaysFromNow.toISOString().split("T")[0]}`
         )

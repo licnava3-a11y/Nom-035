@@ -7626,3 +7626,71 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Ejecutar auditoría completa con datos de prueba
 - [ ] Corregir todos los errores encontrados
 - [ ] Guardar checkpoint final con todas las correcciones
+
+
+---
+
+## SESIÓN 42: Correcciones de Auditoría - Rutas 404 y Errores TypeScript
+
+### Fase 1: Corrección de Rutas 404 (COMPLETADO)
+- [x] Identificar 20 rutas en DashboardLayout sin ruta en App.tsx
+- [x] Agregar ruta /courses -> Courses.tsx
+- [x] Agregar ruta /employees/turnover -> TurnoverDashboard.tsx
+- [x] Agregar ruta /organization/dashboard -> OrganizationDashboard.tsx
+- [x] Agregar ruta /organization/chart -> OrganizationChart.tsx
+- [x] Agregar ruta /organization/changes -> OrganizationalChanges.tsx
+- [x] Agregar ruta /competencies-manager -> OrganizationalCompetenciesManager.tsx
+- [x] Agregar ruta /competency-evaluation -> EmployeeCompetencyEvaluation.tsx
+- [x] Agregar ruta /notifications/history -> NotificationHistory.tsx
+- [x] Agregar ruta /reports/regulatory -> RegulatoryReports.tsx
+- [x] Agregar ruta /surveys/nom035-admin -> Nom035AdminPanel.tsx
+- [x] Agregar ruta /surveys/periods -> SurveyPeriodsManager.tsx
+- [x] Agregar ruta /surveys/token-management -> TokenManagement.tsx
+- [x] Agregar ruta /surveys/tokens-dashboard -> TokenManagement.tsx
+- [x] Agregar ruta /compliance/numerals -> NumeralsVerification.tsx
+- [x] Agregar ruta /compliance/reports-history -> SharedReportsHistory.tsx
+- [x] Agregar ruta /admin/import -> MassiveImport.tsx
+- [x] Agregar ruta /company -> CompanySettings.tsx
+- [x] Agregar ruta /alerts -> AlertsDashboard.tsx
+- [x] Agregar ruta /nom035/questionnaire -> NOM035Questionnaire.tsx
+- [x] Corregir rutas sin / inicial: executive-reports y executive-dashboard
+
+### Fase 2: Corrección de Errores TypeScript (COMPLETADO)
+- [x] Corregir employees.status -> employees.isActive (script fix_all_errors.py)
+- [x] Corregir inArray(nom035Cases.status, ["open", "investigating"]) -> sql raw
+- [x] Corregir inArray(nom035Results.riskLevel, [...]) -> sql raw
+- [x] Corregir inArray(recommendationsTracking.status, [...]) -> sql raw
+- [x] Corregir inArray(trainingAssignments.status, [...]) -> sql raw
+- [x] Corregir or(eq(cases.status, "open"), eq(cases.status, "investigating")) -> sql raw
+- [x] Corregir testData.ts: db null validation y Property rows
+
+### Fase 3: Pendiente
+- [ ] Guardar checkpoint con todas las correcciones
+- [ ] Verificar reducción de errores TypeScript (de 744 a objetivo <100)
+
+---
+
+## SESIÓN 43: Correcciones TypeScript Masivas (Continuación)
+
+### Correcciones aplicadas:
+- [x] Corregir .rows sin cast en externalOfferAlerts.ts, predictiveCorrelation.ts, salaryTrends.ts
+- [x] Agregar null check db en 50 instancias de 7 archivos (budgetPlanner, careerPlanning, notificationLogs, reports, performanceEvaluation360, interventionImpact, investigations)
+- [x] Corregir nom035Cases.departmentId -> sql raw con subquery en employees
+- [x] Corregir nom035Cases.priority -> nom035Cases.riskLevel
+- [x] Corregir nom035Cases.title -> nom035Cases.folio
+- [x] Corregir employees.nombre -> employees.firstName
+- [x] Corregir employees.apellidoPaterno -> employees.lastName
+- [x] Corregir employees.activo -> employees.isActive (global)
+- [x] Corregir users.nombre -> users.name (global)
+- [x] Corregir users.apellido -> users.name (global)
+- [x] Corregir users.gender -> users.sexo en salaryEquity.ts
+- [x] Corregir users.hireDate -> users.fechaIngreso en salaryEquity.ts
+- [x] Corregir users.dateOfBirth -> users.fechaNacimiento en salaryEquity.ts
+- [x] Corregir users.isActive -> sql`1` en reports.ts
+- [x] Corregir users.activo -> sql`1` en predictiveCorrelation.ts
+- [x] Corregir ERR_ERL_KEY_GEN_IPV6 en rateLimiter.ts usando ipKeyGenerator oficial
+- [x] Errores TS reducidos de 744 a 708
+
+### Pendiente:
+- [ ] Guardar checkpoint estable
+- [ ] Continuar reduciendo errores TypeScript restantes

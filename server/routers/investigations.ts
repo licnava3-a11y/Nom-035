@@ -21,6 +21,7 @@ export const investigationsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Generar token único para acceso en línea
       const accessToken = randomBytes(32).toString("hex");

@@ -104,7 +104,7 @@ export const externalOfferAlertsRouter = router({
       WHERE alert_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     `);
 
-    return stats.rows[0];
+    return (((stats) as any)[0] as any);
   }),
 
   getAlertsByDepartment: protectedProcedure.query(async () => {
@@ -123,6 +123,6 @@ export const externalOfferAlertsRouter = router({
       ORDER BY avg_risk_score DESC
     `);
 
-    return byDept.rows;
+    return ((byDept) as any)[0] as any[];
   }),
 });

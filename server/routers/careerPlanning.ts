@@ -51,6 +51,7 @@ export const careerPlanningRouter = router({
   // Obtener rutas de carrera activas
   getActivePaths: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     
     const paths = await db
       .select()
@@ -68,6 +69,7 @@ export const careerPlanningRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       // Obtener información del empleado
       const [employee] = await db
@@ -157,6 +159,7 @@ export const careerPlanningRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       // Generar hitos automáticos
       const milestones = [
@@ -202,6 +205,7 @@ export const careerPlanningRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       const [plan] = await db
         .select()
@@ -240,6 +244,7 @@ export const careerPlanningRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       
       const [plan] = await db
         .select()
@@ -273,6 +278,7 @@ export const careerPlanningRouter = router({
   // Proyectar vacantes futuras
   getVacancyProjections: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
     
     // Calcular proyecciones basadas en rotación histórica
     const turnoverData = await db

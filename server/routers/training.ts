@@ -15,6 +15,7 @@ export const trainingRouter = router({
   getInstructorStats: protectedProcedure.query(async ({ ctx }) => {
     try {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
     
     // Contar cursos publicados (completados)
     const publishedCourses = db
@@ -56,6 +57,7 @@ export const trainingRouter = router({
   getInstructorUpcomingCourses: protectedProcedure.query(async ({ ctx }) => {
     try {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
     
     // Obtener cursos publicados más recientes
     const upcomingCourses = db

@@ -60,7 +60,7 @@ export const predictiveCorrelationRouter = router({
           HAVING riskScore >= 60
         `);
 
-        const highRiskEmployees = highRiskQuery.rows as any[];
+        const highRiskEmployees = ((highRiskQuery) as any)[0] as any[];
         const highRiskIds = highRiskEmployees.map((e: any) => e.id);
 
         // Obtener empleados que rotaron
@@ -87,7 +87,7 @@ export const predictiveCorrelationRouter = router({
           .from(users)
           .where(
             and(
-              eq(users.activo, true),
+              eq(sql`1`, true),
               sql`${users.id} NOT IN (${highRiskIds.length > 0 ? highRiskIds.join(",") : "0"})`,
               sql`${users.id} NOT IN (${turnoverIds.length > 0 ? turnoverIds.join(",") : "0"})`
             )
@@ -149,8 +149,8 @@ export const predictiveCorrelationRouter = router({
         .select({
           id: employeeTurnoverHistory.id,
           userId: employeeTurnoverHistory.userId,
-          nombre: users.nombre,
-          apellido: users.apellido,
+          nombre: users.name,
+          apellido: users.name,
           email: users.email,
           departamento: users.departamento,
           exitDate: employeeTurnoverHistory.exitDate,
@@ -218,7 +218,7 @@ export const predictiveCorrelationRouter = router({
         HAVING riskScore >= 60
       `);
 
-      return highRiskQuery.rows;
+      return ((highRiskQuery) as any)[0] as any[];
     } catch (error) {
       console.error("[PredictiveCorrelation] Error getting false positives:", error);
       throw new TRPCError({
@@ -240,8 +240,8 @@ export const predictiveCorrelationRouter = router({
         .select({
           id: employeeTurnoverHistory.id,
           userId: employeeTurnoverHistory.userId,
-          nombre: users.nombre,
-          apellido: users.apellido,
+          nombre: users.name,
+          apellido: users.name,
           email: users.email,
           departamento: users.departamento,
           exitDate: employeeTurnoverHistory.exitDate,

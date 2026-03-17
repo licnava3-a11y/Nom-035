@@ -87,6 +87,7 @@ export const budgetPlannerRouter = router({
 
   getScenarios: protectedProcedure.query(async () => {
     const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
     const scenarios = await db
       .select()
@@ -100,6 +101,7 @@ export const budgetPlannerRouter = router({
     .input(z.object({ scenarioId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       const [scenario] = await db
         .select()
@@ -126,6 +128,7 @@ export const budgetPlannerRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       // Obtener datos de empleados
       const employees = await db.execute(sql`
@@ -141,7 +144,7 @@ export const budgetPlannerRouter = router({
         WHERE p.employee_id IN (${sql.join(input.employeeIds, sql`, `)})
       `);
 
-      const adjustments = (employees.rows as any[]).map((emp) => {
+      const adjustments = ((employees as any)[0] as any[]).map((emp) => {
         const currentSalary = parseFloat(emp.current_salary);
         const marketRate = parseFloat(emp.market_rate || emp.current_salary);
         const increase = marketRate - currentSalary;
@@ -186,6 +189,7 @@ export const budgetPlannerRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       const [scenario] = await db
         .select()
@@ -225,6 +229,7 @@ export const budgetPlannerRouter = router({
     .input(z.object({ scenarioId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       await db
         .update(budgetAdjustmentScenarios)
@@ -242,6 +247,7 @@ export const budgetPlannerRouter = router({
     .input(z.object({ scenarioId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
 
       await db
         .delete(budgetAdjustmentScenarios)

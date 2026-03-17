@@ -21,9 +21,9 @@ export const salaryEquityRouter = router({
         department: payrollData.department,
         position: payrollData.position,
         salary: payrollData.salary,
-        gender: users.gender,
-        dateOfBirth: users.dateOfBirth,
-        hireDate: users.hireDate,
+        gender: users.sexo,
+        dateOfBirth: users.fechaNacimiento,
+        hireDate: users.fechaIngreso,
       })
       .from(payrollData)
       .leftJoin(users, eq(payrollData.employeeId, users.id));

@@ -13,6 +13,7 @@ export const talentDashboardRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
       const { departmentId, period } = input;
 
       // Calcular fecha de inicio según período
