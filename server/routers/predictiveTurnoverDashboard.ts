@@ -109,7 +109,7 @@ export const predictiveTurnoverDashboardRouter = router({
           .where(
                 and(
                   sql`${nom035Results.employeeId} IN (SELECT id FROM employees WHERE department_id = ${dept.id})`,
-                  sql`${nom035Results.global_risk_level} IN ('alto', 'muy_alto')`,
+                  sql`${nom035Results.globalRiskLevel} IN ('alto', 'muy_alto')`,
                 gte(nom035Results.createdAt, sixMonthsAgo)
               )
             );
@@ -161,7 +161,7 @@ export const predictiveTurnoverDashboardRouter = router({
         }
 
         // Ordenar por probabilidad de rotación (mayor a menor)
-        metrics.sort((a, b) => b.turnoverProbability - a.turnoverProbability);
+        metrics.sort(($a: any, $b: any) => b.turnoverProbability - a.turnoverProbability);
 
         return metrics;
       } catch (error) {
@@ -261,7 +261,7 @@ export const predictiveTurnoverDashboardRouter = router({
         });
 
         // Ordenar por riskScore (mayor a menor)
-        highRiskEmployees.sort((a, b) => b.riskScore - a.riskScore);
+        highRiskEmployees.sort(($a: any, $b: any) => b.riskScore - a.riskScore);
 
         return highRiskEmployees;
       } catch (error) {
@@ -424,7 +424,7 @@ Formato de respuesta (JSON):
           },
         });
 
-        const content = response.choices[0].message.content;
+        const content = response.choices[0].message.content as string;
         const recommendations = JSON.parse(content);
 
         return {

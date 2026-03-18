@@ -207,7 +207,7 @@ export const whatsappTrackingRouter = router({
           normativa,
           count,
         }))
-        .sort((a, b) => b.count - a.count);
+        .sort(($a: any, $b: any) => b.count - a.count);
 
       return normativasArray;
     }),

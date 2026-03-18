@@ -137,7 +137,7 @@ export const competenciesStatsRouter = router({
         dept.employeeCount > 0 ? dept.avgCompetencyLevel / dept.employeeCount : 0,
     }));
 
-    return result.sort((a, b) => b.criticalGaps - a.criticalGaps);
+    return result.sort(($a: any, $b: any) => b.criticalGaps - a.criticalGaps);
   }),
 
   /**
@@ -315,7 +315,7 @@ export const competenciesStatsRouter = router({
 
       // Sort by total gap and limit
       const result = Object.values(gapsByCompetency)
-        .sort((a, b) => b.totalGap - a.totalGap)
+        .sort(($a: any, $b: any) => b.totalGap - a.totalGap)
         .slice(0, input.limit);
 
       return result;

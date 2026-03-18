@@ -602,7 +602,7 @@ export const performanceEvaluation360Router = router({
       }
 
       // Ordenar departamentos por ranking (mayor a menor)
-      reportData.sort((a, b) => b.ranking - a.ranking);
+      reportData.sort(($a: any, $b: any) => b.ranking - a.ranking);
 
       // Generar HTML para PDF
       const htmlContent = `

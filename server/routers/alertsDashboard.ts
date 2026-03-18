@@ -161,7 +161,7 @@ export const alertsDashboardRouter = router({
 
       // Ordenar por prioridad (critical > high > medium > low)
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      filteredAlerts.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      filteredAlerts.sort(($a: any, $b: any) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
       return {
         alerts: filteredAlerts,

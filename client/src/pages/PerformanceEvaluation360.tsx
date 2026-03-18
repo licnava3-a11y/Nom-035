@@ -177,7 +177,7 @@ export default function PerformanceEvaluation360() {
             const name = prompt("Nombre del ciclo de evaluación:");
             if (name) {
               createCycleMutation.mutate({
-                name,
+                cycleName: name,
                 startDate: new Date().toISOString(),
                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
               });
@@ -231,9 +231,9 @@ export default function PerformanceEvaluation360() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedEvaluations}</div>
+              <div className="text-2xl font-bold">{stats.completedAssignments}</div>
               <p className="text-xs text-muted-foreground">
-                {((stats.completedEvaluations / stats.totalEmployees) * 100).toFixed(1)}% completado
+                {((stats.completedAssignments / stats.totalEmployees) * 100).toFixed(1)}% completado
               </p>
             </CardContent>
           </Card>
@@ -447,7 +447,7 @@ export default function PerformanceEvaluation360() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
-                  onClick={() => consolidateResultsMutation.mutate({ cycleId: selectedCycleId })}
+                  onClick={() => consolidateResultsMutation.mutate({ cycleId: selectedCycleId } as any)}
                   disabled={consolidateResultsMutation.isPending}
                 >
                   {consolidateResultsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

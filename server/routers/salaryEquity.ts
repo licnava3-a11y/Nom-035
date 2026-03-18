@@ -146,7 +146,7 @@ export const salaryEquityRouter = router({
         };
       })
       .filter(c => Math.abs(c.gapPercentage) > 20)
-      .sort((a, b) => Math.abs(b.gapPercentage) - Math.abs(a.gapPercentage))
+      .sort(($a: any, $b: any) => Math.abs(b.gapPercentage) - Math.abs(a.gapPercentage))
       .slice(0, 20);
 
     // Calcular índice de equidad global

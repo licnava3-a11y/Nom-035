@@ -137,7 +137,7 @@ export const actionPlanRouter = router({
           avgScore: data.total / data.count,
           riskLevel: 'medio', // Simplificado, se puede calcular según rangos
         }))
-        .sort((a, b) => b.avgScore - a.avgScore)
+        .sort(($a: any, $b: any) => b.avgScore - a.avgScore)
         .slice(0, 5);
 
       return {

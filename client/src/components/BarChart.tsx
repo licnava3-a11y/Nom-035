@@ -103,7 +103,7 @@ export function BarChart({ data, competencyName, className }: BarChartProps) {
         callbacks: {
           label: function (context) {
             const label = context.dataset.label || "";
-            const value = context.parsed.y.toFixed(1);
+            const value = (context.parsed.y ?? 0).toFixed(1);
             return `${label}: ${value}`;
           },
           afterLabel: function (context) {

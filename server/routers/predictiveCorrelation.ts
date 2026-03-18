@@ -108,7 +108,7 @@ export const predictiveCorrelationRouter = router({
           ? (2 * (precision * recall)) / (precision + recall) 
           : 0;
         
-        const accuracy = truePositives + trueNegatives + falsePositives + falseNegatives > 0
+        const accuracy = truePositives + tn + falsePositives + falseNegatives > 0
           ? ((truePositives + tn) / (truePositives + tn + falsePositives + falseNegatives)) * 100
           : 0;
 

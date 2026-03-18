@@ -293,7 +293,7 @@ export const skillsMatrixSnapshotsRouter = router({
       }
 
       // Sort by improvement (best first)
-      employeeComparisons.sort((a, b) => {
+      employeeComparisons.sort(($a: any, $b: any) => {
         const scoreA = a.averageLevel.change - (a.totalGap.change * 0.5);
         const scoreB = b.averageLevel.change - (b.totalGap.change * 0.5);
         return scoreB - scoreA;
