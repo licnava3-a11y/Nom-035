@@ -430,7 +430,7 @@ export const skillsMatrixRouter = router({
 
       // Ordenar candidatos por nivel promedio (descendente)
       Object.keys(successionAnalysis).forEach((dept) => {
-        successionAnalysis[dept].sort(($a: any, $b: any) => parseFloat(b.nivelPromedio) - parseFloat(a.nivelPromedio));
+        successionAnalysis[dept].sort((a, b) => parseFloat(b.nivelPromedio) - parseFloat(a.nivelPromedio));
       });
 
       // 3. Sugerencias de capacitación crítica por departamento
@@ -452,7 +452,7 @@ export const skillsMatrixRouter = router({
 
         // Top 5 competencias críticas
         const topGaps = competencyGaps
-          .sort(($a: any, $b: any) => parseFloat(a.nivelPromedio) - parseFloat(b.nivelPromedio))
+          .sort((a, b) => parseFloat(a.nivelPromedio) - parseFloat(b.nivelPromedio))
           .slice(0, 5);
 
         trainingRecommendations[dept] = topGaps;

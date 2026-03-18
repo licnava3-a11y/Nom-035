@@ -69,7 +69,7 @@ export default function PublicSurveyResponse() {
 
   useEffect(() => {
     if (questionsData?.questions) {
-      setQuestions(questionsData.questions as any);
+      setQuestions(questionsData.questions);
     }
   }, [questionsData]);
 

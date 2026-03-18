@@ -126,7 +126,7 @@ export const interventionRecommendationsRouter = router({
 
         // Ordenar por score descendente y tomar top 3
         const topRecommendations = recommendations
-          .sort(($a: any, $b: any) => b.score - a.score)
+          .sort((a, b) => b.score - a.score)
           .slice(0, 3);
 
         return {

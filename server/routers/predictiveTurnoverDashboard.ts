@@ -106,10 +106,11 @@ export const predictiveTurnoverDashboardRouter = router({
           const highRiskSurveysCount = await db
             .select({ count: count() })
             .from(nom035Results)
-          .where(
-                and(
-                  sql`${nom035Results.employeeId} IN (SELECT id FROM employees WHERE department_id = ${dept.id})`,
-                  sql`${nom035Results.globalRiskLevel} IN ('alto', 'muy_alto')`,
+            .innerJoin(users, eq(nom035Results.userId, users.id))
+            .where(
+              and(
+                sql`${users.departamento} = ${String(dept.id)}`,
+                sql`${nom035Results.riskLevel} IN ('Alto', 'Muy alto')`,
                 gte(nom035Results.createdAt, sixMonthsAgo)
               )
             );
@@ -161,7 +162,7 @@ export const predictiveTurnoverDashboardRouter = router({
         }
 
         // Ordenar por probabilidad de rotación (mayor a menor)
-        metrics.sort(($a: any, $b: any) => b.turnoverProbability - a.turnoverProbability);
+        metrics.sort((a, b) => b.turnoverProbability - a.turnoverProbability);
 
         return metrics;
       } catch (error) {
@@ -225,29 +226,29 @@ export const predictiveTurnoverDashboardRouter = router({
         // Obtener resultados de encuestas NOM-035 para estos empleados
         const userIds = employeesWithCriticalComments.map(e => e.userId);
 
-        // nom035Results usa employeeId (no userId), globalRiskLevel, globalScore
         const surveyResults = userIds.length > 0
           ? await db
               .select({
-                employeeId: nom035Results.employeeId,
-                riskLevel: nom035Results.globalRiskLevel,
-                finalScore: nom035Results.globalScore,
+                userId: nom035Results.userId,
+                riskLevel: nom035Results.riskLevel,
+                finalScore: nom035Results.finalScore,
               })
               .from(nom035Results)
+              .where(inArray(nom035Results.userId, userIds))
               .orderBy(desc(nom035Results.createdAt))
           : [];
 
-        // Mapear resultados de encuestas por employeeId
+        // Mapear resultados de encuestas por userId
         const surveyResultsMap = new Map();
         surveyResults.forEach(result => {
-          if (!surveyResultsMap.has(result.employeeId)) {
-            surveyResultsMap.set(result.employeeId, result);
+          if (!surveyResultsMap.has(result.userId)) {
+            surveyResultsMap.set(result.userId, result);
           }
         });
 
         // Combinar datos
         const highRiskEmployees = employeesWithCriticalComments.map(emp => {
-          const surveyResult = surveyResultsMap.get(emp.userId); // Note: userId may differ from employeeId
+          const surveyResult = surveyResultsMap.get(emp.userId);
           return {
             userId: emp.userId,
             userName: emp.userName,
@@ -261,7 +262,7 @@ export const predictiveTurnoverDashboardRouter = router({
         });
 
         // Ordenar por riskScore (mayor a menor)
-        highRiskEmployees.sort(($a: any, $b: any) => b.riskScore - a.riskScore);
+        highRiskEmployees.sort((a, b) => b.riskScore - a.riskScore);
 
         return highRiskEmployees;
       } catch (error) {
@@ -424,7 +425,7 @@ Formato de respuesta (JSON):
           },
         });
 
-        const content = response.choices[0].message.content as string;
+        const content = response.choices[0].message.content;
         const recommendations = JSON.parse(content);
 
         return {

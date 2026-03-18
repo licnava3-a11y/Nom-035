@@ -296,7 +296,7 @@ export const earlyWarningsRouter = router({
       }
 
       // Ordenar por cobertura ascendente (menor cobertura primero)
-      coverageAlerts.sort(($a: any, $b: any) => a.coverage - b.coverage);
+      coverageAlerts.sort((a, b) => a.coverage - b.coverage);
 
       return {
         alerts: coverageAlerts,

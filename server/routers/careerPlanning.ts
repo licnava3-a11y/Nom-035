@@ -132,7 +132,7 @@ export const careerPlanningRouter = router({
       });
       
       // Ordenar por score descendente
-      suggestions.sort(($a: any, $b: any) => b.matchScore - a.matchScore);
+      suggestions.sort((a, b) => b.matchScore - a.matchScore);
       
       return suggestions.slice(0, 3); // Top 3
     }),

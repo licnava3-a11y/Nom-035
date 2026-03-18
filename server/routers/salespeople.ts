@@ -190,7 +190,7 @@ export const salespeopleRouter = router({
       );
 
       // Ordenar por tasa de conversión descendente
-      metrics.sort(($a: any, $b: any) => b.conversionRate - a.conversionRate);
+      metrics.sort((a, b) => b.conversionRate - a.conversionRate);
 
       return {
         salespeople: metrics,

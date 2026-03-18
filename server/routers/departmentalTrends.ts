@@ -126,7 +126,7 @@ export const departmentalTrendsRouter = router({
       });
 
       // Ordenar por score de riesgo descendente
-      departmentalMetrics.sort(($a: any, $b: any) => b.riskScore - a.riskScore);
+      departmentalMetrics.sort((a, b) => b.riskScore - a.riskScore);
 
       // Calcular estadísticas globales
       const totalDepartments = departmentalMetrics.length;

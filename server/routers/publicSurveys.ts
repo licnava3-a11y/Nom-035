@@ -2,7 +2,7 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { surveyEmployeeTokens, employees, surveyPeriods, surveyQuestions, surveyResponses, surveyAnswers, users, surveys } from "../../drizzle/schema";
+import { surveyEmployeeTokens, employees, surveyPeriods, surveyQuestions, surveyResponses, surveyAnswers, users } from "../../drizzle/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendBulkEmails, getSurveyInvitationTemplate } from "../services/emailService";
@@ -229,8 +229,8 @@ export const publicSurveysRouter = router({
           },
           employee: {
             id: employee.id,
-            name: `${employee.firstName} ${employee.lastName}`.trim(),
-            department: employee.departmentId?.toString() ?? null,
+            name: employee.name,
+            department: employee.department,
           },
           period: period ? {
             id: period.id,
@@ -283,8 +283,10 @@ export const publicSurveysRouter = router({
           });
         }
 
-        // Obtener preguntas de la encuesta (filtrar por surveyId si existe)
-        const questions = await db.select().from(surveyQuestions);
+        // Obtener preguntas de la encuesta
+        const questions = await db.select().from(surveyQuestions).where(
+          eq(surveyQuestions.surveyType, input.surveyType)
+        );
 
         return {
           success: true,
@@ -354,19 +356,12 @@ export const publicSurveysRouter = router({
         }
 
         // Crear respuesta de encuesta
-        // surveyResponses usa: surveyId, periodId, userId, curp, token, completedAt
-        // Necesitamos obtener el surveyId del período
-        const [activeSurvey] = await db.select({ id: surveys.id })
-          .from(surveys)
-          .where(eq(surveys.status, 'active'))
-          .limit(1);
-        const surveyId = activeSurvey?.id ?? 1;
         const [surveyResponse] = await db.insert(surveyResponses).values({
-          surveyId,
-          periodId: tokenData.surveyPeriodId,
-          token: tokenData.token,
+          employeeId: tokenData.employeeId,
+          surveyPeriodId: tokenData.surveyPeriodId,
+          surveyType: tokenData.surveyType,
           completedAt: new Date(),
-        } as any);
+        });
 
         // Guardar respuestas individuales
         for (const response of input.responses) {
@@ -521,7 +516,7 @@ export const publicSurveysRouter = router({
 
           // Generar HTML del email
           const emailHtml = getSurveyInvitationTemplate({
-            employeeName: `${employee.firstName} ${employee.lastName}`.trim() || "Empleado",
+            employeeName: employee.name || "Empleado",
             surveyType: input.surveyType,
             surveyToken: token.token,
             expiresAt: new Date(token.expiresAt),

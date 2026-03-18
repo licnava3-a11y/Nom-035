@@ -280,7 +280,7 @@ export const trainingEvaluationsRouter = router({
     });
 
     // Ordenar por calificación general
-    trainingStats.sort(($a: any, $b: any) => b.avgOverall - a.avgOverall);
+    trainingStats.sort((a, b) => b.avgOverall - a.avgOverall);
 
     // Estadísticas globales
     const totalEvaluations = allEvaluations.length;

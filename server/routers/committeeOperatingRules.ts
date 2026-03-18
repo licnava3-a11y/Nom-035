@@ -1415,7 +1415,7 @@ export const committeeOperatingRulesRouter = router({
         }
 
         // Ordenar por fecha (más reciente primero)
-        filteredEvents.sort(($a: any, $b: any) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+        filteredEvents.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
 
         // Aplicar paginación
         const totalEvents = filteredEvents.length;
@@ -1539,7 +1539,7 @@ export const committeeOperatingRulesRouter = router({
         });
 
         // Ordenar por relevancia
-        resultsWithRelevance.sort(($a: any, $b: any) => b.relevance - a.relevance);
+        resultsWithRelevance.sort((a, b) => b.relevance - a.relevance);
 
         // Paginar
         const total = resultsWithRelevance.length;
@@ -1947,7 +1947,7 @@ export const committeeOperatingRulesRouter = router({
             avgResponseTime: stats.totalApprovals > 0 ? stats.avgResponseTime / stats.totalApprovals : 0,
             onTimeRate: stats.totalApprovals > 0 ? (stats.onTimeRate / stats.totalApprovals) * 100 : 0,
           }))
-          .sort(($a: any, $b: any) => a.avgResponseTime - b.avgResponseTime)
+          .sort((a, b) => a.avgResponseTime - b.avgResponseTime)
           .slice(0, 10);
 
         // Documentos con mayor tiempo de aprobación
@@ -1960,7 +1960,7 @@ export const committeeOperatingRulesRouter = router({
             responseTime: (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60),
             wasOnTime: a.deadline ? new Date(a.signedAt!) <= new Date(a.deadline) : null,
           }))
-          .sort(($a: any, $b: any) => b.responseTime - a.responseTime)
+          .sort((a, b) => b.responseTime - a.responseTime)
           .slice(0, 10);
 
         // Análisis por rol

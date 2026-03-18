@@ -42,7 +42,7 @@ export const budgetPlannerRouter = router({
       }));
 
       // Ordenar por prioridad (turnover probability) descendente
-      const sortedAdjustments = [...adjustments].sort(($a: any, $b: any) => b.priority - a.priority);
+      const sortedAdjustments = [...adjustments].sort((a, b) => b.priority - a.priority);
       const implementationSequence = sortedAdjustments.map((adj) => adj.employeeId);
 
       const budgetUsed = adjustments.reduce((sum, adj) => sum + (adj.increase * 12), 0); // Costo anual
@@ -166,7 +166,7 @@ export const budgetPlannerRouter = router({
       });
 
       // Ordenar por prioridad
-      const sortedAdjustments = [...adjustments].sort(($a: any, $b: any) => b.priority - a.priority);
+      const sortedAdjustments = [...adjustments].sort((a, b) => b.priority - a.priority);
 
       const totalCost = adjustments.reduce((sum, adj) => sum + adj.annualCost, 0);
       const budgetRemaining = input.totalBudget - totalCost;

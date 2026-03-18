@@ -224,6 +224,8 @@ const InterventionPlans = lazy(() => import("./pages/InterventionPlans"));
 const RiskAlerts = lazy(() => import("./pages/RiskAlerts"));
 const ScheduledReports = lazy(() => import("./pages/ScheduledReports"));
 const TestDataSeeder = lazy(() => import("./pages/TestDataSeeder"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -239,6 +241,16 @@ function Router() {
         <Route path={"/"}>
           <Suspense fallback={<PageLoader />}>
             <LandingPage />
+          </Suspense>
+        </Route>
+        <Route path={"/privacy-policy"}>
+          <Suspense fallback={<PageLoader />}>
+            <PrivacyPolicy />
+          </Suspense>
+        </Route>
+        <Route path={"/terms-of-use"}>
+          <Suspense fallback={<PageLoader />}>
+            <TermsOfUse />
           </Suspense>
         </Route>
         <Route path={"/dashboard"}>

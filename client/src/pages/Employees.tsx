@@ -404,13 +404,13 @@ export default function Employees() {
                   )}
                   {employee.department && (
                     <div className="flex items-center text-muted-foreground">
-                      <ICONS.organization.building className="mr-2 h-4 w-4" />
+                      <ICONS.organizational.building className="mr-2 h-4 w-4" />
                       {employee.department}
                     </div>
                   )}
                   {employee.employeeNumber && (
                     <div className="flex items-center text-muted-foreground">
-                      <ICONS.organization.position className="mr-2 h-4 w-4" />
+                      <ICONS.organizational.position className="mr-2 h-4 w-4" />
                       No. {employee.employeeNumber}
                     </div>
                   )}

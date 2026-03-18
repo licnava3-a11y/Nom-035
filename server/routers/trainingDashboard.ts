@@ -161,7 +161,7 @@ export const trainingDashboardRouter = router({
     // Convertir a array y ordenar
     const popularCourses = Object.entries(courseCounts)
       .map(([courseName, count]) => ({ courseName, count }))
-      .sort(($a: any, $b: any) => b.count - a.count)
+      .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
     return popularCourses;

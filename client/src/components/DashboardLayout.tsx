@@ -699,6 +699,31 @@ function DashboardLayoutContent({
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>
+        <footer className="border-t bg-muted/30 px-6 py-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <span>© {new Date().getFullYear()} Plataforma NOM-035 STPS 2018.</span>
+              <span>Todos los derechos reservados.</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="/privacy-policy"
+                className="hover:text-foreground transition-colors underline-offset-2 hover:underline"
+              >
+                Aviso de Privacidad
+              </a>
+              <span className="text-muted-foreground/50">|</span>
+              <a
+                href="/terms-of-use"
+                className="hover:text-foreground transition-colors underline-offset-2 hover:underline"
+              >
+                Términos de Uso
+              </a>
+              <span className="text-muted-foreground/50">|</span>
+              <span>Cumplimiento NOM-035-STPS-2018</span>
+            </div>
+          </div>
+        </footer>
       </SidebarInset>
     </>
   );

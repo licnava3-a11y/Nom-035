@@ -20,7 +20,7 @@ export default function RetentionAnalytics() {
     departmentId: departmentFilter,
     minScore,
   });
-  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const { data: departments } = trpc.departments.list.useQuery();
 
   // Mutations
   const generateAlerts = trpc.predictiveAnalytics.generateRetentionAlerts.useMutation({

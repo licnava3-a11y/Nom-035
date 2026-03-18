@@ -112,7 +112,7 @@ export function showCustomToast(
     position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   }
 ) {
-  toast.custom(() => component as React.ReactElement, {
+  toast.custom(component, {
     duration: options?.duration || 4000,
     position: options?.position
   });

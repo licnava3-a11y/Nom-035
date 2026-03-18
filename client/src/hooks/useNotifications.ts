@@ -8,7 +8,7 @@ import { io, Socket } from "socket.io-client";
 import { useAuth } from "../_core/hooks/useAuth";
 import { toast } from "sonner";
 
-export interface Notification {
+interface Notification {
   id: number;
   type: string;
   title: string;
@@ -101,15 +101,11 @@ export function useNotifications() {
     setUnreadCount(0);
   };
 
-  const isConnected = socket?.connected ?? false;
-  const clearNotifications = () => setNotifications([]);
   return {
     socket,
     notifications,
     unreadCount,
     markAsRead,
     markAllAsRead,
-    isConnected,
-    clearNotifications,
   };
 }

@@ -361,7 +361,7 @@ export const correctiveActionPlansRouter = router({
       );
 
       // Asignar al miembro con menor workload
-      workloads.sort(($a: any, $b: any) => a.workload - b.workload);
+      workloads.sort((a, b) => a.workload - b.workload);
       const assignedMember = workloads[0];
 
       await dbInstance
