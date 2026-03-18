@@ -106,11 +106,10 @@ export const predictiveTurnoverDashboardRouter = router({
           const highRiskSurveysCount = await db
             .select({ count: count() })
             .from(nom035Results)
-            .innerJoin(users, eq(nom035Results.userId, users.id))
-            .where(
-              and(
-                sql`${users.departamento} = ${String(dept.id)}`,
-                sql`${nom035Results.riskLevel} IN ('Alto', 'Muy alto')`,
+          .where(
+                and(
+                  sql`${nom035Results.employeeId} IN (SELECT id FROM employees WHERE department_id = ${dept.id})`,
+                  sql`${nom035Results.global_risk_level} IN ('alto', 'muy_alto')`,
                 gte(nom035Results.createdAt, sixMonthsAgo)
               )
             );
@@ -226,29 +225,29 @@ export const predictiveTurnoverDashboardRouter = router({
         // Obtener resultados de encuestas NOM-035 para estos empleados
         const userIds = employeesWithCriticalComments.map(e => e.userId);
 
+        // nom035Results usa employeeId (no userId), globalRiskLevel, globalScore
         const surveyResults = userIds.length > 0
           ? await db
               .select({
-                userId: nom035Results.userId,
-                riskLevel: nom035Results.riskLevel,
-                finalScore: nom035Results.finalScore,
+                employeeId: nom035Results.employeeId,
+                riskLevel: nom035Results.globalRiskLevel,
+                finalScore: nom035Results.globalScore,
               })
               .from(nom035Results)
-              .where(inArray(nom035Results.userId, userIds))
               .orderBy(desc(nom035Results.createdAt))
           : [];
 
-        // Mapear resultados de encuestas por userId
+        // Mapear resultados de encuestas por employeeId
         const surveyResultsMap = new Map();
         surveyResults.forEach(result => {
-          if (!surveyResultsMap.has(result.userId)) {
-            surveyResultsMap.set(result.userId, result);
+          if (!surveyResultsMap.has(result.employeeId)) {
+            surveyResultsMap.set(result.employeeId, result);
           }
         });
 
         // Combinar datos
         const highRiskEmployees = employeesWithCriticalComments.map(emp => {
-          const surveyResult = surveyResultsMap.get(emp.userId);
+          const surveyResult = surveyResultsMap.get(emp.userId); // Note: userId may differ from employeeId
           return {
             userId: emp.userId,
             userName: emp.userName,
