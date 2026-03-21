@@ -79,7 +79,7 @@ export const signaturesRouter = router({
       const deviceInfo = `${userAgent.substring(0, 200)}`;
 
       // Guardar en base de datos
-      const [signature] = await db.insert(signatures).values({
+      const [signature] = await (db.insert(signatures) as any).values({
         documentId: input.documentId,
         userId: input.userId || null,
         signerName: input.signerName,

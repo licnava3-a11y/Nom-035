@@ -98,13 +98,13 @@ export const skillsMatrixSnapshotsRouter = router({
 
       // Calculate summary statistics
       const totalEmployees = employeesArray.length;
-      const totalCompetencies = employeesArray.reduce((sum, e) => sum + e.competencies.length, 0);
-      const totalLevels = employeesArray.reduce((sum, e) => sum + (e.averageLevel * e.competencies.length), 0);
+      const totalCompetencies = employeesArray.reduce((sum: any, e: any) => sum + e.competencies.length, 0);
+      const totalLevels = employeesArray.reduce((sum: any, e: any) => sum + (e.averageLevel * e.competencies.length), 0);
       const averageCompetencyLevel = totalCompetencies > 0 
         ? Number((totalLevels / totalCompetencies).toFixed(2))
         : 0;
-      const totalGaps = employeesArray.reduce((sum, e) => sum + e.totalGap, 0);
-      const criticalGaps = employeesArray.reduce((sum, e) => {
+      const totalGaps = employeesArray.reduce((sum: any, e: any) => sum + e.totalGap, 0);
+      const criticalGaps = employeesArray.reduce((sum: any, e: any) => {
         return sum + e.competencies.filter((c: any) => c.gap >= 2).length;
       }, 0);
 
@@ -123,7 +123,7 @@ export const skillsMatrixSnapshotsRouter = router({
       const today = new Date();
       const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       
-      const result = await db.insert(skillsMatrixSnapshots).values({
+      const result = await (db.insert(skillsMatrixSnapshots) as any).values({
         name: input.name,
         description: input.description || null,
         snapshotDate: dateStr as any,
@@ -293,7 +293,7 @@ export const skillsMatrixSnapshotsRouter = router({
       }
 
       // Sort by improvement (best first)
-      employeeComparisons.sort((a, b) => {
+      employeeComparisons.sort((a: any, b: any) => {
         const scoreA = a.averageLevel.change - (a.totalGap.change * 0.5);
         const scoreB = b.averageLevel.change - (b.totalGap.change * 0.5);
         return scoreB - scoreA;

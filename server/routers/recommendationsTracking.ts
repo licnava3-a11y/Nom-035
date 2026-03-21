@@ -96,7 +96,7 @@ export const recommendationsTrackingRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const [newRecommendation] = await db.insert(recommendationsTracking).values({
+      const [newRecommendation] = await (db.insert(recommendationsTracking) as any).values({
         analysisId: input.analysisId,
         recommendation: input.recommendation,
         priority: input.priority,
@@ -320,7 +320,7 @@ export const recommendationsTrackingRouter = router({
         .set({
           currentCaseCount: input.currentCaseCount,
           reductionPercentage,
-        })
+        } as any)
         .where(eq(recommendationsTracking.id, input.id));
 
       return {
@@ -372,7 +372,7 @@ export const recommendationsTrackingRouter = router({
         .set({
           currentCaseCount: currentCount,
           reductionPercentage,
-        })
+        } as any)
         .where(eq(recommendationsTracking.id, input.id));
 
       return {

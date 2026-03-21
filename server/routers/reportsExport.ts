@@ -111,7 +111,7 @@ export const reportsExportRouter = router({
         doc.fontSize(16).font("Helvetica-Bold").text("Seguimiento de Implementación");
         doc.moveDown();
 
-        recommendations.forEach((item, index) => {
+        recommendations.forEach((item: any, index: number) => {
           doc.fontSize(12).font("Helvetica-Bold").text(`${index + 1}. ${item.recommendation.recommendation.substring(0, 100)}...`);
           doc.font("Helvetica");
           doc.text(`   Estado: ${item.recommendation.status}`);
@@ -205,7 +205,7 @@ export const reportsExportRouter = router({
       worksheet.getRow(1).font = { color: { argb: "FFFFFFFF" }, bold: true };
 
       // Datos
-      assignments.forEach((item) => {
+      assignments.forEach((item: any) => {
         worksheet.addRow({
           id: item.assignment.id,
           training: item.training?.title || "N/A",
@@ -237,12 +237,12 @@ export const reportsExportRouter = router({
       statsSheet.getRow(1).font = { color: { argb: "FFFFFFFF" }, bold: true };
 
       const totalAssignments = assignments.length;
-      const completed = assignments.filter((a) => a.assignment.status === "completed").length;
-      const inProgress = assignments.filter((a) => a.assignment.status === "in_progress").length;
-      const pending = assignments.filter((a) => a.assignment.status === "pending").length;
+      const completed = assignments.filter((a: any) => a.assignment.status === "completed").length;
+      const inProgress = assignments.filter((a: any) => a.assignment.status === "in_progress").length;
+      const pending = assignments.filter((a: any) => a.assignment.status === "pending").length;
       const avgScore = assignments
-        .filter((a) => a.assignment.score)
-        .reduce((sum, a) => sum + (a.assignment.score || 0), 0) / (assignments.filter((a) => a.assignment.score).length || 1);
+        .filter((a: any) => a.assignment.score)
+        .reduce((sum: any, a: any) => sum + (a.assignment.score || 0), 0) / (assignments.filter((a: any) => a.assignment.score).length || 1);
 
       statsSheet.addRow({ metric: "Total de Asignaciones", value: totalAssignments });
       statsSheet.addRow({ metric: "Completadas", value: completed });

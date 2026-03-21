@@ -37,7 +37,7 @@ export async function logEvidence(params: LogEvidenceParams): Promise<void> {
       return;
     }
 
-    await db.insert(nom035EvidenceFolder).values({
+    await (db.insert(nom035EvidenceFolder) as any).values({
       category: params.category,
       title: params.title,
       description: params.description,

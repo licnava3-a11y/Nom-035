@@ -20,7 +20,7 @@ export const committeeTrainingsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      let query = db.select().from(committeeTrainings);
+      let query: any = db.select().from(committeeTrainings);
 
       const conditions = [];
       if (input?.type) {
@@ -85,7 +85,7 @@ export const committeeTrainingsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const [result] = await db.insert(committeeTrainings).values({
+      const [result] = await (db.insert(committeeTrainings) as any).values({
         title: input.title,
         description: input.description,
         type: input.type,

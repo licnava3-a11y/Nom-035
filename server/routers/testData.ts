@@ -21,7 +21,7 @@ export const testDataRouter = router({
         SELECT id FROM evaluation_360_cycles ORDER BY created_at DESC LIMIT 2
       `);
       const cyclesRows = (cyclesResult as any)[0] as Array<{ id: number }>;
-      const cycleIds = cyclesRows.map((row) => row.id).reverse();
+      const cycleIds = cyclesRows.map((row: any) => row.id).reverse();
       const cycle1Id = cycleIds[0];
       const cycle2Id = cycleIds[1];
 
@@ -30,14 +30,14 @@ export const testDataRouter = router({
         SELECT id FROM employees ORDER BY id ASC LIMIT 10
       `);
       const employeesRows = (employeesResult as any)[0] as Array<{ id: number }>;
-      const employeeIds = employeesRows.map((row) => row.id);
+      const employeeIds = employeesRows.map((row: any) => row.id);
 
       if (employeeIds.length < 10) {
         throw new Error(`Solo hay ${employeeIds.length} empleados en la base de datos. Se requieren al menos 10 para generar datos de prueba.`);
       }
 
       // 2. Insertar 10 asignaciones de empleados a ciclos
-      await db.insert(evaluation360Assignments).values([
+      await (db.insert(evaluation360Assignments) as any).values([
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[0], status: 'pending' },
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[1], status: 'in_progress' },
         { cycleId: cycle1Id, evaluatedEmployeeId: employeeIds[2], status: 'pending' },

@@ -106,7 +106,7 @@ export const publicSurveysRouter = router({
           // Generar nuevo token
           const token = randomUUID();
 
-          await db.insert(surveyEmployeeTokens).values({
+          await (db.insert(surveyEmployeeTokens) as any).values({
             token,
             employeeId: employee.id,
             curp: employee.curp,
@@ -356,7 +356,7 @@ export const publicSurveysRouter = router({
         }
 
         // Crear respuesta de encuesta (campos correctos del schema: surveyId, periodId, userId, token)
-        const [surveyResponse] = await db.insert(surveyResponses).values({
+        const [surveyResponse] = await (db.insert(surveyResponses) as any).values({
           surveyId: tokenData.surveyPeriodId, // surveyPeriodId apunta al survey
           periodId: tokenData.surveyPeriodId,
           userId: tokenData.employeeId,
@@ -366,7 +366,7 @@ export const publicSurveysRouter = router({
 
         // Guardar respuestas individuales
         for (const response of input.responses) {
-          await db.insert(surveyAnswers).values({
+          await (db.insert(surveyAnswers) as any).values({
             responseId: surveyResponse.insertId,
             questionId: response.questionId,
             answerValue: response.answer,
@@ -375,7 +375,7 @@ export const publicSurveysRouter = router({
 
         // Marcar token como usado
         await db.update(surveyEmployeeTokens)
-          .set({ usedAt: new Date() })
+          .set({ usedAt: new Date() } as any)
           .where(eq(surveyEmployeeTokens.id, tokenData.id));
 
         return {

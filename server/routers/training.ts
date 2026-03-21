@@ -75,7 +75,7 @@ export const trainingRouter = router({
 
     // Mapear a formato esperado con fechas mock (hasta que se agreguen campos de fechas)
     const today = new Date();
-    return upcomingCourses.map((course, index) => ({
+    return upcomingCourses.map((course: any, index: number) => ({
       id: course.id,
       courseName: course.courseName,
       startDate: new Date(today.getTime() + (index + 1) * 7 * 24 * 60 * 60 * 1000), // Mock: próximas semanas

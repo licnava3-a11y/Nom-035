@@ -46,7 +46,7 @@ export const leadsRouter = router({
         }
       }
       
-      const [newLead] = await db.insert(leads).values({
+      const [newLead] = await (db.insert(leads) as any).values({
         ...input,
         asignadoA: assignedTo,
         asignadoNombre: assignedName,
@@ -93,7 +93,7 @@ export const leadsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
       
-      let query = db.select().from(leads);
+      let query: any = db.select().from(leads);
 
       // Aplicar filtros opcionales
       const conditions = [];
@@ -121,7 +121,7 @@ export const leadsRouter = router({
       // Filtrar por normativa si se especifica (JSON array)
       let filteredLeads = allLeads;
       if (input.normativa) {
-        filteredLeads = allLeads.filter((lead) => {
+        filteredLeads = allLeads.filter((lead: any) => {
           const normativas = lead.normativas as string[] | null;
           return normativas?.includes(input.normativa!);
         });
@@ -129,12 +129,12 @@ export const leadsRouter = router({
 
       // Agrupar por estado
       const pipeline = {
-        nuevo: filteredLeads.filter((l) => l.estado === "nuevo"),
-        contactado: filteredLeads.filter((l) => l.estado === "contactado"),
-        en_negociacion: filteredLeads.filter((l) => l.estado === "en_negociacion"),
-        propuesta_enviada: filteredLeads.filter((l) => l.estado === "propuesta_enviada"),
-        ganado: filteredLeads.filter((l) => l.estado === "ganado"),
-        perdido: filteredLeads.filter((l) => l.estado === "perdido"),
+        nuevo: filteredLeads.filter((l: any) => l.estado === "nuevo"),
+        contactado: filteredLeads.filter((l: any) => l.estado === "contactado"),
+        en_negociacion: filteredLeads.filter((l: any) => l.estado === "en_negociacion"),
+        propuesta_enviada: filteredLeads.filter((l: any) => l.estado === "propuesta_enviada"),
+        ganado: filteredLeads.filter((l: any) => l.estado === "ganado"),
+        perdido: filteredLeads.filter((l: any) => l.estado === "perdido"),
       };
 
       return {
@@ -223,7 +223,7 @@ export const leadsRouter = router({
         .set({
           ...updateData,
           updatedAt: new Date(),
-        })
+        } as any)
         .where(eq(leads.id, leadId));
 
       return { success: true };
@@ -274,7 +274,7 @@ export const leadsRouter = router({
       }
 
       // Crear lead con datos del input
-      const [newLead] = await db.insert(leads).values({
+      const [newLead] = await (db.insert(leads) as any).values({
         whatsappEventId: input.whatsappEventId,
         nombre: input.nombre,
         email: input.email,
@@ -295,7 +295,7 @@ export const leadsRouter = router({
         .set({
           conversionStatus: "converted",
           convertedAt: new Date(),
-        })
+        } as any)
         .where(eq(whatsappTrackingEvents.id, input.whatsappEventId));
 
       return { success: true, leadId: newLead.insertId };
@@ -350,7 +350,7 @@ export const leadsRouter = router({
           asignadoA: input.asignadoA,
           asignadoNombre: input.asignadoNombre,
           updatedAt: new Date(),
-        })
+        } as any)
         .where(eq(leads.id, input.leadId));
       
       // Actualizar estadísticas del nuevo vendedor asignado
@@ -402,7 +402,7 @@ export const leadsRouter = router({
         .set({
           notas: updatedNotes,
           updatedAt: new Date(),
-        })
+        } as any)
         .where(eq(leads.id, input.leadId));
 
       return { success: true };
@@ -444,17 +444,17 @@ export const leadsRouter = router({
 
     const stats = {
       total: allLeads.length,
-      nuevo: allLeads.filter((l) => l.estado === "nuevo").length,
-      contactado: allLeads.filter((l) => l.estado === "contactado").length,
-      en_negociacion: allLeads.filter((l) => l.estado === "en_negociacion").length,
-      propuesta_enviada: allLeads.filter((l) => l.estado === "propuesta_enviada").length,
-      ganado: allLeads.filter((l) => l.estado === "ganado").length,
-      perdido: allLeads.filter((l) => l.estado === "perdido").length,
-      tasaConversion: allLeads.length > 0 ? (allLeads.filter((l) => l.estado === "ganado").length / allLeads.length) * 100 : 0,
+      nuevo: allLeads.filter((l: any) => l.estado === "nuevo").length,
+      contactado: allLeads.filter((l: any) => l.estado === "contactado").length,
+      en_negociacion: allLeads.filter((l: any) => l.estado === "en_negociacion").length,
+      propuesta_enviada: allLeads.filter((l: any) => l.estado === "propuesta_enviada").length,
+      ganado: allLeads.filter((l: any) => l.estado === "ganado").length,
+      perdido: allLeads.filter((l: any) => l.estado === "perdido").length,
+      tasaConversion: allLeads.length > 0 ? (allLeads.filter((l: any) => l.estado === "ganado").length / allLeads.length) * 100 : 0,
       valorTotalEstimado: allLeads
-        .filter((l) => l.estado !== "perdido" && l.estado !== "ganado")
-        .reduce((sum, l) => sum + (Number(l.valorEstimado) || 0), 0),
-      valorGanado: allLeads.filter((l) => l.estado === "ganado").reduce((sum, l) => sum + (Number(l.valorEstimado) || 0), 0),
+        .filter((l: any) => l.estado !== "perdido" && l.estado !== "ganado")
+        .reduce((sum: any, l: any) => sum + (Number(l.valorEstimado) || 0), 0),
+      valorGanado: allLeads.filter((l: any) => l.estado === "ganado").reduce((sum: any, l: any) => sum + (Number(l.valorEstimado) || 0), 0),
     };
 
     return stats;
@@ -514,7 +514,7 @@ export const leadsRouter = router({
           const metadata = event.metadata && typeof event.metadata === "object" ? event.metadata as any : {};
 
           // Crear lead
-          const [newLead] = await db.insert(leads).values({
+          const [newLead] = await (db.insert(leads) as any).values({
             whatsappEventId: eventId,
             nombre: userData.nombre || "Contacto desde WhatsApp",
             email: userData.email || null,
@@ -532,7 +532,7 @@ export const leadsRouter = router({
           // Actualizar estado del evento
           await db
             .update(whatsappTrackingEvents)
-            .set({ conversionStatus: "converted" })
+            .set({ conversionStatus: "converted" } as any)
             .where(eq(whatsappTrackingEvents.id, eventId));
 
           results.successful.push(eventId);

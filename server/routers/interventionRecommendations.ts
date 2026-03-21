@@ -66,30 +66,30 @@ export const interventionRecommendationsRouter = router({
         const recommendations: InterventionRecommendation[] = [];
 
         for (const type of interventionTypes) {
-          const typeInterventions = completedInterventions.filter((i) => i.interventionType === type);
+          const typeInterventions = completedInterventions.filter((i: any) => i.interventionType === type);
 
           if (typeInterventions.length === 0) continue;
 
           // Calcular tasa de éxito general
-          const successCount = typeInterventions.filter((i) => i.outcome === "retained").length;
+          const successCount = typeInterventions.filter((i: any) => i.outcome === "retained").length;
           const successRate = (successCount / typeInterventions.length) * 100;
 
           // Filtrar intervenciones similares (mismo departamento o puesto)
-          const similarInterventions = typeInterventions.filter((i) => {
+          const similarInterventions = typeInterventions.filter((i: any) => {
             const deptMatch = input.department && i.department === input.department;
             const posMatch = input.position && i.employeePosition === input.position;
             return deptMatch || posMatch;
           });
 
-          const similarSuccessCount = similarInterventions.filter((i) => i.outcome === "retained").length;
+          const similarSuccessCount = similarInterventions.filter((i: any) => i.outcome === "retained").length;
           const similarSuccessRate = similarInterventions.length > 0
             ? (similarSuccessCount / similarInterventions.length) * 100
             : successRate;
 
           // Calcular costo promedio
-          const costsWithValues = typeInterventions.filter((i) => i.cost);
+          const costsWithValues = typeInterventions.filter((i: any) => i.cost);
           const avgCost = costsWithValues.length > 0
-            ? costsWithValues.reduce((acc, i) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length
+            ? costsWithValues.reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length
             : 0;
 
           // Calcular score basado en múltiples factores
@@ -126,7 +126,7 @@ export const interventionRecommendationsRouter = router({
 
         // Ordenar por score descendente y tomar top 3
         const topRecommendations = recommendations
-          .sort((a, b) => b.score - a.score)
+          .sort((a: any, b: any) => b.score - a.score)
           .slice(0, 3);
 
         return {

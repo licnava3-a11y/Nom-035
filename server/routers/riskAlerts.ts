@@ -71,7 +71,7 @@ export const riskAlertsRouter = router({
       for (const [deptId, deptEntries] of Object.entries(departmentGroups)) {
         const totalEmployees = deptEntries.length;
         // riskLevel viene del campo results (JSON) de surveyResponses
-        const highRiskEmployees = deptEntries.filter((e) => {
+        const highRiskEmployees = deptEntries.filter((e: any) => {
           try {
             const results = JSON.parse(e.survey.results || "{}");
             return results.riskLevel === "high" || results.globalRiskLevel === "high";
@@ -89,7 +89,7 @@ export const riskAlertsRouter = router({
 
         if (alertType) {
           // Insertar alerta en historial
-          await db.insert(riskAlertHistory).values({
+          await (db.insert(riskAlertHistory) as any).values({
             departmentId: parseInt(deptId),
             alertType,
             riskPercentage: riskPercentage.toFixed(2),
@@ -170,7 +170,7 @@ export const riskAlertsRouter = router({
       }
 
       const totalEmployees = deptEmployees.length;
-      const highRiskEmployees = deptEmployees.filter((e) => {
+      const highRiskEmployees = deptEmployees.filter((e: any) => {
         try {
           const results = JSON.parse(e.survey.results || "{}");
           return results.riskLevel === "high" || results.globalRiskLevel === "high";
@@ -179,7 +179,7 @@ export const riskAlertsRouter = router({
       const riskPercentage = totalEmployees > 0 ? (highRiskEmployees / totalEmployees) * 100 : 0;
 
       // Insertar alerta manual
-      await db.insert(riskAlertHistory).values({
+      await (db.insert(riskAlertHistory) as any).values({
         departmentId: input.departmentId,
         alertType: "manual_alert",
         riskPercentage: riskPercentage.toFixed(2),
@@ -271,11 +271,11 @@ export const riskAlertsRouter = router({
             mediumRiskThreshold: input.mediumRiskThreshold,
             enableAutoAlerts: input.enableAutoAlerts,
             updatedBy: ctx.user.id,
-          })
+          } as any)
           .where(eq(riskAlertThresholds.departmentId, input.departmentId));
       } else {
         // Insertar
-        await db.insert(riskAlertThresholds).values({
+        await (db.insert(riskAlertThresholds) as any).values({
           departmentId: input.departmentId,
           highRiskThreshold: input.highRiskThreshold,
           mediumRiskThreshold: input.mediumRiskThreshold,
@@ -348,9 +348,9 @@ export const riskAlertsRouter = router({
         } catch { return "low"; }
       };
 
-      const highRiskCount = deptSurveys.filter((e) => getRiskLevel(e) === "high").length;
-      const mediumRiskCount = deptSurveys.filter((e) => getRiskLevel(e) === "medium").length;
-      const lowRiskCount = deptSurveys.filter((e) => getRiskLevel(e) === "low").length;
+      const highRiskCount = deptSurveys.filter((e: any) => getRiskLevel(e) === "high").length;
+      const mediumRiskCount = deptSurveys.filter((e: any) => getRiskLevel(e) === "medium").length;
+      const lowRiskCount = deptSurveys.filter((e: any) => getRiskLevel(e) === "low").length;
 
       const highRiskPercentage = totalEmployees > 0 ? (highRiskCount / totalEmployees) * 100 : 0;
       const mediumRiskPercentage = totalEmployees > 0 ? (mediumRiskCount / totalEmployees) * 100 : 0;

@@ -54,7 +54,7 @@ export const interventionsRouter = router({
         )
         .where(
           and(
-            eq(evaluation360Assignments.employeeId, input.employeeId),
+            eq(evaluation360Assignments.evaluatedEmployeeId, input.employeeId),
             eq(evaluation360Assignments.cycleId, input.cycleId)
           )
         )
@@ -66,7 +66,7 @@ export const interventionsRouter = router({
       );
 
       // Generar recomendaciones de cursos (mock - en producción conectar con catálogo real)
-      const courseRecommendations = criticalCompetencies.map((comp) => ({
+      const courseRecommendations = criticalCompetencies.map((comp: any) => ({
         competencyName: comp.competencyName,
         gap: (comp.requiredLevel - comp.averageRating).toFixed(2),
         recommendedCourses: [
@@ -95,7 +95,7 @@ export const interventionsRouter = router({
         .from(employees)
         .innerJoin(
           evaluation360Assignments,
-          eq(employees.id, evaluation360Assignments.employeeId)
+          eq(employees.id, evaluation360Assignments.evaluatedEmployeeId)
         )
         .innerJoin(
           evaluation360Evaluators,

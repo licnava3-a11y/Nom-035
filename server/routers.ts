@@ -699,7 +699,7 @@ export const appRouter = router({
         if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
         
         const { cases } = await import('../drizzle/schema');
-        await dbInstance.update(cases).set({ status: input.status }).where(eq(cases.id, input.id));
+        await dbInstance.update(cases).set({ status: input.status } as any).where(eq(cases.id, input.id));
         return { success: true };
       }),
     getFollowUps: protectedProcedure
@@ -738,7 +738,7 @@ export const appRouter = router({
         // Actualizar estado del caso si se proporciona
         if (input.newStatus) {
           await dbInstance.update(cases)
-            .set({ status: input.newStatus })
+            .set({ status: input.newStatus } as any)
             .where(eq(cases.id, input.caseId));
         }
         
@@ -799,7 +799,7 @@ export const appRouter = router({
         const { eq } = await import('drizzle-orm');
         
         // Actualizar el caso con el miembro asignado
-        await dbInstance.update(cases).set({ assignedTo: input.userId }).where(eq(cases.id, input.caseId));
+        await dbInstance.update(cases).set({ assignedTo: input.userId } as any).where(eq(cases.id, input.caseId));
         
         // Crear registro de asignación
         await dbInstance.insert(caseAssignments).values({
@@ -874,11 +874,11 @@ export const appRouter = router({
         const workloads = await Promise.all(workloadPromises);
         
         // 3. Algoritmo de balanceo: asignar al miembro con menor workload
-        const sortedByWorkload = workloads.sort((a, b) => a.workload - b.workload);
+        const sortedByWorkload = workloads.sort((a: any, b: any) => a.workload - b.workload);
         const selectedMember = sortedByWorkload[0];
         
         // 4. Asignar caso al miembro seleccionado
-        await dbInstance.update(cases).set({ assignedTo: selectedMember.userId }).where(eq(cases.id, input.caseId));
+        await dbInstance.update(cases).set({ assignedTo: selectedMember.userId } as any).where(eq(cases.id, input.caseId));
         
         // 5. Crear registro de asignación
         await dbInstance.insert(caseAssignments).values({
@@ -1065,7 +1065,7 @@ export const appRouter = router({
           .set({
             position: input.position,
             responsibilities: input.responsibilities,
-          })
+          } as any)
           .where(eq(committeeMembers.id, input.id));
         
         return { success: true };
@@ -1212,7 +1212,7 @@ export const appRouter = router({
         
         // Calculate total score
         const answers = await dbInstance.select().from(studentAnswers).where(eq(studentAnswers.attemptId, input.attemptId));
-        const totalPoints = answers.reduce((acc, ans) => acc + ans.pointsEarned, 0);
+        const totalPoints = answers.reduce((acc: any, ans: any) => acc + ans.pointsEarned, 0);
         const maxPoints = answers.length; // Assuming 1 point per question
         const score = (totalPoints / maxPoints) * 100;
         
@@ -1226,7 +1226,7 @@ export const appRouter = router({
             score: score.toString(),
             passed,
             completedAt: new Date(),
-          })
+          } as any)
           .where(eq(evaluationAttempts.id, input.attemptId));
         
         return { success: true, score, passed };

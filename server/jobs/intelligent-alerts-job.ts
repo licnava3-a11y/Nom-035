@@ -37,11 +37,11 @@ export async function runIntelligentAlertsJob() {
 
     // Insertar alertas en la base de datos
     for (const alert of alerts) {
-      await db.insert(intelligentAlerts).values(alert);
+      await (db.insert(intelligentAlerts) as any).values(alert);
     }
 
     // Notificar a administradores sobre alertas críticas
-    const criticalAlerts = alerts.filter((a) => a.severity === "critical");
+    const criticalAlerts = alerts.filter((a: any) => a.severity === "critical");
     if (criticalAlerts.length > 0) {
       await notifyAdmins(db, criticalAlerts);
     }
@@ -298,7 +298,7 @@ async function notifyAdmins(db: any, criticalAlerts: any[]) {
     const admins = await db.select().from(users).where(eq(users.role, "admin"));
 
     for (const admin of admins) {
-      await db.insert(notifications).values({
+      await (db.insert(notifications) as any).values({
         userId: admin.id,
         type: "alert",
         title: `${criticalAlerts.length} alertas críticas detectadas`,

@@ -120,7 +120,7 @@ export const modelThresholdsRouter = router({
         // Desactivar configuración actual
         await db
           .update(modelThresholds)
-          .set({ isActive: false })
+          .set({ isActive: false } as any)
           .where(eq(modelThresholds.isActive, true));
 
         // Crear nueva configuración activa
@@ -168,7 +168,7 @@ export const modelThresholdsRouter = router({
       // Desactivar configuración actual
       await db
         .update(modelThresholds)
-        .set({ isActive: false })
+        .set({ isActive: false } as any)
         .where(eq(modelThresholds.isActive, true));
 
       // Crear configuración con valores por defecto
@@ -228,13 +228,13 @@ export const modelThresholdsRouter = router({
         // Desactivar todas las configuraciones
         await db!
           .update(modelThresholds)
-          .set({ isActive: false })
+          .set({ isActive: false } as any)
           .where(eq(modelThresholds.isActive, true));
 
         // Activar la configuración seleccionada
         await db!
           .update(modelThresholds)
-          .set({ isActive: true })
+          .set({ isActive: true } as any)
           .where(eq(modelThresholds.id, input.configId));
 
         return {

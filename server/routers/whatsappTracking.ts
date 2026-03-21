@@ -48,7 +48,7 @@ export const whatsappTrackingRouter = router({
       const userId = ctx.user?.id || null;
 
       // Insertar evento de tracking
-      const [result] = await db.insert(whatsappTrackingEvents).values({
+      const [result] = await (db.insert(whatsappTrackingEvents) as any).values({
         userId,
         eventType: input.eventType,
         normativas: input.normativas || null,
@@ -138,7 +138,7 @@ export const whatsappTrackingRouter = router({
         totalEvents,
         totalConverted,
         conversionRate: Number(conversionRate.toFixed(2)),
-        eventsByType: eventsByType.map((e) => ({
+        eventsByType: eventsByType.map((e: any) => ({
           eventType: e.eventType,
           count: Number(e.count),
         })),
@@ -193,7 +193,7 @@ export const whatsappTrackingRouter = router({
       // Contar normativas manualmente (JSON array)
       const normativasCount: Record<string, number> = {};
 
-      events.forEach((event) => {
+      events.forEach((event: any) => {
         if (event.normativas && Array.isArray(event.normativas)) {
           event.normativas.forEach((normativa: string) => {
             normativasCount[normativa] = (normativasCount[normativa] || 0) + 1;
@@ -203,11 +203,11 @@ export const whatsappTrackingRouter = router({
 
       // Convertir a array y ordenar por popularidad
       const normativasArray = Object.entries(normativasCount)
-        .map(([normativa, count]) => ({
+        .map(([normativa, count]: [string, any]) => ({
           normativa,
           count,
         }))
-        .sort((a, b) => b.count - a.count);
+        .sort((a: any, b: any) => b.count - a.count);
 
       return normativasArray;
     }),
@@ -274,7 +274,7 @@ export const whatsappTrackingRouter = router({
         .groupBy(sql`DATE_FORMAT(${whatsappTrackingEvents.createdAt}, ${dateFormat})`)
         .orderBy(sql`DATE_FORMAT(${whatsappTrackingEvents.createdAt}, ${dateFormat})`);
 
-      return trends.map((t) => ({
+      return trends.map((t: any) => ({
         period: t.period,
         totalEvents: Number(t.totalEvents),
         conversions: Number(t.conversions),
@@ -378,7 +378,7 @@ export const whatsappTrackingRouter = router({
           conversionStatus: input.status,
           convertedAt: input.status === "converted" ? new Date() : null,
           notes: input.notes || null,
-        })
+        } as any)
         .where(eq(whatsappTrackingEvents.id, input.eventId));
 
       return { success: true };
@@ -459,7 +459,7 @@ export const whatsappTrackingRouter = router({
           totalEvents,
           totalConverted,
           conversionRate: Number(conversionRate.toFixed(2)),
-          eventsByType: eventsByType.map((e) => ({
+          eventsByType: eventsByType.map((e: any) => ({
             eventType: e.eventType,
             count: Number(e.count),
           })),

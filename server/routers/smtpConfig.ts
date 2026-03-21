@@ -99,13 +99,13 @@ export const smtpConfigRouter = router({
             fromEmail: input.fromEmail,
             fromName: input.fromName,
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(smtpConfig.id, existingConfigs[0].id));
 
         return { success: true, message: "Configuración SMTP actualizada correctamente" };
       } else {
         // Insert new config
-        await db.insert(smtpConfig).values({
+        await (db.insert(smtpConfig) as any).values({
           host: input.host,
           port: input.port,
           secure: input.secure,

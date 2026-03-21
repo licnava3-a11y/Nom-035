@@ -137,7 +137,7 @@ export const evidenceFolderRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database connection failed' });
       
-      const [result] = await db.insert(nom035EvidenceFolder).values({
+      const [result] = await (db.insert(nom035EvidenceFolder) as any).values({
         category: input.category,
         title: input.title,
         description: input.description,

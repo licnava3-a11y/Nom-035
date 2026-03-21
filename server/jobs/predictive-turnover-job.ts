@@ -220,14 +220,14 @@ async function analyzePredictiveTurnover() {
 
       // Guardar alertas{
       // @ts-expect-error - getDb() siempre retorna instancia válida
-      await db.insert(predictiveTurnoverAlerts).values(alerts).execute();
+      await (db.insert(predictiveTurnoverAlerts) as any).values(alerts).execute();
 
       console.log(`[Predictive Turnover Job] Created ${alerts.length} predictive turnover alerts`);
 
       // Notificar al propietario
-      const highRiskDepts = alerts.filter((a) => a.riskScore >= 70);
+      const highRiskDepts = alerts.filter((a: any) => a.riskScore >= 70);
       if (highRiskDepts.length > 0) {
-        const deptNames = highRiskDepts.map((a) => a.departmentName).join(", ");
+        const deptNames = highRiskDepts.map((a: any) => a.departmentName).join(", ");
         await notifyOwner({
           title: "⚠️ Alerta de Rotación Predictiva - Riesgo Alto",
           content: `Se detectaron ${highRiskDepts.length} departamento(s) con alto riesgo de rotación: ${deptNames}. Revisa el dashboard de métricas para más detalles.`,

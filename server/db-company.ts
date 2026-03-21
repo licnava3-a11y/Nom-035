@@ -38,12 +38,12 @@ export async function upsertCompanyGeneralData(data: InsertCompanyGeneralData): 
   const existing = await db.select().from(companyGeneralData).limit(1);
 
   if (existing.length === 0) {
-    const [result] = await db.insert(companyGeneralData).values(data);
+    const [result] = await (db.insert(companyGeneralData) as any).values(data);
     return result.insertId;
   } else {
     await db
       .update(companyGeneralData)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(eq(companyGeneralData.id, existing[0].id));
     return existing[0].id;
   }
@@ -69,7 +69,7 @@ export async function getCompanyLogo(): Promise<CompanyLogo | null> {
 export async function createCompanyLogo(data: InsertCompanyLogo): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(companyLogo).values(data);
+  const [result] = await (db.insert(companyLogo) as any).values(data);
   return result.insertId;
 }
 
@@ -101,7 +101,7 @@ export async function getLegalRepresentativeById(id: number): Promise<CompanyLeg
 export async function createLegalRepresentative(data: InsertCompanyLegalRepresentative): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(companyLegalRepresentative).values(data);
+  const [result] = await (db.insert(companyLegalRepresentative) as any).values(data);
   return result.insertId;
 }
 
@@ -113,7 +113,7 @@ export async function updateLegalRepresentative(
   if (!db) throw new Error("Database not available");
   await db
     .update(companyLegalRepresentative)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, updatedAt: new Date() } as any)
     .where(eq(companyLegalRepresentative.id, id));
 }
 
@@ -123,7 +123,7 @@ export async function deleteLegalRepresentative(id: number): Promise<void> {
   // Soft delete
   await db
     .update(companyLegalRepresentative)
-    .set({ activo: false, updatedAt: new Date() })
+    .set({ activo: false, updatedAt: new Date() } as any)
     .where(eq(companyLegalRepresentative.id, id));
 }
 
@@ -155,7 +155,7 @@ export async function getDigitalSignatureById(id: number): Promise<CompanyDigita
 export async function createDigitalSignature(data: InsertCompanyDigitalSignature): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(companyDigitalSignature).values(data);
+  const [result] = await (db.insert(companyDigitalSignature) as any).values(data);
   return result.insertId;
 }
 
@@ -173,7 +173,7 @@ export async function authorizeDigitalSignature(
       autorizadoPor,
       fechaAutorizacion: new Date(),
       updatedAt: new Date(),
-    })
+    } as any)
     .where(eq(companyDigitalSignature.id, id));
 }
 
@@ -183,7 +183,7 @@ export async function deleteDigitalSignature(id: number): Promise<void> {
   // Soft delete
   await db
     .update(companyDigitalSignature)
-    .set({ activo: false, updatedAt: new Date() })
+    .set({ activo: false, updatedAt: new Date() } as any)
     .where(eq(companyDigitalSignature.id, id));
 }
 
@@ -215,7 +215,7 @@ export async function getSurveyReportById(id: number): Promise<CompanySurveyRepo
 export async function createSurveyReport(data: InsertCompanySurveyReport): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(companySurveyReport).values(data);
+  const [result] = await (db.insert(companySurveyReport) as any).values(data);
   return result.insertId;
 }
 
@@ -227,6 +227,6 @@ export async function updateSurveyReport(
   if (!db) throw new Error("Database not available");
   await db
     .update(companySurveyReport)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, updatedAt: new Date() } as any)
     .where(eq(companySurveyReport.id, id));
 }

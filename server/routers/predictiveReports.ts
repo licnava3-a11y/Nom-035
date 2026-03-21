@@ -222,7 +222,7 @@ Formato: Lista numerada con título y descripción breve (máximo 2 líneas por 
 
         if (highRiskEmployees.length > 0) {
           doc.fontSize(11).font("Helvetica");
-          highRiskEmployees.slice(0, 10).forEach((emp, idx) => {
+          highRiskEmployees.slice(0, 10).forEach((emp: any, idx: number) => {
             doc.text(`${idx + 1}. ${emp.name} - ${emp.department}`);
             doc.fontSize(10).text(`   Score: ${emp.riskScore} | Comentarios críticos: ${emp.criticalComments} | Casos abiertos: ${emp.openCases}`, { indent: 20 });
             doc.fontSize(11);

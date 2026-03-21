@@ -107,9 +107,9 @@ export const departmentMetricsRouter = router({
       );
 
       // Combinar resultados
-      const rotationMetrics = allDepartments.map((dept) => {
-        const hire = hires.find((h) => h.departmentId === dept.id);
-        const termination = terminations.find((t) => t.departmentId === dept.id);
+      const rotationMetrics = allDepartments.map((dept: any) => {
+        const hire = hires.find((h: any) => h.departmentId === dept.id);
+        const termination = terminations.find((t: any) => t.departmentId === dept.id);
 
         return {
           departmentId: dept.id,
@@ -123,8 +123,8 @@ export const departmentMetricsRouter = router({
       return {
         period: { start, end },
         metrics: rotationMetrics,
-        totalHires: hires.reduce((sum, h) => sum + h.hires, 0),
-        totalTerminations: terminations.reduce((sum, t) => sum + t.terminations, 0),
+        totalHires: hires.reduce((sum: any, h: any) => sum + h.hires, 0),
+        totalTerminations: terminations.reduce((sum: any, t: any) => sum + t.terminations, 0),
       };
     }),
 
@@ -193,13 +193,13 @@ export const departmentMetricsRouter = router({
       }
 
       return {
-        months: growthData.map((d) => d.month),
-        departments: allDepartments.map((dept) => ({
+        months: growthData.map((d: any) => d.month),
+        departments: allDepartments.map((dept: any) => ({
           id: dept.id,
           name: dept.name,
           data: growthData.map(
             (month) =>
-              month.departments.find((d) => d.departmentId === dept.id)?.employeeCount || 0
+              month.departments.find((d: any) => d.departmentId === dept.id)?.employeeCount || 0
           ),
         })),
       };
@@ -228,10 +228,10 @@ export const departmentMetricsRouter = router({
       .execute();
 
     // Calcular total de empleados
-    const totalEmployees = distribution.reduce((sum, d) => sum + d.employeeCount, 0);
+    const totalEmployees = distribution.reduce((sum: any, d: any) => sum + d.employeeCount, 0);
 
     // Calcular porcentajes
-    const distributionWithPercentage = distribution.map((d) => ({
+    const distributionWithPercentage = distribution.map((d: any) => ({
       ...d,
       percentage: totalEmployees > 0 ? ((d.employeeCount / totalEmployees) * 100).toFixed(2) : "0",
     }));
@@ -358,9 +358,9 @@ export const departmentMetricsRouter = router({
         );
 
         // Calcular cambios porcentuales
-        const comparison = allDepartments.map((dept) => {
-          const current = currentYearData.find((d) => d.departmentId === dept.id);
-          const last = lastYearData.find((d) => d.departmentId === dept.id);
+        const comparison = allDepartments.map((dept: any) => {
+          const current = currentYearData.find((d: any) => d.departmentId === dept.id);
+          const last = lastYearData.find((d: any) => d.departmentId === dept.id);
 
           const hiresChange =
             last && last.hires > 0
@@ -441,9 +441,9 @@ export const departmentMetricsRouter = router({
         );
 
         // Calcular cambios porcentuales
-        const comparison = allDepartments.map((dept) => {
-          const current = currentYearData.find((d) => d.departmentId === dept.id);
-          const last = lastYearData.find((d) => d.departmentId === dept.id);
+        const comparison = allDepartments.map((dept: any) => {
+          const current = currentYearData.find((d: any) => d.departmentId === dept.id);
+          const last = lastYearData.find((d: any) => d.departmentId === dept.id);
 
           const growthChange =
             last && last.employeeCount > 0
@@ -491,9 +491,9 @@ export const departmentMetricsRouter = router({
           })
         );
 
-        const totalCurrent = currentYearTotal.reduce((sum, d) => sum + d.employeeCount, 0);
+        const totalCurrent = currentYearTotal.reduce((sum: any, d: any) => sum + d.employeeCount, 0);
 
-        const comparison = currentYearTotal.map((dept) => ({
+        const comparison = currentYearTotal.map((dept: any) => ({
           departmentId: dept.departmentId,
           departmentName: dept.departmentName,
           employeeCount: dept.employeeCount,

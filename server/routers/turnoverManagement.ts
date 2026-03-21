@@ -105,7 +105,7 @@ export const turnoverManagementRouter = router({
           )
         );
 
-      const duplicate = existingRecords.find((record) => {
+      const duplicate = existingRecords.find((record: any) => {
         const recordDate = new Date(record.exitDate);
         return recordDate >= sevenDaysBefore && recordDate <= sevenDaysAfter;
       });

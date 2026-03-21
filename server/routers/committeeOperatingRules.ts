@@ -45,7 +45,7 @@ export const committeeOperatingRulesRouter = router({
 
       try {
         // Crear la base de funcionamiento principal
-        const [newRule] = await db.insert(committeeOperatingRules).values({
+        const [newRule] = await (db.insert(committeeOperatingRules) as any).values({
           version: input.version,
           effectiveDate: input.effectiveDate,
           reviewDate: input.reviewDate,
@@ -68,7 +68,7 @@ export const committeeOperatingRulesRouter = router({
         const ruleId = newRule.insertId;
 
         // Crear la primera versión en el historial
-        await db.insert(committeeOperatingRulesVersions).values({
+        await (db.insert(committeeOperatingRulesVersions) as any).values({
           operatingRuleId: ruleId,
           versionNumber: 1,
           version: input.version,
@@ -169,11 +169,11 @@ export const committeeOperatingRulesRouter = router({
             amendments: input.amendments,
             signatures: input.signatures,
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(committeeOperatingRules.id, input.id));
 
         // Crear nueva versión en el historial
-        await db.insert(committeeOperatingRulesVersions).values({
+        await (db.insert(committeeOperatingRulesVersions) as any).values({
           operatingRuleId: input.id,
           versionNumber: nextVersionNumber,
           version: input.version,
@@ -411,11 +411,11 @@ export const committeeOperatingRulesRouter = router({
             amendments: versionToRestore.amendments,
             signatures: versionToRestore.signatures,
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(committeeOperatingRules.id, input.operatingRuleId));
 
         // Crear nueva versión en el historial (restauración)
-        await db.insert(committeeOperatingRulesVersions).values({
+        await (db.insert(committeeOperatingRulesVersions) as any).values({
           operatingRuleId: input.operatingRuleId,
           versionNumber: nextVersionNumber,
           version: versionToRestore.version,
@@ -541,7 +541,7 @@ export const committeeOperatingRulesRouter = router({
             approvedBy: ctx.user.id,
             approvedAt: new Date(),
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(committeeOperatingRules.id, input.id));
 
         // Obtener información de la base de funcionamiento para notificación
@@ -660,7 +660,7 @@ export const committeeOperatingRulesRouter = router({
         const pdfBuffer = await generateOperatingRulesPDF({
           ...rule,
           versionNumber: latestVersion?.versionNumber,
-          digitalSignatures: digitalSignatures.map((sig) => ({
+          digitalSignatures: digitalSignatures.map((sig: any) => ({
             approverName: sig.approverName,
             approverRole: sig.approverRole,
             approverRoleDescription: sig.approverRoleDescription || undefined,
@@ -737,8 +737,8 @@ export const committeeOperatingRulesRouter = router({
 
         // Crear nuevas solicitudes de aprobación
         const deadlineDate = input.deadline ? new Date(input.deadline) : null;
-        const approvalPromises = input.approvers.map((approver) =>
-          db.insert(operatingRulesApprovals).values({
+        const approvalPromises = input.approvers.map((approver: any) =>
+          (db.insert(operatingRulesApprovals) as any).values({
             operatingRuleId: input.operatingRuleId,
             approverId: approver.approverId,
             approverRole: approver.approverRole,
@@ -819,7 +819,7 @@ export const committeeOperatingRulesRouter = router({
             comments: input.comments,
             signedAt: new Date(),
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(operatingRulesApprovals.id, input.approvalId));
 
         // Verificar si todas las aprobaciones están completas
@@ -828,7 +828,7 @@ export const committeeOperatingRulesRouter = router({
           .from(operatingRulesApprovals)
           .where(eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId));
 
-        const allSigned = allApprovals.every((a) => a.status === "signed");
+        const allSigned = allApprovals.every((a: any) => a.status === "signed");
 
         // Si todas las aprobaciones están firmadas, aprobar automáticamente
         if (allSigned) {
@@ -839,7 +839,7 @@ export const committeeOperatingRulesRouter = router({
               approvedBy: ctx.user.id,
               approvedAt: new Date(),
               updatedAt: new Date(),
-            })
+            } as any)
             .where(eq(committeeOperatingRules.id, approval.operatingRuleId));
 
           // Obtener información para notificación
@@ -902,9 +902,9 @@ export const committeeOperatingRulesRouter = router({
           .orderBy(operatingRulesApprovals.approvalOrder);
 
         const totalApprovals = approvals.length;
-        const signedApprovals = approvals.filter((a) => a.status === "signed").length;
-        const pendingApprovals = approvals.filter((a) => a.status === "pending").length;
-        const rejectedApprovals = approvals.filter((a) => a.status === "rejected").length;
+        const signedApprovals = approvals.filter((a: any) => a.status === "signed").length;
+        const pendingApprovals = approvals.filter((a: any) => a.status === "pending").length;
+        const rejectedApprovals = approvals.filter((a: any) => a.status === "rejected").length;
 
         return {
           approvals,
@@ -1018,7 +1018,7 @@ export const committeeOperatingRulesRouter = router({
             status: "rejected",
             rejectionReason: input.rejectionReason,
             rejectedAt: new Date(),
-          })
+          } as any)
           .where(eq(operatingRulesApprovals.id, input.approvalId));
 
         // Regresar la base de funcionamiento a estado draft
@@ -1026,7 +1026,7 @@ export const committeeOperatingRulesRouter = router({
           .update(committeeOperatingRules)
           .set({
             status: "draft",
-          })
+          } as any)
           .where(eq(committeeOperatingRules.id, approval.operatingRuleId));
 
         // Cancelar todas las demás aprobaciones pendientes
@@ -1036,7 +1036,7 @@ export const committeeOperatingRulesRouter = router({
             status: "rejected",
             rejectionReason: "Cancelada debido a rechazo de otro aprobador",
             rejectedAt: new Date(),
-          })
+          } as any)
           .where(
             and(
               eq(operatingRulesApprovals.operatingRuleId, approval.operatingRuleId),
@@ -1415,7 +1415,7 @@ export const committeeOperatingRulesRouter = router({
         }
 
         // Ordenar por fecha (más reciente primero)
-        filteredEvents.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+        filteredEvents.sort((a: any, b: any) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
 
         // Aplicar paginación
         const totalEvents = filteredEvents.length;
@@ -1539,7 +1539,7 @@ export const committeeOperatingRulesRouter = router({
         });
 
         // Ordenar por relevancia
-        resultsWithRelevance.sort((a, b) => b.relevance - a.relevance);
+        resultsWithRelevance.sort((a: any, b: any) => b.relevance - a.relevance);
 
         // Paginar
         const total = resultsWithRelevance.length;
@@ -1609,7 +1609,7 @@ export const committeeOperatingRulesRouter = router({
         // Filtrar por estado si se especifica
         let filteredApprovals = approvals;
         if (input.status !== "all") {
-          filteredApprovals = approvals.filter((approval) => {
+          filteredApprovals = approvals.filter((approval: any) => {
             if (input.status === "pending") {
               return approval.status === "pending" && (!approval.deadline || new Date(approval.deadline) >= now);
             } else if (input.status === "completed") {
@@ -1622,7 +1622,7 @@ export const committeeOperatingRulesRouter = router({
         }
 
         // Agrupar por día
-        const calendarEvents = filteredApprovals.reduce((acc, approval) => {
+        const calendarEvents = filteredApprovals.reduce((acc: any, approval: any) => {
           if (!approval.deadline) return acc;
 
           const dateKey = new Date(approval.deadline).toISOString().split("T")[0];
@@ -1706,7 +1706,7 @@ export const committeeOperatingRulesRouter = router({
           .orderBy(operatingRulesApprovals.deadline);
 
         // Calcular días restantes
-        const deadlinesWithDaysLeft = upcomingApprovals.map((approval) => {
+        const deadlinesWithDaysLeft = upcomingApprovals.map((approval: any) => {
           const daysLeft = approval.deadline
             ? Math.ceil((new Date(approval.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
             : null;
@@ -1766,7 +1766,7 @@ export const committeeOperatingRulesRouter = router({
           .set({
             deadline: new Date(input.deadline),
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(operatingRulesApprovals.id, input.approvalId));
 
         return { success: true };
@@ -1827,7 +1827,7 @@ export const committeeOperatingRulesRouter = router({
 
         // Métricas principales
         const totalWithDeadline = approvals.length;
-        const completed = approvals.filter((a) => a.status === "signed");
+        const completed = approvals.filter((a: any) => a.status === "signed");
         const completedOnTime = completed.filter(
           (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
         );
@@ -1842,13 +1842,13 @@ export const committeeOperatingRulesRouter = router({
         let avgResponseTime = 0;
         if (completed.length > 0) {
           const responseTimes = completed
-            .filter((a) => a.signedAt && a.createdAt)
-            .map((a) => {
+            .filter((a: any) => a.signedAt && a.createdAt)
+            .map((a: any) => {
               const created = new Date(a.createdAt!).getTime();
               const signed = new Date(a.signedAt!).getTime();
               return (signed - created) / (1000 * 60 * 60); // horas
             });
-          avgResponseTime = responseTimes.reduce((sum, t) => sum + t, 0) / responseTimes.length;
+          avgResponseTime = responseTimes.reduce((sum: any, t: any) => sum + t, 0) / responseTimes.length;
         }
 
         // Tendencias mensuales (últimos 6 meses)
@@ -1864,12 +1864,12 @@ export const committeeOperatingRulesRouter = router({
           monthEnd.setDate(0);
           monthEnd.setHours(23, 59, 59, 999);
 
-          const monthApprovals = approvals.filter((a) => {
+          const monthApprovals = approvals.filter((a: any) => {
             const created = new Date(a.createdAt);
             return created >= monthStart && created <= monthEnd;
           });
 
-          const monthCompleted = monthApprovals.filter((a) => a.status === "signed");
+          const monthCompleted = monthApprovals.filter((a: any) => a.status === "signed");
           const monthCompliant = monthCompleted.filter(
             (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
           );
@@ -1892,7 +1892,7 @@ export const committeeOperatingRulesRouter = router({
           moreThan7Days: 0,
         };
 
-        completed.forEach((a) => {
+        completed.forEach((a: any) => {
           if (!a.signedAt || !a.createdAt) return;
           const hours = (new Date(a.signedAt).getTime() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
           if (hours < 24) responseDistribution.lessThan24h++;
@@ -1914,7 +1914,7 @@ export const committeeOperatingRulesRouter = router({
           }
         >();
 
-        approvals.forEach((a) => {
+        approvals.forEach((a: any) => {
           if (!a.approverId) return;
 
           if (!approverStats.has(a.approverId)) {
@@ -1942,25 +1942,25 @@ export const committeeOperatingRulesRouter = router({
         });
 
         const approverRanking = Array.from(approverStats.values())
-          .map((stats) => ({
+          .map((stats: any) => ({
             ...stats,
             avgResponseTime: stats.totalApprovals > 0 ? stats.avgResponseTime / stats.totalApprovals : 0,
             onTimeRate: stats.totalApprovals > 0 ? (stats.onTimeRate / stats.totalApprovals) * 100 : 0,
           }))
-          .sort((a, b) => a.avgResponseTime - b.avgResponseTime)
+          .sort((a: any, b: any) => a.avgResponseTime - b.avgResponseTime)
           .slice(0, 10);
 
         // Documentos con mayor tiempo de aprobación
         const slowestDocuments = completed
-          .filter((a) => a.signedAt && a.createdAt)
-          .map((a) => ({
+          .filter((a: any) => a.signedAt && a.createdAt)
+          .map((a: any) => ({
             operatingRuleId: a.operatingRuleId,
             version: a.ruleVersion || "Sin versión",
             approverName: a.approverName || "Usuario desconocido",
             responseTime: (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60),
             wasOnTime: a.deadline ? new Date(a.signedAt!) <= new Date(a.deadline) : null,
           }))
-          .sort((a, b) => b.responseTime - a.responseTime)
+          .sort((a: any, b: any) => b.responseTime - a.responseTime)
           .slice(0, 10);
 
         // Análisis por rol
@@ -1970,8 +1970,8 @@ export const committeeOperatingRulesRouter = router({
           { role: "vocal", label: "Vocal" },
           { role: "other", label: "Otro" },
         ].map(({ role, label }) => {
-          const roleApprovals = approvals.filter((a) => a.approverRole === role);
-          const roleCompleted = roleApprovals.filter((a) => a.status === "signed");
+          const roleApprovals = approvals.filter((a: any) => a.approverRole === role);
+          const roleCompleted = roleApprovals.filter((a: any) => a.status === "signed");
           const roleCompliant = roleCompleted.filter(
             (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
           );
@@ -1979,9 +1979,9 @@ export const committeeOperatingRulesRouter = router({
           let roleAvgTime = 0;
           if (roleCompleted.length > 0) {
             const times = roleCompleted
-              .filter((a) => a.signedAt && a.createdAt)
-              .map((a) => (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60));
-            roleAvgTime = times.reduce((sum, t) => sum + t, 0) / times.length;
+              .filter((a: any) => a.signedAt && a.createdAt)
+              .map((a: any) => (new Date(a.signedAt!).getTime() - new Date(a.createdAt!).getTime()) / (1000 * 60 * 60));
+            roleAvgTime = times.reduce((sum: any, t: any) => sum + t, 0) / times.length;
           }
 
           return {
@@ -1994,7 +1994,7 @@ export const committeeOperatingRulesRouter = router({
         });
 
         // Identificar cuellos de botella (aprobadores lentos)
-        const bottlenecks = approverRanking.filter((a) => a.avgResponseTime > 168).map((a) => a.name); // > 7 días
+        const bottlenecks = approverRanking.filter((a: any) => a.avgResponseTime > 168).map((a: any) => a.name); // > 7 días
 
         return {
           summary: {

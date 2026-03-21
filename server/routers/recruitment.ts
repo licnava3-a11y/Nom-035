@@ -29,7 +29,7 @@ export const recruitmentRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      const [result] = await db.insert(jobOpenings).values({
+      const [result] = await (db.insert(jobOpenings) as any).values({
         title: input.title,
         description: input.description,
         requirements: input.requirements || null,
@@ -55,7 +55,7 @@ export const recruitmentRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      let query = db.select().from(jobOpenings);
+      let query: any = db.select().from(jobOpenings);
       
       if (input.status !== "all") {
         query = query.where(eq(jobOpenings.status, input.status)) as any;
@@ -149,7 +149,7 @@ export const recruitmentRouter = router({
           responsibilities: wh.responsibilities || null,
           reasonForLeaving: wh.reasonForLeaving || null,
         }));
-        await db.insert(candidateWorkHistory).values(workHistoryValues);
+        await (db.insert(candidateWorkHistory) as any).values(workHistoryValues);
       }
 
       // Insertar referencias
@@ -163,7 +163,7 @@ export const recruitmentRouter = router({
           email: ref.email || null,
           relationship: ref.relationship,
         }));
-        await db.insert(candidateReferences).values(referencesValues);
+        await (db.insert(candidateReferences) as any).values(referencesValues);
       }
 
       return { success: true, candidateId };

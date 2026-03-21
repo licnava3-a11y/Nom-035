@@ -43,7 +43,7 @@ export const trainingAssignmentsRouter = router({
       }
 
       // Crear asignación
-      const [result] = await db.insert(trainingAssignments).values({
+      const [result] = await (db.insert(trainingAssignments) as any).values({
         trainingId: input.trainingId,
         committeeMemberId: input.committeeMemberId,
         status: "pending",
@@ -131,7 +131,7 @@ export const trainingAssignmentsRouter = router({
         }
 
         // Crear asignación
-        await db.insert(trainingAssignments).values({
+        await (db.insert(trainingAssignments) as any).values({
           trainingId: input.trainingId,
           committeeMemberId: member.id,
           status: "pending",

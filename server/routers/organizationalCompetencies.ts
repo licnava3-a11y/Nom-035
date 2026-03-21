@@ -29,7 +29,7 @@ export const organizationalCompetenciesRouter = router({
         });
       }
 
-      const [competency] = await db.insert(organizationalCompetencies).values({
+      const [competency] = await (db.insert(organizationalCompetencies) as any).values({
         ...input,
         appliesToDepartments: input.appliesToDepartments ? JSON.stringify(input.appliesToDepartments) : null,
         appliesToRoles: input.appliesToRoles ? JSON.stringify(input.appliesToRoles) : null,
@@ -57,7 +57,7 @@ export const organizationalCompetenciesRouter = router({
         });
       }
 
-      let query = db.select().from(organizationalCompetencies);
+      let query: any = db.select().from(organizationalCompetencies);
 
       const conditions: any[] = [];
       if (input?.category) {
@@ -77,7 +77,7 @@ export const organizationalCompetenciesRouter = router({
       );
 
       // Parse JSON fields
-      return competencies.map((c) => ({
+      return competencies.map((c: any) => ({
         ...c,
         appliesToDepartments: c.appliesToDepartments && c.appliesToDepartments !== "all" ? JSON.parse(c.appliesToDepartments) : c.appliesToDepartments,
         appliesToRoles: c.appliesToRoles && c.appliesToRoles !== "all" ? JSON.parse(c.appliesToRoles) : c.appliesToRoles,
@@ -128,7 +128,7 @@ export const organizationalCompetenciesRouter = router({
         .where(eq(organizationalCompetencies.isActive, true));
 
       // Filter competencies applicable to this employee
-      const applicableCompetencies = allCompetencies.filter((c) => {
+      const applicableCompetencies = allCompetencies.filter((c: any) => {
         // Handle special case: "all" means applies to everyone
         if (c.appliesToDepartments === "all") return true;
 
@@ -147,7 +147,7 @@ export const organizationalCompetenciesRouter = router({
         return departmentMatch && roleMatch;
       });
 
-      return applicableCompetencies.map((c) => ({
+      return applicableCompetencies.map((c: any) => ({
         ...c,
         appliesToDepartments: c.appliesToDepartments === "all" ? "all" : (c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null),
         appliesToRoles: c.appliesToRoles ? JSON.parse(c.appliesToRoles) : null,

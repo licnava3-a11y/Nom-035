@@ -89,7 +89,7 @@ export const competenciesStatsRouter = router({
       departmentStats[dept].employeeCount++;
 
       // Get employee competencies
-      const empCompetencies = allCompetencies.filter((c) => c.employeeId === emp.id);
+      const empCompetencies = allCompetencies.filter((c: any) => c.employeeId === emp.id);
 
       if (empCompetencies.length > 0) {
         const totalLevel = empCompetencies.reduce(
@@ -115,7 +115,7 @@ export const competenciesStatsRouter = router({
             .where(eq(jobProfiles.positionId, positionRecord.id));
 
           const competencyMap = new Map(
-            empCompetencies.map((c) => [c.competencyName, c.currentLevel])
+            empCompetencies.map((c: any) => [c.competencyName, c.currentLevel])
           );
 
           for (const req of requirements) {
@@ -131,13 +131,13 @@ export const competenciesStatsRouter = router({
     }
 
     // Calculate averages
-    const result = Object.values(departmentStats).map((dept) => ({
+    const result = Object.values(departmentStats).map((dept: any) => ({
       ...dept,
       avgCompetencyLevel:
         dept.employeeCount > 0 ? dept.avgCompetencyLevel / dept.employeeCount : 0,
     }));
 
-    return result.sort((a, b) => b.criticalGaps - a.criticalGaps);
+    return result.sort((a: any, b: any) => b.criticalGaps - a.criticalGaps);
   }),
 
   /**
@@ -193,7 +193,7 @@ export const competenciesStatsRouter = router({
     }
 
     // Calculate averages
-    return Object.values(typeStats).map((stat) => ({
+    return Object.values(typeStats).map((stat: any) => ({
       ...stat,
       avgLevel: stat.count > 0 ? stat.totalLevel / stat.count : 0,
     }));
@@ -283,9 +283,9 @@ export const competenciesStatsRouter = router({
           .from(jobProfiles)
           .where(eq(jobProfiles.positionId, positionRecord.id));
 
-        const empCompetencies = allCompetencies.filter((c) => c.employeeId === emp.id);
+        const empCompetencies = allCompetencies.filter((c: any) => c.employeeId === emp.id);
         const competencyMap = new Map(
-          empCompetencies.map((c) => [c.competencyName, c.currentLevel])
+          empCompetencies.map((c: any) => [c.competencyName, c.currentLevel])
         );
 
         for (const req of requirements) {
@@ -315,7 +315,7 @@ export const competenciesStatsRouter = router({
 
       // Sort by total gap and limit
       const result = Object.values(gapsByCompetency)
-        .sort((a, b) => b.totalGap - a.totalGap)
+        .sort((a: any, b: any) => b.totalGap - a.totalGap)
         .slice(0, input.limit);
 
       return result;

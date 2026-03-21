@@ -33,7 +33,7 @@ export const intelligentAlertsRouter = router({
 
     // Insertar alertas en la base de datos
     for (const alert of alerts) {
-      await db.insert(intelligentAlerts).values(alert);
+      await (db.insert(intelligentAlerts) as any).values(alert);
     }
 
     return {
@@ -129,7 +129,7 @@ export const intelligentAlertsRouter = router({
           resolvedAt: new Date(),
           resolvedBy: ctx.user.id,
           effectivenessScore: input.effectivenessScore,
-        })
+        } as any)
         .where(eq(intelligentAlerts.id, input.id));
 
       return { success: true, message: "Alerta marcada como resuelta" };
@@ -151,7 +151,7 @@ export const intelligentAlertsRouter = router({
           resolutionNotes: input.reason,
           resolvedAt: new Date(),
           resolvedBy: ctx.user.id,
-        })
+        } as any)
         .where(eq(intelligentAlerts.id, input.id));
 
       return { success: true, message: "Alerta descartada" };
@@ -168,7 +168,7 @@ export const intelligentAlertsRouter = router({
 
       await db
         .update(intelligentAlerts)
-        .set({ assignedTo: input.userId })
+        .set({ assignedTo: input.userId } as any)
         .where(eq(intelligentAlerts.id, input.id));
 
       return { success: true, message: "Responsable asignado" };

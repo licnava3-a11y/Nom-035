@@ -31,7 +31,7 @@ export const investigationsRouter = router({
       // Crear cuestionario
       if (!db) throw new Error("Database connection failed");
       
-      const [questionnaire] = await db.insert(investigationQuestionnaires).values({
+      const [questionnaire] = await (db.insert(investigationQuestionnaires) as any).values({
         caseId: input.caseId,
         questionnaireType: input.questionnaireType,
         employeeId: input.employeeId,
@@ -166,7 +166,7 @@ export const investigationsRouter = router({
           riskLevel,
           status: "completed",
           completedAt: new Date(),
-        })
+        } as any)
         .where(eq(investigationQuestionnaires.id, questionnaire.id));
 
       return {
@@ -334,7 +334,7 @@ export const investigationsRouter = router({
           riskLevel,
           status: "completed",
           completedAt: new Date(),
-        })
+        } as any)
         .where(eq(investigationQuestionnaires.id, questionnaire.id));
 
       return {
@@ -384,7 +384,7 @@ function calculateScoreAndRisk(
   questionnaireType: "mobbing" | "burnout"
 ): { score: number; riskLevel: "bajo" | "medio" | "alto" | "muy_alto" } {
   // Calcular puntaje total sumando todas las respuestas numéricas
-  const scores = Object.values(responses).filter((v) => typeof v === "number");
+  const scores = Object.values(responses).filter((v: any) => typeof v === "number");
   const totalScore = scores.reduce((sum: number, score) => sum + (score as number), 0);
   const averageScore = scores.length > 0 ? totalScore / scores.length : 0;
 

@@ -323,7 +323,7 @@ export const trainingCertificatesRouter = router({
       const { url: pdfUrl } = await storagePut(fileName, pdfBuffer, "application/pdf");
 
       // Guardar registro del certificado
-      const [result] = await db.insert(trainingCertificates).values({
+      const [result] = await (db.insert(trainingCertificates) as any).values({
         assignmentId: input.assignmentId,
         certificateNumber,
         issueDate: new Date().toISOString().split("T")[0] as any,

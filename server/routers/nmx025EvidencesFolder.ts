@@ -329,7 +329,7 @@ export const nmx025EvidencesFolder = router({
       const { url: fileUrl } = await storagePut(fileKey, buffer, fileType);
 
       // Guardar en BD
-      const result = await db.insert(nmx025ManualEvidences).values({
+      const result = await (db.insert(nmx025ManualEvidences) as any).values({
         eje,
         title,
         description: description || null,
@@ -520,7 +520,7 @@ export const nmx025EvidencesFolder = router({
 
       doc.fontSize(11).font("Helvetica");
       let pageNumber = 3;
-      Object.values(evidencesData).forEach((eje) => {
+      Object.values(evidencesData).forEach((eje: any) => {
         if (eje.required) {
           doc.text(`${eje.title} ................................ Pág. ${pageNumber}`);
           doc.moveDown(0.5);
@@ -529,7 +529,7 @@ export const nmx025EvidencesFolder = router({
       });
 
       // Contenido por eje
-      Object.values(evidencesData).forEach((eje) => {
+      Object.values(evidencesData).forEach((eje: any) => {
         if (!eje.required) return;
 
         doc.addPage();
@@ -546,7 +546,7 @@ export const nmx025EvidencesFolder = router({
 
         if (eje.evidences.length > 0) {
           doc.fontSize(10).font("Helvetica");
-          eje.evidences.forEach((evidence, idx) => {
+          eje.evidences.forEach((evidence: any, idx: number) => {
             doc.font("Helvetica-Bold").text(`${idx + 1}. ${evidence.name}`);
             doc.font("Helvetica").text(`   ${evidence.description}`);
             doc

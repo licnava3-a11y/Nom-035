@@ -129,7 +129,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .limit(100);
   
   const avgResolutionDays = resolvedCasesWithDates.length > 0
-    ? resolvedCasesWithDates.reduce((sum, c) => {
+    ? resolvedCasesWithDates.reduce((sum: any, c: any) => {
         if (!c.resolvedAt) return sum;
         const days = Math.floor((c.resolvedAt.getTime() - c.createdAt.getTime()) / (1000 * 60 * 60 * 24));
         return sum + days;

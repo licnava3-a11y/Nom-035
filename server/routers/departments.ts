@@ -224,7 +224,7 @@ export const departmentsRouter = router({
         .limit(1);
 
       if (updated) {
-        await db.insert(departmentHistory).values({
+        await (db.insert(departmentHistory) as any).values({
           departmentId: updated.id,
           name: updated.name,
           description: updated.description,
@@ -449,7 +449,7 @@ export const departmentsRouter = router({
 
       // Calcular totales
       const totalDepartments = stats.length;
-      const totalEmployees = stats.reduce((sum, dept) => sum + dept.employeeCount, 0);
+      const totalEmployees = stats.reduce((sum: any, dept: any) => sum + dept.employeeCount, 0);
 
       return {
         totalDepartments,
@@ -659,7 +659,7 @@ export const departmentsRouter = router({
       // Actualizar departamento de empleados
       await db
         .update(employees)
-        .set({ departmentId: input.newDepartmentId })
+        .set({ departmentId: input.newDepartmentId } as any)
         .where(sql`${employees.id} IN (${sql.join(input.employeeIds.map(id => sql`${id}`), sql`, `)})`)
         .execute();
 
@@ -683,13 +683,13 @@ export const departmentsRouter = router({
       const reassignmentId = reassignmentRecord.insertId;
 
       // Registrar detalles de empleados afectados
-      const detailRecords = employeesToReassign.map((emp) => ({
+      const detailRecords = employeesToReassign.map((emp: any) => ({
         reassignmentId: Number(reassignmentId),
         employeeId: emp.id,
         employeeName: emp.name,
         employeeEmail: emp.email || null,
       }));
-      await db.insert(bulkReassignmentDetails).values(detailRecords);
+      await (db.insert(bulkReassignmentDetails) as any).values(detailRecords);
 
       // Enviar notificaciones por email a empleados afectados (opcional)
       const emailPromises = employeesToReassign.map(async (emp) => {
@@ -749,7 +749,7 @@ export const departmentsRouter = router({
       );
 
     // Calcular días sin manager desde creación
-    const alerts = deptsWithoutManager.map((dept) => {
+    const alerts = deptsWithoutManager.map((dept: any) => {
       const daysSinceCreation = Math.floor(
         (Date.now() - new Date(dept.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       );
@@ -762,7 +762,7 @@ export const departmentsRouter = router({
     });
 
     // Filtrar solo departamentos con más de 30 días
-    const criticalAlerts = alerts.filter((alert) => alert.daysSinceCreation >= 30);
+    const criticalAlerts = alerts.filter((alert: any) => alert.daysSinceCreation >= 30);
 
     return {
       alerts: criticalAlerts,
@@ -872,8 +872,8 @@ export const departmentsRouter = router({
     );
 
     // Hoja 1: Departamentos
-    const departmentsData = allDepartments.map((dept) => {
-      const empCount = employeeCounts.find((ec) => ec.departmentId === dept.id);
+    const departmentsData = allDepartments.map((dept: any) => {
+      const empCount = employeeCounts.find((ec: any) => ec.departmentId === dept.id);
       return {
         ID: dept.id,
         "Nombre": dept.name,
@@ -902,7 +902,7 @@ export const departmentsRouter = router({
           .where(eq(employees.departmentId, dept.id))
           .execute();
 
-        return deptEmployees.map((emp) => ({
+        return deptEmployees.map((emp: any) => ({
           "Departamento": dept.name,
           "ID Empleado": emp.id,
           "Nombre": emp.name,
@@ -916,8 +916,8 @@ export const departmentsRouter = router({
 
     // Hoja 3: Managers
     const managersData = allDepartments
-      .filter((dept) => dept.managerId)
-      .map((dept) => ({
+      .filter((dept: any) => dept.managerId)
+      .map((dept: any) => ({
         "Departamento": dept.name,
         "Manager": dept.managerName || "",
         "ID Manager": dept.managerId,
@@ -982,15 +982,15 @@ export const departmentsRouter = router({
         .execute();
 
       return {
-        alerts: alerts.map((alert) => ({
+        alerts: alerts.map((alert: any) => ({
           ...alert,
           recommendedActions: alert.recommendedActions
             ? JSON.parse(alert.recommendedActions)
             : [],
         })),
         totalAlerts: alerts.length,
-        highRiskCount: alerts.filter((a) => a.riskScore >= 70).length,
-        mediumRiskCount: alerts.filter((a) => a.riskScore >= 40 && a.riskScore < 70).length,
+        highRiskCount: alerts.filter((a: any) => a.riskScore >= 70).length,
+        mediumRiskCount: alerts.filter((a: any) => a.riskScore >= 40 && a.riskScore < 70).length,
       };
     }),
 
@@ -1027,9 +1027,9 @@ export const departmentsRouter = router({
     doc.moveDown(2);
 
     // Resumen ejecutivo
-    const highRiskCount = alerts.filter((a) => a.riskScore >= 70).length;
-    const mediumRiskCount = alerts.filter((a) => a.riskScore >= 40 && a.riskScore < 70).length;
-    const totalEmployeesAtRisk = alerts.reduce((sum, a) => sum + a.currentEmployeeCount, 0);
+    const highRiskCount = alerts.filter((a: any) => a.riskScore >= 70).length;
+    const mediumRiskCount = alerts.filter((a: any) => a.riskScore >= 40 && a.riskScore < 70).length;
+    const totalEmployeesAtRisk = alerts.reduce((sum: any, a: any) => sum + a.currentEmployeeCount, 0);
 
     doc.fontSize(16).text("Resumen Ejecutivo", { underline: true });
     doc.moveDown(0.5);
@@ -1045,7 +1045,7 @@ export const departmentsRouter = router({
     doc.fontSize(16).text("Departamentos de Riesgo", { underline: true });
     doc.moveDown(0.5);
 
-    alerts.forEach((alert, index) => {
+    alerts.forEach((alert: any, index: number) => {
       // Verificar si necesitamos una nueva página
       if (doc.y > 650) {
         doc.addPage();
@@ -1068,7 +1068,7 @@ export const departmentsRouter = router({
     doc.moveDown(0.5);
 
     const topAlerts = alerts.slice(0, 5); // Top 5 departamentos de riesgo
-    topAlerts.forEach((alert, index) => {
+    topAlerts.forEach((alert: any, index: number) => {
       doc.fontSize(14).text(`${index + 1}. ${alert.departmentName} (Riesgo: ${alert.riskScore}%)`);
       doc.fontSize(10);
 
@@ -1189,7 +1189,7 @@ export const departmentsRouter = router({
 
       if (activeConfig.length === 0) {
         // Crear nueva configuración
-        await db.insert(predictiveAlgorithmConfig).values({
+        await (db.insert(predictiveAlgorithmConfig) as any).values({
           configName: 'default',
           rotationWeight: input.rotationWeight,
           tenureWeight: input.tenureWeight,
@@ -1209,7 +1209,7 @@ export const departmentsRouter = router({
             teamSizeWeight: input.teamSizeWeight,
             updatedBy: ctx.user.id,
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(predictiveAlgorithmConfig.id, activeConfig[0].id));
       }
 

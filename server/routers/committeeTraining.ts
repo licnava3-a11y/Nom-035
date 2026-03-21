@@ -18,7 +18,7 @@ export const committeeTrainingRouter = router({
     .mutation(async ({ input, ctx }: { input: { title: string; description?: string; type: "protocolo_violencia" | "factores_riesgo" | "medidas_prevencion" | "otro"; duration: number; instructor?: string }; ctx: any }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
-      const [program] = await db.insert(committeeTrainingPrograms).values({
+      const [program] = await (db.insert(committeeTrainingPrograms) as any).values({
         title: input.title,
         description: input.description,
         type: input.type,
@@ -39,7 +39,7 @@ export const committeeTrainingRouter = router({
     .query(async ({ input }: { input: { status?: "activo" | "completado" | "cancelado"; type?: "protocolo_violencia" | "factores_riesgo" | "medidas_prevencion" | "otro" } }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
-      let query = db.select().from(committeeTrainingPrograms);
+      let query: any = db.select().from(committeeTrainingPrograms);
 
       const conditions = [];
       if (input.status) {
@@ -90,7 +90,7 @@ export const committeeTrainingRouter = router({
     .mutation(async ({ input }: { input: { programId: number; sessionDate: string; sessionTime: string; location?: string; type: "presencial" | "en_linea"; meetingLink?: string } }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
-      const [session] = await db.insert(committeeTrainingSessions).values({
+      const [session] = await (db.insert(committeeTrainingSessions) as any).values({
         programId: input.programId,
         sessionDate: new Date(input.sessionDate),
         sessionTime: input.sessionTime,
@@ -112,7 +112,7 @@ export const committeeTrainingRouter = router({
     .query(async ({ input }: { input: { programId?: number; startDate?: string; endDate?: string } }) => {
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
-      let query = db.select().from(committeeTrainingSessions);
+      let query: any = db.select().from(committeeTrainingSessions);
 
       const conditions = [];
       if (input.programId) {
@@ -161,11 +161,11 @@ export const committeeTrainingRouter = router({
           .set({
             attended: input.attended,
             attendedAt: input.attended ? new Date() : null,
-          })
+          } as any)
           .where(eq(committeeTrainingAttendance.id, existing[0].id));
       } else {
         // Crear nuevo registro
-        await db.insert(committeeTrainingAttendance).values({
+        await (db.insert(committeeTrainingAttendance) as any).values({
           sessionId: input.sessionId,
           committeeMemberId: input.committeeMemberId,
           attended: input.attended,
@@ -186,7 +186,7 @@ export const committeeTrainingRouter = router({
 
       await db
         .update(committeeTrainingSessions)
-        .set({ attendanceCount: attendanceCount.length })
+        .set({ attendanceCount: attendanceCount.length } as any)
         .where(eq(committeeTrainingSessions.id, input.sessionId));
 
       return { success: true };
@@ -272,7 +272,7 @@ export const committeeTrainingRouter = router({
       // Actualizar registro de asistencia con URL del certificado
       await db
         .update(committeeTrainingAttendance)
-        .set({ certificateUrl })
+        .set({ certificateUrl } as any)
         .where(eq(committeeTrainingAttendance.id, attendance.id));
 
       // Enviar email de notificación al empleado
@@ -380,7 +380,7 @@ export const committeeTrainingRouter = router({
       if (!db) throw new Error("Database connection failed");
       await db
         .update(committeeTrainingPrograms)
-        .set({ status: input.status })
+        .set({ status: input.status } as any)
         .where(eq(committeeTrainingPrograms.id, input.programId));
 
       return { success: true };

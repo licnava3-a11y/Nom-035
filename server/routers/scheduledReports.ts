@@ -31,7 +31,7 @@ export const scheduledReportsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      await db.insert(scheduledReports).values({
+      await (db.insert(scheduledReports) as any).values({
         reportName: input.reportName,
         reportType: input.reportType,
         recipients: JSON.stringify(input.recipients),
@@ -86,8 +86,8 @@ export const scheduledReportsRouter = router({
       if (report.includeNMX025) {
         const allEmployees = await db.select().from(employees);
         const totalEmployees = allEmployees.length;
-        const maleCount = allEmployees.filter((e) => e.gender === "male").length;
-        const femaleCount = allEmployees.filter((e) => e.gender === "female").length;
+        const maleCount = allEmployees.filter((e: any) => e.gender === "male").length;
+        const femaleCount = allEmployees.filter((e: any) => e.gender === "female").length;
 
         metrics.nmx025 = {
           totalEmployees,
@@ -102,9 +102,9 @@ export const scheduledReportsRouter = router({
       if (report.includeNOM035) {
         const surveys = await db.select().from(nom035Results);
         const totalSurveys = surveys.length;
-        const highRiskCount = surveys.filter((s) => s.globalRiskLevel === "alto" || s.globalRiskLevel === "muy_alto").length;
-        const mediumRiskCount = surveys.filter((s) => s.globalRiskLevel === "medio").length;
-        const lowRiskCount = surveys.filter((s) => s.globalRiskLevel === "bajo" || s.globalRiskLevel === "nulo").length;
+        const highRiskCount = surveys.filter((s: any) => s.globalRiskLevel === "alto" || s.globalRiskLevel === "muy_alto").length;
+        const mediumRiskCount = surveys.filter((s: any) => s.globalRiskLevel === "medio").length;
+        const lowRiskCount = surveys.filter((s: any) => s.globalRiskLevel === "bajo" || s.globalRiskLevel === "nulo").length;
 
         const highRiskPercentage = totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
 
@@ -121,9 +121,9 @@ export const scheduledReportsRouter = router({
       // Casos NOM-035
       if (report.includeCases) {
         const cases = await db.select().from(nom035Cases);
-        const openCases = cases.filter((c) => c.status === "open").length;
-        const inProgressCases = cases.filter((c) => c.status === "in_progress").length;
-        const closedCases = cases.filter((c) => c.status === "closed").length;
+        const openCases = cases.filter((c: any) => c.status === "open").length;
+        const inProgressCases = cases.filter((c: any) => c.status === "in_progress").length;
+        const closedCases = cases.filter((c: any) => c.status === "closed").length;
 
         metrics.cases = {
           totalCases: cases.length,
@@ -136,7 +136,7 @@ export const scheduledReportsRouter = router({
       // Guardar en historial
       const recipients = JSON.parse(report.recipients as string) as string[];
 
-      await db.insert(reportHistory).values({
+      await (db.insert(reportHistory) as any).values({
         reportId: input.reportId,
         sentBy: ctx.user.id,
         recipientCount: recipients.length,

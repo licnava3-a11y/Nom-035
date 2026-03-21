@@ -77,7 +77,7 @@ export const sharedReportsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
 
-      await db.insert(sharedReportsLog).values({
+      await (db.insert(sharedReportsLog) as any).values({
         reportUrl: input.reportUrl,
         reportType: input.reportType,
         reportCategory: input.reportCategory,
@@ -191,7 +191,7 @@ export const sharedReportsRouter = router({
       };
       historySheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
-      allLogs.forEach((log) => {
+      allLogs.forEach((log: any) => {
         const createdAt = log.createdAt ? new Date(log.createdAt) : new Date();
         historySheet.addRow({
           id: log.id,
@@ -221,7 +221,7 @@ export const sharedReportsRouter = router({
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .groupBy(sharedReportsLog.shareChannel);
 
-      const totalCount = channelStats.reduce((sum, stat) => sum + (stat.count || 0), 0);
+      const totalCount = channelStats.reduce((sum: any, stat: any) => sum + (stat.count || 0), 0);
 
       const channelSheet = workbook.addWorksheet("Estadísticas por Canal");
       channelSheet.columns = [
@@ -238,7 +238,7 @@ export const sharedReportsRouter = router({
       };
       channelSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
-      channelStats.forEach((stat) => {
+      channelStats.forEach((stat: any) => {
         const percentage = totalCount > 0 ? ((stat.count || 0) / totalCount) * 100 : 0;
         channelSheet.addRow({
           channel: stat.channel,
@@ -275,7 +275,7 @@ export const sharedReportsRouter = router({
       };
       userSheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
-      userStats.forEach((stat) => {
+      userStats.forEach((stat: any) => {
         const percentage = totalCount > 0 ? ((stat.count || 0) / totalCount) * 100 : 0;
         userSheet.addRow({
           userName: stat.userName || "N/A",
@@ -313,7 +313,7 @@ export const sharedReportsRouter = router({
 
       const daysOfWeek = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-      temporalStats.forEach((stat) => {
+      temporalStats.forEach((stat: any) => {
         const date = new Date(stat.date);
         temporalSheet.addRow({
           date: date.toLocaleDateString("es-MX"),

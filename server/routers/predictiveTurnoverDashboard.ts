@@ -162,7 +162,7 @@ export const predictiveTurnoverDashboardRouter = router({
         }
 
         // Ordenar por probabilidad de rotación (mayor a menor)
-        metrics.sort((a, b) => b.turnoverProbability - a.turnoverProbability);
+        metrics.sort((a: any, b: any) => b.turnoverProbability - a.turnoverProbability);
 
         return metrics;
       } catch (error) {
@@ -262,7 +262,7 @@ export const predictiveTurnoverDashboardRouter = router({
         });
 
         // Ordenar por riskScore (mayor a menor)
-        highRiskEmployees.sort((a, b) => b.riskScore - a.riskScore);
+        highRiskEmployees.sort((a: any, b: any) => b.riskScore - a.riskScore);
 
         return highRiskEmployees;
       } catch (error) {

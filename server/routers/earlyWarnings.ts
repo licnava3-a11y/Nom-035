@@ -59,22 +59,22 @@ export const earlyWarningsRouter = router({
       // Filter by priority after query (since priority is calculated)
       let filteredCases = cases;
       if (input?.priority && input.priority !== "all") {
-        filteredCases = cases.filter((c) => {
+        filteredCases = cases.filter((c: any) => {
           const priority = c.daysRemaining <= 7 ? "high" : c.daysRemaining <= 15 ? "medium" : "low";
           return priority === input.priority;
         });
       }
 
       return {
-        cases: filteredCases.map((c) => ({
+        cases: filteredCases.map((c: any) => ({
           ...c,
           priority: c.daysRemaining <= 7 ? "high" : c.daysRemaining <= 15 ? "medium" : "low",
           priorityColor: c.daysRemaining <= 7 ? "red" : c.daysRemaining <= 15 ? "yellow" : "green",
         })),
         total: cases.length,
-        highPriority: cases.filter((c) => c.daysRemaining <= 7).length,
-        mediumPriority: cases.filter((c) => c.daysRemaining > 7 && c.daysRemaining <= 15).length,
-        lowPriority: cases.filter((c) => c.daysRemaining > 15).length,
+        highPriority: cases.filter((c: any) => c.daysRemaining <= 7).length,
+        mediumPriority: cases.filter((c: any) => c.daysRemaining > 7 && c.daysRemaining <= 15).length,
+        lowPriority: cases.filter((c: any) => c.daysRemaining > 15).length,
       };
     }),
 
@@ -116,16 +116,16 @@ export const earlyWarningsRouter = router({
         .orderBy(sql`CASE WHEN ${surveys.endDate} IS NOT NULL THEN DATEDIFF(CURDATE(), ${surveys.endDate}) ELSE 0 END DESC`);
 
       return {
-        surveys: surveysData.map((s) => ({
+        surveys: surveysData.map((s: any) => ({
           ...s,
           completionRate: s.totalResponses > 0 ? (s.completedResponses / s.totalResponses) * 100 : 0,
           priority: s.daysOverdue > 30 ? "high" : s.daysOverdue > 15 ? "medium" : "low",
           priorityColor: s.daysOverdue > 30 ? "red" : s.daysOverdue > 15 ? "yellow" : "green",
         })),
         total: surveysData.length,
-        highPriority: surveysData.filter((s) => s.daysOverdue > 30).length,
-        mediumPriority: surveysData.filter((s) => s.daysOverdue > 15 && s.daysOverdue <= 30).length,
-        lowPriority: surveysData.filter((s) => s.daysOverdue <= 15).length,
+        highPriority: surveysData.filter((s: any) => s.daysOverdue > 30).length,
+        mediumPriority: surveysData.filter((s: any) => s.daysOverdue > 15 && s.daysOverdue <= 30).length,
+        lowPriority: surveysData.filter((s: any) => s.daysOverdue <= 15).length,
       };
     }),
 
@@ -167,15 +167,15 @@ export const earlyWarningsRouter = router({
         .orderBy(sql`DATEDIFF(CURDATE(), ${correctiveActions.updatedAt}) DESC`);
 
       return {
-        actions: actions.map((a) => ({
+        actions: actions.map((a: any) => ({
           ...a,
           alertPriority: a.daysSinceUpdate > 60 ? "high" : a.daysSinceUpdate > 45 ? "medium" : "low",
           priorityColor: a.daysSinceUpdate > 60 ? "red" : a.daysSinceUpdate > 45 ? "yellow" : "green",
         })),
         total: actions.length,
-        highPriority: actions.filter((a) => a.daysSinceUpdate > 60).length,
-        mediumPriority: actions.filter((a) => a.daysSinceUpdate > 45 && a.daysSinceUpdate <= 60).length,
-        lowPriority: actions.filter((a) => a.daysSinceUpdate <= 45).length,
+        highPriority: actions.filter((a: any) => a.daysSinceUpdate > 60).length,
+        mediumPriority: actions.filter((a: any) => a.daysSinceUpdate > 45 && a.daysSinceUpdate <= 60).length,
+        lowPriority: actions.filter((a: any) => a.daysSinceUpdate <= 45).length,
       };
     }),
 
@@ -296,7 +296,7 @@ export const earlyWarningsRouter = router({
       }
 
       // Ordenar por cobertura ascendente (menor cobertura primero)
-      coverageAlerts.sort((a, b) => a.coverage - b.coverage);
+      coverageAlerts.sort((a: any, b: any) => a.coverage - b.coverage);
 
       return {
         alerts: coverageAlerts,

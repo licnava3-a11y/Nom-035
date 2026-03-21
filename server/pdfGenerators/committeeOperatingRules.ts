@@ -110,7 +110,7 @@ export async function generateOperatingRulesPDF(data: OperatingRulesData): Promi
       doc.moveDown(0.5);
 
       // List members
-      data.members.forEach((member, index) => {
+      data.members.forEach((member: any, index: number) => {
         doc.text(`${index + 1}. ${member.name} - ${member.position} (${member.department})`, 70, doc.y + 5);
       });
 
@@ -144,7 +144,7 @@ export async function generateOperatingRulesPDF(data: OperatingRulesData): Promi
         "Informar a la autoridad del trabajo los resultados de las evaluaciones",
       ];
 
-      functions.forEach((func, index) => {
+      functions.forEach((func: any, index: number) => {
         doc.text(`${index + 1}. ${func}`, 70, doc.y + 5, { align: "justify" });
         doc.moveDown(0.5);
       });
@@ -234,7 +234,7 @@ export async function generateOperatingRulesPDF(data: OperatingRulesData): Promi
       const signatureHeight = 80;
       const signaturesPerPage = 3;
 
-      data.members.forEach((member, index) => {
+      data.members.forEach((member: any, index: number) => {
         if (index > 0 && index % signaturesPerPage === 0) {
           doc.addPage();
           yPosition = 50;

@@ -88,7 +88,7 @@ export async function generateIndividualReport(data: ReportData): Promise<Buffer
         doc.moveDown(0.5);
         doc.fontSize(10).fillColor('#333333');
 
-        result.categories.forEach((cat) => {
+        result.categories.forEach((cat: any) => {
           const surveyTypeForCalc = data.surveyType === 'guia_i' ? 'guia_ii' : data.surveyType;
           const catRisk = calculator.determineRiskLevel(cat.score, surveyTypeForCalc);
           const catColor = calculator.getRiskColorHex(catRisk.color);
@@ -106,7 +106,7 @@ export async function generateIndividualReport(data: ReportData): Promise<Buffer
       doc.moveDown(0.5);
       doc.fontSize(10).fillColor('#333333');
 
-      result.recommendedActions.forEach((action, index) => {
+      result.recommendedActions.forEach((action: any, index: number) => {
         doc.text(`${index + 1}. ${action}`, { align: 'justify' });
         doc.moveDown(0.3);
       });
@@ -259,7 +259,7 @@ export async function generateAggregatedReport(data: AggregatedReportData): Prom
       doc.moveDown(0.5);
       doc.fontSize(10).fillColor('#333333');
 
-      Object.entries(data.riskDistribution).forEach(([level, count]) => {
+      Object.entries(data.riskDistribution).forEach(([level, count]: [string, any]) => {
         const percentage = ((count / data.totalResponses) * 100).toFixed(1);
         const riskLevel = level as calculator.RiskLevel;
         const riskResult = calculator.determineRiskLevel(0, 'guia_ii');
@@ -282,7 +282,7 @@ export async function generateAggregatedReport(data: AggregatedReportData): Prom
         doc.moveDown(0.5);
         doc.fontSize(10).fillColor('#333333');
 
-        data.averageRiskByCategory.forEach((cat) => {
+        data.averageRiskByCategory.forEach((cat: any) => {
           doc.text(`${cat.category}: ${cat.averageScore.toFixed(1)} puntos`);
         });
         doc.moveDown(2);
@@ -358,7 +358,7 @@ export async function generateGroupReport(
 
       // Calcular estadísticas del grupo
       const riskDistribution: Record<string, number> = {};
-      responses.forEach((resp) => {
+      responses.forEach((resp: any) => {
         if (surveyType === 'guia_i') return; // Guía I no tiene cálculo de riesgo
       const result = calculator.calculateSurveyResult(resp.answers, surveyType);
         riskDistribution[result.finalRiskLevel] = (riskDistribution[result.finalRiskLevel] || 0) + 1;
@@ -369,7 +369,7 @@ export async function generateGroupReport(
       doc.moveDown(0.5);
       doc.fontSize(10).fillColor('#333333');
 
-      Object.entries(riskDistribution).forEach(([level, count]) => {
+      Object.entries(riskDistribution).forEach(([level, count]: [string, any]) => {
         const percentage = ((count / responses.length) * 100).toFixed(1);
         const riskLevel = level as calculator.RiskLevel;
         // Obtener color basado en el nivel de riesgo
@@ -486,7 +486,7 @@ export async function generatePendingWorkersReport(data: {
         doc.fontSize(8).fillColor('#333333');
         let currentY = tableTop + 25;
 
-        data.pendingWorkers.forEach((worker, index) => {
+        data.pendingWorkers.forEach((worker: any, index: number) => {
           // Verificar si necesitamos una nueva página
           if (currentY > doc.page.height - 100) {
             doc.addPage();

@@ -59,7 +59,7 @@ export const externalOfferAlertsRouter = router({
           status: "resolved",
           resolvedAt: new Date(),
           resolutionNotes: input.resolutionNotes,
-        })
+        } as any)
         .where(eq(externalOfferRiskAlerts.id, input.alertId));
 
       return { success: true };
@@ -82,7 +82,7 @@ export const externalOfferAlertsRouter = router({
           status: "dismissed",
           resolvedAt: new Date(),
           resolutionNotes: input.reason,
-        })
+        } as any)
         .where(eq(externalOfferRiskAlerts.id, input.alertId));
 
       return { success: true };

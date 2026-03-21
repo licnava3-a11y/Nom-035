@@ -53,7 +53,7 @@ export const complianceNOM035Router = router({
         // Agrupar por numeral (fundamento)
         const byNumeral: Record<string, { total: number; completed: number; items: any[] }> = {};
 
-        items.forEach((item, index) => {
+        items.forEach((item: any, index: number) => {
           const numeral = item.fundament || "Sin clasificar";
           if (!byNumeral[numeral]) {
             byNumeral[numeral] = { total: 0, completed: 0, items: [] };
@@ -78,7 +78,7 @@ export const complianceNOM035Router = router({
         });
 
         // Calcular porcentajes
-        const result = Object.entries(byNumeral).map(([numeral, data]) => ({
+        const result = Object.entries(byNumeral).map(([numeral, data]: [string, any]) => ({
           numeral,
           total: data.total,
           completed: data.completed,
@@ -186,11 +186,11 @@ export const complianceNOM035Router = router({
               verifiedAt: new Date(),
               notes: input.notes || null,
               updatedAt: new Date(),
-            })
+            } as any)
             .where(eq(complianceChecks.id, existing[0].id));
         } else {
           // Crear nuevo
-          await db.insert(complianceChecks).values({
+          await (db.insert(complianceChecks) as any).values({
             checklistItemId: input.checklistItemId,
             isCompliant: true,
             verifiedBy: ctx.user.id,
@@ -245,11 +245,11 @@ export const complianceNOM035Router = router({
             .set({
               dueDate,
               updatedAt: new Date(),
-            })
+            } as any)
             .where(eq(complianceChecks.id, existing[0].id));
         } else {
           // Crear nuevo check con fecha de vencimiento
-          await db.insert(complianceChecks).values({
+          await (db.insert(complianceChecks) as any).values({
             checklistItemId: input.checklistItemId,
             isCompliant: false,
             dueDate,
@@ -299,7 +299,7 @@ export const complianceNOM035Router = router({
             .set({
               isCompliant: false,
               updatedAt: new Date(),
-            })
+            } as any)
             .where(eq(complianceChecks.id, existing[0].id));
         }
 
@@ -356,7 +356,7 @@ export const complianceNOM035Router = router({
         // Agrupar por numeral
         const byNumeral: Record<string, { total: number; completed: number; items: any[] }> = {};
 
-        items.forEach((item, index) => {
+        items.forEach((item: any, index: number) => {
           const numeral = item.fundament || "Sin clasificar";
           if (!byNumeral[numeral]) {
             byNumeral[numeral] = { total: 0, completed: 0, items: [] };
@@ -381,7 +381,7 @@ export const complianceNOM035Router = router({
         });
 
         // Calcular porcentajes
-        const numerals = Object.entries(byNumeral).map(([numeral, data]) => ({
+        const numerals = Object.entries(byNumeral).map(([numeral, data]: [string, any]) => ({
           numeral,
           total: data.total,
           completed: data.completed,
@@ -422,7 +422,7 @@ export const complianceNOM035Router = router({
         doc.fontSize(16).font("Helvetica-Bold").text("Cumplimiento por Numeral", { underline: true });
         doc.moveDown(1);
 
-        numerals.forEach((numeral) => {
+        numerals.forEach((numeral: any) => {
           doc.fontSize(14).font("Helvetica-Bold").text(numeral.numeral);
           doc.fontSize(12).font("Helvetica");
           doc.text(`Completados: ${numeral.completed}/${numeral.total} (${numeral.percentage.toFixed(1)}%)`);
@@ -432,7 +432,7 @@ export const complianceNOM035Router = router({
           const pendingItems = numeral.items.filter(item => !item.isCompleted);
           if (pendingItems.length > 0) {
             doc.fontSize(10).font("Helvetica-Bold").text("Requisitos pendientes:");
-            pendingItems.forEach((item) => {
+            pendingItems.forEach((item: any) => {
               doc.fontSize(9).font("Helvetica");
               doc.text(`  • ${item.itemCode}: ${item.requirement}`, { indent: 20 });
               if (item.dueDate) {

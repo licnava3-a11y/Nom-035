@@ -56,7 +56,7 @@ export async function runDepartmentsWithoutManagerCheck() {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const criticalDepts = deptsWithoutManager.filter((dept) => {
+    const criticalDepts = deptsWithoutManager.filter((dept: any) => {
       const createdDate = new Date(dept.createdAt);
       return createdDate < thirtyDaysAgo;
     });
@@ -74,7 +74,7 @@ export async function runDepartmentsWithoutManagerCheck() {
 
     // Generar mensaje de alerta
     const deptList = criticalDepts
-      .map((dept) => {
+      .map((dept: any) => {
         const daysSinceCreation = Math.floor(
           (Date.now() - new Date(dept.createdAt).getTime()) / (1000 * 60 * 60 * 24)
         );

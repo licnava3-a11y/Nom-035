@@ -134,7 +134,7 @@ export async function detectCompetencyRegressions() {
 
           // Save alert to database
           try {
-            await db.insert(competencyRegressionAlerts).values({
+            await (db.insert(competencyRegressionAlerts) as any).values({
               employeeId: current.employeeId,
               snapshotId: currentSnapshot.id,
               previousSnapshotId: previousSnapshot.id,

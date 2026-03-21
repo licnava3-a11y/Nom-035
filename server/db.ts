@@ -66,7 +66,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
         lastSignedIn: user.lastSignedIn || new Date(),
       };
 
-      await db.insert(users).values(insertData);
+      await (db.insert(users) as any).values(insertData);
       console.log("[Database] User created:", user.openId);
     }
   } catch (error) {
@@ -104,7 +104,7 @@ export async function getUserById(id: number) {
 export async function updateUserRole(userId: number, role: "admin" | "instructor" | "student" | "committee") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(users).set({ role }).where(eq(users.id, userId));
+  await db.update(users).set({ role } as any).where(eq(users.id, userId));
 }
 
 // Course management
@@ -315,7 +315,7 @@ export async function createResource(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(resources).values({
+  const result = await (db.insert(resources) as any).values({
     title: data.title,
     description: data.description,
     category: data.category,
@@ -342,7 +342,7 @@ export async function updateResource(id: number, data: {
     category: data.category,
     resourceUrl: data.fileUrl,
     fileKey: data.fileUrl,
-  }).where(eq(resources.id, id));
+  } as any).where(eq(resources.id, id));
   return { id, ...data };
 }
 
@@ -369,7 +369,7 @@ export async function getJobFunctionsByPositionId(positionId: number) {
 export async function createJobPosition(data: typeof jobPositions.$inferInsert) {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
-  const result = await db.insert(jobPositions).values(data);
+  const result = await (db.insert(jobPositions) as any).values(data);
   return { id: Number(result[0].insertId), ...data };
 }
 
@@ -422,7 +422,7 @@ export async function createMailboxRequest(data: {
   const consecutivo = allRequests.length + 1;
   const folio = `BZN-${consecutivo.toString().padStart(4, '0')}/${year}`;
   
-  const result = await db.insert(mailbox).values({
+  const result = await (db.insert(mailbox) as any).values({
     folio,
     requestType: data.requestType,
     complaintType: data.complaintType as any,
@@ -461,7 +461,7 @@ export async function addMailboxResponse(mailboxId: number, responderId: number,
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(mailboxResponses).values({
+  const result = await (db.insert(mailboxResponses) as any).values({
     mailboxId,
     responderId,
     response,
@@ -490,7 +490,7 @@ export async function createNotification(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(notifications).values({
+  const result = await (db.insert(notifications) as any).values({
     userId: data.userId,
     type: data.type,
     title: data.title,
@@ -513,7 +513,7 @@ export async function getUserNotifications(userId: number) {
 export async function markNotificationAsRead(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+  await db.update(notifications).set({ isRead: true } as any).where(eq(notifications.id, id));
   return { id, isRead: true };
 }
 
@@ -529,7 +529,7 @@ export async function assignCommitteeMemberToCase(caseId: number, committeeMembe
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(caseAssignments).values({
+  const result = await (db.insert(caseAssignments) as any).values({
     caseId,
     committeeMemberId,
     assignedBy,
@@ -567,7 +567,7 @@ export async function getInvoicesSummary() {
   const total = allInvoices.length;
   const pendientes = allInvoices.filter(inv => inv.estado === 'pendiente').length;
   const vencidas = allInvoices.filter(inv => inv.estado === 'vencida').length;
-  const montoTotal = allInvoices.reduce((sum, inv) => sum + parseFloat(inv.monto.toString()), 0);
+  const montoTotal = allInvoices.reduce((sum: any, inv: any) => sum + parseFloat(inv.monto.toString()), 0);
   
   return { total, pendientes, vencidas, montoTotal };
 }
@@ -581,7 +581,7 @@ export async function getPurchaseOrdersSummary() {
   
   const allOrders = await db.select().from(purchaseOrders);
   const total = allOrders.length;
-  const montoTotal = allOrders.reduce((sum, order) => sum + parseFloat(order.monto.toString()), 0);
+  const montoTotal = allOrders.reduce((sum: any, order: any) => sum + parseFloat(order.monto.toString()), 0);
   
   return { total, montoTotal };
 }
@@ -596,7 +596,7 @@ export async function getExpenseRequestsSummary() {
   const allRequests = await db.select().from(expenseRequests);
   const total = allRequests.length;
   const pendientes = allRequests.filter(req => req.estado === 'pendiente').length;
-  const montoTotal = allRequests.reduce((sum, req) => sum + parseFloat(req.monto.toString()), 0);
+  const montoTotal = allRequests.reduce((sum: any, req: any) => sum + parseFloat(req.monto.toString()), 0);
   
   return { total, pendientes, montoTotal };
 }
@@ -710,7 +710,7 @@ export async function createSalesperson(data: {
   const db = await getDb();
   if (!db) return null;
   
-  const result = await db.insert(salespeople).values({
+  const result = await (db.insert(salespeople) as any).values({
     nombre: data.nombre,
     email: data.email,
     userId: data.userId,
@@ -737,7 +737,7 @@ export async function updateSalesperson(id: number, data: {
     .set({
       ...data,
       updatedAt: new Date(),
-    })
+    } as any)
     .where(eq(salespeople.id, id));
 }
 
@@ -756,7 +756,7 @@ export async function toggleSalespersonActive(id: number) {
     .set({
       activo: !salesperson.activo,
       updatedAt: new Date(),
-    })
+    } as any)
     .where(eq(salespeople.id, id));
 }
 
@@ -818,7 +818,7 @@ export async function notifySalespersonLeadAssignment(data: {
   const message = `Se te ha asignado un nuevo lead: ${data.leadName}${companyText}${normativasText}. Revisa el pipeline para dar seguimiento.`;
   
   // Create notification
-  await db.insert(notifications).values({
+  await (db.insert(notifications) as any).values({
     userId: salesperson.userId,
     type: "lead_assigned" as any,
     title: "Nuevo Lead Asignado",
@@ -861,7 +861,7 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
   const contactedLeads = salespersonLeads.filter(l => l.fechaContacto);
   let avgResponseTime = 0;
   if (contactedLeads.length > 0) {
-    const totalResponseTime = contactedLeads.reduce((sum, lead) => {
+    const totalResponseTime = contactedLeads.reduce((sum: any, lead: any) => {
       if (lead.fechaContacto && lead.createdAt) {
         const diff = new Date(lead.fechaContacto).getTime() - new Date(lead.createdAt).getTime();
         return sum + diff;
@@ -899,7 +899,7 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
   // Calculate total revenue from won leads
   const totalRevenue = salespersonLeads
     .filter(l => l.estado === "ganado" && l.valorEstimado)
-    .reduce((sum, l) => sum + Number(l.valorEstimado || 0), 0);
+    .reduce((sum: any, l: any) => sum + Number(l.valorEstimado || 0), 0);
   
   return {
     totalLeads,
@@ -912,7 +912,7 @@ export async function getSalespersonPerformance(salespersonId: number, months: n
     bySource,
     monthlyTrends,
     recentLeads: salespersonLeads
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 10),
   };
 }

@@ -74,7 +74,7 @@ export const nom035AdminRouter = router({
         }
       });
 
-      const riskDistribution = Object.entries(riskCounts).map(([level, count]) => ({
+      const riskDistribution = Object.entries(riskCounts).map(([level, count]: [string, any]) => ({
         level,
         count,
       }));
@@ -145,7 +145,7 @@ export const nom035AdminRouter = router({
         }
       });
 
-      const results = Object.entries(deptStats).map(([departamento, stats]) => ({
+      const results = Object.entries(deptStats).map(([departamento, stats]: [string, any]) => ({
         departamento,
         totalResponses: stats.total,
         avgScore: Math.round((stats.totalScore / stats.total) * 10) / 10,

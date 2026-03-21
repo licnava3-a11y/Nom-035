@@ -54,7 +54,7 @@ export const trainingDashboardRouter = router({
 
       let totalGrade = 0;
       let gradeCount = 0;
-      certificates.forEach((cert) => {
+      certificates.forEach((cert: any) => {
         if (cert.metadata && typeof cert.metadata === 'object') {
           const meta = cert.metadata as any;
           if (meta.grade) {
@@ -103,7 +103,7 @@ export const trainingDashboardRouter = router({
       .groupBy(sql`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`)
       .orderBy(sql`DATE_FORMAT(${complianceReports.createdAt}, '%Y-%m')`);
 
-    return certificates.map((c) => ({
+    return certificates.map((c: any) => ({
       month: c.month,
       count: c.count,
     }));
@@ -128,7 +128,7 @@ export const trainingDashboardRouter = router({
       .where(eq(complianceReports.tipo, 'certificate'))
       .groupBy(employees.departmentId, departments.name);
 
-    return result.map((r) => ({
+    return result.map((r: any) => ({
       department: r.departmentName || 'Sin departamento',
       count: r.count,
     }));
@@ -148,7 +148,7 @@ export const trainingDashboardRouter = router({
 
     // Contar cursos desde metadata
     const courseCounts: Record<string, number> = {};
-    certificates.forEach((cert) => {
+    certificates.forEach((cert: any) => {
       if (cert.metadata && typeof cert.metadata === 'object') {
         const meta = cert.metadata as any;
         if (meta.courseName) {
@@ -160,8 +160,8 @@ export const trainingDashboardRouter = router({
 
     // Convertir a array y ordenar
     const popularCourses = Object.entries(courseCounts)
-      .map(([courseName, count]) => ({ courseName, count }))
-      .sort((a, b) => b.count - a.count)
+      .map(([courseName, count]: [string, any]) => ({ courseName, count }))
+      .sort((a: any, b: any) => b.count - a.count)
       .slice(0, 10);
 
     return popularCourses;
@@ -203,8 +203,8 @@ export const trainingDashboardRouter = router({
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
     const renewalAlerts = certificates
-      .filter((cert) => new Date(cert.createdAt) < oneYearAgo)
-      .map((cert) => {
+      .filter((cert: any) => new Date(cert.createdAt) < oneYearAgo)
+      .map((cert: any) => {
         const meta = cert.metadata as any;
         return {
           id: cert.id,
@@ -249,7 +249,7 @@ export const trainingDashboardRouter = router({
         .orderBy(desc(complianceReports.createdAt))
         .limit(input.limit);
 
-      return certificates.map((cert) => {
+      return certificates.map((cert: any) => {
         const meta = cert.metadata as any;
         return {
           id: cert.id,

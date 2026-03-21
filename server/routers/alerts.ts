@@ -44,7 +44,7 @@ export const alertsRouter = router({
       }
       
       // Si no existe, crear nueva alerta
-      const [alert] = await db.insert(alertHistory).values(input);
+      const [alert] = await (db.insert(alertHistory) as any).values(input);
       
       // Si la alerta es crítica, emitir notificación por WebSocket
       if (input.priority === "critical" || input.alertType === "critical_cases") {
@@ -118,7 +118,7 @@ export const alertsRouter = router({
           resolvedAt: new Date(),
           userId: ctx.user.id,
           notes: input.notes,
-        })
+        } as any)
         .where(eq(alertHistory.id, input.alertId));
 
       return { success: true };
@@ -203,8 +203,8 @@ export const alertsRouter = router({
 
     // Calcular tiempo promedio de resolución (en horas)
     const resolutionTimes = resolvedAlerts
-      .filter((alert) => alert.resolvedAt)
-      .map((alert) => {
+      .filter((alert: any) => alert.resolvedAt)
+      .map((alert: any) => {
         const triggered = new Date(alert.triggeredAt).getTime();
         const resolved = new Date(alert.resolvedAt!).getTime();
         return (resolved - triggered) / (1000 * 60 * 60); // Convertir a horas
@@ -212,7 +212,7 @@ export const alertsRouter = router({
 
     const avgResolutionTime =
       resolutionTimes.length > 0
-        ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
+        ? resolutionTimes.reduce((a: any, b: any) => a + b, 0) / resolutionTimes.length
         : 0;
 
     // Calcular tiempo promedio por tipo de alerta
@@ -222,7 +222,7 @@ export const alertsRouter = router({
       excellent_compliance: { total: 0, count: 0, avg: 0 },
     };
 
-    resolvedAlerts.forEach((alert) => {
+    resolvedAlerts.forEach((alert: any) => {
       if (!alert.resolvedAt) return;
       const triggered = new Date(alert.triggeredAt).getTime();
       const resolved = new Date(alert.resolvedAt).getTime();
@@ -233,7 +233,7 @@ export const alertsRouter = router({
     });
 
     // Calcular promedios
-    Object.keys(byType).forEach((type) => {
+    Object.keys(byType).forEach((type: any) => {
       if (byType[type].count > 0) {
         byType[type].avg = byType[type].total / byType[type].count;
       }

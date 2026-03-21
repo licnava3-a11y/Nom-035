@@ -107,13 +107,13 @@ export const complianceRouter = router({
             verifiedBy: ctx.user.id,
             verifiedAt: new Date(),
             notes: input.notes,
-          })
+          } as any)
           .where(eq(complianceChecks.id, existing[0].id));
 
         return { success: true, checkId: existing[0].id };
       } else {
         // Crear nuevo registro
-        const result = await db.insert(complianceChecks).values({
+        const result = await (db.insert(complianceChecks) as any).values({
           checklistItemId: input.checklistItemId,
           isCompliant: input.isCompliant,
           verifiedBy: ctx.user.id,
@@ -218,7 +218,7 @@ export const complianceRouter = router({
       if (!requirement) throw new Error('Requirement 7.1 not found');
 
       // Crear registro de verificación
-      await db.insert(complianceChecks).values({
+      await (db.insert(complianceChecks) as any).values({
         checklistItemId: requirement.id,
         isCompliant: hasPolicy,
         verifiedBy: ctx.user.id,
@@ -264,7 +264,7 @@ export const complianceRouter = router({
       if (!requirement) throw new Error('Requirement 7.2 not found');
 
       // Crear registro de verificación
-      await db.insert(complianceChecks).values({
+      await (db.insert(complianceChecks) as any).values({
         checklistItemId: requirement.id,
         isCompliant: hasSurveys,
         verifiedBy: ctx.user.id,
@@ -315,7 +315,7 @@ export const complianceRouter = router({
       if (!requirement) throw new Error('Requirement 8.2 not found');
 
       // Crear registro de verificación
-      await db.insert(complianceChecks).values({
+      await (db.insert(complianceChecks) as any).values({
         checklistItemId: requirement.id,
         isCompliant: status === 'compliant',
         verifiedBy: ctx.user.id,
@@ -357,7 +357,7 @@ export const complianceRouter = router({
       .orderBy(desc(complianceChecks.verifiedAt));
 
     // Calcular cumplimiento por categoría
-    const complianceByCategory = requirements.reduce((acc, req) => {
+    const complianceByCategory = requirements.reduce((acc: any, req: any) => {
       const category = req.category;
       if (!acc[category]) {
         acc[category] = { total: 0, compliant: 0 };
@@ -456,7 +456,7 @@ export const complianceRouter = router({
       }
 
       // Registrar verificación en auditoría
-      await db.insert(documentAuditLog).values({
+      await (db.insert(documentAuditLog) as any).values({
         reportId: report[0].id,
         userId: ctx.user?.id || null,
         userName: ctx.user?.name || "Anónimo",
@@ -557,7 +557,7 @@ export const complianceRouter = router({
       // Actualizar consecutivo en base de datos
       await db
         .update(documentFormats)
-        .set({ consecutivoActual: newConsecutive })
+        .set({ consecutivoActual: newConsecutive } as any)
         .where(eq(documentFormats.id, format[0].id));
 
       // Generar UUID único para el reporte (NOM-151)
@@ -589,7 +589,7 @@ export const complianceRouter = router({
         data: fullReportData as any,
       };
       
-      await db.insert(complianceReports).values(newReport);
+      await (db.insert(complianceReports) as any).values(newReport);
 
       // Obtener ID del reporte insertado
       const insertedReport = await db
@@ -600,7 +600,7 @@ export const complianceRouter = router({
 
       // Registrar descarga en auditoría
       if (insertedReport && insertedReport.length > 0) {
-        await db.insert(documentAuditLog).values({
+        await (db.insert(documentAuditLog) as any).values({
           reportId: insertedReport[0].id,
           userId: ctx.user.id,
           userName: ctx.user.name,
@@ -794,7 +794,7 @@ export const complianceRouter = router({
       }
 
       // Registrar visualización en auditoría
-      await db.insert(documentAuditLog).values({
+      await (db.insert(documentAuditLog) as any).values({
         reportId: report[0].id,
         userId: ctx.user?.id || null,
         userName: ctx.user?.name || "Desconocido",
@@ -902,7 +902,7 @@ export const complianceRouter = router({
       // Actualizar consecutivo en base de datos
       await db
         .update(documentFormats)
-        .set({ consecutivoActual: newConsecutive })
+        .set({ consecutivoActual: newConsecutive } as any)
         .where(eq(documentFormats.id, format[0].id));
 
       // Generar UUID único para el reporte (NOM-151)
@@ -970,7 +970,7 @@ export const complianceRouter = router({
         data: fullReportData as any,
       };
 
-      await db.insert(complianceReports).values(newReport);
+      await (db.insert(complianceReports) as any).values(newReport);
 
       // Obtener ID del reporte insertado
       const insertedReport = await db
@@ -981,7 +981,7 @@ export const complianceRouter = router({
 
       // Registrar descarga en auditoría
       if (insertedReport && insertedReport.length > 0) {
-        await db.insert(documentAuditLog).values({
+        await (db.insert(documentAuditLog) as any).values({
           reportId: insertedReport[0].id,
           userId: ctx.user.id,
           userName: ctx.user.name,
@@ -1150,7 +1150,7 @@ export const complianceRouter = router({
       // Actualizar consecutivo en base de datos
       await db
         .update(documentFormats)
-        .set({ consecutivoActual: newConsecutive })
+        .set({ consecutivoActual: newConsecutive } as any)
         .where(eq(documentFormats.id, format[0].id));
 
       // Generar UUID único para el reporte (NOM-151)
@@ -1174,7 +1174,7 @@ export const complianceRouter = router({
         duracion: item.duration ? `${item.duration} min` : ''
       }));
 
-      const acuerdos = agreements.map((agr, idx) => ({
+      const acuerdos = agreements.map((agr: any, idx: number) => ({
         numero: idx + 1,
         descripcion: agr.description,
         responsable: agr.responsibleName || 'Sin asignar',
@@ -1217,7 +1217,7 @@ export const complianceRouter = router({
         data: fullReportData as any,
       };
 
-      await db.insert(complianceReports).values(newReport);
+      await (db.insert(complianceReports) as any).values(newReport);
 
       // Obtener ID del reporte insertado
       const insertedReport = await db
@@ -1228,7 +1228,7 @@ export const complianceRouter = router({
 
       // Registrar descarga en auditoría
       if (insertedReport && insertedReport.length > 0) {
-        await db.insert(documentAuditLog).values({
+        await (db.insert(documentAuditLog) as any).values({
           reportId: insertedReport[0].id,
           userId: ctx.user.id,
           userName: ctx.user.name,
@@ -1361,7 +1361,7 @@ export const complianceRouter = router({
 
       if (!format || format.length === 0) {
         // Crear formato si no existe
-        await db.insert(documentFormats).values({
+        await (db.insert(documentFormats) as any).values({
           codigo: 'CERT',
           nombre: 'Certificado de Capacitación',
           version: '1.0',
@@ -1381,7 +1381,7 @@ export const complianceRouter = router({
 
       await db
         .update(documentFormats)
-        .set({ consecutivoActual: newConsecutive })
+        .set({ consecutivoActual: newConsecutive } as any)
         .where(eq(documentFormats.id, format[0].id));
 
       // Generar UUID único para el certificado (NOM-151)
@@ -1418,7 +1418,7 @@ export const complianceRouter = router({
         data: fullCertificateData as any,
       };
 
-      await db.insert(complianceReports).values(newReport);
+      await (db.insert(complianceReports) as any).values(newReport);
 
       // Obtener ID del certificado insertado
       const insertedReport = await db
@@ -1429,7 +1429,7 @@ export const complianceRouter = router({
 
       // Registrar descarga en auditoría
       if (insertedReport && insertedReport.length > 0) {
-        await db.insert(documentAuditLog).values({
+        await (db.insert(documentAuditLog) as any).values({
           reportId: insertedReport[0].id,
           userId: ctx.user.id,
           userName: ctx.user.name,

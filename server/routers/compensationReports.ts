@@ -26,7 +26,7 @@ export const compensationReportsRouter = router({
       const payrollData = await db.query.payrollData.findMany();
       
       // Obtener empleados con brecha crítica
-      const criticalGaps = payrollData.filter((p) => p.requiresReview === true);
+      const criticalGaps = payrollData.filter((p: any) => p.requiresReview === true);
       
       // Calcular estadísticas
       const totalEmployees = payrollData.length;
@@ -37,7 +37,7 @@ export const compensationReportsRouter = router({
       
       // Calcular costo total de ajustes recomendados
       let totalAdjustmentCost = 0;
-      criticalGaps.forEach((emp) => {
+      criticalGaps.forEach((emp: any) => {
         if (emp.marketRate && emp.salary) {
           const marketRate = parseFloat(emp.marketRate);
           const currentSalary = parseFloat(emp.salary);
@@ -118,7 +118,7 @@ export const compensationReportsRouter = router({
         doc.font("Helvetica");
 
         const maxEmployees = input?.maxEmployeesInTable || 20;
-        criticalGaps.slice(0, maxEmployees).forEach((emp) => {
+        criticalGaps.slice(0, maxEmployees).forEach((emp: any) => {
           if (yPosition > 750) {
             doc.addPage();
             yPosition = 50;
@@ -193,7 +193,7 @@ export const compensationReportsRouter = router({
       const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
 
       // Guardar en historial
-      const [reportRecord] = await db.insert(compensationReportsHistory).values({
+      const [reportRecord] = await (db.insert(compensationReportsHistory) as any).values({
         reportDate: new Date(),
         generatedBy: ctx.user?.id || 0,
         totalEmployees,

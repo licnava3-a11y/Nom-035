@@ -83,11 +83,11 @@ export const customPermissionsRouter = router({
         .set({
           customPermissions: input.customPermissions,
           updatedAt: new Date(),
-        })
+        } as any)
         .where(eq(users.id, input.userId));
       
       // Registrar cambio en auditoría
-      await db.insert(permissionChangeHistory).values({
+      await (db.insert(permissionChangeHistory) as any).values({
         userId: input.userId,
         changedBy: ctx.user!.id,
         changeType: "custom_permission_update",
@@ -150,11 +150,11 @@ export const customPermissionsRouter = router({
         .set({
           customPermissions: null,
           updatedAt: new Date(),
-        })
+        } as any)
         .where(eq(users.id, input.userId));
       
       // Registrar cambio en auditoría
-      await db.insert(permissionChangeHistory).values({
+      await (db.insert(permissionChangeHistory) as any).values({
         userId: input.userId,
         changedBy: ctx.user!.id,
         changeType: "custom_permission_reset",

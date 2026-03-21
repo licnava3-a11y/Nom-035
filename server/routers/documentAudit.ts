@@ -21,7 +21,7 @@ export const documentAuditRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      await db.insert(documentAuditLog).values({
+      await (db.insert(documentAuditLog) as any).values({
         reportId: input.reportId,
         userId: ctx.user?.id || null,
         userName: ctx.user?.name || "Anónimo",
@@ -243,12 +243,12 @@ export const documentAuditRouter = router({
       const topUsers = Object.entries(userActivity)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 10)
-        .map(([userName, count]) => ({ userName, count }));
+        .map(([userName, count]: [string, any]) => ({ userName, count }));
 
       return {
         accessesByPeriod: Object.entries(accessesByPeriod)
           .sort(([a], [b]) => a.localeCompare(b))
-          .map(([period, count]) => ({ period, count })),
+          .map(([period, count]: [string, any]) => ({ period, count })),
         actionDistribution,
         topUsers,
       };

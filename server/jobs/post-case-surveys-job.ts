@@ -63,7 +63,7 @@ async function createPendingSurveys() {
             .limit(1);
 
           if (!existing) {
-            await db.insert(postCaseSurveys).values({
+            await (db.insert(postCaseSurveys) as any).values({
               caseId: caso.id,
               daysSinceClosure: period,
               status: 'pending',
@@ -112,7 +112,7 @@ async function sendPendingSurveys() {
           status: 'sent',
           sentAt: now,
           expiresAt,
-        })
+        } as any)
         .where(eq(postCaseSurveys.id, survey.id));
 
       surveysSent++;
@@ -158,7 +158,7 @@ async function expireSurveys() {
         .update(postCaseSurveys)
         .set({
           status: 'expired',
-        })
+        } as any)
         .where(eq(postCaseSurveys.id, survey.id));
 
       surveysExpired++;

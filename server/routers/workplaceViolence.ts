@@ -43,7 +43,7 @@ export const workplaceViolenceRouter = router({
       const folio = `VL-${year}-${nextNumber.toString().padStart(4, "0")}`;
 
       // Crear caso
-      const [newCase] = await db.insert(workplaceViolenceCases).values({
+      const [newCase] = await (db.insert(workplaceViolenceCases) as any).values({
         folio: folio,
         complainantId: input.complainantId,
         complainantName: input.complainantName,
@@ -58,7 +58,7 @@ export const workplaceViolenceRouter = router({
       });
 
       // Registrar primer paso del protocolo (Recepción)
-      await db.insert(protocolSteps).values({
+      await (db.insert(protocolSteps) as any).values({
         caseId: newCase.insertId,
         phase: "recepcion",
         action: "Recepción de queja de violencia laboral",
@@ -182,11 +182,11 @@ export const workplaceViolenceRouter = router({
       // Actualizar fase actual del caso
       await db
         .update(workplaceViolenceCases)
-        .set({ currentPhase: input.newPhase })
+        .set({ currentPhase: input.newPhase } as any)
         .where(eq(workplaceViolenceCases.id, input.caseId));
 
       // Registrar paso del protocolo
-      await db.insert(protocolSteps).values({
+      await (db.insert(protocolSteps) as any).values({
         caseId: input.caseId,
         phase: input.newPhase,
         action: input.action,
@@ -245,11 +245,11 @@ export const workplaceViolenceRouter = router({
           status: "cerrado",
           resolution: input.resolution,
           resolutionDate,
-        })
+        } as any)
         .where(eq(workplaceViolenceCases.id, input.caseId));
 
       // Registrar cierre en protocolo
-      await db.insert(protocolSteps).values({
+      await (db.insert(protocolSteps) as any).values({
         caseId: input.caseId,
         phase: "cerrado",
         action: "Cierre del caso",
@@ -274,7 +274,7 @@ export const workplaceViolenceRouter = router({
 
       await db
         .update(workplaceViolenceCases)
-        .set({ assignedToId: input.userId })
+        .set({ assignedToId: input.userId } as any)
         .where(eq(workplaceViolenceCases.id, input.caseId));
 
       // Registrar asignación en protocolo
@@ -284,7 +284,7 @@ export const workplaceViolenceRouter = router({
         .where(eq(users.id, input.userId))
         .limit(1);
 
-      await db.insert(protocolSteps).values({
+      await (db.insert(protocolSteps) as any).values({
         caseId: input.caseId,
         phase: "recepcion",
         action: `Caso asignado a ${assignedUser?.name || "usuario"}`,

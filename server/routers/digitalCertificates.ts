@@ -65,7 +65,7 @@ export const digitalCertificatesRouter = router({
       const passwordEncrypted = Buffer.from(input.password).toString('base64');
 
       // Guardar en base de datos
-      const [newCert] = await db.insert(digitalCertificates).values({
+      const [newCert] = await (db.insert(digitalCertificates) as any).values({
         userId: ctx.user.id,
         certificateName: input.certificateName,
         certificatePath: certUpload.url,
@@ -148,7 +148,7 @@ export const digitalCertificatesRouter = router({
       // Marcar como expirado
       await db
         .update(digitalCertificates)
-        .set({ status: 'expired' })
+        .set({ status: 'expired' } as any)
         .where(eq(digitalCertificates.id, cert.id));
 
       return null;

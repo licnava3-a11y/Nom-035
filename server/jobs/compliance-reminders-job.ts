@@ -78,7 +78,7 @@ async function checkDueDatesAndNotify() {
       for (const admin of admins) {
         try {
           // Crear notificación en base de datos
-          await db.insert(notifications).values({
+          await (db.insert(notifications) as any).values({
             userId: admin.id,
             type: "compliance_reminder" as any,
             title: "⏰ Recordatorio de Cumplimiento NOM-035",

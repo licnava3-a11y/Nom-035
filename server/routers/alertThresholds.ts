@@ -33,7 +33,7 @@ export const alertThresholdsRouter = router({
           threshold: input.threshold,
           description: input.description,
           updatedBy: ctx.user?.id,
-        })
+        } as any)
         .where(eq(alertThresholds.alertType, input.alertType));
 
       return { success: true };

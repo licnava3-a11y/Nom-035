@@ -107,7 +107,7 @@ export const modelPerformanceAlertsRouter = router({
             isResolved: true,
             resolvedAt: new Date(),
             resolvedBy: ctx.user.id,
-          })
+          } as any)
           .where(eq(modelPerformanceAlerts.id, input.alertId));
 
         return {

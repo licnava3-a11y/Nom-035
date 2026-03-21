@@ -95,7 +95,7 @@ router.post('/mailbox-webhook', async (req, res) => {
       });
     }
 
-    const [result] = await db.insert(mailbox).values({
+    const [result] = await (db.insert(mailbox) as any).values({
       folio,
       requestType,
       complaintType,

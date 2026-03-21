@@ -52,7 +52,7 @@ export const trainingNeedsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      const [need] = await db.insert(trainingNeeds).values({
+      const [need] = await (db.insert(trainingNeeds) as any).values({
         ...input,
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         createdAt: new Date(),
@@ -301,7 +301,7 @@ export const trainingNeedsRouter = router({
 
       // Insertar necesidades
       if (needs.length > 0) {
-        await db.insert(trainingNeeds).values(needs);
+        await (db.insert(trainingNeeds) as any).values(needs);
       }
 
       return { success: true, count: needs.length };
@@ -434,7 +434,7 @@ export const trainingNeedsRouter = router({
 
       // Insertar necesidades
       if (needs.length > 0) {
-        await db.insert(trainingNeeds).values(needs);
+        await (db.insert(trainingNeeds) as any).values(needs);
       }
 
       return { success: true, count: needs.length };

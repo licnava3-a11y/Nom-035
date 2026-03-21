@@ -717,7 +717,7 @@ export const correctiveActionsRouter = router({
 
       // Actualizar registro con URL del PDF
       await dbInstance.update(correctiveActions)
-        .set({ pdfUrl })
+        .set({ pdfUrl } as any)
         .where(eq(correctiveActions.id, input.id));
 
       // Registrar evidencia automáticamente

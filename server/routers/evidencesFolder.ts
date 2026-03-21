@@ -407,7 +407,7 @@ export const evidencesFolderRouter = router({
           '5.8 - Registros',
         ];
 
-        numerals.forEach((numeral, index) => {
+        numerals.forEach((numeral: any, index: number) => {
           doc.text(`${index + 1}. ${numeral}`, { indent: 20 });
           doc.moveDown(0.5);
         });
@@ -417,7 +417,7 @@ export const evidencesFolderRouter = router({
         doc.fontSize(16).font('Helvetica-Bold').text('EVIDENCIAS POR NUMERAL', { align: 'center' });
         doc.moveDown(2);
 
-        numerals.forEach((numeral) => {
+        numerals.forEach((numeral: any) => {
           doc.fontSize(14).font('Helvetica-Bold').text(numeral);
           doc.moveDown(0.5);
           doc.fontSize(10).font('Helvetica').text('Evidencias recopiladas automáticamente del sistema.', { indent: 20 });
@@ -469,7 +469,7 @@ export const evidencesFolderRouter = router({
       );
 
       // Guardar en base de datos
-      const [evidence] = await db.insert(manualEvidences).values({
+      const [evidence] = await (db.insert(manualEvidences) as any).values({
         numeral: input.numeral,
         title: input.title,
         description: input.description,

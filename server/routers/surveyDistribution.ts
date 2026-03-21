@@ -177,7 +177,7 @@ export const surveyDistributionRouter = router({
             
             // NOTA: Este código necesita actualizarse para incluir periodId
             // Temporalmente comentado hasta implementar sistema de periodos completo
-            // await db.insert(surveyTokens).values({
+            // await (db.insert(surveyTokens) as any).values({
             //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
             //   userId: employee.id,
             //   surveyId: input.surveyId,
@@ -247,7 +247,7 @@ export const surveyDistributionRouter = router({
             await sendEmail(emailConfig);
             
             // Registrar notificación
-            await db.insert(surveyNotifications).values({
+            await (db.insert(surveyNotifications) as any).values({
               surveyId: input.surveyId,
               userId: employee.id,
               type: "invitation",
@@ -405,7 +405,7 @@ export const surveyDistributionRouter = router({
             await sendEmail(emailConfig);
             
             // Registrar notificación de recordatorio
-            await db.insert(surveyNotifications).values({
+            await (db.insert(surveyNotifications) as any).values({
               surveyId: input.surveyId,
               userId: tokenData.userId,
               type: "reminder",

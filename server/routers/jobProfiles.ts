@@ -28,7 +28,7 @@ export const jobProfilesRouter = router({
         });
       }
 
-      const [profile] = await db.insert(jobProfiles).values(input);
+      const [profile] = await (db.insert(jobProfiles) as any).values(input);
 
       return { success: true, profileId: profile.insertId };
     }),
@@ -128,7 +128,7 @@ export const jobProfilesRouter = router({
         });
       }
 
-      const [competency] = await db.insert(employeeCompetencies).values({
+      const [competency] = await (db.insert(employeeCompetencies) as any).values({
         ...input,
         certificationDate: input.certificationDate ? new Date(input.certificationDate) : undefined,
         expirationDate: input.expirationDate ? new Date(input.expirationDate) : undefined,
@@ -228,7 +228,7 @@ export const jobProfilesRouter = router({
 
       // Create a map of employee competencies
       const competencyMap = new Map(
-        competencies.map((c) => [c.competencyName, c.currentLevel])
+        competencies.map((c: any) => [c.competencyName, c.currentLevel])
       );
 
       // Level mapping for gap calculation
@@ -277,7 +277,7 @@ export const jobProfilesRouter = router({
         .where(eq(organizationalCompetencies.isActive, true));
 
       // Filter applicable organizational competencies
-      const applicableOrgCompetencies = orgCompetencies.filter((c) => {
+      const applicableOrgCompetencies = orgCompetencies.filter((c: any) => {
         const departments = c.appliesToDepartments ? JSON.parse(c.appliesToDepartments) : null;
         // If no department restriction or employee's department is in the list
         return !departments || departments.includes(employee.departmentName);
@@ -335,7 +335,7 @@ export const jobProfilesRouter = router({
 
       // Insert new training needs
       if (needs.length > 0) {
-        await db.insert(trainingNeeds).values(needs);
+        await (db.insert(trainingNeeds) as any).values(needs);
       }
 
       return {
@@ -416,7 +416,7 @@ export const jobProfilesRouter = router({
         .set({
           ...updateData,
           completedDate: updateData.completedDate ? new Date(updateData.completedDate) : undefined,
-        })
+        } as any)
         .where(eq(trainingNeeds.id, id));
 
       return { success: true };
@@ -472,13 +472,13 @@ export const jobProfilesRouter = router({
         .where(eq(employeeCompetencies.employeeId, input.employeeId));
 
       const existingCompetencyNames = new Set(
-        existingCompetencies.map((c) => c.competencyName)
+        existingCompetencies.map((c: any) => c.competencyName)
       );
 
       // Prefill only competencies that don't exist yet
       const competenciesToAdd = requirements
-        .filter((req) => !existingCompetencyNames.has(req.competencyName))
-        .map((req) => ({
+        .filter((req: any) => !existingCompetencyNames.has(req.competencyName))
+        .map((req: any) => ({
           employeeId: input.employeeId,
           competencyName: req.competencyName,
           competencyType: req.competencyType,
@@ -487,7 +487,7 @@ export const jobProfilesRouter = router({
         }));
 
       if (competenciesToAdd.length > 0) {
-        await db.insert(employeeCompetencies).values(competenciesToAdd);
+        await (db.insert(employeeCompetencies) as any).values(competenciesToAdd);
       }
 
       return {

@@ -52,11 +52,11 @@ export const interventionPredictionRouter = router({
         }
 
         // Calcular tasa de éxito base
-        const successCount = completedInterventions.filter((i) => i.outcome === "retained").length;
+        const successCount = completedInterventions.filter((i: any) => i.outcome === "retained").length;
         const baseSuccessRate = (successCount / completedInterventions.length) * 100;
 
         // Filtrar intervenciones similares (mismo departamento o puesto)
-        const similarInterventions = completedInterventions.filter((i) => {
+        const similarInterventions = completedInterventions.filter((i: any) => {
           const deptMatch = input.department && i.department === input.department;
           const posMatch = input.position && i.employeePosition === input.position;
           return deptMatch || posMatch;
@@ -65,7 +65,7 @@ export const interventionPredictionRouter = router({
         // Calcular tasa de éxito para casos similares
         let similarSuccessRate = baseSuccessRate;
         if (similarInterventions.length > 0) {
-          const similarSuccessCount = similarInterventions.filter((i) => i.outcome === "retained").length;
+          const similarSuccessCount = similarInterventions.filter((i: any) => i.outcome === "retained").length;
           similarSuccessRate = (similarSuccessCount / similarInterventions.length) * 100;
         }
 
@@ -88,9 +88,9 @@ export const interventionPredictionRouter = router({
         let costAdjustment = 1.0;
         if (input.cost) {
           // Calcular costo promedio histórico
-          const costsWithValues = completedInterventions.filter((i) => i.cost);
+          const costsWithValues = completedInterventions.filter((i: any) => i.cost);
           const avgHistoricalCost = costsWithValues.length > 0
-            ? costsWithValues.reduce((acc, i) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length
+            ? costsWithValues.reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length
             : 5000;
 
           const costRatio = input.cost / avgHistoricalCost;
@@ -161,20 +161,20 @@ export const interventionPredictionRouter = router({
  * Calcular costo promedio de retención
  */
 function calculateAvgRetentionCost(interventions: any[]): number {
-  const costsWithValues = interventions.filter((i) => i.cost && i.outcome === "retained");
+  const costsWithValues = interventions.filter((i: any) => i.cost && i.outcome === "retained");
   if (costsWithValues.length === 0) return 0;
   
-  return costsWithValues.reduce((acc, i) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length;
+  return costsWithValues.reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0) / costsWithValues.length;
 }
 
 /**
  * Calcular reducción de riesgo promedio
  */
 function calculateAvgRiskReduction(interventions: any[]): number {
-  const withReduction = interventions.filter((i) => i.riskReduction);
+  const withReduction = interventions.filter((i: any) => i.riskReduction);
   if (withReduction.length === 0) return 0;
   
-  return withReduction.reduce((acc, i) => acc + parseFloat(i.riskReduction || "0"), 0) / withReduction.length;
+  return withReduction.reduce((acc: any, i: any) => acc + parseFloat(i.riskReduction || "0"), 0) / withReduction.length;
 }
 
 /**

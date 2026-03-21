@@ -143,7 +143,7 @@ export const committeeMinutesRouter = router({
 
       // Insertar asistentes
       if (input.attendees.length > 0) {
-        await db.insert(committeeMinuteAttendees).values(
+        await (db.insert(committeeMinuteAttendees) as any).values(
           input.attendees.map(att => ({
             minuteId,
             name: att.nombre,
@@ -156,7 +156,7 @@ export const committeeMinutesRouter = router({
 
       // Insertar orden del día
       if (input.agendaItems.length > 0) {
-        await db.insert(committeeMinuteAgendaItems).values(
+        await (db.insert(committeeMinuteAgendaItems) as any).values(
           input.agendaItems.map(item => ({
             minuteId,
             orderIndex: item.orden,
@@ -168,7 +168,7 @@ export const committeeMinutesRouter = router({
 
       // Insertar acuerdos
       if (input.agreements.length > 0) {
-        await db.insert(committeeMinuteAgreements).values(
+        await (db.insert(committeeMinuteAgreements) as any).values(
           input.agreements.map(agr => ({
             minuteId,
             agreementNumber: agr.numero.toString(),
@@ -181,7 +181,7 @@ export const committeeMinutesRouter = router({
       }
 
       // Registrar en historial
-      await db.insert(committeeMinuteHistory).values({
+      await (db.insert(committeeMinuteHistory) as any).values({
         minuteId,
         version: 1,
         changeDescription: 'Creación inicial de la minuta',
@@ -279,7 +279,7 @@ export const committeeMinutesRouter = router({
 
         // Insertar nuevos asistentes
         if (input.attendees.length > 0) {
-          await db.insert(committeeMinuteAttendees).values(
+          await (db.insert(committeeMinuteAttendees) as any).values(
             input.attendees.map(att => ({
               minuteId: input.id,
               name: att.nombre,
@@ -298,7 +298,7 @@ export const committeeMinutesRouter = router({
           .where(eq(committeeMinuteAgendaItems.minuteId, input.id));
 
         if (input.agendaItems.length > 0) {
-          await db.insert(committeeMinuteAgendaItems).values(
+          await (db.insert(committeeMinuteAgendaItems) as any).values(
             input.agendaItems.map(item => ({
               minuteId: input.id,
               orderIndex: item.orden,
@@ -316,7 +316,7 @@ export const committeeMinutesRouter = router({
           .where(eq(committeeMinuteAgreements.minuteId, input.id));
 
         if (input.agreements.length > 0) {
-          await db.insert(committeeMinuteAgreements).values(
+          await (db.insert(committeeMinuteAgreements) as any).values(
             input.agreements.map(agr => ({
               minuteId: input.id,
               agreementNumber: agr.numero.toString(),
@@ -330,7 +330,7 @@ export const committeeMinutesRouter = router({
       }
 
       // Registrar en historial
-      await db.insert(committeeMinuteHistory).values({
+      await (db.insert(committeeMinuteHistory) as any).values({
         minuteId: input.id,
         version: newVersion,
         changeDescription: input.cambios || 'Actualización de la minuta',
@@ -394,7 +394,7 @@ export const committeeMinutesRouter = router({
 
       await db
         .update(committeeMinutes)
-        .set({ status: 'finalizada' })
+        .set({ status: 'finalizada' } as any)
         .where(eq(committeeMinutes.id, input.id));
 
       // Registrar en historial
@@ -405,7 +405,7 @@ export const committeeMinutesRouter = router({
       
       const newVersion = historyRecords.length + 1;
 
-      await db.insert(committeeMinuteHistory).values({
+      await (db.insert(committeeMinuteHistory) as any).values({
         minuteId: input.id,
         version: newVersion,
         changeDescription: 'Minuta publicada',
@@ -523,7 +523,7 @@ export const committeeMinutesRouter = router({
 
       await db
         .update(committeeMinuteAgreements)
-        .set({ status: input.status })
+        .set({ status: input.status } as any)
         .where(eq(committeeMinuteAgreements.id, input.agreementId));
 
       return {

@@ -184,7 +184,7 @@ export const predictiveAnalyticsRouter = router({
       const { getDb } = await import("../db");
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-      const { employees, evaluation360Responses, evaluation360Cycles, departments } = await import('../../drizzle/schema');
+      const { employees, evaluation360Responses, evaluation360Cycles, evaluation360Assignments, departments } = await import('../../drizzle/schema');
       const { eq, and, desc, sql } = await import('drizzle-orm');
 
       // Obtener empleados con sus evaluaciones 360° históricas
@@ -202,8 +202,9 @@ export const predictiveAnalyticsRouter = router({
         })
         .from(employees)
         .leftJoin(departments, eq(employees.departmentId, departments.id))
-        .leftJoin(evaluation360Responses, eq(employees.id, evaluation360Responses.evaluatedEmployeeId))
-        .leftJoin(evaluation360Cycles, eq(evaluation360Responses.cycleId, evaluation360Cycles.id))
+        .leftJoin(evaluation360Assignments, eq(employees.id, evaluation360Assignments.evaluatedEmployeeId))
+        .leftJoin(evaluation360Cycles, eq(evaluation360Assignments.cycleId, evaluation360Cycles.id))
+        .leftJoin(evaluation360Responses, eq(evaluation360Assignments.id, sql`${evaluation360Responses.evaluatorId}`))
         .where(
           and(
             employees.isActive ? eq(employees.isActive, true) : sql`1=1`,
@@ -255,7 +256,7 @@ export const predictiveAnalyticsRouter = router({
         if (row.cycleId && row.avgScore) {
           employeeMap.get(row.employeeId)!.evaluations.push({
             cycleId: row.cycleId,
-            cycleName: row.cycleName,
+            cycleName: row.cycleName ?? '',
             cycleEndDate: row.cycleEndDate,
             avgScore: row.avgScore,
           });
@@ -265,11 +266,11 @@ export const predictiveAnalyticsRouter = router({
       // Calcular score de retención y detectar tendencias descendentes
       const atRiskEmployees = [];
 
-      for (const [employeeId, data] of employeeMap.entries()) {
+      for (const [employeeId, data] of Array.from(employeeMap.entries())) {
         if (data.evaluations.length < 2) continue; // Necesitamos al menos 2 evaluaciones
 
         // Ordenar evaluaciones por fecha (más reciente primero)
-        data.evaluations.sort((a, b) => {
+        data.evaluations.sort((a: { cycleId: number; cycleName: string; cycleEndDate: Date | null; avgScore: number }, b: { cycleId: number; cycleName: string; cycleEndDate: Date | null; avgScore: number }) => {
           if (!a.cycleEndDate || !b.cycleEndDate) return 0;
           return new Date(b.cycleEndDate).getTime() - new Date(a.cycleEndDate).getTime();
         });
@@ -294,7 +295,7 @@ export const predictiveAnalyticsRouter = router({
 
         // Calcular score de retención (0-100)
         // Factores: promedio reciente, tendencia, volatilidad
-        const avgRecentScore = recentEvaluations.reduce((sum, e) => sum + e.avgScore, 0) / recentEvaluations.length;
+        const avgRecentScore = recentEvaluations.reduce((sum: number, e: { avgScore: number }) => sum + e.avgScore, 0) / recentEvaluations.length;
         const volatility =
           recentEvaluations.length >= 3
             ? Math.abs(recentEvaluations[0].avgScore - recentEvaluations[2].avgScore)
@@ -322,7 +323,7 @@ export const predictiveAnalyticsRouter = router({
             employeeName: data.employeeName,
             employeeEmail: data.employeeEmail,
             departmentId: data.departmentId,
-            departmentName: data.departmentName,
+            departmentName: data.departmentName ?? '',
             retentionScore: Math.round(retentionScore),
             trend,
             trendValue: Math.round(trendValue * 100) / 100,
@@ -335,13 +336,13 @@ export const predictiveAnalyticsRouter = router({
       }
 
       // Ordenar por score de retención (menor primero = mayor riesgo)
-      atRiskEmployees.sort((a, b) => a.retentionScore - b.retentionScore);
+      atRiskEmployees.sort((a: any, b: any) => a.retentionScore - b.retentionScore);
 
       return {
         totalAtRisk: atRiskEmployees.length,
-        criticalRisk: atRiskEmployees.filter((e) => e.riskLevel === "critical").length,
-        highRisk: atRiskEmployees.filter((e) => e.riskLevel === "high").length,
-        mediumRisk: atRiskEmployees.filter((e) => e.riskLevel === "medium").length,
+        criticalRisk: atRiskEmployees.filter((e: any) => e.riskLevel === "critical").length,
+        highRisk: atRiskEmployees.filter((e: any) => e.riskLevel === "high").length,
+        mediumRisk: atRiskEmployees.filter((e: any) => e.riskLevel === "medium").length,
         employees: atRiskEmployees,
       };
     }),
@@ -390,9 +391,9 @@ Se han identificado **${result.totalAtRisk} empleados** con score de retención 
 
 **Empleados en riesgo crítico:**
 ${result.employees
-  .filter((e) => e.riskLevel === "critical")
+  .filter((e: any) => e.riskLevel === "critical")
   .slice(0, 5)
-  .map((e) => `- ${e.employeeName} (${e.departmentName}): Score ${e.retentionScore} - Tendencia ${e.trend}`)
+  .map((e: any) => `- ${e.employeeName} (${e.departmentName}): Score ${e.retentionScore} - Tendencia ${e.trend}`)
   .join("\n")}
 
 ${result.criticalRisk > 5 ? `... y ${result.criticalRisk - 5} más` : ""}

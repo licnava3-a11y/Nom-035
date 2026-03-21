@@ -107,7 +107,7 @@ export const committeeAnnualReportsRouter = router({
 
       const nextFolioNumber = lastReport.length ? lastReport[0].folioNumber + 1 : 1;
 
-      const result = await db.insert(committeeAnnualReports).values({
+      const result = await (db.insert(committeeAnnualReports) as any).values({
         folioNumber: nextFolioNumber,
         folioYear: input.reportYear,
         folioCode: 'ARF',
@@ -260,7 +260,7 @@ export const committeeAnnualReportsRouter = router({
 
       await db
         .update(committeeAnnualReports)
-        .set({ status: 'final' })
+        .set({ status: 'final' } as any)
         .where(eq(committeeAnnualReports.id, input.id));
 
       return {
@@ -284,7 +284,7 @@ export const committeeAnnualReportsRouter = router({
           status: 'approved',
           approvedBy: input.approvedBy,
           approvedAt: new Date(),
-        })
+        } as any)
         .where(eq(committeeAnnualReports.id, input.id));
 
       return {

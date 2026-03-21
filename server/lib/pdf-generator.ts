@@ -154,7 +154,7 @@ export async function generateActaConstitutivaPDF(data: {
   yPos += 10;
   
   doc.setFont("helvetica", "normal");
-  data.miembros.forEach((miembro, index) => {
+  data.miembros.forEach((miembro: any, index: number) => {
     if (yPos > 250) {
       doc.addPage();
       yPos = 20;
@@ -223,7 +223,7 @@ export async function generateFuncionesComitePDF(data: {
   yPos += 15;
   
   // Funciones por categoría
-  data.funciones.forEach((seccion) => {
+  data.funciones.forEach((seccion: any) => {
     if (yPos > 250) {
       doc.addPage();
       yPos = 20;
@@ -236,7 +236,7 @@ export async function generateFuncionesComitePDF(data: {
     
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    seccion.items.forEach((item, index) => {
+    seccion.items.forEach((item: any, index: number) => {
       if (yPos > 270) {
         doc.addPage();
         yPos = 20;

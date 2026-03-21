@@ -109,7 +109,7 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
                 });
 
                 // Registrar alerta en la base de datos
-                await db.insert(alertLogs).values({
+                await (db.insert(alertLogs) as any).values({
                   alertType: 'low_coverage',
                   surveyId: survey.id,
                   details: JSON.stringify(details),
@@ -126,7 +126,7 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
                 results.errors.push(`Survey ${survey.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 
                 // Registrar error en la base de datos
-                await db.insert(alertLogs).values({
+                await (db.insert(alertLogs) as any).values({
                   alertType: 'low_coverage',
                   surveyId: survey.id,
                   details: JSON.stringify(details),
@@ -263,7 +263,7 @@ Se recomienda enviar recordatorios personalizados desde: Encuestas NOM-035 → S
                 });
 
                 // Registrar alerta en la base de datos
-                await db.insert(alertLogs).values({
+                await (db.insert(alertLogs) as any).values({
                   alertType: 'worker_pending',
                   surveyId: survey.id,
                   details: JSON.stringify(details),
@@ -280,7 +280,7 @@ Se recomienda enviar recordatorios personalizados desde: Encuestas NOM-035 → S
                 results.errors.push(`Survey ${survey.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 
                 // Registrar error en la base de datos
-                await db.insert(alertLogs).values({
+                await (db.insert(alertLogs) as any).values({
                   alertType: 'worker_pending',
                   surveyId: survey.id,
                   details: JSON.stringify(details),
@@ -315,7 +315,7 @@ Se recomienda enviar recordatorios personalizados desde: Encuestas NOM-035 → S
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      let query = db.select().from(alertLogs);
+      let query: any = db.select().from(alertLogs);
 
       const conditions = [];
       if (input.surveyId) {
@@ -333,7 +333,7 @@ Se recomienda enviar recordatorios personalizados desde: Encuestas NOM-035 → S
         .orderBy(desc(alertLogs.triggeredAt))
         .limit(input.limit);
 
-      return alerts.map(alert => ({
+      return alerts.map((alert: any) => ({
         ...alert,
         details: alert.details ? JSON.parse(alert.details) : null,
       }));

@@ -130,7 +130,7 @@ export function startExternalOfferRiskMonitorJob() {
 
           if (existingAlert.rows.length === 0) {
             // Crear nueva alerta
-            await db.insert(externalOfferRiskAlerts).values({
+            await (db.insert(externalOfferRiskAlerts) as any).values({
               employeeId: emp.employee_id,
               employeeName: emp.employee_name,
               department: emp.department,

@@ -196,7 +196,7 @@ export async function createEmployee(data: InsertEmployee) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(employees).values(data);
+  const result = await (db.insert(employees) as any).values(data);
   return Number((result as any).insertId);
 }
 
@@ -249,7 +249,7 @@ export async function deactivateEmployee(id: number) {
 
   await db
     .update(employees)
-    .set({ isActive: false, updatedAt: new Date() })
+    .set({ isActive: false, updatedAt: new Date() } as any)
     .where(eq(employees.id, id));
 
   return await getEmployeeById(id);
@@ -330,7 +330,7 @@ export async function updateEmployee(id: number, data: Partial<InsertEmployee>) 
 
   await db
     .update(employees)
-    .set({ ...data, updatedAt: new Date() })
+    .set({ ...data, updatedAt: new Date() } as any)
     .where(eq(employees.id, id));
 
   return await getEmployeeById(id);
@@ -349,7 +349,7 @@ export async function reactivateEmployee(id: number) {
       isActive: true,
       terminationDate: null,
       updatedAt: new Date(),
-    })
+    } as any)
     .where(eq(employees.id, id));
 
   return await getEmployeeById(id);
@@ -478,7 +478,7 @@ export async function getEmployeeStats() {
   return {
     totalActive: Number(totalActive.count),
     totalInactive: Number(totalInactive.count),
-    byDepartment: departmentCounts.map((d) => ({
+    byDepartment: departmentCounts.map((d: any) => ({
       department: d.departmentName || "Sin departamento",
       count: Number(d.count),
     })),
@@ -496,7 +496,7 @@ export async function createDepartment(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [result] = await db.insert(departments).values({
+  const [result] = await (db.insert(departments) as any).values({
     name: data.name,
     description: data.description || null,
     createdAt: new Date(),
@@ -516,7 +516,7 @@ export async function createPosition(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const [result] = await db.insert(positions).values({
+  const [result] = await (db.insert(positions) as any).values({
     title: data.title,
     description: data.description || null,
     departmentId: data.departmentId,
@@ -563,7 +563,7 @@ export async function addEmployeeHistoryEvent(data: {
 
   const { employeeHistory } = await import("../drizzle/schema");
   
-  await db.insert(employeeHistory).values({
+  await (db.insert(employeeHistory) as any).values({
     employeeId: data.employeeId,
     curp: data.curp,
     eventType: data.eventType,
@@ -666,7 +666,7 @@ export async function updateEmployeeReentryInfo(
     .set({
       reentryCount,
       previousHireDates: previousHireDates.map(d => d.toISOString()),
-    })
+    } as any)
     .where(eq(employees.id, employeeId));
 }
 

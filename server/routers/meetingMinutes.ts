@@ -81,7 +81,7 @@ export const meetingMinutesRouter = router({
       const folio = await generateFolio();
 
       // Crear minuta
-      const [minute] = await db.insert(meetingMinutes).values({
+      const [minute] = await (db.insert(meetingMinutes) as any).values({
         folio,
         title: input.title,
         meetingDate: new Date(input.meetingDate),
@@ -101,12 +101,12 @@ export const meetingMinutesRouter = router({
 
       // Actualizar minuta con código QR
       await db.update(meetingMinutes)
-        .set({ qrCode, qrCodeUrl })
+        .set({ qrCode, qrCodeUrl } as any)
         .where(eq(meetingMinutes.id, minuteId));
 
       // Agregar participantes
       if (input.participants.length > 0) {
-        await db.insert(meetingParticipants).values(
+        await (db.insert(meetingParticipants) as any).values(
           input.participants.map(p => ({
             meetingMinuteId: minuteId,
             employeeId: p.employeeId,
@@ -243,7 +243,7 @@ export const meetingMinutesRouter = router({
         .set({
           status: "finalized",
           finalizedAt: new Date(),
-        })
+        } as any)
         .where(eq(meetingMinutes.id, input.id));
 
       return { success: true };
@@ -262,7 +262,7 @@ export const meetingMinutesRouter = router({
         .set({
           signature: input.signature,
           signedAt: new Date(),
-        })
+        } as any)
         .where(eq(meetingParticipants.id, input.participantId));
 
       // Verificar si todos los participantes han firmado
@@ -281,7 +281,7 @@ export const meetingMinutesRouter = router({
       // Si todos firmaron, cambiar estado a "signed"
       if (allSigned) {
         await db.update(meetingMinutes)
-          .set({ status: "signed" })
+          .set({ status: "signed" } as any)
           .where(eq(meetingMinutes.id, participant.meetingMinuteId));
       }
 
@@ -309,7 +309,7 @@ export const meetingMinutesRouter = router({
       const { url } = await storagePut(fileKey, buffer, mimeType);
 
       // Guardar en base de datos
-      await db.insert(meetingAttachments).values({
+      await (db.insert(meetingAttachments) as any).values({
         meetingMinuteId: input.meetingMinuteId,
         fileName: input.fileName,
         fileUrl: url,
@@ -425,7 +425,7 @@ export const meetingMinutesRouter = router({
       // Actualizar minuta con URL del PDF
       await db
         .update(meetingMinutes)
-        .set({ updatedAt: new Date() })
+        .set({ updatedAt: new Date() } as any)
         .where(eq(meetingMinutes.id, input.id));
 
       // Registrar evidencia automáticamente en carpeta de evidencias

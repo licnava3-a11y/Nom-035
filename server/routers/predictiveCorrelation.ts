@@ -76,12 +76,12 @@ export const predictiveCorrelationRouter = router({
         }
 
         const turnoverEmployees = await turnoverQuery;
-        const turnoverIds = turnoverEmployees.map((e) => e.userId);
+        const turnoverIds = turnoverEmployees.map((e: any) => e.userId);
 
         // Calcular métricas de confusión
-        const truePositives = turnoverEmployees.filter((e) => e.wasHighRisk).length;
-        const falsePositives = highRiskIds.filter((id) => !turnoverIds.includes(id)).length;
-        const falseNegatives = turnoverEmployees.filter((e) => !e.wasHighRisk).length;
+        const truePositives = turnoverEmployees.filter((e: any) => e.wasHighRisk).length;
+        const falsePositives = highRiskIds.filter((id: any) => !turnoverIds.includes(id)).length;
+        const falseNegatives = turnoverEmployees.filter((e: any) => !e.wasHighRisk).length;
         const trueNegatives = await db
           .select({ count: sql<number>`COUNT(*)` })
           .from(users)
@@ -182,7 +182,7 @@ export const predictiveCorrelationRouter = router({
 
       // Obtener IDs de empleados que rotaron
       const turnoverEmployees = await db.select({ userId: employeeTurnoverHistory.userId }).from(employeeTurnoverHistory);
-      const turnoverIds = turnoverEmployees.map((e) => e.userId);
+      const turnoverIds = turnoverEmployees.map((e: any) => e.userId);
 
       // Obtener empleados de alto riesgo que NO rotaron
       const highRiskQuery = await db.execute(sql`

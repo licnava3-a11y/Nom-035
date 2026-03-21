@@ -33,7 +33,7 @@ export const assessmentsRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
-      const [result] = await db.insert(assessments).values({
+      const [result] = await (db.insert(assessments) as any).values({
         ...input,
         createdBy: ctx.user.id,
         status: 'draft',
@@ -221,12 +221,12 @@ export const assessmentsRouter = router({
       const { options, ...questionData } = input;
 
       // Insertar pregunta
-      const [questionResult] = await db.insert(examQuestions).values(questionData);
+      const [questionResult] = await (db.insert(examQuestions) as any).values(questionData);
 
       // Insertar opciones
       if (options && options.length > 0) {
-        await db.insert(examQuestionOptions).values(
-          options.map((opt) => ({
+        await (db.insert(examQuestionOptions) as any).values(
+          options.map((opt: any) => ({
             questionId: questionResult.insertId,
             ...opt,
           }))
@@ -279,8 +279,8 @@ export const assessmentsRouter = router({
           .where(eq(examQuestionOptions.questionId, questionId));
 
         // Insertar nuevas opciones
-        await db.insert(examQuestionOptions).values(
-          options.map((opt) => ({
+        await (db.insert(examQuestionOptions) as any).values(
+          options.map((opt: any) => ({
             questionId,
             optionText: opt.optionText,
             isCorrect: opt.isCorrect,
@@ -361,7 +361,7 @@ export const assessmentsRouter = router({
       }
 
       // Crear nuevo intento
-      const [result] = await db.insert(examAttempts).values({
+      const [result] = await (db.insert(examAttempts) as any).values({
         assessmentId: input.assessmentId,
         employeeId: input.employeeId,
         attemptNumber,
@@ -431,7 +431,7 @@ export const assessmentsRouter = router({
       let earnedPoints = 0;
 
       for (const answer of input.answers) {
-        const question = questions.find((q) => q.id === answer.questionId);
+        const question = questions.find((q: any) => q.id === answer.questionId);
         if (!question) continue;
 
         totalPoints += question.points;
@@ -462,7 +462,7 @@ export const assessmentsRouter = router({
         }
 
         // Guardar respuesta
-        await db.insert(examAnswers).values({
+        await (db.insert(examAnswers) as any).values({
           attemptId: input.attemptId,
           questionId: answer.questionId,
           selectedOptionId: answer.selectedOptionId,
@@ -485,7 +485,7 @@ export const assessmentsRouter = router({
           passed,
           status: 'completed',
           timeSpent,
-        })
+        } as any)
         .where(eq(examAttempts.id, input.attemptId));
 
       return {

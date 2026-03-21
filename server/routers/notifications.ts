@@ -68,7 +68,7 @@ export const notificationsRouter = router({
 
       await db
         .update(notifications)
-        .set({ isRead: true })
+        .set({ isRead: true } as any)
         .where(
           and(
             eq(notifications.id, input.id),
@@ -90,7 +90,7 @@ export const notificationsRouter = router({
 
     await db
       .update(notifications)
-      .set({ isRead: true })
+      .set({ isRead: true } as any)
       .where(
         and(
           eq(notifications.userId, ctx.user!.id),
@@ -138,7 +138,7 @@ export const notificationsRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const [result] = await db.insert(notifications).values({
+      const [result] = await (db.insert(notifications) as any).values({
         userId: input.userId,
         type: input.type,
         title: input.title,

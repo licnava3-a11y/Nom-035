@@ -39,12 +39,12 @@ export async function saveNOM035Response(data: {
     // Actualizar respuesta existente
     await db
       .update(nom035Responses)
-      .set({ response: data.response, timestamp: new Date() })
+      .set({ response: data.response, timestamp: new Date() } as any)
       .where(eq(nom035Responses.id, existing[0].id));
     return existing[0].id;
   } else {
     // Insertar nueva respuesta
-    const result = await db.insert(nom035Responses).values(data);
+    const result = await (db.insert(nom035Responses) as any).values(data);
     return result[0].insertId;
   }
 }
@@ -171,7 +171,7 @@ export async function calculateNOM035Results(employeeId: number, surveyPeriodId:
   const recommendations = generateRecommendations(globalRiskLevel, categoryScores);
 
   // Guardar resultados en la base de datos
-  const result = await db.insert(nom035Results).values({
+  const result = await (db.insert(nom035Results) as any).values({
     employeeId,
     surveyPeriodId,
     globalScore,
@@ -238,7 +238,7 @@ function generateRecommendations(
   }
 
   // Recomendaciones específicas por categoría con puntajes altos
-  Object.entries(categoryScores).forEach(([category, score]) => {
+  Object.entries(categoryScores).forEach(([category, score]: [string, any]) => {
     if (score > 20) {
       // Umbral para considerar categoría de riesgo
       switch (category) {
@@ -326,7 +326,7 @@ export async function createSurveyPeriod(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(nom035SurveyPeriods).values({
+  const result = await (db.insert(nom035SurveyPeriods) as any).values({
     ...data,
     status: "draft",
   });

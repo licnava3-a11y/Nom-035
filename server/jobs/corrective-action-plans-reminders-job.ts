@@ -43,7 +43,7 @@ export async function runCorrectiveActionPlansRemindersJob() {
 
     for (const plan of overduePlans) {
       if (plan.assignedTo) {
-        await db.insert(notifications).values({
+        await (db.insert(notifications) as any).values({
           userId: plan.assignedTo,
           type: "system",
           title: "Plan de Acción Vencido",
@@ -69,7 +69,7 @@ export async function runCorrectiveActionPlansRemindersJob() {
 
     for (const plan of expiringSoonPlans) {
       if (plan.assignedTo) {
-        await db.insert(notifications).values({
+        await (db.insert(notifications) as any).values({
           userId: plan.assignedTo,
           type: "system",
           title: "Plan de Acción Próximo a Vencer",
@@ -94,7 +94,7 @@ export async function runCorrectiveActionPlansRemindersJob() {
 
     for (const plan of stalePlans) {
       if (plan.assignedTo) {
-        await db.insert(notifications).values({
+        await (db.insert(notifications) as any).values({
           userId: plan.assignedTo,
           type: "system",
           title: "Plan de Acción Sin Actividad",
@@ -124,7 +124,7 @@ export async function runCorrectiveActionPlansRemindersJob() {
       const adminUsers = await db.select().from(users).where(eq(users.role, "admin"));
 
       for (const admin of adminUsers) {
-        await db.insert(notifications).values({
+        await (db.insert(notifications) as any).values({
           userId: admin.id,
           type: "system",
           title: "Resumen Semanal de Planes de Acción Correctiva",

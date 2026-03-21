@@ -134,17 +134,17 @@ export function startModelAutoRetrainingJob() {
       // Desactivar configuración actual
       await db
         .update(modelThresholds)
-        .set({ isActive: false })
+        .set({ isActive: false } as any)
         .where(eq(modelThresholds.id, currentConfig.id));
 
       // Activar nueva configuración
       await db
         .update(modelThresholds)
-        .set({ isActive: true })
+        .set({ isActive: true } as any)
         .where(eq(modelThresholds.id, selectedConfig.id));
 
       // Registrar reentrenamiento en historial
-      await db.insert(modelRetrainingHistory).values({
+      await (db.insert(modelRetrainingHistory) as any).values({
         oldConfigId: currentConfig.id,
         newConfigId: selectedConfig.id,
         reason: `Degradación persistente detectada: ${recentCriticalAlerts.length} alertas críticas en ${DAYS_TO_CHECK} días`,

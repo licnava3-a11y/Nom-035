@@ -69,7 +69,7 @@ export const surveyAnonymousTokensRouter = router({
       // Insert all tokens in a single transaction
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-      await db.insert(surveyAnonymousTokens).values(tokens);
+      await (db.insert(surveyAnonymousTokens) as any).values(tokens);
 
       return {
         success: true,
@@ -215,7 +215,7 @@ export const surveyAnonymousTokensRouter = router({
       // Mark token as used
       await db
         .update(surveyAnonymousTokens)
-        .set({ usedAt: new Date() })
+        .set({ usedAt: new Date() } as any)
         .where(eq(surveyAnonymousTokens.id, tokenRecord.id));
 
       return {
@@ -249,7 +249,7 @@ export const surveyAnonymousTokensRouter = router({
 
       await db
         .update(surveyAnonymousTokens)
-        .set({ isRevoked: true })
+        .set({ isRevoked: true } as any)
         .where(eq(surveyAnonymousTokens.id, input.tokenId));
 
       return {

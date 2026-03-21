@@ -151,25 +151,25 @@ export const alertsDashboardRouter = router({
       // Filtrar por prioridad
       let filteredAlerts = alerts;
       if (input.priority !== "all") {
-        filteredAlerts = alerts.filter((a) => a.priority === input.priority);
+        filteredAlerts = alerts.filter((a: any) => a.priority === input.priority);
       }
 
       // Filtrar por estado
       if (input.status !== "all") {
-        filteredAlerts = filteredAlerts.filter((a) => a.status === input.status);
+        filteredAlerts = filteredAlerts.filter((a: any) => a.status === input.status);
       }
 
       // Ordenar por prioridad (critical > high > medium > low)
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      filteredAlerts.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      filteredAlerts.sort((a: any, b: any) => priorityOrder[a.priority] - priorityOrder[b.priority]);
 
       return {
         alerts: filteredAlerts,
         total: filteredAlerts.length,
-        criticalCount: filteredAlerts.filter((a) => a.priority === "critical").length,
-        highCount: filteredAlerts.filter((a) => a.priority === "high").length,
-        mediumCount: filteredAlerts.filter((a) => a.priority === "medium").length,
-        lowCount: filteredAlerts.filter((a) => a.priority === "low").length,
+        criticalCount: filteredAlerts.filter((a: any) => a.priority === "critical").length,
+        highCount: filteredAlerts.filter((a: any) => a.priority === "high").length,
+        mediumCount: filteredAlerts.filter((a: any) => a.priority === "medium").length,
+        lowCount: filteredAlerts.filter((a: any) => a.priority === "low").length,
       };
     }),
 

@@ -32,7 +32,7 @@ export const climateAnalysisRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not initialized');
       
-      const [survey] = await db.insert(organizationalClimateSurveys).values({
+      const [survey] = await (db.insert(organizationalClimateSurveys) as any).values({
         title: input.title,
         description: input.description,
         dimensions: input.dimensions as any,
@@ -73,7 +73,7 @@ export const climateAnalysisRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not initialized');
       
-      await db.insert(climateSurveyResponses).values({
+      await (db.insert(climateSurveyResponses) as any).values({
         surveyId: input.surveyId,
         employeeId: ctx.user.id,
         responses: input.responses as any,
@@ -121,7 +121,7 @@ export const climateAnalysisRouter = router({
       
       // Calcular índice de clima global
       const climateIndex = Math.round(
-        responses.reduce((sum, r) => sum + r.overallScore, 0) / responses.length
+        responses.reduce((sum: any, r: any) => sum + r.overallScore, 0) / responses.length
       );
       
       // Calcular scores por dimensión
@@ -129,9 +129,9 @@ export const climateAnalysisRouter = router({
       const firstResponse = responses[0];
       
       if (firstResponse.responses) {
-        Object.keys(firstResponse.responses).forEach((dimId) => {
+        Object.keys(firstResponse.responses).forEach((dimId: any) => {
           const dimScores = responses.map(r => r.responses[dimId]?.score || 0);
-          const avgScore = dimScores.reduce((a, b) => a + b, 0) / dimScores.length;
+          const avgScore = dimScores.reduce((a: any, b: any) => a + b, 0) / dimScores.length;
           
           dimensionScores[dimId] = {
             dimensionId: dimId,
@@ -165,7 +165,7 @@ export const climateAnalysisRouter = router({
       };
       
       // Guardar análisis
-      const [newAnalysis] = await db.insert(climateAnalysis).values({
+      const [newAnalysis] = await (db.insert(climateAnalysis) as any).values({
         surveyId: input.surveyId,
         period: input.period,
         climateIndex,

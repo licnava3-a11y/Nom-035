@@ -83,7 +83,7 @@ async function processPendingResponses() {
         const analysis = await analyzeSentimentWithLLM(combinedText, questionContext);
 
         // Guardar análisis en base de datos
-        await db.insert(sentimentAnalysis).values({
+        await (db.insert(sentimentAnalysis) as any).values({
           responseId: response.responseId,
           sentiment: analysis.sentiment,
           riskLevel: analysis.riskLevel,
@@ -99,7 +99,7 @@ async function processPendingResponses() {
 
         // Generar alerta automática si es crítico
         if (analysis.riskLevel === "critical" && response.userId) {
-          await db.insert(notifications).values({
+          await (db.insert(notifications) as any).values({
             userId: response.userId,
             type: "sentiment_critical" as any,
             title: "⚠️ Alerta de Riesgo Psicosocial Crítico",
@@ -177,7 +177,7 @@ async function checkCriticalThresholdAndCreateCase() {
 
     // Agrupar por departamento
     const byDepartment: Record<string, typeof criticalAnalyses> = {};
-    criticalAnalyses.forEach((analysis) => {
+    criticalAnalyses.forEach((analysis: any) => {
       const dept = analysis.department || "Sin departamento";
       if (!byDepartment[dept]) {
         byDepartment[dept] = [];
@@ -207,7 +207,7 @@ async function checkCriticalThresholdAndCreateCase() {
           const summaries = analyses.map(a => a.summary).join("; ");
           const caseDescription = `Se detectaron ${analyses.length} comentarios críticos de riesgo psicosocial en el departamento "${department}" durante los últimos 30 días. Resúmenes: ${summaries}. Se requiere intervención preventiva inmediata.`;
 
-          await db.insert(nom035Cases).values({
+          await (db.insert(nom035Cases) as any).values({
             title: `[AUTO] Alerta de Riesgo Psicosocial - ${department}`,
             description: caseDescription,
             category: "psychosocial_risk",

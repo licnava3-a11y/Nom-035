@@ -150,7 +150,7 @@ export async function generateActionPlanExcel(options: ExcelGeneratorOptions): P
   });
 
   // Datos
-  data.forEach((segment) => {
+  data.forEach((segment: any) => {
     const row = worksheet.addRow([
       segment.segment,
       segment.totalResponses,
@@ -206,13 +206,13 @@ export async function generateActionPlanExcel(options: ExcelGeneratorOptions): P
   // Fila de totales
   const totalRow = worksheet.addRow([
     'TOTAL',
-    data.reduce((sum, s) => sum + s.totalResponses, 0),
-    (data.reduce((sum, s) => sum + s.avgScore, 0) / data.length).toFixed(1),
-    data.reduce((sum, s) => sum + s.riskDistribution.nulo, 0),
-    data.reduce((sum, s) => sum + s.riskDistribution.bajo, 0),
-    data.reduce((sum, s) => sum + s.riskDistribution.medio, 0),
-    data.reduce((sum, s) => sum + s.riskDistribution.alto, 0),
-    data.reduce((sum, s) => sum + s.riskDistribution.muy_alto, 0),
+    data.reduce((sum: any, s: any) => sum + s.totalResponses, 0),
+    (data.reduce((sum: any, s: any) => sum + s.avgScore, 0) / data.length).toFixed(1),
+    data.reduce((sum: any, s: any) => sum + s.riskDistribution.nulo, 0),
+    data.reduce((sum: any, s: any) => sum + s.riskDistribution.bajo, 0),
+    data.reduce((sum: any, s: any) => sum + s.riskDistribution.medio, 0),
+    data.reduce((sum: any, s: any) => sum + s.riskDistribution.alto, 0),
+    data.reduce((sum: any, s: any) => sum + s.riskDistribution.muy_alto, 0),
   ]);
 
   totalRow.font = { bold: true };
@@ -254,13 +254,13 @@ export async function generateActionPlanExcel(options: ExcelGeneratorOptions): P
   // Métricas clave
   const metrics = [
     ['Segmentos Analizados:', data.length],
-    ['Total de Respuestas:', data.reduce((sum, s) => sum + s.totalResponses, 0)],
-    ['Score Promedio General:', (data.reduce((sum, s) => sum + s.avgScore, 0) / data.length).toFixed(2)],
+    ['Total de Respuestas:', data.reduce((sum: any, s: any) => sum + s.totalResponses, 0)],
+    ['Score Promedio General:', (data.reduce((sum: any, s: any) => sum + s.avgScore, 0) / data.length).toFixed(2)],
     ['Nivel de Confianza:', '95%'],
     ['Margen de Error:', '±5%'],
   ];
 
-  metrics.forEach(([label, value]) => {
+  metrics.forEach(([label, value]: [string, any]) => {
     const row = worksheet.addRow([label, value]);
     row.getCell(1).font = { bold: true };
     row.getCell(1).alignment = { horizontal: 'right' };

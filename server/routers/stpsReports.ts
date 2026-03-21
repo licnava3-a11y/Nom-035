@@ -91,7 +91,7 @@ export const stpsReportsRouter = router({
     // Obtener o crear catálogo de formato DC-2
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "DC2")).limit(1);
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "DC2",
         name: "Constancia de Competencias o de Habilidades Laborales",
         version: "1.0",
@@ -143,7 +143,7 @@ export const stpsReportsRouter = router({
     const htmlContent = template(templateData);
 
     // Guardar reporte en BD
-    const [result] = await db.insert(complianceReports).values({
+    const [result] = await (db.insert(complianceReports) as any).values({
       tipo: "dc2",
       folio,
       titulo: `DC-2: ${input.courseTitle} - ${employee.firstName} ${employee.lastName}`,
@@ -169,7 +169,7 @@ export const stpsReportsRouter = router({
 
     // Crear notificación para el usuario
     try {
-      await db.insert(notifications).values({
+      await (db.insert(notifications) as any).values({
         userId: ctx.user.id,
         type: "system",
         title: `Reporte ${folio.split('-')[0]} generado exitosamente`,
@@ -205,7 +205,7 @@ export const stpsReportsRouter = router({
     // Obtener o crear catálogo de formato DC-3
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "DC3")).limit(1);
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "DC3",
         name: "Constancia de Habilidades Laborales",
         version: "1.0",
@@ -258,7 +258,7 @@ export const stpsReportsRouter = router({
     const htmlContent = template(templateData);
 
     // Guardar reporte en BD
-    const [result] = await db.insert(complianceReports).values({
+    const [result] = await (db.insert(complianceReports) as any).values({
       tipo: "dc3",
       folio,
       titulo: `DC-3: ${input.courseTitle} - ${employee.firstName} ${employee.lastName}`,
@@ -284,7 +284,7 @@ export const stpsReportsRouter = router({
 
     // Crear notificación para el usuario
     try {
-      await db.insert(notifications).values({
+      await (db.insert(notifications) as any).values({
         userId: ctx.user.id,
         type: "system",
         title: `Reporte ${folio.split('-')[0]} generado exitosamente`,
@@ -316,7 +316,7 @@ export const stpsReportsRouter = router({
     // Obtener o crear catálogo de formato DC-4
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "DC4")).limit(1);
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "DC4",
         name: "Lista de Constancias de Competencias o de Habilidades Laborales",
         version: "1.0",
@@ -362,7 +362,7 @@ export const stpsReportsRouter = router({
     const htmlContent = template(templateData);
 
     // Guardar reporte en BD
-    const [result] = await db.insert(complianceReports).values({
+    const [result] = await (db.insert(complianceReports) as any).values({
       tipo: "dc4",
       folio,
       titulo: `DC-4: ${input.reportTitle}`,
@@ -388,7 +388,7 @@ export const stpsReportsRouter = router({
 
     // Crear notificación para el usuario
     try {
-      await db.insert(notifications).values({
+      await (db.insert(notifications) as any).values({
         userId: ctx.user.id,
         type: "system",
         title: `Reporte ${folio.split('-')[0]} generado exitosamente`,

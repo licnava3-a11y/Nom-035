@@ -208,7 +208,7 @@ export async function runTrainingRemindersJob() {
     try {
       const expiredCount = await db
         .update(trainingAssignments)
-        .set({ status: "expired" })
+        .set({ status: "expired" } as any)
         .where(
           and(
             inArray(trainingAssignments.status, ["pending", "in_progress"]),

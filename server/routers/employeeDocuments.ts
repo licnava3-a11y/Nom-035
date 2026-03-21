@@ -76,7 +76,7 @@ export const employeeDocumentsRouter = router({
       }
 
       // Save document metadata to database
-      const [document] = await db.insert(employeeDocuments).values({
+      const [document] = await (db.insert(employeeDocuments) as any).values({
         employeeId: input.employeeId,
         documentType: input.documentType,
         fileName: input.fileName,
@@ -223,7 +223,7 @@ export const employeeDocumentsRouter = router({
       const existingTypes = new Set(existingDocs.map((d: { documentType: string }) => d.documentType));
 
       // Find missing types
-      const missingTypes = requiredTypes.filter((type) => !existingTypes.has(type));
+      const missingTypes = requiredTypes.filter((type: any) => !existingTypes.has(type));
 
       return missingTypes;
     }),
@@ -265,7 +265,7 @@ export const employeeDocumentsRouter = router({
           if (newStatus !== doc.status) {
             await db
               .update(employeeDocuments)
-              .set({ status: newStatus })
+              .set({ status: newStatus } as any)
               .where(eq(employeeDocuments.id, doc.id));
           }
         }
@@ -278,9 +278,9 @@ export const employeeDocumentsRouter = router({
         .where(eq(employeeDocuments.employeeId, input.employeeId));
 
       const total = updatedDocuments.length;
-      const vigente = updatedDocuments.filter((d) => d.status === "vigente").length;
-      const porVencer = updatedDocuments.filter((d) => d.status === "por_vencer").length;
-      const vencido = updatedDocuments.filter((d) => d.status === "vencido").length;
+      const vigente = updatedDocuments.filter((d: any) => d.status === "vigente").length;
+      const porVencer = updatedDocuments.filter((d: any) => d.status === "por_vencer").length;
+      const vencido = updatedDocuments.filter((d: any) => d.status === "vencido").length;
 
       return {
         total,

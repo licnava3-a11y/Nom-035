@@ -82,7 +82,7 @@ export const jobMonitoringRouter = router({
       .where(gte(jobExecutions.startedAt, oneDayAgo))
       .groupBy(jobExecutions.jobName);
 
-    return stats.map((stat) => ({
+    return stats.map((stat: any) => ({
       jobName: stat.jobName,
       totalExecutions: Number(stat.totalExecutions) || 0,
       successCount: Number(stat.successCount) || 0,
@@ -105,7 +105,7 @@ export const jobMonitoringRouter = router({
 
     try {
       // Registrar inicio
-      const [execution] = await db.insert(jobExecutions).values({
+      const [execution] = await (db.insert(jobExecutions) as any).values({
         jobName: "post-case-surveys-job",
         status: "running",
         startedAt,
@@ -124,7 +124,7 @@ export const jobMonitoringRouter = router({
           completedAt,
           duration,
           result: result as any,
-        })
+        } as any)
         .where(eq(jobExecutions.id, execution.id));
 
       return { success: true, result, duration };
@@ -133,7 +133,7 @@ export const jobMonitoringRouter = router({
       const duration = completedAt.getTime() - startedAt.getTime();
 
       // Registrar error
-      await db.insert(jobExecutions).values({
+      await (db.insert(jobExecutions) as any).values({
         jobName: "post-case-surveys-job",
         status: "failed",
         startedAt,
@@ -155,7 +155,7 @@ export const jobMonitoringRouter = router({
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
     try {
-      const [execution] = await db.insert(jobExecutions).values({
+      const [execution] = await (db.insert(jobExecutions) as any).values({
         jobName: "departmental-alerts-job",
         status: "running",
         startedAt,
@@ -172,7 +172,7 @@ export const jobMonitoringRouter = router({
           completedAt,
           duration,
           result: result as any,
-        })
+        } as any)
         .where(eq(jobExecutions.id, execution.id));
 
       return { success: true, result, duration };
@@ -180,7 +180,7 @@ export const jobMonitoringRouter = router({
       const completedAt = new Date();
       const duration = completedAt.getTime() - startedAt.getTime();
 
-      await db.insert(jobExecutions).values({
+      await (db.insert(jobExecutions) as any).values({
         jobName: "departmental-alerts-job",
         status: "failed",
         startedAt,
@@ -202,7 +202,7 @@ export const jobMonitoringRouter = router({
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
     try {
-      const [execution] = await db.insert(jobExecutions).values({
+      const [execution] = await (db.insert(jobExecutions) as any).values({
         jobName: "survey-reminders-job",
         status: "running",
         startedAt,
@@ -219,7 +219,7 @@ export const jobMonitoringRouter = router({
           completedAt,
           duration,
           result: result as any,
-        })
+        } as any)
         .where(eq(jobExecutions.id, execution.id));
 
       return { success: true, result, duration };
@@ -227,7 +227,7 @@ export const jobMonitoringRouter = router({
       const completedAt = new Date();
       const duration = completedAt.getTime() - startedAt.getTime();
 
-      await db.insert(jobExecutions).values({
+      await (db.insert(jobExecutions) as any).values({
         jobName: "survey-reminders-job",
         status: "failed",
         startedAt,

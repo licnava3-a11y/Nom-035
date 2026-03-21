@@ -37,11 +37,11 @@ export const salaryEquityRouter = router({
     const femaleRecords = payrollRecords.filter(r => (r.gender as string) === "Femenino" || (r.gender as string) === "female");
     
     const maleAvgSalary = maleRecords.length > 0
-      ? maleRecords.reduce((sum, r) => sum + parseFloat(r.salary || "0"), 0) / maleRecords.length
+      ? maleRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / maleRecords.length
       : 0;
     
     const femaleAvgSalary = femaleRecords.length > 0
-      ? femaleRecords.reduce((sum, r) => sum + parseFloat(r.salary || "0"), 0) / femaleRecords.length
+      ? femaleRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / femaleRecords.length
       : 0;
     
     const genderPayGap = maleAvgSalary > 0
@@ -66,7 +66,7 @@ export const salaryEquityRouter = router({
       });
       
       const avgSalary = groupRecords.length > 0
-        ? groupRecords.reduce((sum, r) => sum + parseFloat(r.salary || "0"), 0) / groupRecords.length
+        ? groupRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / groupRecords.length
         : 0;
       
       return {
@@ -77,7 +77,7 @@ export const salaryEquityRouter = router({
       };
     });
 
-    const overallAvgSalary = payrollRecords.reduce((sum, r) => sum + parseFloat(r.salary || "0"), 0) / payrollRecords.length;
+    const overallAvgSalary = payrollRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / payrollRecords.length;
     ageGroupAnalysis.forEach(group => {
       group.gapPercentage = overallAvgSalary > 0
         ? ((group.averageSalary - overallAvgSalary) / overallAvgSalary) * 100
@@ -101,7 +101,7 @@ export const salaryEquityRouter = router({
       });
       
       const avgSalary = groupRecords.length > 0
-        ? groupRecords.reduce((sum, r) => sum + parseFloat(r.salary || "0"), 0) / groupRecords.length
+        ? groupRecords.reduce((sum: any, r: any) => sum + parseFloat(r.salary || "0"), 0) / groupRecords.length
         : 0;
       
       return {
@@ -146,7 +146,7 @@ export const salaryEquityRouter = router({
         };
       })
       .filter(c => Math.abs(c.gapPercentage) > 20)
-      .sort((a, b) => Math.abs(b.gapPercentage) - Math.abs(a.gapPercentage))
+      .sort((a: any, b: any) => Math.abs(b.gapPercentage) - Math.abs(a.gapPercentage))
       .slice(0, 20);
 
     // Calcular índice de equidad global
@@ -173,7 +173,7 @@ export const salaryEquityRouter = router({
         priority: "high" as const,
         category: "Casos Críticos",
         description: `${criticalCases.length} empleados con brechas salariales críticas (>20%). Requiere atención inmediata.`,
-        estimatedCost: criticalCases.reduce((sum, c) => sum + Math.abs(c.currentSalary - c.expectedSalary), 0),
+        estimatedCost: criticalCases.reduce((sum: any, c: any) => sum + Math.abs(c.currentSalary - c.expectedSalary), 0),
         expectedImpact: "Mejora del índice de equidad en 15 puntos",
       });
     }
@@ -335,7 +335,7 @@ export const salaryEquityRouter = router({
       const { url } = await storagePut(fileKey, pdfBuffer, "application/pdf");
 
       // Guardar en historial
-      await db.insert(equityReportsHistory).values({
+      await (db.insert(equityReportsHistory) as any).values({
         analysisId: input.analysisId,
         reportUrl: url,
         reportKey: fileKey,

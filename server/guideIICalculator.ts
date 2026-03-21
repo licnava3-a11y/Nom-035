@@ -186,7 +186,7 @@ export function calculateGuideIIResults(answers: Record<number, string>) {
   // Calcular puntajes por dominio
   const domainScores: Record<string, number> = {};
   for (const [domainKey, items] of Object.entries(DOMAINS)) {
-    domainScores[domainKey] = items.reduce((sum, itemNum) => {
+    domainScores[domainKey] = items.reduce((sum: any, itemNum: any) => {
       return sum + convertAnswerToScore(itemNum, answers[itemNum]);
     }, 0);
   }
@@ -194,13 +194,13 @@ export function calculateGuideIIResults(answers: Record<number, string>) {
   // Calcular puntajes por categoría
   const categoryScores: Record<string, number> = {};
   for (const [categoryKey, items] of Object.entries(CATEGORIES)) {
-    categoryScores[categoryKey] = items.reduce((sum, itemNum) => {
+    categoryScores[categoryKey] = items.reduce((sum: any, itemNum: any) => {
       return sum + convertAnswerToScore(itemNum, answers[itemNum]);
     }, 0);
   }
 
   // Calcular puntaje final (suma de todos los ítems)
-  const finalScore = Object.values(answers).reduce((sum, answer, index) => {
+  const finalScore = Object.values(answers).reduce((sum: any, answer: any, index: number) => {
     const itemNumber = index + 1;
     return sum + convertAnswerToScore(itemNumber, answer);
   }, 0);

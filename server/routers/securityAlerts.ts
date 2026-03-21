@@ -52,7 +52,7 @@ export const securityAlertsRouter = router({
             },
           };
 
-          await db.insert(securityAlerts).values(alert);
+          await (db.insert(securityAlerts) as any).values(alert);
           alerts.push(alert);
 
           // Enviar notificación al administrador
@@ -91,7 +91,7 @@ export const securityAlertsRouter = router({
             },
           };
 
-          await db.insert(securityAlerts).values(alert);
+          await (db.insert(securityAlerts) as any).values(alert);
           alerts.push(alert);
 
           // Enviar notificación al administrador
@@ -118,7 +118,7 @@ export const securityAlertsRouter = router({
           },
         };
 
-        await db.insert(securityAlerts).values(alert);
+        await (db.insert(securityAlerts) as any).values(alert);
         alerts.push(alert);
       }
 
@@ -212,7 +212,7 @@ export const securityAlertsRouter = router({
           reviewedBy: ctx.user.id,
           reviewedAt: new Date(),
           reviewNotes: input.reviewNotes || null,
-        })
+        } as any)
         .where(eq(securityAlerts.id, input.alertId));
 
       return { success: true };

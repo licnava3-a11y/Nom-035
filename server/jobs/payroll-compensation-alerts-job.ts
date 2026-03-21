@@ -33,8 +33,8 @@ export function startPayrollCompensationAlertsJob() {
       }
 
       // Agrupar por nivel de riesgo
-      const critical = criticalGaps.filter((e) => e.compensationRiskLevel === "critical");
-      const high = criticalGaps.filter((e) => e.compensationRiskLevel === "high");
+      const critical = criticalGaps.filter((e: any) => e.compensationRiskLevel === "critical");
+      const high = criticalGaps.filter((e: any) => e.compensationRiskLevel === "high");
 
       // Generar reporte de alertas
       let alertMessage = `🚨 **Alerta de Compensación Mensual**\n\n`;
@@ -42,7 +42,7 @@ export function startPayrollCompensationAlertsJob() {
 
       if (critical.length > 0) {
         alertMessage += `**Nivel Crítico (< -20%):** ${critical.length} empleados\n`;
-        critical.slice(0, 5).forEach((e) => {
+        critical.slice(0, 5).forEach((e: any) => {
           alertMessage += `- ${e.employeeName} (${e.department}): ${e.salaryGapPercentage}% por debajo del mercado\n`;
         });
         if (critical.length > 5) {
@@ -53,7 +53,7 @@ export function startPayrollCompensationAlertsJob() {
 
       if (high.length > 0) {
         alertMessage += `**Nivel Alto (-10% a -20%):** ${high.length} empleados\n`;
-        high.slice(0, 5).forEach((e) => {
+        high.slice(0, 5).forEach((e: any) => {
           alertMessage += `- ${e.employeeName} (${e.department}): ${e.salaryGapPercentage}% por debajo del mercado\n`;
         });
         if (high.length > 5) {

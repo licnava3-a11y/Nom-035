@@ -60,12 +60,12 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
 
   // Calculate average interval
   const averageIntervalDays = Math.round(
-    intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length
+    intervals.reduce((sum: any, interval: any) => sum + interval, 0) / intervals.length
   );
 
   // Calculate standard deviation
   const variance =
-    intervals.reduce((sum, interval) => sum + Math.pow(interval - averageIntervalDays, 2), 0) /
+    intervals.reduce((sum: any, interval: any) => sum + Math.pow(interval - averageIntervalDays, 2), 0) /
     intervals.length;
   const standardDeviation = Math.sqrt(variance);
 
@@ -84,10 +84,10 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
   const recentIntervals = intervals.slice(0, Math.min(3, intervals.length));
   const olderIntervals = intervals.slice(Math.min(3, intervals.length));
   const recentAvg =
-    recentIntervals.reduce((sum, val) => sum + val, 0) / recentIntervals.length;
+    recentIntervals.reduce((sum: any, val: any) => sum + val, 0) / recentIntervals.length;
   const olderAvg =
     olderIntervals.length > 0
-      ? olderIntervals.reduce((sum, val) => sum + val, 0) / olderIntervals.length
+      ? olderIntervals.reduce((sum: any, val: any) => sum + val, 0) / olderIntervals.length
       : recentAvg;
 
   let trend: "increasing" | "stable" | "decreasing";

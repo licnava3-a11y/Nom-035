@@ -116,7 +116,7 @@ export async function generateNom035PolicyPDF(policy: PolicyData): Promise<strin
   
   // Dividir descripción en párrafos
   const paragraphs = policy.descripcion.split('\n');
-  paragraphs.forEach((paragraph) => {
+  paragraphs.forEach((paragraph: any) => {
     if (paragraph.trim()) {
       doc.text(paragraph.trim(), {
         align: 'justify',

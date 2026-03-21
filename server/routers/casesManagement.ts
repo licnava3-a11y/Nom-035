@@ -35,7 +35,7 @@ export const casesManagementRouter = router({
         const caseNumber = `CASE-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
 
         // Crear caso
-        const [newCase] = await db.insert(cases).values({
+        const [newCase] = await (db.insert(cases) as any).values({
           caseNumber,
           reporterName: input.reporterName,
           reporterEmail: input.reporterEmail || null,
@@ -307,7 +307,7 @@ export const casesManagementRouter = router({
 
         await db
           .update(cases)
-          .set({ assignedTo: input.assignedTo })
+          .set({ assignedTo: input.assignedTo } as any)
           .where(eq(cases.id, input.caseId));
 
         return { success: true };

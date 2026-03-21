@@ -59,7 +59,7 @@ export const thresholdExperimentsRouter = router({
         const winnerConfigId = metricsA.f1Score >= metricsB.f1Score ? input.configIdA : input.configIdB;
 
         // Crear experimento
-        const [experiment] = await db.insert(thresholdExperiments).values({
+        const [experiment] = await (db.insert(thresholdExperiments) as any).values({
           name: input.name,
           description: input.description || null,
           configIdA: input.configIdA,

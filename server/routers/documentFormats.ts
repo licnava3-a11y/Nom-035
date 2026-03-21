@@ -52,7 +52,7 @@ export const documentFormatsRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
-      const result = await db.insert(documentFormats).values({
+      const result = await (db.insert(documentFormats) as any).values({
         codigo: input.codigo.toUpperCase(),
         nombre: input.nombre,
         descripcion: input.descripcion,
@@ -150,7 +150,7 @@ export const documentFormatsRouter = router({
       // Actualizar consecutivo
       await db
         .update(documentFormats)
-        .set({ consecutivoActual: newConsecutive })
+        .set({ consecutivoActual: newConsecutive } as any)
         .where(eq(documentFormats.id, input.id));
 
       return {

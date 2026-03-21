@@ -129,7 +129,7 @@ export const surveysRouter = router({
       expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
       
       // NOTA: Temporalmente comentado - requiere periodId
-      // await db.insert(surveyTokens).values({
+      // await (db.insert(surveyTokens) as any).values({
       //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
       //   userId: input.userId,
       //   surveyId: input.surveyId,
@@ -217,7 +217,7 @@ export const surveysRouter = router({
         } else {
           // Crear nueva respuesta
           const responseToken = generateToken();
-          const [newResponse] = await db.insert(surveyResponses).values({
+          const [newResponse] = await (db.insert(surveyResponses) as any).values({
             surveyId: input.surveyId,
             userId: tokenData.userId,
             token: responseToken,
@@ -241,7 +241,7 @@ export const surveysRouter = router({
         } else {
           // Crear nueva respuesta
           const responseToken = generateToken();
-          const [newResponse] = await db.insert(surveyResponses).values({
+          const [newResponse] = await (db.insert(surveyResponses) as any).values({
             surveyId: input.surveyId,
             userId: input.userId!,
             token: responseToken,
@@ -268,11 +268,11 @@ export const surveysRouter = router({
           .set({
             answerValue: input.answerValue,
             answeredAt: new Date(),
-          })
+          } as any)
           .where(eq(surveyAnswers.id, existingAnswer.id));
       } else {
         // Crear nueva respuesta
-        await db.insert(surveyAnswers).values({
+        await (db.insert(surveyAnswers) as any).values({
           responseId,
           questionId: input.questionId,
           answerValue: input.answerValue,
@@ -330,7 +330,7 @@ export const surveysRouter = router({
         // Marcar token anónimo como usado
         await db
           .update(surveyAnonymousTokens)
-          .set({ usedAt: new Date() })
+          .set({ usedAt: new Date() } as any)
           .where(eq(surveyAnonymousTokens.token, input.anonymousToken));
       } else if (ctx.user) {
         // Usuario autenticado
@@ -357,7 +357,7 @@ export const surveysRouter = router({
       const responseToken = input.responseToken || generateToken();
       
       // Crear respuesta
-      await db.insert(surveyResponses).values({
+      await (db.insert(surveyResponses) as any).values({
         surveyId: input.surveyId,
         userId: userId, // Puede ser null para respuestas anónimas
         curp: input.curp || null,
@@ -385,7 +385,7 @@ export const surveysRouter = router({
       
       // Guardar respuestas individuales
       for (const answer of input.answers) {
-        await db.insert(surveyAnswers).values({
+        await (db.insert(surveyAnswers) as any).values({
           responseId: newResponse.id,
           questionId: answer.questionId,
           answerValue: answer.answerValue,
@@ -396,7 +396,7 @@ export const surveysRouter = router({
       if (input.responseToken) {
         await db
           .update(surveyTokens)
-          .set({ usedAt: new Date() })
+          .set({ usedAt: new Date() } as any)
           .where(eq(surveyTokens.token, input.responseToken));
       }
       
@@ -431,7 +431,7 @@ export const surveysRouter = router({
             .where(eq(employees.userId, ctx.user!.id))
             .limit(1);
           
-          await db.insert(cases).values({
+          await (db.insert(cases) as any).values({
             caseNumber,
             reporterName: ctx.user!.name || 'Anónimo',
             reporterEmail: ctx.user!.email || '',
@@ -496,7 +496,7 @@ export const surveysRouter = router({
       // Guardar resultados en la respuesta
       await db
         .update(surveyResponses)
-        .set({ results: JSON.stringify(results) })
+        .set({ results: JSON.stringify(results) } as any)
         .where(eq(surveyResponses.id, newResponse.id));
       
       return { success: true, responseId: newResponse.id, atsDetected, results };
@@ -697,7 +697,7 @@ export const surveysRouter = router({
       return {
         totalResponses: responses.length,
         riskDistribution,
-        categoryRisks: Object.entries(categoryRisks).map(([category, data]) => ({
+        categoryRisks: Object.entries(categoryRisks).map(([category, data]: [string, any]) => ({
           category,
           avgScore: data.avgScore,
           riskLevel: calculator.determineRiskLevel(data.avgScore, survey.type as 'guia_ii' | 'guia_iii').level,
@@ -891,9 +891,9 @@ export const surveysRouter = router({
       }
       
       // Calcular promedios por categoría
-      const averageRiskByCategory = Object.entries(categoryScores).map(([category, scores]) => ({
+      const averageRiskByCategory = Object.entries(categoryScores).map(([category, scores]: [string, any]) => ({
         category,
-        averageScore: scores.reduce((a, b) => a + b, 0) / scores.length,
+        averageScore: scores.reduce((a: any, b: any) => a + b, 0) / scores.length,
       }));
       
       // Preparar datos del reporte
@@ -975,7 +975,7 @@ export const surveysRouter = router({
         stats.coverage = stats.total > 0 ? (stats.responded / stats.total) * 100 : 0;
       }
       
-      return Object.entries(departmentStats).map(([department, stats]) => ({
+      return Object.entries(departmentStats).map(([department, stats]: [string, any]) => ({
         department,
         ...stats,
       }));
@@ -1239,7 +1239,7 @@ export const surveysRouter = router({
         });
         
         // Registrar notificación
-        await db.insert(surveyNotifications).values({
+        await (db.insert(surveyNotifications) as any).values({
           surveyId: input.surveyId,
           userId: user.id,
           type: 'invitation',
@@ -1313,7 +1313,7 @@ export const surveysRouter = router({
           daysRemaining: input.daysRemaining,
         });
         
-        await db.insert(surveyNotifications).values({
+        await (db.insert(surveyNotifications) as any).values({
           surveyId: input.surveyId,
           userId: user.id,
           type: 'reminder',
@@ -1526,7 +1526,7 @@ export const surveysRouter = router({
         totalResponses,
         riskLevels,
         averageScore,
-        distribution: Object.entries(riskLevels).map(([level, count]) => ({
+        distribution: Object.entries(riskLevels).map(([level, count]: [string, any]) => ({
           level,
           count,
           percentage: totalResponses > 0 ? (count / totalResponses) * 100 : 0
@@ -1619,7 +1619,7 @@ export const surveysRouter = router({
           totalResponses,
           riskLevels,
           averageScore,
-          distribution: Object.entries(riskLevels).map(([level, count]) => ({
+          distribution: Object.entries(riskLevels).map(([level, count]: [string, any]) => ({
             level,
             count,
             percentage: totalResponses > 0 ? (count / totalResponses) * 100 : 0
@@ -1789,7 +1789,7 @@ export const surveysRouter = router({
       expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
 
       // NOTA: Temporalmente comentado - requiere periodId
-      // await db.insert(surveyTokens).values({
+      // await (db.insert(surveyTokens) as any).values({
       //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
       //   userId: user.id,
       //   surveyId: input.surveyId,
@@ -1935,7 +1935,7 @@ export const surveysRouter = router({
           const token = generateToken();
 
           // NOTA: Temporalmente comentado - requiere periodId
-          // await db.insert(surveyTokens).values({
+          // await (db.insert(surveyTokens) as any).values({
           //   periodId: input.periodId, // NUEVO CAMPO REQUERIDO
           //   userId: employee.id,
           //   surveyId: input.surveyId,
@@ -1990,7 +1990,7 @@ export const surveysRouter = router({
 
       await db
         .update(surveyTokens)
-        .set({ usedAt: new Date() })
+        .set({ usedAt: new Date() } as any)
         .where(eq(surveyTokens.token, input.token));
 
       return { success: true };
@@ -2168,12 +2168,12 @@ export const surveysRouter = router({
         pendingTokens,
         expiredTokens,
         completionRate,
-        byDepartment: Object.entries(byDepartment).map(([dept, stats]) => ({
+        byDepartment: Object.entries(byDepartment).map(([dept, stats]: [string, any]) => ({
           department: dept,
           ...stats,
           completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
         })),
-        bySurvey: Object.entries(bySurvey).map(([surveyId, stats]) => ({
+        bySurvey: Object.entries(bySurvey).map(([surveyId, stats]: [string, any]) => ({
           surveyId: parseInt(surveyId),
           ...stats,
           completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
@@ -2331,7 +2331,7 @@ export const surveysRouter = router({
         pdfUrl: url,
         fileKey: key,
         surveysIncluded: selectedSurveys.length,
-        totalResponses: surveyResults.reduce((sum, r) => sum + r.totalResponses, 0),
+        totalResponses: surveyResults.reduce((sum: any, r: any) => sum + r.totalResponses, 0),
       };
     }),
 
@@ -2433,7 +2433,7 @@ export const surveysRouter = router({
         sentVia: 'email' as const,
       }));
 
-      await db.insert(surveyTokens).values(tokensToInsert);
+      await (db.insert(surveyTokens) as any).values(tokensToInsert);
 
       // Enviar correos
       const { sendEmail } = await import('../lib/email-sender');
@@ -2617,7 +2617,7 @@ export const surveysRouter = router({
         .update(surveyResponses)
         .set({
           results: JSON.stringify(results),
-        })
+        } as any)
         .where(eq(surveyResponses.id, input.responseId));
 
       return {
@@ -2715,7 +2715,7 @@ export const surveysRouter = router({
       }
 
       // Calcular promedios
-      const averageFinalScore = parsedResults.reduce((sum, r) => sum + r.finalScore, 0) / parsedResults.length;
+      const averageFinalScore = parsedResults.reduce((sum: any, r: any) => sum + r.finalScore, 0) / parsedResults.length;
 
       // Distribución de niveles de riesgo
       const riskDistribution: Record<string, number> = {};
@@ -2727,14 +2727,14 @@ export const surveysRouter = router({
       const domainAverages: Record<string, number> = {};
       const domainKeys = Object.keys(parsedResults[0].domainScores);
       for (const key of domainKeys) {
-        domainAverages[key] = parsedResults.reduce((sum, r) => sum + r.domainScores[key], 0) / parsedResults.length;
+        domainAverages[key] = parsedResults.reduce((sum: any, r: any) => sum + r.domainScores[key], 0) / parsedResults.length;
       }
 
       // Promedios por categoría
       const categoryAverages: Record<string, number> = {};
       const categoryKeys = Object.keys(parsedResults[0].categoryScores);
       for (const key of categoryKeys) {
-        categoryAverages[key] = parsedResults.reduce((sum, r) => sum + r.categoryScores[key], 0) / parsedResults.length;
+        categoryAverages[key] = parsedResults.reduce((sum: any, r: any) => sum + r.categoryScores[key], 0) / parsedResults.length;
       }
 
       return {

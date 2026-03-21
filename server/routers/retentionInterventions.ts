@@ -121,7 +121,7 @@ export const retentionInterventionsRouter = router({
             outcomeNotes: input.outcomeNotes,
             riskReduction: riskReduction?.toFixed(2),
             effectivenessScore: effectivenessScore?.toFixed(2),
-          })
+          } as any)
           .where(eq(retentionInterventions.id, input.interventionId));
 
         return { success: true, message: "Outcome actualizado exitosamente" };
@@ -154,7 +154,7 @@ export const retentionInterventionsRouter = router({
           });
         }
 
-        let query = db.select().from(retentionInterventions);
+        let query: any = db.select().from(retentionInterventions);
 
         if (input.outcome !== "all") {
           query = query.where(eq(retentionInterventions.outcome, input.outcome)) as any;
@@ -205,7 +205,7 @@ export const retentionInterventionsRouter = router({
         const avgEffectiveness = typeInterventions.length > 0
           ? typeInterventions
               .filter(i => i.effectivenessScore)
-              .reduce((acc, i) => acc + parseFloat(i.effectivenessScore || "0"), 0) / typeInterventions.length
+              .reduce((acc: any, i: any) => acc + parseFloat(i.effectivenessScore || "0"), 0) / typeInterventions.length
           : 0;
 
         return {
@@ -219,7 +219,7 @@ export const retentionInterventionsRouter = router({
       // Costo total y ROI
       const totalCost = allInterventions
         .filter(i => i.cost)
-        .reduce((acc, i) => acc + parseFloat(i.cost || "0"), 0);
+        .reduce((acc: any, i: any) => acc + parseFloat(i.cost || "0"), 0);
 
       const avgCostPerRetention = retainedCount > 0 ? (totalCost / retainedCount).toFixed(2) : "0";
 

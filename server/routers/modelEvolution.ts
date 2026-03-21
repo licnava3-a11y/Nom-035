@@ -35,15 +35,15 @@ export const modelEvolutionRouter = router({
         .from(employeeTurnoverHistory)
         .where(
           and(
-            gte(employeeTurnoverHistory.exitDate, start.toISOString().split("T")[0]),
-            lte(employeeTurnoverHistory.exitDate, end.toISOString().split("T")[0])
+            gte(employeeTurnoverHistory.exitDate, start),
+            lte(employeeTurnoverHistory.exitDate, end)
           )
         )
         .groupBy(sql`DATE_FORMAT(${employeeTurnoverHistory.exitDate}, '%Y-%m')`)
         .orderBy(sql`DATE_FORMAT(${employeeTurnoverHistory.exitDate}, '%Y-%m')`);
 
       // Calcular métricas por mes
-      const metricsByMonth = turnoverData.map((row) => {
+      const metricsByMonth = turnoverData.map((row: any) => {
         const truePositives = row.highRiskTurnover;
         const falseNegatives = row.lowRiskTurnover;
         const totalPredictedHigh = truePositives + falseNegatives; // Simplificación: asumimos que todos los que rotaron fueron predichos

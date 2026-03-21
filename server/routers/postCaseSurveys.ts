@@ -100,7 +100,7 @@ export const postCaseSurveysRouter = router({
           ...ratings,
           status: "completed",
           completedAt: new Date(),
-        })
+        } as any)
         .where(eq(postCaseSurveys.id, surveyId));
 
       return { success: true };
@@ -139,25 +139,25 @@ export const postCaseSurveysRouter = router({
 
     // Calcular promedios
     const avgImprovement =
-      completedSurveys.reduce((sum, s) => sum + (s.improvementRating || 0), 0) /
+      completedSurveys.reduce((sum: any, s: any) => sum + (s.improvementRating || 0), 0) /
       completedSurveys.length;
     const avgSatisfaction =
-      completedSurveys.reduce((sum, s) => sum + (s.satisfactionRating || 0), 0) /
+      completedSurveys.reduce((sum: any, s: any) => sum + (s.satisfactionRating || 0), 0) /
       completedSurveys.length;
     const avgSupport =
-      completedSurveys.reduce((sum, s) => sum + (s.supportRating || 0), 0) /
+      completedSurveys.reduce((sum: any, s: any) => sum + (s.supportRating || 0), 0) /
       completedSurveys.length;
     const avgRecommendation =
-      completedSurveys.reduce((sum, s) => sum + (s.recommendationRating || 0), 0) /
+      completedSurveys.reduce((sum: any, s: any) => sum + (s.recommendationRating || 0), 0) /
       completedSurveys.length;
 
     const overallScore = (avgImprovement + avgSatisfaction + avgSupport + avgRecommendation) / 4;
 
     // Estadísticas por período
     const byPeriod = {
-      "30": completedSurveys.filter((s) => s.daysSinceClosure === 30),
-      "60": completedSurveys.filter((s) => s.daysSinceClosure === 60),
-      "90": completedSurveys.filter((s) => s.daysSinceClosure === 90),
+      "30": completedSurveys.filter((s: any) => s.daysSinceClosure === 30),
+      "60": completedSurveys.filter((s: any) => s.daysSinceClosure === 60),
+      "90": completedSurveys.filter((s: any) => s.daysSinceClosure === 90),
     };
 
     return {
@@ -276,7 +276,7 @@ export const postCaseSurveysRouter = router({
 
           if (existing.length === 0) {
             // Crear nueva encuesta
-            await db.insert(postCaseSurveys).values({
+            await (db.insert(postCaseSurveys) as any).values({
               caseId: caseRecord.id,
               daysSinceClosure: period,
               status: "pending",
@@ -324,7 +324,7 @@ export const postCaseSurveysRouter = router({
           status: "sent",
           sentAt: now,
           expiresAt: expirationDate,
-        })
+        } as any)
         .where(eq(postCaseSurveys.id, survey.id));
 
       // TODO: Aquí se integraría el envío de email/notificación
@@ -359,7 +359,7 @@ export const postCaseSurveysRouter = router({
     for (const survey of expiredSurveys) {
       await db
         .update(postCaseSurveys)
-        .set({ status: "expired" })
+        .set({ status: "expired" } as any)
         .where(eq(postCaseSurveys.id, survey.id));
     }
 

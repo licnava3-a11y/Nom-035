@@ -260,7 +260,7 @@ export const surveyTokensAdvancedRouter = router({
           .set({
             results: JSON.stringify(results),
             completedAt: new Date(),
-          })
+          } as any)
           .where(eq(surveyResponses.id, existingResponse.id));
         
         responseId = existingResponse.id;
@@ -284,7 +284,7 @@ export const surveyTokensAdvancedRouter = router({
       // Marcar el token como usado
       await db
         .update(surveyTokens)
-        .set({ usedAt: new Date() })
+        .set({ usedAt: new Date() } as any)
         .where(eq(surveyTokens.id, tokenData.id));
 
       // Determinar si debe completar la siguiente encuesta
@@ -321,7 +321,7 @@ export const surveyTokensAdvancedRouter = router({
           token: newToken,
           usedAt: null,
           createdAt: new Date(),
-        })
+        } as any)
         .where(eq(surveyTokens.id, input.tokenId));
 
       return { success: true, newToken };
@@ -347,7 +347,7 @@ export const surveyTokensAdvancedRouter = router({
       expiresAt.setDate(expiresAt.getDate() + input.expiresInDays);
 
       // Insertar token en la base de datos
-      await db.insert(surveyTokens).values({
+      await (db.insert(surveyTokens) as any).values({
         userId: input.userId,
         periodId: input.periodId,
         surveyId: input.surveyId,
@@ -389,7 +389,7 @@ export const surveyTokensAdvancedRouter = router({
         sentAt: null,
       }));
 
-      await db.insert(surveyTokens).values(tokensToInsert);
+      await (db.insert(surveyTokens) as any).values(tokensToInsert);
 
       return { count: tokensToInsert.length, tokens: tokensToInsert };
     }),

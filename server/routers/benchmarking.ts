@@ -350,7 +350,7 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
       };
 
       const comparisons: any[] = [];
-      Object.keys(benchmarkMap).forEach((metricName) => {
+      Object.keys(benchmarkMap).forEach((metricName: any) => {
         const benchmarkValue = benchmarkMap[metricName];
         const orgValue = orgMetrics[metricName] || 0;
         const lowerIsBetter = ["Casos por 100 empleados", "Porcentaje de alto riesgo", "Días promedio de resolución", "Tasa de burnout", "Tasa de rotación"].includes(metricName);
@@ -364,8 +364,8 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
         comparisons.push({ metricName, orgValue, benchmarkValue, difference, status });
       });
 
-      const betterCount = comparisons.filter((c) => c.status === "better").length;
-      const worseCount = comparisons.filter((c) => c.status === "worse").length;
+      const betterCount = comparisons.filter((c: any) => c.status === "better").length;
+      const worseCount = comparisons.filter((c: any) => c.status === "worse").length;
       const totalMetrics = comparisons.length;
       const performanceScore = parseFloat(((betterCount / totalMetrics) * 100).toFixed(2));
 
@@ -404,7 +404,7 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
       
       // Encabezados
       let xPos = 50;
-      headers.forEach((header, i) => {
+      headers.forEach((header: any, i: number) => {
         doc.rect(xPos, tableTop, colWidths[i], 20).fillAndStroke("#1e40af", "#1e40af");
         doc.fillColor("#ffffff").text(header, xPos + 5, tableTop + 5, { width: colWidths[i] - 10 });
         xPos += colWidths[i];
@@ -412,7 +412,7 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
 
       // Filas
       let yPos = tableTop + 20;
-      comparisons.forEach((comp) => {
+      comparisons.forEach((comp: any) => {
         xPos = 50;
         const rowData = [
           comp.metricName,
@@ -421,7 +421,7 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
           comp.difference.toFixed(2),
           comp.status === "better" ? "✓ Mejor" : comp.status === "worse" ? "✗ Peor" : "= Igual",
         ];
-        rowData.forEach((data, i) => {
+        rowData.forEach((data: any, i: number) => {
           doc.rect(xPos, yPos, colWidths[i], 20).stroke("#d1d5db");
           doc.fillColor("#374151").text(data, xPos + 5, yPos + 5, { width: colWidths[i] - 10 });
           xPos += colWidths[i];

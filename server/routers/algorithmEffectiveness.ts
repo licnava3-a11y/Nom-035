@@ -141,7 +141,7 @@ export const algorithmEffectivenessRouter = router({
         .orderBy(sql`DATE_FORMAT(${predictionHistory.predictionDate}, '%Y-%m')`)
         .execute();
 
-      return trends.map((trend) => ({
+      return trends.map((trend: any) => ({
         month: trend.month,
         avgPredictedRate: Math.round(Number(trend.avgPredictedRate) * 100) / 100,
         avgActualRate: Math.round(Number(trend.avgActualRate) * 100) / 100,
@@ -252,7 +252,7 @@ export const algorithmEffectivenessRouter = router({
           evaluationDate: new Date(),
           status: "evaluated",
           updatedAt: new Date(),
-        })
+        } as any)
         .where(eq(predictionHistory.id, predictionId))
         .execute();
 

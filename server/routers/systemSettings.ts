@@ -85,11 +85,11 @@ export const systemSettingsRouter = router({
             settingValue: input.value,
             description: input.description,
             updatedBy: ctx.user.id,
-          })
+          } as any)
           .where(eq(systemSettings.settingKey, input.key));
       } else {
         // Create new setting
-        await db.insert(systemSettings).values({
+        await (db.insert(systemSettings) as any).values({
           settingKey: input.key,
           settingValue: input.value,
           description: input.description,
@@ -155,11 +155,11 @@ export const systemSettingsRouter = router({
           .set({
             settingValue: input.frequency,
             updatedBy: ctx.user.id,
-          })
+          } as any)
           .where(eq(systemSettings.settingKey, "alert_summary_frequency"));
       } else {
         // Create new setting
-        await db.insert(systemSettings).values({
+        await (db.insert(systemSettings) as any).values({
           settingKey: "alert_summary_frequency",
           settingValue: input.frequency,
           description: "Frecuencia de envío de resumen de alertas (weekly/monthly/disabled)",

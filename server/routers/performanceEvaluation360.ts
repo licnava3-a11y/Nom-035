@@ -1,6 +1,7 @@
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
+import { generatePDFFromHTML } from "../_core/pdfGenerator";
 import {
   evaluation360Cycles,
   evaluation360Assignments,
@@ -10,6 +11,7 @@ import {
   evaluation360DevelopmentPlans,
   competencies,
   employees,
+  departments,
   nineBoxEvaluations,
 } from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
@@ -31,7 +33,7 @@ export const performanceEvaluation360Router = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const [cycle] = await db.insert(evaluation360Cycles).values({
+      const [cycle] = await (db.insert(evaluation360Cycles) as any).values({
         cycleName: input.cycleName,
         description: input.description,
         startDate: new Date(input.startDate),
@@ -56,13 +58,13 @@ export const performanceEvaluation360Router = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      let query = db.select().from(evaluation360Cycles).orderBy(desc(evaluation360Cycles.createdAt));
+      let baseQuery: any = db.select().from(evaluation360Cycles);
 
       if (input?.status) {
-        query = query.where(sql`${evaluation360Cycles.status} = ${input.status}`);
+        baseQuery = baseQuery.where(sql`${evaluation360Cycles.status} = ${input.status}`);
       }
 
-      const cycles = await query;
+      const cycles = await baseQuery.orderBy(desc(evaluation360Cycles.createdAt));
       return cycles;
     }),
 
@@ -80,13 +82,13 @@ export const performanceEvaluation360Router = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const assignments = input.employeeIds.map((employeeId) => ({
+      const assignments = input.employeeIds.map((employeeId: any) => ({
         cycleId: input.cycleId,
         evaluatedEmployeeId: employeeId,
         status: "pending" as const,
       }));
 
-      await db.insert(evaluation360Assignments).values(assignments);
+      await (db.insert(evaluation360Assignments) as any).values(assignments);
 
       return { success: true, assignedCount: assignments.length };
     }),
@@ -110,14 +112,14 @@ export const performanceEvaluation360Router = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const evaluatorRecords = input.evaluators.map((evaluator) => ({
+      const evaluatorRecords = input.evaluators.map((evaluator: any) => ({
         assignmentId: input.assignmentId,
         evaluatorEmployeeId: evaluator.employeeId,
         evaluatorType: evaluator.type,
         status: "pending" as const,
       }));
 
-      await db.insert(evaluation360Evaluators).values(evaluatorRecords);
+      await (db.insert(evaluation360Evaluators) as any).values(evaluatorRecords);
 
       return { success: true, evaluatorsCount: evaluatorRecords.length };
     }),
@@ -143,7 +145,7 @@ export const performanceEvaluation360Router = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const responseRecords = input.responses.map((response) => ({
+      const responseRecords = input.responses.map((response: any) => ({
         evaluatorId: input.evaluatorId,
         competencyId: response.competencyId,
         competencyType: response.competencyType,
@@ -151,12 +153,12 @@ export const performanceEvaluation360Router = router({
         comments: response.comments,
       }));
 
-      await db.insert(evaluation360Responses).values(responseRecords);
+      await (db.insert(evaluation360Responses) as any).values(responseRecords);
 
       // Actualizar estado del evaluador a "completed"
       await db
         .update(evaluation360Evaluators)
-        .set({ status: "completed", completedAt: new Date() })
+        .set({ status: "completed", completedAt: new Date() } as any)
         .where(eq(evaluation360Evaluators.id, input.evaluatorId));
 
       return { success: true, responsesCount: responseRecords.length };
@@ -181,7 +183,7 @@ export const performanceEvaluation360Router = router({
         throw new Error("No evaluators found for this assignment");
       }
 
-      const evaluatorIds = evaluators.map((e) => e.id);
+      const evaluatorIds = evaluators.map((e: any) => e.id);
 
       const responses = await db
         .select()
@@ -189,7 +191,7 @@ export const performanceEvaluation360Router = router({
         .where(sql`${evaluation360Responses.evaluatorId} IN (${evaluatorIds.join(",")})`);
 
       // Agrupar respuestas por competencia
-      const competencyGroups = responses.reduce((acc, response) => {
+      const competencyGroups = responses.reduce((acc: any, response: any) => {
         const key = `${response.competencyId}-${response.competencyType}`;
         if (!acc[key]) {
           acc[key] = {
@@ -202,7 +204,7 @@ export const performanceEvaluation360Router = router({
           };
         }
 
-        const evaluator = evaluators.find((e) => e.id === response.evaluatorId);
+        const evaluator = evaluators.find((e: any) => e.id === response.evaluatorId);
         if (!evaluator) return acc;
 
         const scoreNum = typeof response.score === 'string' ? parseFloat(response.score) : response.score;
@@ -229,7 +231,7 @@ export const performanceEvaluation360Router = router({
           ...(subordinateAvgScore !== null ? [subordinateAvgScore] : []),
         ];
 
-        const overallAvgScore = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+        const overallAvgScore = allScores.reduce((a: any, b: any) => a + b, 0) / allScores.length;
 
         const gapSelfVsOthers = selfScore !== null && peerAvgScore !== null ? selfScore - peerAvgScore : null;
         const gapSupervisorVsPeers = supervisorScore !== null && peerAvgScore !== null ? supervisorScore - peerAvgScore : null;
@@ -251,13 +253,13 @@ export const performanceEvaluation360Router = router({
 
       // Insertar resultados consolidados
       if (results.length > 0) {
-        await db.insert(evaluation360Results).values(results);
+        await (db.insert(evaluation360Results) as any).values(results);
       }
 
       // Actualizar estado de la asignación
       await db
         .update(evaluation360Assignments)
-        .set({ status: "completed", completionDate: new Date() })
+        .set({ status: "completed", completionDate: new Date() } as any)
         .where(eq(evaluation360Assignments.id, input.assignmentId));
 
       return { success: true, resultsCount: results.length };
@@ -311,16 +313,16 @@ export const performanceEvaluation360Router = router({
 
       // Identificar fortalezas (score >= 4.0) y áreas de mejora (score < 3.0)
       const strengths = results
-        .filter((r) => parseFloat(r.overallAvgScore as string) >= 4.0)
-        .map((r) => ({
+        .filter((r: any) => parseFloat(r.overallAvgScore as string) >= 4.0)
+        .map((r: any) => ({
           competencyId: r.competencyId,
           competencyType: r.competencyType,
           score: r.overallAvgScore,
         }));
 
       const improvementAreas = results
-        .filter((r) => parseFloat(r.overallAvgScore as string) < 3.0)
-        .map((r) => ({
+        .filter((r: any) => parseFloat(r.overallAvgScore as string) < 3.0)
+        .map((r: any) => ({
           competencyId: r.competencyId,
           competencyType: r.competencyType,
           score: r.overallAvgScore,
@@ -328,14 +330,14 @@ export const performanceEvaluation360Router = router({
         }));
 
       // Generar acciones de desarrollo (placeholder)
-      const actionItems = improvementAreas.map((area) => ({
+      const actionItems = improvementAreas.map((area: any) => ({
         competencyId: area.competencyId,
         action: `Desarrollar competencia ${area.competencyType}`,
         priority: parseFloat(area.score as string) < 2.0 ? "high" : "medium",
       }));
 
       // Insertar plan de desarrollo
-      await db.insert(evaluation360DevelopmentPlans).values({
+      await (db.insert(evaluation360DevelopmentPlans) as any).values({
         assignmentId: input.assignmentId,
         employeeId: assignment.evaluatedEmployeeId,
         strengths: JSON.stringify(strengths),
@@ -402,7 +404,7 @@ export const performanceEvaluation360Router = router({
         .from(evaluation360Assignments)
         .where(eq(evaluation360Assignments.cycleId, input.cycleId));
 
-      const assignmentIds = assignments.map((a) => a.id);
+      const assignmentIds = assignments.map((a: any) => a.id);
 
       let totalEvaluators = 0;
       let completedEvaluators = 0;
@@ -477,7 +479,7 @@ export const performanceEvaluation360Router = router({
         )
         .innerJoin(
           employees,
-          eq(evaluation360Assignments.employeeId, employees.id)
+          eq(evaluation360Assignments.evaluatedEmployeeId, employees.id)
         )
         .where(
           and(
@@ -491,7 +493,7 @@ export const performanceEvaluation360Router = router({
       return {
         competencyName: competency.name,
         requiredLevel: competency.requiredLevel,
-        departments: departmentComparison.map((dept) => ({
+        departments: departmentComparison.map((dept: any) => ({
           departmentId: dept.departmentId,
           departmentName: dept.departmentName,
           averageLevel: dept.averageLevel,
@@ -523,7 +525,7 @@ export const performanceEvaluation360Router = router({
         ? await db
             .select()
             .from(departments)
-            .where(sql`${departments.id} IN (${sql.join(input.departmentIds.map((id) => sql`${id}`), sql`, `)})`)
+            .where(sql`${departments.id} IN (${sql.join(input.departmentIds.map((id: any) => sql`${id}`), sql`, `)})`)
         : await db.select().from(departments);
 
       // Obtener todas las competencias
@@ -552,7 +554,7 @@ export const performanceEvaluation360Router = router({
             )
             .innerJoin(
               employees,
-              eq(evaluation360Assignments.employeeId, employees.id)
+              eq(evaluation360Assignments.evaluatedEmployeeId, employees.id)
             )
             .where(
               and(
@@ -564,22 +566,23 @@ export const performanceEvaluation360Router = router({
 
           const avgLevel = avgLevelQuery[0]?.averageLevel || 0;
           const employeeCount = avgLevelQuery[0]?.employeeCount || 0;
-          const gap = comp.requiredLevel - avgLevel;
+          const requiredLevel = 3; // Nivel requerido por defecto (escala 1-5)
+          const gap = requiredLevel - avgLevel;
 
           departmentCompetencies.push({
             competencyName: comp.name,
             averageLevel: avgLevel,
-            requiredLevel: comp.requiredLevel,
+            requiredLevel: requiredLevel,
             gap: gap,
-            status: avgLevel >= comp.requiredLevel ? "fortaleza" : "oportunidad",
+            status: avgLevel >= requiredLevel ? "fortaleza" : "oportunidad",
             employeeCount: employeeCount,
           });
         }
 
         // Generar plan de desarrollo colectivo
         const developmentPlan = departmentCompetencies
-          .filter((c) => c.status === "oportunidad")
-          .map((c) => ({
+          .filter((c: any) => c.status === "oportunidad")
+          .map((c: any) => ({
             competency: c.competencyName,
             gap: c.gap.toFixed(2),
             recommendation:
@@ -596,13 +599,13 @@ export const performanceEvaluation360Router = router({
           competencies: departmentCompetencies,
           developmentPlan: developmentPlan,
           ranking:
-            departmentCompetencies.filter((c) => c.status === "fortaleza").length /
+            departmentCompetencies.filter((c: any) => c.status === "fortaleza").length /
             departmentCompetencies.length,
         });
       }
 
       // Ordenar departamentos por ranking (mayor a menor)
-      reportData.sort((a, b) => b.ranking - a.ranking);
+      reportData.sort((a: any, b: any) => b.ranking - a.ranking);
 
       // Generar HTML para PDF
       const htmlContent = `
@@ -642,8 +645,8 @@ export const performanceEvaluation360Router = router({
                 <td class="ranking">${index + 1}</td>
                 <td>${dept.departmentName}</td>
                 <td>${(dept.ranking * 100).toFixed(1)}%</td>
-                <td>${dept.competencies.filter((c) => c.status === "fortaleza").length}</td>
-                <td>${dept.competencies.filter((c) => c.status === "oportunidad").length}</td>
+                <td>${dept.competencies.filter((c: any) => c.status === "fortaleza").length}</td>
+                <td>${dept.competencies.filter((c: any) => c.status === "oportunidad").length}</td>
               </tr>
             `
               )
@@ -714,7 +717,7 @@ export const performanceEvaluation360Router = router({
       `;
 
       // Generar PDF
-      const pdfUrl = await generatePDFFromHTML(htmlContent);
+      const pdfUrl = await generatePDFFromHTML(htmlContent, `dept-report-${input.cycleId}`);
 
       return {
         success: true,

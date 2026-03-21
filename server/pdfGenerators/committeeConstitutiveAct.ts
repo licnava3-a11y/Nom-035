@@ -69,7 +69,7 @@ export async function generateConstitutiveActPDF(data: ConstitutiveActData): Pro
       doc.fontSize(10).font("Helvetica");
       doc.moveDown(0.5);
 
-      data.members.forEach((member, index) => {
+      data.members.forEach((member: any, index: number) => {
         doc.text(`${index + 1}. ${member.name} - ${member.position}`, { continued: false });
         doc.fontSize(9).fillColor("#666").text(`   Departamento: ${member.department}`, { continued: false });
         doc.fontSize(10).fillColor("#000");
@@ -95,7 +95,7 @@ export async function generateConstitutiveActPDF(data: ConstitutiveActData): Pro
       let currentY = signatureY;
       let column = 0;
 
-      data.members.forEach((member, index) => {
+      data.members.forEach((member: any, index: number) => {
         if (column === 2) {
           column = 0;
           currentX = 50;

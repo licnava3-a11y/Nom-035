@@ -34,7 +34,7 @@ export const budgetPlannerRouter = router({
       }
 
       // Calcular métricas del escenario
-      const adjustments = input.employeeAdjustments.map((emp) => ({
+      const adjustments = input.employeeAdjustments.map((emp: any) => ({
         ...emp,
         increase: emp.newSalary - emp.currentSalary,
         increasePercentage: ((emp.newSalary - emp.currentSalary) / emp.currentSalary) * 100,
@@ -42,30 +42,30 @@ export const budgetPlannerRouter = router({
       }));
 
       // Ordenar por prioridad (turnover probability) descendente
-      const sortedAdjustments = [...adjustments].sort((a, b) => b.priority - a.priority);
-      const implementationSequence = sortedAdjustments.map((adj) => adj.employeeId);
+      const sortedAdjustments = [...adjustments].sort((a: any, b: any) => b.priority - a.priority);
+      const implementationSequence = sortedAdjustments.map((adj: any) => adj.employeeId);
 
-      const budgetUsed = adjustments.reduce((sum, adj) => sum + (adj.increase * 12), 0); // Costo anual
+      const budgetUsed = adjustments.reduce((sum: any, adj: any) => sum + (adj.increase * 12), 0); // Costo anual
       const budgetRemaining = input.totalBudget - budgetUsed;
 
       const averageIncreasePercentage =
-        adjustments.reduce((sum, adj) => sum + adj.increasePercentage, 0) / adjustments.length;
+        adjustments.reduce((sum: any, adj: any) => sum + adj.increasePercentage, 0) / adjustments.length;
 
-      const highRiskEmployeesCovered = adjustments.filter((adj) => adj.priority >= 70).length;
+      const highRiskEmployeesCovered = adjustments.filter((adj: any) => adj.priority >= 70).length;
 
       // Estimar tasa de retención (simplificado)
       const estimatedRetentionRate = Math.min(95, 60 + highRiskEmployeesCovered * 5);
 
       // Estimar ahorro en costos de rotación
       // Asumiendo costo de rotación = 1.5x salario anual por empleado
-      const avgSalary = adjustments.reduce((sum, adj) => sum + adj.currentSalary, 0) / adjustments.length;
+      const avgSalary = adjustments.reduce((sum: any, adj: any) => sum + adj.currentSalary, 0) / adjustments.length;
       const estimatedTurnoverCostSavings = highRiskEmployeesCovered * avgSalary * 1.5 * 12;
 
       // Calcular ROI
       const roi = ((estimatedTurnoverCostSavings - budgetUsed) / budgetUsed) * 100;
 
       // Crear escenario
-      const [scenario] = await db.insert(budgetAdjustmentScenarios).values({
+      const [scenario] = await (db.insert(budgetAdjustmentScenarios) as any).values({
         scenarioName: input.scenarioName,
         description: input.description || "",
         createdBy: ctx.user!.id,
@@ -144,7 +144,7 @@ export const budgetPlannerRouter = router({
         WHERE p.employee_id IN (${sql.join(input.employeeIds, sql`, `)})
       `);
 
-      const adjustments = ((employees as any)[0] as any[]).map((emp) => {
+      const adjustments = ((employees as any)[0] as any[]).map((emp: any) => {
         const currentSalary = parseFloat(emp.current_salary);
         const marketRate = parseFloat(emp.market_rate || emp.current_salary);
         const increase = marketRate - currentSalary;
@@ -166,9 +166,9 @@ export const budgetPlannerRouter = router({
       });
 
       // Ordenar por prioridad
-      const sortedAdjustments = [...adjustments].sort((a, b) => b.priority - a.priority);
+      const sortedAdjustments = [...adjustments].sort((a: any, b: any) => b.priority - a.priority);
 
-      const totalCost = adjustments.reduce((sum, adj) => sum + adj.annualCost, 0);
+      const totalCost = adjustments.reduce((sum: any, adj: any) => sum + adj.annualCost, 0);
       const budgetRemaining = input.totalBudget - totalCost;
       const feasible = budgetRemaining >= 0;
 
@@ -237,7 +237,7 @@ export const budgetPlannerRouter = router({
           status: "approved",
           approvedBy: ctx.user!.id,
           approvedAt: new Date(),
-        })
+        } as any)
         .where(eq(budgetAdjustmentScenarios.id, input.scenarioId));
 
       return { success: true };

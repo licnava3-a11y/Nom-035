@@ -28,8 +28,8 @@ function generateErrorReportPDF(errors: ValidationError[]): Buffer {
   doc.text(`Fecha: ${new Date().toLocaleDateString("es-MX")}`, 14, 34);
 
   // Resumen
-  const errorCount = errors.filter((e) => e.severity === "error").length;
-  const warningCount = errors.filter((e) => e.severity === "warning").length;
+  const errorCount = errors.filter((e: any) => e.severity === "error").length;
+  const warningCount = errors.filter((e: any) => e.severity === "warning").length;
 
   doc.setFontSize(12);
   doc.text("Resumen:", 14, 45);
@@ -38,7 +38,7 @@ function generateErrorReportPDF(errors: ValidationError[]): Buffer {
   doc.text(`Total de advertencias: ${warningCount}`, 20, 58);
 
   // Tabla de errores
-  const tableData = errors.map((error) => [
+  const tableData = errors.map((error: any) => [
     error.row.toString(),
     error.field,
     error.value !== null && error.value !== undefined ? String(error.value) : "N/A",
@@ -229,7 +229,7 @@ export const importRouter = router({
         const rfcs = new Set<string>();
         const emails = new Set<string>();
 
-        workers.forEach((worker, index) => {
+        workers.forEach((worker: any, index: number) => {
           const rowNumber = index + 2;
 
           if (worker.curp) {
@@ -286,8 +286,8 @@ export const importRouter = router({
           errorReportPdf,
           summary: {
             total: workers.length,
-            errors: errors.filter((e) => e.severity === "error").length,
-            warnings: errors.filter((e) => e.severity === "warning").length,
+            errors: errors.filter((e: any) => e.severity === "error").length,
+            warnings: errors.filter((e: any) => e.severity === "warning").length,
           },
         };
       } catch (error) {
@@ -355,7 +355,7 @@ export const importRouter = router({
           }
 
           // Insertar trabajador
-          await db.insert(users).values({
+          await (db.insert(users) as any).values({
             openId: `imported_${worker.curp}_${Date.now()}`, // Generar openId temporal para importados
             curp: worker.curp,
             rfc: worker.rfc,

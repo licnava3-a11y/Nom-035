@@ -151,7 +151,7 @@ export async function generateNom035Report(data: Nom035ReportData): Promise<{ ur
   // Encabezados de tabla
   let xPos = 72;
   doc.fontSize(9).font('Helvetica-Bold');
-  headers.forEach((header, i) => {
+  headers.forEach((header: any, i: number) => {
     doc.text(header, xPos, tableTop, { width: colWidths[i], align: 'center' });
     xPos += colWidths[i];
   });
@@ -163,7 +163,7 @@ export async function generateNom035Report(data: Nom035ReportData): Promise<{ ur
   let yPos = tableTop + 20;
   doc.fontSize(8).font('Helvetica');
   
-  data.riskFactors.forEach((factor) => {
+  data.riskFactors.forEach((factor: any) => {
     if (yPos > 720) { // Nueva página si es necesario
       doc.addPage();
       yPos = 72;
@@ -178,7 +178,7 @@ export async function generateNom035Report(data: Nom035ReportData): Promise<{ ur
       factor.affectedEmployees.toString()
     ];
 
-    rowData.forEach((data, i) => {
+    rowData.forEach((data: any, i: number) => {
       doc.text(data, xPos, yPos, { width: colWidths[i], align: i === 0 ? 'left' : 'center' });
       xPos += colWidths[i];
     });
@@ -197,7 +197,7 @@ export async function generateNom035Report(data: Nom035ReportData): Promise<{ ur
   );
   doc.moveDown(1);
 
-  data.controlMeasures.forEach((measure, index) => {
+  data.controlMeasures.forEach((measure: any, index: number) => {
     doc.fontSize(9).font('Helvetica-Bold');
     doc.text(`${index + 1}. Factor de Riesgo: ${measure.riskFactor}`, { indent: 40 });
     doc.fontSize(9).font('Helvetica');

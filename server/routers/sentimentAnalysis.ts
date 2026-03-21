@@ -112,7 +112,7 @@ export const sentimentAnalysisRouter = router({
         const criticalAlerts = trends.filter(t => t.alertGenerated).length;
 
         const avgConfidence =
-          trends.reduce((sum, t) => sum + Number(t.confidence || 0), 0) / trends.length;
+          trends.reduce((sum: any, t: any) => sum + Number(t.confidence || 0), 0) / trends.length;
 
         return {
           total: trends.length,
@@ -223,7 +223,7 @@ export const sentimentAnalysisRouter = router({
             reviewedBy: ctx.user.id,
             reviewedAt: new Date(),
             reviewNotes: input.reviewNotes || null,
-          })
+          } as any)
           .where(eq(sentimentAnalysis.id, input.analysisId));
 
         return { success: true };

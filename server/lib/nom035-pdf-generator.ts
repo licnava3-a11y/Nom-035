@@ -77,7 +77,7 @@ function addRiskDistributionTable(
   yPosition += 20;
 
   doc.fontSize(10).font('Helvetica');
-  tableData.forEach((row) => {
+  tableData.forEach((row: any) => {
     doc.fillColor(row.color).circle(60, yPosition + 5, 5).fill();
     doc.fillColor('#000000').text(`${row.nivel}: ${row.cantidad} respuestas (${((row.cantidad / (distribution.nulo + distribution.bajo + distribution.medio + distribution.alto + distribution.muyAlto)) * 100).toFixed(1)}%)`, 75, yPosition);
     yPosition += 20;
@@ -172,7 +172,7 @@ async function addSurveyResultsSection(doc: PDFKit.PDFDocument, surveyResults: S
       doc.fontSize(10)
         .font('Helvetica');
 
-      result.recommendations.forEach((rec, index) => {
+      result.recommendations.forEach((rec: any, index: number) => {
         doc.text(`${index + 1}. ${rec}`, 70, doc.y, { width: doc.page.width - 140 });
         doc.moveDown(0.5);
       });
@@ -245,7 +245,7 @@ async function addMultilevelAnalysisSection(doc: PDFKit.PDFDocument, multilevelA
 
       // Datos de tabla
       doc.font('Helvetica');
-      analysis.segments.forEach((segment) => {
+      analysis.segments.forEach((segment: any) => {
         const riesgoAlto = segment.riskDistribution.alto + segment.riskDistribution.muyAlto;
         
         doc.text(segment.name.substring(0, 25), col1, doc.y)
@@ -317,7 +317,7 @@ export async function generateConsolidatedNOM035Report(
 
       doc.moveDown(1);
 
-      const totalResponses = data.surveyResults.reduce((sum, r) => sum + r.totalResponses, 0);
+      const totalResponses = data.surveyResults.reduce((sum: any, r: any) => sum + r.totalResponses, 0);
       doc.text(`Total de respuestas recopiladas: ${totalResponses}`, 50, doc.y);
       doc.text(`Encuestas aplicadas: ${data.surveyResults.map(r => r.surveyTitle).join(', ')}`, 50, doc.y);
 

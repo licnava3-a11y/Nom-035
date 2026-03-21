@@ -280,7 +280,7 @@ function createDataTable(rows: string[][]): Table {
   return new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: rows.map(row => new TableRow({
-      children: row.map((cell, index) => new TableCell({
+      children: row.map((cell: any, index: number) => new TableCell({
         children: [new Paragraph({
           children: [new TextRun({ text: cell, bold: index === 0 })],
         })],

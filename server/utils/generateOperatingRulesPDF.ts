@@ -76,7 +76,7 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
           <h2>Firmas de Aprobación</h2>
           <p style="margin-bottom: 20px; color: #666;">Las siguientes personas han revisado y aprobado esta base de funcionamiento mediante firma digital:</p>
           <div class="digital-signatures">
-            ${data.digitalSignatures.map((sig, index) => `
+            ${data.digitalSignatures.map((sig: any, index: number) => `
               <div class="digital-signature-item" style="margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;">
                 <div style="display: flex; align-items: center; gap: 20px;">
                   <div style="flex: 0 0 200px;">

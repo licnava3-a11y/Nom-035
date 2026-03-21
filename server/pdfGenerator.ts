@@ -291,7 +291,7 @@ export async function generateActaRecorridoPDF(data: ActaRecorridoData): Promise
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     
-    data.participants.forEach((participant, index) => {
+    data.participants.forEach((participant: any, index: number) => {
       if (currentY > 250) {
         doc.addPage();
         currentY = 50;

@@ -87,7 +87,7 @@ export const notificationPreferencesRouter = router({
 
       if (!existing) {
         // Create new preferences with provided values
-        await db.insert(userNotificationPreferences).values({
+        await (db.insert(userNotificationPreferences) as any).values({
           userId: ctx.user.id,
           ...input,
         });
@@ -130,7 +130,7 @@ export const notificationPreferencesRouter = router({
         dailySummaryTime: "09:00",
         emailEnabled: true,
         inAppEnabled: true,
-      })
+      } as any)
       .where(eq(userNotificationPreferences.userId, ctx.user.id));
 
     const [updated] = await db

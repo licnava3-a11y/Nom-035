@@ -23,7 +23,7 @@ export const massiveImportRouter = router({
 
         const results = [];
         for (const dept of input) {
-          const [result] = await db.insert(departments).values({
+          const [result] = await (db.insert(departments) as any).values({
             name: dept.name,
             description: dept.description || null,
             createdAt: new Date(),
@@ -62,7 +62,7 @@ export const massiveImportRouter = router({
 
         const results = [];
         for (const position of input) {
-          const [result] = await db.insert(positions).values({
+          const [result] = await (db.insert(positions) as any).values({
             title: position.title,
             description: position.description || null,
             departmentId: position.departmentId,
@@ -130,7 +130,7 @@ export const massiveImportRouter = router({
             }
           }
 
-          const [result] = await db.insert(employees).values({
+          const [result] = await (db.insert(employees) as any).values({
             firstName: employee.firstName,
             lastName: employee.lastName,
             email: employee.email,

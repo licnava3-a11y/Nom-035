@@ -98,7 +98,7 @@ export const reportConfigurationsRouter = router({
       // Calcular próxima ejecución basado en frecuencia
       const nextExecutionAt = calculateNextExecution(input.frequency, input.customSchedule);
 
-      const [newConfig] = await db.insert(reportConfigurations).values({
+      const [newConfig] = await (db.insert(reportConfigurations) as any).values({
         reportType: input.reportType,
         frequency: input.frequency,
         customSchedule: input.customSchedule || null,
@@ -245,7 +245,7 @@ export const reportConfigurationsRouter = router({
 
       await db
         .update(reportConfigurations)
-        .set({ enabled: input.enabled, updatedAt: new Date() })
+        .set({ enabled: input.enabled, updatedAt: new Date() } as any)
         .where(eq(reportConfigurations.id, input.id));
 
       return {

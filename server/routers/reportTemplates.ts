@@ -114,11 +114,11 @@ export const reportTemplatesRouter = router({
       if (input.isDefault) {
         await db
           .update(reportTemplates)
-          .set({ isDefault: false })
+          .set({ isDefault: false } as any)
           .where(eq(reportTemplates.tipo, input.tipo));
       }
 
-      const result = await db.insert(reportTemplates).values({
+      const result = await (db.insert(reportTemplates) as any).values({
         nombre: input.nombre,
         descripcion: input.descripcion,
         tipo: input.tipo,
@@ -174,7 +174,7 @@ export const reportTemplatesRouter = router({
       if (input.isDefault && input.tipo) {
         await db
           .update(reportTemplates)
-          .set({ isDefault: false })
+          .set({ isDefault: false } as any)
           .where(eq(reportTemplates.tipo, input.tipo));
       }
 
@@ -258,13 +258,13 @@ export const reportTemplatesRouter = router({
       // Desmarcar todas las plantillas del mismo tipo
       await db
         .update(reportTemplates)
-        .set({ isDefault: false })
+        .set({ isDefault: false } as any)
         .where(eq(reportTemplates.tipo, template[0].tipo));
 
       // Marcar esta como default
       await db
         .update(reportTemplates)
-        .set({ isDefault: true })
+        .set({ isDefault: true } as any)
         .where(eq(reportTemplates.id, input.id));
 
       return { success: true };

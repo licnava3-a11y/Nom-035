@@ -19,7 +19,7 @@ export const skillsMatrixRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      const [competency] = await db.insert(competencies).values({
+      const [competency] = await (db.insert(competencies) as any).values({
         ...input,
         createdBy: ctx.user.id,
       });
@@ -76,11 +76,11 @@ export const skillsMatrixRouter = router({
             evaluatedBy: ctx.user.id,
             evaluationDate: new Date(),
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(skillsMatrix.id, existing[0].id));
       } else {
         // Insert new
-        await db.insert(skillsMatrix).values({
+        await (db.insert(skillsMatrix) as any).values({
           employeeId: input.employeeId,
           competencyId: input.competencyId,
           level: input.level,
@@ -157,7 +157,7 @@ export const skillsMatrixRouter = router({
       const competenciesList = await db.select().from(competencies).orderBy(competencies.type, competencies.name);
 
       // Get all skills matrix entries for these employees
-      const employeeIds = employeesList.map((e) => e.id);
+      const employeeIds = employeesList.map((e: any) => e.id);
       let matrixEntries: (typeof skillsMatrix.$inferSelect)[] = [];
       
       if (employeeIds.length > 0) {
@@ -265,11 +265,11 @@ export const skillsMatrixRouter = router({
                 notes: row.notes,
                 evaluatedBy: ctx.user.id,
                 evaluationDate: new Date(),
-              })
+              } as any)
               .where(eq(skillsMatrix.id, existing[0].id));
           } else {
             // Insert
-            await db.insert(skillsMatrix).values({
+            await (db.insert(skillsMatrix) as any).values({
               employeeId: employee.id,
               competencyId: competency.id,
               level: row.level,
@@ -287,7 +287,7 @@ export const skillsMatrixRouter = router({
       }
 
       // Log import
-      await db.insert(skillsMatrixImports).values({
+      await (db.insert(skillsMatrixImports) as any).values({
         fileName: input.fileName,
         importedBy: ctx.user.id,
         recordsImported,
@@ -333,7 +333,7 @@ export const skillsMatrixRouter = router({
       
       const competenciesList = await db.select().from(competencies).orderBy(competencies.type, competencies.name);
 
-      const employeeIds = employeesList.map((e) => e.id);
+      const employeeIds = employeesList.map((e: any) => e.id);
       let matrixEntries: (typeof skillsMatrix.$inferSelect)[] = [];
       
       if (employeeIds.length > 0) {
@@ -355,7 +355,7 @@ export const skillsMatrixRouter = router({
       };
 
       // Format data for Excel export
-      const exportData = employeesList.map((emp) => {
+      const exportData = employeesList.map((emp: any) => {
         const row: any = {
           email: emp.email,
           nombre: `${emp.firstName} ${emp.lastName}`,
@@ -376,16 +376,16 @@ export const skillsMatrixRouter = router({
       // ===== ANÁLISIS DE DESARROLLO Y SUCESIÓN =====
       
       // 1. Calcular brechas de habilidades por empleado
-      const developmentAnalysis = employeesList.map((emp) => {
-        const empEntries = matrixEntries.filter((e) => e.employeeId === emp.id);
+      const developmentAnalysis = employeesList.map((emp: any) => {
+        const empEntries = matrixEntries.filter((e: any) => e.employeeId === emp.id);
         const totalCompetencies = competenciesList.length;
-        const evaluatedCount = empEntries.filter((e) => e.level !== "Sin evaluar").length;
-        const avgLevel = empEntries.reduce((sum, e) => sum + levelToValue(e.level), 0) / totalCompetencies;
+        const evaluatedCount = empEntries.filter((e: any) => e.level !== "Sin evaluar").length;
+        const avgLevel = empEntries.reduce((sum: any, e: any) => sum + levelToValue(e.level), 0) / totalCompetencies;
         
         // Identificar competencias con brecha (nivel < Avanzado)
         const gaps = competenciesList
-          .map((comp) => {
-            const entry = empEntries.find((e) => e.competencyId === comp.id);
+          .map((comp: any) => {
+            const entry = empEntries.find((e: any) => e.competencyId === comp.id);
             const currentLevel = entry ? entry.level : "Sin evaluar";
             const currentValue = levelToValue(currentLevel);
             return {
@@ -394,7 +394,7 @@ export const skillsMatrixRouter = router({
               brecha: currentValue < 3 ? `Mejorar a Avanzado/Experto` : "Ninguna",
             };
           })
-          .filter((g) => g.brecha !== "Ninguna");
+          .filter((g: any) => g.brecha !== "Ninguna");
 
         return {
           nombre: `${emp.firstName} ${emp.lastName}`,
@@ -404,21 +404,21 @@ export const skillsMatrixRouter = router({
           nivelPromedio: avgLevel.toFixed(2),
           brechasIdentificadas: gaps.length,
           sugerenciaCapacitacion: gaps.length > 0 
-            ? gaps.slice(0, 3).map((g) => g.competencia).join(", ") 
+            ? gaps.slice(0, 3).map((g: any) => g.competencia).join(", ") 
             : "Ninguna - Nivel óptimo",
         };
       });
 
       // 2. Identificar candidatos para sucesión por departamento
       const successionAnalysis: Record<string, any[]> = {};
-      employeesList.forEach((emp) => {
+      employeesList.forEach((emp: any) => {
         const deptName = emp.departmentName || 'Sin departamento';
         if (!successionAnalysis[deptName]) {
           successionAnalysis[deptName] = [];
         }
         
-        const empEntries = matrixEntries.filter((e) => e.employeeId === emp.id);
-        const avgLevel = empEntries.reduce((sum, e) => sum + levelToValue(e.level), 0) / competenciesList.length;
+        const empEntries = matrixEntries.filter((e: any) => e.employeeId === emp.id);
+        const avgLevel = empEntries.reduce((sum: any, e: any) => sum + levelToValue(e.level), 0) / competenciesList.length;
         
         successionAnalysis[deptName].push({
           nombre: `${emp.firstName} ${emp.lastName}`,
@@ -429,20 +429,20 @@ export const skillsMatrixRouter = router({
       });
 
       // Ordenar candidatos por nivel promedio (descendente)
-      Object.keys(successionAnalysis).forEach((dept) => {
-        successionAnalysis[dept].sort((a, b) => parseFloat(b.nivelPromedio) - parseFloat(a.nivelPromedio));
+      Object.keys(successionAnalysis).forEach((dept: any) => {
+        successionAnalysis[dept].sort((a: any, b: any) => parseFloat(b.nivelPromedio) - parseFloat(a.nivelPromedio));
       });
 
       // 3. Sugerencias de capacitación crítica por departamento
       const trainingRecommendations: Record<string, any> = {};
-      Object.keys(successionAnalysis).forEach((dept) => {
-        const deptEmployees = employeesList.filter((e) => (e.departmentName || 'Sin departamento') === dept);
-        const deptEntries = matrixEntries.filter((e) => deptEmployees.some((emp) => emp.id === e.employeeId));
+      Object.keys(successionAnalysis).forEach((dept: any) => {
+        const deptEmployees = employeesList.filter((e: any) => (e.departmentName || 'Sin departamento') === dept);
+        const deptEntries = matrixEntries.filter((e: any) => deptEmployees.some((emp: any) => emp.id === e.employeeId));
         
         // Identificar competencias con mayor brecha en el departamento
-        const competencyGaps = competenciesList.map((comp) => {
-          const compEntries = deptEntries.filter((e) => e.competencyId === comp.id);
-          const avgLevel = compEntries.reduce((sum, e) => sum + levelToValue(e.level), 0) / deptEmployees.length;
+        const competencyGaps = competenciesList.map((comp: any) => {
+          const compEntries = deptEntries.filter((e: any) => e.competencyId === comp.id);
+          const avgLevel = compEntries.reduce((sum: any, e: any) => sum + levelToValue(e.level), 0) / deptEmployees.length;
           return {
             competencia: comp.name,
             nivelPromedio: avgLevel.toFixed(2),
@@ -452,7 +452,7 @@ export const skillsMatrixRouter = router({
 
         // Top 5 competencias críticas
         const topGaps = competencyGaps
-          .sort((a, b) => parseFloat(a.nivelPromedio) - parseFloat(b.nivelPromedio))
+          .sort((a: any, b: any) => parseFloat(a.nivelPromedio) - parseFloat(b.nivelPromedio))
           .slice(0, 5);
 
         trainingRecommendations[dept] = topGaps;
@@ -589,7 +589,7 @@ export const skillsMatrixRouter = router({
       // Agrupar por empleado y calcular brechas
       const employeeGaps: Record<number, { name: string; gaps: Array<{ competencyName: string; competencyType: string; currentLevel: string; gap: number; priority: string }> }> = {};
       
-      matrixData.forEach((row) => {
+      matrixData.forEach((row: any) => {
         if (!employeeGaps[row.employeeId]) {
           employeeGaps[row.employeeId] = { name: row.employeeName, gaps: [] };
         }
@@ -644,7 +644,7 @@ export const skillsMatrixRouter = router({
 
           if (existing.length === 0) {
             // Insertar nueva necesidad de capacitación
-            await db.insert(trainingNeeds).values({
+            await (db.insert(trainingNeeds) as any).values({
               employeeId,
               competencyName: gap.competencyName,
               competencyType: gap.competencyType as "tecnica" | "transversal" | "conocimiento",

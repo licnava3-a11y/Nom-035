@@ -157,7 +157,7 @@ export async function generateMinutaPDF(data: MinutaData): Promise<Buffer> {
       ];
 
       doc.font('Helvetica');
-      infoData.forEach((item) => {
+      infoData.forEach((item: any) => {
         doc.fontSize(9)
            .font('Helvetica-Bold')
            .text(item.label, margin, y, { continued: true, width: 120 })
@@ -263,7 +263,7 @@ export async function generateMinutaPDF(data: MinutaData): Promise<Buffer> {
 
         // Filas de participantes
         doc.font('Helvetica');
-        data.participants.forEach((participant) => {
+        data.participants.forEach((participant: any) => {
           if (rowY > pageHeight - 100) {
             doc.addPage();
             rowY = margin;

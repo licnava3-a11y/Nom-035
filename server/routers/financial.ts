@@ -78,7 +78,7 @@ export const financialRouter = router({
       const { invoices } = await import("../../drizzle/schema");
       
       const { fechaEmision, fechaVencimiento, ...restInput } = input;
-      const [invoice] = await db.insert(invoices).values({
+      const [invoice] = await (db.insert(invoices) as any).values({
         ...restInput,
         fechaEmision: new Date(fechaEmision),
         fechaVencimiento: new Date(fechaVencimiento),
@@ -190,7 +190,7 @@ export const financialRouter = router({
       const { purchaseOrders } = await import("../../drizzle/schema");
       
       const { fecha, fechaEntregaEstimada, ...restInput } = input;
-      const [order] = await db.insert(purchaseOrders).values({
+      const [order] = await (db.insert(purchaseOrders) as any).values({
         ...restInput,
         fecha: new Date(fecha),
         ...(fechaEntregaEstimada && { fechaEntregaEstimada: new Date(fechaEntregaEstimada) }),
@@ -301,7 +301,7 @@ export const financialRouter = router({
       const { expenseRequests } = await import("../../drizzle/schema");
       
       const { fechaSolicitud, fechaRequerida, ...restInput } = input;
-      const [request] = await db.insert(expenseRequests).values({
+      const [request] = await (db.insert(expenseRequests) as any).values({
         ...restInput,
         fechaSolicitud: new Date(fechaSolicitud),
         ...(fechaRequerida && { fechaRequerida: new Date(fechaRequerida) }),
@@ -389,7 +389,7 @@ export const financialRouter = router({
         aprobadorId: ctx.user!.id,
         fechaAprobacion: new Date(),
         comentariosAprobador: input.comentarios,
-      }).where(eq(expenseRequests.id, input.id));
+      } as any).where(eq(expenseRequests.id, input.id));
       
       return { success: true };
     }),

@@ -65,7 +65,7 @@ export const nom035PoliciesRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      const [result] = await db.insert(nom035Policies).values({
+      const [result] = await (db.insert(nom035Policies) as any).values({
         nombre: input.nombre,
         descripcion: input.descripcion,
         fechaPublicacion: new Date(input.fechaPublicacion),
@@ -122,7 +122,7 @@ export const nom035PoliciesRouter = router({
       const nextVersionNumber = versions.length + 1;
 
       // Save current state as version
-      await db.insert(nom035PolicyVersions).values({
+      await (db.insert(nom035PolicyVersions) as any).values({
         policyId: currentPolicy.id,
         versionNumber: nextVersionNumber,
         nombre: currentPolicy.nombre,
@@ -143,7 +143,7 @@ export const nom035PoliciesRouter = router({
           fechaPublicacion: new Date(input.fechaPublicacion),
           representanteLegalId: input.representanteLegalId,
           activo: input.activo,
-        })
+        } as any)
         .where(eq(nom035Policies.id, input.id));
 
       return {
@@ -198,7 +198,7 @@ export const nom035PoliciesRouter = router({
       // Update policy with PDF URL
       await db
         .update(nom035Policies)
-        .set({ pdfUrl })
+        .set({ pdfUrl } as any)
         .where(eq(nom035Policies.id, input.id));
 
       // Register evidence automatically
@@ -284,7 +284,7 @@ export const nom035PoliciesRouter = router({
         .set({
           pdfUrl,
           // Nota: Necesitaremos agregar campo uploadedFileName en schema
-        })
+        } as any)
         .where(eq(nom035Policies.id, input.id));
 
       // Registrar evidencia automáticamente
@@ -366,7 +366,7 @@ export const nom035PoliciesRouter = router({
       const nextVersionNumber = versions.length + 1;
 
       // Save current state as new version
-      await db.insert(nom035PolicyVersions).values({
+      await (db.insert(nom035PolicyVersions) as any).values({
         policyId: currentPolicy.id,
         versionNumber: nextVersionNumber,
         nombre: currentPolicy.nombre,
@@ -387,7 +387,7 @@ export const nom035PoliciesRouter = router({
           fechaPublicacion: version.fechaPublicacion,
           representanteLegalId: version.representanteLegalId,
           pdfUrl: version.pdfUrl,
-        })
+        } as any)
         .where(eq(nom035Policies.id, version.policyId));
 
       return {

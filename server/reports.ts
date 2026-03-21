@@ -65,7 +65,7 @@ export async function generateTrainingReportPDF(): Promise<Buffer> {
 
       if (activeCourses.length > 0) {
         doc.fontSize(12).font("Helvetica");
-        activeCourses.forEach((course, index) => {
+        activeCourses.forEach((course: any, index: number) => {
           doc.font("Helvetica-Bold").text(`${index + 1}. ${course.title}`);
           doc.font("Helvetica").text(`   Categoría: ${course.category}`);
           doc.text(`   Duración: ${course.duration ? Math.round(course.duration / 60) : 0} horas`);
@@ -161,7 +161,7 @@ export async function generateCasesReportPDF(): Promise<Buffer> {
 
       if (casesByType.length > 0) {
         doc.fontSize(12).font("Helvetica");
-        casesByType.forEach((item) => {
+        casesByType.forEach((item: any) => {
           doc.text(`${item.caseType}: ${item.count} casos`);
         });
       } else {
@@ -178,7 +178,7 @@ export async function generateCasesReportPDF(): Promise<Buffer> {
 
       if (recentCases.length > 0) {
         doc.fontSize(12).font("Helvetica");
-        recentCases.forEach((caseItem, index) => {
+        recentCases.forEach((caseItem: any, index: number) => {
           doc.font("Helvetica-Bold").text(`${index + 1}. Folio: ${caseItem.caseNumber}`);
           doc.font("Helvetica").text(`   Tipo: ${caseItem.caseType}`);
           doc.text(`   Estado: ${caseItem.status}`);
@@ -364,7 +364,7 @@ export async function generateTrainingReportExcel(): Promise<Buffer> {
   ];
 
   const allCourses = await db.select().from(courses);
-  allCourses.forEach((course) => {
+  allCourses.forEach((course: any) => {
     coursesSheet.addRow({
       id: course.id,
       title: course.title,
@@ -442,7 +442,7 @@ export async function generateCasesReportExcel(): Promise<Buffer> {
   ];
 
   const allCases = await db.select().from(cases);
-  allCases.forEach((caseItem) => {
+  allCases.forEach((caseItem: any) => {
     casesSheet.addRow({
       folio: caseItem.caseNumber,
       type: caseItem.caseType,

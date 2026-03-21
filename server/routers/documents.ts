@@ -157,7 +157,7 @@ export const documentsRouter = router({
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "AC")).limit(1);
 
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "AC",
         name: "Acta Constitutiva del Comité",
         version: "1.0",
@@ -177,7 +177,7 @@ export const documentsRouter = router({
     const qrCode = `${folio}-${Date.now()}`;
 
     // Guardar documento
-    const [result] = await db.insert(documents).values({
+    const [result] = await (db.insert(documents) as any).values({
       formatCatalogId: catalog.id,
       folio,
       title: input.title,
@@ -203,7 +203,7 @@ export const documentsRouter = router({
         ipAddress: firma.ipAddress || null,
         deviceInfo: firma.deviceInfo || null,
       });
-      await db.insert(signatures).values(signatureData);
+      await (db.insert(signatures) as any).values(signatureData);
     }
 
     // Si es final, generar PDF
@@ -224,7 +224,7 @@ export const documentsRouter = router({
         const { url: pdfUrl } = await storagePut(`documents/${folio}.pdf`, pdfBuffer, "application/pdf");
 
         // Actualizar documento con URL del PDF
-        await db.update(documents).set({ pdfUrl }).where(eq(documents.id, documentId));
+        await db.update(documents).set({ pdfUrl } as any).where(eq(documents.id, documentId));
 
         return { success: true, documentId, folio, pdfUrl };
       } catch (error) {
@@ -247,7 +247,7 @@ export const documentsRouter = router({
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "FC")).limit(1);
 
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "FC",
         name: "Funciones del Comité",
         version: "1.0",
@@ -263,7 +263,7 @@ export const documentsRouter = router({
     const folio = generateFolio("funciones_comite", consecutivo);
     const qrCode = `${folio}-${Date.now()}`;
 
-    const [result] = await db.insert(documents).values({
+    const [result] = await (db.insert(documents) as any).values({
       formatCatalogId: catalog.id,
       folio,
       title: input.title,
@@ -278,7 +278,7 @@ export const documentsRouter = router({
     const documentId = result.insertId;
 
     for (const firma of input.firmas) {
-      await db.insert(signatures).values({
+      await (db.insert(signatures) as any).values({
         documentId,
         userId: firma.userId || null,
         signerName: firma.nombre,
@@ -301,7 +301,7 @@ export const documentsRouter = router({
         });
 
         const { url: pdfUrl } = await storagePut(`documents/${folio}.pdf`, pdfBuffer, "application/pdf");
-        await db.update(documents).set({ pdfUrl }).where(eq(documents.id, documentId));
+        await db.update(documents).set({ pdfUrl } as any).where(eq(documents.id, documentId));
 
         return { success: true, documentId, folio, pdfUrl };
       } catch (error) {
@@ -324,7 +324,7 @@ export const documentsRouter = router({
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "ACC")).limit(1);
 
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "ACC",
         name: "Aceptación de Cargo",
         version: "1.0",
@@ -340,7 +340,7 @@ export const documentsRouter = router({
     const folio = generateFolio("aceptacion_cargo", consecutivo);
     const qrCode = `${folio}-${Date.now()}`;
 
-    const [result] = await db.insert(documents).values({
+    const [result] = await (db.insert(documents) as any).values({
       formatCatalogId: catalog.id,
       folio,
       title: input.title,
@@ -355,7 +355,7 @@ export const documentsRouter = router({
     const documentId = result.insertId;
 
     for (const firma of input.firmas) {
-      await db.insert(signatures).values({
+      await (db.insert(signatures) as any).values({
         documentId,
         userId: firma.userId || null,
         signerName: firma.nombre,
@@ -384,7 +384,7 @@ export const documentsRouter = router({
         });
 
         const { url: pdfUrl } = await storagePut(`documents/${folio}.pdf`, pdfBuffer, "application/pdf");
-        await db.update(documents).set({ pdfUrl }).where(eq(documents.id, documentId));
+        await db.update(documents).set({ pdfUrl } as any).where(eq(documents.id, documentId));
 
         return { success: true, documentId, folio, pdfUrl };
       } catch (error) {
@@ -407,7 +407,7 @@ export const documentsRouter = router({
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "AR")).limit(1);
 
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "AR",
         name: "Acta de Recorrido NOM-019",
         version: "1.0",
@@ -423,7 +423,7 @@ export const documentsRouter = router({
     const folio = generateFolio("acta_recorrido", consecutivo);
     const qrCode = `${folio}-${Date.now()}`;
 
-    const [result] = await db.insert(documents).values({
+    const [result] = await (db.insert(documents) as any).values({
       formatCatalogId: catalog.id,
       folio,
       title: input.title,
@@ -449,12 +449,12 @@ export const documentsRouter = router({
         ipAddress: firma.ipAddress || null,
         deviceInfo: firma.deviceInfo || null,
       });
-      await db.insert(signatures).values(signatureData);
+      await (db.insert(signatures) as any).values(signatureData);
     }
 
     // Guardar participantes
     for (const participante of input.participantes) {
-      await db.insert(documentParticipants).values({
+      await (db.insert(documentParticipants) as any).values({
         documentId,
         name: participante.nombre,
         role: participante.cargo,
@@ -474,7 +474,7 @@ export const documentsRouter = router({
     let [catalog] = await db.select().from(formatCatalog).where(eq(formatCatalog.code, "AFR")).limit(1);
 
     if (!catalog) {
-      const [newCatalog] = await db.insert(formatCatalog).values({
+      const [newCatalog] = await (db.insert(formatCatalog) as any).values({
         code: "AFR",
         name: "Acta Final de Resultados",
         version: "1.0",
@@ -490,7 +490,7 @@ export const documentsRouter = router({
     const folio = generateFolio("acta_final_resultados", consecutivo);
     const qrCode = `${folio}-${Date.now()}`;
 
-    const [result] = await db.insert(documents).values({
+    const [result] = await (db.insert(documents) as any).values({
       formatCatalogId: catalog.id,
       folio,
       title: input.title,
@@ -516,7 +516,7 @@ export const documentsRouter = router({
         ipAddress: firma.ipAddress || null,
         deviceInfo: firma.deviceInfo || null,
       });
-      await db.insert(signatures).values(signatureData);
+      await (db.insert(signatures) as any).values(signatureData);
     }
 
     return { success: true, documentId, folio };
@@ -545,7 +545,7 @@ export const documentsRouter = router({
         conditions.push(eq(documents.status, input.status));
       }
 
-      let query = db.select().from(documents).orderBy(desc(documents.createdAt)).limit(input.limit);
+      let query: any = db.select().from(documents).orderBy(desc(documents.createdAt)).limit(input.limit);
       
       if (conditions.length > 0) {
         query = query.where(and(...conditions)) as any;
@@ -639,7 +639,7 @@ export const documentsRouter = router({
       // Actualizar documento con URL del PDF
       await db
         .update(documents)
-        .set({ pdfUrl, updatedAt: new Date() })
+        .set({ pdfUrl, updatedAt: new Date() } as any)
         .where(eq(documents.id, documentId));
 
       return { pdfUrl };
@@ -702,7 +702,7 @@ export const documentsRouter = router({
       // Actualizar documento con URL del PDF
       await db
         .update(documents)
-        .set({ pdfUrl, updatedAt: new Date() })
+        .set({ pdfUrl, updatedAt: new Date() } as any)
         .where(eq(documents.id, documentId));
 
       return { pdfUrl };

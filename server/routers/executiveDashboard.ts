@@ -599,7 +599,7 @@ export const executiveDashboardRouter = router({
 
     let avgScore = 0;
     if (completedSurveysData.length > 0) {
-      const totalScore = completedSurveysData.reduce((sum, s) => {
+      const totalScore = completedSurveysData.reduce((sum: any, s: any) => {
         return sum + ((s.improvementRating || 0) + (s.satisfactionRating || 0) + (s.supportRating || 0) + (s.recommendationRating || 0)) / 4;
       }, 0);
       avgScore = parseFloat((totalScore / completedSurveysData.length).toFixed(2));
@@ -797,7 +797,7 @@ export const executiveDashboardRouter = router({
         ['Casos Cerrados (Mes Actual)', metrics.closedCasesThisMonth],
       ];
       
-      kpisRows.forEach((row, idx) => {
+      kpisRows.forEach((row: any, idx: number) => {
         const rowNum = idx + 5;
         ws1.getCell(`A${rowNum}`).value = row[0];
         ws1.getCell(`B${rowNum}`).value = row[1];
@@ -964,7 +964,7 @@ export const executiveDashboardRouter = router({
       ws4.getRow(3).alignment = { horizontal: 'center' };
 
       // Datos
-      metrics.departmentDistribution.forEach((d: any, idx: number) => {
+      ((metrics.employeesAndStructure?.departmentDistribution || []) as any[]).forEach((d: any, idx: number) => {
         const rowNum = idx + 4;
         ws4.getCell(`A${rowNum}`).value = d.department;
         ws4.getCell(`B${rowNum}`).value = d.count;
@@ -978,8 +978,8 @@ export const executiveDashboardRouter = router({
       ];
 
       // Gráfica de columnas para departamentos
-      const deptDataRows = metrics.departmentDistribution.length;
-      ws4.addChart({
+      const deptDataRows = (metrics.employeesAndStructure?.departmentDistribution || []).length;
+      (ws4 as any).addChart({
         name: 'Distribución por Departamento',
         chartType: 'column',
         categories: {

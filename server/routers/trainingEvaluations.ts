@@ -56,7 +56,7 @@ export const trainingEvaluationsRouter = router({
         throw new TRPCError({ code: "CONFLICT", message: "Ya existe una evaluación para esta capacitación" });
       }
 
-      const [newEvaluation] = await db.insert(trainingEvaluations).values({
+      const [newEvaluation] = await (db.insert(trainingEvaluations) as any).values({
         assignmentId: input.assignmentId,
         evaluatorId: ctx.user.id,
         instructorKnowledge: input.instructorKnowledge,
@@ -248,7 +248,7 @@ export const trainingEvaluationsRouter = router({
       .leftJoin(committeeTrainings, eq(trainingAssignments.trainingId, committeeTrainings.id));
 
     // Agrupar por capacitación
-    const byTraining = allEvaluations.reduce((acc, item) => {
+    const byTraining = allEvaluations.reduce((acc: any, item: any) => {
       const trainingId = item.training?.id;
       if (!trainingId) return acc;
 
@@ -263,12 +263,12 @@ export const trainingEvaluationsRouter = router({
     }, {} as Record<number, { training: any; evaluations: any[] }>);
 
     // Calcular promedios por capacitación
-    const trainingStats = Object.values(byTraining).map((item) => {
+    const trainingStats = Object.values(byTraining).map((item: any) => {
       const count = item.evaluations.length;
-      const avgOverall = item.evaluations.reduce((sum, e) => sum + e.overallSatisfaction, 0) / count;
+      const avgOverall = item.evaluations.reduce((sum: any, e: any) => sum + e.overallSatisfaction, 0) / count;
       const avgInstructor =
-        item.evaluations.reduce((sum, e) => sum + e.instructorKnowledge + e.instructorCommunication + e.instructorEngagement, 0) / (count * 3);
-      const avgContent = item.evaluations.reduce((sum, e) => sum + e.contentRelevance + e.contentClarity + e.contentDepth, 0) / (count * 3);
+        item.evaluations.reduce((sum: any, e: any) => sum + e.instructorKnowledge + e.instructorCommunication + e.instructorEngagement, 0) / (count * 3);
+      const avgContent = item.evaluations.reduce((sum: any, e: any) => sum + e.contentRelevance + e.contentClarity + e.contentDepth, 0) / (count * 3);
 
       return {
         training: item.training,
@@ -280,11 +280,11 @@ export const trainingEvaluationsRouter = router({
     });
 
     // Ordenar por calificación general
-    trainingStats.sort((a, b) => b.avgOverall - a.avgOverall);
+    trainingStats.sort((a: any, b: any) => b.avgOverall - a.avgOverall);
 
     // Estadísticas globales
     const totalEvaluations = allEvaluations.length;
-    const globalAvgOverall = allEvaluations.reduce((sum, item) => sum + item.evaluation.overallSatisfaction, 0) / totalEvaluations;
+    const globalAvgOverall = allEvaluations.reduce((sum: any, item: any) => sum + item.evaluation.overallSatisfaction, 0) / totalEvaluations;
     const globalRecommendation = allEvaluations.reduce(
       (acc, item) => {
         acc[item.evaluation.wouldRecommend]++;
@@ -326,6 +326,6 @@ export const trainingEvaluationsRouter = router({
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(trainingEvaluations.createdAt));
 
-      return comments.filter((c) => c.evaluation.improvements || c.evaluation.strengths || c.evaluation.additionalComments);
+      return comments.filter((c: any) => c.evaluation.improvements || c.evaluation.strengths || c.evaluation.additionalComments);
     }),
 });

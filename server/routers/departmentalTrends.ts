@@ -52,7 +52,7 @@ export const departmentalTrendsRouter = router({
         .where(and(...dateConditions));
 
       // Agrupar casos por departamento usando departmentId real
-      const departmentalCases = allDepartments.map((dept) => {
+      const departmentalCases = allDepartments.map((dept: any) => {
         // Filtrar casos del departamento actual
         const deptCases = allCases.filter(c => c.departmentId === dept.id);
         
@@ -64,7 +64,7 @@ export const departmentalTrendsRouter = router({
         
         const closedCases = deptCases.filter(c => c.closedAt !== null);
         const avgResolutionDays = closedCases.length > 0
-          ? closedCases.reduce((sum, c) => {
+          ? closedCases.reduce((sum: any, c: any) => {
               const days = Math.floor(
                 (new Date(c.closedAt!).getTime() - new Date(c.createdAt).getTime()) / (1000 * 60 * 60 * 24)
               );
@@ -85,7 +85,7 @@ export const departmentalTrendsRouter = router({
       });
 
       // Calcular score de riesgo por departamento (0-100)
-      const departmentalMetrics = departmentalCases.map((dept) => {
+      const departmentalMetrics = departmentalCases.map((dept: any) => {
         const totalCases = Number(dept.totalCases) || 0;
         const openCases = Number(dept.openCases) || 0;
         const criticalCases = Number(dept.criticalCases) || 0;
@@ -126,7 +126,7 @@ export const departmentalTrendsRouter = router({
       });
 
       // Ordenar por score de riesgo descendente
-      departmentalMetrics.sort((a, b) => b.riskScore - a.riskScore);
+      departmentalMetrics.sort((a: any, b: any) => b.riskScore - a.riskScore);
 
       // Calcular estadísticas globales
       const totalDepartments = departmentalMetrics.length;
@@ -136,7 +136,7 @@ export const departmentalTrendsRouter = router({
       const avgRiskScore =
         totalDepartments > 0
           ? Math.round(
-              departmentalMetrics.reduce((sum, d) => sum + d.riskScore, 0) / totalDepartments
+              departmentalMetrics.reduce((sum: any, d: any) => sum + d.riskScore, 0) / totalDepartments
             )
           : 0;
 
@@ -146,9 +146,9 @@ export const departmentalTrendsRouter = router({
           totalDepartments,
           departmentsInAlert,
           avgRiskScore,
-          criticalDepartments: departmentalMetrics.filter((d) => d.alertLevel === "critical")
+          criticalDepartments: departmentalMetrics.filter((d: any) => d.alertLevel === "critical")
             .length,
-          highRiskDepartments: departmentalMetrics.filter((d) => d.alertLevel === "high").length,
+          highRiskDepartments: departmentalMetrics.filter((d: any) => d.alertLevel === "high").length,
         },
       };
     }),
@@ -187,7 +187,7 @@ export const departmentalTrendsRouter = router({
         .orderBy(sql`DATE_FORMAT(${cases.createdAt}, '%Y-%m')`);
 
       // Simular distribución para el departamento específico
-      return monthlyData.map((data) => ({
+      return monthlyData.map((data: any) => ({
         month: data.month,
         totalCases: Math.floor((Number(data.totalCases) || 0) / 3), // Simulación
         criticalCases: Math.floor((Number(data.criticalCases) || 0) / 3),
@@ -216,8 +216,8 @@ export const departmentalTrendsRouter = router({
     const allDepartments = await db.select().from(departments);
 
     // Agrupar casos por departamento (simulado)
-    const departmentCaseStats = allDepartments.map((dept, index) => {
-      const deptCases = recentCases.filter((_, i) => i % allDepartments.length === index);
+    const departmentCaseStats = allDepartments.map((dept: any, index: number) => {
+      const deptCases = recentCases.filter((_: any, i: number) => i % allDepartments.length === index);
       return {
         departmentId: dept.id,
         departmentName: dept.name,
@@ -228,12 +228,12 @@ export const departmentalTrendsRouter = router({
 
     // Generar alertas para departamentos con más de 3 casos críticos o más de 5 casos abiertos
     const alerts = departmentCaseStats
-      .filter((dept) => {
+      .filter((dept: any) => {
         const criticalCases = Number(dept.criticalCases) || 0;
         const openCases = Number(dept.openCases) || 0;
         return criticalCases >= 3 || openCases >= 5;
       })
-      .map((dept) => {
+      .map((dept: any) => {
         const criticalCases = Number(dept.criticalCases) || 0;
         const openCases = Number(dept.openCases) || 0;
 
@@ -356,13 +356,13 @@ export const departmentalTrendsRouter = router({
           .set({
             ...thresholdData,
             updatedAt: new Date(),
-          })
+          } as any)
           .where(eq(departmentThresholds.id, existing[0].id));
 
         return { success: true, message: "Umbrales actualizados exitosamente" };
       } else {
         // Crear nuevo umbral
-        await db.insert(departmentThresholds).values({
+        await (db.insert(departmentThresholds) as any).values({
           departmentId,
           ...thresholdData,
         });

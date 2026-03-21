@@ -139,7 +139,7 @@ export async function generateMonthlySnapshots() {
         const currentDate = new Date();
         const monthName = currentDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
         
-        await db.insert(skillsMatrixSnapshots).values({
+        await (db.insert(skillsMatrixSnapshots) as any).values({
           snapshotDate: currentDate,
           name: `Snapshot Automático - ${dept.name} - ${monthName}`,
           description: `Snapshot generado automáticamente el ${currentDate.toLocaleDateString('es-MX')}`,
@@ -260,7 +260,7 @@ export async function generateMonthlySnapshots() {
         const currentDate = new Date();
         const monthName = currentDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
         
-        await db.insert(skillsMatrixSnapshots).values({
+        await (db.insert(skillsMatrixSnapshots) as any).values({
           snapshotDate: currentDate,
           name: `Snapshot Automático Global - ${monthName}`,
           description: `Snapshot global generado automáticamente el ${currentDate.toLocaleDateString('es-MX')}`,

@@ -84,7 +84,7 @@ export async function runContractExpirationAlertsJob() {
     }
 
     // Ordenar por días restantes (más urgentes primero)
-    expiringContracts.sort((a, b) => a.daysRemaining - b.daysRemaining);
+    expiringContracts.sort((a: any, b: any) => a.daysRemaining - b.daysRemaining);
 
     // Generar email con template
     const emailHtml = getContractExpiringTemplate({

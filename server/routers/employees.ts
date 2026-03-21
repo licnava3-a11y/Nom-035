@@ -579,7 +579,7 @@ export const employeesRouter = router({
         // @ts-ignore - getDb() siempre retorna instancia válida
         const allDepartments = await db.select().from(departments);
         const departmentMap = new Map(
-          allDepartments.map((d) => [d.name.toLowerCase(), d.id])
+          allDepartments.map((d: any) => [d.name.toLowerCase(), d.id])
         );
 
         for (let i = 0; i < data.length; i++) {

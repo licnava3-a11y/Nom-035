@@ -69,7 +69,7 @@ export const recognitionsRouter = router({
       }
 
       // Crear reconocimiento
-      const result = await db.insert(recognitions).values({
+      const result = await (db.insert(recognitions) as any).values({
         fromUserId: ctx.user.id,
         toUserId: input.toUserId,
         categoryId: input.categoryId,
@@ -349,13 +349,13 @@ export const recognitionsRouter = router({
         // Actualizar reacción existente
         await db
           .update(recognitionReactions)
-          .set({ reactionType: input.reactionType })
+          .set({ reactionType: input.reactionType } as any)
           .where(eq(recognitionReactions.id, existingReaction[0].id));
 
         return { success: true, updated: true };
       } else {
         // Crear nueva reacción
-        await db.insert(recognitionReactions).values({
+        await (db.insert(recognitionReactions) as any).values({
           recognitionId: input.recognitionId,
           userId: ctx.user.id,
           reactionType: input.reactionType,
@@ -491,7 +491,7 @@ export const recognitionsRouter = router({
       if (!recognition[0].readAt) {
         await db
           .update(recognitions)
-          .set({ readAt: new Date() })
+          .set({ readAt: new Date() } as any)
           .where(eq(recognitions.id, input.recognitionId));
       }
 

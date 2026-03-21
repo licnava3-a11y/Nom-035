@@ -146,7 +146,7 @@ export function startModelPerformanceMonitorJob() {
       // Insertar alertas en la base de datos
       if (alerts.length > 0) {
         for (const alert of alerts) {
-          await db.insert(modelPerformanceAlerts).values({
+          await (db.insert(modelPerformanceAlerts) as any).values({
             alertType: alert.alertType,
             metricName: alert.metricName,
             currentValue: alert.currentValue.toFixed(2),

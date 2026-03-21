@@ -215,7 +215,7 @@ export function parseWorkersFromExcel(buffer: Buffer): {
   const workers: WorkerFromExcel[] = [];
   const errors: ValidationError[] = [];
 
-  data.forEach((row, index) => {
+  data.forEach((row: any, index: number) => {
     const rowNumber = index + 2; // +2 porque la primera fila es el encabezado y Excel empieza en 1
 
     try {

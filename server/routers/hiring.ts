@@ -76,7 +76,7 @@ export const hiringRouter = router({
       const password = generatePassword();
 
       // Create user account
-      const [user] = await db.insert(users).values({
+      const [user] = await (db.insert(users) as any).values({
         openId: `employee_${employee.id}_${Date.now()}`,
         name: `${employee.firstName} ${employee.lastName}`,
         email: employee.email,
@@ -87,7 +87,7 @@ export const hiringRouter = router({
       // Link user to employee
       await db
         .update(employees)
-        .set({ userId: user.insertId })
+        .set({ userId: user.insertId } as any)
         .where(eq(employees.id, input.employeeId));
 
       // Prepare email
@@ -216,12 +216,12 @@ export const hiringRouter = router({
         .where(eq(employees.isActive, true));
 
       // Filter employees with expiring contracts
-      const expiringEmployees = allEmployees.filter((emp) => {
+      const expiringEmployees = allEmployees.filter((emp: any) => {
         const hasExpiring = [
           emp.contract1ExpirationDate,
           emp.contract2ExpirationDate,
           emp.contract3ExpirationDate,
-        ].some((date) => {
+        ].some((date: any) => {
           if (!date) return false;
           const expDate = new Date(date);
           return expDate >= today && expDate <= futureDate;
@@ -230,7 +230,7 @@ export const hiringRouter = router({
       });
 
       // Format results
-      const results = expiringEmployees.map((emp) => {
+      const results = expiringEmployees.map((emp: any) => {
         const contracts = [];
         if (emp.contract1ExpirationDate) {
           contracts.push({
@@ -253,14 +253,14 @@ export const hiringRouter = router({
 
         return {
           ...emp,
-          expiringContracts: contracts.filter((c) => {
+          expiringContracts: contracts.filter((c: any) => {
             const expDate = new Date(c.expirationDate);
             return expDate >= today && expDate <= futureDate;
           }),
         };
       });
 
-      return results.filter((r) => r.expiringContracts.length > 0);
+      return results.filter((r: any) => r.expiringContracts.length > 0);
     }),
 
   /**
@@ -308,12 +308,12 @@ export const hiringRouter = router({
         .where(eq(employees.isActive, true));
 
       // Filter employees with expiring contracts
-      const expiringEmployees = allEmployees.filter((emp) => {
+      const expiringEmployees = allEmployees.filter((emp: any) => {
         const hasExpiring = [
           emp.contract1ExpirationDate,
           emp.contract2ExpirationDate,
           emp.contract3ExpirationDate,
-        ].some((date) => {
+        ].some((date: any) => {
           if (!date) return false;
           const expDate = new Date(date);
           return expDate >= today && expDate <= futureDate;
@@ -330,7 +330,7 @@ export const hiringRouter = router({
 
       // Build table rows
       let tableRows = "";
-      expiringEmployees.forEach((emp) => {
+      expiringEmployees.forEach((emp: any) => {
         const contracts = [];
         if (emp.contract1ExpirationDate) {
           const expDate = new Date(emp.contract1ExpirationDate);
@@ -360,7 +360,7 @@ export const hiringRouter = router({
           }
         }
 
-        contracts.forEach((contract) => {
+        contracts.forEach((contract: any) => {
           tableRows += `
             <tr>
               <td style="padding: 12px; border-bottom: 1px solid #ddd;">${emp.employeeNumber || "-"}</td>

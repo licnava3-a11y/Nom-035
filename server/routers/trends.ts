@@ -77,8 +77,8 @@ export const trendsRouter = router({
         .groupBy(dateFormat);
 
       // Calcular totales para comparación
-      const currentTotal = currentData.reduce((sum, item) => sum + Number(item.total), 0);
-      const previousTotal = previousData.reduce((sum, item) => sum + Number(item.total), 0);
+      const currentTotal = currentData.reduce((sum: any, item: any) => sum + Number(item.total), 0);
+      const previousTotal = previousData.reduce((sum: any, item: any) => sum + Number(item.total), 0);
       const percentageChange = previousTotal > 0 
         ? ((currentTotal - previousTotal) / previousTotal) * 100 
         : 0;
@@ -161,8 +161,8 @@ export const trendsRouter = router({
         ))
         .groupBy(dateFormat);
 
-      const currentTotal = currentData.reduce((sum, item) => sum + Number(item.completadas), 0);
-      const previousTotal = previousData.reduce((sum, item) => sum + Number(item.completadas), 0);
+      const currentTotal = currentData.reduce((sum: any, item: any) => sum + Number(item.completadas), 0);
+      const previousTotal = previousData.reduce((sum: any, item: any) => sum + Number(item.completadas), 0);
       const percentageChange = previousTotal > 0 
         ? ((currentTotal - previousTotal) / previousTotal) * 100 
         : 0;
@@ -251,8 +251,8 @@ export const trendsRouter = router({
       
       const totalEmployees = Number(totalEmployeesResult?.count || 1);
 
-      const currentTotal = currentData.reduce((sum, item) => sum + Number(item.encuestasCompletadas), 0);
-      const previousTotal = previousData.reduce((sum, item) => sum + Number(item.encuestasCompletadas), 0);
+      const currentTotal = currentData.reduce((sum: any, item: any) => sum + Number(item.encuestasCompletadas), 0);
+      const previousTotal = previousData.reduce((sum: any, item: any) => sum + Number(item.encuestasCompletadas), 0);
       
       const currentPercentage = (currentTotal / totalEmployees) * 100;
       const previousPercentage = (previousTotal / totalEmployees) * 100;

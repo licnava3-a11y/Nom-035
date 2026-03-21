@@ -126,7 +126,7 @@ export const nineBoxGridRouter = router({
         };
       } else {
         // Crear nuevo
-        const result = await db.insert(nineBoxAssessments).values({
+        const result = await (db.insert(nineBoxAssessments) as any).values({
           employeeId: input.employeeId,
           performanceScore,
           potentialScore,
@@ -237,7 +237,7 @@ export const nineBoxGridRouter = router({
             })
             .where(eq(nineBoxAssessments.id, existing[0].id));
         } else {
-          await db.insert(nineBoxAssessments).values({
+          await (db.insert(nineBoxAssessments) as any).values({
             employeeId: employee.id,
             performanceScore,
             potentialScore,
@@ -354,7 +354,7 @@ export const nineBoxGridRouter = router({
       .from(nineBoxAssessments)
       .groupBy(nineBoxAssessments.quadrant);
 
-    const total = stats.reduce((sum, s) => sum + s.count, 0);
+    const total = stats.reduce((sum: any, s: any) => sum + s.count, 0);
 
     return {
       total,

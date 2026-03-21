@@ -92,7 +92,7 @@ export const nineBoxRouter = router({
         const { quadrant, label, developmentPlan } = calculateQuadrant(input.performanceScore, input.potentialScore);
 
         // Insertar evaluación
-        const [result] = await db.insert(nineBoxEvaluations).values({
+        const [result] = await (db.insert(nineBoxEvaluations) as any).values({
           employeeId: input.employeeId,
           performanceScore: input.performanceScore,
           potentialScore: input.potentialScore,
@@ -143,7 +143,7 @@ export const nineBoxRouter = router({
           .as("latest");
 
         // Query principal con JOIN a users
-        let query = db
+        let query: any = db
           .select({
             id: nineBoxEvaluations.id,
             employeeId: nineBoxEvaluations.employeeId,
@@ -215,7 +215,7 @@ export const nineBoxRouter = router({
           .as("latest");
 
         // Query de distribución
-        let query = db
+        let query: any = db
           .select({
             quadrant: nineBoxEvaluations.quadrant,
             quadrantLabel: nineBoxEvaluations.quadrantLabel,
@@ -239,8 +239,8 @@ export const nineBoxRouter = router({
         const distribution = await query.groupBy(nineBoxEvaluations.quadrant, nineBoxEvaluations.quadrantLabel);
 
         // Calcular total y porcentajes
-        const total = distribution.reduce((sum, item) => sum + item.count, 0);
-        const distributionWithPercentages = distribution.map(item => ({
+        const total = distribution.reduce((sum: any, item: any) => sum + item.count, 0);
+        const distributionWithPercentages = distribution.map((item: any) => ({
           ...item,
           percentage: total > 0 ? Math.round((item.count / total) * 100) : 0,
         }));
@@ -339,7 +339,7 @@ export const nineBoxRouter = router({
             quadrantLabel: label,
             developmentPlan,
             notes: input.notes ?? current.notes,
-          })
+          } as any)
           .where(eq(nineBoxEvaluations.id, input.id));
 
         return {

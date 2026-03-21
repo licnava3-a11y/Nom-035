@@ -64,7 +64,7 @@ export const interventionImpactRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database connection failed");
 
-      const [result] = await db.insert(interventionImpactAnalysis).values({
+      const [result] = await (db.insert(interventionImpactAnalysis) as any).values({
         ...input,
         implementationDate: new Date(input.implementationDate),
         createdBy: ctx.user.id,
@@ -188,7 +188,7 @@ export const interventionImpactRouter = router({
           caseReductionPercentage: String(caseReductionPercentage.toFixed(2)),
           satisfactionScoreImprovement: String(satisfactionImprovement.toFixed(2)),
           effectivenessScore: String(effectivenessScore.toFixed(2)),
-        })
+        } as any)
         .where(eq(interventionImpactAnalysis.id, input.id));
 
       return {
@@ -291,7 +291,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         .update(interventionImpactAnalysis)
         .set({
           aiInsights: insights,
-        })
+        } as any)
         .where(eq(interventionImpactAnalysis.id, input.id));
 
       return { success: true, insights };
@@ -348,7 +348,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
           .set({
             hitCount: (cachedReport[0].hitCount || 0) + 1,
             lastAccessedAt: new Date(),
-          })
+          } as any)
           .where(eq(reportCache.id, cachedReport[0].id));
 
         return {
@@ -374,8 +374,8 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
 
       // Calcular métricas globales
       const totalInterventions = interventions.length;
-      const avgEffectiveness = interventions.reduce((sum, i) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
-      const totalCasesAvoided = interventions.reduce((sum, i) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
+      const avgEffectiveness = interventions.reduce((sum: any, i: any) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
+      const totalCasesAvoided = interventions.reduce((sum: any, i: any) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
 
       // Generar PDF con PDFKit (con compresión habilitada)
       const PDFDocument = (await import("pdfkit")).default;
@@ -460,7 +460,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       doc.fontSize(16).font("Helvetica-Bold").text("Detalle de Intervenciones", { underline: true });
       doc.moveDown();
 
-      interventions.forEach((intervention, idx) => {
+      interventions.forEach((intervention: any, idx: number) => {
         if (idx > 0 && idx % 3 === 0) doc.addPage();
 
         doc.fontSize(14).font("Helvetica-Bold").text(`${idx + 1}. ${intervention.interventionName}`);
@@ -507,7 +507,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24);
 
-      await db.insert(reportCache).values({
+      await (db.insert(reportCache) as any).values({
         reportType: "intervention_impact_pdf",
         paramsHash,
         params: {
@@ -562,8 +562,8 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
       ];
 
       const totalInterventions = interventions.length;
-      const avgEffectiveness = interventions.reduce((sum, i) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
-      const totalCasesAvoided = interventions.reduce((sum, i) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
+      const avgEffectiveness = interventions.reduce((sum: any, i: any) => sum + Number(i.effectivenessScore || 0), 0) / totalInterventions || 0;
+      const totalCasesAvoided = interventions.reduce((sum: any, i: any) => sum + (Number(i.casesBeforeCount) - Number(i.casesAfterCount)), 0);
 
       summarySheet.addRows([
         { metric: "Total de intervenciones analizadas", value: totalInterventions },
@@ -588,7 +588,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         { header: "Estado", key: "status", width: 15 },
       ];
 
-      interventions.forEach((intervention) => {
+      interventions.forEach((intervention: any) => {
         detailSheet.addRow({
           id: intervention.id,
           name: intervention.interventionName,
@@ -612,7 +612,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         { header: "Detalle", key: "detail", width: 60 },
       ];
 
-      interventions.forEach((intervention) => {
+      interventions.forEach((intervention: any) => {
         if (intervention.aiInsights) {
           const insights = intervention.aiInsights as any;
 
@@ -751,7 +751,7 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
         const db = await getDb();
       if (!db) throw new Error('Database not initialized');
         if (db) {
-          await db.insert(sharedReportsLog).values({
+          await (db.insert(sharedReportsLog) as any).values({
             reportUrl: input.reportUrl,
             reportType: input.reportType,
             reportCategory: "intervention_impact",

@@ -181,7 +181,7 @@ export class CommitteePDFGenerator {
     this.currentY += 20;
 
     // Items de la lista
-    items.forEach((item) => {
+    items.forEach((item: any) => {
       this.doc
         .fontSize(10)
         .font('Helvetica')
@@ -213,7 +213,7 @@ export class CommitteePDFGenerator {
 
     // Encabezados
     this.doc.fontSize(10).font('Helvetica-Bold');
-    headers.forEach((header, i) => {
+    headers.forEach((header: any, i: number) => {
       this.doc
         .rect(
           this.pageMargin + i * colWidth,
@@ -237,8 +237,8 @@ export class CommitteePDFGenerator {
 
     // Filas
     this.doc.font('Helvetica');
-    rows.forEach((row) => {
-      row.forEach((cell, i) => {
+    rows.forEach((row: any) => {
+      row.forEach((cell: any, i: number) => {
         this.doc
           .rect(
             this.pageMargin + i * colWidth,
@@ -472,7 +472,7 @@ export async function generateCommitteeMinutePDF(data: {
 
   // Asistencia
   const attendanceHeaders = ['Nombre', 'Cargo', 'Asistencia'];
-  const attendanceRows = data.attendance.map((a) => [
+  const attendanceRows = data.attendance.map((a: any) => [
     a.name,
     a.position,
     a.attended ? '✓' : '✗',
@@ -595,7 +595,7 @@ export async function generateOperatingRulesPDF(data: {
   generator.addSection('Integración y Estructura Organizacional', data.structure);
 
   // Roles y responsabilidades
-  data.roles.forEach((role) => {
+  data.roles.forEach((role: any) => {
     generator.addBulletList(
       `Funciones y Responsabilidades - ${role.role}`,
       role.responsibilities

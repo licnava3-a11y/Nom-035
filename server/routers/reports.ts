@@ -354,7 +354,7 @@ export const reportsRouter = router({
         recommendations.push('El sistema de atención de casos muestra un desempeño adecuado. Continuar con el monitoreo periódico.');
       }
 
-      recommendations.forEach((rec, idx) => {
+      recommendations.forEach((rec: any, idx: number) => {
         doc.text(`${idx + 1}. ${rec}`);
         doc.moveDown();
       });

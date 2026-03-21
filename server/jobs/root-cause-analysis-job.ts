@@ -99,7 +99,7 @@ export async function runRootCauseAnalysisJob() {
     }));
 
     // Crear análisis pendiente
-    const [analysisRecord] = await db.insert(rootCauseAnalysis).values({
+    const [analysisRecord] = await (db.insert(rootCauseAnalysis) as any).values({
       analysisDate: new Date(),
       periodStart,
       periodEnd,

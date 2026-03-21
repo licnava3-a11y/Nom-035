@@ -30,7 +30,7 @@ export async function sendCoverageAlertNotification({ to, alerts }: SendCoverage
     return `<span style="display: inline-block; padding: 4px 12px; background-color: ${colors[color as keyof typeof colors] || '#6b7280'}; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;">${priority === 'high' ? 'ALTA' : priority === 'medium' ? 'MEDIA' : 'BAJA'}</span>`;
   };
 
-  const alertRows = alerts.map((alert) => `
+  const alertRows = alerts.map((alert: any) => `
     <tr style="border-bottom: 1px solid #e5e7eb;">
       <td style="padding: 16px 12px;">
         <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">${alert.surveyTitle}</div>

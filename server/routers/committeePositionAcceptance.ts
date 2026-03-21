@@ -38,7 +38,7 @@ export const committeePositionAcceptanceRouter = router({
       const { url: signatureUrl } = await storagePut(signatureKey, signatureBuffer, "image/png");
 
       // Create acceptance record
-      const [result] = await db.insert(committeePositionAcceptances).values({
+      const [result] = await (db.insert(committeePositionAcceptances) as any).values({
         committeeMemberId: input.committeeMemberId,
         positionType: input.positionType,
         inePhotoUrl: ineUrl,
@@ -131,7 +131,7 @@ export const committeePositionAcceptanceRouter = router({
       // Update acceptance record with PDF info
       await db
         .update(committeePositionAcceptances)
-        .set({ pdfUrl, pdfKey })
+        .set({ pdfUrl, pdfKey } as any)
         .where(eq(committeePositionAcceptances.id, acceptance.id));
 
       return { success: true, pdfUrl };

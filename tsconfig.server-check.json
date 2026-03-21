@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": false,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "server/routers/predictiveAnalytics.ts",
+    "server/routers/predictiveCorrelation.ts",
+    "server/routers/predictiveTurnoverDashboard.ts",
+    "server/routers/predictiveReports.ts",
+    "server/routers/performanceEvaluation360.ts",
+    "server/routers/publicSurveys.ts"
+  ]
+}

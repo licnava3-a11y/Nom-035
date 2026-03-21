@@ -139,7 +139,7 @@ export const modelRetrainingRouter = router({
         .map(r => parseFloat(r.improvementPercentage || "0"));
 
       const averageImprovement = improvements.length > 0
-        ? improvements.reduce((a, b) => a + b, 0) / improvements.length
+        ? improvements.reduce((a: any, b: any) => a + b, 0) / improvements.length
         : 0;
 
       return {

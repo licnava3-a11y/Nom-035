@@ -36,13 +36,13 @@ export const trainingROIRouter = router({
             otherCosts: input.otherCosts.toString(),
             totalCost: totalCost.toString(),
             notes: input.notes,
-          })
+          } as any)
           .where(eq(trainingCosts.id, existing[0].id));
 
         return { success: true, id: existing[0].id };
       } else {
         // Crear
-        const result = await db.insert(trainingCosts).values({
+        const result = await (db.insert(trainingCosts) as any).values({
           trainingId: input.trainingId,
           instructorCost: input.instructorCost.toString(),
           materialsCost: input.materialsCost.toString(),
@@ -118,7 +118,7 @@ export const trainingROIRouter = router({
         };
       }
 
-      const avgCompletionDate = new Date(completedDates.reduce((sum, date) => sum + date.getTime(), 0) / completedDates.length);
+      const avgCompletionDate = new Date(completedDates.reduce((sum: any, date: any) => sum + date.getTime(), 0) / completedDates.length);
 
       // Casos ANTES de la capacitación (6 meses antes de la fecha promedio de completitud)
       const beforeDate = new Date(avgCompletionDate);

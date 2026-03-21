@@ -37,7 +37,7 @@ export const surveyPeriodsRouter = router({
       }
 
       // Crear el periodo
-      const [period] = await db.insert(surveyPeriods).values({
+      const [period] = await (db.insert(surveyPeriods) as any).values({
         name: input.name,
         surveyType: input.surveyType,
         startDate: new Date(input.startDate),
@@ -86,7 +86,7 @@ export const surveyPeriodsRouter = router({
         }));
 
         if (tokenValues.length > 0) {
-          await db.insert(surveyTokens).values(tokenValues);
+          await (db.insert(surveyTokens) as any).values(tokenValues);
         }
 
         return {
@@ -392,7 +392,7 @@ export const surveyPeriodsRouter = router({
       }));
 
       if (tokenValues.length > 0) {
-        await db.insert(surveyTokens).values(tokenValues);
+        await (db.insert(surveyTokens) as any).values(tokenValues);
       }
 
       return {

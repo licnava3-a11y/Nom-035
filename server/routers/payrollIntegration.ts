@@ -144,7 +144,7 @@ export const payrollIntegrationRouter = router({
               salary: input.salary.toString(),
               benefits: input.benefits?.toString(),
               totalCompensation: totalCompensation.toString(),
-              lastRaiseDate: input.lastRaiseDate,
+              lastRaiseDate: input.lastRaiseDate ? new Date(input.lastRaiseDate) : null,
               lastRaisePercentage: input.lastRaisePercentage?.toString(),
               monthsSinceLastRaise,
               marketRate: input.marketRate?.toString(),
@@ -152,13 +152,13 @@ export const payrollIntegrationRouter = router({
               salaryGapStatus,
               compensationRiskLevel,
               requiresReview,
-            })
+            } as any)
             .where(eq(payrollData.employeeId, input.employeeId));
 
           return { success: true, action: "updated" };
         } else {
           // Insertar
-          await db.insert(payrollData).values({
+          await (db.insert(payrollData) as any).values({
             employeeId: input.employeeId,
             employeeName: input.employeeName,
             department: input.department,
@@ -271,17 +271,17 @@ export const payrollIntegrationRouter = router({
       }, {});
 
       // Calcular promedios
-      Object.keys(grouped).forEach((level) => {
+      Object.keys(grouped).forEach((level: any) => {
         grouped[level].avgGap = grouped[level].totalGap / grouped[level].count;
       });
 
       return {
         byRiskLevel: grouped,
         totalEmployees: data.length,
-        criticalCount: data.filter((d) => d.compensationRiskLevel === "critical").length,
-        highCount: data.filter((d) => d.compensationRiskLevel === "high").length,
-        mediumCount: data.filter((d) => d.compensationRiskLevel === "medium").length,
-        lowCount: data.filter((d) => d.compensationRiskLevel === "low").length,
+        criticalCount: data.filter((d: any) => d.compensationRiskLevel === "critical").length,
+        highCount: data.filter((d: any) => d.compensationRiskLevel === "high").length,
+        mediumCount: data.filter((d: any) => d.compensationRiskLevel === "medium").length,
+        lowCount: data.filter((d: any) => d.compensationRiskLevel === "low").length,
       };
     } catch (error: any) {
       console.error("Error al analizar correlación compensación-riesgo:", error);

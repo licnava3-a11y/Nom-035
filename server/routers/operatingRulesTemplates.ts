@@ -98,42 +98,44 @@ export const operatingRulesTemplatesRouter = router({
         }
 
         // Crear nueva base de funcionamiento
-        const [newOperatingRule] = await db
-          .insert(committeeOperatingRules)
+        const [newOperatingRule] = await (db
+          .insert(committeeOperatingRules) as any)
           .values({
-            title: input.customTitle || template.title,
             version: "1",
-            objectives: template.objectives,
-            structure: template.structure,
-            roles: template.roles,
-            responsibilities: template.responsibilities,
-            procedures: template.procedures,
-            meetingSchedule: template.meetingSchedule,
-            decisionMaking: template.decisionMaking,
-            documentation: template.documentation,
-            confidentiality: template.confidentiality,
+            objectives: template.objectives || "",
+            structure: template.structure || "",
+            roles: template.roles || "",
+            meetingFrequency: template.meetingSchedule || "",
+            quorum: "",
+            decisionMaking: template.decisionMaking || "",
+            communication: "",
+            caseHandling: "",
+            confidentiality: template.confidentiality || "",
             amendments: template.amendments,
+            signatures: "",
+            effectiveDate: new Date().toISOString().split('T')[0],
             status: "draft",
             createdBy: ctx.user.id,
           })
           .$returningId();
 
         // Crear primera versión
-        await db.insert(committeeOperatingRulesVersions).values({
+        await (db.insert(committeeOperatingRulesVersions) as any).values({
           operatingRuleId: newOperatingRule.id,
           versionNumber: 1,
           version: "1",
-          title: input.customTitle || template.title,
-          objectives: template.objectives,
-          structure: template.structure,
-          roles: template.roles,
-          responsibilities: template.responsibilities,
-          procedures: template.procedures,
-          meetingSchedule: template.meetingSchedule,
-          decisionMaking: template.decisionMaking,
-          documentation: template.documentation,
-          confidentiality: template.confidentiality,
+          objectives: template.objectives || "",
+          structure: template.structure || "",
+          roles: template.roles || "",
+          meetingFrequency: template.meetingSchedule || "",
+          quorum: "",
+          decisionMaking: template.decisionMaking || "",
+          communication: "",
+          caseHandling: "",
+          confidentiality: template.confidentiality || "",
           amendments: template.amendments,
+          signatures: "",
+          effectiveDate: new Date().toISOString().split('T')[0],
           changeDescription: `Creado desde plantilla: ${template.name}`,
           createdBy: ctx.user.id,
         });

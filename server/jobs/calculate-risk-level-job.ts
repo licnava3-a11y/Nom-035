@@ -94,7 +94,7 @@ async function calculateRiskLevel() {
 
         // 3. Calcular puntaje total (simplificado - en producción usar algoritmo oficial NOM-035)
         // Aquí se asume que cada respuesta tiene un valor numérico (0-4)
-        const totalScore = answers.reduce((sum, answer) => {
+        const totalScore = answers.reduce((sum: any, answer: any) => {
           const value = typeof answer.answerValue === 'string' ? parseInt(answer.answerValue, 10) : Number(answer.answerValue);
           return sum + (isNaN(value) ? 0 : value);
         }, 0);
@@ -167,7 +167,7 @@ async function calculateRiskLevel() {
         ];
 
         // 7. Almacenar resultado en surveyResults
-        await db.insert(surveyResults).values({
+        await (db.insert(surveyResults) as any).values({
           responseId: response.responseId,
           userId: response.userId || undefined,
           surveyId: response.surveyId,

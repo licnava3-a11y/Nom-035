@@ -47,7 +47,7 @@ export async function listEqualityPolicies() {
 export async function createEqualityPolicy(data: InsertEqualityPolicy) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(equalityPolicy).values(data);
+  const [result] = await (db.insert(equalityPolicy) as any).values(data);
   return result.insertId;
 }
 
@@ -107,7 +107,7 @@ export async function getSalaryGap(id: number) {
 export async function createSalaryGap(data: InsertEqualitySalaryGap) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(equalitySalaryGap).values(data);
+  const [result] = await (db.insert(equalitySalaryGap) as any).values(data);
   return result.insertId;
 }
 
@@ -158,7 +158,7 @@ export async function getAffirmativeAction(id: number) {
 export async function createAffirmativeAction(data: InsertEqualityAffirmativeAction) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(equalityAffirmativeActions).values(data);
+  const [result] = await (db.insert(equalityAffirmativeActions) as any).values(data);
   return result.insertId;
 }
 
@@ -240,7 +240,7 @@ export async function getComplaintByFolio(folio: string) {
 export async function createComplaint(data: InsertEqualityComplaint) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(equalityComplaints).values(data);
+  const [result] = await (db.insert(equalityComplaints) as any).values(data);
   return result.insertId;
 }
 
@@ -310,7 +310,7 @@ export async function addCommitteeMember(data: InsertEqualityCommitteeMember) {
   if (data.designadoPor) insertData.designadoPor = data.designadoPor;
   if (data.fechaTermino) insertData.fechaTermino = data.fechaTermino;
   
-  const [result] = await db.insert(equalityCommittee).values(insertData);
+  const [result] = await (db.insert(equalityCommittee) as any).values(insertData);
   return result.insertId;
 }
 
@@ -319,7 +319,7 @@ export async function removeCommitteeMember(id: number) {
   if (!db) throw new Error("Database not available");
   await db
     .update(equalityCommittee)
-    .set({ activo: false, fechaTermino: sql`CURDATE()` })
+    .set({ activo: false, fechaTermino: sql`CURDATE()` } as any)
     .where(eq(equalityCommittee.id, id));
 }
 

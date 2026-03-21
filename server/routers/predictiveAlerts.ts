@@ -60,10 +60,10 @@ export const predictiveAlertsRouter = router({
       }
 
       // Calculate average interval
-      const avgInterval = intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
+      const avgInterval = intervals.reduce((sum: any, val: any) => sum + val, 0) / intervals.length;
 
       // Calculate standard deviation for confidence level
-      const variance = intervals.reduce((sum, val) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
+      const variance = intervals.reduce((sum: any, val: any) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
       const stdDev = Math.sqrt(variance);
 
       // Predict next occurrence
@@ -90,8 +90,8 @@ export const predictiveAlertsRouter = router({
       // Calculate trend (increasing or decreasing frequency)
       let trend: "increasing" | "stable" | "decreasing" = "stable";
       if (intervals.length >= 3) {
-        const recentAvg = intervals.slice(0, Math.floor(intervals.length / 2)).reduce((sum, val) => sum + val, 0) / Math.floor(intervals.length / 2);
-        const olderAvg = intervals.slice(Math.floor(intervals.length / 2)).reduce((sum, val) => sum + val, 0) / (intervals.length - Math.floor(intervals.length / 2));
+        const recentAvg = intervals.slice(0, Math.floor(intervals.length / 2)).reduce((sum: any, val: any) => sum + val, 0) / Math.floor(intervals.length / 2);
+        const olderAvg = intervals.slice(Math.floor(intervals.length / 2)).reduce((sum: any, val: any) => sum + val, 0) / (intervals.length - Math.floor(intervals.length / 2));
         
         if (recentAvg < olderAvg * 0.8) {
           trend = "increasing"; // Alerts happening more frequently
@@ -177,7 +177,7 @@ export const predictiveAlertsRouter = router({
             intervals.push(daysDiff);
           }
 
-          const avgInterval = intervals.reduce((sum, val) => sum + val, 0) / intervals.length;
+          const avgInterval = intervals.reduce((sum: any, val: any) => sum + val, 0) / intervals.length;
           const lastAlert = historicalAlerts[0];
           const lastAlertDate = new Date(lastAlert.triggeredAt);
           const predictedDate = new Date(lastAlertDate);
@@ -186,7 +186,7 @@ export const predictiveAlertsRouter = router({
           const today = new Date();
           const daysUntilPredicted = Math.round((predictedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-          const variance = intervals.reduce((sum, val) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
+          const variance = intervals.reduce((sum: any, val: any) => sum + Math.pow(val - avgInterval, 2), 0) / intervals.length;
           const stdDev = Math.sqrt(variance);
           const coefficientOfVariation = (stdDev / avgInterval) * 100;
 
@@ -253,7 +253,7 @@ export const predictiveAlertsRouter = router({
       // Group alerts by time period
       const groupedData: Record<string, number> = {};
       
-      alerts.forEach((alert) => {
+      alerts.forEach((alert: any) => {
         const date = new Date(alert.triggeredAt);
         let key: string;
         
@@ -273,7 +273,7 @@ export const predictiveAlertsRouter = router({
       return {
         period,
         alertType: alertType || "all",
-        data: Object.entries(groupedData).map(([label, count]) => ({ label, count })),
+        data: Object.entries(groupedData).map(([label, count]: [string, any]) => ({ label, count })),
         totalAlerts: alerts.length,
       };
     }),

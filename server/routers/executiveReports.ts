@@ -35,10 +35,10 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
     )
     .groupBy(nom035Cases.status, nom035Cases.riskLevel);
 
-  const totalCases = casesData.reduce((sum, c) => sum + c.total, 0);
-  const openCases = casesData.filter(c => c.status === "open").reduce((sum, c) => sum + c.total, 0);
-  const closedCases = casesData.filter(c => c.status === "closed").reduce((sum, c) => sum + c.total, 0);
-  const criticalCases = casesData.filter(c => c.priority === "critical").reduce((sum, c) => sum + c.total, 0);
+  const totalCases = casesData.reduce((sum: any, c: any) => sum + c.total, 0);
+  const openCases = casesData.filter(c => c.status === "open").reduce((sum: any, c: any) => sum + c.total, 0);
+  const closedCases = casesData.filter(c => c.status === "closed").reduce((sum: any, c: any) => sum + c.total, 0);
+  const criticalCases = casesData.filter(c => c.riskLevel === "muy_alto").reduce((sum: any, c: any) => sum + c.total, 0);
 
   // 2. Encuestas NOM-035
   const surveysData = await db
@@ -49,8 +49,8 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
     .from(surveyResponses)
     .where(
       and(
-        gte(surveyResponses.createdAt, startDate),
-        lte(surveyResponses.createdAt, endDate)
+        gte(surveyResponses.startedAt, startDate),
+        lte(surveyResponses.startedAt, endDate)
       )
     );
 
@@ -73,7 +73,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
     )
     .groupBy(surveyResults.riskLevel);
 
-  const highRiskCount = riskData.filter(r => r.riskLevel === "high" || r.riskLevel === "very_high").reduce((sum, r) => sum + r.count, 0);
+  const highRiskCount = riskData.filter(r => r.riskLevel === "high" || r.riskLevel === "very_high").reduce((sum: any, r: any) => sum + r.count, 0);
   const mediumRiskCount = riskData.find(r => r.riskLevel === "medium")?.count || 0;
   const lowRiskCount = riskData.find(r => r.riskLevel === "low")?.count || 0;
 
@@ -115,7 +115,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
       high: highRiskCount,
       medium: mediumRiskCount,
       low: lowRiskCount,
-      total: riskData.reduce((sum, r) => sum + r.count, 0),
+      total: riskData.reduce((sum: any, r: any) => sum + r.count, 0),
     },
     employees: {
       total: totalEmployees,
@@ -271,7 +271,7 @@ export const executiveReportsRouter = router({
         const { url: fileUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
 
         // Guardar en historial
-        const [report] = await db.insert(executiveReportsHistory).values({
+        const [report] = await (db.insert(executiveReportsHistory) as any).values({
           reportType: input.reportType,
           periodLabel,
           startDate: startDate.toISOString().split('T')[0] as any,

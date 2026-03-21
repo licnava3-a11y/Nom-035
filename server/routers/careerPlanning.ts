@@ -36,7 +36,7 @@ export const careerPlanningRouter = router({
         throw new Error('Database not initialized');
       }
       
-      const [path] = await db.insert(careerPaths).values({
+      const [path] = await (db.insert(careerPaths) as any).values({
         pathName: input.pathName,
         description: input.description,
         positions: input.positions as any,
@@ -132,7 +132,7 @@ export const careerPlanningRouter = router({
       });
       
       // Ordenar por score descendente
-      suggestions.sort((a, b) => b.matchScore - a.matchScore);
+      suggestions.sort((a: any, b: any) => b.matchScore - a.matchScore);
       
       return suggestions.slice(0, 3); // Top 3
     }),
@@ -186,7 +186,7 @@ export const careerPlanningRouter = router({
         },
       ];
       
-      const [plan] = await db.insert(employeeCareerPlans).values({
+      const [plan] = await (db.insert(employeeCareerPlans) as any).values({
         employeeId: input.employeeId,
         pathId: input.pathId,
         currentLevel: input.currentLevel,
@@ -269,7 +269,7 @@ export const careerPlanningRouter = router({
       
       await db
         .update(employeeCareerPlans)
-        .set({ milestones: updatedMilestones as any })
+        .set({ milestones: updatedMilestones as any } as any)
         .where(eq(employeeCareerPlans.id, input.planId));
       
       return { success: true };

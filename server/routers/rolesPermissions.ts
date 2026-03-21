@@ -178,7 +178,7 @@ export const rolesPermissionsRouter = router({
       );
 
       // Combine permissions with counts
-      const roles = Object.entries(rolePermissions).map(([role, permissions]) => ({
+      const roles = Object.entries(rolePermissions).map(([role, permissions]: [string, any]) => ({
         role,
         permissions,
         userCount: countsByRole[role] || 0,
@@ -305,10 +305,10 @@ export const rolesPermissionsRouter = router({
       }
 
       // Update user role
-      await db.update(users).set({ role: newRole }).where(eq(users.id, userId));
+      await db.update(users).set({ role: newRole } as any).where(eq(users.id, userId));
 
       // Register change in audit history
-      await db.insert(permissionChangeHistory).values({
+      await (db.insert(permissionChangeHistory) as any).values({
         userId: userId,
         changedBy: ctx.user!.id,
         changeType: "role_change",

@@ -132,12 +132,12 @@ export const actionPlanRouter = router({
       });
 
       const topRisks = Object.entries(categoryScores)
-        .map(([category, data]) => ({
+        .map(([category, data]: [string, any]) => ({
           category,
           avgScore: data.total / data.count,
           riskLevel: 'medio', // Simplificado, se puede calcular según rangos
         }))
-        .sort((a, b) => b.avgScore - a.avgScore)
+        .sort((a: any, b: any) => b.avgScore - a.avgScore)
         .slice(0, 5);
 
       return {
@@ -184,7 +184,7 @@ export const actionPlanRouter = router({
       });
 
       // Calcular análisis por departamento
-      const analysis = Object.entries(departmentGroups).map(([dept, deptResponses]) => ({
+      const analysis = Object.entries(departmentGroups).map(([dept, deptResponses]: [string, any]) => ({
         segment: dept,
         totalResponses: deptResponses.length,
         avgScore: calculateAvgScore(deptResponses),
@@ -227,7 +227,7 @@ export const actionPlanRouter = router({
         positionGroups[position].push(r);
       });
 
-      const analysis = Object.entries(positionGroups).map(([position, posResponses]) => ({
+      const analysis = Object.entries(positionGroups).map(([position, posResponses]: [string, any]) => ({
         segment: position,
         totalResponses: posResponses.length,
         avgScore: calculateAvgScore(posResponses),
@@ -289,7 +289,7 @@ export const actionPlanRouter = router({
 
       const analysis = Object.entries(ageGroups)
         .filter(([_, ageResponses]) => ageResponses.length > 0)
-        .map(([ageRange, ageResponses]) => ({
+        .map(([ageRange, ageResponses]: [string, any]) => ({
           segment: ageRange,
           totalResponses: ageResponses.length,
           avgScore: calculateAvgScore(ageResponses),
@@ -332,7 +332,7 @@ export const actionPlanRouter = router({
         genderGroups[gender].push(r);
       });
 
-      const analysis = Object.entries(genderGroups).map(([gender, genderResponses]) => ({
+      const analysis = Object.entries(genderGroups).map(([gender, genderResponses]: [string, any]) => ({
         segment: gender,
         totalResponses: genderResponses.length,
         avgScore: calculateAvgScore(genderResponses),
@@ -375,7 +375,7 @@ export const actionPlanRouter = router({
         maritalGroups[marital].push(r);
       });
 
-      const analysis = Object.entries(maritalGroups).map(([marital, maritalResponses]) => ({
+      const analysis = Object.entries(maritalGroups).map(([marital, maritalResponses]: [string, any]) => ({
         segment: marital,
         totalResponses: maritalResponses.length,
         avgScore: calculateAvgScore(maritalResponses),
@@ -418,7 +418,7 @@ export const actionPlanRouter = router({
         scheduleGroups[schedule].push(r);
       });
 
-      const analysis = Object.entries(scheduleGroups).map(([schedule, scheduleResponses]) => ({
+      const analysis = Object.entries(scheduleGroups).map(([schedule, scheduleResponses]: [string, any]) => ({
         segment: schedule,
         totalResponses: scheduleResponses.length,
         avgScore: calculateAvgScore(scheduleResponses),
@@ -461,7 +461,7 @@ export const actionPlanRouter = router({
         contractGroups[contract].push(r);
       });
 
-      const analysis = Object.entries(contractGroups).map(([contract, contractResponses]) => ({
+      const analysis = Object.entries(contractGroups).map(([contract, contractResponses]: [string, any]) => ({
         segment: contract,
         totalResponses: contractResponses.length,
         avgScore: calculateAvgScore(contractResponses),
@@ -522,7 +522,7 @@ export const actionPlanRouter = router({
 
       const analysis = Object.entries(tenureGroups)
         .filter(([_, tenureResponses]) => tenureResponses.length > 0)
-        .map(([tenure, tenureResponses]) => ({
+        .map(([tenure, tenureResponses]: [string, any]) => ({
           segment: tenure,
           totalResponses: tenureResponses.length,
           avgScore: calculateAvgScore(tenureResponses),
