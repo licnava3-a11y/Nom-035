@@ -893,9 +893,9 @@ export const departmentsRouter = router({
         const deptEmployees = await db
           .select({
             id: employees.id,
-            name: employees.name,
+            name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
             email: employees.email,
-            position: employees.position,
+            position: employees.positionId,
             isActive: employees.isActive,
           })
           .from(employees)
@@ -908,7 +908,7 @@ export const departmentsRouter = router({
           "Nombre": emp.name,
           "Email": emp.email,
           "Puesto": emp.position,
-          "Estado": emp.status,
+          "Estado": emp.isActive,
         }));
       })
     );
@@ -1140,8 +1140,8 @@ export const departmentsRouter = router({
 
   // Obtener configuración del algoritmo predictivo
   getAlgorithmConfig: protectedProcedure.query(async ({ ctx }) => {
-    const config = await ctx.db.select().from(schema.predictiveAlgorithmConfig)
-      .where(eq(schema.predictiveAlgorithmConfig.isActive, true))
+    const config = await db.select().from(predictiveAlgorithmConfig)
+      .where(eq(predictiveAlgorithmConfig.isActive, true))
       .limit(1);
 
     if (config.length === 0) {
@@ -1183,13 +1183,13 @@ export const departmentsRouter = router({
       }
 
       // Obtener configuración activa
-      const activeConfig = await ctx.db.select().from(schema.predictiveAlgorithmConfig)
-        .where(eq(schema.predictiveAlgorithmConfig.isActive, true))
+      const activeConfig = await db.select().from(predictiveAlgorithmConfig)
+        .where(eq(predictiveAlgorithmConfig.isActive, true))
         .limit(1);
 
       if (activeConfig.length === 0) {
         // Crear nueva configuración
-        await ctx.db.insert(schema.predictiveAlgorithmConfig).values({
+        await db.insert(predictiveAlgorithmConfig).values({
           configName: 'default',
           rotationWeight: input.rotationWeight,
           tenureWeight: input.tenureWeight,
@@ -1201,7 +1201,7 @@ export const departmentsRouter = router({
         });
       } else {
         // Actualizar configuración existente
-        await ctx.db.update(schema.predictiveAlgorithmConfig)
+        await db.update(predictiveAlgorithmConfig)
           .set({
             rotationWeight: input.rotationWeight,
             tenureWeight: input.tenureWeight,
@@ -1210,7 +1210,7 @@ export const departmentsRouter = router({
             updatedBy: ctx.user.id,
             updatedAt: new Date(),
           })
-          .where(eq(schema.predictiveAlgorithmConfig.id, activeConfig[0].id));
+          .where(eq(predictiveAlgorithmConfig.id, activeConfig[0].id));
       }
 
       return {

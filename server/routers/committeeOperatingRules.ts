@@ -93,9 +93,9 @@ export const committeeOperatingRulesRouter = router({
         // Notificar a miembros del comité
         await notifyOperatingRulesChanges({
           operatingRuleId: ruleId,
-          version: input.version,
-          changeType: "created",
-          changedBy: ctx.user.id,
+          operatingRuleVersion: input.version,
+          type: "created",
+          changedByUserId: ctx.user.id,
           changedByName: ctx.user.name,
         });
 
@@ -198,10 +198,10 @@ export const committeeOperatingRulesRouter = router({
         // Notificar a miembros del comité
         await notifyOperatingRulesChanges({
           operatingRuleId: input.id,
-          version: input.version,
-          changeType: "updated",
+          operatingRuleVersion: input.version,
+          type: "updated",
           changeDescription: input.changeDescription,
-          changedBy: ctx.user.id,
+          changedByUserId: ctx.user.id,
           changedByName: ctx.user.name,
         });
 
@@ -442,10 +442,10 @@ export const committeeOperatingRulesRouter = router({
         // Notificar a miembros del comité
         await notifyOperatingRulesChanges({
           operatingRuleId: input.operatingRuleId,
-          version: versionToRestore.version,
-          changeType: "restored",
+          operatingRuleVersion: versionToRestore.version,
+          type: "restored",
           changeDescription: input.changeDescription,
-          changedBy: ctx.user.id,
+          changedByUserId: ctx.user.id,
           changedByName: ctx.user.name,
         });
 
@@ -555,9 +555,9 @@ export const committeeOperatingRulesRouter = router({
           // Notificar a miembros del comité
           await notifyOperatingRulesChanges({
             operatingRuleId: input.id,
-            version: rule.version,
-            changeType: "approved",
-            changedBy: ctx.user.id,
+            operatingRuleVersion: rule.version,
+            type: "approved",
+            changedByUserId: ctx.user.id,
             changedByName: ctx.user.name,
           });
         }
@@ -852,9 +852,9 @@ export const committeeOperatingRulesRouter = router({
           if (rule) {
             await notifyOperatingRulesChanges({
               operatingRuleId: approval.operatingRuleId,
-              version: rule.version,
-              changeType: "approved",
-              changedBy: ctx.user.id,
+              operatingRuleVersion: rule.version,
+              type: "approved",
+              changedByUserId: ctx.user.id,
               changedByName: ctx.user.name,
             });
           }
@@ -1485,13 +1485,13 @@ export const committeeOperatingRulesRouter = router({
         const results = await db
           .select({
             id: committeeOperatingRules.id,
-            title: committeeOperatingRules.title,
+            version: committeeOperatingRules.version,
             version: committeeOperatingRules.version,
             status: committeeOperatingRules.status,
             objectives: committeeOperatingRules.objectives,
             structure: committeeOperatingRules.structure,
             roles: committeeOperatingRules.roles,
-            members: committeeOperatingRules.members,
+            // members field removed
             createdAt: committeeOperatingRules.createdAt,
             updatedAt: committeeOperatingRules.updatedAt,
           })

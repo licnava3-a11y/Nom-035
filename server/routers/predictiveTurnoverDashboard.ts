@@ -106,11 +106,11 @@ export const predictiveTurnoverDashboardRouter = router({
           const highRiskSurveysCount = await db
             .select({ count: count() })
             .from(nom035Results)
-            .innerJoin(users, eq(nom035Results.userId, users.id))
+            .innerJoin(users, eq(nom035Results.employeeId, users.id))
             .where(
               and(
                 sql`${users.departamento} = ${String(dept.id)}`,
-                sql`${nom035Results.riskLevel} IN ('Alto', 'Muy alto')`,
+                sql`${nom035Results.globalRiskLevel} IN ('Alto', 'Muy alto')`,
                 gte(nom035Results.createdAt, sixMonthsAgo)
               )
             );
@@ -229,12 +229,12 @@ export const predictiveTurnoverDashboardRouter = router({
         const surveyResults = userIds.length > 0
           ? await db
               .select({
-                userId: nom035Results.userId,
-                riskLevel: nom035Results.riskLevel,
-                finalScore: nom035Results.finalScore,
+                userId: nom035Results.employeeId,
+                riskLevel: nom035Results.globalRiskLevel,
+                finalScore: nom035Results.globalScore,
               })
               .from(nom035Results)
-              .where(inArray(nom035Results.userId, userIds))
+              .where(inArray(nom035Results.employeeId, userIds))
               .orderBy(desc(nom035Results.createdAt))
           : [];
 

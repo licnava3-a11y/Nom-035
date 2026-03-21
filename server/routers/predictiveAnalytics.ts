@@ -191,14 +191,14 @@ export const predictiveAnalyticsRouter = router({
       const employeesWithEvaluations = await db
         .select({
           employeeId: employees.id,
-          employeeName: employees.name,
+          employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           employeeEmail: employees.email,
           departmentId: employees.departmentId,
           departmentName: departments.name,
           cycleId: evaluation360Cycles.id,
           cycleName: evaluation360Cycles.cycleName,
           cycleEndDate: evaluation360Cycles.endDate,
-          avgScore: sql<number>`AVG(${evaluation360Responses.rating})`.as("avgScore"),
+          avgScore: sql<number>`AVG(${evaluation360Responses.score})`.as("avgScore"),
         })
         .from(employees)
         .leftJoin(departments, eq(employees.departmentId, departments.id))
@@ -212,7 +212,7 @@ export const predictiveAnalyticsRouter = router({
         )
         .groupBy(
           employees.id,
-          employees.name,
+          sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
           employees.email,
           employees.departmentId,
           departments.name,

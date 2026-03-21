@@ -36,8 +36,8 @@ export const interventionsRouter = router({
         .select({
           competencyId: competencies.id,
           competencyName: competencies.name,
-          requiredLevel: competencies.requiredLevel,
-          averageRating: sql<number>`AVG(${evaluation360Responses.rating})`,
+          requiredLevel: sql<number>`3`,
+          averageRating: sql<number>`AVG(${evaluation360Responses.score})`,
         })
         .from(evaluation360Responses)
         .innerJoin(
@@ -58,7 +58,7 @@ export const interventionsRouter = router({
             eq(evaluation360Assignments.cycleId, input.cycleId)
           )
         )
-        .groupBy(competencies.id, competencies.name, competencies.requiredLevel);
+        .groupBy(competencies.id, competencies.name, sql<number>`3`);
 
       // Identificar competencias críticas (brecha > 1.5)
       const criticalCompetencies = competencyTrends.filter(
@@ -90,7 +90,7 @@ export const interventionsRouter = router({
         .select({
           mentorId: employees.id,
           mentorName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
-          averageRating: sql<number>`AVG(${evaluation360Responses.rating})`,
+          averageRating: sql<number>`AVG(${evaluation360Responses.score})`,
         })
         .from(employees)
         .innerJoin(
@@ -113,7 +113,7 @@ export const interventionsRouter = router({
           )
         )
         .groupBy(employees.id, employees.firstName, employees.lastName)
-        .orderBy(sql<number>`AVG(${evaluation360Responses.rating}) DESC`)
+        .orderBy(sql<number>`AVG(${evaluation360Responses.score}) DESC`)
         .limit(1);
 
       const assignedMentor = potentialMentors[0] || null;

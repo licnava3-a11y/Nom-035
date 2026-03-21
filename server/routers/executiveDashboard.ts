@@ -791,8 +791,8 @@ export const executiveDashboardRouter = router({
 
       // Datos de KPIs
       const kpisRows = [
-        ['Tasa de Cumplimiento NOM-035', `${metrics.complianceRate}%`],
-        ['Casos Críticos Abiertos', metrics.criticalCases],
+        ['Tasa de Cumplimiento NOM-035', `${metrics?.complianceRate || 0}%`],
+        ['Casos Críticos Abiertos', metrics?.criticalCases || 0],
         ['Total de Empleados', metrics.totalEmployees],
         ['Casos Cerrados (Mes Actual)', metrics.closedCasesThisMonth],
       ];
@@ -857,7 +857,7 @@ export const executiveDashboardRouter = router({
       ws2.getRow(3).alignment = { horizontal: 'center' };
 
       // Datos
-      metrics.casesTrends.forEach((t: any, idx: number) => {
+      metrics?.casesTrends || [].forEach((t: any, idx: number) => {
         const rowNum = idx + 4;
         ws2.getCell(`A${rowNum}`).value = t.month;
         ws2.getCell(`B${rowNum}`).value = t.openCases;
@@ -872,7 +872,7 @@ export const executiveDashboardRouter = router({
       ];
 
       // Gráfica de barras para tendencias
-      const chartDataRows = metrics.casesTrends.length;
+      const chartDataRows = metrics?.casesTrends || [].length;
       ws2.addChart({
         name: 'Tendencias de Casos',
         chartType: 'bar',
@@ -913,7 +913,7 @@ export const executiveDashboardRouter = router({
       ws3.getRow(3).alignment = { horizontal: 'center' };
 
       // Datos
-      metrics.riskDistribution.forEach((r: any, idx: number) => {
+      metrics?.riskDistribution || [].forEach((r: any, idx: number) => {
         const rowNum = idx + 4;
         ws3.getCell(`A${rowNum}`).value = r.level;
         ws3.getCell(`B${rowNum}`).value = r.count;
@@ -927,7 +927,7 @@ export const executiveDashboardRouter = router({
       ];
 
       // Gráfica de pie para distribución de riesgo
-      const riskDataRows = metrics.riskDistribution.length;
+      const riskDataRows = metrics?.riskDistribution || [].length;
       ws3.addChart({
         name: 'Distribución de Riesgo',
         chartType: 'pie',

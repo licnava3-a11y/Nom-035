@@ -3,7 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { surveyEmployeeTokens, employees, surveyPeriods, surveyQuestions, surveyResponses, surveyAnswers, users } from "../../drizzle/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendBulkEmails, getSurveyInvitationTemplate } from "../services/emailService";
 
@@ -229,8 +229,8 @@ export const publicSurveysRouter = router({
           },
           employee: {
             id: employee.id,
-            name: employee.name,
-            department: employee.department,
+            name: sql<string>`CONCAT(${employee.firstName}, ' ', ${employee.lastName})`,
+            department: employee.departmentId,
           },
           period: period ? {
             id: period.id,
@@ -516,7 +516,7 @@ export const publicSurveysRouter = router({
 
           // Generar HTML del email
           const emailHtml = getSurveyInvitationTemplate({
-            employeeName: employee.name || "Empleado",
+            employeeName: sql<string>`CONCAT(${employee.firstName}, ' ', ${employee.lastName})` || "Empleado",
             surveyType: input.surveyType,
             surveyToken: token.token,
             expiresAt: new Date(token.expiresAt),

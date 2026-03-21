@@ -140,7 +140,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
   const latestPeriod = await db
     .select()
     .from(surveyPeriods)
-    .where(eq(surveyPeriods.isActive, true))
+    .where(eq(surveyPeriods.status, 'active'))
     .orderBy(desc(surveyPeriods.startDate))
     .limit(1);
   
@@ -153,7 +153,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     
     const [coverageResult] = await db
       .select({ 
-        total: sql<number>`COUNT(DISTINCT ${surveyResponses.employeeId})`,
+        total: sql<number>`COUNT(DISTINCT ${surveyResponses.userId})`,
         totalEmployees: sql<number>`(SELECT COUNT(*) FROM ${employees} WHERE ${employees.isActive} = true)`
       })
       .from(surveyResponses)
@@ -167,11 +167,11 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     const riskCounts = await db
       .select({
         riskLevel: surveyResponses.riskLevel,
-        count: sql<number>`COUNT(DISTINCT ${surveyResponses.employeeId})`
+        count: sql<number>`COUNT(DISTINCT ${surveyResponses.userId})`
       })
       .from(surveyResponses)
       .where(eq(surveyResponses.periodId, periodId))
-      .groupBy(surveyResponses.riskLevel);
+      ;
     
     highRiskEmployees = riskCounts.find(r => r.riskLevel === 'high')?.count || 0;
     mediumRiskEmployees = riskCounts.find(r => r.riskLevel === 'medium')?.count || 0;
@@ -181,7 +181,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
   const [activeTrainingsResult] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(courses)
-    .where(eq(courses.status, 'published'));
+    .where(eq(courses.isPublished, true));
   
   // Placeholder para enrollments (tabla no existe)
   const completedTrainingsResult = { count: 0 };
@@ -195,13 +195,13 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
       departmentId: employees.departmentId,
       departmentName: departments.name,
       activeCases: sql<number>`COUNT(DISTINCT CASE WHEN ${cases.status} IN ('open', 'in_progress') THEN ${cases.id} END)`,
-      highRiskCount: sql<number>`COUNT(DISTINCT CASE WHEN ${surveyResponses.riskLevel} = 'high' THEN ${surveyResponses.employeeId} END)`,
+      highRiskCount: sql<number>`COUNT(DISTINCT CASE WHEN ${surveyResponses.riskLevel} = 'high' THEN ${surveyResponses.userId} END)`,
       employeeCount: sql<number>`COUNT(DISTINCT ${employees.id})`
     })
     .from(employees)
     .leftJoin(departments, eq(employees.departmentId, departments.id))
-    .leftJoin(cases, eq(cases.employeeId, employees.id))
-    .leftJoin(surveyResponses, eq(surveyResponses.employeeId, employees.id))
+    .leftJoin(cases, eq(cases.departmentId, employees.departmentId))
+    .leftJoin(surveyResponses, eq(surveyResponses.userId, employees.id))
     .where(eq(employees.isActive, true))
     .groupBy(employees.departmentId, departments.name)
     .orderBy(desc(sql`COUNT(DISTINCT CASE WHEN ${cases.status} IN ('open', 'in_progress') THEN ${cases.id} END)`))
@@ -235,7 +235,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
       createdAt: cases.createdAt
     })
     .from(cases)
-    .leftJoin(employees, eq(cases.employeeId, employees.id))
+    .leftJoin(employees, eq(cases.departmentId, employees.departmentId))
     .leftJoin(departments, eq(employees.departmentId, departments.id))
     .where(and(
       sql`${cases.priority} = 'critical'`,

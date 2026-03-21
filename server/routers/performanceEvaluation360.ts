@@ -452,7 +452,7 @@ export const performanceEvaluation360Router = router({
 
       // Obtener nombre de la competencia
       const [competency] = await db
-        .select({ name: competencies.name, requiredLevel: competencies.requiredLevel })
+        .select({ name: competencies.name, requiredLevel: sql<number>`3` })
         .from(competencies)
         .where(eq(competencies.id, input.competencyId));
 
@@ -463,7 +463,7 @@ export const performanceEvaluation360Router = router({
         .select({
           departmentId: employees.departmentId,
           departmentName: sql<string>`COALESCE(${employees.departmentId}, 'Sin Departamento')`,
-          averageLevel: sql<number>`AVG(${evaluation360Responses.rating})`,
+          averageLevel: sql<number>`AVG(${evaluation360Responses.score})`,
           employeeCount: sql<number>`COUNT(DISTINCT ${employees.id})`,
         })
         .from(evaluation360Responses)
@@ -486,7 +486,7 @@ export const performanceEvaluation360Router = router({
           )
         )
         .groupBy(employees.departmentId)
-        .orderBy(sql<number>`AVG(${evaluation360Responses.rating}) DESC`);
+        .orderBy(sql<number>`AVG(${evaluation360Responses.score}) DESC`);
 
       return {
         competencyName: competency.name,
@@ -538,7 +538,7 @@ export const performanceEvaluation360Router = router({
           // Calcular nivel promedio de la competencia en el departamento
           const avgLevelQuery = await db
             .select({
-              averageLevel: sql<number>`AVG(${evaluation360Responses.rating})`,
+              averageLevel: sql<number>`AVG(${evaluation360Responses.score})`,
               employeeCount: sql<number>`COUNT(DISTINCT ${employees.id})`,
             })
             .from(evaluation360Responses)

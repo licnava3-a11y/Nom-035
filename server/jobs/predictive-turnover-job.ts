@@ -43,13 +43,13 @@ async function analyzePredictiveTurnover() {
 
     // Usar valores por defecto si no existe configuración
     const weights = config || {
-      turnoverWeight: 40,
+      rotationWeight: 40,
       tenureWeight: 30,
       managerWeight: 20,
       teamSizeWeight: 10,
     };
 
-    console.log(`[Predictive Turnover Job] Using algorithm weights: turnover=${weights.turnoverWeight}%, tenure=${weights.tenureWeight}%, manager=${weights.managerWeight}%, teamSize=${weights.teamSizeWeight}%`);
+    console.log(`[Predictive Turnover Job] Using algorithm weights: turnover=${weights.rotationWeight}%, tenure=${weights.tenureWeight}%, manager=${weights.managerWeight}%, teamSize=${weights.teamSizeWeight}%`);
 
     const alerts: Array<{
       departmentId: number;
@@ -139,10 +139,10 @@ async function analyzePredictiveTurnover() {
         currentEmployeeCount > 0
           ? (terminationsLast3Months / currentEmployeeCount) * 100
           : 0;
-      if (turnoverRate > 20) riskScore += weights.turnoverWeight;
-      else if (turnoverRate > 10) riskScore += weights.turnoverWeight * 0.75;
-      else if (turnoverRate > 5) riskScore += weights.turnoverWeight * 0.5;
-      else riskScore += weights.turnoverWeight * 0.25;
+      if (turnoverRate > 20) riskScore += weights.rotationWeight;
+      else if (turnoverRate > 10) riskScore += weights.rotationWeight * 0.75;
+      else if (turnoverRate > 5) riskScore += weights.rotationWeight * 0.5;
+      else riskScore += weights.rotationWeight * 0.25;
 
       // Factor 2: Antigüedad promedio baja (0-tenureWeight puntos)
       if (avgTenureMonths < 6) riskScore += weights.tenureWeight;
@@ -207,7 +207,7 @@ async function analyzePredictiveTurnover() {
             avgTenureMonths: alert.avgTenureMonths,
             hasManager: !!alert.dept.managerId,
             algorithmConfigId: config?.id || null,
-            rotationWeight: weights.turnoverWeight,
+            rotationWeight: weights.rotationWeight,
             tenureWeight: weights.tenureWeight,
             managerWeight: weights.managerWeight,
             teamSizeWeight: weights.teamSizeWeight,

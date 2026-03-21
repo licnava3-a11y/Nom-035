@@ -93,15 +93,15 @@ export const careerPlanningRouter = router({
         let score = 0;
         
         // Factor 1: Educación (30%)
-        if (path.minimumEducation && employee.education) {
-          const educationMatch = employee.education.includes(path.minimumEducation);
+        if (path.minimumEducation && employee.ultimoGradoEstudios) {
+          const educationMatch = employee.ultimoGradoEstudios.includes(path.minimumEducation);
           score += educationMatch ? 30 : 0;
         } else {
           score += 15; // Neutral si no hay requisito
         }
         
         // Factor 2: Experiencia (20%)
-        const experienceMonths = employee.yearsOfExperience ? employee.yearsOfExperience * 12 : 0;
+        const experienceMonths = null ? null * 12 : 0;
         if (path.minimumExperience) {
           const experienceRatio = Math.min(experienceMonths / path.minimumExperience, 1);
           score += experienceRatio * 20;
@@ -111,13 +111,13 @@ export const careerPlanningRouter = router({
         
         // Factor 3: Departamento actual (25%)
         const currentDepartmentMatch = path.positions.some(
-          (pos: any) => pos.positionName.toLowerCase().includes(employee.department?.toLowerCase() || "")
+          (pos: any) => pos.positionName.toLowerCase().includes(employee.departamento?.toLowerCase() || "")
         );
         score += currentDepartmentMatch ? 25 : 0;
         
         // Factor 4: Posición actual (25%)
         const currentPositionMatch = path.positions.some(
-          (pos: any) => pos.positionName.toLowerCase() === employee.position?.toLowerCase()
+          (pos: any) => pos.positionName.toLowerCase() === employee.puesto?.toLowerCase()
         );
         score += currentPositionMatch ? 25 : 10;
         
@@ -283,14 +283,14 @@ export const careerPlanningRouter = router({
     // Calcular proyecciones basadas en rotación histórica
     const turnoverData = await db
       .select({
-        position: employeeTurnoverHistory.position,
+        position: employeeTurnoverHistory.exitReason,
         count: sql<number>`COUNT(*)`,
       })
       .from(employeeTurnoverHistory)
       .where(
         sql`${employeeTurnoverHistory.exitDate} >= DATE_SUB(NOW(), INTERVAL 12 MONTH)`
       )
-      .groupBy(employeeTurnoverHistory.position);
+      .groupBy(employeeTurnoverHistory.exitReason);
     
     const projections = turnoverData.map(item => ({
       position: item.position,
