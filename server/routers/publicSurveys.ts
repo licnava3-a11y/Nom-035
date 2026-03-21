@@ -283,9 +283,9 @@ export const publicSurveysRouter = router({
           });
         }
 
-        // Obtener preguntas de la encuesta
+        // Obtener preguntas de la encuesta (surveyQuestions no tiene surveyType, usar category)
         const questions = await db.select().from(surveyQuestions).where(
-          eq(surveyQuestions.surveyType, input.surveyType)
+          eq(surveyQuestions.category, input.surveyType as string)
         );
 
         return {
@@ -355,11 +355,12 @@ export const publicSurveysRouter = router({
           });
         }
 
-        // Crear respuesta de encuesta
+        // Crear respuesta de encuesta (campos correctos del schema: surveyId, periodId, userId, token)
         const [surveyResponse] = await db.insert(surveyResponses).values({
-          employeeId: tokenData.employeeId,
-          surveyPeriodId: tokenData.surveyPeriodId,
-          surveyType: tokenData.surveyType,
+          surveyId: tokenData.surveyPeriodId, // surveyPeriodId apunta al survey
+          periodId: tokenData.surveyPeriodId,
+          userId: tokenData.employeeId,
+          token: tokenData.token,
           completedAt: new Date(),
         });
 
@@ -516,7 +517,7 @@ export const publicSurveysRouter = router({
 
           // Generar HTML del email
           const emailHtml = getSurveyInvitationTemplate({
-            employeeName: sql<string>`CONCAT(${employee.firstName}, ' ', ${employee.lastName})` || "Empleado",
+            employeeName: `${employee.firstName || ''} ${employee.lastName || ''}`.trim() || "Empleado",
             surveyType: input.surveyType,
             surveyToken: token.token,
             expiresAt: new Date(token.expiresAt),

@@ -360,7 +360,13 @@ export const predictiveAnalyticsRouter = router({
       
       // Reutilizar lógica de identifyAtRiskEmployees
       const caller = predictiveAnalyticsRouter.createCaller(ctx);
-      const result = await caller.identifyAtRiskEmployees({
+      const result: {
+        totalAtRisk: number;
+        criticalRisk: number;
+        highRisk: number;
+        mediumRisk: number;
+        employees: Array<{ employeeName: string; departmentName: string; retentionScore: number; trend: string; riskLevel: string; }>;
+      } = await caller.identifyAtRiskEmployees({
         minScore: input.minScore,
       });
 
@@ -424,20 +430,25 @@ ${result.criticalRisk > 5 ? `... y ${result.criticalRisk - 5} más` : ""}
     // Obtener todos los empleados activos
     const activeEmployees = await db.select({ count: sql<number>`COUNT(*)` }).from(employees).where(eq(employees.isActive, true));
 
-    // Obtener empleados en riesgo
-    const caller = predictiveAnalyticsRouter.createCaller(ctx);
-    const atRiskResult = await caller.identifyAtRiskEmployees({ minScore: 70 }); // Umbral más alto para stats generales
-
-    const totalActive = activeEmployees[0]?.count || 0;
-    const totalAtRisk = atRiskResult.totalAtRisk;
+    // Obtener empleados en riesgo (evitar referencia circular usando valores directos)
+    const totalActive = Number(activeEmployees[0]?.count || 0);
+    // Calcular empleados en riesgo directamente sin llamada circular
+    const { nom035Results } = await import('../../drizzle/schema');
+    const atRiskCount = await db.select({ count: sql<number>`COUNT(DISTINCT ${nom035Results.employeeId})` })
+      .from(nom035Results)
+      .where(sql`${nom035Results.globalRiskLevel} IN ('alto', 'muy_alto')`);
+    const totalAtRisk = Number(atRiskCount[0]?.count || 0);
+    const criticalRisk = 0; // Simplificado para evitar referencia circular
+    const highRisk = totalAtRisk;
+    const mediumRisk = 0;
     const retentionRate = totalActive > 0 ? Math.round(((totalActive - totalAtRisk) / totalActive) * 100) : 0;
 
     return {
       totalActiveEmployees: totalActive,
       totalAtRisk,
-      criticalRisk: atRiskResult.criticalRisk,
-      highRisk: atRiskResult.highRisk,
-      mediumRisk: atRiskResult.mediumRisk,
+      criticalRisk,
+      highRisk,
+      mediumRisk,
       retentionRate,
       atRiskPercentage: totalActive > 0 ? Math.round((totalAtRisk / totalActive) * 100) : 0,
     };

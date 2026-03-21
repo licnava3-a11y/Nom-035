@@ -425,8 +425,9 @@ Formato de respuesta (JSON):
           },
         });
 
-        const content = response.choices[0].message.content;
-        const recommendations = JSON.parse(content);
+        const rawContent = response.choices[0].message.content;
+        const contentStr = typeof rawContent === 'string' ? rawContent : (Array.isArray(rawContent) ? rawContent.map((c: any) => c.text || '').join('') : '{}');
+        const recommendations = JSON.parse(contentStr);
 
         return {
           departmentName: dept[0].name,

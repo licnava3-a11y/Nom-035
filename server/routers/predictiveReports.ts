@@ -162,7 +162,8 @@ Formato: Lista numerada con título y descripción breve (máximo 2 líneas por 
             ],
           });
 
-          recommendations = llmResponse.choices[0]?.message?.content || "No se pudieron generar recomendaciones.";
+          const rawContent = llmResponse.choices[0]?.message?.content;
+          recommendations = typeof rawContent === 'string' ? rawContent : (Array.isArray(rawContent) ? rawContent.map((c: any) => c.text || '').join('') : "No se pudieron generar recomendaciones.");
         }
 
         // Crear PDF
