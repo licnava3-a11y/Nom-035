@@ -516,7 +516,7 @@ export default function SkillsMatrix() {
             </div>
             <div>
               <Label>Departamento</Label>
-              <Select
+              <Select modal={false}
                 value={filters.departmentId?.toString() || "all"}
                 onValueChange={(value) =>
                   setFilters({ ...filters, departmentId: value === "all" ? undefined : parseInt(value) })
@@ -535,7 +535,7 @@ export default function SkillsMatrix() {
             </div>
             <div>
               <Label>Puesto</Label>
-              <Select
+              <Select modal={false}
                 value={filters.positionId?.toString() || "all"}
                 onValueChange={(value) =>
                   setFilters({ ...filters, positionId: value === "all" ? undefined : parseInt(value) })
@@ -685,7 +685,7 @@ export default function SkillsMatrix() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Nivel Actual: {editingCell?.currentLevel}</Label>
-              <Select
+              <Select modal={false}
                 defaultValue={editingCell?.currentLevel}
                 onValueChange={(value) => {
                   if (editingCell) {

@@ -326,7 +326,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Aprobador *</Label>
-                      <Select
+                      <Select modal={false}
                         value={approver.approverId}
                         onValueChange={(value) => handleApproverChange(index, "approverId", value)}
                       >
@@ -345,7 +345,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
 
                     <div>
                       <Label>Rol *</Label>
-                      <Select
+                      <Select modal={false}
                         value={approver.approverRole}
                         onValueChange={(value) => handleApproverChange(index, "approverRole", value)}
                       >

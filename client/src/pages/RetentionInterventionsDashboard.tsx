@@ -168,7 +168,7 @@ export default function RetentionInterventionsDashboard() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="interventionType">Tipo de Intervención *</Label>
-                <Select value={interventionType} onValueChange={(value: any) => setInterventionType(value)}>
+                <Select modal={false} value={interventionType} onValueChange={(value: any) => setInterventionType(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -323,7 +323,7 @@ export default function RetentionInterventionsDashboard() {
               <CardTitle>Historial de Intervenciones</CardTitle>
               <CardDescription>Registro de acciones de retención y sus resultados</CardDescription>
             </div>
-            <Select value={selectedOutcome} onValueChange={(value: any) => setSelectedOutcome(value)}>
+            <Select modal={false} value={selectedOutcome} onValueChange={(value: any) => setSelectedOutcome(value)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filtrar por outcome" />
               </SelectTrigger>

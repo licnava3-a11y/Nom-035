@@ -267,7 +267,7 @@ export default function ExpenseRequests() {
             </div>
             <div>
               <Label>Categoría</Label>
-              <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+              <Select modal={false} value={categoria} onValueChange={(value: any) => setCategoria(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -315,7 +315,7 @@ export default function ExpenseRequests() {
             </div>
             <div>
               <Label>Categoría</Label>
-              <Select value={categoria} onValueChange={(value: any) => setCategoria(value)}>
+              <Select modal={false} value={categoria} onValueChange={(value: any) => setCategoria(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

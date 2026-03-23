@@ -243,7 +243,7 @@ export default function Payments() {
             </div>
             <div>
               <Label>Estado</Label>
-              <Select value={estado} onValueChange={(value: any) => setEstado(value)}>
+              <Select modal={false} value={estado} onValueChange={(value: any) => setEstado(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -293,7 +293,7 @@ export default function Payments() {
             </div>
             <div>
               <Label>Estado</Label>
-              <Select value={estado} onValueChange={(value: any) => setEstado(value)}>
+              <Select modal={false} value={estado} onValueChange={(value: any) => setEstado(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

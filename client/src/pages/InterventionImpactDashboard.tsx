@@ -310,7 +310,7 @@ export default function InterventionImpactDashboard() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="interventionType">Tipo de Intervención *</Label>
-                  <Select name="interventionType" required>
+                  <Select modal={false} name="interventionType" required>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar tipo" />
                     </SelectTrigger>
@@ -429,7 +429,7 @@ export default function InterventionImpactDashboard() {
 
       {/* Filtros */}
       <div className="flex gap-4">
-        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+        <Select modal={false} value={selectedStatus} onValueChange={setSelectedStatus}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filtrar por estado" />
           </SelectTrigger>
@@ -441,7 +441,7 @@ export default function InterventionImpactDashboard() {
           </SelectContent>
         </Select>
 
-        <Select value={selectedType} onValueChange={setSelectedType}>
+        <Select modal={false} value={selectedType} onValueChange={setSelectedType}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filtrar por tipo" />
           </SelectTrigger>

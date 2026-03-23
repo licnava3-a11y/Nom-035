@@ -189,7 +189,7 @@ export default function AlertHistory() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Tipo de Alerta</label>
-            <Select value={alertType} onValueChange={(v) => setAlertType(v as AlertType)}>
+            <Select modal={false} value={alertType} onValueChange={(v) => setAlertType(v as AlertType)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -204,7 +204,7 @@ export default function AlertHistory() {
 
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Estado</label>
-            <Select value={status} onValueChange={(v) => setStatus(v as AlertStatus)}>
+            <Select modal={false} value={status} onValueChange={(v) => setStatus(v as AlertStatus)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -218,7 +218,7 @@ export default function AlertHistory() {
 
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Prioridad</label>
-            <Select value={priority} onValueChange={(v) => setPriority(v as AlertPriority)}>
+            <Select modal={false} value={priority} onValueChange={(v) => setPriority(v as AlertPriority)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

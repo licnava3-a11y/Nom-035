@@ -50,6 +50,9 @@ export const rolePermissions: Record<string, Permission[]> = {
   externo: ['can_view'],
   invitado: ['can_view'],
   superadmin: ['can_view', 'can_create', 'can_edit', 'can_delete', 'can_approve', 'can_export'],
+  // Default roles from auth system
+  admin: ['can_view', 'can_create', 'can_edit', 'can_delete', 'can_approve', 'can_export'],
+  user: ['can_view', 'can_create', 'can_edit'],
 };
 
 /**

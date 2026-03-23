@@ -264,7 +264,7 @@ export default function IntelligentAlertsDashboard() {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>Estado</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select modal={false} value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -278,7 +278,7 @@ export default function IntelligentAlertsDashboard() {
             </div>
             <div>
               <Label>Severidad</Label>
-              <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <Select modal={false} value={severityFilter} onValueChange={setSeverityFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

@@ -281,7 +281,7 @@ export default function CorrectiveActionPlansManagement() {
         <CardContent className="flex gap-4">
           <div className="flex-1">
             <Label>Estado</Label>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+            <Select modal={false} value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -299,7 +299,7 @@ export default function CorrectiveActionPlansManagement() {
 
           <div className="flex-1">
             <Label>Prioridad</Label>
-            <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as any)}>
+            <Select modal={false} value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as any)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -414,7 +414,7 @@ export default function CorrectiveActionPlansManagement() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Prioridad *</Label>
-                <Select
+                <Select modal={false}
                   value={newPlan.priority}
                   onValueChange={(v) => setNewPlan({ ...newPlan, priority: v as PlanPriority })}
                 >

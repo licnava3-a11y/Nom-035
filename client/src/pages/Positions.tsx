@@ -203,7 +203,7 @@ export default function Positions() {
             className="pl-10"
           />
         </div>
-        <Select
+        <Select modal={false}
           value={filterDepartment?.toString() || "all"}
           onValueChange={(value) => {
             setFilterDepartment(value === "all" ? undefined : Number(value));
@@ -356,7 +356,7 @@ export default function Positions() {
             </div>
             <div>
               <Label htmlFor="department">Departamento *</Label>
-              <Select
+              <Select modal={false}
                 value={formData.departmentId.toString()}
                 onValueChange={(value) =>
                   setFormData({ ...formData, departmentId: Number(value) })
@@ -376,7 +376,7 @@ export default function Positions() {
             </div>
             <div>
               <Label htmlFor="level">Nivel</Label>
-              <Select
+              <Select modal={false}
                 value={formData.level}
                 onValueChange={(value: any) =>
                   setFormData({ ...formData, level: value })
@@ -449,7 +449,7 @@ export default function Positions() {
             </div>
             <div>
               <Label htmlFor="edit-department">Departamento *</Label>
-              <Select
+              <Select modal={false}
                 value={formData.departmentId.toString()}
                 onValueChange={(value) =>
                   setFormData({ ...formData, departmentId: Number(value) })
@@ -469,7 +469,7 @@ export default function Positions() {
             </div>
             <div>
               <Label htmlFor="edit-level">Nivel</Label>
-              <Select
+              <Select modal={false}
                 value={formData.level}
                 onValueChange={(value: any) =>
                   setFormData({ ...formData, level: value })

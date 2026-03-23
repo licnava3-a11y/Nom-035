@@ -286,7 +286,7 @@ export default function ReportTemplates() {
 
               <div>
                 <Label htmlFor="tipo">Tipo</Label>
-                <Select
+                <Select modal={false}
                   value={formData.tipo}
                   onValueChange={(value) => setFormData({ ...formData, tipo: value })}
                 >

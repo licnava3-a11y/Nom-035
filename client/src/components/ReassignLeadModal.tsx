@@ -116,7 +116,7 @@ export function ReassignLeadModal({ open, onOpenChange, lead }: ReassignLeadModa
             {/* Selector de vendedor */}
             <div className="space-y-2">
               <Label htmlFor="salesperson">Nuevo Vendedor *</Label>
-              <Select
+              <Select modal={false}
                 value={selectedSalespersonId}
                 onValueChange={setSelectedSalespersonId}
                 disabled={loadingSalespeople}

@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { appRouter } from "./routers";
 import { createContext } from "./_core/context";
 import type { Context } from "./_core/context";
 import * as employeesDb from "./db-employees";
+import { getDb } from "./db";
+import { employees } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 describe("employees.terminate", () => {
   let adminContext: Context;
@@ -11,10 +14,7 @@ describe("employees.terminate", () => {
   beforeAll(async () => {
     // Create admin context
     adminContext = await createContext({
-      req: {
-        headers: {},
-        cookies: {},
-      } as any,
+      req: { headers: {}, cookies: {} } as any,
       res: {} as any,
     });
     adminContext.user = {
@@ -27,13 +27,12 @@ describe("employees.terminate", () => {
       updatedAt: new Date(),
     };
 
-    // Create a test employee
+    // Create a test employee (no CURP to avoid uniqueness conflicts)
     testEmployeeId = await employeesDb.createEmployee({
-      firstName: "Test",
-      lastName: "Employee",
-      email: `test-employee-${Date.now()}@test.com`,
-      curp: "ABCD123456HDFLRS01",
-      employeeNumber: `EMP-${Date.now()}`,
+      firstName: "Terminate",
+      lastName: "Test",
+      email: `terminate-test-${Date.now()}@test.com`,
+      employeeNumber: `EMP-TERM-${Date.now()}`,
       hireDate: new Date("2024-01-01"),
       contractType: "permanent",
       reentryCount: 0,
@@ -41,7 +40,21 @@ describe("employees.terminate", () => {
     });
   });
 
-  it.skip("should terminate an employee successfully", async () => {
+  afterAll(async () => {
+    // Cleanup test employee
+    if (testEmployeeId) {
+      const db = await getDb();
+      if (db) {
+        try {
+          await db.delete(employees).where(eq(employees.id, testEmployeeId));
+        } catch (e) {
+          console.warn("Cleanup failed:", e);
+        }
+      }
+    }
+  });
+
+  it("should terminate an employee successfully", async () => {
     const caller = appRouter.createCaller(adminContext);
     const result = await caller.employees.terminate({
       employeeId: testEmployeeId,
@@ -59,7 +72,7 @@ describe("employees.terminate", () => {
     expect(employee?.isActive).toBe(false);
   });
 
-  it.skip("should fail if employee does not exist", async () => {
+  it("should fail if employee does not exist", async () => {
     const caller = appRouter.createCaller(adminContext);
     await expect(
       caller.employees.terminate({
@@ -72,12 +85,9 @@ describe("employees.terminate", () => {
     ).rejects.toThrow("Empleado no encontrado");
   });
 
-  it.skip("should fail if user is not admin", async () => {
+  it("should fail if user is not admin", async () => {
     const userContext = await createContext({
-      req: {
-        headers: {},
-        cookies: {},
-      } as any,
+      req: { headers: {}, cookies: {} } as any,
       res: {} as any,
     });
     userContext.user = {

@@ -151,7 +151,7 @@ export default function NineBoxMatrix() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="performanceScore">Desempeño (1-3)</Label>
-                    <Select name="performanceScore" required>
+                    <Select modal={false} name="performanceScore" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
@@ -164,7 +164,7 @@ export default function NineBoxMatrix() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="potentialScore">Potencial (1-3)</Label>
-                    <Select name="potentialScore" required>
+                    <Select modal={false} name="potentialScore" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
@@ -251,7 +251,7 @@ export default function NineBoxMatrix() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Departamento</Label>
-              <Select value={selectedDepartment} onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : value)}>
+              <Select modal={false} value={selectedDepartment} onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
                 </SelectTrigger>

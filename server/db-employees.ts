@@ -197,7 +197,8 @@ export async function createEmployee(data: InsertEmployee) {
   if (!db) throw new Error("Database not available");
 
   const result = await (db.insert(employees) as any).values(data);
-  return Number((result as any).insertId);
+  // Drizzle MySQL2 returns [ResultSetHeader, ...] array
+  return Number((result as any)?.[0]?.insertId ?? (result as any)?.insertId);
 }
 
 /**
@@ -223,7 +224,8 @@ export async function createEmployeeWithHistory(
   return await db.transaction(async (tx) => {
     // 1. Insert employee
     const result = await tx.insert(employees).values(employeeData);
-    const employeeId = Number((result as any).insertId);
+    // Drizzle MySQL2 returns [ResultSetHeader, ...] array
+    const employeeId = Number((result as any)?.[0]?.insertId ?? (result as any)?.insertId);
 
     // 2. Insert history event
     await tx.insert(employeeHistory).values({

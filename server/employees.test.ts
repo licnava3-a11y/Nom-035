@@ -1,19 +1,20 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { appRouter } from "./routers";
 import { createContext } from "./_core/context";
 import type { Context } from "./_core/context";
+import { getDb } from "./db";
+import { employees } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 describe("Employees Module", () => {
   let adminContext: Context;
   let userContext: Context;
+  const ts = Date.now();
 
   beforeAll(async () => {
     // Create admin context
     adminContext = await createContext({
-      req: {
-        headers: {},
-        cookies: {},
-      } as any,
+      req: { headers: {}, cookies: {} } as any,
       res: {} as any,
     });
     adminContext.user = {
@@ -26,12 +27,9 @@ describe("Employees Module", () => {
       updatedAt: new Date(),
     };
 
-    // Create user context
+    // Create user context (role 'user' has limited permissions)
     userContext = await createContext({
-      req: {
-        headers: {},
-        cookies: {},
-      } as any,
+      req: { headers: {}, cookies: {} } as any,
       res: {} as any,
     });
     userContext.user = {
@@ -48,21 +46,16 @@ describe("Employees Module", () => {
   describe("Employee CRUD Operations", () => {
     let createdEmployeeId: number | undefined;
 
-    it.skip("should create a new employee", async () => { // SKIP: Requiere CURP con dígito verificador válido
+    it("should create a new employee", async () => {
       const caller = appRouter.createCaller(adminContext);
-      const timestamp = Date.now();
-      const uniqueEmail = `test.employee.${timestamp}@example.com`;
-      // Usar CURP válido con dígito verificador correcto
-      const uniqueCurp = `TEEG900101HCHRRN0${String(timestamp).slice(-1)}`; // Total: 18 caracteres
+      const uniqueEmail = `test.employee.${ts}@example.com`;
+
       const result = await caller.employees.create({
         firstName: "Test",
         lastName: "Employee",
         email: uniqueEmail,
         phone: "+52 614 123 4567",
-        curp: uniqueCurp,
-        employeeNumber: `EMP-TEST-${timestamp}`,
-        department: "Testing Department",
-        position: "Test Engineer",
+        employeeNumber: `EMP-TEST-${ts}`,
         contractType: "permanent",
       });
 
@@ -89,28 +82,21 @@ describe("Employees Module", () => {
 
     it("should filter employees by search term", async () => {
       const caller = appRouter.createCaller(adminContext);
-      const result = await caller.employees.list({
-        search: "Test",
-      });
+      const result = await caller.employees.list({ search: "Test" });
 
       expect(result).toBeDefined();
       expect(result.employees).toBeDefined();
       expect(Array.isArray(result.employees)).toBe(true);
-      // Search should return results
       expect(result.employees.length).toBeGreaterThanOrEqual(0);
     });
 
     it("should filter employees by department", async () => {
       const caller = appRouter.createCaller(adminContext);
-      // Use departmentId as string (will be parsed to number in backend)
-      const result = await caller.employees.list({
-        department: "1", // departmentId as string
-      });
+      const result = await caller.employees.list({ department: "1" });
 
       expect(result).toBeDefined();
       expect(result.employees).toBeDefined();
       expect(Array.isArray(result.employees)).toBe(true);
-      // If there are results, they should have departmentId = 1
       if (result.employees.length > 0) {
         expect(result.employees.every((emp) => emp.departmentId === 1)).toBe(true);
       }
@@ -122,9 +108,7 @@ describe("Employees Module", () => {
         return;
       }
       const caller = appRouter.createCaller(adminContext);
-      const result = await caller.employees.getById({
-        id: createdEmployeeId,
-      });
+      const result = await caller.employees.getById({ id: createdEmployeeId });
 
       expect(result).toBeDefined();
       expect(result.id).toBe(createdEmployeeId);
@@ -142,13 +126,14 @@ describe("Employees Module", () => {
         id: createdEmployeeId,
         firstName: "Updated",
         lastName: "Employee",
-        email: "updated.employee@example.com",
-        position: "Senior Test Engineer",
+        email: `updated.employee.${ts}@example.com`,
       });
 
       expect(result).toBeDefined();
-      expect(result.firstName).toBe("Updated");
-      expect(result.position).toBe("Senior Test Engineer");
+      // update returns { success: true, employee: {...} }
+      expect(result.success).toBe(true);
+      expect(result.employee).toBeDefined();
+      expect(result.employee.firstName).toBe("Updated");
     });
 
     it("should deactivate and reactivate employee", async () => {
@@ -157,20 +142,28 @@ describe("Employees Module", () => {
         return;
       }
       const caller = appRouter.createCaller(adminContext);
-      
+
       // Deactivate
       const deactivated = await caller.employees.deactivate({
         id: createdEmployeeId,
       });
       expect(deactivated).toBeDefined();
-      expect(deactivated.isActive).toBe(false);
-      
+      expect(deactivated.success).toBe(true);
+
+      // Verify deactivated via getById
+      const deactivatedEmployee = await caller.employees.getById({ id: createdEmployeeId });
+      expect(deactivatedEmployee.isActive).toBe(false);
+
       // Reactivate
       const reactivated = await caller.employees.reactivate({
         id: createdEmployeeId,
       });
       expect(reactivated).toBeDefined();
-      expect(reactivated.isActive).toBe(true);
+      expect(reactivated.success).toBe(true);
+
+      // Verify reactivated via getById
+      const reactivatedEmployee = await caller.employees.getById({ id: createdEmployeeId });
+      expect(reactivatedEmployee.isActive).toBe(true);
     });
 
     it("should get departments list", async () => {
@@ -179,7 +172,7 @@ describe("Employees Module", () => {
 
       expect(result).toBeDefined();
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBeGreaterThanOrEqual(0); // Puede estar vacío si no hay empleados
+      expect(result.length).toBeGreaterThanOrEqual(0);
     });
 
     it("should get positions list", async () => {
@@ -190,12 +183,26 @@ describe("Employees Module", () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeGreaterThan(0);
     });
+
+    afterAll(async () => {
+      // Cleanup: delete test employee
+      if (createdEmployeeId) {
+        const db = await getDb();
+        if (db) {
+          try {
+            await db.delete(employees).where(eq(employees.id, createdEmployeeId));
+          } catch (e) {
+            console.warn("Cleanup failed:", e);
+          }
+        }
+      }
+    });
   });
 
   describe("Employee Access Control", () => {
     it("should deny non-admin users from creating employees", async () => {
       const caller = appRouter.createCaller(userContext);
-      
+
       await expect(
         caller.employees.create({
           firstName: "Unauthorized",
@@ -208,7 +215,7 @@ describe("Employees Module", () => {
 
     it("should deny non-admin users from updating employees", async () => {
       const caller = appRouter.createCaller(userContext);
-      
+
       await expect(
         caller.employees.update({
           id: 1,
@@ -221,11 +228,9 @@ describe("Employees Module", () => {
 
     it("should deny non-admin users from deactivating employees", async () => {
       const caller = appRouter.createCaller(userContext);
-      
+
       await expect(
-        caller.employees.deactivate({
-          id: 1,
-        })
+        caller.employees.deactivate({ id: 1 })
       ).rejects.toThrow();
     });
   });
@@ -233,7 +238,7 @@ describe("Employees Module", () => {
   describe("Employee Validation", () => {
     it("should reject invalid email format", async () => {
       const caller = appRouter.createCaller(adminContext);
-      
+
       await expect(
         caller.employees.create({
           firstName: "Test",
@@ -246,7 +251,7 @@ describe("Employees Module", () => {
 
     it("should reject CURP with invalid length", async () => {
       const caller = appRouter.createCaller(adminContext);
-      
+
       await expect(
         caller.employees.create({
           firstName: "Test",

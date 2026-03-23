@@ -400,7 +400,7 @@ export default function Policies() {
                     </p>
                   </div>
                 ) : (
-                  <Select
+                  <Select modal={false}
                     value={formData.representanteLegalId?.toString()}
                     onValueChange={(value) => setFormData({ ...formData, representanteLegalId: parseInt(value) })}
                   >
@@ -582,7 +582,7 @@ export default function Policies() {
             {/* Selector de modo de PDF */}
             <div className="space-y-2">
               <Label>Archivo PDF</Label>
-              <Select value={editUploadMode} onValueChange={(value: 'keep' | 'upload') => setEditUploadMode(value)}>
+              <Select modal={false} value={editUploadMode} onValueChange={(value: 'keep' | 'upload') => setEditUploadMode(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

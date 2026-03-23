@@ -202,7 +202,7 @@ export default function WorkplaceViolenceProtocol() {
               ) : (
                 <div className="space-y-2">
                   <Label htmlFor="complainant">Denunciante *</Label>
-                  <Select value={formData.complainantId} onValueChange={(value) => setFormData({ ...formData, complainantId: value })}>
+                  <Select modal={false} value={formData.complainantId} onValueChange={(value) => setFormData({ ...formData, complainantId: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione al denunciante" />
                     </SelectTrigger>
@@ -220,7 +220,7 @@ export default function WorkplaceViolenceProtocol() {
               {/* Persona Acusada */}
               <div className="space-y-2">
                 <Label htmlFor="accused">Persona Acusada *</Label>
-                <Select value={formData.accusedId} onValueChange={(value) => setFormData({ ...formData, accusedId: value })}>
+                <Select modal={false} value={formData.accusedId} onValueChange={(value) => setFormData({ ...formData, accusedId: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione a la persona acusada" />
                   </SelectTrigger>
@@ -259,7 +259,7 @@ export default function WorkplaceViolenceProtocol() {
               {/* Prioridad */}
               <div className="space-y-2">
                 <Label htmlFor="priority">Nivel de Prioridad *</Label>
-                <Select value={formData.priority} onValueChange={(value: any) => setFormData({ ...formData, priority: value })}>
+                <Select modal={false} value={formData.priority} onValueChange={(value: any) => setFormData({ ...formData, priority: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -304,7 +304,7 @@ export default function WorkplaceViolenceProtocol() {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Estado</Label>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select modal={false} value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -318,7 +318,7 @@ export default function WorkplaceViolenceProtocol() {
             </div>
             <div className="space-y-2">
               <Label>Prioridad</Label>
-              <Select value={filterPriority} onValueChange={(value: any) => setFilterPriority(value)}>
+              <Select modal={false} value={filterPriority} onValueChange={(value: any) => setFilterPriority(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -333,7 +333,7 @@ export default function WorkplaceViolenceProtocol() {
             </div>
             <div className="space-y-2">
               <Label>Fase del Protocolo</Label>
-              <Select value={filterPhase} onValueChange={(value: any) => setFilterPhase(value)}>
+              <Select modal={false} value={filterPhase} onValueChange={(value: any) => setFilterPhase(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

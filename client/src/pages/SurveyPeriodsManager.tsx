@@ -256,7 +256,7 @@ export default function SurveyPeriodsManager() {
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <Select name="surveyType" required>
+                  <Select modal={false} name="surveyType" required>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione el tipo de encuesta" />
                     </SelectTrigger>
@@ -354,7 +354,7 @@ export default function SurveyPeriodsManager() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label>Tipo de Encuesta</Label>
-              <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
+              <Select modal={false} value={filterType} onValueChange={(value: any) => setFilterType(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -369,7 +369,7 @@ export default function SurveyPeriodsManager() {
             </div>
             <div className="grid gap-2">
               <Label>Estado</Label>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select modal={false} value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

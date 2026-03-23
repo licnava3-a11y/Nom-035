@@ -156,7 +156,7 @@ export default function Recognitions() {
               {/* Selector de empleado */}
               <div className="grid gap-2">
                 <Label htmlFor="employee">Empleado *</Label>
-                <Select value={toUserId} onValueChange={setToUserId}>
+                <Select modal={false} value={toUserId} onValueChange={setToUserId}>
                   <SelectTrigger id="employee">
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
@@ -173,7 +173,7 @@ export default function Recognitions() {
               {/* Selector de categoría */}
               <div className="grid gap-2">
                 <Label htmlFor="category">Categoría *</Label>
-                <Select value={categoryId} onValueChange={setCategoryId}>
+                <Select modal={false} value={categoryId} onValueChange={setCategoryId}>
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>

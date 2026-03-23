@@ -59,7 +59,9 @@ export const trainingNeedsRouter = router({
         updatedAt: new Date(),
       });
 
-      return { success: true, id: need.insertId };
+      // Drizzle MySQL2 returns [ResultSetHeader, ...] array
+      const insertId = (need as any)?.[0]?.insertId ?? (need as any)?.insertId;
+      return { success: true, id: Number(insertId) };
     }),
 
   // 2. Actualizar necesidad
@@ -346,7 +348,13 @@ export const trainingNeedsRouter = router({
         }
       }
 
-      return results;
+      // MySQL returns aggregate functions as strings, convert to numbers
+      return results.map(r => ({
+        ...r,
+        avgGap: Number(r.avgGap),
+        affectedEmployees: Number(r.affectedEmployees),
+        criticalCount: Number(r.criticalCount),
+      }));
     }),
 
   // 8. Generar desde matriz de habilidades

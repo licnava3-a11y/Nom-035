@@ -399,7 +399,7 @@ export default function ReportConfigurationPanel() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="frequency">Frecuencia</Label>
-              <Select value={frequency} onValueChange={(v: any) => setFrequency(v)}>
+              <Select modal={false} value={frequency} onValueChange={(v: any) => setFrequency(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -442,7 +442,7 @@ export default function ReportConfigurationPanel() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="dateRangeType">Rango de Fechas</Label>
-              <Select value={dateRangeType} onValueChange={(v: any) => setDateRangeType(v)}>
+              <Select modal={false} value={dateRangeType} onValueChange={(v: any) => setDateRangeType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -508,7 +508,7 @@ export default function ReportConfigurationPanel() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-frequency">Frecuencia</Label>
-              <Select value={frequency} onValueChange={(v: any) => setFrequency(v)}>
+              <Select modal={false} value={frequency} onValueChange={(v: any) => setFrequency(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -548,7 +548,7 @@ export default function ReportConfigurationPanel() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-dateRangeType">Rango de Fechas</Label>
-              <Select value={dateRangeType} onValueChange={(v: any) => setDateRangeType(v)}>
+              <Select modal={false} value={dateRangeType} onValueChange={(v: any) => setDateRangeType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

@@ -164,7 +164,7 @@ export default function MassSurveyEmail() {
             {/* Selección de Encuesta */}
             <div className="space-y-2">
               <Label htmlFor="survey">Encuesta *</Label>
-              <Select
+              <Select modal={false}
                 value={surveyId?.toString() || ''}
                 onValueChange={(value) => setSurveyId(parseInt(value))}
               >
@@ -184,7 +184,7 @@ export default function MassSurveyEmail() {
             {/* Tipo de Destinatarios */}
             <div className="space-y-2">
               <Label htmlFor="recipientType">Destinatarios *</Label>
-              <Select
+              <Select modal={false}
                 value={recipientType}
                 onValueChange={(value) => setRecipientType(value as 'all' | 'department' | 'position')}
               >
@@ -203,7 +203,7 @@ export default function MassSurveyEmail() {
             {recipientType === 'department' && (
               <div className="space-y-2">
                 <Label htmlFor="department">Departamento</Label>
-                <Select
+                <Select modal={false}
                   value={departmentId?.toString() || ''}
                   onValueChange={(value) => setDepartmentId(parseInt(value))}
                 >
@@ -223,7 +223,7 @@ export default function MassSurveyEmail() {
             {recipientType === 'position' && (
               <div className="space-y-2">
                 <Label htmlFor="position">Puesto</Label>
-                <Select
+                <Select modal={false}
                   value={positionId?.toString() || ''}
                   onValueChange={(value) => setPositionId(parseInt(value))}
                 >

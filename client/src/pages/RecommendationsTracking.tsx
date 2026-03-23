@@ -218,7 +218,7 @@ export default function RecommendationsTracking() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="priority">Prioridad *</Label>
-                    <Select name="priority" required>
+                    <Select modal={false} name="priority" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
@@ -415,7 +415,7 @@ export default function RecommendationsTracking() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Estado</Label>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <Select modal={false} value={selectedStatus} onValueChange={setSelectedStatus}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -430,7 +430,7 @@ export default function RecommendationsTracking() {
             </div>
             <div className="flex-1">
               <Label>Prioridad</Label>
-              <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+              <Select modal={false} value={selectedPriority} onValueChange={setSelectedPriority}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -571,7 +571,7 @@ export default function RecommendationsTracking() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="edit-priority">Prioridad *</Label>
-                  <Select name="priority" defaultValue={selectedRecommendation?.recommendation.priority} required>
+                  <Select modal={false} name="priority" defaultValue={selectedRecommendation?.recommendation.priority} required>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -585,7 +585,7 @@ export default function RecommendationsTracking() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="edit-status">Estado *</Label>
-                  <Select name="status" defaultValue={selectedRecommendation?.recommendation.status} required>
+                  <Select modal={false} name="status" defaultValue={selectedRecommendation?.recommendation.status} required>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

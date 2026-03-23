@@ -262,7 +262,7 @@ export default function LeadsPipeline() {
         <CardContent className="flex gap-4">
           <div className="flex-1">
             <Label>Origen</Label>
-            <Select value={filtroOrigen} onValueChange={setFiltroOrigen}>
+            <Select modal={false} value={filtroOrigen} onValueChange={setFiltroOrigen}>
               <SelectTrigger>
                 <SelectValue placeholder="Todos los orígenes" />
               </SelectTrigger>
@@ -278,7 +278,7 @@ export default function LeadsPipeline() {
           </div>
           <div className="flex-1">
             <Label>Normativa</Label>
-            <Select value={filtroNormativa} onValueChange={setFiltroNormativa}>
+            <Select modal={false} value={filtroNormativa} onValueChange={setFiltroNormativa}>
               <SelectTrigger>
                 <SelectValue placeholder="Todas las normativas" />
               </SelectTrigger>
@@ -291,7 +291,7 @@ export default function LeadsPipeline() {
           </div>
           <div className="flex-1">
             <Label>Vendedor</Label>
-            <Select 
+            <Select modal={false} 
               value={filtroVendedor?.toString() || "all"} 
               onValueChange={(value) => setFiltroVendedor(value === "all" ? undefined : parseInt(value))}
             >

@@ -236,7 +236,7 @@ export default function CasesManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="caseType">Tipo de Caso *</Label>
-                  <Select
+                  <Select modal={false}
                     value={newCase.caseType}
                     onValueChange={(value: any) => setNewCase({ ...newCase, caseType: value })}
                   >
@@ -256,7 +256,7 @@ export default function CasesManagement() {
 
                 <div className="space-y-2">
                   <Label htmlFor="priority">Prioridad *</Label>
-                  <Select
+                  <Select modal={false}
                     value={newCase.priority}
                     onValueChange={(value: any) => setNewCase({ ...newCase, priority: value })}
                   >
@@ -275,7 +275,7 @@ export default function CasesManagement() {
 
               <div className="space-y-2">
                 <Label htmlFor="departmentId">Departamento *</Label>
-                <Select
+                <Select modal={false}
                   value={newCase.departmentId}
                   onValueChange={(value) => setNewCase({ ...newCase, departmentId: value })}
                 >
@@ -300,7 +300,7 @@ export default function CasesManagement() {
                     Seleccionar Empleado (Opcional - Prellenado Automático)
                   </div>
                 </Label>
-                <Select
+                <Select modal={false}
                   value={newCase.reporterEmployeeId}
                   onValueChange={handleEmployeeSelect}
                 >
@@ -440,7 +440,7 @@ export default function CasesManagement() {
           </div>
           <div className="space-y-2">
             <Label>Estado</Label>
-            <Select
+            <Select modal={false}
               value={filters.status}
               onValueChange={(value) => setFilters({ ...filters, status: value })}
             >
@@ -458,7 +458,7 @@ export default function CasesManagement() {
           </div>
           <div className="space-y-2">
             <Label>Prioridad</Label>
-            <Select
+            <Select modal={false}
               value={filters.priority}
               onValueChange={(value) => setFilters({ ...filters, priority: value })}
             >
@@ -476,7 +476,7 @@ export default function CasesManagement() {
           </div>
           <div className="space-y-2">
             <Label>Departamento</Label>
-            <Select
+            <Select modal={false}
               value={filters.departmentId}
               onValueChange={(value) => setFilters({ ...filters, departmentId: value })}
             >

@@ -300,7 +300,7 @@ export default function CommitteeAnnualReports() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Estado</Label>
-              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select modal={false} value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -826,7 +826,7 @@ export default function CommitteeAnnualReports() {
               <CardContent>
                 <div>
                   <Label>Estado</Label>
-                  <Select value={formData.status} onValueChange={(value: any) => setFormData({ ...formData, status: value })}>
+                  <Select modal={false} value={formData.status} onValueChange={(value: any) => setFormData({ ...formData, status: value })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

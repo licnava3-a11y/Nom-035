@@ -384,7 +384,7 @@ export default function CommitteeMinutesManagement() {
                 </div>
                 <div>
                   <Label htmlFor="tipoReunion">Tipo de Reunión</Label>
-                  <Select
+                  <Select modal={false}
                     value={formData.tipoReunion}
                     onValueChange={(value) => setFormData({ ...formData, tipoReunion: value })}
                   >
@@ -647,7 +647,7 @@ export default function CommitteeMinutesManagement() {
                       </div>
                       <div>
                         <Label>Prioridad</Label>
-                        <Select
+                        <Select modal={false}
                           value={agreement.priority}
                           onValueChange={(value) => updateAgreement(index, 'priority', value)}
                         >
