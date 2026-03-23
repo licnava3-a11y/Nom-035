@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { committeeTrainingPrograms, committeeTrainingSessions, committeeTrainingAttendance, committeeMembers, employees } from "../../drizzle/schema";
+import { committeeTrainingPrograms, committeeTrainingSessions, committeeTrainingAttendance, committeeMembers, employees, users } from "../../drizzle/schema";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import { generateCommitteeCertificatePDF } from "../services/committeeCertificatePDFService";
 
@@ -281,7 +281,7 @@ export const committeeTrainingRouter = router({
         const [user] = await db
           .select({ email: users.email })
           .from(users)
-          .where(eq(users.employeeId, employee.id))
+          .where(eq(users.id, employee.id))
           .limit(1);
 
         if (user && user.email) {

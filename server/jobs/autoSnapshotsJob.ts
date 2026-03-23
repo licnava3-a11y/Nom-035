@@ -1,5 +1,5 @@
 import { getDb } from "../db";
-import { departments, employees, skillsMatrix, organizationalCompetencies, skillsMatrixSnapshots, positions } from "../../drizzle/schema";
+import { competencies, departments, employees, organizationalCompetencies, positions, skillsMatrix, skillsMatrixSnapshots } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 /**
@@ -63,9 +63,9 @@ export async function generateMonthlySnapshots() {
         }
 
         // Calculate summary statistics
-        const employeeIds = new Set(matrixData.map(row => row.employeeId));
+        const employeeIds = new Set(matrixData.map((row: any) => row.employeeId));
         const totalEmployees = employeeIds.size;
-        const totalCompetencies = new Set(matrixData.map(row => row.competencyId)).size;
+        const totalCompetencies = new Set(matrixData.map((row: any) => row.competencyId)).size;
 
         let totalCurrentLevel = 0;
         let totalGaps = 0;
@@ -93,8 +93,8 @@ export async function generateMonthlySnapshots() {
             totalGaps,
             criticalGaps,
           },
-          employees: Array.from(employeeIds).map(empId => {
-            const empData = matrixData.filter(row => row.employeeId === empId);
+          employees: Array.from(employeeIds).map((empId: any) => {
+            const empData = matrixData.filter((row: any) => row.employeeId === empId);
             const empInfo = empData[0];
             
             let empTotalLevel = 0;
@@ -125,7 +125,7 @@ export async function generateMonthlySnapshots() {
               averageLevel: parseFloat((empTotalLevel / empData.length).toFixed(2)),
               totalGaps: empTotalGaps,
               criticalGaps: empCriticalGaps,
-              competencies: empData.map(row => ({
+              competencies: empData.map((row: any) => ({
                 competencyId: row.competencyId,
                 competencyName: row.competencyName,
                 currentLevel: row.currentLevel,
@@ -184,9 +184,9 @@ export async function generateMonthlySnapshots() {
         .leftJoin(positions, eq(employees.positionId, positions.id));
 
       if (matrixData.length > 0) {
-        const employeeIds = new Set(matrixData.map(row => row.employeeId));
+        const employeeIds = new Set(matrixData.map((row: any) => row.employeeId));
         const totalEmployees = employeeIds.size;
-        const totalCompetencies = new Set(matrixData.map(row => row.competencyId)).size;
+        const totalCompetencies = new Set(matrixData.map((row: any) => row.competencyId)).size;
 
         let totalCurrentLevel = 0;
         let totalGaps = 0;
@@ -213,8 +213,8 @@ export async function generateMonthlySnapshots() {
             totalGaps,
             criticalGaps,
           },
-          employees: Array.from(employeeIds).map(empId => {
-            const empData = matrixData.filter(row => row.employeeId === empId);
+          employees: Array.from(employeeIds).map((empId: any) => {
+            const empData = matrixData.filter((row: any) => row.employeeId === empId);
             const empInfo = empData[0];
             
             let empTotalLevel = 0;
@@ -247,7 +247,7 @@ export async function generateMonthlySnapshots() {
               averageLevel: parseFloat((empTotalLevel / empData.length).toFixed(2)),
               totalGaps: empTotalGaps,
               criticalGaps: empCriticalGaps,
-              competencies: empData.map(row => ({
+              competencies: empData.map((row: any) => ({
                 competencyId: row.competencyId,
                 competencyName: row.competencyName,
                 currentLevel: row.currentLevel,

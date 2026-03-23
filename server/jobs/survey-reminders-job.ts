@@ -5,7 +5,7 @@
 
 import cron from 'node-cron';
 import { getDb } from '../db';
-import { postCaseSurveys, cases } from '../../drizzle/schema';
+import { cases, postCaseSurveys, surveys } from '../../drizzle/schema';
 import { eq, and, sql, lte } from 'drizzle-orm';
 import { notifyOwner } from '../_core/notification';
 
@@ -46,7 +46,7 @@ async function sendSurveyReminders() {
 
     if (expiringSurveys.length > 0) {
       const surveysList = expiringSurveys
-        .map(s => `- Caso ${s.caseNumber || s.caseId} (${s.daysSinceClosure} días)`)
+        .map((s: any) => `- Caso ${s.caseNumber || s.caseId} (${s.daysSinceClosure} días)`)
         .join('\\n');
 
       const success = await notifyOwner({

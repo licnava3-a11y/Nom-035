@@ -161,7 +161,7 @@ export default function Recognitions() {
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {employeesQuery.data?.map((emp: any) => (
+                    {((employeesQuery.data as any)?.employees || employeesQuery.data as any || []).map((emp: any) => (
                       <SelectItem key={emp.id} value={emp.id.toString()}>
                         {emp.firstName} {emp.lastName} - {emp.position || "Sin puesto"}
                       </SelectItem>
@@ -244,9 +244,9 @@ export default function Recognitions() {
             <div className="text-center py-12">
               <p className="text-muted-foreground">Cargando reconocimientos...</p>
             </div>
-          ) : recognitionsQuery.data && recognitionsQuery.data.length > 0 ? (
+          ) : recognitionsQuery.data && ((recognitionsQuery.data as any)?.recognitions?.length || (recognitionsQuery.data as any)?.length || 0) > 0 ? (
             <div className="grid gap-4">
-              {recognitionsQuery.data.map((recognition: any) => (
+              {((recognitionsQuery.data as any)?.recognitions || recognitionsQuery.data as any || []).map((recognition: any) => (
                 <Card key={recognition.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -305,8 +305,8 @@ export default function Recognitions() {
                           onClick={() => handleReaction(recognition.id, type, false)}
                           className="flex items-center space-x-1"
                         >
-                          {reactionIcons[type].icon}
-                          <span className="text-xs">{reactionIcons[type].label}</span>
+                          {reactionIcons[(type) as any].icon}
+                          <span className="text-xs">{reactionIcons[(type) as any].label}</span>
                         </Button>
                       ))}
                     </div>

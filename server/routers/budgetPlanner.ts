@@ -6,7 +6,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { budgetAdjustmentScenarios } from "../../drizzle/schema";
+import { budgetAdjustmentScenarios, employees } from "../../drizzle/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export const budgetPlannerRouter = router({

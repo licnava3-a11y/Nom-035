@@ -222,7 +222,7 @@ export default function PerformanceEvaluation360() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalEmployees}</div>
+              <div className="text-2xl font-bold">{stats.totalAssignments}</div>
             </CardContent>
           </Card>
           <Card>
@@ -231,9 +231,9 @@ export default function PerformanceEvaluation360() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedEvaluations}</div>
+              <div className="text-2xl font-bold">{stats.completedAssignments}</div>
               <p className="text-xs text-muted-foreground">
-                {((stats.completedEvaluations / stats.totalEmployees) * 100).toFixed(1)}% completado
+                {((stats.completedAssignments / stats.totalAssignments) * 100).toFixed(1)}% completado
               </p>
             </CardContent>
           </Card>
@@ -243,7 +243,7 @@ export default function PerformanceEvaluation360() {
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.averagePerformance.toFixed(1)}</div>
+              <div className="text-2xl font-bold">{stats?.(averagePerformance as any).toFixed(1)}</div>
               <p className="text-xs text-muted-foreground">Escala 0-100</p>
             </CardContent>
           </Card>
@@ -253,7 +253,7 @@ export default function PerformanceEvaluation360() {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.averagePotential.toFixed(1)}</div>
+              <div className="text-2xl font-bold">{stats?.(averagePotential as any).toFixed(1)}</div>
               <p className="text-xs text-muted-foreground">Escala 0-100</p>
             </CardContent>
           </Card>
@@ -340,7 +340,7 @@ export default function PerformanceEvaluation360() {
                       <SelectValue placeholder="Selecciona una competencia" />
                     </SelectTrigger>
                     <SelectContent>
-                      {employeeCompetencies?.map((comp: any) => (
+                      {(window as any).employeeCompetencies || []?.map((comp: any) => (
                         <SelectItem key={comp.competencyId} value={comp.competencyId.toString()}>
                           {comp.competencyName}
                         </SelectItem>

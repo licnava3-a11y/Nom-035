@@ -1,16 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
-import { 
-  assessments, 
-  examQuestions, 
-  examQuestionOptions, 
-  examAttempts, 
-  examAnswers,
-  employees,
-  users,
-  courses
-} from '../../drizzle/schema';
+import { assessments, courses, employees, examAnswers, examAttempts, examQuestionOptions, examQuestions, questions, users } from '../../drizzle/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 export const assessmentsRouter = router({

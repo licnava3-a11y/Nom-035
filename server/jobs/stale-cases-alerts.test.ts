@@ -207,10 +207,10 @@ describe('Sistema de Alertas de Casos Estancados', () => {
         { id: 4, caseNumber: 'CASE-004', createdAt: new Date('2024-01-05'), status: 'closed', priority: 'low' },
       ];
 
-      const staleCases = cases.filter(c => isCaseStale(c.createdAt, c.status, 7, now));
+      const staleCases = cases.filter((c: any) => isCaseStale(c.createdAt, c.status, 7, now));
       expect(staleCases).toHaveLength(2);
-      expect(staleCases.map(c => c.caseNumber)).toContain('CASE-001');
-      expect(staleCases.map(c => c.caseNumber)).toContain('CASE-002');
+      expect(staleCases.map((c: any) => c.caseNumber)).toContain('CASE-001');
+      expect(staleCases.map((c: any) => c.caseNumber)).toContain('CASE-002');
     });
 
     it('debe identificar correctamente casos críticos estancados', () => {
@@ -220,10 +220,10 @@ describe('Sistema de Alertas de Casos Estancados', () => {
         { id: 3, caseNumber: 'CASE-003', createdAt: new Date('2024-01-18'), status: 'open', priority: 'critical' },
       ];
 
-      const criticalStale = cases.filter(c => isCriticalCaseStale(c.createdAt, c.status, c.priority, now));
+      const criticalStale = cases.filter((c: any) => isCriticalCaseStale(c.createdAt, c.status, c.priority, now));
       expect(criticalStale).toHaveLength(2);
-      expect(criticalStale.map(c => c.caseNumber)).toContain('CASE-001');
-      expect(criticalStale.map(c => c.caseNumber)).toContain('CASE-002');
+      expect(criticalStale.map((c: any) => c.caseNumber)).toContain('CASE-001');
+      expect(criticalStale.map((c: any) => c.caseNumber)).toContain('CASE-002');
     });
 
     it('debe generar notificaciones apropiadas para cada tipo de caso', () => {

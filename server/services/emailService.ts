@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { getDb } from "../db";
-import { smtpConfig } from "../../drizzle/schema";
+import { cases, employees, notifications, smtpConfig } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 

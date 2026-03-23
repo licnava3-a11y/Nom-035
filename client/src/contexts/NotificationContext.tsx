@@ -4,7 +4,8 @@
  */
 
 import { createContext, useContext, ReactNode } from "react";
-import { useNotifications, Notification } from "@/hooks/useNotifications";
+import { useNotifications } from "@/hooks/useNotifications"
+type Notification = any;
 import type { Socket } from "socket.io-client";
 
 interface NotificationContextValue {

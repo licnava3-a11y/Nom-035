@@ -237,7 +237,7 @@ async function sendCoordinatorWeeklySummary() {
               <p>A continuación se presenta el detalle de las acciones correctivas que han superado su fecha límite:</p>
             </div>
 
-            ${overdueActions.map(action => {
+            ${overdueActions.map((action: any) => {
               const riskLevelLabels: Record<string, string> = {
                 nulo: "Nulo",
                 bajo: "Bajo",

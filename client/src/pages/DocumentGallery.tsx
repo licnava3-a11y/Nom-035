@@ -49,7 +49,7 @@ export default function DocumentGallery() {
 
   const handleGeneratePDF = async (documentId: number, type: string) => {
     try {
-      let result;
+      let result: any;
       if (type === 'acta_recorrido') {
         result = await generateActaRecorridoPDF.mutateAsync(documentId);
       } else if (type === 'acta_final_resultados') {
@@ -94,7 +94,7 @@ export default function DocumentGallery() {
     if (selectedDocs.size === documents?.length) {
       setSelectedDocs(new Set());
     } else {
-      setSelectedDocs(new Set(documents?.map(d => d.id) || []));
+      setSelectedDocs(new Set(documents?.map((d: any) => d.id) || []));
     }
   };
 

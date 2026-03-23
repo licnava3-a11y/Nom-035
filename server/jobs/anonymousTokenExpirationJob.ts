@@ -4,7 +4,7 @@
  */
 
 import { getDb } from "../db";
-import { surveyAnonymousTokens, users } from "../../drizzle/schema";
+import { notifications, surveyAnonymousTokens, surveys, users } from "../../drizzle/schema";
 import { and, eq, gte, lte, isNull } from "drizzle-orm";
 import { sendEmail } from "../lib/email-sender";
 
@@ -49,7 +49,7 @@ async function getExpiringTokens(): Promise<TokenExpirationNotification[]> {
         )
       );
 
-    return expiringTokens.map(token => ({
+    return expiringTokens.map((token: any) => ({
       ...token,
       daysUntilExpiration: Math.ceil(
         (token.expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)

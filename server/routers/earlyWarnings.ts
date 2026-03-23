@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { nom035Cases, correctiveActions, employees, surveys, surveyResponses, departments } from "../../drizzle/schema";
+import { cases, correctiveActions, departments, employees, nom035Cases, surveyResponses, surveys } from "../../drizzle/schema";
 import { eq, and, isNull, sql, lt, lte, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 

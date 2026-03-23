@@ -5,7 +5,7 @@
 
 import cron from "node-cron";
 import { getDb } from "../db";
-import { externalOfferRiskAlerts } from "../../drizzle/schema";
+import { employees, externalOfferRiskAlerts } from "../../drizzle/schema";
 import { notifyOwner } from "../_core/notification";
 import { sql } from "drizzle-orm";
 
@@ -42,7 +42,7 @@ export function startExternalOfferRiskMonitorJob() {
 
       let alertsGenerated = 0;
 
-      for (const emp of employees.rows as any[]) {
+      for (const emp of employees[0] as unknown as any[]) {
         // Calcular factores de riesgo
         const salaryGap = parseFloat(emp.salary_gap_percentage || "0");
         const monthsSinceRaise = emp.months_since_last_raise || 0;
@@ -128,7 +128,7 @@ export function startExternalOfferRiskMonitorJob() {
             LIMIT 1
           `);
 
-          if (existingAlert.rows.length === 0) {
+          if (existingAlert[0].length === 0) {
             // Crear nueva alerta
             await (db.insert(externalOfferRiskAlerts) as any).values({
               employeeId: emp.employee_id,

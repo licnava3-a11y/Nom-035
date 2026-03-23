@@ -33,7 +33,7 @@ const tokenStore = new Map<string, { token: string; expiresAt: number }>();
  */
 setInterval(() => {
   const now = Date.now();
-  for (const [key, value] of tokenStore.entries()) {
+  for (const [key, value] of Array.from(tokenStore.entries())) {
     if (value.expiresAt < now) {
       tokenStore.delete(key);
     }

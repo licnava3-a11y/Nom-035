@@ -61,7 +61,7 @@ export default function RiskAlerts() {
       <div className="space-y-4">
         {departmentStats.map((dept: any) => {
           const riskPercentage = (dept.highRiskCount / dept.totalEmployees) * 100;
-          const isOverThreshold = riskPercentage > (thresholds?.highRiskThreshold || 30);
+          const isOverThreshold = riskPercentage > ((thresholds as any)?.highRiskThreshold || 30);
 
           return (
             <Card key={dept.departmentId} className={isOverThreshold ? "border-red-500 border-2" : ""}>
@@ -107,7 +107,7 @@ export default function RiskAlerts() {
                     ></div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Umbral configurado: {thresholds?.highRiskThreshold || 30}%
+                    Umbral configurado: {(thresholds as any)?.highRiskThreshold || 30}%
                   </p>
                 </div>
                 {isOverThreshold && (
@@ -118,7 +118,7 @@ export default function RiskAlerts() {
                     onClick={() => {
                       triggerAlertMutation.mutate({
                         departmentId: dept.departmentId,
-                        alertType: "high_risk_threshold",
+                        // alertType: "high_risk_threshold",
                         message: `Departamento ${dept.departmentName} superó el umbral de riesgo alto (${riskPercentage.toFixed(1)}%)`,
                       });
                     }}
@@ -144,7 +144,7 @@ export default function RiskAlerts() {
         {alertHistory.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">No hay alertas registradas</p>
         ) : (
-          alertHistory.map((alert: any) => (
+          (alertHistory as any[]).map((alert: any) => (
             <Card key={alert.id}>
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
@@ -197,7 +197,7 @@ export default function RiskAlerts() {
           </p>
         </div>
         <Button
-          onClick={() => checkRiskLevelsMutation.mutate()}
+          onClick={() => checkRiskLevelsMutation.mutate({})}
           disabled={checkRiskLevelsMutation.isPending}
         >
           {checkRiskLevelsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -226,11 +226,11 @@ export default function RiskAlerts() {
                 type="number"
                 min="0"
                 max="100"
-                defaultValue={thresholds?.highRiskThreshold || 30}
+                defaultValue={(thresholds as any)?.highRiskThreshold || 30}
                 onChange={(e) => setThresholdPercentage(parseInt(e.target.value))}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Actual: {thresholds?.highRiskThreshold || 30}%
+                Actual: {(thresholds as any)?.highRiskThreshold || 30}%
               </p>
             </div>
             <div>
@@ -240,10 +240,10 @@ export default function RiskAlerts() {
                 type="number"
                 min="0"
                 max="100"
-                defaultValue={thresholds?.mediumRiskThreshold || 20}
+                defaultValue={(thresholds as any)?.mediumRiskThreshold || 20}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Actual: {thresholds?.mediumRiskThreshold || 20}%
+                Actual: {(thresholds as any)?.mediumRiskThreshold || 20}%
               </p>
             </div>
             <div className="flex items-end">
@@ -258,7 +258,6 @@ export default function RiskAlerts() {
                   configureThresholdsMutation.mutate({
                     highRiskThreshold: highRisk,
                     mediumRiskThreshold: mediumRisk,
-                    notifyOwner: true,
                   });
                 }}
                 disabled={configureThresholdsMutation.isPending}

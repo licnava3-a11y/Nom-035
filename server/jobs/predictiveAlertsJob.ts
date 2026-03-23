@@ -135,8 +135,7 @@ async function analyzeAlertHistory(alertType: string): Promise<PredictiveAlert |
  */
 function generateAlertEmail(alerts: PredictiveAlert[]): string {
   const alertRows = alerts
-    .map(
-      (alert) => `
+    .map((alert: any) => `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
         <strong>${alertTypeLabels[alert.alertType]}</strong>

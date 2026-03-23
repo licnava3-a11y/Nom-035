@@ -84,10 +84,10 @@ export async function runRootCauseAnalysisJob() {
 
     // Obtener departamentos para mapeo
     const depts = await db.select().from(departments);
-    const deptMap = new Map(depts.map(d => [d.id, d.name]));
+    const deptMap = new Map(depts.map((d: any) => [d.id, d.name]));
 
     // Preparar datos para el LLM
-    const casesForAnalysis = closedCases.map(c => ({
+    const casesForAnalysis = closedCases.map((c: any) => ({
       caseNumber: c.caseNumber,
       type: c.caseType,
       priority: c.priority,

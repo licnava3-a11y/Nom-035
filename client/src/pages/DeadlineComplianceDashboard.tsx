@@ -48,7 +48,7 @@ export default function DeadlineComplianceDashboard() {
           { label: "Comité", href: "/committee" },
           { label: "Cumplimiento de Plazos" }
         ]} />
-        <DashboardSkeleton cards={6} charts={3} />
+        <DashboardSkeleton />
       </div>
     );
   }

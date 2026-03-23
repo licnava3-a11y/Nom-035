@@ -181,7 +181,7 @@ export default function DepartmentMetrics() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los departamentos</SelectItem>
-              {departmentsData?.departments.map((dept: any) => (
+              {(departmentsData as any)?.departments.map((dept: any) => (
                 <SelectItem key={dept.id} value={dept.id.toString()}>
                   {dept.name}
                 </SelectItem>
@@ -801,7 +801,7 @@ export default function DepartmentMetrics() {
             <Eye className="mr-2 h-4 w-4" />
             Ver Empleados
             {selectedDepartmentId && departmentsData
-              ? ` de ${departmentsData.find((d: any) => d.id === selectedDepartmentId)?.name}`
+              ? ` de ${(departmentsData as any)?.find((d: any) => d.id === selectedDepartmentId)?.name}`
               : ' de Todos los Departamentos'}
           </Button>
         </CardContent>
@@ -814,7 +814,7 @@ export default function DepartmentMetrics() {
             <DialogTitle>Empleados - Métricas Individuales</DialogTitle>
             <DialogDescription>
               {selectedDepartmentId && departmentsData
-                ? `Departamento: ${departmentsData.find((d: any) => d.id === selectedDepartmentId)?.name}`
+                ? `Departamento: ${(departmentsData as any)?.find((d: any) => d.id === selectedDepartmentId)?.name}`
                 : 'Todos los departamentos'}
             </DialogDescription>
           </DialogHeader>

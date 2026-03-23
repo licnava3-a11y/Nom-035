@@ -228,7 +228,7 @@ export default function NOM035Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="email">Correo electrónico</Label>
-                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={(value) => handleChange("email", value)} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
+                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={(value: any) => handleChange("email", value)} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
                     </div>
                   </div>
 
@@ -246,7 +246,7 @@ export default function NOM035Landing() {
 
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
-                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={(value) => handleChange("telefono", value)} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
+                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={(value: any) => handleChange("telefono", value)} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
                     </div>
                   </div>
 

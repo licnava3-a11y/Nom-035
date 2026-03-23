@@ -1,5 +1,7 @@
 import * as React from "react";
-import { Input, InputProps } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"
+import { type InputHTMLAttributes } from "react"
+type InputProps = InputHTMLAttributes<HTMLInputElement>;
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";

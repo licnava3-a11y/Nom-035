@@ -1,5 +1,5 @@
 import { getDb } from "../db";
-import { nom035EvidenceFolder } from "../../drizzle/schema";
+import { cases, certificates, nom035EvidenceFolder, surveys } from "../../drizzle/schema";
 
 export type EvidenceCategory =
   | "policies"

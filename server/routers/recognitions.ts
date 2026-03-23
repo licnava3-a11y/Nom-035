@@ -117,7 +117,7 @@ export const recognitionsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      let whereCondition;
+      let whereCondition: any;
 
       switch (input.filter) {
         case "received":

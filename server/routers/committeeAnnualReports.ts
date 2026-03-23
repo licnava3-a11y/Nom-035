@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
-import { committeeAnnualReports } from '../../drizzle/schema';
+import { committeeAnnualReports, signatures } from '../../drizzle/schema';
 import { eq, desc } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { generateAnnualReportPDF } from '../services/committeeDocumentsPDF';

@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { nmx025ManualEvidences, users, recognitions } from "../../drizzle/schema";
+import { cases, nmx025ManualEvidences, recognitions, users } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { storagePut, storageDelete } from "../storage";
 import PDFDocument from "pdfkit";

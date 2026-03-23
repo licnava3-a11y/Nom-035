@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { employees, complianceReports, formatCatalog, notifications } from "../../drizzle/schema";
+import { certificates, complianceReports, employees, formatCatalog, notifications } from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { storagePut } from "../storage";
 import Handlebars from "handlebars";

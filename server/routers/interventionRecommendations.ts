@@ -49,8 +49,7 @@ export const interventionRecommendationsRouter = router({
         const allInterventions = await db.select().from(retentionInterventions);
 
         // Filtrar intervenciones con outcome conocido
-        const completedInterventions = allInterventions.filter(
-          (i) => i.outcome === "retained" || i.outcome === "left"
+        const completedInterventions = allInterventions.filter((i: any) => i.outcome === "retained" || i.outcome === "left"
         );
 
         if (completedInterventions.length === 0) {

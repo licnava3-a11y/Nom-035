@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { users, surveys, surveyTokens, surveyNotifications } from "../../drizzle/schema";
+import { employees, surveyNotifications, surveyTokens, surveys, users } from "../../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { sendEmail } from "../lib/email-service";
 // crypto se importará dinámicamente en el servidor

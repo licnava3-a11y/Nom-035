@@ -1,12 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { 
-  committeeOperatingRules, 
-  committeeOperatingRulesVersions,
-  operatingRulesApprovals,
-  users 
-} from "../../drizzle/schema";
+import { committeeOperatingRules, committeeOperatingRulesVersions, operatingRulesApprovals, signatures, users } from "../../drizzle/schema";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { generateOperatingRulesPDF } from "../utils/generateOperatingRulesPDF";
@@ -45,7 +40,7 @@ export const committeeOperatingRulesRouter = router({
 
       try {
         // Crear la base de funcionamiento principal
-        const [newRule] = await (db.insert(committeeOperatingRules) as any).values({
+        const [newRule] = await (db.insert(committeeOperatingRules as any) as any).values({
           version: input.version,
           effectiveDate: input.effectiveDate,
           reviewDate: input.reviewDate,
@@ -68,7 +63,7 @@ export const committeeOperatingRulesRouter = router({
         const ruleId = newRule.insertId;
 
         // Crear la primera versión en el historial
-        await (db.insert(committeeOperatingRulesVersions) as any).values({
+        await (db.insert(committeeOperatingRulesVersions as any) as any).values({
           operatingRuleId: ruleId,
           versionNumber: 1,
           version: input.version,
@@ -173,7 +168,7 @@ export const committeeOperatingRulesRouter = router({
           .where(eq(committeeOperatingRules.id, input.id));
 
         // Crear nueva versión en el historial
-        await (db.insert(committeeOperatingRulesVersions) as any).values({
+        await (db.insert(committeeOperatingRulesVersions as any) as any).values({
           operatingRuleId: input.id,
           versionNumber: nextVersionNumber,
           version: input.version,
@@ -415,7 +410,7 @@ export const committeeOperatingRulesRouter = router({
           .where(eq(committeeOperatingRules.id, input.operatingRuleId));
 
         // Crear nueva versión en el historial (restauración)
-        await (db.insert(committeeOperatingRulesVersions) as any).values({
+        await (db.insert(committeeOperatingRulesVersions as any) as any).values({
           operatingRuleId: input.operatingRuleId,
           versionNumber: nextVersionNumber,
           version: versionToRestore.version,
@@ -738,7 +733,7 @@ export const committeeOperatingRulesRouter = router({
         // Crear nuevas solicitudes de aprobación
         const deadlineDate = input.deadline ? new Date(input.deadline) : null;
         const approvalPromises = input.approvers.map((approver: any) =>
-          (db.insert(operatingRulesApprovals) as any).values({
+          (db.insert(operatingRulesApprovals as any) as any).values({
             operatingRuleId: input.operatingRuleId,
             approverId: approver.approverId,
             approverRole: approver.approverRole,
@@ -1191,6 +1186,8 @@ export const committeeOperatingRulesRouter = router({
     )
     .query(async ({ ctx, input }) => {
       try {
+        const db = await getDb();
+        if (!db) throw new Error('Database not initialized');
         // Calcular fecha de inicio según período
         const now = new Date();
         let startDate: Date;
@@ -1343,7 +1340,7 @@ export const committeeOperatingRulesRouter = router({
             metadata: sql<string>`JSON_OBJECT(
               'versionId', ${committeeOperatingRulesVersions.id},
               'versionNumber', ${committeeOperatingRulesVersions.versionNumber},
-              'title', ${committeeOperatingRulesVersions.title}
+              'title', (committeeOperatingRulesVersions as any).title
             )`
           })
           .from(committeeOperatingRulesVersions)
@@ -1371,15 +1368,15 @@ export const committeeOperatingRulesRouter = router({
             userName: users.name,
             userEmail: users.email,
             description: sql<string>`CASE 
-              WHEN ${operatingRulesApprovals.status} = 'approved' THEN CONCAT('Aprobación firmada como ', ${operatingRulesApprovals.role})
+              WHEN ${operatingRulesApprovals.status} = 'approved' THEN CONCAT('Aprobación firmada como ', ${(operatingRulesApprovals as any).role})
               WHEN ${operatingRulesApprovals.status} = 'rejected' THEN CONCAT('Aprobación rechazada: ', ${operatingRulesApprovals.rejectionReason})
               ELSE 'Aprobación solicitada'
             END`,
             versionNumber: sql<number>`NULL`,
             metadata: sql<string>`JSON_OBJECT(
               'approvalId', ${operatingRulesApprovals.id},
-              'role', ${operatingRulesApprovals.role},
-              'roleDescription', ${operatingRulesApprovals.roleDescription},
+              'role', ${(operatingRulesApprovals as any).role},
+              'roleDescription', ${(operatingRulesApprovals as any).roleDescription},
               'status', ${operatingRulesApprovals.status},
               'comments', ${operatingRulesApprovals.comments}
             )`
@@ -1461,11 +1458,11 @@ export const committeeOperatingRulesRouter = router({
         // Construir condiciones de filtro
         const conditions = [
           or(
-            like(committeeOperatingRules.title, searchPattern),
+            like((committeeOperatingRules as any).title as any, searchPattern),
             like(committeeOperatingRules.objectives, searchPattern),
             like(committeeOperatingRules.structure, searchPattern),
             like(committeeOperatingRules.roles, searchPattern),
-            like(committeeOperatingRules.members, searchPattern)
+            like((committeeOperatingRules as any).members, searchPattern)
           )
         ];
         
@@ -1486,7 +1483,6 @@ export const committeeOperatingRulesRouter = router({
           .select({
             id: committeeOperatingRules.id,
             version: committeeOperatingRules.version,
-            version: committeeOperatingRules.version,
             status: committeeOperatingRules.status,
             objectives: committeeOperatingRules.objectives,
             structure: committeeOperatingRules.structure,
@@ -1504,16 +1500,16 @@ export const committeeOperatingRulesRouter = router({
           let relevance = 0;
           const lowerQuery = query.toLowerCase();
           
-          if (result.title?.toLowerCase().includes(lowerQuery)) relevance += 10;
+          if ((result as any).title?.toLowerCase().includes(lowerQuery)) relevance += 10;
           if (result.objectives?.toLowerCase().includes(lowerQuery)) relevance += 5;
           if (result.structure?.toLowerCase().includes(lowerQuery)) relevance += 3;
           if (result.roles?.toLowerCase().includes(lowerQuery)) relevance += 3;
-          if (result.members?.toLowerCase().includes(lowerQuery)) relevance += 2;
+          if ((result as any).members?.toLowerCase().includes(lowerQuery)) relevance += 2;
 
           // Extraer fragmento de contexto
           let snippet = "";
-          if (result.title?.toLowerCase().includes(lowerQuery)) {
-            snippet = result.title;
+          if ((result as any).title?.toLowerCase().includes(lowerQuery)) {
+            snippet = (result as any).title;
           } else if (result.objectives?.toLowerCase().includes(lowerQuery)) {
             const index = result.objectives.toLowerCase().indexOf(lowerQuery);
             const start = Math.max(0, index - 50);
@@ -1828,11 +1824,9 @@ export const committeeOperatingRulesRouter = router({
         // Métricas principales
         const totalWithDeadline = approvals.length;
         const completed = approvals.filter((a: any) => a.status === "signed");
-        const completedOnTime = completed.filter(
-          (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+        const completedOnTime = completed.filter((a: any) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
         );
-        const overdue = approvals.filter(
-          (a) => a.status === "pending" && a.deadline && new Date(a.deadline) < now
+        const overdue = approvals.filter((a: any) => a.status === "pending" && a.deadline && new Date(a.deadline) < now
         );
 
         const complianceRate = totalWithDeadline > 0 ? (completedOnTime.length / totalWithDeadline) * 100 : 0;
@@ -1870,8 +1864,7 @@ export const committeeOperatingRulesRouter = router({
           });
 
           const monthCompleted = monthApprovals.filter((a: any) => a.status === "signed");
-          const monthCompliant = monthCompleted.filter(
-            (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+          const monthCompliant = monthCompleted.filter((a: any) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
           );
 
           const rate = monthApprovals.length > 0 ? (monthCompliant.length / monthApprovals.length) * 100 : 0;
@@ -1972,8 +1965,7 @@ export const committeeOperatingRulesRouter = router({
         ].map(({ role, label }) => {
           const roleApprovals = approvals.filter((a: any) => a.approverRole === role);
           const roleCompleted = roleApprovals.filter((a: any) => a.status === "signed");
-          const roleCompliant = roleCompleted.filter(
-            (a) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
+          const roleCompliant = roleCompleted.filter((a: any) => a.signedAt && a.deadline && new Date(a.signedAt) <= new Date(a.deadline)
           );
 
           let roleAvgTime = 0;

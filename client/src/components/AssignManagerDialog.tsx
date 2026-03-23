@@ -64,8 +64,7 @@ export default function AssignManagerDialog({
     });
   };
 
-  const potentialManagers = users?.filter(
-    (u) => u.role === 'admin' || u.role === 'gerente' || u.role === 'committee_coordinator'
+  const potentialManagers = users?.filter((u: any) => u.role === 'admin' || u.role === 'gerente' || u.role === 'committee_coordinator'
   );
 
   return (

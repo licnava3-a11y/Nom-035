@@ -31,8 +31,7 @@ export function useWorkerSearch() {
     if (!searchTerm) return workers;
 
     const term = searchTerm.toLowerCase();
-    return workers.filter(
-      (worker) =>
+    return workers.filter((worker: any) =>
         `${worker.firstName} ${worker.lastName}`.toLowerCase().includes(term) ||
         worker.email.toLowerCase().includes(term) ||
         worker.employeeNumber?.toLowerCase().includes(term) ||

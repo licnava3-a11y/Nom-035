@@ -1,5 +1,5 @@
 import { getDb } from "../db";
-import { competencyRegressionAlerts, skillsMatrixSnapshots, employees, organizationalCompetencies, departments } from "../../drizzle/schema";
+import { competencies, competencyRegressionAlerts, departments, employees, notifications, organizationalCompetencies, skillsMatrixSnapshots } from "../../drizzle/schema";
 import { desc, eq, and } from "drizzle-orm";
 import { sendEmail } from "../lib/email-sender";
 

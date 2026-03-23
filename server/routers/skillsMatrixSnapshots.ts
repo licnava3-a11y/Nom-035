@@ -1,14 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { 
-  skillsMatrixSnapshots, 
-  employees, 
-  skillsMatrix, 
-  organizationalCompetencies,
-  departments,
-  positions
-} from "../../drizzle/schema";
+import { competencies, departments, employees, organizationalCompetencies, positions, skillsMatrix, skillsMatrixSnapshots } from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 
 export const skillsMatrixSnapshotsRouter = router({

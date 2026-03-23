@@ -22,7 +22,7 @@ export async function generatePDFFromHTML(
     };
   }
 ): Promise<string> {
-  let browser;
+  let browser: any;
 
   try {
     // Lanzar navegador headless

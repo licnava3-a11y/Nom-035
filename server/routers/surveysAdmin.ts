@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { surveys, surveyResponses, surveyAnswers, surveyQuestions, users } from "../../drizzle/schema";
+import { departments, surveyAnswers, surveyQuestions, surveyResponses, surveys, users } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc, count, inArray } from "drizzle-orm";
 
 // Admin-only procedure

@@ -297,7 +297,7 @@ export const appRouter = router({
      */
     getCSRFToken: publicProcedure.query(({ ctx }) => {
       // Generar sessionId basado en usuario o IP
-      const sessionId = ctx.user?.id?.toString() || ctx.req.sessionID || ctx.req.ip || 'anonymous';
+      const sessionId = ctx.user?.id?.toString() || (ctx.req as any).sessionID || ctx.req.ip || 'anonymous';
       const token = getCSRFTokenForUser(sessionId);
       
       return {

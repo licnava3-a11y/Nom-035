@@ -1,4 +1,6 @@
+import { toast } from 'sonner';
 import { useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,7 +43,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
     { enabled: !!operatingRuleId }
   );
 
-  const { data: committeeMembers } = trpc.committeeMembers.list.useQuery();
+  const { data: committeeMembers } = trpc.committee.list.useQuery();
 
   // Mutations
   const requestApprovalsMutation = trpc.committeeOperatingRules.requestApprovals.useMutation({

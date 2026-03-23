@@ -310,7 +310,7 @@ describe('Cálculo de Nivel de Riesgo NOM-035', () => {
       
       const categories = calculateCategoryScores(totalScore, maxPossibleScore, scorePercentage);
       
-      categories.forEach(category => {
+      categories.forEach((category: any) => {
         expect(category.percentage).toBe(50);
       });
     });
@@ -323,7 +323,7 @@ describe('Cálculo de Nivel de Riesgo NOM-035', () => {
       const categories = calculateCategoryScores(totalScore, maxPossibleScore, scorePercentage);
       
       expect(categories).toHaveLength(5);
-      categories.forEach(category => {
+      categories.forEach((category: any) => {
         expect(category.score).toBe(0);
         expect(category.maxScore).toBe(0);
         expect(category.percentage).toBe(0);

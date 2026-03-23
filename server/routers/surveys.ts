@@ -3,7 +3,7 @@ import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
-import { surveys, surveyQuestions, surveyResponses, surveyAnswers, surveyTokens, surveyNotifications, users, cases, employees } from "../../drizzle/schema";
+import { cases, departments, employees, jobPositions, nom035Results, notifications, questions, surveyAnonymousTokens, surveyAnswers, surveyNotifications, surveyPeriods, surveyQuestions, surveyResponses, surveyResults, surveyTokens, surveys, users } from "../../drizzle/schema";
 import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
@@ -1206,7 +1206,7 @@ export const surveysRouter = router({
       }
       
       // Obtener usuarios pendientes
-      let targetUsers;
+      let targetUsers: any;
       if (input.userIds && input.userIds.length > 0) {
         targetUsers = await db.select().from(users).where(inArray(users.id, input.userIds));
       } else {
@@ -1284,7 +1284,7 @@ export const surveysRouter = router({
       }
       
       // Obtener usuarios pendientes
-      let targetUsers;
+      let targetUsers: any;
       if (input.userIds && input.userIds.length > 0) {
         targetUsers = await db.select().from(users).where(inArray(users.id, input.userIds));
       } else {

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { nineBoxEvaluations, users } from "../../drizzle/schema";
+import { evaluations, nineBoxEvaluations, users } from "../../drizzle/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 
 /**

@@ -46,7 +46,7 @@ export default function NineBoxMatrix() {
 
   // Organizar evaluaciones en matriz 3x3
   const getQuadrantEmployees = (quadrant: number) => {
-    return matrixData?.evaluations.filter(e => e.quadrant === quadrant) || [];
+    return ((matrixData as any) as any)?.evaluations.filter(e => e.quadrant === quadrant) || [];
   };
 
   // Colores por cuadrante
@@ -203,7 +203,7 @@ export default function NineBoxMatrix() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{matrixData?.totalEmployees || 0}</div>
+            <div className="text-2xl font-bold">{((matrixData as any) as any)?.totalEmployees || 0}</div>
           </CardContent>
         </Card>
         <Card>

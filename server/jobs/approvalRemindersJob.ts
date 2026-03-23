@@ -32,7 +32,7 @@ async function sendApprovalReminders() {
     console.log("[Approval Reminders Job] Checking pending approvals...");
 
     // Obtener aprobaciones pendientes creadas hace más de 48 horas
-    const pendingApprovals = await db
+    const pendingApprovals = await db!
       .select({
         approvalId: operatingRulesApprovals.id,
         approverId: operatingRulesApprovals.approverId,

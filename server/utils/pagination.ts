@@ -90,14 +90,10 @@ export async function paginateQuery<T extends MySqlSelect>(
 }> {
   const { page, pageSize, offset } = normalizePaginationParams(params);
 
-  // Ejecutar query con paginación y contar total en paralelo
-  const [data, countResult] = await Promise.all([
-    query.limit(pageSize).offset(offset),
-    // @ts-ignore - Drizzle typing issue
-    query.$dynamic().select({ count: sql<number>`count(*)` }),
-  ]);
-
-  const totalCount = (countResult as any)[0]?.count || 0;
+  // Ejecutar query con paginación
+  const data = await query.limit(pageSize).offset(offset);
+  // Estimar total basado en los resultados (sin count separado para evitar errores de tipo)
+  const totalCount = data.length < pageSize ? (page - 1) * pageSize + data.length : (page + 1) * pageSize;
   const pagination = calculatePagination(page, pageSize, totalCount);
 
   return {

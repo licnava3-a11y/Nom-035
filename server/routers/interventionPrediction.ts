@@ -42,8 +42,7 @@ export const interventionPredictionRouter = router({
           .where(eq(retentionInterventions.interventionType, input.interventionType));
 
         // Filtrar intervenciones con outcome conocido
-        const completedInterventions = historicalInterventions.filter(
-          (i) => i.outcome === "retained" || i.outcome === "left"
+        const completedInterventions = historicalInterventions.filter((i: any) => i.outcome === "retained" || i.outcome === "left"
         );
 
         if (completedInterventions.length < 3) {

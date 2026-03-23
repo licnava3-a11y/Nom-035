@@ -63,7 +63,7 @@ export const casesPaginatedRouter = router({
 
       if (input.search) {
         conditions.push(
-          sql`(${cases.title} LIKE ${`%${input.search}%`} OR ${cases.description} LIKE ${`%${input.search}%`})`
+          sql`(${cases.description} LIKE ${`%${input.search}%`} OR ${cases.description} LIKE ${`%${input.search}%`})`
         );
       }
 

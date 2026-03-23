@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { workplaceViolenceCases, protocolSteps, employees, users } from "../../drizzle/schema";
+import { cases, employees, protocolSteps, users, workplaceViolenceCases } from "../../drizzle/schema";
 import { eq, desc, and, or, like, gte, lte } from "drizzle-orm";
 
 export const workplaceViolenceRouter = router({

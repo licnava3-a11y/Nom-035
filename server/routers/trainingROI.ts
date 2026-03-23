@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { trainingCosts, committeeTrainings, trainingAssignments, workplaceViolenceCases, trainingEvaluations } from "../../drizzle/schema";
+import { committeeTrainings, evaluations, trainingAssignments, trainingCosts, trainingEvaluations, workplaceViolenceCases } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 
 export const trainingROIRouter = router({

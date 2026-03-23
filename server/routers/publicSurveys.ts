@@ -2,7 +2,7 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { surveyEmployeeTokens, employees, surveyPeriods, surveyQuestions, surveyResponses, surveyAnswers, users } from "../../drizzle/schema";
+import { employees, questions, surveyAnswers, surveyEmployeeTokens, surveyPeriods, surveyQuestions, surveyResponses, users } from "../../drizzle/schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendBulkEmails, getSurveyInvitationTemplate } from "../services/emailService";
@@ -49,7 +49,7 @@ export const publicSurveysRouter = router({
         }
 
         // Obtener empleados
-        let targetEmployees;
+        let targetEmployees: any;
         if (input.employeeIds && input.employeeIds.length > 0) {
           // Empleados específicos
           targetEmployees = await db.select().from(employees).where(

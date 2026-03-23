@@ -207,8 +207,7 @@ export default function JobApplication() {
   };
 
   const validateStep3 = () => {
-    const hasValidEntry = workHistory.some(
-      (entry) => entry.companyName && entry.position && entry.startDate
+    const hasValidEntry = workHistory.some((entry: any) => entry.companyName && entry.position && entry.startDate
     );
     if (!hasValidEntry) {
       toast.error("Agrega al menos una experiencia laboral válida");
@@ -218,8 +217,7 @@ export default function JobApplication() {
   };
 
   const validateStep4 = () => {
-    const hasValidReference = references.some(
-      (ref) => ref.name && ref.phone && ref.relationship
+    const hasValidReference = references.some((ref: any) => ref.name && ref.phone && ref.relationship
     );
     if (!hasValidReference) {
       toast.error("Agrega al menos una referencia válida");

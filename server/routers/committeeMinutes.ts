@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { requirePermission, requireDelete } from "../permissions";
-import { committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteHistory } from "../../drizzle/schema";
+import { committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteAttendees, committeeMinuteHistory, committeeMinutes, signatures } from "../../drizzle/schema";
 import { eq, desc, and, like } from "drizzle-orm";
 
 export const committeeMinutesRouter = router({

@@ -19,7 +19,7 @@ export default function Contact() {
     mensaje: "",
   });
 
-  const contactMutation = trpc.contact.submitContactForm.useMutation({
+  const contactMutation = trpc.system.submitContactForm.useMutation({
     onSuccess: () => {
       toast.success("Mensaje enviado correctamente. Nos pondremos en contacto pronto.");
       setFormData({
@@ -30,7 +30,7 @@ export default function Contact() {
         mensaje: "",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Error al enviar mensaje: ${error.message}`);
     },
   });

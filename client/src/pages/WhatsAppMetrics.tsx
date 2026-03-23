@@ -123,6 +123,20 @@ export default function WhatsAppMetrics() {
     setActiveQuickFilter(filterType);
   };
 
+  // Período de comparación efectivo (declarado antes de los queries para evitar error de hoisting)
+  const effectiveComparisonPeriod = comparisonEnabled
+    ? comparisonMode === "manual"
+      ? comparisonDateRange
+      : (() => {
+          // Cálculo inline del período de comparación
+          if (!dateRange.from || !dateRange.to) return { from: undefined, to: undefined };
+          const diff = dateRange.to.getTime() - dateRange.from.getTime();
+          const prevTo = new Date(dateRange.from.getTime() - 1);
+          const prevFrom = new Date(prevTo.getTime() - diff);
+          return { from: prevFrom, to: prevTo };
+        })()
+    : { from: undefined, to: undefined };
+
   // Construir filtros para queries
   const filters = {
     startDate: dateRange.from ? dateRange.from.toISOString() : undefined,
@@ -377,12 +391,7 @@ export default function WhatsAppMetrics() {
     }
   };
 
-  // Obtener período de comparación efectivo
-  const effectiveComparisonPeriod = comparisonEnabled
-    ? comparisonMode === "manual"
-      ? comparisonDateRange
-      : calculateComparisonPeriod()
-    : { from: undefined, to: undefined };
+  // effectiveComparisonPeriod ya declarado antes de los queries
 
   // Contar filtros activos
   const activeFiltersCount = [

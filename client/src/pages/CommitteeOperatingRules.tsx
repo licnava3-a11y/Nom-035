@@ -777,7 +777,7 @@ export default function CommitteeOperatingRules() {
       {selectedRuleId && !showVersionHistory && (
         <ApprovalWorkflow
           operatingRuleId={selectedRuleId}
-          operatingRuleVersion={selectedRule?.version || ""}
+          operatingRuleVersion={selectedRuleId?.version || ""}
         />
       )}
 

@@ -7,7 +7,7 @@
  */
 
 import { getDb } from "../db";
-import { documentAuditLog, users } from "../../drizzle/schema";
+import { documentAuditLog, securityAlerts, users } from "../../drizzle/schema";
 import { securityAlertsRouter } from "../routers/securityAlerts";
 import { gte, eq, and } from "drizzle-orm";
 

@@ -20,7 +20,6 @@ async function analyzePredictiveTurnover() {
     }
 
     // Obtener departamentos activos
-    // @ts-expect-error - getDb() siempre retorna instancia válida
     const allDepartments = await db
       .select({
         id: departments.id,
@@ -34,7 +33,6 @@ async function analyzePredictiveTurnover() {
     console.log(`[Predictive Turnover Job] Analyzing ${allDepartments.length} departments...`);
 
     // Obtener configuración de pesos del algoritmo
-    // @ts-expect-error - getDb() siempre retorna instancia válida
     const [config] = await db
       .select()
       .from(predictiveAlgorithmConfig)
@@ -69,7 +67,6 @@ async function analyzePredictiveTurnover() {
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
       // Contar empleados actuales
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [currentCount] = await db
         .select({ count: sql`COUNT(*)`.mapWith(Number) })
         .from(employees)
@@ -84,7 +81,6 @@ async function analyzePredictiveTurnover() {
       const currentEmployeeCount = currentCount.count;
 
       // Contar altas de los últimos 3 meses
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [hiresCount] = await db
         .select({ count: sql`COUNT(*)`.mapWith(Number) })
         .from(employees)
@@ -99,7 +95,6 @@ async function analyzePredictiveTurnover() {
       const hiresLast3Months = hiresCount.count;
 
       // Contar bajas de los últimos 3 meses
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [terminationsCount] = await db
         .select({ count: sql`COUNT(*)`.mapWith(Number) })
         .from(employees)
@@ -115,7 +110,6 @@ async function analyzePredictiveTurnover() {
       const terminationsLast3Months = terminationsCount.count;
 
       // Calcular antigüedad promedio (en meses)
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       const [avgTenure] = await db
         .select({
           avg: sql`AVG(TIMESTAMPDIFF(MONTH, ${employees.createdAt}, NOW()))`.mapWith(Number),
@@ -195,7 +189,6 @@ async function analyzePredictiveTurnover() {
     if (alerts.length > 0) {
       // Guardar en prediction_history
       for (const alert of alerts) {
-        // @ts-expect-error - getDb() siempre retorna instancia válida
         await db
           .insert(predictionHistory)
           .values({
@@ -205,7 +198,7 @@ async function analyzePredictiveTurnover() {
             predictedTurnoverRate: alert.predictedTurnoverRate,
             currentEmployeeCount: alert.currentEmployeeCount,
             avgTenureMonths: alert.avgTenureMonths,
-            hasManager: !!alert.dept.managerId,
+            hasManager: !!(allDepartments.find((d: any) => d.id === alert.departmentId)?.managerId),
             algorithmConfigId: config?.id || null,
             rotationWeight: weights.rotationWeight,
             tenureWeight: weights.tenureWeight,
@@ -219,7 +212,6 @@ async function analyzePredictiveTurnover() {
       console.log(`[Predictive Turnover Job] Saved ${alerts.length} predictions to history`);
 
       // Guardar alertas{
-      // @ts-expect-error - getDb() siempre retorna instancia válida
       await (db.insert(predictiveTurnoverAlerts) as any).values(alerts).execute();
 
       console.log(`[Predictive Turnover Job] Created ${alerts.length} predictive turnover alerts`);

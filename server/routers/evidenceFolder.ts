@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { nom035EvidenceFolder } from "../../drizzle/schema";
+import { cases, certificates, nom035EvidenceFolder, surveys } from "../../drizzle/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 

@@ -161,8 +161,8 @@ export function startModelPerformanceMonitorJob() {
         console.log(`[Model Performance Monitor Job] Generated ${alerts.length} alerts`);
 
         // Notificar al owner
-        const criticalCount = alerts.filter(a => a.severity === "critical").length;
-        const highCount = alerts.filter(a => a.severity === "high").length;
+        const criticalCount = alerts.filter((a: any) => a.severity === "critical").length;
+        const highCount = alerts.filter((a: any) => a.severity === "high").length;
 
         await notifyOwner({
           title: `⚠️ Alerta de Rendimiento del Modelo Predictivo`,

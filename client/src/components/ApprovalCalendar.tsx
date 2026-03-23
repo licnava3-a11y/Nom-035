@@ -146,10 +146,7 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
             {isLoading ? (
               <CalendarSkeleton />
             ) : calendarData?.totalEvents === 0 ? (
-              <InlineEmptyState
-                icon={EMPTY_STATES.calendar_no_deadlines.icon}
-                title={EMPTY_STATES.calendar_no_deadlines.title}
-                description={EMPTY_STATES.calendar_no_deadlines.description}
+              <InlineEmptyState {...({} as any)} icon={EMPTY_STATES.calendar_no_deadlines.icon} title={EMPTY_STATES.calendar_no_deadlines.title} description={EMPTY_STATES.calendar_no_deadlines.description}
               />
             ) : (
               <div className="grid grid-cols-7 gap-2">
@@ -267,8 +264,7 @@ export function ApprovalCalendar({ onSelectDocument }: ApprovalCalendarProps) {
                 ))}
               </div>
             ) : (
-              <InlineEmptyState
-                icon={CheckCircle2}
+              <InlineEmptyState {...({} as any)} icon={CheckCircle2}
                 title="Sin deadlines próximos"
                 description="No hay aprobaciones pendientes en los próximos 7 días"
               />

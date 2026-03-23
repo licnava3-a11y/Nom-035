@@ -36,7 +36,7 @@ export async function sendDeadlineAlerts() {
 
   try {
     // Obtener aprobaciones pendientes con deadline
-    const pendingApprovals = await db
+    const pendingApprovals = await db!
       .select({
         id: operatingRulesApprovals.id,
         operatingRuleId: operatingRulesApprovals.operatingRuleId,

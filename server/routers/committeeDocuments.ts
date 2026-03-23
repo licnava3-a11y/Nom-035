@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { committeeMembers, employees, companyGeneralData, companyLogo, departments } from "../../drizzle/schema";
+import { committeeMembers, committeeOperatingRules, companyGeneralData, companyLogo, departments, documents, employees } from "../../drizzle/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";

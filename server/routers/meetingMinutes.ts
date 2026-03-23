@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { meetingMinutes, meetingParticipants, meetingAttachments, employees } from "../../drizzle/schema";
+import { employees, meetingAttachments, meetingMinutes, meetingParticipants, users } from "../../drizzle/schema";
 import { eq, desc, and, like, gte, lte } from "drizzle-orm";
 import { storagePut } from "../storage";
 import QRCode from "qrcode";

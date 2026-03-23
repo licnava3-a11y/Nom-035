@@ -1,6 +1,6 @@
 import { eq, like, and, or, desc, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { employees, users, committeeMembers, departments, positions } from "../drizzle/schema";
+import { committeeMembers, departments, employeeHistory, employees, positions, users } from "../drizzle/schema";
 import type { Employee, InsertEmployee } from "../drizzle/schema";
 
 // Type for employee with department and position names

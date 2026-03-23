@@ -654,8 +654,7 @@ export const performanceEvaluation360Router = router({
           </table>
 
           ${reportData
-            .map(
-              (dept) => `
+            .map((dept: any) => `
             <div style="page-break-before: always;">
               <h2>${dept.departmentName}</h2>
               
@@ -670,8 +669,7 @@ export const performanceEvaluation360Router = router({
                   <th>Empleados Evaluados</th>
                 </tr>
                 ${dept.competencies
-                  .map(
-                    (comp) => `
+                  .map((comp: any) => `
                   <tr class="${comp.status}">
                     <td>${comp.competencyName}</td>
                     <td>${comp.averageLevel.toFixed(2)}</td>
@@ -695,8 +693,7 @@ export const performanceEvaluation360Router = router({
                     <th>Recomendación</th>
                   </tr>
                   ${dept.developmentPlan
-                    .map(
-                      (plan) => `
+                    .map((plan: any) => `
                     <tr>
                       <td>${plan.competency}</td>
                       <td>${plan.gap}</td>

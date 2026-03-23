@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq, and, desc, sql, or } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 import * as db from "../db";
-import { correctiveActionPlans, actionEvidences, users, notifications } from "../../drizzle/schema";
+import { actionEvidences, committeeMembers, correctiveActionPlans, notifications, users } from "../../drizzle/schema";
 import { storagePut } from "../storage";
 import { randomBytes } from "crypto";
 

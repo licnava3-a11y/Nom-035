@@ -5,7 +5,7 @@
 
 import cron from 'node-cron';
 import { getDb } from '../db';
-import { cases, postCaseSurveys } from '../../drizzle/schema';
+import { cases, postCaseSurveys, surveys } from '../../drizzle/schema';
 import { eq, and, sql, lte, isNull } from 'drizzle-orm';
 
 /**

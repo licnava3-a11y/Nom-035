@@ -35,7 +35,7 @@ export const surveyAlertsRouter = router({
 
       try {
         // Obtener encuestas a verificar
-        let surveysToCheck;
+        let surveysToCheck: any;
         if (input.surveyId) {
           surveysToCheck = await db.select().from(surveys).where(eq(surveys.id, input.surveyId));
         } else {
@@ -170,7 +170,7 @@ Puedes enviar recordatorios desde: Encuestas NOM-035 → Seguimiento
 
       try {
         // Obtener encuestas a verificar
-        let surveysToCheck;
+        let surveysToCheck: any;
         if (input.surveyId) {
           surveysToCheck = await db.select().from(surveys).where(eq(surveys.id, input.surveyId));
         } else {

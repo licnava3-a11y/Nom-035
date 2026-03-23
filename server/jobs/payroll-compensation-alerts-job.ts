@@ -5,7 +5,7 @@
 
 import cron from "node-cron";
 import { getDb } from "../db";
-import { payrollData } from "../../drizzle/schema";
+import { employees, payrollData } from "../../drizzle/schema";
 import { sql } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 

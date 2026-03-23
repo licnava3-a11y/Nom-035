@@ -50,8 +50,7 @@ export function DepartmentSelector({
   });
 
   // Filtrar departamentos inválidos
-  const validDepartments = departmentsData?.data.filter(
-    (dept) =>
+  const validDepartments = departmentsData?.data.filter((dept: any) =>
       dept.name !== "Comité NOM-035" &&
       dept.name !== "Sin departamento" &&
       dept.name !== "Sin Departamento"

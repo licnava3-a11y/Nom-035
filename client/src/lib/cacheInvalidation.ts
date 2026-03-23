@@ -41,13 +41,13 @@ export function invalidateCasesCache() {
   
   // Invalidar queries de casos
   utils.casesManagement.listCases.invalidate();
-  utils.casesPaginated.list.invalidate();
+  utils.casesPaginated.listPaginated.invalidate();
   utils.casesManagement.getCaseById.invalidate();
-  utils.casesManagement.getCaseMetrics.invalidate();
+  utils.casesManagement.getCasesStats.invalidate();
   
   // Invalidar dashboard que depende de casos
-  utils.dashboard.getCasesOverview.invalidate();
-  utils.executiveDashboard.getAll.invalidate();
+  (utils as any).dashboard.getCasesOverview.invalidate();
+  utils.executiveDashboard.getMetrics.invalidate();
 }
 
 /**
@@ -57,12 +57,12 @@ export function invalidateUsersCache() {
   const utils = trpc.useUtils();
   
   // Invalidar queries de usuarios
-  utils.usersPaginated.list.invalidate();
-  utils.rolesPermissions.listUsers.invalidate();
-  utils.employees.list.invalidate();
+  utils.usersPaginated.listPaginated.invalidate();
+  (utils as any).rolesPermissions.getUsersByRole.invalidate();
+  (utils as any).employees.list.invalidate();
   
   // Invalidar dashboard que depende de usuarios
-  utils.dashboard.getUsersOverview.invalidate();
+  (utils as any).dashboard.getUsersOverview.invalidate();
 }
 
 /**
@@ -72,12 +72,12 @@ export function invalidateSurveysCache() {
   const utils = trpc.useUtils();
   
   // Invalidar queries de encuestas
-  utils.surveysPaginated.list.invalidate();
-  utils.surveys.list.invalidate();
+  utils.surveysPaginated.listPaginated.invalidate();
+  (utils as any).surveys.list.invalidate();
   utils.surveys.getById.invalidate();
   
   // Invalidar resultados de encuestas
-  utils.surveyResults.list.invalidate();
+  (utils as any).surveyResults.list.invalidate();
   utils.predictiveAnalytics.getRiskPredictions.invalidate();
 }
 
@@ -90,7 +90,7 @@ export function invalidateCommitteeCache() {
   // Invalidar queries de comité
   utils.committeeMinutes.list.invalidate();
   utils.committeeMinutes.getById.invalidate();
-  utils.committeeMembers.list.invalidate();
+  (utils as any).committeeMembers.list.invalidate();
 }
 
 /**
@@ -112,8 +112,8 @@ export function invalidateReportsCache() {
   const utils = trpc.useUtils();
   
   // Invalidar queries de reportes
-  utils.reports.generateCasesPDF.invalidate();
-  utils.reports.generateCompliancePDF.invalidate();
+  (utils as any).reports.generateCasesPDF.invalidate();
+  (utils as any).reports.generateCompliancePDF.invalidate();
 }
 
 /**

@@ -231,7 +231,7 @@ export default function DashboardConsolidated() {
             {getRoleLabel(user?.role || 'student')} - Plataforma de Capacitación NOM-035 STPS 2018
           </p>
         </div>
-        <DashboardSkeleton cards={8} charts={3} />
+        <DashboardSkeleton />
       </div>
     );
   }

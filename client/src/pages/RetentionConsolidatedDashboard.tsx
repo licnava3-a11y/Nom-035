@@ -19,7 +19,7 @@ export default function RetentionConsolidatedDashboard() {
 
   // Queries
   const { data: highRiskEmployees = [], isLoading: employeesLoading } = trpc.predictiveTurnoverDashboard.getHighRiskEmployees.useQuery({
-    department: selectedDepartment === "all" ? undefined : selectedDepartment,
+    departmentId: selectedDepartment === "all" ? undefined : selectedDepartment,
   });
 
   const { data: recommendations = [] } = trpc.interventionRecommendations.getRecommendations.useQuery(
@@ -29,7 +29,7 @@ export default function RetentionConsolidatedDashboard() {
 
   const { data: payrollData = [] } = trpc.payrollIntegration.getAllPayrollData.useQuery();
   const { data: criticalGaps = [] } = trpc.payrollIntegration.getCriticalSalaryGaps.useQuery();
-  const { data: interventions = [] } = trpc.retentionInterventions.getAllInterventions.useQuery();
+  const { data: interventions = [] } = trpc.retentionInterventions.getInterventions.useQuery();
 
   const { data: simulationResult } = trpc.salaryImpactSimulator.simulateImpact.useQuery(
     {
@@ -54,8 +54,8 @@ export default function RetentionConsolidatedDashboard() {
   });
 
   // Calcular métricas consolidadas
-  const totalHighRisk = highRiskEmployees.length;
-  const criticalSalaryGaps = criticalGaps.length;
+  const totalHighRisk = (highRiskEmployees as any)?.length;
+  const criticalSalaryGaps = (criticalGaps as any)?.length;
   const activeInterventions = interventions.filter((i: any) => i.outcome === "pending").length;
   const successfulInterventions = interventions.filter((i: any) => i.outcome === "retained").length;
   const totalInterventionCost = interventions.reduce((sum: any, i: any) => sum + parseFloat(i.cost || "0"), 0);
@@ -259,7 +259,7 @@ export default function RetentionConsolidatedDashboard() {
                     <SelectValue placeholder="Seleccionar empleado" />
                   </SelectTrigger>
                   <SelectContent>
-                    {highRiskEmployees.map((emp: any) => (
+                    {(highRiskEmployees as any[]).map((emp: any) => (
                       <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
                         {emp.employeeName} - {emp.department}
                       </SelectItem>
@@ -268,9 +268,9 @@ export default function RetentionConsolidatedDashboard() {
                 </Select>
               </div>
 
-              {selectedEmployee && recommendations.length > 0 ? (
+              {selectedEmployee && (recommendations as any)?.length > 0 ? (
                 <div className="space-y-4">
-                  {recommendations.map((rec, index) => (
+                  {(recommendations as any[]).map((rec: any, index) => (
                     <Card key={index} className="border-l-4 border-l-blue-600">
                       <CardHeader>
                         <div className="flex justify-between items-start">
@@ -333,7 +333,7 @@ export default function RetentionConsolidatedDashboard() {
                       <SelectValue placeholder="Seleccionar empleado" />
                     </SelectTrigger>
                     <SelectContent>
-                      {criticalGaps.map((emp: any) => (
+                      {(criticalGaps as any[]).map((emp: any) => (
                         <SelectItem key={emp.employeeId} value={emp.employeeId.toString()}>
                           {emp.employeeName} - Brecha: {emp.salaryGapPercentage}%
                         </SelectItem>
@@ -481,7 +481,7 @@ export default function RetentionConsolidatedDashboard() {
                       <CardTitle className="text-sm">Total Intervenciones</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{interventions.length}</div>
+                      <div className="text-2xl font-bold">{(interventions as any)?.length}</div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -490,8 +490,8 @@ export default function RetentionConsolidatedDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-green-600">
-                        {interventions.length > 0
-                          ? ((successfulInterventions / interventions.length) * 100).toFixed(0)
+                        {(interventions as any)?.length > 0
+                          ? ((successfulInterventions / (interventions as any)?.length) * 100).toFixed(0)
                           : 0}
                         %
                       </div>

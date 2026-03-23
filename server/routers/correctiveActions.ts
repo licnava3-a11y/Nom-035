@@ -31,9 +31,9 @@ export const correctiveActionsRouter = router({
       // Insertar acción correctiva
       const [action] = await dbInstance.insert(correctiveActions).values({
         description: input.description,
-        riskLevel: input.riskLevel,
+        riskLevel: (input as any).riskLevel,
         category: input.category,
-        departamento: input.departamento,
+        departamento: input.departamento || 'General',
         responsibleUserId: input.responsibleUserId,
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         surveyResponseId: input.surveyResponseId,
@@ -54,7 +54,7 @@ export const correctiveActionsRouter = router({
               responsibleName: assignedUser.name || assignedUser.email,
               actionId: action.id,
               description: input.description,
-              riskLevel: input.riskLevel,
+              riskLevel: (input as any).riskLevel,
               department: input.departamento || 'No especificado',
               dueDate: input.dueDate ? new Date(input.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Sin fecha límite',
               actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${action.id}`,
@@ -92,7 +92,7 @@ export const correctiveActionsRouter = router({
         .select({
           id: correctiveActions.id,
           description: correctiveActions.description,
-          riskLevel: correctiveActions.riskLevel,
+          riskLevel: (correctiveActions as any).riskLevel,
           category: correctiveActions.category,
           departamento: correctiveActions.departamento,
           status: correctiveActions.status,
@@ -126,7 +126,7 @@ export const correctiveActionsRouter = router({
         .select({
           id: correctiveActions.id,
           description: correctiveActions.description,
-          riskLevel: correctiveActions.riskLevel,
+          riskLevel: (correctiveActions as any).riskLevel,
           category: correctiveActions.category,
           departamento: correctiveActions.departamento,
           status: correctiveActions.status,
@@ -171,7 +171,7 @@ export const correctiveActionsRouter = router({
 
       const updateData: any = {};
       if (input.description) updateData.description = input.description;
-      if (input.riskLevel) updateData.riskLevel = input.riskLevel;
+      if ((input as any).riskLevel) (updateData as any).riskLevel = (input as any).riskLevel;
       if (input.category !== undefined) updateData.category = input.category;
       if (input.departamento !== undefined) updateData.departamento = input.departamento;
       if (input.responsibleUserId !== undefined) updateData.responsibleUserId = input.responsibleUserId;
@@ -192,7 +192,7 @@ export const correctiveActionsRouter = router({
             to: assignedUser.email,
             actionTitle: action.category || 'Acción Correctiva',
             actionDescription: action.description,
-            riskLevel: action.riskLevel,
+            riskLevel: (action as any).riskLevel,
             dueDate: action.dueDate,
             assignedBy: ctx.user.name || ctx.user.email,
           }); */
@@ -393,7 +393,7 @@ export const correctiveActionsRouter = router({
         .select({
           id: correctiveActions.id,
           description: correctiveActions.description,
-          riskLevel: correctiveActions.riskLevel,
+          riskLevel: (correctiveActions as any).riskLevel,
           dueDate: correctiveActions.dueDate,
           responsibleUserId: correctiveActions.responsibleUserId,
           responsibleUserName: users.name,
@@ -422,7 +422,7 @@ export const correctiveActionsRouter = router({
               responsibleName: action.responsibleUserName || action.responsibleUserEmail,
               actionId: action.id,
               description: action.description,
-              riskLevel: action.riskLevel,
+              riskLevel: (action as any).riskLevel,
               dueDate: new Date(action.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
               daysRemaining,
               actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${action.id}`,
@@ -459,7 +459,7 @@ export const correctiveActionsRouter = router({
         .select({
           id: correctiveActions.id,
           description: correctiveActions.description,
-          riskLevel: correctiveActions.riskLevel,
+          riskLevel: (correctiveActions as any).riskLevel,
           dueDate: correctiveActions.dueDate,
           responsibleUserId: correctiveActions.responsibleUserId,
           responsibleUserName: users.name,
@@ -488,7 +488,7 @@ export const correctiveActionsRouter = router({
               responsibleName: action.responsibleUserName || action.responsibleUserEmail,
               actionId: action.id,
               description: action.description,
-              riskLevel: action.riskLevel,
+              riskLevel: (action as any).riskLevel,
               dueDate: new Date(action.dueDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
               daysOverdue,
               actionUrl: `${process.env.VITE_APP_URL || 'http://localhost:3000'}/surveys/corrective-actions?id=${action.id}`,
@@ -650,7 +650,7 @@ export const correctiveActionsRouter = router({
         doc.text(`Folio: AC-${action.id.toString().padStart(6, '0')}`);
         doc.text(`Fecha de creación: ${action.createdAt ? new Date(action.createdAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}`);
         doc.text(`Estado: ${action.status?.toUpperCase() || 'PENDIENTE'}`);
-        doc.text(`Nivel de riesgo: ${action.riskLevel?.toUpperCase() || 'NO ESPECIFICADO'}`);
+        doc.text(`Nivel de riesgo: ${(action as any).riskLevel?.toUpperCase() || 'NO ESPECIFICADO'}`);
         if (action.category) doc.text(`Categoría: ${action.category}`);
         if (action.departamento) doc.text(`Departamento: ${action.departamento}`);
         doc.moveDown(1.5);
@@ -782,6 +782,7 @@ export const correctiveActionsRouter = router({
             description: `Seguimiento personalizado para trabajador con nivel de riesgo ${riskLevel}. Evaluar factores específicos y proporcionar apoyo.`,
             priority: riskLevel === 'muy_alto' ? 'high' : 'medium',
             status: 'pendiente',
+            departamento: (result as any).departamento || 'General',
           });
           actionsCreated.individual++;
         }
@@ -882,7 +883,7 @@ export const correctiveActionsRouter = router({
           id: correctiveActions.id,
           title: correctiveActions.title,
           description: correctiveActions.description,
-          riskLevel: correctiveActions.riskLevel,
+          riskLevel: (correctiveActions as any).riskLevel,
           actionLevel: correctiveActions.actionLevel,
           targetScope: correctiveActions.targetScope,
           atsDetected: correctiveActions.atsDetected,

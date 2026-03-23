@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ICONS } from '@/lib/iconography';
+import { Loader2 } from 'lucide-react';
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -148,7 +149,7 @@ export default function Employees() {
       // Optimistically update to the new value
       utils.employees.list.setData(
         { search: search || undefined, department: departmentFilter, isActive: statusFilter },
-        (old) => old?.map((emp: any) => emp.id === id ? { ...emp, isActive: false } : emp)
+        (old) => old ? { ...old, employees: old.employees.map((emp: any) => emp.id === id ? { ...emp, isActive: false } : emp) } : old
       );
       
       return { previousEmployees };
@@ -191,7 +192,7 @@ export default function Employees() {
       // Optimistically update to the new value
       utils.employees.list.setData(
         { search: search || undefined, department: departmentFilter, isActive: statusFilter },
-        (old) => old?.map((emp: any) => emp.id === id ? { ...emp, isActive: true } : emp)
+        (old) => old ? { ...old, employees: old.employees.map((emp: any) => emp.id === id ? { ...emp, isActive: true } : emp) } : old
       );
       
       return { previousEmployees };
@@ -404,13 +405,13 @@ export default function Employees() {
                   )}
                   {employee.department && (
                     <div className="flex items-center text-muted-foreground">
-                      <ICONS.organizational.building className="mr-2 h-4 w-4" />
+                      <ICONS.organization.building className="mr-2 h-4 w-4" />
                       {employee.department}
                     </div>
                   )}
                   {employee.employeeNumber && (
                     <div className="flex items-center text-muted-foreground">
-                      <ICONS.organizational.position className="mr-2 h-4 w-4" />
+                      <ICONS.organization.position className="mr-2 h-4 w-4" />
                       No. {employee.employeeNumber}
                     </div>
                   )}

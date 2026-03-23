@@ -61,8 +61,7 @@ export const interventionsRouter = router({
         .groupBy(competencies.id, competencies.name, sql<number>`3`);
 
       // Identificar competencias críticas (brecha > 1.5)
-      const criticalCompetencies = competencyTrends.filter(
-        (comp) => comp.requiredLevel - comp.averageRating > 1.5
+      const criticalCompetencies = competencyTrends.filter((comp: any) => comp.requiredLevel - comp.averageRating > 1.5
       );
 
       // Generar recomendaciones de cursos (mock - en producción conectar con catálogo real)

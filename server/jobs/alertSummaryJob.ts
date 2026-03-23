@@ -34,15 +34,15 @@ async function generateAlertSummary(startDate: Date): Promise<AlertSummary> {
 
   const summary: AlertSummary = {
     totalAlerts: alerts.length,
-    activeAlerts: alerts.filter(a => a.status === "active").length,
-    resolvedAlerts: alerts.filter(a => a.status === "resolved").length,
-    criticalAlerts: alerts.filter(a => a.priority === "critical").length,
-    warningAlerts: alerts.filter(a => a.priority === "warning").length,
-    infoAlerts: alerts.filter(a => a.priority === "info").length,
+    activeAlerts: alerts.filter((a: any) => a.status === "active").length,
+    resolvedAlerts: alerts.filter((a: any) => a.status === "resolved").length,
+    criticalAlerts: alerts.filter((a: any) => a.priority === "critical").length,
+    warningAlerts: alerts.filter((a: any) => a.priority === "warning").length,
+    infoAlerts: alerts.filter((a: any) => a.priority === "info").length,
     alertsByType: {
-      critical_cases: alerts.filter(a => a.alertType === "critical_cases").length,
-      low_coverage: alerts.filter(a => a.alertType === "low_coverage").length,
-      excellent_compliance: alerts.filter(a => a.alertType === "excellent_compliance").length,
+      critical_cases: alerts.filter((a: any) => a.alertType === "critical_cases").length,
+      low_coverage: alerts.filter((a: any) => a.alertType === "low_coverage").length,
+      excellent_compliance: alerts.filter((a: any) => a.alertType === "excellent_compliance").length,
     },
   };
 

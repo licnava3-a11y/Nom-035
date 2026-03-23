@@ -394,7 +394,7 @@ export default function SurveyPeriodsManager() {
               <TableSkeleton rows={3} columns={4} />
             </CardContent>
           </Card>
-        ) : periods?.map((period: any) => (
+        ) : (periods as any)?.map((period: any) => (
           <Card key={period.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -506,7 +506,7 @@ export default function SurveyPeriodsManager() {
             </CardContent>
           </Card>
         ))}
-        {periods?.length === 0 && (
+        {(periods as any)?.length === 0 && (
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">No se encontraron periodos de aplicación</p>

@@ -15,16 +15,11 @@ export default function MassiveImport() {
   const [positionsFile, setPositionsFile] = useState<File | null>(null);
   const [employeesFile, setEmployeesFile] = useState<File | null>(null);
 
-  // @ts-ignore - massiveImport router está correctamente registrado en server/routers.ts
   const importDepartmentsMutation = trpc.massiveImport.importDepartments.useMutation();
-  // @ts-ignore
   const importPositionsMutation = trpc.massiveImport.importPositions.useMutation();
-  // @ts-ignore
   const importEmployeesMutation = trpc.massiveImport.importEmployees.useMutation();
 
-  // @ts-ignore
   const { data: departments } = trpc.massiveImport.getDepartmentsForImport.useQuery();
-  // @ts-ignore
   const { data: positions } = trpc.massiveImport.getPositionsForImport.useQuery();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {

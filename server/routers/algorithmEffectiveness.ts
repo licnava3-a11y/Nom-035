@@ -81,14 +81,11 @@ export const algorithmEffectivenessRouter = router({
       const averageError = totalError / totalPredictions;
 
       // Clasificar por nivel de precisión
-      const highAccuracyCount = evaluatedPredictions.filter(
-        (pred) => Number(pred.accuracyScore) >= 80
+      const highAccuracyCount = evaluatedPredictions.filter((pred: any) => Number(pred.accuracyScore) >= 80
       ).length;
-      const mediumAccuracyCount = evaluatedPredictions.filter(
-        (pred) => Number(pred.accuracyScore) >= 60 && Number(pred.accuracyScore) < 80
+      const mediumAccuracyCount = evaluatedPredictions.filter((pred: any) => Number(pred.accuracyScore) >= 60 && Number(pred.accuracyScore) < 80
       ).length;
-      const lowAccuracyCount = evaluatedPredictions.filter(
-        (pred) => Number(pred.accuracyScore) < 60
+      const lowAccuracyCount = evaluatedPredictions.filter((pred: any) => Number(pred.accuracyScore) < 60
       ).length;
 
       return {

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { userNotificationPreferences } from "../../drizzle/schema";
+import { cases, correctiveActions, surveys, userNotificationPreferences } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 /**

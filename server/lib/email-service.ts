@@ -183,7 +183,7 @@ export async function sendStatusChangeNotification(
   assignedTo?: string,
   response?: string
 ): Promise<boolean> {
-  let template;
+  let template: any;
 
   switch (newStatus) {
     case 'recibido':

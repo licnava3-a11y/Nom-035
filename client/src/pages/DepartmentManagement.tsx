@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
@@ -23,7 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash2, Users, AlertCircle, UserCog, FileText } from "lucide-react";
+import { Plus, Edit, Trash2, Users, AlertCircle, UserCog, FileText, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
@@ -106,7 +107,7 @@ export default function DepartmentManagement() {
       link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
       link.download = data.filename;
       link.click();
-      toast.success(`Exportación completada: ${data.departmentCount} departamentos, ${data.employeeCount} empleados`);
+      toast(`Exportación completada: ${data.departmentCount} departamentos, ${data.employeeCount} empleados`);
     },
     onError: (error) => {
       toast.error(error.message || 'Error al exportar datos');
@@ -117,15 +118,18 @@ export default function DepartmentManagement() {
     onSuccess: (data) => {
       // Descargar PDF
       const link = document.createElement("a");
-      link.href = `data:application/pdf;base64,${result.data}`;
-      link.download = result.filename;
+      link.href = `data:application/pdf;base64,${data.data}`;
+      link.download = data.filename;
       link.click();
-      alert(`Reporte generado exitosamente: ${result.totalDepartments} departamentos, ${result.totalEmployees} empleados`);
+      alert(`Reporte generado exitosamente: ${(data as any).totalDepartments} departamentos, ${(data as any).totalEmployees} empleados`);
     },
     onError: (error: any) => {
       alert(`Error al generar reporte: ${error.message}`);
     },
   });
+  const handleGenerateReport = () => {
+    generateReportMutation.mutate();
+  };
 
   // Mutation para reasignación masiva
   const bulkReassignMutation = trpc.departments.bulkReassign.useMutation({
@@ -205,7 +209,12 @@ export default function DepartmentManagement() {
   const handleDeleteClick = (dept: any) => {
     setDepartmentToDelete(dept);
     setDeleteConfirmOpen(true);
-  };
+  }
+  const handleDelete = () => {
+    if (selectedDepartment) {
+      deleteMutation.mutate({ id: selectedDepartment.id });
+    }
+  };;
 
   const confirmDelete = () => {
     if (!departmentToDelete) return;
@@ -332,7 +341,7 @@ export default function DepartmentManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {departmentsData.data.map((dept: any) => (
+                  {(departmentsData as any)?.employees.map((dept: any) => (
                     <TableRow key={dept.id}>
                       <TableCell className="font-mono text-sm">
                         <Badge variant="outline">{dept.code || "N/A"}</Badge>
@@ -728,7 +737,7 @@ export default function DepartmentManagement() {
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">Seleccionar departamento</option>
-                {departmentsData?.data.map((dept: any) => (
+                {(departmentsData as any)?.employees.map((dept: any) => (
                   <option key={dept.id} value={dept.id}>
                     {dept.name} ({dept.code})
                   </option>
@@ -754,9 +763,9 @@ export default function DepartmentManagement() {
                 Seleccionar Empleados <span className="text-destructive">*</span>
               </Label>
               <div className="border rounded-md p-4 max-h-64 overflow-y-auto">
-                {employeesData && employeesData.data.length > 0 ? (
+                {employeesData && (employeesData as any)?.data.length > 0 ? (
                   <div className="space-y-2">
-                    {employeesData.data.map((emp: any) => (
+                    {employeesData.employees.map((emp: any) => (
                       <label
                         key={emp.id}
                         className="flex items-center gap-3 p-2 hover:bg-accent rounded cursor-pointer"

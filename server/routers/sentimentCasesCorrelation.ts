@@ -5,7 +5,7 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { sentimentAnalysis, nom035Cases, surveyResponses, users, departments } from "../../drizzle/schema";
+import { departments, employees, nom035Cases, sentimentAnalysis, surveyResponses, users } from "../../drizzle/schema";
 import { eq, and, gte, desc, sql, count } from "drizzle-orm";
 import { z } from "zod";
 

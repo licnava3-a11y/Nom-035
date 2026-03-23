@@ -102,8 +102,7 @@ export default function EmployeeCompetencyEvaluation() {
     if (employeeCompetencies && applicableCompetencies) {
       const levels: Record<number, CompetencyLevel> = {};
       applicableCompetencies.forEach((comp: any) => {
-        const existing = employeeCompetencies.find(
-          (ec) => ec.competencyName === comp.competencyName
+        const existing = employeeCompetencies.find((ec: any) => ec.competencyName === comp.competencyName
         );
         if (existing) {
           levels[comp.id] = existing.currentLevel as CompetencyLevel;

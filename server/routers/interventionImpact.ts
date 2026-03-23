@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { interventionImpactAnalysis, workplaceViolenceCases, departments, trainingEvaluations, sharedReportsLog } from "../../drizzle/schema";
+import { companyLogo, departments, interventionImpactAnalysis, reportCache, sharedReportsLog, trainingEvaluations, workplaceViolenceCases } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 

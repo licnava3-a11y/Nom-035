@@ -2,13 +2,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
-import { 
-  organizationalClimateSurveys, 
-  climateSurveyResponses, 
-  climateAnalysis,
-  employeeTurnoverHistory,
-  salaryEquityAnalysis
-} from "../../drizzle/schema";
+import { climateAnalysis, climateSurveyResponses, employeeTurnoverHistory, organizationalClimateSurveys, questions, salaryEquityAnalysis, surveys } from "../../drizzle/schema";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 
 export const climateAnalysisRouter = router({
@@ -130,12 +124,12 @@ export const climateAnalysisRouter = router({
       
       if (firstResponse.responses) {
         Object.keys(firstResponse.responses).forEach((dimId: any) => {
-          const dimScores = responses.map(r => r.responses[dimId]?.score || 0);
+          const dimScores = responses.map((r: any) => (r.responses as any)[dimId]?.score || 0);
           const avgScore = dimScores.reduce((a: any, b: any) => a + b, 0) / dimScores.length;
           
           dimensionScores[dimId] = {
             dimensionId: dimId,
-            dimensionName: firstResponse.responses[dimId]?.dimensionName || dimId,
+            dimensionName: (firstResponse.responses as any)[dimId]?.dimensionName || dimId,
             score: Math.round(avgScore),
             participationRate: (responses.length / 100) * 100, // Placeholder
             trend: "stable" as const,

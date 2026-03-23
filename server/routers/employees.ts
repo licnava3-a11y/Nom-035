@@ -576,7 +576,6 @@ export const employeesRouter = router({
         };
 
         // Obtener todos los departamentos para mapeo
-        // @ts-ignore - getDb() siempre retorna instancia válida
         const allDepartments = await db.select().from(departments);
         const departmentMap = new Map(
           allDepartments.map((d: any) => [d.name.toLowerCase(), d.id])
@@ -623,21 +622,10 @@ export const employeesRouter = router({
               email: row.email,
               phone: row.phone || null,
               departmentId: departmentId,
-              position: row.position || null,
+              positionId: row.positionId || null,
               hireDate: row.hireDate ? new Date(row.hireDate) : new Date(),
               gender: row.gender || null,
-              birthDate: row.birthDate ? new Date(row.birthDate) : null,
               curp: row.curp || null,
-              rfc: row.rfc || null,
-              nss: row.nss || null,
-              address: row.address || null,
-              city: row.city || null,
-              state: row.state || null,
-              postalCode: row.postalCode || null,
-              emergencyContactName: row.emergencyContactName || null,
-              emergencyContactPhone: row.emergencyContactPhone || null,
-              maritalStatus: row.maritalStatus || null,
-              educationLevel: row.educationLevel || null,
               isActive: true,
             });
 

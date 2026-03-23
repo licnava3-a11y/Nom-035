@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { notificationHistory } from "../../drizzle/schema";
+import { notificationHistory, notifications } from "../../drizzle/schema";
 import { desc, and, gte, lte, eq, count } from "drizzle-orm";
 
 export const notificationHistoryRouter = router({

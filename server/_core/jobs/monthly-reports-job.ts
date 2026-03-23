@@ -29,7 +29,7 @@ export async function runMonthlyReportsJob() {
       .from(scheduledReports)
       .where(eq(scheduledReports.isActive, true));
 
-    const monthlyReports = activeReports.filter((r) => r.reportType === "monthly");
+    const monthlyReports = activeReports.filter((r: any) => r.reportType === "monthly");
 
     if (monthlyReports.length === 0) {
       console.log("[Monthly Reports Job] No active monthly reports found");
@@ -48,8 +48,8 @@ export async function runMonthlyReportsJob() {
         if (report.includeNMX025) {
           const allEmployees = await db.select().from(employees);
           const totalEmployees = allEmployees.length;
-          const maleCount = allEmployees.filter((e) => e.gender === "male").length;
-          const femaleCount = allEmployees.filter((e) => e.gender === "female").length;
+          const maleCount = allEmployees.filter((e: any) => e.gender === "male").length;
+          const femaleCount = allEmployees.filter((e: any) => e.gender === "female").length;
 
           metrics.nmx025 = {
             totalEmployees,
@@ -64,9 +64,9 @@ export async function runMonthlyReportsJob() {
         if (report.includeNOM035) {
           const surveys = await db.select().from(surveyResponses);
           const totalSurveys = surveys.length;
-          const highRiskCount = surveys.filter((s) => s.riskLevel === "high" || s.riskLevel === "very_high").length;
-          const mediumRiskCount = surveys.filter((s) => s.riskLevel === "medium").length;
-          const lowRiskCount = surveys.filter((s) => s.riskLevel === "low").length;
+          const highRiskCount = surveys.filter((s: any) => (s as any).riskLevel === "high" || (s as any).riskLevel === "very_high").length;
+          const mediumRiskCount = surveys.filter((s: any) => (s as any).riskLevel === "medium").length;
+          const lowRiskCount = surveys.filter((s: any) => (s as any).riskLevel === "low").length;
 
           const highRiskPercentage = totalSurveys > 0 ? (highRiskCount / totalSurveys) * 100 : 0;
 
@@ -83,9 +83,9 @@ export async function runMonthlyReportsJob() {
         // Casos NOM-035
         if (report.includeCases) {
           const cases = await db.select().from(nom035Cases);
-          const openCases = cases.filter((c) => c.status === "open").length;
-          const inProgressCases = cases.filter((c) => c.status === "in_progress").length;
-          const closedCases = cases.filter((c) => c.status === "closed").length;
+          const openCases = cases.filter((c: any) => c.status === "open").length;
+          const inProgressCases = cases.filter((c: any) => c.status === "in_progress").length;
+          const closedCases = cases.filter((c: any) => c.status === "closed").length;
 
           metrics.cases = {
             totalCases: cases.length,

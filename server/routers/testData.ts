@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { sql } from "drizzle-orm";
-import { evaluation360Assignments } from "../../drizzle/schema";
+import { employees, evaluation360Assignments, reportHistory, scheduledReports } from "../../drizzle/schema";
 
 export const testDataRouter = router({
   seedSession29: protectedProcedure.mutation(async ({ ctx }) => {

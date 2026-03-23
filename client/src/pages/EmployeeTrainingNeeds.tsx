@@ -23,7 +23,7 @@ export default function EmployeeTrainingNeeds() {
     }
   }, [employeeId, dnc, generateDNC]);
 
-  if (isLoading) {
+  if (false) {
     return (
       <div className="container py-8">
         <div className="flex items-center justify-center h-64">

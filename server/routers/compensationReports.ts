@@ -6,7 +6,7 @@
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { compensationReportsHistory } from "../../drizzle/schema";
+import { compensationReportsHistory, payrollData as payrollDataTable } from "../../drizzle/schema";
 import PDFDocument from "pdfkit";
 import { storagePut } from "../storage";
 import { z } from "zod";
@@ -16,14 +16,14 @@ export const compensationReportsRouter = router({
     .input(z.object({
       includeRecommendations: z.boolean().optional().default(true),
       maxEmployeesInTable: z.number().int().positive().max(100).optional().default(20),
-    }).optional().default({}))
+    }).optional())
     .mutation(async ({ ctx, input }) => {
     const db = await getDb();
       if (!db) throw new Error('Database not initialized');
 
     try {
       // Obtener datos de nómina
-      const payrollData = await db.query.payrollData.findMany();
+      const payrollData = await db.select().from(payrollDataTable);
       
       // Obtener empleados con brecha crítica
       const criticalGaps = payrollData.filter((p: any) => p.requiresReview === true);
@@ -31,8 +31,7 @@ export const compensationReportsRouter = router({
       // Calcular estadísticas
       const totalEmployees = payrollData.length;
       const criticalCount = criticalGaps.length;
-      const highRiskCount = payrollData.filter(
-        (p) => p.compensationRiskLevel === "high" || p.compensationRiskLevel === "critical"
+      const highRiskCount = payrollData.filter((p: any) => p.compensationRiskLevel === "high" || p.compensationRiskLevel === "critical"
       ).length;
       
       // Calcular costo total de ajustes recomendados
@@ -228,15 +227,15 @@ export const compensationReportsRouter = router({
     .input(z.object({
       limit: z.number().int().positive().max(100).optional().default(20),
       offset: z.number().int().nonnegative().optional().default(0),
-    }).optional().default({}))
+    }).optional())
     .query(async ({ input }) => {
     const db = await getDb();
       if (!db) throw new Error('Database not initialized');
-    const reports = await db.query.compensationReportsHistory.findMany({
-      orderBy: (reports, { desc }) => [desc(reports.reportDate)],
-      limit: input?.limit || 20,
-      offset: input?.offset || 0,
-    });
+    const { desc } = await import('drizzle-orm');
+    const reports = await db.select().from(compensationReportsHistory)
+      .orderBy(desc(compensationReportsHistory.reportDate))
+      .limit(input?.limit || 20)
+      .offset(input?.offset || 0);
     return reports;
   }),
 });

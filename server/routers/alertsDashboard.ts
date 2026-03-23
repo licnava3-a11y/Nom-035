@@ -5,7 +5,7 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { cases, postCaseSurveys, departments } from "../../drizzle/schema";
+import { cases, departments, postCaseSurveys, surveys } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, or, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -161,7 +161,7 @@ export const alertsDashboardRouter = router({
 
       // Ordenar por prioridad (critical > high > medium > low)
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      filteredAlerts.sort((a: any, b: any) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      filteredAlerts.sort((a: any, b: any) => priorityOrder[(a.priority as keyof typeof priorityOrder)] - priorityOrder[(b.priority as keyof typeof priorityOrder)]);
 
       return {
         alerts: filteredAlerts,

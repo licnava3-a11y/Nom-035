@@ -258,7 +258,7 @@ export default function EmployeeNew() {
                   label="Correo Empresarial"
                   type="email"
                   value={formData.email}
-                  onValueChange={(value) => handleChange("email", value)}
+                  onValueChange={(value: any) => handleChange("email", value)}
                   placeholder="juan.perez@empresa.com"
                   validationRules={{ required: true, email: true }}
                   showValidationIcon={true}
@@ -274,7 +274,7 @@ export default function EmployeeNew() {
                   label="Correo Personal"
                   type="email"
                   value={formData.personalEmail}
-                  onValueChange={(value) => handleChange("personalEmail", value)}
+                  onValueChange={(value: any) => handleChange("personalEmail", value)}
                   placeholder="juan.perez@gmail.com"
                   validationRules={{ email: true }}
                   showValidationIcon={true}
@@ -291,7 +291,7 @@ export default function EmployeeNew() {
                 label="Teléfono"
                 type="tel"
                 value={formData.phone}
-                onValueChange={(value) => handleChange("phone", value)}
+                onValueChange={(value: any) => handleChange("phone", value)}
                 placeholder="+52 614 123 4567"
                 validationRules={{ phone: true }}
                 showValidationIcon={true}
@@ -317,7 +317,7 @@ export default function EmployeeNew() {
                   id="curp"
                   label="CURP"
                   value={formData.curp}
-                  onValueChange={(value) => {
+                  onValueChange={(value: any) => {
                     handleChange("curp", value.toUpperCase());
                     if (value.length === 18) handleCURPBlur();
                   }}
@@ -413,7 +413,7 @@ export default function EmployeeNew() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <DepartmentSelector
                 value={formData.department}
-                onChange={(value) => {
+                onChange={(value: any) => {
                   handleChange("department", value);
                   // Clear position when department changes
                   handleChange("position", "");

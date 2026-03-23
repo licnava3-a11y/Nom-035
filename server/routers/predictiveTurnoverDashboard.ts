@@ -7,7 +7,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { sentimentAnalysis, nom035Cases, surveyResponses, users, departments, nom035Results, modelThresholds } from "../../drizzle/schema";
+import { departments, employees, modelThresholds, nom035Cases, nom035Results, sentimentAnalysis, surveyResponses, surveyResults, users } from "../../drizzle/schema";
 import { eq, and, gte, desc, count, sql, inArray } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 

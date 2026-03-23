@@ -63,8 +63,7 @@ export const nineBoxGridRouter = router({
         .where(eq(trainingNeeds.employeeId, input.employeeId));
 
       const totalTrainings = trainingData.length;
-      const completedTrainings = trainingData.filter(
-        (t) => t.status === "completada"
+      const completedTrainings = trainingData.filter((t: any) => t.status === "completada"
       ).length;
 
       // Calcular tasa de completitud
@@ -199,8 +198,7 @@ export const nineBoxGridRouter = router({
           .where(eq(trainingNeeds.employeeId, employee.id));
 
         const totalTrainings = trainingData.length;
-        const completedTrainings = trainingData.filter(
-          (t) => t.status === "completada"
+        const completedTrainings = trainingData.filter((t: any) => t.status === "completada"
         ).length;
         const completionRate =
           totalTrainings > 0 ? completedTrainings / totalTrainings : 0;

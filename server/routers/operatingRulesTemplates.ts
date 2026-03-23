@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { operatingRulesTemplates, committeeOperatingRules, committeeOperatingRulesVersions } from "../../drizzle/schema";
+import { committeeOperatingRules, committeeOperatingRulesVersions, operatingRulesTemplates, signatures } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 export const operatingRulesTemplatesRouter = router({

@@ -33,7 +33,6 @@ export default function InterventionPlans() {
   const { data: atRiskEmployees, isLoading: loadingEmployees } =
     trpc.predictiveAnalytics.identifyAtRiskEmployees.useQuery({
       minScore: 0,
-      maxScore: 70,
     });
 
   // Obtener ciclos de evaluación

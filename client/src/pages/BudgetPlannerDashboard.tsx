@@ -14,7 +14,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function BudgetPlannerDashboard() {
   const { data: scenarios, refetch } = trpc.budgetPlanner.getScenarios.useQuery();
-  const { data: highRiskEmployees } = trpc.predictiveTurnover.getHighRiskEmployees.useQuery({ limit: 50 });
+  const { data: highRiskEmployees } = (trpc as any).predictiveTurnover.getHighRiskEmployees.useQuery({ limit: 50 });
 
   const createScenario = trpc.budgetPlanner.createScenario.useMutation({
     onSuccess: () => {

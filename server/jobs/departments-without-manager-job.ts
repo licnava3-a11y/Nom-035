@@ -24,7 +24,6 @@ export async function runDepartmentsWithoutManagerCheck() {
     }
 
     // Obtener departamentos activos sin manager
-    // @ts-expect-error - getDb() siempre retorna instancia válida
     const deptsWithoutManager = await db
       .select({
         id: departments.id,
@@ -113,7 +112,7 @@ Panel de Administración > Gestión de Departamentos
       success: true,
       alertsSent: notificationSent ? 1 : 0,
       departmentsFound: criticalDepts.length,
-      departments: criticalDepts.map(d => ({ id: d.id, name: d.name })),
+      departments: criticalDepts.map((d: any) => ({ id: d.id, name: d.name })),
     };
   } catch (error) {
     console.error('[Departments Without Manager Job] Error running check:', error);

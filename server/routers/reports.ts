@@ -8,15 +8,7 @@ import { TRPCError } from '@trpc/server';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { generateNom035Report } from '../pdfGenerators/nom035Report';
-import { 
-  companyGeneralData, 
-  companyLogo,
-  surveyResponses, 
-  surveyPeriods, 
-  users,
-  signatures,
-  cases
-} from '../../drizzle/schema';
+import { cases, companyGeneralData, companyLogo, departments, employees, signatures, surveyPeriods, surveyResponses, surveyResults, users } from '../../drizzle/schema';
 import { eq, and, gte, lte, count, sql } from 'drizzle-orm';
 
 export const reportsRouter = router({
@@ -396,7 +388,6 @@ export const reportsRouter = router({
       if (!db) throw new Error('Database not initialized');
 
         // Obtener departamentos con contador de empleados
-        // @ts-ignore - getDb() siempre retorna instancia válida
         const allDepartments = await db
           .select({
             id: departments.id,
@@ -413,7 +404,6 @@ export const reportsRouter = router({
         const managersByDept = new Map<number, string>();
 
         for (const dept of allDepartments) {
-          // @ts-ignore - getDb() siempre retorna instancia válida
           const employees = await db
             .select()
             .from(users)
@@ -428,7 +418,6 @@ export const reportsRouter = router({
 
           // Obtener nombre del manager
           if (dept.managerId) {
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const manager = await db
               .select()
               .from(users)

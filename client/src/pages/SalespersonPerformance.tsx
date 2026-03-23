@@ -77,8 +77,7 @@ export default function SalespersonPerformance() {
   );
 
   // Obtener información del vendedor seleccionado
-  const selectedSalesperson = salespeople?.find(
-    (s) => s.id.toString() === selectedSalespersonId
+  const selectedSalesperson = salespeople?.find((s: any) => s.id.toString() === selectedSalespersonId
   );
 
   // Preparar datos para gráfico de tendencias

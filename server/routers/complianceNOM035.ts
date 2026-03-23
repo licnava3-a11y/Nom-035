@@ -405,7 +405,7 @@ export const complianceNOM035Router = router({
         doc.fontSize(20).text("NOM-035-STPS-2018", { align: "center" });
         doc.moveDown(2);
         doc.fontSize(12).font("Helvetica").text(`Fecha de generación: ${new Date().toLocaleDateString()}`, { align: "center" });
-        doc.text(`Generado por: ${ctx.user.nombre}`, { align: "center" });
+        doc.text(`Generado por: ${ctx.user.name}`, { align: "center" });
         doc.moveDown(3);
 
         // Resumen ejecutivo
@@ -429,7 +429,7 @@ export const complianceNOM035Router = router({
           doc.moveDown(0.5);
 
           // Listar items pendientes
-          const pendingItems = numeral.items.filter(item => !item.isCompleted);
+          const pendingItems = numeral.items.filter((item: any) => !item.isCompleted);
           if (pendingItems.length > 0) {
             doc.fontSize(10).font("Helvetica-Bold").text("Requisitos pendientes:");
             pendingItems.forEach((item: any) => {
@@ -453,7 +453,7 @@ export const complianceNOM035Router = router({
         doc.text("Recomendaciones para completar el cumplimiento de la NOM-035-STPS-2018:");
         doc.moveDown(1);
 
-        const allPendingItems = numerals.flatMap(n => n.items.filter(item => !item.isCompleted));
+        const allPendingItems = numerals.flatMap((n: any) => n.items.filter((item: any) => !item.isCompleted));
         if (allPendingItems.length > 0) {
           doc.fontSize(10).font("Helvetica");
           doc.text("1. Priorizar requisitos con fecha de vencimiento próxima");

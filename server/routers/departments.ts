@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { departments, departmentHistory, positions, employees, systemSettings, bulkReassignments, bulkReassignmentDetails, predictiveTurnoverAlerts } from "../../drizzle/schema";
+import { bulkReassignmentDetails, bulkReassignments, departmentHistory, departments, employees, positions, predictiveAlgorithmConfig, predictiveTurnoverAlerts, systemSettings } from "../../drizzle/schema";
 import { sendEmail } from "../lib/email-sender";
 import { eq, like, and, sql, count, desc, isNull, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -1140,6 +1140,8 @@ export const departmentsRouter = router({
 
   // Obtener configuración del algoritmo predictivo
   getAlgorithmConfig: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error('Database not initialized');
     const config = await db.select().from(predictiveAlgorithmConfig)
       .where(eq(predictiveAlgorithmConfig.isActive, true))
       .limit(1);
@@ -1173,6 +1175,8 @@ export const departmentsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database not initialized');
       // Validar que la suma sea 100
       const sum = input.rotationWeight + input.tenureWeight + input.managerWeight + input.teamSizeWeight;
       if (sum !== 100) {

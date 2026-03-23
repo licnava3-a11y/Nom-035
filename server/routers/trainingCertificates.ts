@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb, createNotification } from "../db";
-import { committeeTrainings, trainingAssignments, trainingCertificates, users } from "../../drizzle/schema";
+import { certificates, committeeTrainings, trainingAssignments, trainingCertificates, users } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { randomUUID } from "crypto";

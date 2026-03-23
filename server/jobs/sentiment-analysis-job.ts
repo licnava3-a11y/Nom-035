@@ -6,7 +6,7 @@
 
 import cron from "node-cron";
 import { getDb, analyzeSentimentWithLLM } from "../db";
-import { surveyResponses, surveyAnswers, sentimentAnalysis, surveyQuestions, notifications, nom035Cases, users } from "../../drizzle/schema";
+import { cases, departments, nom035Cases, notifications, sentimentAnalysis, surveyAnswers, surveyQuestions, surveyResponses, users } from "../../drizzle/schema";
 import { eq, isNull, and, sql, gte, desc } from "drizzle-orm";
 import { emitCriticalAlertToAdmins } from "../_core/websocket";
 
@@ -72,11 +72,11 @@ async function processPendingResponses() {
 
         // Concatenar todas las respuestas de texto para análisis global
         const combinedText = significantAnswers
-          .map(a => a.answerValue)
+          .map((a: any) => a.answerValue)
           .join("\n\n");
 
         const questionContext = significantAnswers
-          .map(a => a.questionText)
+          .map((a: any) => a.questionText)
           .join(", ");
 
         // Analizar sentimiento con LLM
@@ -196,7 +196,7 @@ async function checkCriticalThresholdAndCreateCase() {
           .from(nom035Cases)
           .where(
             and(
-              eq(nom035Cases.title, `[AUTO] Alerta de Riesgo Psicosocial - ${department}`),
+              eq(nom035Cases.description, `[AUTO] Alerta de Riesgo Psicosocial - ${department}`),
               gte(nom035Cases.createdAt, thirtyDaysAgo)
             )
           )
@@ -204,7 +204,7 @@ async function checkCriticalThresholdAndCreateCase() {
 
         if (existingCase.length === 0) {
           // Crear caso automático de prevención
-          const summaries = analyses.map(a => a.summary).join("; ");
+          const summaries = analyses.map((a: any) => a.summary).join("; ");
           const caseDescription = `Se detectaron ${analyses.length} comentarios críticos de riesgo psicosocial en el departamento "${department}" durante los últimos 30 días. Resúmenes: ${summaries}. Se requiere intervención preventiva inmediata.`;
 
           await (db.insert(nom035Cases) as any).values({

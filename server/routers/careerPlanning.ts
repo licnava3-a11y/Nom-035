@@ -2,12 +2,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
-import { 
-  careerPaths, 
-  employeeCareerPlans,
-  employeeTurnoverHistory,
-  users
-} from "../../drizzle/schema";
+import { careerPaths, employeeCareerPlans, employeeTurnoverHistory, positions, users } from "../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 
 export const careerPlanningRouter = router({
@@ -101,7 +96,7 @@ export const careerPlanningRouter = router({
         }
         
         // Factor 2: Experiencia (20%)
-        const experienceMonths = null ? null * 12 : 0;
+        const experienceMonths = 0;
         if (path.minimumExperience) {
           const experienceRatio = Math.min(experienceMonths / path.minimumExperience, 1);
           score += experienceRatio * 20;
@@ -292,7 +287,7 @@ export const careerPlanningRouter = router({
       )
       .groupBy(employeeTurnoverHistory.exitReason);
     
-    const projections = turnoverData.map(item => ({
+    const projections = turnoverData.map((item: any) => ({
       position: item.position,
       estimatedVacancies: Math.ceil(item.count / 12 * 6), // Proyección 6 meses
       probability: Math.min((item.count / 12) * 100, 100),

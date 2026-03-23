@@ -1,3 +1,4 @@
+import { LoadingButton } from '@/components/ui/loading-button';
 /**
  * Página de Gestión de Permisos Personalizados
  * 

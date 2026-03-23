@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, departments } from "../../drizzle/schema";
-import { sql, eq, and, gte, lte, count, desc } from "drizzle-orm";
+import { cases, departments, employees } from "../../drizzle/schema";
+import { sql, eq, and, or, gte, lte, count, desc } from "drizzle-orm";
 
 export const departmentMetricsRouter = router({
   /**
@@ -47,7 +47,6 @@ export const departmentMetricsRouter = router({
       }
 
       // Obtener todos los departamentos activos
-      // @ts-ignore - getDb() siempre retorna instancia válida
       const allDepartments = await db
         .select({
           id: departments.id,
@@ -60,7 +59,6 @@ export const departmentMetricsRouter = router({
       // Calcular altas (empleados creados en el período)
       const hires = await Promise.all(
         allDepartments.map(async (dept) => {
-          // @ts-ignore - getDb() siempre retorna instancia válida
           const [result] = await db
             .select({ count: count() })
             .from(employees)
@@ -84,7 +82,6 @@ export const departmentMetricsRouter = router({
       // Calcular bajas (empleados con status 'inactivo' en el período)
       const terminations = await Promise.all(
         allDepartments.map(async (dept) => {
-          // @ts-ignore - getDb() siempre retorna instancia válida
           const [result] = await db
             .select({ count: count() })
             .from(employees)
@@ -145,7 +142,6 @@ export const departmentMetricsRouter = router({
       const { months } = input;
 
       // Obtener departamentos activos
-      // @ts-ignore - getDb() siempre retorna instancia válida
       const allDepartments = await db
         .select({
           id: departments.id,
@@ -156,7 +152,8 @@ export const departmentMetricsRouter = router({
         .execute();
 
       // Generar datos de crecimiento por mes
-      const growthData = [];
+      type GrowthDataItem = { month: string; departments: { departmentId: number; departmentName: string | null; employeeCount: number; }[] };
+      const growthData: GrowthDataItem[] = [];
       const now = new Date();
 
       for (let i = months - 1; i >= 0; i--) {
@@ -167,7 +164,6 @@ export const departmentMetricsRouter = router({
           month: monthDate.toLocaleDateString("es-MX", { year: "numeric", month: "short" }),
           departments: await Promise.all(
             allDepartments.map(async (dept) => {
-              // @ts-ignore - getDb() siempre retorna instancia válida
               const [result] = await db
                 .select({ count: count() })
                 .from(employees)
@@ -197,8 +193,7 @@ export const departmentMetricsRouter = router({
         departments: allDepartments.map((dept: any) => ({
           id: dept.id,
           name: dept.name,
-          data: growthData.map(
-            (month) =>
+          data: growthData.map((month: any) =>
               month.departments.find((d: any) => d.departmentId === dept.id)?.employeeCount || 0
           ),
         })),
@@ -213,7 +208,6 @@ export const departmentMetricsRouter = router({
     if (!db) throw new Error("Database not available");
 
     // Obtener distribución actual de empleados
-    // @ts-ignore - getDb() siempre retorna instancia válida
     const distribution = await db
       .select({
         departmentId: employees.departmentId,
@@ -267,7 +261,6 @@ export const departmentMetricsRouter = router({
       const lastYearEnd = new Date(now.getFullYear() - 1, 11, 31);
 
       // Obtener departamentos activos
-      // @ts-ignore - getDb() siempre retorna instancia válida
       const allDepartments = await db
         .select({
           id: departments.id,
@@ -281,7 +274,6 @@ export const departmentMetricsRouter = router({
         // Comparativa de rotación (altas y bajas)
         const currentYearData = await Promise.all(
           allDepartments.map(async (dept) => {
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [hires] = await db
               .select({ count: count() })
               .from(employees)
@@ -294,7 +286,6 @@ export const departmentMetricsRouter = router({
               )
               .execute();
 
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [terminations] = await db
               .select({ count: count() })
               .from(employees)
@@ -320,7 +311,6 @@ export const departmentMetricsRouter = router({
 
         const lastYearData = await Promise.all(
           allDepartments.map(async (dept) => {
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [hires] = await db
               .select({ count: count() })
               .from(employees)
@@ -333,7 +323,6 @@ export const departmentMetricsRouter = router({
               )
               .execute();
 
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [terminations] = await db
               .select({ count: count() })
               .from(employees)
@@ -396,7 +385,6 @@ export const departmentMetricsRouter = router({
         // Comparativa de crecimiento (número de empleados)
         const currentYearData = await Promise.all(
           allDepartments.map(async (dept) => {
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [result] = await db
               .select({ count: count() })
               .from(employees)
@@ -419,7 +407,6 @@ export const departmentMetricsRouter = router({
 
         const lastYearData = await Promise.all(
           allDepartments.map(async (dept) => {
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [result] = await db
               .select({ count: count() })
               .from(employees)
@@ -471,7 +458,6 @@ export const departmentMetricsRouter = router({
         // Comparativa de distribución (porcentaje por departamento)
         const currentYearTotal = await Promise.all(
           allDepartments.map(async (dept) => {
-            // @ts-ignore - getDb() siempre retorna instancia válida
             const [result] = await db
               .select({ count: count() })
               .from(employees)
@@ -548,7 +534,6 @@ export const departmentMetricsRouter = router({
       }
 
       // Obtener empleados con información de departamento
-      // @ts-ignore - getDb() siempre retorna instancia válida
       const employeesList = await db
         .select({
           id: employees.id,
@@ -569,7 +554,6 @@ export const departmentMetricsRouter = router({
         .execute();
 
       // Obtener total de empleados para paginación
-      // @ts-ignore - getDb() siempre retorna instancia válida
       const [totalResult] = await db
         .select({ count: count() })
         .from(employees)
@@ -587,7 +571,6 @@ export const departmentMetricsRouter = router({
             (now.getMonth() - createdDate.getMonth());
 
           // Obtener número de evaluaciones completadas
-          // @ts-ignore - getDb() siempre retorna instancia válida
           const [evaluationsResult] = await db
             .select({ count: count() })
             .from(sql`survey_responses`)
@@ -600,7 +583,6 @@ export const departmentMetricsRouter = router({
             .execute();
 
           // Obtener número de capacitaciones completadas
-          // @ts-ignore - getDb() siempre retorna instancia válida
           const [trainingsResult] = await db
             .select({ count: count() })
             .from(sql`training_enrollments`)
@@ -613,7 +595,6 @@ export const departmentMetricsRouter = router({
             .execute();
 
           // Obtener número de casos asociados (como reportante)
-          // @ts-ignore - getDb() siempre retorna instancia válida
           const [casesResult] = await db
             .select({ count: count() })
             .from(sql`cases`)

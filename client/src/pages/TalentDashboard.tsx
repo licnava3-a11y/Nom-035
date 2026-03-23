@@ -67,8 +67,7 @@ export default function TalentDashboard() {
   const nineBoxData = Array.from({ length: 9 }, (_, i) => {
     const performance = Math.floor(i / 3) + 1;
     const potential = (i % 3) + 1;
-    const cell = metrics.nineBoxMatrix.find(
-      (m) => m.performance === performance && m.potential === potential
+    const cell = metrics.nineBoxMatrix.find((m: any) => m.performance === performance && m.potential === potential
     );
     return { performance, potential, count: cell?.count || 0 };
   });

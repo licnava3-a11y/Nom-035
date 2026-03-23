@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { organizationalCompetencies, employeeCompetencies, employees, departments } from "../../drizzle/schema";
+import { competencies, departments, employeeCompetencies, employees, organizationalCompetencies } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 

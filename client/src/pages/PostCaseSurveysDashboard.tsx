@@ -168,7 +168,7 @@ export default function PostCaseSurveysDashboard() {
 
   const handleRunJob = async (jobType: "create" | "send" | "expire") => {
     try {
-      let result;
+      let result: any;
       if (jobType === "create") {
         result = await createPendingSurveysMutation.mutateAsync();
         alert(`✅ ${result.surveysCreated} encuestas creadas`);

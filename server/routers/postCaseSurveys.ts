@@ -8,7 +8,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
-import { postCaseSurveys, cases } from "../../drizzle/schema";
+import { cases, postCaseSurveys, surveys } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc, isNull } from "drizzle-orm";
 
 export const postCaseSurveysRouter = router({

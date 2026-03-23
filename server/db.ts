@@ -1,6 +1,6 @@
 import { eq, asc, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, courses, modules, evaluations, questions, answerOptions, studentProgress, evaluationAttempts, studentAnswers, certificates, cases, caseFollowUps, caseDocuments, committeeMembers, resources, jobPositions, jobFunctions, performanceEvaluations, mailbox, mailboxResponses, notifications, caseAssignments, invoices, purchaseOrders, expenseRequests, salespeople, leads } from "../drizzle/schema";
+import { InsertUser, answerOptions, caseAssignments, caseDocuments, caseFollowUps, cases, certificates, committeeMembers, courses, evaluationAttempts, evaluations, expenseRequests, invoices, jobFunctions, jobPositions, leads, mailbox, mailboxResponses, modules, notifications, performanceEvaluations, positions, purchaseOrders, questions, resources, salespeople, sentimentAnalysis, studentAnswers, studentProgress, surveyResponses, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -776,12 +776,12 @@ export async function getSalespeopleDistributionStats() {
       activo: salespeople.activo,
       totalLeadsAsignados: salespeople.totalLeadsAsignados,
       ultimaAsignacion: salespeople.ultimaAsignacion,
-      leadsActivos: sql<number>`COUNT(CASE WHEN ${leads.status} IN ('new', 'contacted', 'negotiation', 'proposal') THEN 1 END)`,
-      leadsGanados: sql<number>`COUNT(CASE WHEN ${leads.status} = 'won' THEN 1 END)`,
-      leadsPerdidos: sql<number>`COUNT(CASE WHEN ${leads.status} = 'lost' THEN 1 END)`,
+      leadsActivos: sql<number>`COUNT(CASE WHEN ${(leads as any).status} IN ('new', 'contacted', 'negotiation', 'proposal') THEN 1 END)`,
+      leadsGanados: sql<number>`COUNT(CASE WHEN ${(leads as any).status} = 'won' THEN 1 END)`,
+      leadsPerdidos: sql<number>`COUNT(CASE WHEN ${(leads as any).status} = 'lost' THEN 1 END)`,
     })
     .from(salespeople)
-    .leftJoin(leads, eq(leads.assignedTo, salespeople.id))
+    .leftJoin(leads, eq((leads as any).assignedTo, salespeople.id))
     .groupBy(salespeople.id)
     .orderBy(desc(salespeople.activo), asc(salespeople.nombre));
   
@@ -968,7 +968,7 @@ Realiza un análisis profundo y proporciona tu evaluación en formato JSON con l
           role: "user",
           content: prompt
         }
-      ],
+      ] as any,
       response_format: {
         type: "json_schema",
         json_schema: {

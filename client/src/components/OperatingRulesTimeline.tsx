@@ -94,7 +94,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
   const toggleEventType = (eventType: EventType) => {
     setSelectedEventTypes(prev =>
       prev.includes(eventType)
-        ? prev.filter(t => t !== eventType)
+        ? prev.filter((t: any) => t !== eventType)
         : [...prev, eventType]
     );
     setOffset(0); // Reset pagination
@@ -132,7 +132,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
           <div className="space-y-2">
             <Label>Tipo de Evento</Label>
             <div className="flex flex-wrap gap-3">
-              {(Object.keys(eventConfig) as EventType[]).map(eventType => {
+              {(Object.keys(eventConfig) as EventType[]).map((eventType: any) => {
                 const config = eventConfig[eventType];
                 const Icon = config.icon;
                 return (
@@ -199,7 +199,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los usuarios</SelectItem>
-                  {uniqueUsers.map(user => (
+                  {uniqueUsers.map((user: any) => (
                     <SelectItem key={user.id} value={user.id.toString()}>
                       {user.name}
                     </SelectItem>

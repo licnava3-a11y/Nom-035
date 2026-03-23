@@ -50,8 +50,7 @@ export function SignaturePad({
     const hasTouchSupport =
       'ontouchstart' in window ||
       navigator.maxTouchPoints > 0 ||
-      // @ts-ignore - msMaxTouchPoints es específico de IE
-      navigator.msMaxTouchPoints > 0;
+      (navigator as any).msMaxTouchPoints > 0;
     setIsTouchDevice(hasTouchSupport);
   }, []);
 

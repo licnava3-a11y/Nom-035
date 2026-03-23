@@ -1,8 +1,8 @@
 import { getDb } from "../db";
-import { intelligentAlerts, workplaceViolenceCases, trainingEvaluations, trainingAssignments, recommendationsTracking, departments, users } from "../../drizzle/schema";
+import { departments, intelligentAlerts, notifications, recommendationsTracking, trainingAssignments, trainingEvaluations, users, workplaceViolenceCases } from "../../drizzle/schema";
 import { eq, and, desc, sql, gte, lt, count } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
-import { notifications } from "../../drizzle/schema";
+// import { notifications } from "../../drizzle/schema"; // removed duplicate
 
 /**
  * Job automático de análisis predictivo de alertas inteligentes

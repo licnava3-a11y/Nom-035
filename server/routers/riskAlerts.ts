@@ -1,14 +1,7 @@
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import {
-  riskAlertHistory,
-  riskAlertThresholds,
-  surveyResponses,
-  employees,
-  departments,
-  users,
-} from "../../drizzle/schema";
+import { departments, employees, riskAlertHistory, riskAlertThresholds, surveyResponses, surveys, users } from "../../drizzle/schema";
 import { eq, and, sql, desc, count } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 
@@ -27,7 +20,7 @@ export const riskAlertsRouter = router({
       if (!db) throw new Error("Database not available");
 
       // Obtener umbrales configurados
-      let thresholds;
+      let thresholds: any;
       if (input?.departmentId) {
         [thresholds] = await db
           .select()

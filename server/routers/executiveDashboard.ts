@@ -750,7 +750,7 @@ export const executiveDashboardRouter = router({
       const ExcelJS = await import('exceljs');
 
       // Obtener métricas del dashboard
-      const metrics = await executiveDashboardRouter.createCaller({ user: ctx.user }).getMetrics(input);
+      const metrics = await executiveDashboardRouter.createCaller(ctx as any).getMetrics(input);
 
       // Crear workbook con exceljs
       const workbook = new ExcelJS.Workbook();
@@ -791,10 +791,10 @@ export const executiveDashboardRouter = router({
 
       // Datos de KPIs
       const kpisRows = [
-        ['Tasa de Cumplimiento NOM-035', `${metrics?.complianceRate || 0}%`],
-        ['Casos Críticos Abiertos', metrics?.criticalCases || 0],
-        ['Total de Empleados', metrics.totalEmployees],
-        ['Casos Cerrados (Mes Actual)', metrics.closedCasesThisMonth],
+        ['Tasa de Cumplimiento NOM-035', `${(metrics as any)?.complianceRate || 0}%`],
+        ['Casos Críticos Abiertos', (metrics as any)?.criticalCases || 0],
+        ['Total de Empleados', metrics?.employeesAndStructure?.totalEmployees || 0],
+        ['Casos Cerrados (Mes Actual)', metrics?.nom035Compliance?.casesClosed || 0],
       ];
       
       kpisRows.forEach((row: any, idx: number) => {
@@ -812,11 +812,11 @@ export const executiveDashboardRouter = router({
       ws1.getCell('A9').alignment = { horizontal: 'center' };
 
       ws1.getCell('A10').value = 'Brecha Salarial de Género';
-      ws1.getCell('B10').value = `${metrics.nmx025.genderPayGap}%`;
+      ws1.getCell('B10').value = `${(metrics as any)?.nmx025?.genderPayGap || 0}%`;
       ws1.getCell('B10').alignment = { horizontal: 'right' };
 
       ws1.getCell('A11').value = 'Mujeres en Puestos Directivos';
-      ws1.getCell('B11').value = `${metrics.nmx025.womenInLeadership}%`;
+      ws1.getCell('B11').value = `${metrics?.nmx025Equality?.femaleDirectivesPercentage || 0}%`;
       ws1.getCell('B11').alignment = { horizontal: 'right' };
 
       // Aplicar bordes y ajustar anchos
@@ -857,7 +857,7 @@ export const executiveDashboardRouter = router({
       ws2.getRow(3).alignment = { horizontal: 'center' };
 
       // Datos
-      metrics?.casesTrends || [].forEach((t: any, idx: number) => {
+      ((metrics as any)?.casesTrends || []).forEach((t: any, idx: number) => {
         const rowNum = idx + 4;
         ws2.getCell(`A${rowNum}`).value = t.month;
         ws2.getCell(`B${rowNum}`).value = t.openCases;
@@ -872,8 +872,8 @@ export const executiveDashboardRouter = router({
       ];
 
       // Gráfica de barras para tendencias
-      const chartDataRows = metrics?.casesTrends || [].length;
-      ws2.addChart({
+      const chartDataRows = ((metrics as any)?.casesTrends || []).length;
+      (ws2 as any).addChart({
         name: 'Tendencias de Casos',
         chartType: 'bar',
         categories: {
@@ -913,7 +913,7 @@ export const executiveDashboardRouter = router({
       ws3.getRow(3).alignment = { horizontal: 'center' };
 
       // Datos
-      metrics?.riskDistribution || [].forEach((r: any, idx: number) => {
+      ((metrics as any)?.riskDistribution || []).forEach((r: any, idx: number) => {
         const rowNum = idx + 4;
         ws3.getCell(`A${rowNum}`).value = r.level;
         ws3.getCell(`B${rowNum}`).value = r.count;
@@ -927,8 +927,8 @@ export const executiveDashboardRouter = router({
       ];
 
       // Gráfica de pie para distribución de riesgo
-      const riskDataRows = metrics?.riskDistribution || [].length;
-      ws3.addChart({
+      const riskDataRows = ((metrics as any)?.riskDistribution || []).length;
+      (ws3 as any).addChart({
         name: 'Distribución de Riesgo',
         chartType: 'pie',
         categories: {

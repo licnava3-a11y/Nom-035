@@ -1,6 +1,6 @@
 import { getDb } from "../db";
-import { correctiveActionPlans } from "../../drizzle/schema";
-import { notifications } from "../../drizzle/schema";
+import { correctiveActionPlans, notifications, users } from "../../drizzle/schema";
+// import { notifications } from "../../drizzle/schema"; // removed duplicate
 import { eq, and, lt, gte, sql } from "drizzle-orm";
 
 /**

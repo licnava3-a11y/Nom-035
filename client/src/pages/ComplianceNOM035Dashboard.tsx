@@ -86,18 +86,18 @@ export default function ComplianceNOM035Dashboard() {
 
   // Datos para gráfico de dona
   const doughnutData = {
-    labels: complianceData.map(d => d.numeral),
+    labels: complianceData?.items?.map((d: any) => d.numeral),
     datasets: [
       {
         label: "Cumplimiento (%)",
-        data: complianceData.map(d => d.percentage),
-        backgroundColor: complianceData.map(d => {
+        data: complianceData?.items?.map((d: any) => d.percentage),
+        backgroundColor: complianceData?.items?.map((d: any) => {
           const percentage = d.percentage;
           if (percentage >= 80) return "rgba(34, 197, 94, 0.8)"; // green
           if (percentage >= 50) return "rgba(234, 179, 8, 0.8)"; // yellow
           return "rgba(239, 68, 68, 0.8)"; // red
         }),
-        borderColor: complianceData.map(d => {
+        borderColor: complianceData?.items?.map((d: any) => {
           const percentage = d.percentage;
           if (percentage >= 80) return "rgba(34, 197, 94, 1)";
           if (percentage >= 50) return "rgba(234, 179, 8, 1)";
@@ -145,12 +145,12 @@ export default function ComplianceNOM035Dashboard() {
           </h1>
         </div>
         <Button
-          onClick={() => generateReport.mutate()}
-          disabled={generateReport.isPending}
+          onClick={() => (generateReport as any).mutate()}
+          disabled={(generateReport as any).isPending}
           className="flex items-center gap-2"
         >
-          <Download className="h-4 w-4" />
-          {generateReport.isPending ? "Generando..." : "Exportar a PDF"}
+          <span className="h-4 w-4" />
+          {(generateReport as any).isPending ? "Generando..." : "Exportar a PDF"}
         </Button>
       </div>
       <div>
@@ -200,7 +200,7 @@ export default function ComplianceNOM035Dashboard() {
             <p>No hay datos de cumplimiento disponibles</p>
           </div>
         ) : (
-          complianceData.map((numeral: any) => {
+          (complianceData as any)?.items?.map((numeral: any) => {
             const colors = getTrafficLightColor(numeral.percentage);
             return (
               <Dialog key={numeral.numeral}>

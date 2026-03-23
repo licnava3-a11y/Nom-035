@@ -130,8 +130,7 @@ export const departmentalTrendsRouter = router({
 
       // Calcular estadísticas globales
       const totalDepartments = departmentalMetrics.length;
-      const departmentsInAlert = departmentalMetrics.filter(
-        (d) => d.alertLevel === "high" || d.alertLevel === "critical"
+      const departmentsInAlert = departmentalMetrics.filter((d: any) => d.alertLevel === "high" || d.alertLevel === "critical"
       ).length;
       const avgRiskScore =
         totalDepartments > 0

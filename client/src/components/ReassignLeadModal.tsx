@@ -64,8 +64,7 @@ export function ReassignLeadModal({ open, onOpenChange, lead }: ReassignLeadModa
       return;
     }
 
-    const selectedSalesperson = salespeople?.find(
-      (s) => s.id.toString() === selectedSalespersonId
+    const selectedSalesperson = salespeople?.find((s: any) => s.id.toString() === selectedSalespersonId
     );
 
     if (!selectedSalesperson) return;

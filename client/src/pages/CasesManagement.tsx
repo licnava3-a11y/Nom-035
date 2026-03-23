@@ -52,7 +52,7 @@ export default function CasesManagement() {
   const { data: stats } = trpc.casesManagement.getCasesStats.useQuery();
   
   // Nueva query para obtener empleados (para selector de reportante)
-  const { data: employeesData } = trpc.employees.getAll.useQuery({
+  const { data: employeesData } = trpc.employees.list.useQuery({
     page: 1,
     pageSize: 1000,
     search: "",

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
-import { complianceRequirements, complianceChecks, complianceChecklist, complianceEvidence, nom035Policies, correctiveActions, complianceReports, companyGeneralData, companyLogo, companyLegalRepresentative, documentFormats, nom035Results, documentAuditLog, reportTemplates, employees, departments, positions, committeeMinutes, committeeMinuteAttendees, committeeMinuteAgendaItems, committeeMinuteAgreements } from "../../drizzle/schema";
+import { committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteAttendees, committeeMinutes, companyGeneralData, companyLegalRepresentative, companyLogo, complianceChecklist, complianceChecks, complianceEvidence, complianceReports, complianceRequirements, correctiveActions, departments, documentAuditLog, documentFormats, employees, nom035Policies, nom035Results, positions, reportTemplates, signatures, surveyResults } from "../../drizzle/schema";
 import { eq, sql, desc, and } from "drizzle-orm";
 import { generatePDFFromTemplate, generateQRCode } from '../utils/pdfGenerator.js';
 import { storagePut } from '../storage';
@@ -375,7 +375,7 @@ export const complianceRouter = router({
     // Calcular cumplimiento general
     const totalRequirements = requirements.length;
     const compliantRequirements = Object.values(complianceByCategory).reduce(
-      (sum, cat) => sum + cat.compliant,
+      (sum: number, cat: any) => sum + cat.compliant,
       0
     );
     const overallCompliance = totalRequirements > 0

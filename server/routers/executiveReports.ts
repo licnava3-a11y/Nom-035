@@ -7,7 +7,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { executiveReportsHistory, nom035Cases, surveyResponses, surveyResults, employees, users } from "../../drizzle/schema";
+import { cases, employees, executiveReportsHistory, nom035Cases, surveyResponses, surveyResults, surveys, users } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc, count } from "drizzle-orm";
 import PDFDocument from "pdfkit";
 import { storagePut } from "../storage";
@@ -24,7 +24,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
     .select({
       total: count(),
       status: nom035Cases.status,
-      priority: nom035Cases.riskLevel,
+      priority: (nom035Cases as any).riskLevel,
     })
     .from(nom035Cases)
     .where(
@@ -33,12 +33,12 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
         lte(nom035Cases.createdAt, endDate)
       )
     )
-    .groupBy(nom035Cases.status, nom035Cases.riskLevel);
+    .groupBy(nom035Cases.status, (nom035Cases as any).riskLevel);
 
   const totalCases = casesData.reduce((sum: any, c: any) => sum + c.total, 0);
   const openCases = casesData.filter(c => c.status === "open").reduce((sum: any, c: any) => sum + c.total, 0);
   const closedCases = casesData.filter(c => c.status === "closed").reduce((sum: any, c: any) => sum + c.total, 0);
-  const criticalCases = casesData.filter(c => c.riskLevel === "muy_alto").reduce((sum: any, c: any) => sum + c.total, 0);
+  const criticalCases = casesData.filter(c => (c as any).riskLevel === "muy_alto").reduce((sum: any, c: any) => sum + c.total, 0);
 
   // 2. Encuestas NOM-035
   const surveysData = await db
@@ -61,7 +61,7 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
   // 3. Niveles de riesgo
   const riskData = await db
     .select({
-      riskLevel: surveyResults.riskLevel,
+      riskLevel: (surveyResults as any).riskLevel,
       count: count(),
     })
     .from(surveyResults)
@@ -71,11 +71,11 @@ async function consolidateReportData(startDate: Date, endDate: Date) {
         lte(surveyResults.calculatedAt, endDate)
       )
     )
-    .groupBy(surveyResults.riskLevel);
+    .groupBy((surveyResults as any).riskLevel);
 
-  const highRiskCount = riskData.filter(r => r.riskLevel === "high" || r.riskLevel === "very_high").reduce((sum: any, r: any) => sum + r.count, 0);
-  const mediumRiskCount = riskData.find(r => r.riskLevel === "medium")?.count || 0;
-  const lowRiskCount = riskData.find(r => r.riskLevel === "low")?.count || 0;
+  const highRiskCount = riskData.filter(r => (r as any).riskLevel === "high" || (r as any).riskLevel === "very_high").reduce((sum: any, r: any) => sum + r.count, 0);
+  const mediumRiskCount = riskData.find(r => (r as any).riskLevel === "medium")?.count || 0;
+  const lowRiskCount = riskData.find(r => (r as any).riskLevel === "low")?.count || 0;
 
   // 4. Empleados activos
   const employeesCount = await db

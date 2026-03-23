@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { whatsappTrackingEvents } from "../../drizzle/schema";
+import { leads, whatsappTrackingEvents } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import { desc, eq, sql, and, gte, lte } from "drizzle-orm";
 

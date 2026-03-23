@@ -91,8 +91,6 @@ async function checkDueDatesAndNotify() {
           // Emitir notificación vía WebSocket
           emitNotificationToUser(admin.id, {
             id: item.checkId,
-            category: "compliance_reminder",
-            priority: daysUntilDue <= 7 ? "high" : "medium",
             title: "Recordatorio de Cumplimiento NOM-035",
             message,
           });

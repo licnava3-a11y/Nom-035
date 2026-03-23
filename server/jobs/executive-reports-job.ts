@@ -122,7 +122,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
   const resolvedCasesWithDates = await db
     .select({
       createdAt: cases.createdAt,
-      resolvedAt: cases.resolvedAt
+      resolvedAt: (cases as any).resolvedAt
     })
     .from(cases)
     .where(sql`${cases.status} = 'resolved'`)
@@ -166,7 +166,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     // Contar empleados por nivel de riesgo
     const riskCounts = await db
       .select({
-        riskLevel: surveyResponses.riskLevel,
+        riskLevel: (surveyResponses as any).riskLevel,
         count: sql<number>`COUNT(DISTINCT ${surveyResponses.userId})`
       })
       .from(surveyResponses)
@@ -195,7 +195,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
       departmentId: employees.departmentId,
       departmentName: departments.name,
       activeCases: sql<number>`COUNT(DISTINCT CASE WHEN ${cases.status} IN ('open', 'in_progress') THEN ${cases.id} END)`,
-      highRiskCount: sql<number>`COUNT(DISTINCT CASE WHEN ${surveyResponses.riskLevel} = 'high' THEN ${surveyResponses.userId} END)`,
+      highRiskCount: sql<number>`COUNT(DISTINCT CASE WHEN ${(surveyResponses as any).riskLevel} = 'high' THEN ${surveyResponses.userId} END)`,
       employeeCount: sql<number>`COUNT(DISTINCT ${employees.id})`
     })
     .from(employees)
@@ -207,7 +207,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .orderBy(desc(sql`COUNT(DISTINCT CASE WHEN ${cases.status} IN ('open', 'in_progress') THEN ${cases.id} END)`))
     .limit(10);
   
-  const departmentalRisks = departmentalData.map(d => {
+  const departmentalRisks = departmentalData.map((d: any) => {
     const riskScore = (d.activeCases * 10 + d.highRiskCount * 5) / Math.max(d.employeeCount, 1);
     let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low';
     
@@ -244,7 +244,7 @@ async function generateReportData(period: 'weekly' | 'monthly'): Promise<Executi
     .orderBy(cases.createdAt)
     .limit(5);
   
-  const criticalCasesList = criticalCasesData.map(c => ({
+  const criticalCasesList = criticalCasesData.map((c: any) => ({
     id: c.id,
     employeeName: c.employeeName || 'N/A',
     department: c.departmentName || 'N/A',
@@ -504,7 +504,7 @@ function generateReportHTML(data: ExecutiveReportData): string {
           </tr>
         </thead>
         <tbody>
-          ${data.departmentalRisks.map(dept => `
+          ${data.departmentalRisks.map((dept: any) => `
             <tr>
               <td>${dept.departmentName}</td>
               <td><span class="badge ${dept.riskLevel}">${dept.riskLevel}</span></td>
@@ -532,7 +532,7 @@ function generateReportHTML(data: ExecutiveReportData): string {
           </tr>
         </thead>
         <tbody>
-          ${data.criticalCases.map(c => `
+          ${data.criticalCases.map((c: any) => `
             <tr>
               <td>#${c.id}</td>
               <td>${c.employeeName}</td>
@@ -551,7 +551,7 @@ function generateReportHTML(data: ExecutiveReportData): string {
       <div class="recommendations">
         <div class="section-title" style="border: none; padding: 0; margin-bottom: 10px;">Recomendaciones</div>
         <ul>
-          ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+          ${data.recommendations.map((rec: any) => `<li>${rec}</li>`).join('')}
         </ul>
       </div>
     </div>
@@ -602,7 +602,7 @@ export async function runExecutiveReportsJob(period: 'weekly' | 'monthly' = 'wee
 - Cobertura Encuestas: ${reportData.kpis.surveyCoverage}%
 
 **Recomendaciones principales:**
-${reportData.recommendations.slice(0, 3).map(r => `- ${r}`).join('\n')}
+${reportData.recommendations.slice(0, 3).map((r: any) => `- ${r}`).join('\n')}
 
 Ver reporte completo: ${reportUrl}`
     });

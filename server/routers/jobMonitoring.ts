@@ -5,7 +5,7 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { jobExecutions } from "../../drizzle/schema";
+import { jobExecutions, surveys } from "../../drizzle/schema";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

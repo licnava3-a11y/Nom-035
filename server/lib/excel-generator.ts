@@ -260,7 +260,7 @@ export async function generateActionPlanExcel(options: ExcelGeneratorOptions): P
     ['Margen de Error:', '±5%'],
   ];
 
-  metrics.forEach(([label, value]: [string, any]) => {
+  metrics.forEach(([label, value]: any) => {
     const row = worksheet.addRow([label, value]);
     row.getCell(1).font = { bold: true };
     row.getCell(1).alignment = { horizontal: 'right' };

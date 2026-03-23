@@ -6,7 +6,7 @@
  */
 
 import { getDb, createNotification, getAllCommitteeMembers } from "../db";
-import { cases } from "../../drizzle/schema";
+import { cases, committeeMembers, notifications } from "../../drizzle/schema";
 import { and, eq, lt, sql } from "drizzle-orm";
 
 /**

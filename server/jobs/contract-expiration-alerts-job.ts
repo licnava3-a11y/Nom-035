@@ -22,7 +22,7 @@ export async function runContractExpirationAlertsJob() {
 
     // Obtener configuración del sistema para email de RH
     const [settings] = await db.select().from(systemSettings).limit(1);
-    const hrEmail = settings?.hrEmail;
+    const hrEmail = (settings as any)?.hrEmail;
 
     if (!hrEmail) {
       console.warn("[Contract Expiration Alerts Job] No hay email de RH configurado. Saltando envío de alertas.");
@@ -50,9 +50,9 @@ export async function runContractExpirationAlertsJob() {
     for (const employee of activeEmployees) {
       // Verificar cada tipo de contrato
       const contractFields = [
-        { field: employee.contractEndDate1, type: "Contrato 1" },
-        { field: employee.contractEndDate2, type: "Contrato 2" },
-        { field: employee.contractEndDate3, type: "Contrato 3" },
+        { field: (employee as any).contractEndDate1, type: "Contrato 1" },
+        { field: (employee as any).contractEndDate2, type: "Contrato 2" },
+        { field: (employee as any).contractEndDate3, type: "Contrato 3" },
       ];
 
       for (const contract of contractFields) {
@@ -64,7 +64,7 @@ export async function runContractExpirationAlertsJob() {
           // Si vence en los próximos 7 días
           if (daysRemaining >= 0 && daysRemaining <= 7) {
             expiringContracts.push({
-              employeeName: employee.name || "Sin nombre",
+              employeeName: `${employee.firstName} ${employee.lastName}` || "Sin nombre",
               contractType: contract.type,
               expirationDate,
               daysRemaining,

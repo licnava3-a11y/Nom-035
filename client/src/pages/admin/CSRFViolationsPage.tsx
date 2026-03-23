@@ -41,16 +41,16 @@ export default function CSRFViolationsPage() {
 
   // Queries de tRPC
   const { data: violationsData, isLoading: loadingViolations, refetch: refetchViolations } = trpc.csrfViolations.getViolations.useQuery({
-    offset: (page - 1) * pageSize,
+    // offset: (page - 1) * pageSize,
     limit: pageSize,
     ipAddress: ipFilter || undefined,
-    reason: reasonFilter,
+    reason: reasonFilter as "missing_token" | "invalid_token" | "expired_token" | "user_mismatch" | "malformed_token" | undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
 
-  const { data: statsData, isLoading: loadingStats } = trpc.csrfViolations.getStatistics.useQuery();
-  const { data: recentData, isLoading: loadingRecent } = trpc.csrfViolations.getRecentViolations.useQuery();
+  const { data: statsData, isLoading: loadingStats } = trpc.csrfViolations.getStatistics.useQuery({} as any);
+  const { data: recentData, isLoading: loadingRecent } = trpc.csrfViolations.getRecentViolations.useQuery({} as any);
 
   // Datos para gráficas
   const violationsByReasonData = {
@@ -94,11 +94,11 @@ export default function CSRFViolationsPage() {
 
   // Función para exportar a Excel (simplificada - en producción usar librería como xlsx)
   const handleExport = () => {
-    if (!violationsData?.violations) return;
+    if (!violationsData?.violations?.violations) return;
     
     const csv = [
       ['ID', 'IP Address', 'Razón', 'Endpoint', 'User Agent', 'Fecha'].join(','),
-      ...violationsData.violations.map(v => [
+      ...(violationsData.violations?.violations as any[]).map((v: any) => [
         v.id,
         v.ipAddress,
         v.reason,
@@ -112,7 +112,7 @@ export default function CSRFViolationsPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `csrf-violations-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `csrf-violationsData?.violations-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -217,15 +217,15 @@ export default function CSRFViolationsPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="violations" className="space-y-4">
+      <Tabs defaultValue="violationsData?.violations" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="violations">Violaciones</TabsTrigger>
+          <TabsTrigger value="violationsData?.violations">Violaciones</TabsTrigger>
           <TabsTrigger value="statistics">Estadísticas</TabsTrigger>
           <TabsTrigger value="alerts">Alertas Activas</TabsTrigger>
         </TabsList>
 
         {/* Tab: Violaciones */}
-        <TabsContent value="violations" className="space-y-4">
+        <TabsContent value="violationsData?.violations" className="space-y-4">
           {/* Filtros */}
           <Card>
             <CardHeader>
@@ -302,7 +302,7 @@ export default function CSRFViolationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {violationsData?.violations.map((violation: any) => (
+                  {(violationsData as any)?.violations?.violations?.map((violation: any) => (
                     <TableRow key={violation.id}>
                       <TableCell className="font-mono text-sm">{violation.id}</TableCell>
                       <TableCell className="font-mono">{violation.ipAddress}</TableCell>
@@ -325,7 +325,7 @@ export default function CSRFViolationsPage() {
               {/* Paginación */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Página {page} de {violationsData?.totalPages || 1}
+                  Página {page} de {(violationsData as any)?.pagination?.totalPages || 1}
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -340,7 +340,7 @@ export default function CSRFViolationsPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setPage(p => p + 1)}
-                    disabled={page >= (violationsData?.totalPages || 1)}
+                    disabled={page >= ((violationsData as any)?.pagination?.totalPages || 1)}
                   >
                     Siguiente
                   </Button>

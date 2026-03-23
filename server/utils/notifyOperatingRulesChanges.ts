@@ -11,6 +11,8 @@ interface NotificationData {
   rejectedBy?: string;
   rejectionReason?: string;
   creatorEmail?: string;
+  changedByUserId?: number;
+  changedByName?: string | null;
 }
 
 /**

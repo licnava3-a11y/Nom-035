@@ -153,9 +153,9 @@ export default function SalaryEquityDashboard() {
             <CardTitle className="text-sm font-medium">Índice de Equidad Global</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{latestAnalysis.globalEquityIndex}/100</div>
+            <div className="text-3xl font-bold">{(latestAnalysis.globalEquityIndex ?? 0)}/100</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {latestAnalysis.globalEquityIndex >= 80 ? "Excelente" : latestAnalysis.globalEquityIndex >= 60 ? "Bueno" : "Requiere Atención"}
+              {(latestAnalysis.globalEquityIndex ?? 0) >= 80 ? "Excelente" : (latestAnalysis.globalEquityIndex ?? 0) >= 60 ? "Bueno" : "Requiere Atención"}
             </p>
           </CardContent>
         </Card>
@@ -181,16 +181,16 @@ export default function SalaryEquityDashboard() {
           <CardContent>
             <div className="flex items-center gap-2">
               <span className="text-3xl font-bold">
-                {parseFloat(latestAnalysis.genderPayGapPercentage).toFixed(1)}%
+                {parseFloat(latestAnalysis.genderPayGapPercentage ?? "0").toFixed(1)}%
               </span>
-              {parseFloat(latestAnalysis.genderPayGapPercentage) > 10 ? (
+              {parseFloat(latestAnalysis.genderPayGapPercentage ?? "0") > 10 ? (
                 <TrendingDown className="h-5 w-5 text-red-500" />
               ) : (
                 <CheckCircle className="h-5 w-5 text-green-500" />
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {Math.abs(parseFloat(latestAnalysis.genderPayGapPercentage)) < 5 ? "Equidad Aceptable" : "Requiere Ajuste"}
+              {Math.abs(parseFloat(latestAnalysis.genderPayGapPercentage ?? "0")) < 5 ? "Equidad Aceptable" : "Requiere Ajuste"}
             </p>
           </CardContent>
         </Card>
@@ -230,11 +230,11 @@ export default function SalaryEquityDashboard() {
                   data={[
                     {
                       gender: "Hombres",
-                      salary: parseFloat(latestAnalysis.maleAverageSalary),
+                      salary: parseFloat(latestAnalysis.maleAverageSalary ?? "0"),
                     },
                     {
                       gender: "Mujeres",
-                      salary: parseFloat(latestAnalysis.femaleAverageSalary),
+                      salary: parseFloat(latestAnalysis.femaleAverageSalary ?? "0"),
                     },
                   ]}
                 >
@@ -250,11 +250,11 @@ export default function SalaryEquityDashboard() {
               <div className="mt-4 grid gap-4 md:grid-cols-3">
                 <div>
                   <p className="text-sm text-muted-foreground">Salario Promedio Hombres</p>
-                  <p className="text-2xl font-bold">${parseFloat(latestAnalysis.maleAverageSalary).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">${parseFloat(latestAnalysis.maleAverageSalary ?? "0").toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Salario Promedio Mujeres</p>
-                  <p className="text-2xl font-bold">${parseFloat(latestAnalysis.femaleAverageSalary).toLocaleString()}</p>
+                  <p className="text-2xl font-bold">${parseFloat(latestAnalysis.femaleAverageSalary ?? "0").toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Puntuación de Equidad</p>
