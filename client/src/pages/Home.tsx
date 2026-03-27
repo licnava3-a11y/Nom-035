@@ -187,8 +187,7 @@ export default function Home() {
         <WhatsAppDemoButton
           nombre={user?.name || ""}
           email={user?.email || ""}
-          normativas={["NOM-035"]}
-          origen="dashboard"
+          normativasSeleccionadas={["NOM-035"]}
         />
         
         {/* Filtro de período */}

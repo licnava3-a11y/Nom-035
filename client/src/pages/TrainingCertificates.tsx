@@ -41,7 +41,8 @@ export default function TrainingCertificates() {
   });
 
   // Queries
-  const { data: employees, isLoading: loadingEmployees } = trpc.employees.list.useQuery();
+  const { data: employeesData, isLoading: loadingEmployees } = trpc.employees.list.useQuery({ pageSize: 1000 });
+  const employees = employeesData?.employees;
   // TODO: Implementar procedimiento getReportHistory en compliance router
   // const { data: certificates, isLoading: loadingCertificates, refetch } = trpc.compliance.getReportHistory.useQuery();
   const certificates: any[] = [];

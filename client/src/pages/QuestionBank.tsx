@@ -280,7 +280,7 @@ export default function QuestionBank() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="questionType">Tipo de pregunta</Label>
-                <Select modal={false}
+                <Select
                   value={formData.questionType}
                   onValueChange={(value: any) => setFormData({ ...formData, questionType: value })}
                 >

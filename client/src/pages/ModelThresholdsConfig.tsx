@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ModelThresholdsConfig() {
   const { data: activeConfig, isLoading, refetch } = trpc.modelThresholds.getActiveThresholds.useQuery();
-  const { data: correlationMetrics } = trpc.predictiveCorrelation.getCorrelationMetrics.useQuery();
+  const { data: correlationMetrics } = trpc.predictiveCorrelation.getModelAccuracy.useQuery({});
   const updateMutation = trpc.modelThresholds.updateThresholds.useMutation();
   const resetMutation = trpc.modelThresholds.resetToDefaults.useMutation();
 
@@ -100,7 +100,7 @@ export default function ModelThresholdsConfig() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Precisión</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.precision.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">{correlationMetrics.metrics.precision.toFixed(1)}%</div>
             </CardContent>
           </Card>
           <Card>
@@ -108,7 +108,7 @@ export default function ModelThresholdsConfig() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Recall</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.recall.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">{correlationMetrics.metrics.recall.toFixed(1)}%</div>
             </CardContent>
           </Card>
           <Card>
@@ -116,7 +116,7 @@ export default function ModelThresholdsConfig() {
               <CardTitle className="text-sm font-medium text-muted-foreground">F1-Score</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.f1Score.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">{correlationMetrics.metrics.f1Score.toFixed(1)}%</div>
             </CardContent>
           </Card>
           <Card>
@@ -124,7 +124,7 @@ export default function ModelThresholdsConfig() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Accuracy</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{correlationMetrics.accuracy.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">{correlationMetrics.metrics.accuracy.toFixed(1)}%</div>
             </CardContent>
           </Card>
         </div>

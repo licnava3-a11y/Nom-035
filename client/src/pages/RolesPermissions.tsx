@@ -470,7 +470,7 @@ export default function RolesPermissions() {
             </div>
             <div className="w-full md:w-[200px]">
               <Label htmlFor="roleFilter">Filtrar por rol</Label>
-              <Select modal={false}
+              <Select
                 value={selectedRole}
                 onValueChange={(value) => {
                   setSelectedRole(value);
@@ -600,7 +600,7 @@ export default function RolesPermissions() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="newRole">Nuevo Rol</Label>
-              <Select modal={false} value={newRole} onValueChange={setNewRole}>
+              <Select value={newRole} onValueChange={setNewRole}>
                 <SelectTrigger id="newRole">
                   <SelectValue placeholder="Selecciona un rol" />
                 </SelectTrigger>

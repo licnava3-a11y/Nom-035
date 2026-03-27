@@ -128,7 +128,7 @@ export function startModelAutoRetrainingJob() {
       }
 
       // Calcular mejora esperada
-      const currentF1 = parseFloat(currentConfig.criticalCommentsWeight || "0"); // Placeholder - debería calcularse
+      const currentF1 = parseFloat(String(currentConfig.criticalCommentsWeight ?? 0)); // Placeholder - debería calcularse
       const improvementPercentage = ((bestF1Score - currentF1) / currentF1) * 100;
 
       // Desactivar configuración actual

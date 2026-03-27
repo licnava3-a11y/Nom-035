@@ -19,7 +19,7 @@ export default function Contact() {
     mensaje: "",
   });
 
-  const contactMutation = trpc.system.submitContactForm.useMutation({
+  const contactMutation = trpc.system.notifyOwner.useMutation({
     onSuccess: () => {
       toast.success("Mensaje enviado correctamente. Nos pondremos en contacto pronto.");
       setFormData({
@@ -37,7 +37,7 @@ export default function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    contactMutation.mutate(formData);
+    contactMutation.mutate({ title: `Contacto: ${formData.mensaje ?? 'Consulta'}`, content: JSON.stringify(formData) });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -167,9 +167,7 @@ export default function Contact() {
                   nombre={formData.nombre}
                   email={formData.email}
                   empresa={formData.empresa}
-                  telefono={formData.telefono}
-                  normativas={["NOM-035", "NOM-037"]}
-                  origen="contacto"
+              normativasSeleccionadas={["NOM-035", "NOM-037"]}
                   className="w-full"
                 />
               </CardContent>

@@ -106,7 +106,7 @@ export default function DocumentGallery() {
 
     // Descargar cada PDF seleccionado
     for (const docId of Array.from(selectedDocs)) {
-      const doc = documents?.find(d => d.id === docId);
+      const doc = documents?.find((d: any) => d.id === docId);
       if (doc && doc.pdfUrl) {
         handleDownloadPDF(doc.pdfUrl, doc.folio);
         // Pequeño delay para evitar bloqueo del navegador

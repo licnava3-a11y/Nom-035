@@ -172,7 +172,7 @@ export default function DepartmentMetrics() {
           </p>
         </div>
         <div className="w-64">
-          <Select modal={false}
+          <Select
             value={selectedDepartmentId?.toString() || 'all'}
             onValueChange={(value) => setSelectedDepartmentId(value === 'all' ? null : parseInt(value))}
           >
@@ -259,7 +259,7 @@ export default function DepartmentMetrics() {
               <CardTitle>Rotación de Personal por Departamento</CardTitle>
               <CardDescription>Altas, bajas y cambio neto en el período seleccionado</CardDescription>
             </div>
-            <Select modal={false} value={rotationPeriod} onValueChange={(value: any) => setRotationPeriod(value)}>
+            <Select value={rotationPeriod} onValueChange={(value: any) => setRotationPeriod(value)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue />
               </SelectTrigger>
@@ -311,7 +311,7 @@ export default function DepartmentMetrics() {
               <CardTitle>Crecimiento de Empleados por Departamento</CardTitle>
               <CardDescription>Evolución mensual de los principales departamentos</CardDescription>
             </div>
-            <Select modal={false} value={growthMonths.toString()} onValueChange={(value) => setGrowthMonths(parseInt(value))}>
+            <Select value={growthMonths.toString()} onValueChange={(value) => setGrowthMonths(parseInt(value))}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue />
               </SelectTrigger>
@@ -409,7 +409,7 @@ export default function DepartmentMetrics() {
                 Comparación de métricas del año actual vs año anterior
               </CardDescription>
             </div>
-            <Select modal={false} value={yoyMetric} onValueChange={(value: 'rotation' | 'growth' | 'distribution') => setYoyMetric(value)}>
+            <Select value={yoyMetric} onValueChange={(value: 'rotation' | 'growth' | 'distribution') => setYoyMetric(value)}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue />
               </SelectTrigger>

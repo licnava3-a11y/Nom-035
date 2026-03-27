@@ -71,7 +71,7 @@ export default function RiskAnalysisPage() {
     });
   };
 
-  const selectedEmployee = employees?.find((e: any) => e.id === selectedEmployeeId);
+  const selectedEmployee = employees?.employees?.find((e: any) => e.id === selectedEmployeeId);
   const selectedResult = results?.find((r: any) => r.id === selectedResultId);
 
   return (
@@ -111,12 +111,12 @@ export default function RiskAnalysisPage() {
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     Cargando empleados...
                   </div>
-                ) : employees?.length === 0 ? (
+                ) : employees?.employees?.length === 0 ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     No hay empleados registrados
                   </div>
                 ) : (
-                  employees?.map((emp: any) => (
+                  employees?.employees?.map((emp: any) => (
                     <SelectItem key={emp.id} value={emp.id.toString()}>
                       {emp.firstName} {emp.lastName} - {emp.employeeNumber}
                     </SelectItem>

@@ -3,12 +3,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 interface PaginationMetadata {
-  currentPage: number;
+  currentPage?: number;
+  page?: number;
   pageSize: number;
   totalCount: number;
   totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+  hasNextPage?: boolean;
+  hasPrevPage?: boolean;
+  hasPreviousPage?: boolean;
 }
 
 interface PaginationProps {
@@ -26,7 +28,10 @@ export function Pagination({
   showPageSizeSelector = false,
   pageSizeOptions = [10, 20, 50, 100],
 }: PaginationProps) {
-  const { currentPage, pageSize, totalCount, totalPages, hasNextPage, hasPreviousPage } = pagination;
+  const { pageSize, totalCount, totalPages, hasNextPage, hasPreviousPage, hasPrevPage } = pagination;
+  const currentPage = pagination.currentPage ?? pagination.page ?? 1;
+  const hasPrev = hasPreviousPage ?? hasPrevPage ?? false;
+  const hasNext = hasNextPage ?? false;
 
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalCount);
@@ -64,7 +69,7 @@ export function Pagination({
           variant="outline"
           size="sm"
           onClick={() => onPageChange(1)}
-          disabled={!hasPreviousPage}
+          disabled={!hasPrev}
           className="h-8 w-8 p-0"
         >
           <ChevronsLeft className="h-4 w-4" />
@@ -74,7 +79,7 @@ export function Pagination({
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={!hasPreviousPage}
+          disabled={!hasPrev}
           className="h-8 w-8 p-0"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -91,7 +96,7 @@ export function Pagination({
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={!hasNextPage}
+          disabled={!hasNext}
           className="h-8 w-8 p-0"
         >
           <ChevronRight className="h-4 w-4" />
@@ -101,7 +106,7 @@ export function Pagination({
           variant="outline"
           size="sm"
           onClick={() => onPageChange(totalPages)}
-          disabled={!hasNextPage}
+          disabled={!hasNext}
           className="h-8 w-8 p-0"
         >
           <ChevronsRight className="h-4 w-4" />

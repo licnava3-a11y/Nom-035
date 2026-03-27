@@ -41,7 +41,7 @@ export default function TalentDashboard() {
     period,
   });
 
-  const { data: departments } = trpc.departments.list.useQuery();
+  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
 
   if (isLoading) {
     return (
@@ -145,7 +145,7 @@ export default function TalentDashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los departamentos</SelectItem>
-              {departments?.map((dept: any) => (
+              {departments?.data?.map((dept: any) => (
                 <SelectItem key={dept.id} value={dept.id.toString()}>
                   {dept.name}
                 </SelectItem>

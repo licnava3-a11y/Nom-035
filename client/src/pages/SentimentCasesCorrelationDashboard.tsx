@@ -55,7 +55,8 @@ export default function SentimentCasesCorrelationDashboard() {
   const { data: casesByDept = [] } = trpc.sentimentCasesCorrelation.getCasesByDepartment.useQuery();
 
   // Query: lista de departamentos
-  const { data: departments = [] } = trpc.departments.getAll.useQuery();
+  const { data: departmentsData } = trpc.departments.list.useQuery({ pageSize: 1000 });
+  const departments = departmentsData?.data ?? [];
 
   // Datos para gráfico de línea temporal
   const lineChartData = {

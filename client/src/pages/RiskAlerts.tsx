@@ -19,13 +19,13 @@ export default function RiskAlerts() {
   const { data: alertHistory, isLoading: historyLoading } = trpc.riskAlerts.getAlertHistory.useQuery({
     limit: 50,
   });
-  const { data: departmentStats, isLoading: statsLoading } = trpc.riskAlerts.getDepartmentRiskStats.useQuery();
+  const { data: departmentStats, isLoading: statsLoading } = trpc.riskAlerts.getDepartmentRiskStats.useQuery({ departmentId: selectedDepartmentId ?? 0 });
 
   // Mutations
   const checkRiskLevelsMutation = trpc.riskAlerts.checkRiskLevels.useMutation({
     onSuccess: (data) => {
-      if (data.alertsTriggered > 0) {
-        toast.success(`${data.alertsTriggered} alertas generadas`);
+      if (data.alertsTriggered.length > 0) {
+        toast.success(`${data.alertsTriggered.length} alertas generadas`);
       } else {
         toast.info("No se generaron alertas. Todos los departamentos están dentro de los umbrales.");
       }
@@ -56,81 +56,76 @@ export default function RiskAlerts() {
   // Render Department Risk Stats
   const renderDepartmentStats = () => {
     if (!departmentStats) return null;
+    const dept = departmentStats;
+    const riskPercentage = dept.totalEmployees > 0 ? (dept.highRiskCount / dept.totalEmployees) * 100 : 0;
+    const isOverThreshold = riskPercentage > ((thresholds as any)?.highRiskThreshold || 30);
 
     return (
       <div className="space-y-4">
-        {departmentStats.map((dept: any) => {
-          const riskPercentage = (dept.highRiskCount / dept.totalEmployees) * 100;
-          const isOverThreshold = riskPercentage > ((thresholds as any)?.highRiskThreshold || 30);
-
-          return (
-            <Card key={dept.departmentId} className={isOverThreshold ? "border-red-500 border-2" : ""}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{dept.departmentName}</CardTitle>
-                  {isOverThreshold && (
-                    <Badge variant="destructive" className="flex items-center gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      Alerta Activa
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Empleados</p>
-                    <p className="text-2xl font-bold">{dept.totalEmployees}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Riesgo Alto</p>
-                    <p className="text-2xl font-bold text-red-600">{dept.highRiskCount}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Riesgo Medio</p>
-                    <p className="text-2xl font-bold text-yellow-600">{dept.mediumRiskCount}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">% Riesgo Alto</p>
-                    <p className={`text-2xl font-bold ${isOverThreshold ? "text-red-600" : "text-green-600"}`}>
-                      {riskPercentage.toFixed(1)}%
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className={`h-2.5 rounded-full ${
-                        isOverThreshold ? "bg-red-600" : "bg-green-600"
-                      }`}
-                      style={{ width: `${Math.min(riskPercentage, 100)}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Umbral configurado: {(thresholds as any)?.highRiskThreshold || 30}%
-                  </p>
-                </div>
-                {isOverThreshold && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => {
-                      triggerAlertMutation.mutate({
-                        departmentId: dept.departmentId,
-                        // alertType: "high_risk_threshold",
-                        message: `Departamento ${dept.departmentName} superó el umbral de riesgo alto (${riskPercentage.toFixed(1)}%)`,
-                      });
-                    }}
-                  >
-                    <Bell className="h-4 w-4 mr-2" />
-                    Enviar Alerta Manual
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Card className={isOverThreshold ? "border-red-500 border-2" : ""}>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Estadísticas de Riesgo</CardTitle>
+              {isOverThreshold && (
+                <Badge variant="destructive" className="flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  Alerta Activa
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Empleados</p>
+                <p className="text-2xl font-bold">{dept.totalEmployees}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Riesgo Alto</p>
+                <p className="text-2xl font-bold text-red-600">{dept.highRiskCount}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Riesgo Medio</p>
+                <p className="text-2xl font-bold text-yellow-600">{dept.mediumRiskCount}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">% Riesgo Alto</p>
+                <p className={`text-2xl font-bold ${isOverThreshold ? "text-red-600" : "text-green-600"}`}>
+                  {riskPercentage.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className={`h-2.5 rounded-full ${
+                    isOverThreshold ? "bg-red-600" : "bg-green-600"
+                  }`}
+                  style={{ width: `${Math.min(riskPercentage, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Umbral configurado: {(thresholds as any)?.highRiskThreshold || 30}%
+              </p>
+            </div>
+            {isOverThreshold && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-4"
+                onClick={() => {
+                  triggerAlertMutation.mutate({
+                    departmentId: selectedDepartmentId ?? 0,
+                    notes: `Superó el umbral de riesgo alto (${riskPercentage.toFixed(1)}%)`,
+                  });
+                }}
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Enviar Alerta Manual
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   };
@@ -256,8 +251,10 @@ export default function RiskAlerts() {
                     (document.getElementById("mediumRiskThreshold") as HTMLInputElement).value
                   );
                   configureThresholdsMutation.mutate({
+                    departmentId: selectedDepartmentId ?? 0,
                     highRiskThreshold: highRisk,
                     mediumRiskThreshold: mediumRisk,
+                    enableAutoAlerts: true,
                   });
                 }}
                 disabled={configureThresholdsMutation.isPending}

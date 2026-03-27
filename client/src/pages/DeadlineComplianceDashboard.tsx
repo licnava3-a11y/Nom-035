@@ -53,7 +53,7 @@ export default function DeadlineComplianceDashboard() {
     );
   }
 
-  if (!metrics || metrics.totalApprovals === 0) {
+  if (!metrics || metrics.summary.totalWithDeadline === 0) {
     return (
       <div className="container mx-auto py-6 space-y-6">
         <Breadcrumb items={[

@@ -55,10 +55,10 @@ export const climateAnalysisRouter = router({
   submitResponse: protectedProcedure
     .input(z.object({
       surveyId: commonValidators.positiveId,
-      responses: z.record(z.object({
+      responses: z.record(z.string(), z.object({
         dimensionId: commonValidators.nonEmptyString(50),
         dimensionName: commonValidators.nonEmptyString(100),
-        answers: z.record(z.union([z.string(), z.number()])),
+        answers: z.record(z.string(), z.union([z.string(), z.number()])),
         score: z.number().min(0, "El score no puede ser negativo").max(100, "El score no puede exceder 100"),
       })),
       overallScore: z.number().min(0, "El score general no puede ser negativo").max(100, "El score general no puede exceder 100"),

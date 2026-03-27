@@ -165,8 +165,8 @@ export default function SalaryEquityDashboard() {
             <CardTitle className="text-sm font-medium">Cumplimiento NMX-R-025</CardTitle>
           </CardHeader>
           <CardContent>
-            <Badge className={getComplianceColor(latestAnalysis.nmxComplianceStatus)}>
-              {getComplianceLabel(latestAnalysis.nmxComplianceStatus)}
+            <Badge className={getComplianceColor(latestAnalysis.nmxComplianceStatus ?? "")}>
+              {getComplianceLabel(latestAnalysis.nmxComplianceStatus ?? "")}
             </Badge>
             <p className="text-xs text-muted-foreground mt-2">
               Puntuación: {latestAnalysis.complianceScore}/100

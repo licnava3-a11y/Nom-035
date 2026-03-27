@@ -15,7 +15,8 @@ type SurveyQuestion = {
   id: number;
   questionText: string;
   questionType: string;
-  options?: string;
+  options?: string | null;
+  [key: string]: unknown;
 };
 
 export default function PublicSurveyResponse() {

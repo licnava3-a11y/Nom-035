@@ -39,11 +39,11 @@ export default function CasesManagement() {
   const utils = trpc.useUtils();
   
   // Queries - Usar router optimizado
-  const { data: casesData, isLoading } = trpc.casesPaginated.list.useQuery({
+  const { data: casesData, isLoading } = trpc.casesPaginated.listPaginated.useQuery({
     page,
     pageSize,
-    status: filters.status && filters.status !== "all" ? filters.status : undefined,
-    priority: filters.priority && filters.priority !== "all" ? filters.priority : undefined,
+    status: filters.status && filters.status !== "all" ? filters.status as "open" | "investigating" | "resolved" | "closed" : undefined,
+    priority: filters.priority && filters.priority !== "all" ? filters.priority as "low" | "medium" | "high" | "critical" : undefined,
     departmentId: filters.departmentId && filters.departmentId !== "all" ? parseInt(filters.departmentId) : undefined,
     search: filters.search || undefined,
   });
@@ -52,12 +52,8 @@ export default function CasesManagement() {
   const { data: stats } = trpc.casesManagement.getCasesStats.useQuery();
   
   // Nueva query para obtener empleados (para selector de reportante)
-  const { data: employeesData } = trpc.employees.list.useQuery({
-    page: 1,
-    pageSize: 1000,
-    search: "",
-    department: undefined
-  });
+  const { data: employeesRaw } = trpc.employees.list.useQuery({ isActive: true });
+  const employeesData = { employees: employeesRaw?.employees ?? [] };
 
   // Mutations
   const createCase = trpc.casesManagement.createCase.useMutation({
@@ -236,7 +232,7 @@ export default function CasesManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="caseType">Tipo de Caso *</Label>
-                  <Select modal={false}
+                  <Select
                     value={newCase.caseType}
                     onValueChange={(value: any) => setNewCase({ ...newCase, caseType: value })}
                   >
@@ -256,7 +252,7 @@ export default function CasesManagement() {
 
                 <div className="space-y-2">
                   <Label htmlFor="priority">Prioridad *</Label>
-                  <Select modal={false}
+                  <Select
                     value={newCase.priority}
                     onValueChange={(value: any) => setNewCase({ ...newCase, priority: value })}
                   >
@@ -275,7 +271,7 @@ export default function CasesManagement() {
 
               <div className="space-y-2">
                 <Label htmlFor="departmentId">Departamento *</Label>
-                <Select modal={false}
+                <Select
                   value={newCase.departmentId}
                   onValueChange={(value) => setNewCase({ ...newCase, departmentId: value })}
                 >
@@ -300,7 +296,7 @@ export default function CasesManagement() {
                     Seleccionar Empleado (Opcional - Prellenado Automático)
                   </div>
                 </Label>
-                <Select modal={false}
+                <Select
                   value={newCase.reporterEmployeeId}
                   onValueChange={handleEmployeeSelect}
                 >
@@ -440,7 +436,7 @@ export default function CasesManagement() {
           </div>
           <div className="space-y-2">
             <Label>Estado</Label>
-            <Select modal={false}
+            <Select
               value={filters.status}
               onValueChange={(value) => setFilters({ ...filters, status: value })}
             >
@@ -458,7 +454,7 @@ export default function CasesManagement() {
           </div>
           <div className="space-y-2">
             <Label>Prioridad</Label>
-            <Select modal={false}
+            <Select
               value={filters.priority}
               onValueChange={(value) => setFilters({ ...filters, priority: value })}
             >
@@ -476,7 +472,7 @@ export default function CasesManagement() {
           </div>
           <div className="space-y-2">
             <Label>Departamento</Label>
-            <Select modal={false}
+            <Select
               value={filters.departmentId}
               onValueChange={(value) => setFilters({ ...filters, departmentId: value })}
             >
@@ -526,7 +522,7 @@ export default function CasesManagement() {
                   </td>
                 </tr>
               ) : (
-                casesData?.cases?.map((caso: any) => (
+                (casesData?.cases ?? (casesData as any)?.items)?.map((caso: any) => (
                   <tr key={caso.id} className="hover:bg-muted/50">
                     <td className="px-4 py-3">
                       <span className="font-mono text-sm">{caso.folio}</span>

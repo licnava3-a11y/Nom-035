@@ -270,7 +270,7 @@ export default function WhatsAppMetrics() {
     try {
       exportComparisonToExcel({
         comparisonData,
-        currentEvents: recentEvents?.events || [],
+        currentEvents: (recentEvents?.events || []) as any,
         comparisonEvents: [], // Usar los mismos eventos actuales por ahora
         currentNormativas: normativas || [],
         comparisonNormativas: comparisonNormativas || [],

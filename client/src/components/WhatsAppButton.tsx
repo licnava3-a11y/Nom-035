@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 interface WhatsAppButtonProps {
-  phoneNumber: string; // Número de WhatsApp del negocio (formato: 525512345678)
+  phoneNumber?: string; // Número de WhatsApp del negocio (formato: 525512345678)
   userData?: DemoRequestData; // Datos del usuario para pre-llenar mensaje
   variant?: "default" | "outline" | "secondary" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
@@ -50,10 +50,10 @@ export function WhatsAppButton({
     }
 
     // Abrir WhatsApp
-    if (userData) {
+    if (userData && phoneNumber) {
       openWhatsAppDemo(phoneNumber, userData);
     } else {
-      window.open(`https://api.whatsapp.com/send?phone=${phoneNumber}`, "_blank");
+      window.open(`https://api.whatsapp.com/send?phone=${phoneNumber ?? ""}`, "_blank");
     }
   };
 
@@ -72,7 +72,7 @@ export function WhatsAppButton({
 }
 
 interface WhatsAppDemoButtonProps {
-  phoneNumber: string;
+  phoneNumber?: string;
   nombre?: string;
   email?: string;
   empresa?: string;

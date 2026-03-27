@@ -72,7 +72,7 @@ export function DepartmentSelector({
       setNewDepartmentDescription("");
       setNewDepartmentCode("");
       
-      alert(`Departamento "${newDept.name}" creado exitosamente`);
+      alert(`Departamento "${(newDept as any).name ?? newDepartmentName}" creado exitosamente`);
     },
     onError: (error: any) => {
       alert(`Error al crear departamento: ${error.message}`);

@@ -204,7 +204,7 @@ export default function SecurityAlerts() {
           <div className="grid gap-4 md:grid-cols-5">
             <div className="space-y-2">
               <Label>Tipo de Alerta</Label>
-              <Select modal={false}
+              <Select
                 value={filters.alertType || "all"}
                 onValueChange={(value) =>
                   handleFilterChange("alertType", value === "all" ? undefined : value)
@@ -225,7 +225,7 @@ export default function SecurityAlerts() {
 
             <div className="space-y-2">
               <Label>Severidad</Label>
-              <Select modal={false}
+              <Select
                 value={filters.severity || "all"}
                 onValueChange={(value) =>
                   handleFilterChange("severity", value === "all" ? undefined : value)
@@ -246,7 +246,7 @@ export default function SecurityAlerts() {
 
             <div className="space-y-2">
               <Label>Estado</Label>
-              <Select modal={false}
+              <Select
                 value={filters.status || "all"}
                 onValueChange={(value) =>
                   handleFilterChange("status", value === "all" ? undefined : value)
@@ -420,7 +420,7 @@ export default function SecurityAlerts() {
 
               <div className="space-y-2">
                 <Label>Nuevo Estado</Label>
-                <Select modal={false}
+                <Select
                   value={reviewStatus}
                   onValueChange={(value: any) => setReviewStatus(value)}
                 >

@@ -85,7 +85,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
 
   // Obtener lista de usuarios únicos para el filtro
   const uniqueUsers = historyData?.events.reduce((acc: any, event: any) => {
-    if (event.userId && !acc.find(u => u.id === event.userId)) {
+    if (event.userId && !acc.find((u: { id: number; name: string }) => u.id === event.userId)) {
       acc.push({ id: event.userId, name: event.userName || "Desconocido" });
     }
     return acc;
@@ -133,7 +133,7 @@ export function OperatingRulesTimeline({ operatingRuleId }: OperatingRulesTimeli
             <Label>Tipo de Evento</Label>
             <div className="flex flex-wrap gap-3">
               {(Object.keys(eventConfig) as EventType[]).map((eventType: any) => {
-                const config = eventConfig[eventType];
+                const config = eventConfig[eventType as EventType];
                 const Icon = config.icon;
                 return (
                   <div key={eventType} className="flex items-center space-x-2">

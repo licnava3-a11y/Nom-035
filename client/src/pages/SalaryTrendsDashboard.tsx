@@ -40,8 +40,8 @@ export default function SalaryTrendsDashboard() {
   }, []) || [];
 
   // Extraer departamentos únicos para líneas del gráfico
-  const departments = [...new Set(departmentTrends?.map((row: any) => row.department))];
-  const positions = [...new Set(positionTrends?.map((row: any) => row.position))];
+  const departments = Array.from(new Set(departmentTrends?.map((row: any) => row.department)));
+  const positions = Array.from(new Set(positionTrends?.map((row: any) => row.position)));
 
   const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 

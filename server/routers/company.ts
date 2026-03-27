@@ -295,7 +295,7 @@ export const companyRouter = router({
           userId: input.userId,
           nombreFirmante: input.nombreFirmante,
           cargo: input.cargo,
-          departamento: input.departamento,
+          departamento: input.departamento ?? '',
           firmaUrl,
           firmaKey,
           certificadoUrl,

@@ -11,7 +11,7 @@ import type { Request, Response } from "express";
  * Usa ipKeyGenerator oficial para manejar correctamente IPv6
  */
 const generateKey = (req: Request): string => {
-  return ipKeyGenerator(req);
+  return ipKeyGenerator(req.ip ?? '');
 };
 
 /**

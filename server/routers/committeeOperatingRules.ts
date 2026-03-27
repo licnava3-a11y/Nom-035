@@ -653,7 +653,7 @@ export const committeeOperatingRulesRouter = router({
 
         // Generar PDF
         const pdfBuffer = await generateOperatingRulesPDF({
-          ...rule,
+          ...(rule as any),
           versionNumber: latestVersion?.versionNumber,
           digitalSignatures: digitalSignatures.map((sig: any) => ({
             approverName: sig.approverName,
@@ -1219,7 +1219,7 @@ export const committeeOperatingRulesRouter = router({
           .where(sql`${operatingRulesApprovals.createdAt} >= ${startDate}`)
           .groupBy(operatingRulesApprovals.status);
 
-        const approved = approvalsByStatus.find(s => s.status === "approved")?.count || 0;
+        const approved = approvalsByStatus.find(s => (s.status as string) === "approved")?.count || 0;
         const rejected = approvalsByStatus.find(s => s.status === "rejected")?.count || 0;
         const pending = approvalsByStatus.find(s => s.status === "pending")?.count || 0;
 

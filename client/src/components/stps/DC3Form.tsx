@@ -39,7 +39,8 @@ export function DC3Form() {
   const [newSkill, setNewSkill] = useState("");
 
   // Obtener lista de empleados
-  const { data: employees } = trpc.employees.list.useQuery({ isActive: true });
+  const { data: employeesData } = trpc.employees.list.useQuery({ isActive: true });
+  const employees = employeesData?.employees;
 
   // Mutation para generar DC-3
   const generateDC3 = trpc.stpsReports.generateDC3.useMutation({

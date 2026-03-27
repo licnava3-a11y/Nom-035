@@ -171,7 +171,7 @@ export default function TrainingROIDashboard() {
             Análisis financiero y retorno de inversión en capacitaciones del comité
           </p>
         </div>
-        <Select modal={false} value={periodMonths.toString()} onValueChange={(v) => setPeriodMonths(parseInt(v))}>
+        <Select value={periodMonths.toString()} onValueChange={(v) => setPeriodMonths(parseInt(v))}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Período de análisis" />
           </SelectTrigger>

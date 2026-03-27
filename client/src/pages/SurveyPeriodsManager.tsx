@@ -96,7 +96,7 @@ export default function SurveyPeriodsManager() {
   const sendInvitationsMutation = trpc.publicSurveys.sendSurveyInvitations.useMutation({
     onSuccess: (data) => {
       toast.success("Invitaciones enviadas", {
-        description: `Se enviaron ${data.sent} invitaciones por email exitosamente.`,
+        description: `Se enviaron ${data.emailsSent} invitaciones por email exitosamente.`,
       });
       setIsSendEmailDialogOpen(false);
       setSelectedPeriodForEmail(null);
@@ -256,7 +256,7 @@ export default function SurveyPeriodsManager() {
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <Select modal={false} name="surveyType" required>
+                  <Select name="surveyType" required>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione el tipo de encuesta" />
                     </SelectTrigger>
@@ -354,7 +354,7 @@ export default function SurveyPeriodsManager() {
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label>Tipo de Encuesta</Label>
-              <Select modal={false} value={filterType} onValueChange={(value: any) => setFilterType(value)}>
+              <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -369,7 +369,7 @@ export default function SurveyPeriodsManager() {
             </div>
             <div className="grid gap-2">
               <Label>Estado</Label>
-              <Select modal={false} value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -568,7 +568,7 @@ export default function SurveyPeriodsManager() {
             <LoadingButton
               onClick={() => {
                 if (selectedPeriodForEmail) {
-                  sendInvitationsMutation.mutate({ surveyPeriodId: selectedPeriodForEmail });
+                  sendInvitationsMutation.mutate({ surveyPeriodId: selectedPeriodForEmail, surveyType: "guia_i" });
                 }
               }}
               loading={sendInvitationsMutation.isPending}

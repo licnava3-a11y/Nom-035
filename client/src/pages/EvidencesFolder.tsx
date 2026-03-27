@@ -235,7 +235,7 @@ export default function EvidencesFolder() {
                 {/* Selector de numeral */}
                 <div className="space-y-2">
                   <Label htmlFor="numeral">Numeral NOM-035</Label>
-                  <Select modal={false} value={selectedNumeral} onValueChange={setSelectedNumeral}>
+                  <Select value={selectedNumeral} onValueChange={setSelectedNumeral}>
                     <SelectTrigger id="numeral">
                       <SelectValue />
                     </SelectTrigger>
@@ -368,7 +368,7 @@ export default function EvidencesFolder() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Select modal={false} value={companySize} onValueChange={(value: 'small' | 'medium' | 'large') => setCompanySize(value)}>
+          <Select value={companySize} onValueChange={(value: 'small' | 'medium' | 'large') => setCompanySize(value)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Selecciona tamaño de empresa" />
             </SelectTrigger>

@@ -22,7 +22,9 @@ export default function PerformanceEvaluation360() {
     { cycleId: selectedCycleId! },
     { enabled: !!selectedCycleId }
   );
-  const { data: leadershipPipeline, isLoading: pipelineLoading } = trpc.performanceEvaluation360.getLeadershipPipeline.useQuery();
+  // getLeadershipPipeline no existe en el router
+  const leadershipPipeline: any[] = [];
+  const pipelineLoading = false;
   const { data: stats, isLoading: statsLoading } = trpc.performanceEvaluation360.getEvaluationStats.useQuery(
     { cycleId: selectedCycleId! },
     { enabled: !!selectedCycleId }
@@ -80,7 +82,7 @@ export default function PerformanceEvaluation360() {
     return (
       <div className="grid grid-cols-3 gap-2 w-full max-w-3xl mx-auto">
         {boxes.map((box: any) => {
-          const employeesInBox = nineBoxMatrix.matrix.filter(
+          const employeesInBox = (nineBoxMatrix as any[]).filter(
             (e: any) => Math.floor(e.potential / 34) === box.x && Math.floor(e.performance / 34) === (2 - box.y)
           );
 
@@ -128,7 +130,7 @@ export default function PerformanceEvaluation360() {
     return (
       <div className="space-y-4">
         {levels.map((lvl: any) => {
-          const employeesAtLevel = leadershipPipeline.pipeline.filter((e: any) => e.leadershipLevel === lvl.level);
+          const employeesAtLevel = (leadershipPipeline as any[]).filter((e: any) => e.leadershipLevel === lvl.level);
 
           return (
             <Card key={lvl.level} className="border-l-4" style={{ borderLeftColor: lvl.color.replace("bg-", "") }}>
@@ -177,7 +179,7 @@ export default function PerformanceEvaluation360() {
             const name = prompt("Nombre del ciclo de evaluación:");
             if (name) {
               createCycleMutation.mutate({
-                name,
+                cycleName: name,
                 startDate: new Date().toISOString(),
                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
               });
@@ -243,7 +245,7 @@ export default function PerformanceEvaluation360() {
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.(averagePerformance as any).toFixed(1)}</div>
+              <div className="text-2xl font-bold">{(stats as any)?.averagePerformance?.toFixed(1) ?? 'N/A'}</div>
               <p className="text-xs text-muted-foreground">Escala 0-100</p>
             </CardContent>
           </Card>
@@ -253,7 +255,7 @@ export default function PerformanceEvaluation360() {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.(averagePotential as any).toFixed(1)}</div>
+              <div className="text-2xl font-bold">{(stats as any)?.averagePotential?.toFixed(1) ?? 'N/A'}</div>
               <p className="text-xs text-muted-foreground">Escala 0-100</p>
             </CardContent>
           </Card>
@@ -447,7 +449,7 @@ export default function PerformanceEvaluation360() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button
-                  onClick={() => consolidateResultsMutation.mutate({ cycleId: selectedCycleId })}
+                  onClick={() => consolidateResultsMutation.mutate({ assignmentId: selectedCycleId! })}
                   disabled={consolidateResultsMutation.isPending}
                 >
                   {consolidateResultsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

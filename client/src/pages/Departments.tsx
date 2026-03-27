@@ -320,7 +320,7 @@ export default function Departments() {
                 <Network className="inline h-4 w-4 mr-1" />
                 Departamento Padre (opcional)
               </Label>
-              <Select modal={false}
+              <Select
                 value={formData.parentId?.toString() || "none"}
                 onValueChange={(value) =>
                   setFormData({
@@ -404,7 +404,7 @@ export default function Departments() {
                 <Network className="inline h-4 w-4 mr-1" />
                 Departamento Padre (opcional)
               </Label>
-              <Select modal={false}
+              <Select
                 value={formData.parentId?.toString() || "none"}
                 onValueChange={(value) =>
                   setFormData({

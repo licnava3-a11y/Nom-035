@@ -10,12 +10,12 @@ import type { Socket } from "socket.io-client";
 
 interface NotificationContextValue {
   socket: Socket | null;
-  isConnected: boolean;
+  
   notifications: Notification[];
   unreadCount: number;
   markAsRead: (notificationId: number) => void;
   markAllAsRead: () => void;
-  clearNotifications: () => void;
+  
 }
 
 const NotificationContext = createContext<NotificationContextValue | undefined>(undefined);

@@ -245,7 +245,7 @@ export default function AnonymousTokens() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="surveyType">Tipo de Encuesta</Label>
-              <Select modal={false} value={surveyType} onValueChange={(v: any) => setSurveyType(v)}>
+              <Select value={surveyType} onValueChange={(v: any) => setSurveyType(v)}>
                 <SelectTrigger id="surveyType">
                   <SelectValue />
                 </SelectTrigger>
@@ -350,7 +350,7 @@ export default function AnonymousTokens() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="filterSurveyType">Tipo de Encuesta</Label>
-              <Select modal={false} value={filterSurveyType} onValueChange={(v: any) => {
+              <Select value={filterSurveyType} onValueChange={(v: any) => {
                 setFilterSurveyType(v);
                 setPage(1);
               }}>
@@ -368,7 +368,7 @@ export default function AnonymousTokens() {
 
             <div className="space-y-2">
               <Label htmlFor="filterStatus">Estado</Label>
-              <Select modal={false} value={filterStatus} onValueChange={(v: any) => {
+              <Select value={filterStatus} onValueChange={(v: any) => {
                 setFilterStatus(v);
                 setPage(1);
               }}>

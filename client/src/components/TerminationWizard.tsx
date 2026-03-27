@@ -91,7 +91,8 @@ export function TerminationWizard({ onComplete, onCancel }: TerminationWizardPro
     documentChecklist: {},
   });
 
-  const { data: employees } = trpc.employees.list.useQuery();
+  const { data: employeesData } = trpc.employees.list.useQuery({ pageSize: 1000 });
+  const employees = employeesData?.employees;
   const terminateMutation = trpc.employees.terminate.useMutation({
     onSuccess: () => {
       toast.success("Baja procesada exitosamente", {

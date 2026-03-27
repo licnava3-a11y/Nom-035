@@ -1017,7 +1017,7 @@ Realiza un análisis profundo y proporciona tu evaluación en formato JSON con l
       }
     });
 
-    const content = response.choices[0].message.content;
+    const content = response.choices[0].message.content as string;
     if (!content) {
       throw new Error("No content in LLM response");
     }

@@ -156,7 +156,7 @@ export default function Recognitions() {
               {/* Selector de empleado */}
               <div className="grid gap-2">
                 <Label htmlFor="employee">Empleado *</Label>
-                <Select modal={false} value={toUserId} onValueChange={setToUserId}>
+                <Select value={toUserId} onValueChange={setToUserId}>
                   <SelectTrigger id="employee">
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
@@ -173,7 +173,7 @@ export default function Recognitions() {
               {/* Selector de categoría */}
               <div className="grid gap-2">
                 <Label htmlFor="category">Categoría *</Label>
-                <Select modal={false} value={categoryId} onValueChange={setCategoryId}>
+                <Select value={categoryId} onValueChange={setCategoryId}>
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>
@@ -297,7 +297,7 @@ export default function Recognitions() {
                     
                     {/* Reacciones */}
                     <div className="flex items-center space-x-2 pt-4 border-t">
-                      {(Object.keys(reactionIcons) as ReactionType[]).map((type: any) => (
+                      {(Object.keys(reactionIcons) as ReactionType[]).map((type) => (
                         <Button
                           key={type}
                           variant="ghost"
@@ -305,8 +305,8 @@ export default function Recognitions() {
                           onClick={() => handleReaction(recognition.id, type, false)}
                           className="flex items-center space-x-1"
                         >
-                          {reactionIcons[(type) as any].icon}
-                          <span className="text-xs">{reactionIcons[(type) as any].label}</span>
+                          {reactionIcons[type].icon}
+                          <span className="text-xs">{reactionIcons[type].label}</span>
                         </Button>
                       ))}
                     </div>

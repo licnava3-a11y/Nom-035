@@ -245,7 +245,7 @@ export function CaseDialog({ open, onOpenChange, caseData, onSuccess }: CaseDial
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <Select modal={false}
+              <Select
                 value={caseType}
                 onValueChange={(value) => setCaseType(value)}
                 disabled={!!caseData}

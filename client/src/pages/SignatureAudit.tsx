@@ -172,7 +172,7 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Usuario</Label>
-              <Select modal={false} value={userId?.toString() || "all"} onValueChange={(value) => setUserId(value === "all" ? undefined : Number(value))}>
+              <Select value={userId?.toString() || "all"} onValueChange={(value) => setUserId(value === "all" ? undefined : Number(value))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los usuarios" />
                 </SelectTrigger>
@@ -189,7 +189,7 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Documento</Label>
-              <Select modal={false}
+              <Select
                 value={operatingRuleId?.toString() || "all"}
                 onValueChange={(value) => setOperatingRuleId(value === "all" ? undefined : Number(value))}
               >
@@ -209,7 +209,7 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Rol</Label>
-              <Select modal={false} value={role || "all"} onValueChange={(value) => setRole(value === "all" ? undefined : value as any)}>
+              <Select value={role || "all"} onValueChange={(value) => setRole(value === "all" ? undefined : value as any)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los roles" />
                 </SelectTrigger>
@@ -225,7 +225,7 @@ export default function SignatureAudit() {
 
             <div>
               <Label>Estado</Label>
-              <Select modal={false} value={status || "all"} onValueChange={(value) => setStatus(value === "all" ? undefined : value as any)}>
+              <Select value={status || "all"} onValueChange={(value) => setStatus(value === "all" ? undefined : value as any)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>

@@ -22,10 +22,11 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const [, setLocation] = useLocation();
 
   // Query para buscar bases de funcionamiento
-  const { data: results, isLoading } = trpc.committeeOperatingRules.searchRules.useQuery(
+  const { data: searchData, isLoading } = trpc.committeeOperatingRules.searchOperatingRules.useQuery(
     { query },
     { enabled: open && query.length >= 2 }
   );
+  const results = searchData?.results;
 
   // Limpiar query cuando se cierra el diálogo
   useEffect(() => {
@@ -75,7 +76,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
             </div>
           )}
 
-          {query.length >= 2 && !isLoading && results && results.length === 0 && (
+          {query.length >= 2 && !isLoading && searchData && results && results.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <ICONS.status.alert className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No se encontraron resultados para "{query}"</p>

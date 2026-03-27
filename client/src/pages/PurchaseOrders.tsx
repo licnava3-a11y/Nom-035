@@ -241,7 +241,7 @@ export default function PurchaseOrders() {
             </div>
             <div>
               <Label>Estado</Label>
-              <Select modal={false} value={estado} onValueChange={(value: any) => setEstado(value)}>
+              <Select value={estado} onValueChange={(value: any) => setEstado(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -292,7 +292,7 @@ export default function PurchaseOrders() {
             </div>
             <div>
               <Label>Estado</Label>
-              <Select modal={false} value={estado} onValueChange={(value: any) => setEstado(value)}>
+              <Select value={estado} onValueChange={(value: any) => setEstado(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

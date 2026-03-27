@@ -286,7 +286,7 @@ export default function Employees() {
                 className="pl-9"
               />
             </div>
-            <Select modal={false}
+            <Select
               value={departmentFilter || "all"}
               onValueChange={(value) => setDepartmentFilter(value === "all" ? undefined : value)}
             >
@@ -302,7 +302,7 @@ export default function Employees() {
                 ))}
               </SelectContent>
             </Select>
-            <Select modal={false}
+            <Select
               value={statusFilter === undefined ? "all" : statusFilter ? "active" : "inactive"}
               onValueChange={(value) =>
                 setStatusFilter(value === "all" ? undefined : value === "active")

@@ -22,7 +22,8 @@ export default function Committee() {
 
   const utils = trpc.useUtils();
   const { data: members = [], isLoading } = trpc.equality.committee.list.useQuery();
-  const { data: users = [] } = trpc.employees.list.useQuery();
+  const { data: usersData } = trpc.employees.list.useQuery({});
+  const users = usersData?.employees ?? [];
 
   const addMemberMutation = trpc.equality.committee.addMember.useMutation({
     onSuccess: () => {

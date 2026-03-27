@@ -32,7 +32,8 @@ export default function TurnoverManagementPanel() {
     offset: 0,
   });
 
-  const { data: employees } = trpc.employees.getAll.useQuery();
+  const { data: employeesData } = trpc.employees.list.useQuery({ pageSize: 1000 });
+  const employees = employeesData?.employees;
 
   // Mutations
   const createMutation = trpc.turnoverManagement.createTurnoverRecord.useMutation({
@@ -151,7 +152,7 @@ export default function TurnoverManagementPanel() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="userId">Empleado *</Label>
-                <Select modal={false} value={formData.userId} onValueChange={(value) => setFormData({ ...formData, userId: value })}>
+                <Select value={formData.userId} onValueChange={(value) => setFormData({ ...formData, userId: value })}>
                   <SelectTrigger id="userId">
                     <SelectValue placeholder="Selecciona un empleado" />
                   </SelectTrigger>
@@ -178,7 +179,7 @@ export default function TurnoverManagementPanel() {
 
               <div className="space-y-2">
                 <Label htmlFor="exitReason">Razón de Salida *</Label>
-                <Select modal={false} value={formData.exitReason} onValueChange={(value: any) => setFormData({ ...formData, exitReason: value })}>
+                <Select value={formData.exitReason} onValueChange={(value: any) => setFormData({ ...formData, exitReason: value })}>
                   <SelectTrigger id="exitReason">
                     <SelectValue placeholder="Selecciona una razón" />
                   </SelectTrigger>
@@ -297,7 +298,7 @@ export default function TurnoverManagementPanel() {
 
               <div className="space-y-2">
                 <Label htmlFor="edit-exitReason">Razón de Salida</Label>
-                <Select modal={false} value={editingRecord.exitReason} onValueChange={(value) => setEditingRecord({ ...editingRecord, exitReason: value })}>
+                <Select value={editingRecord.exitReason} onValueChange={(value) => setEditingRecord({ ...editingRecord, exitReason: value })}>
                   <SelectTrigger id="edit-exitReason">
                     <SelectValue />
                   </SelectTrigger>

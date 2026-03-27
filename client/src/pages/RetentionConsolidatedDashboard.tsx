@@ -19,17 +19,25 @@ export default function RetentionConsolidatedDashboard() {
 
   // Queries
   const { data: highRiskEmployees = [], isLoading: employeesLoading } = trpc.predictiveTurnoverDashboard.getHighRiskEmployees.useQuery({
-    departmentId: selectedDepartment === "all" ? undefined : selectedDepartment,
+    departmentId: selectedDepartment && selectedDepartment !== "all" ? parseInt(selectedDepartment) : undefined,
   });
 
+  const selectedEmployeeData = (highRiskEmployees as any[]).find((e: any) => e.employeeId?.toString() === selectedEmployee);
   const { data: recommendations = [] } = trpc.interventionRecommendations.getRecommendations.useQuery(
-    { employeeId: selectedEmployee ? parseInt(selectedEmployee) : 0 },
-    { enabled: !!selectedEmployee }
+    {
+      employeeId: selectedEmployee ? parseInt(selectedEmployee) : 0,
+      employeeName: selectedEmployeeData?.employeeName ?? "",
+      riskScore: selectedEmployeeData?.riskScore ?? 0,
+      turnoverProbability: selectedEmployeeData?.turnoverProbability ?? 0,
+      department: selectedEmployeeData?.department,
+      position: selectedEmployeeData?.position,
+    },
+    { enabled: !!selectedEmployee && !!selectedEmployeeData }
   );
 
   const { data: payrollData = [] } = trpc.payrollIntegration.getAllPayrollData.useQuery();
   const { data: criticalGaps = [] } = trpc.payrollIntegration.getCriticalSalaryGaps.useQuery();
-  const { data: interventions = [] } = trpc.retentionInterventions.getInterventions.useQuery();
+  const { data: interventions = [] } = trpc.retentionInterventions.getInterventions.useQuery({ limit: 10 });
 
   const { data: simulationResult } = trpc.salaryImpactSimulator.simulateImpact.useQuery(
     {

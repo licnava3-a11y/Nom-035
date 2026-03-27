@@ -41,8 +41,8 @@ export default function CSRFViolationsPage() {
 
   // Queries de tRPC
   const { data: violationsData, isLoading: loadingViolations, refetch: refetchViolations } = trpc.csrfViolations.getViolations.useQuery({
-    // offset: (page - 1) * pageSize,
-    limit: pageSize,
+    page,
+    pageSize,
     ipAddress: ipFilter || undefined,
     reason: reasonFilter as "missing_token" | "invalid_token" | "expired_token" | "user_mismatch" | "malformed_token" | undefined,
     startDate: startDate || undefined,
@@ -94,11 +94,11 @@ export default function CSRFViolationsPage() {
 
   // Función para exportar a Excel (simplificada - en producción usar librería como xlsx)
   const handleExport = () => {
-    if (!violationsData?.violations?.violations) return;
+    if (!violationsData?.violations) return;
     
     const csv = [
       ['ID', 'IP Address', 'Razón', 'Endpoint', 'User Agent', 'Fecha'].join(','),
-      ...(violationsData.violations?.violations as any[]).map((v: any) => [
+      ...(violationsData.violations as any[]).map((v: any) => [
         v.id,
         v.ipAddress,
         v.reason,
@@ -112,7 +112,7 @@ export default function CSRFViolationsPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `csrf-violationsData?.violations-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `csrf-violations-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -287,7 +287,7 @@ export default function CSRFViolationsPage() {
             <CardHeader>
               <CardTitle>Violaciones Registradas</CardTitle>
               <CardDescription>
-                {violationsData?.totalCount || 0} violaciones encontradas
+                {violationsData?.pagination?.totalCount || 0} violaciones encontradas
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -302,10 +302,10 @@ export default function CSRFViolationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(violationsData as any)?.violations?.violations?.map((violation: any) => (
+                  {(violationsData?.violations as any[])?.map((violation: any) => (
                     <TableRow key={violation.id}>
                       <TableCell className="font-mono text-sm">{violation.id}</TableCell>
-                      <TableCell className="font-mono">{violation.ipAddress}</TableCell>
+                      <TableCell className="font-mono">{(violation as any).ipAddress}</TableCell>
                       <TableCell>
                         <Badge variant={reasonColors[violation.reason]}>
                           {reasonLabels[violation.reason]}

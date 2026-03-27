@@ -266,7 +266,7 @@ export default function PredictiveTurnoverDashboard() {
               </>
             )}
           </Button>
-          <Select modal={false}
+          <Select
             value={selectedDepartment?.toString() || "all"}
             onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : parseInt(value))}
           >

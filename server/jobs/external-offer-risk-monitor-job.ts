@@ -128,7 +128,7 @@ export function startExternalOfferRiskMonitorJob() {
             LIMIT 1
           `);
 
-          if (existingAlert[0].length === 0) {
+          if ((existingAlert as any)[0].length === 0) {
             // Crear nueva alerta
             await (db.insert(externalOfferRiskAlerts) as any).values({
               employeeId: emp.employee_id,

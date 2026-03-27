@@ -124,7 +124,7 @@ export default function ScheduledReports() {
                       if (newEmail) {
                         updateConfigMutation.mutate({
                           reportId: report.id,
-                          recipientEmail: newEmail,
+                          recipients: [newEmail],
                         });
                       }
                     }}
@@ -304,8 +304,8 @@ export default function ScheduledReports() {
               }
               createReportMutation.mutate({
                 reportName,
-                frequency,
-                recipientEmail,
+                reportType: frequency as "monthly" | "quarterly" | "annual",
+                recipients: [recipientEmail],
                 includeNMX025,
                 includeNOM035,
               });

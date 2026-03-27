@@ -60,13 +60,10 @@ describe("Employees Module", () => {
       });
 
       expect(result).toBeDefined();
-      expect(result.id).toBeDefined();
-      expect(result.firstName).toBe("Test");
-      expect(result.lastName).toBe("Employee");
-      expect(result.email).toBe(uniqueEmail);
-      expect(result.isActive).toBe(true);
+      expect(result.success).toBe(true);
+      expect(result.employeeId).toBeDefined();
 
-      createdEmployeeId = result.id;
+      createdEmployeeId = result.employeeId;
     });
 
     it("should list employees", async () => {

@@ -133,7 +133,7 @@ export default function AssessmentsManagement() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Filtrar por estado</Label>
-              <Select modal={false}
+              <Select
                 value={selectedStatus || 'all'}
                 onValueChange={(value) => setSelectedStatus(value === 'all' ? undefined : value as any)}
               >
@@ -314,7 +314,7 @@ export default function AssessmentsManagement() {
 
             <div>
               <Label htmlFor="courseId">Curso asociado (opcional)</Label>
-              <Select modal={false}
+              <Select
                 value={formData.courseId?.toString() || 'none'}
                 onValueChange={(value) =>
                   setFormData({ ...formData, courseId: value === 'none' ? undefined : parseInt(value) })

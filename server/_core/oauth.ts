@@ -39,6 +39,7 @@ export function registerOAuthRoutes(app: Express) {
         email: userInfo.email ?? null,
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
         lastSignedIn: new Date(),
+        departamento: "",
       });
       console.log("[OAuth] User upserted successfully");
 

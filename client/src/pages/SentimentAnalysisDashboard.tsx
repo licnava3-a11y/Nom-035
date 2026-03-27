@@ -266,7 +266,7 @@ export default function SentimentAnalysisDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Select modal={false} value={dateRange} onValueChange={setDateRange}>
+          <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-[180px]">
               <Calendar className="h-4 w-4 mr-2" />
               <SelectValue />

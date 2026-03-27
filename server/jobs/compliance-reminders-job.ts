@@ -63,7 +63,7 @@ async function checkDueDatesAndNotify() {
     const admins = await db
       .select({
         id: users.id,
-        nombre: users.nombre,
+        nombre: users.name,
         email: users.email,
       })
       .from(users)
@@ -93,7 +93,9 @@ async function checkDueDatesAndNotify() {
             id: item.checkId,
             title: "Recordatorio de Cumplimiento NOM-035",
             message,
-          });
+            type: "system",
+            isRead: false,
+          } as any);
 
           // Enviar notificación por email usando notifyOwner
           try {

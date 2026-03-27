@@ -87,7 +87,7 @@ export default function AssignManagerDialog({
             <>
               <div className="space-y-2">
                 <Label htmlFor="manager">Manager / Responsable</Label>
-                <Select modal={false} value={selectedManagerId} onValueChange={setSelectedManagerId}>
+                <Select value={selectedManagerId} onValueChange={setSelectedManagerId}>
                   <SelectTrigger id="manager">
                     <SelectValue placeholder="Selecciona un manager" />
                   </SelectTrigger>

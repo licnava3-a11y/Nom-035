@@ -1,6 +1,5 @@
 import { toast } from 'sonner';
 import { useState } from "react";
-import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { showSuccessToast, showErrorToast } from "@/lib/toasts";
 import { UserPlus, CheckCircle2, Clock, FileSignature, X } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -48,34 +46,22 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
   // Mutations
   const requestApprovalsMutation = trpc.committeeOperatingRules.requestApprovals.useMutation({
     onSuccess: () => {
-      showSuccessToast(
-        "Solicitudes enviadas",
-        "Las solicitudes de aprobación se han enviado correctamente a los aprobadores"
-      );
+      toast.success("Solicitudes enviadas");
       setShowRequestDialog(false);
       setApprovers([{ approverId: "", approverRole: "president", approverRoleDescription: "", approvalOrder: 1 }]);
       refetchApprovalStatus();
     },
     onError: (error) => {
-      showErrorToast(
-        "Error al solicitar aprobaciones",
-        error.message || "No se pudieron enviar las solicitudes. Intenta nuevamente."
-      );
+      toast.error("Error al solicitar aprobaciones");
     },
   });
 
   const signApprovalMutation = trpc.committeeOperatingRules.signApproval.useMutation({
     onSuccess: (data) => {
       if (data.allApproved) {
-        showSuccessToast(
-          "¡Todas las aprobaciones completadas!",
-          "La base de funcionamiento ha sido aprobada automáticamente"
-        );
+        toast.success("¡Todas las aprobaciones completadas!");
       } else {
-        showSuccessToast(
-          "Firma registrada",
-          "Tu firma digital se ha registrado correctamente"
-        );
+        toast.success("Firma registrada");
       }
       setShowSignDialog(false);
       setSelectedApprovalId(null);
@@ -83,29 +69,20 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
       refetchApprovalStatus();
     },
     onError: (error) => {
-      showErrorToast(
-        "Error al firmar",
-        error.message || "No se pudo registrar la firma. Intenta nuevamente."
-      );
+      toast.error("Error al firmar");
     },
   });
 
   const rejectApprovalMutation = trpc.committeeOperatingRules.rejectApproval.useMutation({
     onSuccess: () => {
-      showSuccessToast(
-        "Aprobación rechazada",
-        "La base de funcionamiento ha regresado a estado borrador"
-      );
+      toast.success("Aprobación rechazada");
       setShowRejectDialog(false);
       setSelectedApprovalId(null);
       setRejectionReason("");
       refetchApprovalStatus();
     },
     onError: (error) => {
-      showErrorToast(
-        "Error al rechazar",
-        error.message || "No se pudo rechazar la aprobación. Intenta nuevamente."
-      );
+      toast.error("Error al rechazar");
     },
   });
 
@@ -326,7 +303,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Aprobador *</Label>
-                      <Select modal={false}
+                      <Select
                         value={approver.approverId}
                         onValueChange={(value) => handleApproverChange(index, "approverId", value)}
                       >
@@ -345,7 +322,7 @@ export default function ApprovalWorkflow({ operatingRuleId, operatingRuleVersion
 
                     <div>
                       <Label>Rol *</Label>
-                      <Select modal={false}
+                      <Select
                         value={approver.approverRole}
                         onValueChange={(value) => handleApproverChange(index, "approverRole", value)}
                       >

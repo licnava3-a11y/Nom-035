@@ -46,7 +46,7 @@ export default function NineBoxMatrix() {
 
   // Organizar evaluaciones en matriz 3x3
   const getQuadrantEmployees = (quadrant: number) => {
-    return ((matrixData as any) as any)?.evaluations.filter(e => e.quadrant === quadrant) || [];
+    return ((matrixData as any) as any)?.evaluations.filter((e: any) => e.quadrant === quadrant) || [];
   };
 
   // Colores por cuadrante
@@ -151,7 +151,7 @@ export default function NineBoxMatrix() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="performanceScore">Desempeño (1-3)</Label>
-                    <Select modal={false} name="performanceScore" required>
+                    <Select name="performanceScore" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
@@ -164,7 +164,7 @@ export default function NineBoxMatrix() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="potentialScore">Potencial (1-3)</Label>
-                    <Select modal={false} name="potentialScore" required>
+                    <Select name="potentialScore" required>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
@@ -213,7 +213,7 @@ export default function NineBoxMatrix() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-600">
-              {distributionData?.distribution.find(d => d.quadrant === 9)?.count || 0}
+              {distributionData?.distribution.find((d: any) => d.quadrant === 9)?.count || 0}
             </div>
           </CardContent>
         </Card>
@@ -224,7 +224,7 @@ export default function NineBoxMatrix() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {distributionData?.distribution.find(d => d.quadrant === 5)?.count || 0}
+              {distributionData?.distribution.find((d: any) => d.quadrant === 5)?.count || 0}
             </div>
           </CardContent>
         </Card>
@@ -235,8 +235,8 @@ export default function NineBoxMatrix() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {(distributionData?.distribution.find(d => d.quadrant === 1)?.count || 0) +
-                (distributionData?.distribution.find(d => d.quadrant === 2)?.count || 0)}
+              {(distributionData?.distribution.find((d: any) => d.quadrant === 1)?.count || 0) +
+                (distributionData?.distribution.find((d: any) => d.quadrant === 2)?.count || 0)}
             </div>
           </CardContent>
         </Card>
@@ -251,7 +251,7 @@ export default function NineBoxMatrix() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Departamento</Label>
-              <Select modal={false} value={selectedDepartment} onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : value)}>
+              <Select value={selectedDepartment} onValueChange={(value) => setSelectedDepartment(value === "all" ? undefined : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los departamentos" />
                 </SelectTrigger>

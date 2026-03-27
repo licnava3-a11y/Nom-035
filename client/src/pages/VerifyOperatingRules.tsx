@@ -118,7 +118,7 @@ export default function VerifyOperatingRules() {
                 <User className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-gray-700">Creado por</p>
-                  <p className="text-base text-gray-900">{document.creatorName || "Sistema"}</p>
+                  <p className="text-base text-gray-900">{(document as any).creatorName || "Sistema"}</p>
                 </div>
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function VerifyOperatingRules() {
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
                   Aprobado el {format(new Date(document.approvedAt), "dd 'de' MMMM 'de' yyyy", { locale: es })}
-                  {document.approverName && ` por ${document.approverName}`}
+                  {(document as any).approverName && ` por ${(document as any).approverName}`}
                 </p>
               </div>
             )}

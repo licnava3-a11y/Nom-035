@@ -146,7 +146,7 @@ export default function ThresholdABTestingDashboard() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="configA">Configuración A *</Label>
-                <Select modal={false} value={configIdA?.toString() || ""} onValueChange={(value) => setConfigIdA(parseInt(value))}>
+                <Select value={configIdA?.toString() || ""} onValueChange={(value) => setConfigIdA(parseInt(value))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona configuración A" />
                   </SelectTrigger>
@@ -161,7 +161,7 @@ export default function ThresholdABTestingDashboard() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="configB">Configuración B *</Label>
-                <Select modal={false} value={configIdB?.toString() || ""} onValueChange={(value) => setConfigIdB(parseInt(value))}>
+                <Select value={configIdB?.toString() || ""} onValueChange={(value) => setConfigIdB(parseInt(value))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona configuración B" />
                   </SelectTrigger>

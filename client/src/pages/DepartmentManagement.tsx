@@ -128,7 +128,7 @@ export default function DepartmentManagement() {
     },
   });
   const handleGenerateReport = () => {
-    generateReportMutation.mutate();
+    generateReportMutation.mutate({});
   };
 
   // Mutation para reasignación masiva

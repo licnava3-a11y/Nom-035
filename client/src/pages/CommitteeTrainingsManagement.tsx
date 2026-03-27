@@ -226,7 +226,7 @@ export default function CommitteeTrainingsManagement() {
           <div className="flex gap-4">
             <div className="flex-1">
               <Label>Tipo de Capacitación</Label>
-              <Select modal={false}
+              <Select
                 value={filterType || "all"}
                 onValueChange={(value) => setFilterType(value === "all" ? undefined : value)}
               >
@@ -350,7 +350,7 @@ export default function CommitteeTrainingsManagement() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="type">Tipo *</Label>
-                <Select modal={false} name="type" required>
+                <Select name="type" required>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona tipo" />
                   </SelectTrigger>
@@ -375,7 +375,7 @@ export default function CommitteeTrainingsManagement() {
               </div>
               <div>
                 <Label htmlFor="isRequired">¿Es obligatoria? *</Label>
-                <Select modal={false} name="isRequired" defaultValue="true">
+                <Select name="isRequired" defaultValue="true">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -422,7 +422,7 @@ export default function CommitteeTrainingsManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-type">Tipo *</Label>
-                  <Select modal={false} name="type" defaultValue={selectedTraining.type}>
+                  <Select name="type" defaultValue={selectedTraining.type}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -447,7 +447,7 @@ export default function CommitteeTrainingsManagement() {
                 </div>
                 <div>
                   <Label htmlFor="edit-isRequired">¿Es obligatoria? *</Label>
-                  <Select modal={false} name="isRequired" defaultValue={selectedTraining.isRequired ? "true" : "false"}>
+                  <Select name="isRequired" defaultValue={selectedTraining.isRequired ? "true" : "false"}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -490,7 +490,7 @@ export default function CommitteeTrainingsManagement() {
               </div>
               <div>
                 <Label htmlFor="targetRole">Rol Objetivo *</Label>
-                <Select modal={false} name="targetRole" required>
+                <Select name="targetRole" required>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona rol" />
                   </SelectTrigger>

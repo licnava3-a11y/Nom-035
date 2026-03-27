@@ -24,14 +24,15 @@ export default function Users() {
   });
 
   // Query con paginación real
-  const { data: usersData, isLoading } = trpc.usersPaginated.list.useQuery({
+  const { data: usersData, isLoading } = trpc.usersPaginated.listPaginated.useQuery({
     page,
     pageSize,
     search: filters.search || undefined,
     role: filters.role === "all" ? undefined : filters.role || undefined,
-    departmentId: filters.department === "all" ? undefined : filters.department ? parseInt(filters.department) : undefined,
+    departamento: filters.department === "all" ? undefined : filters.department || undefined,
   });
 
+  const { data: statsData } = trpc.usersPaginated.getStats.useQuery();
   const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
 
   const getRoleBadge = (role: string) => {
@@ -110,7 +111,7 @@ export default function Users() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usersData?.stats?.adminCount || 0}</div>
+            <div className="text-2xl font-bold">{statsData?.admin || 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -119,7 +120,7 @@ export default function Users() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usersData?.stats?.instructorCount || 0}</div>
+            <div className="text-2xl font-bold">{statsData?.instructor || 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -128,7 +129,7 @@ export default function Users() {
             <UsersIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{usersData?.stats?.studentCount || 0}</div>
+            <div className="text-2xl font-bold">{statsData?.student || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -209,14 +210,14 @@ export default function Users() {
                     <TableSkeleton rows={5} columns={6} />
                   </td>
                 </tr>
-              ) : usersData?.data?.length === 0 ? (
+              ) : usersData?.users?.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     No se encontraron usuarios
                   </td>
                 </tr>
               ) : (
-                usersData?.data?.map((usuario: any) => (
+                usersData?.users?.map((usuario: any) => (
                   <tr key={usuario.id} className="hover:bg-muted/50">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">

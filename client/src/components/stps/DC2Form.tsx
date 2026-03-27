@@ -36,7 +36,8 @@ export function DC2Form() {
   const [generatedReport, setGeneratedReport] = useState<{ folio: string; pdfUrl: string } | null>(null);
 
   // Obtener lista de empleados
-  const { data: employees } = trpc.employees.list.useQuery({ isActive: true });
+  const { data: employeesData } = trpc.employees.list.useQuery({ isActive: true });
+  const employees = employeesData?.employees;
 
   // Mutation para generar DC-2
   const generateDC2 = trpc.stpsReports.generateDC2.useMutation({

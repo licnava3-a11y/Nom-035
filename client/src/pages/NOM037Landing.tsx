@@ -15,11 +15,14 @@ export default function NOM037Landing() {
     telefono: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (field: string) => (value: string) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [field]: value,
     });
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const benefits = [
@@ -91,15 +94,13 @@ export default function NOM037Landing() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <WhatsAppDemoButton
-                nombre={formData.nombre}
-                email={formData.email}
-                empresa={formData.empresa}
-                telefono={formData.telefono}
-                normativas={["NOM-037"]}
-                origen="landing_nom037"
-                size="lg"
-                className="bg-green-500 hover:bg-green-600 text-white"
-              />
+              nombre={formData.nombre}
+              email={formData.email}
+              empresa={formData.empresa}
+              normativasSeleccionadas={["NOM-037"]}
+              size="lg"
+              className="bg-green-500 hover:bg-green-600 text-white"
+            />
               <Button
                 size="lg"
                 variant="outline"
@@ -219,14 +220,14 @@ export default function NOM037Landing() {
                         id="nombre"
                         name="nombre"
                         value={formData.nombre}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         placeholder="Juan Pérez"
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="email">Correo electrónico</Label>
-                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={(value: any) => handleChange("email", value)} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
+                      <InputWithValidation id="email" type="email" value={formData.email} onValueChange={handleChange("email")} placeholder="juan@empresa.com" validationRules={{ email: true }} showValidationIcon={true} />
                     </div>
                   </div>
 
@@ -237,14 +238,14 @@ export default function NOM037Landing() {
                         id="empresa"
                         name="empresa"
                         value={formData.empresa}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         placeholder="Mi Empresa S.A. de C.V."
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="telefono">Teléfono</Label>
-                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={(value: any) => handleChange("telefono", value)} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
+                      <InputWithValidation id="telefono" type="tel" value={formData.telefono} onValueChange={handleChange("telefono")} placeholder="+52 55 1234 5678" validationRules={{ phone: true }} showValidationIcon={true} />
                     </div>
                   </div>
 
@@ -253,9 +254,7 @@ export default function NOM037Landing() {
                       nombre={formData.nombre}
                       email={formData.email}
                       empresa={formData.empresa}
-                      telefono={formData.telefono}
-                      normativas={["NOM-037"]}
-                      origen="landing_nom037_form"
+                      normativasSeleccionadas={["NOM-037"]}
                       className="w-full"
                       size="lg"
                     />

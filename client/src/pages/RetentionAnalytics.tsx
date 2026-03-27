@@ -20,7 +20,7 @@ export default function RetentionAnalytics() {
     departmentId: departmentFilter,
     minScore,
   });
-  const { data: departments } = trpc.departments.list.useQuery();
+  const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
 
   // Mutations
   const generateAlerts = trpc.predictiveAnalytics.generateRetentionAlerts.useMutation({
@@ -153,7 +153,7 @@ export default function RetentionAnalytics() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los departamentos</SelectItem>
-                {departments?.map((dept: any) => (
+                {departments?.data?.map((dept: any) => (
                   <SelectItem key={dept.id} value={dept.id.toString()}>
                     {dept.name}
                   </SelectItem>
