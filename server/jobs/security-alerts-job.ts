@@ -1,9 +1,9 @@
 /**
- * Job programado para detectar actividad sospechosa automáticamente
+ * Job programado para detectar actividad sospechosa automáticamente.
  * Se ejecuta cada 15 minutos para analizar el log de auditoría y detectar:
- * - Múltiples descargas en corto tiempo (>5 en 10 minutos)
- * - Accesos desde IPs desconocidas
- * - Accesos fuera de horario laboral (antes de 7am o después de 8pm)
+ *   - Múltiples descargas en corto tiempo (>5 en 10 minutos)
+ *   - Accesos desde IPs desconocidas
+ *   - Accesos fuera de horario laboral (antes de 7am o después de 8pm)
  *
  * Incluye reintentos con backoff exponencial para manejar errores ECONNRESET
  * y otras fallas transitorias de conexión a la base de datos.
@@ -14,38 +14,35 @@ import { documentAuditLog, users } from "../../drizzle/schema";
 import { securityAlertsRouter } from "../routers/securityAlerts";
 import { gte, eq, and } from "drizzle-orm";
 
-// ─── Utilidad: reintento con backoff exponencial ────────────────────────────
+// ─── Backoff exponencial ─────────────────────────────────────────────────────
 
 const RETRYABLE_CODES = ["ECONNRESET", "ECONNREFUSED", "ETIMEDOUT", "ENOTFOUND", "EPIPE", "EHOSTUNREACH"];
 
 function isRetryableError(err: unknown): boolean {
-  if (err instanceof Error) {
-    const code = (err as NodeJS.ErrnoException).code ?? "";
-    if (RETRYABLE_CODES.includes(code)) return true;
-    const cause = (err as any).cause;
-    if (cause instanceof Error) {
-      const causeCode = (cause as NodeJS.ErrnoException).code ?? "";
-      if (RETRYABLE_CODES.includes(causeCode)) return true;
-    }
-    for (const c of RETRYABLE_CODES) {
-      if (err.message.includes(c)) return true;
-    }
+  if (!(err instanceof Error)) return false;
+  const code = (err as NodeJS.ErrnoException).code ?? "";
+  if (RETRYABLE_CODES.includes(code)) return true;
+  const cause = (err as any).cause;
+  if (cause instanceof Error) {
+    const causeCode = (cause as NodeJS.ErrnoException).code ?? "";
+    if (RETRYABLE_CODES.includes(causeCode)) return true;
+  }
+  for (const c of RETRYABLE_CODES) {
+    if (err.message.includes(c)) return true;
   }
   return false;
 }
 
 /**
  * Ejecuta `fn` con hasta `maxAttempts` reintentos usando backoff exponencial.
- * Solo reintenta si el error es transitorio (ECONNRESET, ETIMEDOUT, etc.).
+ * Delays: 500 ms → 1 s → 2 s (base 500 ms, factor 2).
+ * Solo reintenta ante errores de red transitorios.
  */
 async function withRetry<T>(
   fn: () => Promise<T>,
-  {
-    maxAttempts = 3,
-    baseDelayMs = 500,
-    label = "operation",
-  }: { maxAttempts?: number; baseDelayMs?: number; label?: string } = {}
+  opts: { maxAttempts?: number; baseDelayMs?: number; label?: string } = {}
 ): Promise<T> {
+  const { maxAttempts = 3, baseDelayMs = 500, label = "operation" } = opts;
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -54,28 +51,28 @@ async function withRetry<T>(
     } catch (err) {
       lastError = err;
       if (!isRetryableError(err) || attempt === maxAttempts) throw err;
-      const delayMs = baseDelayMs * Math.pow(2, attempt - 1);
+      const delay = baseDelayMs * Math.pow(2, attempt - 1);
       console.warn(
-        `[Security Alerts Job] ${label} failed (attempt ${attempt}/${maxAttempts}), retrying in ${delayMs}ms...`,
+        `[Security Alerts Job] ${label} failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms...`,
         err instanceof Error ? err.message : err
       );
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await new Promise((r) => setTimeout(r, delay));
     }
   }
 
   throw lastError;
 }
 
-// ─── Lógica principal del job ────────────────────────────────────────────────
+// ─── Lógica principal ────────────────────────────────────────────────────────
 
 export async function runSecurityAlertsCheck() {
   console.log("[Security Alerts Job] Starting automated security check...");
 
   try {
-    const db = await withRetry(() => getDb(), { label: "getDb", maxAttempts: 3 });
+    const db = await withRetry(() => getDb(), { label: "getDb" });
     if (!db) {
       console.error("[Security Alerts Job] Database not available");
-      return;
+      return { success: false, error: "Database not available" };
     }
 
     const caller = securityAlertsRouter.createCaller({
@@ -84,15 +81,17 @@ export async function runSecurityAlertsCheck() {
       res: {} as any,
     });
 
+    // Accesos de los últimos 15 minutos
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
     const recentAccesses = await withRetry(
       () => db.select().from(documentAuditLog).where(gte(documentAuditLog.timestamp, fifteenMinutesAgo)),
-      { label: "fetch recent accesses", maxAttempts: 3 }
+      { label: "fetch recent accesses" }
     );
 
     console.log(`[Security Alerts Job] Found ${recentAccesses.length} recent accesses to analyze`);
 
-    const accessesByUser = recentAccesses.reduce((acc: any, access: any) => {
+    // Agrupar por usuario
+    const accessesByUser = recentAccesses.reduce<Record<number, typeof recentAccesses>>((acc, access) => {
       if (!access.userId) return acc;
       if (!acc[access.userId]) acc[access.userId] = [];
       acc[access.userId].push(access);
@@ -101,44 +100,43 @@ export async function runSecurityAlertsCheck() {
 
     let alertsCreated = 0;
 
-    for (const [userIdStr, accesses] of Object.entries(accessesByUser)) {
-      const userId = parseInt(userIdStr);
-      const userAccesses = accesses as any[];
+    for (const [userIdStr, userAccesses] of Object.entries(accessesByUser)) {
+      const userId = parseInt(userIdStr, 10);
 
-      let user: any;
+      // Obtener usuario con reintento
+      let user: (typeof users.$inferSelect) | undefined;
       try {
         const rows = await withRetry(
           () => db.select().from(users).where(eq(users.id, userId)).limit(1),
-          { label: `fetch user ${userId}`, maxAttempts: 3 }
+          { label: `fetch user ${userId}` }
         );
         user = rows[0];
       } catch (err) {
         console.error(`[Security Alerts Job] Could not fetch user ${userId}:`, err);
         continue;
       }
-
       if (!user) continue;
 
-      // 1. Múltiples descargas
-      const downloads = userAccesses.filter((a: any) => a.action === "download");
+      // 1. Múltiples descargas (>5 en 15 min)
+      const downloads = userAccesses.filter((a) => a.action === "download");
       if (downloads.length > 5) {
-        console.log(`[Security Alerts Job] Detected ${downloads.length} downloads from user ${user.name}`);
+        console.log(`[Security Alerts Job] ${downloads.length} downloads from user ${user.name}`);
         try {
           await withRetry(
-            () => caller.detectSuspiciousActivity({ userId, ipAddress: downloads[0].ipAddress || undefined }),
+            () => caller.detectSuspiciousActivity({ userId, ipAddress: downloads[0].ipAddress ?? undefined }),
             { label: "detectSuspiciousActivity (downloads)", maxAttempts: 2 }
           );
           alertsCreated++;
-        } catch (error) {
-          console.error(`[Security Alerts Job] Error detecting suspicious activity for user ${userId}:`, error);
+        } catch (err) {
+          console.error(`[Security Alerts Job] Error on suspicious downloads for user ${userId}:`, err);
         }
       }
 
       // 2. IPs desconocidas
-      const uniqueIPs = new Set(userAccesses.map((a: any) => a.ipAddress).filter(Boolean));
-      for (const ip of Array.from(uniqueIPs)) {
+      const uniqueIPs = Array.from(new Set(userAccesses.map((a) => a.ipAddress).filter(Boolean)));
+      for (const ip of uniqueIPs) {
         try {
-          const historicalAccesses = await withRetry(
+          const historical = await withRetry(
             () =>
               db
                 .select()
@@ -149,23 +147,19 @@ export async function runSecurityAlertsCheck() {
                     gte(documentAuditLog.timestamp, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
                   )
                 ),
-            { label: `fetch historical accesses for user ${userId}`, maxAttempts: 3 }
+            { label: `historical accesses user ${userId}` }
           );
-
-          const historicalIPs = new Set(
-            historicalAccesses.map((a: any) => a.ipAddress).filter((x: any) => x !== null)
-          );
-
-          if (historicalIPs.size > 5 && !historicalIPs.has(ip)) {
-            console.log(`[Security Alerts Job] Detected unknown IP ${ip} for user ${user.name}`);
+          const knownIPs = new Set(historical.map((a) => a.ipAddress).filter(Boolean));
+          if (knownIPs.size > 5 && !knownIPs.has(ip)) {
+            console.log(`[Security Alerts Job] Unknown IP ${ip} for user ${user.name}`);
             try {
               await withRetry(
                 () => caller.detectSuspiciousActivity({ userId, ipAddress: ip as string }),
                 { label: "detectSuspiciousActivity (unknown IP)", maxAttempts: 2 }
               );
               alertsCreated++;
-            } catch (error) {
-              console.error(`[Security Alerts Job] Error detecting unknown IP for user ${userId}:`, error);
+            } catch (err) {
+              console.error(`[Security Alerts Job] Error on unknown IP for user ${userId}:`, err);
             }
           }
         } catch (err) {
@@ -173,34 +167,30 @@ export async function runSecurityAlertsCheck() {
         }
       }
 
-      // 3. Accesos fuera de horario
-      const offHoursAccesses = userAccesses.filter((a: any) => {
-        const hour = new Date(a.timestamp).getHours();
-        return hour < 7 || hour >= 20;
+      // 3. Accesos fuera de horario (antes 7am / después 8pm)
+      const offHours = userAccesses.filter((a) => {
+        const h = new Date(a.timestamp).getHours();
+        return h < 7 || h >= 20;
       });
-
-      if (offHoursAccesses.length > 0) {
-        console.log(
-          `[Security Alerts Job] Detected ${offHoursAccesses.length} off-hours accesses from user ${user.name}`
-        );
+      if (offHours.length > 0) {
+        console.log(`[Security Alerts Job] ${offHours.length} off-hours accesses from user ${user.name}`);
         try {
           await withRetry(
             () =>
               caller.detectSuspiciousActivity({
                 userId,
-                ipAddress: offHoursAccesses[0].ipAddress || undefined,
+                ipAddress: offHours[0].ipAddress ?? undefined,
               }),
             { label: "detectSuspiciousActivity (off-hours)", maxAttempts: 2 }
           );
           alertsCreated++;
-        } catch (error) {
-          console.error(`[Security Alerts Job] Error detecting off-hours access for user ${userId}:`, error);
+        } catch (err) {
+          console.error(`[Security Alerts Job] Error on off-hours access for user ${userId}:`, err);
         }
       }
     }
 
-    console.log(`[Security Alerts Job] Security check completed. Created ${alertsCreated} alerts`);
-
+    console.log(`[Security Alerts Job] Completed. Alerts created: ${alertsCreated}`);
     return {
       success: true,
       accessesAnalyzed: recentAccesses.length,
@@ -208,27 +198,16 @@ export async function runSecurityAlertsCheck() {
       alertsCreated,
     };
   } catch (error) {
-    console.error("[Security Alerts Job] Error during security check:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+    console.error("[Security Alerts Job] Fatal error:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
 
 // ─── Scheduler ───────────────────────────────────────────────────────────────
 
 export function startSecurityAlertsJob() {
-  console.log(
-    "[Security Alerts Job] Initializing automated security check job (every 15 minutes, with retry backoff)..."
-  );
-
+  console.log("[Security Alerts Job] Initializing (every 15 min, with exponential backoff)...");
   runSecurityAlertsCheck();
-
-  const FIFTEEN_MINUTES = 15 * 60 * 1000;
-  setInterval(() => {
-    runSecurityAlertsCheck();
-  }, FIFTEEN_MINUTES);
-
-  console.log("[Security Alerts Job] Automated security check job started successfully");
+  setInterval(() => runSecurityAlertsCheck(), 15 * 60 * 1000);
+  console.log("[Security Alerts Job] Started successfully");
 }

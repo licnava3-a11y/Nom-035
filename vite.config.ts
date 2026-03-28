@@ -169,17 +169,54 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Separar vendor libraries grandes
-          'vendor-react': ['react', 'react-dom', 'wouter'],
-          'vendor-trpc': ['@trpc/client', '@trpc/react-query', '@tanstack/react-query'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs'],
-          'vendor-charts-chartjs': ['chart.js', 'react-chartjs-2'],
-          'vendor-charts-recharts': ['recharts'],
-          'vendor-excel': ['xlsx'],
-          'vendor-pdf': ['jspdf', 'jspdf-autotable', 'react-pdf'],
-          'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge'],
-          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+        manualChunks(id) {
+          // React core
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/wouter/')) {
+            return 'vendor-react';
+          }
+          // tRPC + React Query
+          if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
+            return 'vendor-trpc';
+          }
+          // Radix UI components
+          if (id.includes('node_modules/@radix-ui/')) {
+            return 'vendor-radix';
+          }
+          // Chart.js
+          if (id.includes('node_modules/chart.js/') || id.includes('node_modules/react-chartjs-2/') || id.includes('node_modules/chartjs-plugin-annotation/')) {
+            return 'vendor-chartjs';
+          }
+          // Recharts
+          if (id.includes('node_modules/recharts/') || id.includes('node_modules/d3-')) {
+            return 'vendor-recharts';
+          }
+          // Excel
+          if (id.includes('node_modules/xlsx/')) {
+            return 'vendor-excel';
+          }
+          // PDF
+          if (id.includes('node_modules/jspdf/') || id.includes('node_modules/jspdf-autotable/')) {
+            return 'vendor-pdf';
+          }
+          // i18n
+          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next/')) {
+            return 'vendor-i18n';
+          }
+          // Framer Motion
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'vendor-motion';
+          }
+          // Utilities: date-fns, clsx, tailwind-merge, zod, sonner, streamdown
+          if (
+            id.includes('node_modules/date-fns/') ||
+            id.includes('node_modules/clsx/') ||
+            id.includes('node_modules/tailwind-merge/') ||
+            id.includes('node_modules/zod/') ||
+            id.includes('node_modules/sonner/') ||
+            id.includes('node_modules/streamdown/')
+          ) {
+            return 'vendor-utils';
+          }
         },
       },
     },

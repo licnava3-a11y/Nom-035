@@ -7745,3 +7745,12 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Corregir riskAlerts.ts - surveyResponses.employeeId → userId con join a employees
 - [ ] Implementar encuestas post-caso (tabla, router, UI, job programado 30/60/90 días)
 - [ ] Guardar checkpoint final
+
+## Optimizaciones y Encuestas Post-Caso 2026-03-28
+
+- [ ] Agregar withRetry() con backoff exponencial en security-alerts-job.ts
+- [ ] Optimizar manualChunks en vite.config.ts para dividir bundles grandes
+- [ ] Crear schema y migracion para tabla postCaseSurveys
+- [ ] Crear backend (procedures tRPC) para encuestas post-caso
+- [ ] Crear job programado para enviar encuestas a 30/60/90 dias post-cierre
+- [ ] Crear frontend para responder y visualizar encuestas post-caso
