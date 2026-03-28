@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE post_case_surveys ADD COLUMN survey_token VARCHAR(64) UNIQUE AFTER expires_at;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute ALTER TABLE post_case_surveys ADD COLUMN survey_token VARCHAR(64) UNIQUE AFTER expires_at;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 8200 (HY000) at line 1: unsupported add column 'survey_token' constraint UNIQUE KEY when altering '32dY4kSxNgo2w8qLnKHR6H.post_case_surveys'"
+  ]
+}

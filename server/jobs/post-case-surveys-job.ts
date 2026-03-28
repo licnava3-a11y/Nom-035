@@ -2,12 +2,23 @@
  * Job Automático de Encuestas Post-Caso
  * Ejecuta diariamente: createPendingSurveys, sendPendingSurveys, expireSurveys
  * Incluye reintentos con backoff exponencial para errores de red (ECONNRESET, ETIMEDOUT)
+ * Envía correos HTML a los reportantes de cada caso con enlace único de encuesta
  */
 
 import cron from 'node-cron';
+import crypto from 'crypto';
 import { getDb } from '../db';
 import { cases, postCaseSurveys } from '../../drizzle/schema';
 import { eq, and, sql, lte } from 'drizzle-orm';
+import { sendEmail } from '../lib/email-sender';
+
+// ─── URL base de la plataforma ────────────────────────────────────────────────
+
+function getBaseUrl(): string {
+  return process.env.VITE_APP_URL
+    || process.env.APP_URL
+    || 'https://nom035mood-32dy4ksx.manus.space';
+}
 
 // ─── Utilidad: Reintentos con Backoff Exponencial ────────────────────────────
 
@@ -17,9 +28,7 @@ function isRetryableError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
   const code = (error as NodeJS.ErrnoException).code ?? '';
   const message = (error as Error).message ?? '';
-  return (
-    RETRYABLE_ERRORS.some((e) => code.includes(e) || message.includes(e))
-  );
+  return RETRYABLE_ERRORS.some((e) => code.includes(e) || message.includes(e));
 }
 
 async function withRetry<T>(
@@ -51,8 +60,114 @@ async function withRetry<T>(
     }
   }
 
-  // TypeScript: never reached but satisfies return type
   throw new Error(`[Post-Case Surveys Job] ${label} exhausted all ${maxAttempts} attempts`);
+}
+
+// ─── Plantilla HTML del correo ────────────────────────────────────────────────
+
+function buildSurveyEmailHtml(params: {
+  reporterName: string;
+  caseNumber: string;
+  daysSinceClosure: number;
+  surveyUrl: string;
+  expiresAt: Date;
+}): string {
+  const { reporterName, caseNumber, daysSinceClosure, surveyUrl, expiresAt } = params;
+  const expiresFormatted = expiresAt.toLocaleDateString('es-MX', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuesta de Seguimiento - NOM-035</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1e3a5f;padding:28px 40px;text-align:center;">
+              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">
+                Sistema NOM-035 STPS
+              </h1>
+              <p style="margin:6px 0 0;color:#a8c4e0;font-size:13px;">
+                Encuesta de Seguimiento Post-Caso
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px;">
+              <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">
+                Estimado/a <strong>${reporterName}</strong>,
+              </p>
+              <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">
+                Han transcurrido <strong>${daysSinceClosure} días</strong> desde el cierre del caso
+                <strong>${caseNumber}</strong>. Con el fin de evaluar la efectividad de las
+                intervenciones realizadas, le invitamos a responder una breve encuesta de seguimiento.
+              </p>
+              <p style="margin:0 0 24px;color:#374151;font-size:15px;line-height:1.6;">
+                Su opinión es fundamental para mejorar continuamente nuestros procesos de atención
+                y cumplimiento con la NOM-035 STPS 2018.
+              </p>
+
+              <!-- CTA Button -->
+              <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+                <tr>
+                  <td style="background-color:#1e3a5f;border-radius:6px;padding:14px 32px;text-align:center;">
+                    <a href="${surveyUrl}"
+                       style="color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;display:block;">
+                      Responder Encuesta
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Info boxes -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background-color:#f0f4f8;border-left:4px solid #1e3a5f;border-radius:4px;padding:12px 16px;margin-bottom:12px;">
+                    <p style="margin:0;color:#374151;font-size:13px;line-height:1.5;">
+                      <strong>Caso:</strong> ${caseNumber}<br>
+                      <strong>Período de seguimiento:</strong> ${daysSinceClosure} días post-cierre<br>
+                      <strong>Encuesta válida hasta:</strong> ${expiresFormatted}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:20px 0 0;color:#6b7280;font-size:13px;line-height:1.5;">
+                Si el botón no funciona, copie y pegue el siguiente enlace en su navegador:<br>
+                <a href="${surveyUrl}" style="color:#1e3a5f;word-break:break-all;">${surveyUrl}</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.5;">
+                Este correo fue enviado automáticamente por el Sistema de Gestión NOM-035 STPS 2018.<br>
+                Si no reconoce este caso, por favor ignore este mensaje.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
 
 // ─── Crear encuestas pendientes ───────────────────────────────────────────────
@@ -69,12 +184,15 @@ async function createPendingSurveys() {
       const now = new Date();
       let surveysCreated = 0;
 
-      // Obtener casos cerrados/resueltos
+      // Obtener casos cerrados/resueltos con email del reportante
       const closedCases = await db
         .select({
           id: cases.id,
           caseNumber: cases.caseNumber,
           closedAt: cases.closedAt,
+          reporterEmail: cases.reporterEmail,
+          reporterName: cases.reporterName,
+          isAnonymous: cases.isAnonymous,
         })
         .from(cases)
         .where(
@@ -108,10 +226,14 @@ async function createPendingSurveys() {
               .limit(1);
 
             if (!existing) {
+              // Generar token único para acceso sin login
+              const token = crypto.randomBytes(32).toString('hex');
+
               await (db.insert(postCaseSurveys) as any).values({
                 caseId: caso.id,
                 daysSinceClosure: period,
                 status: 'pending',
+                surveyToken: token,
               });
               surveysCreated++;
               console.log(
@@ -140,34 +262,102 @@ async function sendPendingSurveys() {
       const db = await getDb();
       if (!db) {
         console.error('[Post-Case Surveys Job] Database not available');
-        return { surveysSent: 0 };
+        return { surveysSent: 0, emailsSent: 0, emailsFailed: 0 };
       }
 
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 días
 
+      // Obtener encuestas pendientes con JOIN a casos para obtener datos del reportante
       const pendingSurveys = await db
-        .select({ id: postCaseSurveys.id })
+        .select({
+          surveyId: postCaseSurveys.id,
+          surveyToken: postCaseSurveys.surveyToken,
+          daysSinceClosure: postCaseSurveys.daysSinceClosure,
+          caseNumber: cases.caseNumber,
+          reporterEmail: cases.reporterEmail,
+          reporterName: cases.reporterName,
+          isAnonymous: cases.isAnonymous,
+        })
         .from(postCaseSurveys)
+        .innerJoin(cases, eq(postCaseSurveys.caseId, cases.id))
         .where(eq(postCaseSurveys.status, 'pending'));
 
       let surveysSent = 0;
+      let emailsSent = 0;
+      let emailsFailed = 0;
 
       for (const survey of pendingSurveys) {
+        // Generar token si no existe (para encuestas creadas antes de esta versión)
+        let token = survey.surveyToken;
+        if (!token) {
+          token = crypto.randomBytes(32).toString('hex');
+          await db
+            .update(postCaseSurveys)
+            .set({ surveyToken: token } as any)
+            .where(eq(postCaseSurveys.id, survey.surveyId));
+        }
+
+        // Actualizar estado a 'sent'
         await db
           .update(postCaseSurveys)
           .set({ status: 'sent', sentAt: now, expiresAt } as any)
-          .where(eq(postCaseSurveys.id, survey.id));
+          .where(eq(postCaseSurveys.id, survey.surveyId));
+
         surveysSent++;
+
+        // Enviar correo solo si hay email disponible y el caso no es anónimo
+        const recipientEmail = survey.reporterEmail;
+        if (recipientEmail && !survey.isAnonymous) {
+          const surveyUrl = `${getBaseUrl()}/survey/${token}`;
+          const reporterName = survey.reporterName || 'Colaborador/a';
+
+          const html = buildSurveyEmailHtml({
+            reporterName,
+            caseNumber: survey.caseNumber,
+            daysSinceClosure: survey.daysSinceClosure,
+            surveyUrl,
+            expiresAt,
+          });
+
+          const sent = await sendEmail({
+            to: recipientEmail,
+            subject: `Encuesta de Seguimiento - Caso ${survey.caseNumber} (${survey.daysSinceClosure} días)`,
+            html,
+            text: `Estimado/a ${reporterName}, han transcurrido ${survey.daysSinceClosure} días desde el cierre del caso ${survey.caseNumber}. Por favor responda la encuesta en: ${surveyUrl} (válida hasta ${expiresAt.toLocaleDateString('es-MX')})`,
+          });
+
+          if (sent) {
+            emailsSent++;
+            console.log(
+              `[Post-Case Surveys Job] Email sent to ${recipientEmail} for case ${survey.caseNumber} (${survey.daysSinceClosure} days)`
+            );
+          } else {
+            emailsFailed++;
+            console.warn(
+              `[Post-Case Surveys Job] Failed to send email to ${recipientEmail} for case ${survey.caseNumber}`
+            );
+          }
+        } else if (survey.isAnonymous) {
+          console.log(
+            `[Post-Case Surveys Job] Skipping email for anonymous case ${survey.caseNumber}`
+          );
+        } else {
+          console.log(
+            `[Post-Case Surveys Job] No email available for case ${survey.caseNumber}`
+          );
+        }
       }
 
-      console.log(`[Post-Case Surveys Job] Sent ${surveysSent} surveys`);
-      return { surveysSent };
+      console.log(
+        `[Post-Case Surveys Job] Sent ${surveysSent} surveys | Emails: ${emailsSent} sent, ${emailsFailed} failed`
+      );
+      return { surveysSent, emailsSent, emailsFailed };
     },
     { label: 'sendPendingSurveys', maxAttempts: 3, baseDelayMs: 500 }
   ).catch((error) => {
     console.error('[Post-Case Surveys Job] sendPendingSurveys failed after retries:', error);
-    return { surveysSent: 0 };
+    return { surveysSent: 0, emailsSent: 0, emailsFailed: 0 };
   });
 }
 
@@ -220,8 +410,9 @@ async function expireSurveys() {
 export async function runPostCaseSurveysJobs() {
   console.log('[Post-Case Surveys Job] Starting automated jobs at', new Date().toISOString());
 
-  const [createResult, sendResult, expireResult] = await Promise.all([
-    createPendingSurveys(),
+  // Crear primero, luego enviar (secuencial para evitar enviar encuestas recién creadas)
+  const createResult = await createPendingSurveys();
+  const [sendResult, expireResult] = await Promise.all([
     sendPendingSurveys(),
     expireSurveys(),
   ]);
@@ -229,6 +420,8 @@ export async function runPostCaseSurveysJobs() {
   const summary = {
     created: createResult.surveysCreated,
     sent: sendResult.surveysSent,
+    emailsSent: sendResult.emailsSent,
+    emailsFailed: sendResult.emailsFailed,
     expired: expireResult.surveysExpired,
   };
 

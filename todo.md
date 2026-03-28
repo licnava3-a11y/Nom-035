@@ -7754,3 +7754,13 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Crear backend (procedures tRPC) para encuestas post-caso
 - [ ] Crear job programado para enviar encuestas a 30/60/90 dias post-cierre
 - [ ] Crear frontend para responder y visualizar encuestas post-caso
+
+## Envío de correos en encuestas post-caso 2026-03-28
+- [ ] Integrar sendEmail() en sendPendingSurveys() con plantilla HTML
+- [ ] Obtener email del reporterEmail del caso (JOIN con tabla cases)
+- [ ] Generar token único por encuesta para acceso sin login
+- [ ] Verificar campo token en tabla post_case_surveys
+- [x] Integrar sendEmail() en sendPendingSurveys() con plantilla HTML
+- [x] Obtener email del reporterEmail del caso (JOIN con tabla cases)
+- [x] Generar token unico por encuesta para acceso sin login
+- [x] Verificar campo token en tabla post_case_surveys
