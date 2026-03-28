@@ -383,6 +383,14 @@ function DashboardLayoutContent({
     gcTime: 5 * 60 * 1000, // 5 minutos en cache
   });
   
+  // Obtener contador de encuestas urgentes (enviadas >5 días sin respuesta)
+  const { data: urgentSurveys } = trpc.postCaseSurveys.getUrgentPendingCount.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000, // Actualizar cada 5 minutos
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+  const urgentSurveysCount = urgentSurveys?.count ?? 0;
+
   // Obtener contador de reconocimientos no leídos
   const { data: recognitionsCount } = trpc.recognitions.getUnreadCount.useQuery(undefined, {
     refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
@@ -553,11 +561,9 @@ function DashboardLayoutContent({
                         {/* Badges dinámicos */}
                         {item.label === "Prevención de Riesgos Psicosociales" && counters?.cases && (
                           <MenuBadge count={counters.cases.open + counters.cases.investigating} variant="danger" />
-                        )}
-                        {item.label === "Encuestas NOM-035" && counters?.surveys && (
-                          <MenuBadge count={counters.surveys.expiringSoon} variant="warning" />
-                        )}
-                        {item.label === "Capacitación y Desarrollo" && counters?.courses && (
+                        )}                        {item.label === "Cumplimiento Normativo" && urgentSurveysCount > 0 && (
+                          <MenuBadge count={urgentSurveysCount} variant="danger" />
+                        )}                     {item.label === "Capacitación y Desarrollo" && counters?.courses && (
                           <MenuBadge count={counters.courses.published} variant="info" />
                         )}
                         {hasSubmenu && (
@@ -592,6 +598,9 @@ function DashboardLayoutContent({
                                   )}
                                   {subItem.label === "Buzón" && counters?.mailbox && (
                                     <MenuBadge count={counters.mailbox.pending} variant="danger" />
+                                  )}
+                                  {subItem.label === "Encuestas Post-Caso" && urgentSurveysCount > 0 && (
+                                    <MenuBadge count={urgentSurveysCount} variant="danger" />
                                   )}
                                   {subItem.label === "Reconocimientos" && recognitionsCount && recognitionsCount.count > 0 && (
                                     <MenuBadge count={recognitionsCount.count} variant="info" />

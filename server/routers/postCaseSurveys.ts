@@ -9,7 +9,7 @@ import { z } from "zod";
 import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
 import { cases, postCaseSurveys, surveys } from "../../drizzle/schema";
-import { eq, and, gte, lte, sql, desc, isNull } from "drizzle-orm";
+import { eq, and, gte, lte, sql, desc, isNull, lt } from "drizzle-orm";
 
 export const postCaseSurveysRouter = router({
   /**
@@ -463,6 +463,28 @@ export const postCaseSurveysRouter = router({
         .where(eq(postCaseSurveys.id, survey.id));
 
       return { success: true };
+    }),
+
+  /**
+   * Conteo de encuestas urgentes (enviadas hace más de 5 días sin respuesta)
+   * Usado para el badge de notificación en el menú lateral
+   */
+  getUrgentPendingCount: protectedProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) return { count: 0 };
+      const fiveDaysAgo = new Date();
+      fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+      const urgentSurveys = await db
+        .select({ id: postCaseSurveys.id })
+        .from(postCaseSurveys)
+        .where(
+          and(
+            eq(postCaseSurveys.status, "sent"),
+            lt(postCaseSurveys.sentAt, fiveDaysAgo)
+          )
+        );
+      return { count: urgentSurveys.length };
     }),
 
   /**

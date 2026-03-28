@@ -7778,3 +7778,4 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Exportación a PDF en dashboard de encuestas post-caso
 - [x] Widget de encuestas pendientes y score en Dashboard principal
 - [x] Exportacion a PDF en dashboard de encuestas post-caso
+- [ ] Badge de notificacion en menu lateral para encuestas pendientes urgentes (>5 dias)
