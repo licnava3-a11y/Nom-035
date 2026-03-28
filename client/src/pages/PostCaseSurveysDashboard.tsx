@@ -14,10 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, Clock, XCircle, Send, TrendingUp, Star, Download, Filter, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, XCircle, Send, TrendingUp, Star, Download, Filter, RefreshCw, FileText } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // Registrar componentes de Chart.js
 Chart.register(...registerables);
@@ -219,6 +221,125 @@ export default function PostCaseSurveysDashboard() {
     }
   };
 
+  // Exportar a PDF
+  const handleExportPDF = async () => {
+    if (!surveys || surveys.length === 0) {
+      toast.error("No hay datos para exportar con los filtros actuales");
+      return;
+    }
+    setIsExporting(true);
+    try {
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const today = new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" });
+      // --- Encabezado ---
+      doc.setFillColor(15, 23, 42); // navy
+      doc.rect(0, 0, 297, 22, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reporte de Encuestas Post-Caso — NOM-035 STPS 2018", 14, 10);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generado el ${today}`, 14, 17);
+      // --- Resumen ejecutivo ---
+      if (stats) {
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("Resumen Ejecutivo", 14, 32);
+        const summaryData = [
+          ["Total Completadas", String(stats.totalCompleted), "Score General (1-5)", String(stats.overallScore)],
+          ["Promedio Mejora", String(stats.avgImprovement), "Promedio Satisfacción", String(stats.avgSatisfaction)],
+          ["Promedio Apoyo", String(stats.avgSupport), "Promedio Recomendación", String(stats.avgRecommendation)],
+        ];
+        autoTable(doc, {
+          startY: 35,
+          head: [["Métrica", "Valor", "Métrica", "Valor"]],
+          body: summaryData,
+          theme: "grid",
+          headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: "bold", fontSize: 9 },
+          bodyStyles: { fontSize: 9 },
+          columnStyles: { 0: { cellWidth: 55 }, 1: { cellWidth: 25 }, 2: { cellWidth: 55 }, 3: { cellWidth: 25 } },
+          margin: { left: 14, right: 14 },
+        });
+        // Comparación por período
+        const periodY = (doc as any).lastAutoTable.finalY + 8;
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("Efectividad por Período de Seguimiento", 14, periodY);
+        const periodData = Object.entries(stats.byPeriod).map(([days, data]: [string, any]) => [
+          `${days} días`, String(data.count), String(data.avgScore),
+        ]);
+        autoTable(doc, {
+          startY: periodY + 3,
+          head: [["Período", "Encuestas Completadas", "Score Promedio"]],
+          body: periodData,
+          theme: "striped",
+          headStyles: { fillColor: [22, 101, 52], textColor: 255, fontStyle: "bold", fontSize: 9 },
+          bodyStyles: { fontSize: 9 },
+          columnStyles: { 0: { cellWidth: 35 }, 1: { cellWidth: 50 }, 2: { cellWidth: 40 } },
+          margin: { left: 14, right: 14 },
+        });
+      }
+      // --- Tabla de encuestas ---
+      doc.addPage();
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 297, 14, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("Listado Detallado de Encuestas", 14, 10);
+      const tableRows = surveys.map((item: any) => {
+        const avgScore = item.survey.improvementRating
+          ? ((item.survey.improvementRating + item.survey.satisfactionRating + item.survey.supportRating + item.survey.recommendationRating) / 4).toFixed(1)
+          : "—";
+        return [
+          item.caseNumber || "—",
+          item.caseType || "—",
+          item.survey.daysSinceClosure ? `${item.survey.daysSinceClosure}d` : "—",
+          item.survey.status || "—",
+          item.survey.completedAt ? new Date(item.survey.completedAt).toLocaleDateString("es-MX") : "—",
+          item.survey.improvementRating || "—",
+          item.survey.satisfactionRating || "—",
+          item.survey.supportRating || "—",
+          item.survey.recommendationRating || "—",
+          avgScore,
+          item.survey.comments ? item.survey.comments.substring(0, 60) + (item.survey.comments.length > 60 ? "..." : "") : "—",
+        ];
+      });
+      autoTable(doc, {
+        startY: 18,
+        head: [["No. Caso", "Tipo", "Período", "Estado", "Completada", "Mejora", "Satisf.", "Apoyo", "Recom.", "Score", "Comentarios"]],
+        body: tableRows,
+        theme: "striped",
+        headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: "bold", fontSize: 7 },
+        bodyStyles: { fontSize: 7 },
+        columnStyles: {
+          0: { cellWidth: 22 }, 1: { cellWidth: 22 }, 2: { cellWidth: 16 }, 3: { cellWidth: 20 },
+          4: { cellWidth: 22 }, 5: { cellWidth: 14 }, 6: { cellWidth: 14 }, 7: { cellWidth: 14 },
+          8: { cellWidth: 14 }, 9: { cellWidth: 14 }, 10: { cellWidth: 55 },
+        },
+        margin: { left: 14, right: 14 },
+      });
+      // Pie de página
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(120, 120, 120);
+        doc.text(`Página ${i} de ${pageCount} — Plataforma NOM-035 STPS 2018 — Confidencial`, 14, 205);
+      }
+      const dateStr = new Date().toISOString().split("T")[0];
+      doc.save(`Encuestas_PostCaso_NOM035_${dateStr}.pdf`);
+      toast.success("✅ PDF generado correctamente");
+    } catch (err) {
+      console.error(err);
+      toast.error("❌ Error al generar el PDF");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const clearFilters = () => {
     setSelectedStatus(undefined);
     setSelectedPeriod(undefined);
@@ -311,6 +432,15 @@ export default function PostCaseSurveysDashboard() {
           >
             <Download className="h-4 w-4 mr-2" />
             {isExporting ? "Exportando..." : "Exportar Excel"}
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleExportPDF}
+            disabled={isExporting || !surveys || surveys.length === 0}
+            className="bg-red-700 hover:bg-red-800 text-white"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            {isExporting ? "Generando..." : "Exportar PDF"}
           </Button>
         </div>
       </div>

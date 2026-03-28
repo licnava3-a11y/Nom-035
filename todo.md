@@ -7773,3 +7773,8 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Agregar filtros avanzados (período/departamento/fechas) en PostCaseSurveysDashboard
 - [x] Agregar exportación a Excel (.xlsx) en PostCaseSurveysDashboard
 - [x] Corregir vista previa (index.html con bloque de comentario problemático)
+
+- [ ] Widget de encuestas pendientes y score en Dashboard principal
+- [ ] Exportación a PDF en dashboard de encuestas post-caso
+- [x] Widget de encuestas pendientes y score en Dashboard principal
+- [x] Exportacion a PDF en dashboard de encuestas post-caso
