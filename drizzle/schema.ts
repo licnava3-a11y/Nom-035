@@ -3152,8 +3152,9 @@ export const postCaseSurveys = mysqlTable("post_case_surveys", {
   
   // Metadata
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  expiresAt: timestamp("expires_at"), // Fecha de expiración (7 días después de envío)
-  surveyToken: varchar("survey_token", { length: 64 }), // Token único para acceso sin login
+  expiresAt: timestamp("expires_at"),
+  surveyToken: varchar('survey_token', { length: 64 }),
+  reminderSentAt: bigint('reminder_sent_at', { mode: 'number' }),
 });
 
 export type PostCaseSurvey = typeof postCaseSurveys.$inferSelect;

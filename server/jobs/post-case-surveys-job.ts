@@ -361,6 +361,151 @@ async function sendPendingSurveys() {
   });
 }
 
+// ─── Plantilla HTML del recordatorio ─────────────────────────────────────────
+
+function buildReminderEmailHtml(params: {
+  reporterName: string;
+  caseNumber: string;
+  daysSinceClosure: number;
+  surveyUrl: string;
+  expiresAt: Date;
+}): string {
+  const { reporterName, caseNumber, daysSinceClosure, surveyUrl, expiresAt } = params;
+  const expiresFormatted = expiresAt.toLocaleDateString('es-MX', {
+    day: '2-digit', month: 'long', year: 'numeric',
+  });
+  return `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Recordatorio - Encuesta NOM-035</title></head>
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f9;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <tr><td style="background-color:#b45309;padding:28px 40px;text-align:center;">
+          <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Recordatorio - Sistema NOM-035 STPS</h1>
+          <p style="margin:6px 0 0;color:#fde68a;font-size:13px;">Encuesta de Seguimiento Pendiente</p>
+        </td></tr>
+        <tr><td style="padding:36px 40px;">
+          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">Estimado/a <strong>${reporterName}</strong>,</p>
+          <p style="margin:0 0 16px;color:#374151;font-size:15px;line-height:1.6;">
+            Le recordamos que tiene pendiente de responder la encuesta de seguimiento del caso
+            <strong>${caseNumber}</strong> (${daysSinceClosure} d\u00edas post-cierre).
+          </p>
+          <p style="margin:0 0 24px;color:#dc2626;font-size:14px;font-weight:600;">
+            \u26a0\ufe0f Esta encuesta expira el ${expiresFormatted}.
+          </p>
+          <table cellpadding="0" cellspacing="0" style="margin:0 auto 28px;">
+            <tr><td style="background-color:#b45309;border-radius:6px;padding:14px 32px;text-align:center;">
+              <a href="${surveyUrl}" style="color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;display:block;">Responder Ahora</a>
+            </td></tr>
+          </table>
+          <p style="margin:20px 0 0;color:#6b7280;font-size:13px;">
+            Enlace directo: <a href="${surveyUrl}" style="color:#b45309;word-break:break-all;">${surveyUrl}</a>
+          </p>
+        </td></tr>
+        <tr><td style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 40px;text-align:center;">
+          <p style="margin:0;color:#9ca3af;font-size:12px;">Recordatorio autom\u00e1tico del Sistema de Gesti\u00f3n NOM-035 STPS 2018.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ─── Enviar recordatorios (3 días después sin respuesta) ──────────────────────
+
+async function sendSurveyReminders() {
+  return withRetry(
+    async () => {
+      const db = await getDb();
+      if (!db) {
+        console.error('[Post-Case Surveys Job] Database not available');
+        return { remindersSent: 0, emailsSent: 0, emailsFailed: 0 };
+      }
+
+      const now = new Date();
+      const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+
+      const surveysToRemind = await db
+        .select({
+          surveyId: postCaseSurveys.id,
+          surveyToken: postCaseSurveys.surveyToken,
+          daysSinceClosure: postCaseSurveys.daysSinceClosure,
+          caseNumber: cases.caseNumber,
+          reporterEmail: cases.reporterEmail,
+          reporterName: cases.reporterName,
+          isAnonymous: cases.isAnonymous,
+          expiresAt: postCaseSurveys.expiresAt,
+          reminderSentAt: postCaseSurveys.reminderSentAt,
+        })
+        .from(postCaseSurveys)
+        .innerJoin(cases, eq(postCaseSurveys.caseId, cases.id))
+        .where(
+          and(
+            eq(postCaseSurveys.status, 'sent'),
+            sql`${postCaseSurveys.sentAt} IS NOT NULL`,
+            lte(postCaseSurveys.sentAt, threeDaysAgo),
+            sql`${postCaseSurveys.reminderSentAt} IS NULL`,
+            sql`${postCaseSurveys.expiresAt} IS NOT NULL`,
+            sql`${postCaseSurveys.expiresAt} > ${now}`
+          )
+        );
+
+      let remindersSent = 0;
+      let emailsSent = 0;
+      let emailsFailed = 0;
+
+      for (const survey of surveysToRemind) {
+        await db
+          .update(postCaseSurveys)
+          .set({ reminderSentAt: now.getTime() } as any)
+          .where(eq(postCaseSurveys.id, survey.surveyId));
+        remindersSent++;
+
+        const recipientEmail = survey.reporterEmail;
+        if (recipientEmail && !survey.isAnonymous && survey.surveyToken) {
+          const surveyUrl = `${getBaseUrl()}/survey/${survey.surveyToken}`;
+          const reporterName = survey.reporterName || 'Colaborador/a';
+          const expiresAt = survey.expiresAt
+            ? new Date(survey.expiresAt)
+            : new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000);
+
+          const html = buildReminderEmailHtml({
+            reporterName,
+            caseNumber: survey.caseNumber,
+            daysSinceClosure: survey.daysSinceClosure,
+            surveyUrl,
+            expiresAt,
+          });
+
+          const sent = await sendEmail({
+            to: recipientEmail,
+            subject: `Recordatorio: Encuesta Pendiente - Caso ${survey.caseNumber}`,
+            html,
+            text: `Estimado/a ${reporterName}, le recordamos que tiene una encuesta pendiente para el caso ${survey.caseNumber}. Responda en: ${surveyUrl}`,
+          });
+
+          if (sent) {
+            emailsSent++;
+            console.log(`[Post-Case Surveys Job] Reminder sent to ${recipientEmail} for case ${survey.caseNumber}`);
+          } else {
+            emailsFailed++;
+            console.warn(`[Post-Case Surveys Job] Failed to send reminder to ${recipientEmail} for case ${survey.caseNumber}`);
+          }
+        }
+      }
+
+      console.log(`[Post-Case Surveys Job] Reminders: ${remindersSent} processed | Emails: ${emailsSent} sent, ${emailsFailed} failed`);
+      return { remindersSent, emailsSent, emailsFailed };
+    },
+    { label: 'sendSurveyReminders', maxAttempts: 3, baseDelayMs: 500 }
+  ).catch((error) => {
+    console.error('[Post-Case Surveys Job] sendSurveyReminders failed after retries:', error);
+    return { remindersSent: 0, emailsSent: 0, emailsFailed: 0 };
+  });
+}
+
 // ─── Expirar encuestas vencidas ───────────────────────────────────────────────
 
 async function expireSurveys() {
@@ -412,8 +557,9 @@ export async function runPostCaseSurveysJobs() {
 
   // Crear primero, luego enviar (secuencial para evitar enviar encuestas recién creadas)
   const createResult = await createPendingSurveys();
-  const [sendResult, expireResult] = await Promise.all([
+  const [sendResult, reminderResult, expireResult] = await Promise.all([
     sendPendingSurveys(),
+    sendSurveyReminders(),
     expireSurveys(),
   ]);
 
@@ -422,6 +568,8 @@ export async function runPostCaseSurveysJobs() {
     sent: sendResult.surveysSent,
     emailsSent: sendResult.emailsSent,
     emailsFailed: sendResult.emailsFailed,
+    reminders: reminderResult.remindersSent,
+    reminderEmailsSent: reminderResult.emailsSent,
     expired: expireResult.surveysExpired,
   };
 

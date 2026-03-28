@@ -95,6 +95,17 @@ export default function DashboardConsolidated() {
   // Estado para dialog de asignación rápida
   const [selectedDepartment, setSelectedDepartment] = useState<number | null>(null);
 
+  // Estadísticas de encuestas post-caso (solo para admin/committee)
+  const { data: surveyStats } = trpc.postCaseSurveys.getAllSurveys.useQuery(
+    { status: 'sent' },
+    { enabled: user?.role === 'admin' || (user?.role as string) === 'committee', staleTime: 10 * 60 * 1000 }
+  );
+  const { data: surveyEffectiveness } = trpc.postCaseSurveys.getEffectivenessStats.useQuery(
+    undefined,
+    { enabled: user?.role === 'admin' || (user?.role as string) === 'committee', staleTime: 10 * 60 * 1000 }
+  );
+  const pendingSurveysCount = surveyStats?.length ?? 0;
+
   // Brechas críticas de competencias (solo para admin)
   const { data: criticalGaps, isLoading: gapsLoading } = trpc.trainingNeeds.getCriticalGaps.useQuery(
     undefined,
@@ -358,12 +369,26 @@ export default function DashboardConsolidated() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{coursesLoading ? '...' : courses?.length || 0}</div>
-                <p className="text-xs text-muted-foreground">Programas activos</p>
+                 <p className="text-xs text-muted-foreground">Programas activos</p>
+              </CardContent>
+            </Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.location.href = '/post-case-surveys'}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Encuestas Post-Caso</CardTitle>
+                <ICONS.actions.view className="h-4 w-4 text-amber-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pendingSurveysCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  {pendingSurveysCount === 1 ? 'encuesta pendiente' : 'encuestas pendientes'}
+                  {surveyEffectiveness && surveyEffectiveness.totalCompleted > 0 && (
+                    <span className="ml-1 text-green-600">• Score: {surveyEffectiveness.overallScore}/5</span>
+                  )}
+                </p>
               </CardContent>
             </Card>
           </>
         )}
-
         {(user?.role as string) === 'instructor' && (
           <>
             <Card>
