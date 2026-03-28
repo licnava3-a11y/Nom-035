@@ -33,6 +33,7 @@ const EvidencesFolder = lazy(() => import("./pages/EvidencesFolder"));
 const NMX025EvidencesFolder = lazy(() => import("./pages/NMX025EvidencesFolder"));
 const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
 const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
+const SurveyPublicResponse = lazy(() => import("./pages/SurveyPublicResponse"));
 const SentimentAnalysisDashboard = lazy(() => import("./pages/SentimentAnalysisDashboard"));
 const ExecutiveReportsPanel = lazy(() => import("./pages/ExecutiveReportsPanel"));
 const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
@@ -1782,6 +1783,13 @@ function Router() {
               <NOM035Questionnaire />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path="/survey/:token">
+          {(params) => (
+            <Suspense fallback={<PageLoader />}>
+              <SurveyPublicResponse />
+            </Suspense>
+          )}
         </Route>
         <Route>
           <NotFound />

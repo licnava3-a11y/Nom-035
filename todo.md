@@ -7764,3 +7764,9 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Obtener email del reporterEmail del caso (JOIN con tabla cases)
 - [x] Generar token unico por encuesta para acceso sin login
 - [x] Verificar campo token en tabla post_case_surveys
+- [ ] Agregar publicProcedures getSurveyByToken y submitSurveyResponse en postCaseSurveys router
+- [ ] Crear pagina publica SurveyPublicResponse.tsx con formulario escala 1-5
+- [ ] Registrar ruta /survey/:token en App.tsx
+- [x] Agregar publicProcedures getSurveyByToken y submitSurveyResponse en postCaseSurveys router
+- [x] Crear pagina publica SurveyPublicResponse.tsx con formulario escala 1-5
+- [x] Registrar ruta /survey/:token en App.tsx

@@ -4,7 +4,7 @@
  * Mide efectividad de intervenciones NOM-035
  */
 
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { commonValidators } from "../validators/common";
 import { getDb } from "../db";
@@ -335,6 +335,126 @@ export const postCaseSurveysRouter = router({
       surveysSent: pendingSurveys.length,
     };
   }),
+
+  /**
+   * Obtener encuesta por token (acceso público sin login)
+   */
+  getSurveyByToken: publicProcedure
+    .input(z.object({ token: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [survey] = await db
+        .select({
+          id: postCaseSurveys.id,
+          status: postCaseSurveys.status,
+          daysSinceClosure: postCaseSurveys.daysSinceClosure,
+          expiresAt: postCaseSurveys.expiresAt,
+          completedAt: postCaseSurveys.completedAt,
+          caseNumber: cases.caseNumber,
+          caseType: cases.caseType,
+          reporterName: cases.reporterName,
+          isAnonymous: cases.isAnonymous,
+        })
+        .from(postCaseSurveys)
+        .innerJoin(cases, eq(postCaseSurveys.caseId, cases.id))
+        .where(eq((postCaseSurveys as any).surveyToken, input.token))
+        .limit(1);
+
+      if (!survey) {
+        return { found: false as const };
+      }
+
+      // Verificar si expiró
+      const now = new Date();
+      if (survey.expiresAt && survey.expiresAt < now && survey.status === 'sent') {
+        await db
+          .update(postCaseSurveys)
+          .set({ status: 'expired' } as any)
+          .where(eq((postCaseSurveys as any).surveyToken, input.token));
+        return { found: true as const, status: 'expired' as const, survey: null };
+      }
+
+      return {
+        found: true as const,
+        status: survey.status,
+        survey: {
+          id: survey.id,
+          daysSinceClosure: survey.daysSinceClosure,
+          expiresAt: survey.expiresAt,
+          completedAt: survey.completedAt,
+          caseNumber: survey.caseNumber,
+          caseType: survey.caseType,
+          reporterName: survey.isAnonymous ? null : survey.reporterName,
+        },
+      };
+    }),
+
+  /**
+   * Enviar respuesta de encuesta por token (acceso público sin login)
+   */
+  submitSurveyResponse: publicProcedure
+    .input(
+      z.object({
+        token: z.string().min(1),
+        improvementRating: z.number().int().min(1).max(5),
+        satisfactionRating: z.number().int().min(1).max(5),
+        supportRating: z.number().int().min(1).max(5),
+        recommendationRating: z.number().int().min(1).max(5),
+        comments: z.string().max(1000).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { token, ...ratings } = input;
+
+      // Buscar encuesta por token
+      const [survey] = await db
+        .select({ id: postCaseSurveys.id, status: postCaseSurveys.status, expiresAt: postCaseSurveys.expiresAt })
+        .from(postCaseSurveys)
+        .where(eq((postCaseSurveys as any).surveyToken, token))
+        .limit(1);
+
+      if (!survey) {
+        throw new Error("Encuesta no encontrada");
+      }
+
+      if (survey.status === 'completed') {
+        throw new Error("Esta encuesta ya fue respondida");
+      }
+
+      if (survey.status === 'expired') {
+        throw new Error("Esta encuesta ha expirado");
+      }
+
+      const now = new Date();
+      if (survey.expiresAt && survey.expiresAt < now) {
+        await db
+          .update(postCaseSurveys)
+          .set({ status: 'expired' } as any)
+          .where(eq(postCaseSurveys.id, survey.id));
+        throw new Error("Esta encuesta ha expirado");
+      }
+
+      // Guardar respuestas
+      await db
+        .update(postCaseSurveys)
+        .set({
+          improvementRating: ratings.improvementRating,
+          satisfactionRating: ratings.satisfactionRating,
+          supportRating: ratings.supportRating,
+          recommendationRating: ratings.recommendationRating,
+          comments: ratings.comments ?? null,
+          status: 'completed',
+          completedAt: now,
+        } as any)
+        .where(eq(postCaseSurveys.id, survey.id));
+
+      return { success: true };
+    }),
 
   /**
    * Job automático: Marcar encuestas expiradas
