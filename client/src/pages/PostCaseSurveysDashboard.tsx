@@ -45,25 +45,26 @@ export default function PostCaseSurveysDashboard() {
     startDate: startDate || undefined,
     endDate: endDate || undefined,
   });
-  const { data: departments } = trpc.departments.list.useQuery();
+  const { data: departmentsData } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
+  const departments = departmentsData?.data;
 
   // Mutations para jobs
   const createPendingSurveysMutation = trpc.postCaseSurveys.createPendingSurveys.useMutation({
-    onSuccess: (result) => {
+    onSuccess: (result: any) => {
       toast.success(`✅ ${result.surveysCreated} encuestas creadas`);
       refetchSurveys();
     },
     onError: () => toast.error("❌ Error al crear encuestas pendientes"),
   });
   const sendPendingSurveysMutation = trpc.postCaseSurveys.sendPendingSurveys.useMutation({
-    onSuccess: (result) => {
+    onSuccess: (result: any) => {
       toast.success(`✅ ${result.surveysSent} encuestas enviadas`);
       refetchSurveys();
     },
     onError: () => toast.error("❌ Error al enviar encuestas"),
   });
   const expireSurveysMutation = trpc.postCaseSurveys.expireSurveys.useMutation({
-    onSuccess: (result) => {
+    onSuccess: (result: any) => {
       toast.success(`✅ ${result.surveysExpired} encuestas expiradas`);
       refetchSurveys();
     },
@@ -281,7 +282,7 @@ export default function PostCaseSurveysDashboard() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => createPendingSurveysMutation.mutate()}
+            onClick={() => createPendingSurveysMutation.mutate({})}
             disabled={createPendingSurveysMutation.isPending}
           >
             Crear Pendientes
@@ -480,7 +481,7 @@ export default function PostCaseSurveysDashboard() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los departamentos</SelectItem>
-                  {departments?.map((dept: any) => (
+                  {(departments || []).map((dept: any) => (
                     <SelectItem key={dept.id} value={dept.id.toString()}>
                       {dept.name}
                     </SelectItem>
