@@ -43,6 +43,8 @@ export const postCaseSurveysRouter = router({
         status: z.enum(["pending", "sent", "completed", "expired"]).optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
+        period: z.enum(["30", "60", "90"]).optional(),
+        departmentId: z.number().optional(),
       })
     )
     .query(async ({ input }) => {
@@ -59,12 +61,19 @@ export const postCaseSurveysRouter = router({
       if (input.endDate) {
         conditions.push(lte(postCaseSurveys.createdAt, new Date(input.endDate)));
       }
+      if (input.period) {
+        conditions.push(eq(postCaseSurveys.daysSinceClosure, parseInt(input.period)));
+      }
+      if (input.departmentId) {
+        conditions.push(eq(cases.departmentId, input.departmentId));
+      }
 
       const surveys = await db
         .select({
           survey: postCaseSurveys,
           caseNumber: cases.caseNumber,
           caseType: cases.caseType,
+          departmentId: cases.departmentId,
         })
         .from(postCaseSurveys)
         .innerJoin(cases, eq(postCaseSurveys.caseId, cases.id))

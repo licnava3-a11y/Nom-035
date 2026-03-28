@@ -7770,3 +7770,6 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Agregar publicProcedures getSurveyByToken y submitSurveyResponse en postCaseSurveys router
 - [x] Crear pagina publica SurveyPublicResponse.tsx con formulario escala 1-5
 - [x] Registrar ruta /survey/:token en App.tsx
+- [x] Agregar filtros avanzados (período/departamento/fechas) en PostCaseSurveysDashboard
+- [x] Agregar exportación a Excel (.xlsx) en PostCaseSurveysDashboard
+- [x] Corregir vista previa (index.html con bloque de comentario problemático)
