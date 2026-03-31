@@ -406,6 +406,18 @@ function DashboardLayoutContent({
       ? "Sin SMTP"
       : null;
 
+  // Cola de correos pendientes (badge de alerta en menú SMTP)
+  const { data: emailQueuePending } = trpc.smtpConfig.getEmailQueue.useQuery(
+    { status: "pending", limit: 100 },
+    {
+      refetchInterval: 5 * 60 * 1000,
+      staleTime: 3 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      enabled: user?.role === "admin",
+    }
+  );
+  const pendingEmailCount = emailQueuePending?.total ?? 0;
+
   // Obtener contador de reconocimientos no leídos
   const { data: recognitionsCount } = trpc.recognitions.getUnreadCount.useQuery(undefined, {
     refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
@@ -620,15 +632,24 @@ function DashboardLayoutContent({
                                   {subItem.label === "Reconocimientos" && recognitionsCount && recognitionsCount.count > 0 && (
                                     <MenuBadge count={recognitionsCount.count} variant="info" />
                                   )}
-                                  {subItem.label === "Configuración SMTP" && emailStatusBadge && (
-                                    <span
-                                      className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none uppercase tracking-wide ${
-                                        emailStatus?.status === "paused"
-                                          ? "bg-amber-400 text-white"
-                                          : "bg-red-500 text-white"
-                                      }`}
-                                    >
-                                      {emailStatusBadge}
+                                  {subItem.label === "Configuración SMTP" && (
+                                    <span className="ml-auto flex items-center gap-1 shrink-0">
+                                      {pendingEmailCount > 0 && (
+                                        <span className="rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none bg-blue-600 text-white" title={`${pendingEmailCount} correos en cola`}>
+                                          {pendingEmailCount > 99 ? "99+" : pendingEmailCount}
+                                        </span>
+                                      )}
+                                      {emailStatusBadge && (
+                                        <span
+                                          className={`rounded-full px-2 py-0.5 text-[10px] font-bold leading-none uppercase tracking-wide ${
+                                            emailStatus?.status === "paused"
+                                              ? "bg-amber-400 text-white"
+                                              : "bg-red-500 text-white"
+                                          }`}
+                                        >
+                                          {emailStatusBadge}
+                                        </span>
+                                      )}
                                     </span>
                                   )}
                                   {hasNestedSubmenu && (

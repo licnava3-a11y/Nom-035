@@ -286,6 +286,90 @@ export const smtpConfigRouter = router({
       return { success: true };
     }),
 
+  // Export email queue to Excel (admin only)
+  exportEmailQueueToExcel: protectedProcedure
+    .input(z.object({
+      status: z.enum(["pending", "sent", "failed", "skipped", "all"]).default("all"),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+    }).optional())
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("No autorizado");
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+      const { and: drizzleAnd, eq: drizzleEq, desc, gte, lte } = await import("drizzle-orm");
+      const XLSX = await import("xlsx");
+
+      const conditions: any[] = [];
+      if (input?.status && input.status !== "all") {
+        conditions.push(drizzleEq(emailQueue.status, input.status as "pending" | "sent" | "failed" | "skipped"));
+      }
+      if (input?.dateFrom) {
+        conditions.push(gte(emailQueue.createdAt, new Date(input.dateFrom)));
+      }
+      if (input?.dateTo) {
+        const to = new Date(input.dateTo);
+        to.setHours(23, 59, 59, 999);
+        conditions.push(lte(emailQueue.createdAt, to));
+      }
+
+      const items = await db.select().from(emailQueue)
+        .where(conditions.length > 0 ? drizzleAnd(...conditions) : undefined)
+        .orderBy(desc(emailQueue.createdAt))
+        .limit(5000);
+
+      const statusLabel: Record<string, string> = {
+        pending: "Pendiente",
+        sent: "Enviado",
+        failed: "Fallido",
+        skipped: "Omitido",
+      };
+
+      const rows = items.map((item) => ({
+        "ID": item.id,
+        "Estado": statusLabel[item.status] ?? item.status,
+        "Destinatario": item.toAddress,
+        "Asunto": item.subject,
+        "Remitente": item.fromAddress ?? "",
+        "Módulo": item.sourceModule ?? "",
+        "Intentos": item.attempts,
+        "Fecha Creación": item.createdAt ? new Date(item.createdAt).toLocaleString("es-MX") : "",
+        "Fecha Envío": item.sentAt ? new Date(item.sentAt).toLocaleString("es-MX") : "",
+        "Último Intento": item.lastAttemptAt ? new Date(item.lastAttemptAt).toLocaleString("es-MX") : "",
+        "Error": item.errorMessage ?? "",
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      // Column widths
+      ws["!cols"] = [
+        { wch: 6 }, { wch: 12 }, { wch: 40 }, { wch: 60 }, { wch: 35 },
+        { wch: 20 }, { wch: 10 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 50 },
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Cola de Correos");
+
+      // Summary sheet
+      const summary = [
+        { "Concepto": "Total registros", "Valor": items.length },
+        { "Concepto": "Enviados", "Valor": items.filter(i => i.status === "sent").length },
+        { "Concepto": "Pendientes", "Valor": items.filter(i => i.status === "pending").length },
+        { "Concepto": "Fallidos", "Valor": items.filter(i => i.status === "failed").length },
+        { "Concepto": "Omitidos", "Valor": items.filter(i => i.status === "skipped").length },
+        { "Concepto": "Exportado el", "Valor": new Date().toLocaleString("es-MX") },
+      ];
+      const wsSummary = XLSX.utils.json_to_sheet(summary);
+      wsSummary["!cols"] = [{ wch: 25 }, { wch: 30 }];
+      XLSX.utils.book_append_sheet(wb, wsSummary, "Resumen");
+
+      const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+      const base64 = Buffer.from(buffer).toString("base64");
+      return {
+        base64,
+        filename: `cola-correos-nom035-${new Date().toISOString().slice(0, 10)}.xlsx`,
+        total: items.length,
+      };
+    }),
+
   // Get decrypted SMTP config for internal use (not exposed to frontend)
   getDecryptedConfig: publicProcedure
     .query(async () => {

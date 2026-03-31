@@ -93,7 +93,7 @@ async function sendViaSmtp(options: EmailOptions): Promise<boolean> {
         const cfg = configs[0];
         smtpHost = cfg.host || smtpHost;
         smtpPort = cfg.port || smtpPort;
-        smtpUser = cfg.username || smtpUser;
+        smtpUser = cfg.user || smtpUser;
         smtpPass = cfg.password ? Buffer.from(cfg.password, "base64").toString("utf-8") : smtpPass;
         smtpFrom = cfg.fromEmail || smtpFrom;
       }

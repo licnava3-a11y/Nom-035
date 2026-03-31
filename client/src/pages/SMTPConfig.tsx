@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Mail, Server, Lock, Send, CheckCircle2, XCircle, AlertCircle, Info, Bell, BellOff, Inbox, Trash2, RefreshCw } from "lucide-react";
+import { Mail, Server, Lock, Send, CheckCircle2, XCircle, AlertCircle, Info, Bell, BellOff, Inbox, Trash2, RefreshCw, Download, Filter, Clock, History } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
 export default function SMTPConfig() {
@@ -52,14 +54,22 @@ export default function SMTPConfig() {
   });
 
   // Cola de correos
-  const { data: emailQueueData, refetch: refetchQueue } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "pending", limit: 50 });
-  const { data: sentQueueData, refetch: refetchSentQueue } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "sent", limit: 20 });
+  const [queueTab, setQueueTab] = useState<"pending" | "sent" | "failed">("pending");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [exportFilter, setExportFilter] = useState<"all" | "pending" | "sent" | "failed">("all");
+
+  const { data: pendingQueueData, refetch: refetchPending } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "pending", limit: 100 });
+  const { data: sentQueueData, refetch: refetchSent } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "sent", limit: 100 });
+  const { data: failedQueueData, refetch: refetchFailed } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "failed", limit: 100 });
+
+  const refetchQueue = useCallback(() => { refetchPending(); refetchSent(); refetchFailed(); }, [refetchPending, refetchSent, refetchFailed]);
+  const emailQueueData = pendingQueueData;
 
   const flushQueue = trpc.smtpConfig.flushEmailQueue.useMutation({
     onSuccess: (data) => {
       toast.success(`Reenvío completado: ${data.sent} enviados, ${data.failed} fallidos`);
       refetchQueue();
-      refetchSentQueue();
       refetchStatus();
     },
     onError: (error) => toast.error(`Error: ${error.message}`),
@@ -69,9 +79,31 @@ export default function SMTPConfig() {
     onSuccess: () => {
       toast.success("Cola limpiada");
       refetchQueue();
-      refetchSentQueue();
     },
     onError: (error) => toast.error(`Error: ${error.message}`),
+  });
+
+  const exportToExcel = trpc.smtpConfig.exportEmailQueueToExcel.useMutation({
+    onSuccess: (data) => {
+      // Trigger browser download from base64
+      const byteCharacters = atob(data.base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success(`Exportado: ${data.total} registros descargados`);
+    },
+    onError: (error) => toast.error(`Error al exportar: ${error.message}`),
   });
 
   // Toggle envío de correos
@@ -79,7 +111,7 @@ export default function SMTPConfig() {
     onSuccess: (data) => {
       toast.success(data.message);
       refetchStatus();
-      refetchQueue();
+      setTimeout(() => refetchQueue(), 1500); // small delay for flush to complete
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -601,76 +633,186 @@ export default function SMTPConfig() {
         </Card>
       )}
 
-      {/* ── Cola de Correos Bloqueados ───────────────────────────────────────────── */}
+      {/* ── Historial y Cola de Correos ──────────────────────────────────────────── */}
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Inbox className="h-5 w-5" />
-            Cola de Correos Pendientes
-            {(emailQueueData?.total ?? 0) > 0 && (
-              <Badge variant="destructive" className="ml-2">{emailQueueData?.total}</Badge>
-            )}
-          </CardTitle>
-          <CardDescription>
-            Correos que se intentaron enviar mientras el sistema estaba pausado. Al activar el SMTP se reenvían automáticamente.
-          </CardDescription>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Historial de Correos del Sistema
+                {(pendingQueueData?.total ?? 0) > 0 && (
+                  <Badge variant="destructive">{pendingQueueData?.total} pendientes</Badge>
+                )}
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Registro de todos los correos generados por el sistema. Los pendientes se reenvían al activar el SMTP.
+              </CardDescription>
+            </div>
+            {/* Export controls */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1">
+                <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                  className="h-8 w-36 text-xs" placeholder="Desde" />
+                <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                  className="h-8 w-36 text-xs" placeholder="Hasta" />
+              </div>
+              <Select value={exportFilter} onValueChange={(v) => setExportFilter(v as typeof exportFilter)}>
+                <SelectTrigger className="h-8 w-32 text-xs">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="pending">Pendientes</SelectItem>
+                  <SelectItem value="sent">Enviados</SelectItem>
+                  <SelectItem value="failed">Fallidos</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs border-green-600 text-green-700 hover:bg-green-50"
+                onClick={() => exportToExcel.mutate({ status: exportFilter, dateFrom: dateFrom || undefined, dateTo: dateTo || undefined })}
+                disabled={exportToExcel.isPending}
+              >
+                <Download className="h-3.5 w-3.5 mr-1" />
+                {exportToExcel.isPending ? "Exportando..." : "Exportar Excel"}
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8" onClick={() => refetchQueue()}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => { refetchQueue(); refetchSentQueue(); }}
-              >
-                <RefreshCw className="h-4 w-4 mr-1" /> Actualizar
+          {/* Action bar */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            {(pendingQueueData?.total ?? 0) > 0 && emailStatus?.emailEnabled && (
+              <Button size="sm" onClick={() => flushQueue.mutate()} disabled={flushQueue.isPending}>
+                <Send className="h-4 w-4 mr-1" />
+                {flushQueue.isPending ? "Enviando..." : `Reenviar ${pendingQueueData?.total} pendientes`}
               </Button>
-              {(emailQueueData?.total ?? 0) > 0 && emailStatus?.emailEnabled && (
-                <Button
-                  size="sm"
-                  onClick={() => flushQueue.mutate()}
-                  disabled={flushQueue.isPending}
-                >
-                  <Send className="h-4 w-4 mr-1" />
-                  {flushQueue.isPending ? "Enviando..." : `Reenviar ${emailQueueData?.total} pendientes`}
-                </Button>
-              )}
-            </div>
+            )}
             {(sentQueueData?.total ?? 0) > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground"
-                onClick={() => clearQueue.mutate({ status: "sent" })}
-                disabled={clearQueue.isPending}
-              >
+              <Button variant="ghost" size="sm" className="text-muted-foreground"
+                onClick={() => clearQueue.mutate({ status: "sent" })} disabled={clearQueue.isPending}>
                 <Trash2 className="h-4 w-4 mr-1" /> Limpiar enviados ({sentQueueData?.total})
+              </Button>
+            )}
+            {(failedQueueData?.total ?? 0) > 0 && (
+              <Button variant="ghost" size="sm" className="text-muted-foreground"
+                onClick={() => clearQueue.mutate({ status: "failed" })} disabled={clearQueue.isPending}>
+                <Trash2 className="h-4 w-4 mr-1" /> Limpiar fallidos ({failedQueueData?.total})
               </Button>
             )}
           </div>
 
-          {(emailQueueData?.items?.length ?? 0) === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <CheckCircle2 className="h-10 w-10 mx-auto mb-2 text-green-400" />
-              <p>No hay correos pendientes en la cola.</p>
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {emailQueueData?.items?.map((item) => (
-                <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30 text-sm">
-                  <Mail className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{item.subject}</p>
-                    <p className="text-muted-foreground truncate">Para: {item.toAddress}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(item.createdAt).toLocaleString()} · {item.sourceModule}
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="shrink-0 text-amber-600 border-amber-400">Pendiente</Badge>
+          {/* Tabs */}
+          <Tabs value={queueTab} onValueChange={(v) => setQueueTab(v as typeof queueTab)}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="pending" className="gap-1">
+                <Clock className="h-3.5 w-3.5" /> Pendientes
+                {(pendingQueueData?.total ?? 0) > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-xs px-1.5 py-0">{pendingQueueData?.total}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="sent" className="gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Enviados
+                {(sentQueueData?.total ?? 0) > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0">{sentQueueData?.total}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="failed" className="gap-1">
+                <XCircle className="h-3.5 w-3.5" /> Fallidos
+                {(failedQueueData?.total ?? 0) > 0 && (
+                  <Badge variant="outline" className="ml-1 text-xs px-1.5 py-0 text-red-600 border-red-400">{failedQueueData?.total}</Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Pending tab */}
+            <TabsContent value="pending">
+              {(pendingQueueData?.items?.length ?? 0) === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">
+                  <CheckCircle2 className="h-10 w-10 mx-auto mb-2 text-green-400" />
+                  <p>No hay correos pendientes.</p>
                 </div>
-              ))}
-            </div>
-          )}
+              ) : (
+                <div className="space-y-2 max-h-72 overflow-y-auto">
+                  {pendingQueueData?.items?.map((item) => (
+                    <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-amber-50/50 dark:bg-amber-950/20 text-sm">
+                      <Mail className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{item.subject}</p>
+                        <p className="text-muted-foreground text-xs truncate">Para: {item.toAddress}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(item.createdAt).toLocaleString("es-MX")} · {item.sourceModule ?? "Sistema"}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="shrink-0 text-amber-600 border-amber-400 text-xs">Pendiente</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Sent tab */}
+            <TabsContent value="sent">
+              {(sentQueueData?.items?.length ?? 0) === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">
+                  <Inbox className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                  <p>No hay correos enviados registrados.</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-72 overflow-y-auto">
+                  {sentQueueData?.items?.map((item) => (
+                    <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-green-50/50 dark:bg-green-950/20 text-sm">
+                      <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0 text-green-500" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{item.subject}</p>
+                        <p className="text-muted-foreground text-xs truncate">Para: {item.toAddress}</p>
+                        <div className="flex gap-3 text-xs text-muted-foreground">
+                          <span>Creado: {new Date(item.createdAt).toLocaleString("es-MX")}</span>
+                          {item.sentAt && <span>· Enviado: {new Date(item.sentAt).toLocaleString("es-MX")}</span>}
+                          {item.sourceModule && <span>· {item.sourceModule}</span>}
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="shrink-0 text-green-600 border-green-400 text-xs">Enviado</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Failed tab */}
+            <TabsContent value="failed">
+              {(failedQueueData?.items?.length ?? 0) === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">
+                  <CheckCircle2 className="h-10 w-10 mx-auto mb-2 text-green-400" />
+                  <p>No hay correos fallidos.</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-72 overflow-y-auto">
+                  {failedQueueData?.items?.map((item) => (
+                    <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-red-50/50 dark:bg-red-950/20 text-sm">
+                      <XCircle className="h-4 w-4 mt-0.5 shrink-0 text-red-500" />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{item.subject}</p>
+                        <p className="text-muted-foreground text-xs truncate">Para: {item.toAddress}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(item.createdAt).toLocaleString("es-MX")} · Intentos: {item.attempts}
+                        </p>
+                        {item.errorMessage && (
+                          <p className="text-xs text-red-600 truncate mt-0.5">{item.errorMessage}</p>
+                        )}
+                      </div>
+                      <Badge variant="outline" className="shrink-0 text-red-600 border-red-400 text-xs">Fallido</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
