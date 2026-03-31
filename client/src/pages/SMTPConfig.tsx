@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Mail, Server, Lock, Send, CheckCircle2, XCircle, AlertCircle, Info } from "lucide-react";
+import { Mail, Server, Lock, Send, CheckCircle2, XCircle, AlertCircle, Info, Bell, BellOff, Inbox, Trash2, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function SMTPConfig() {
   const [formData, setFormData] = useState({
@@ -41,11 +42,44 @@ export default function SMTPConfig() {
     },
   });
 
+  // Toggle notificaciones internas
+  const setNotificationsEnabled = trpc.smtpConfig.setNotificationsEnabled.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.notificationsEnabled ? "Notificaciones internas activadas" : "Notificaciones internas pausadas");
+      refetchStatus();
+    },
+    onError: (error) => toast.error(`Error: ${error.message}`),
+  });
+
+  // Cola de correos
+  const { data: emailQueueData, refetch: refetchQueue } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "pending", limit: 50 });
+  const { data: sentQueueData, refetch: refetchSentQueue } = trpc.smtpConfig.getEmailQueue.useQuery({ status: "sent", limit: 20 });
+
+  const flushQueue = trpc.smtpConfig.flushEmailQueue.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Reenvío completado: ${data.sent} enviados, ${data.failed} fallidos`);
+      refetchQueue();
+      refetchSentQueue();
+      refetchStatus();
+    },
+    onError: (error) => toast.error(`Error: ${error.message}`),
+  });
+
+  const clearQueue = trpc.smtpConfig.clearEmailQueue.useMutation({
+    onSuccess: () => {
+      toast.success("Cola limpiada");
+      refetchQueue();
+      refetchSentQueue();
+    },
+    onError: (error) => toast.error(`Error: ${error.message}`),
+  });
+
   // Toggle envío de correos
   const setEmailEnabled = trpc.smtpConfig.setEmailEnabled.useMutation({
     onSuccess: (data) => {
       toast.success(data.message);
       refetchStatus();
+      refetchQueue();
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -524,6 +558,121 @@ export default function SMTPConfig() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Notificaciones Internas ──────────────────────────────────────────────── */}
+      {emailStatus?.smtpConfigured && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notificaciones Internas del Sistema
+            </CardTitle>
+            <CardDescription>
+              Controla si el sistema envía alertas internas (departamentos sin manager, alertas de riesgo, etc.) a la plataforma Manus.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 rounded-lg border">
+              <div className="flex items-center gap-3">
+                {emailStatus.notificationsEnabled !== false ? (
+                  <Bell className="h-5 w-5 text-green-500" />
+                ) : (
+                  <BellOff className="h-5 w-5 text-amber-500" />
+                )}
+                <div>
+                  <p className="font-medium">
+                    {emailStatus.notificationsEnabled !== false ? "Notificaciones Activas" : "Notificaciones Pausadas"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {emailStatus.notificationsEnabled !== false
+                      ? "El sistema envía alertas internas al administrador."
+                      : "Las alertas internas están silenciadas. Útil durante pruebas y desarrollo."}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={emailStatus.notificationsEnabled !== false}
+                disabled={setNotificationsEnabled.isPending}
+                onCheckedChange={(checked) => setNotificationsEnabled.mutate({ enabled: checked })}
+                aria-label="Activar o pausar notificaciones internas"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Cola de Correos Bloqueados ───────────────────────────────────────────── */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Inbox className="h-5 w-5" />
+            Cola de Correos Pendientes
+            {(emailQueueData?.total ?? 0) > 0 && (
+              <Badge variant="destructive" className="ml-2">{emailQueueData?.total}</Badge>
+            )}
+          </CardTitle>
+          <CardDescription>
+            Correos que se intentaron enviar mientras el sistema estaba pausado. Al activar el SMTP se reenvían automáticamente.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => { refetchQueue(); refetchSentQueue(); }}
+              >
+                <RefreshCw className="h-4 w-4 mr-1" /> Actualizar
+              </Button>
+              {(emailQueueData?.total ?? 0) > 0 && emailStatus?.emailEnabled && (
+                <Button
+                  size="sm"
+                  onClick={() => flushQueue.mutate()}
+                  disabled={flushQueue.isPending}
+                >
+                  <Send className="h-4 w-4 mr-1" />
+                  {flushQueue.isPending ? "Enviando..." : `Reenviar ${emailQueueData?.total} pendientes`}
+                </Button>
+              )}
+            </div>
+            {(sentQueueData?.total ?? 0) > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                onClick={() => clearQueue.mutate({ status: "sent" })}
+                disabled={clearQueue.isPending}
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Limpiar enviados ({sentQueueData?.total})
+              </Button>
+            )}
+          </div>
+
+          {(emailQueueData?.items?.length ?? 0) === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <CheckCircle2 className="h-10 w-10 mx-auto mb-2 text-green-400" />
+              <p>No hay correos pendientes en la cola.</p>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {emailQueueData?.items?.map((item) => (
+                <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30 text-sm">
+                  <Mail className="h-4 w-4 mt-0.5 shrink-0 text-amber-500" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{item.subject}</p>
+                    <p className="text-muted-foreground truncate">Para: {item.toAddress}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(item.createdAt).toLocaleString()} · {item.sourceModule}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="shrink-0 text-amber-600 border-amber-400">Pendiente</Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

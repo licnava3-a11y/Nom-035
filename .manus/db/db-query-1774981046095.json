@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `email_queue` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`to_address` text NOT NULL,\n\t`subject` varchar(500) NOT NULL,\n\t`html_body` text NOT NULL,\n\t`text_body` text,\n\t`from_address` varchar(320),\n\t`status` enum('pending','sent','failed','skipped') NOT NULL DEFAULT 'pending',\n\t`attempts` int NOT NULL DEFAULT 0,\n\t`last_attempt_at` timestamp,\n\t`sent_at` timestamp,\n\t`error_message` text,\n\t`source_module` varchar(100),\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `email_queue_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user SwhPtPzqhJFTUZ1.e45d1a5ea2c5 --database 32dY4kSxNgo2w8qLnKHR6H --execute CREATE TABLE `email_queue` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`to_address` text NOT NULL,\n\t`subject` varchar(500) NOT NULL,\n\t`html_body` text NOT NULL,\n\t`text_body` text,\n\t`from_address` varchar(320),\n\t`status` enum('pending','sent','failed','skipped') NOT NULL DEFAULT 'pending',\n\t`attempts` int NOT NULL DEFAULT 0,\n\t`last_attempt_at` timestamp,\n\t`sent_at` timestamp,\n\t`error_message` text,\n\t`source_module` varchar(100),\n\t`created_at` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `email_queue_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 186
+}

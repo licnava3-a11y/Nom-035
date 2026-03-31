@@ -1,5 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { ENV } from "./env";
+import { getDb } from "../db";
+import { smtpConfig } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export type NotificationPayload = {
   title: string;
@@ -57,6 +60,46 @@ const validatePayload = (input: NotificationPayload): NotificationPayload => {
   return { title, content };
 };
 
+// ── Caché del estado notificationsEnabled ────────────────────────────────────
+let _notifEnabledCache: boolean | null = null;
+let _notifEnabledCacheAt = 0;
+const NOTIF_CACHE_TTL_MS = 30_000;
+
+export async function isNotificationsEnabled(): Promise<boolean> {
+  const now = Date.now();
+  if (_notifEnabledCache !== null && now - _notifEnabledCacheAt < NOTIF_CACHE_TTL_MS) {
+    return _notifEnabledCache;
+  }
+  // Por defecto TRUE (notificaciones activas) a menos que se configure lo contrario
+  const envDefault = process.env.NOTIFICATIONS_ENABLED !== "false";
+  try {
+    const db = await getDb();
+    if (!db) {
+      _notifEnabledCache = envDefault;
+    } else {
+      const configs = await db
+        .select({ notificationsEnabled: smtpConfig.notificationsEnabled })
+        .from(smtpConfig)
+        .where(eq(smtpConfig.isActive, true))
+        .limit(1);
+      if (configs.length > 0 && configs[0].notificationsEnabled !== null) {
+        _notifEnabledCache = Boolean(configs[0].notificationsEnabled);
+      } else {
+        _notifEnabledCache = envDefault;
+      }
+    }
+  } catch {
+    _notifEnabledCache = envDefault;
+  }
+  _notifEnabledCacheAt = now;
+  return _notifEnabledCache!;
+}
+
+export function invalidateNotificationsCache(): void {
+  _notifEnabledCache = null;
+  _notifEnabledCacheAt = 0;
+}
+
 /**
  * Dispatches a project-owner notification through the Manus Notification Service.
  * Returns `true` if the request was accepted, `false` when the upstream service
@@ -67,6 +110,13 @@ export async function notifyOwner(
   payload: NotificationPayload
 ): Promise<boolean> {
   const { title, content } = validatePayload(payload);
+
+  // Guard: verificar si las notificaciones internas están habilitadas
+  const notifEnabled = await isNotificationsEnabled();
+  if (!notifEnabled) {
+    console.log("[Notificación PAUSADA] Se habría enviado al owner:", { title, preview: content.slice(0, 80) });
+    return false;
+  }
 
   if (!ENV.forgeApiUrl) {
     throw new TRPCError({

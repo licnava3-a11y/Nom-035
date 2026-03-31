@@ -2886,6 +2886,7 @@ export const smtpConfig = mysqlTable("smtp_config", {
   fromName: varchar("from_name", { length: 255 }).notNull().default("Sistema NOM-035"),
   isActive: boolean("is_active").notNull().default(true),
   emailEnabled: boolean("email_enabled").notNull().default(false), // false = paused, true = active
+  notificationsEnabled: boolean("notifications_enabled").notNull().default(true), // true = activo, false = silenciado
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
@@ -5286,3 +5287,24 @@ export const reportHistory = mysqlTable("report_history", {
 
 export type ReportHistory = typeof reportHistory.$inferSelect;
 export type InsertReportHistory = typeof reportHistory.$inferInsert;
+
+// ── Cola de correos bloqueados ────────────────────────────────────────────────
+// Registra todos los correos que se intentaron enviar mientras EMAIL_ENABLED=false.
+// Al activar el SMTP en producción, estos correos pueden reenviarse automáticamente.
+export const emailQueue = mysqlTable("email_queue", {
+  id: int("id").autoincrement().primaryKey(),
+  toAddress: text("to_address").notNull(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  htmlBody: text("html_body").notNull(),
+  textBody: text("text_body"),
+  fromAddress: varchar("from_address", { length: 320 }),
+  status: mysqlEnum("status", ["pending", "sent", "failed", "skipped"]).notNull().default("pending"),
+  attempts: int("attempts").notNull().default(0),
+  lastAttemptAt: timestamp("last_attempt_at"),
+  sentAt: timestamp("sent_at"),
+  errorMessage: text("error_message"),
+  sourceModule: varchar("source_module", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type EmailQueue = typeof emailQueue.$inferSelect;
+export type InsertEmailQueue = typeof emailQueue.$inferInsert;

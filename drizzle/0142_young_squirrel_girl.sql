@@ -1,0 +1,1 @@
+ALTER TABLE `smtp_config` ADD `notifications_enabled` boolean DEFAULT true NOT NULL;

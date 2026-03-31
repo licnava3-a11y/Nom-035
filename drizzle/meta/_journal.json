@@ -988,6 +988,20 @@
       "when": 1774979406939,
       "tag": "0140_milky_longshot",
       "breakpoints": true
+    },
+    {
+      "idx": 141,
+      "version": "5",
+      "when": 1774981035608,
+      "tag": "0141_mature_sharon_ventura",
+      "breakpoints": true
+    },
+    {
+      "idx": 142,
+      "version": "5",
+      "when": 1774981190819,
+      "tag": "0142_young_squirrel_girl",
+      "breakpoints": true
     }
   ]
 }

@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { smtpConfig } from "../../drizzle/schema";
+import { smtpConfig, emailQueue } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
-import { invalidateEmailEnabledCache } from "../_core/email";
+import { invalidateEmailEnabledCache, flushEmailQueue } from "../_core/email";
+import { invalidateNotificationsCache } from "../_core/notification";
 
 // Encryption key (in production, use environment variable)
 const ENCRYPTION_KEY = process.env.SMTP_ENCRYPTION_KEY || "your-32-character-secret-key-here!";
@@ -59,7 +60,10 @@ export const smtpConfigRouter = router({
           : !emailEnabled
           ? "paused"
           : "no_smtp";
-      return { emailEnabled, smtpConfigured, smtpHost, smtpFromEmail, status };
+      const notificationsEnabled: boolean = record
+        ? Boolean(record.notificationsEnabled)
+        : process.env.NOTIFICATIONS_ENABLED !== "false";
+      return { emailEnabled, smtpConfigured, smtpHost, smtpFromEmail, status, notificationsEnabled };
     }),
 
   // Toggle email sending on/off (admin only)
@@ -80,12 +84,25 @@ export const smtpConfigRouter = router({
         .set({ emailEnabled: input.enabled, updatedAt: new Date() } as any);
       // Invalidar caché del guard de email para que el cambio sea inmediato
       invalidateEmailEnabledCache();
+
+      let flushResult = { sent: 0, failed: 0 };
+      // Al activar el envío, reenviar automáticamente los correos pendientes en la cola
+      if (input.enabled) {
+        try {
+          flushResult = await flushEmailQueue();
+          console.log(`[Email Queue] Reenvío automático al activar SMTP: ${flushResult.sent} enviados, ${flushResult.failed} fallidos`);
+        } catch (err) {
+          console.error("[Email Queue] Error al reenviar cola:", err);
+        }
+      }
+
       return {
         success: true,
         emailEnabled: input.enabled,
+        queueFlushed: input.enabled ? flushResult : null,
         message: input.enabled
-          ? "Envío de correos activado correctamente."
-          : "Envío de correos pausado. Los correos se registrarán en consola pero no saldrán al exterior.",
+          ? `Envío de correos activado. Se reenviaron ${flushResult.sent} correos pendientes de la cola.`
+          : "Envío de correos pausado. Los correos se registrarán en la cola para reenvío posterior.",
       };
     }),
 
@@ -220,6 +237,53 @@ export const smtpConfigRouter = router({
           message: `Error: ${error.message || 'No se pudo conectar al servidor SMTP'}` 
         };
       }
+    }),
+
+  // Gestión de notificaciones internas
+  setNotificationsEnabled: protectedProcedure
+    .input(z.object({ enabled: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+      const configs = await db.select({ id: smtpConfig.id }).from(smtpConfig).where(eq(smtpConfig.isActive, true)).limit(1);
+      if (configs.length === 0) throw new Error("No hay configuración SMTP activa");
+      await db.update(smtpConfig).set({ notificationsEnabled: input.enabled }).where(eq(smtpConfig.id, configs[0].id));
+      invalidateNotificationsCache();
+      console.log(`[Notifications] Estado cambiado a: ${input.enabled ? 'ACTIVO' : 'PAUSADO'}`);
+      return { success: true, notificationsEnabled: input.enabled };
+    }),
+
+  // Cola de correos bloqueados
+  getEmailQueue: protectedProcedure
+    .input(z.object({ status: z.enum(["pending", "sent", "failed", "skipped"]).optional(), limit: z.number().min(1).max(100).default(50) }).optional())
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { items: [], total: 0 };
+      const { and: drizzleAnd, eq: drizzleEq, desc } = await import("drizzle-orm");
+      const status = input?.status;
+      const limit = input?.limit ?? 50;
+      const items = await db.select().from(emailQueue)
+        .where(status ? drizzleEq(emailQueue.status, status) : undefined)
+        .orderBy(desc(emailQueue.createdAt))
+        .limit(limit);
+      return { items, total: items.length };
+    }),
+
+  flushEmailQueue: protectedProcedure
+    .mutation(async () => {
+      const result = await flushEmailQueue();
+      console.log(`[Email Queue] Flush completado: ${result.sent} enviados, ${result.failed} fallidos`);
+      return result;
+    }),
+
+  clearEmailQueue: protectedProcedure
+    .input(z.object({ status: z.enum(["sent", "failed"]) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+      const { eq: drizzleEq } = await import("drizzle-orm");
+      await db.delete(emailQueue).where(drizzleEq(emailQueue.status, input.status));
+      return { success: true };
     }),
 
   // Get decrypted SMTP config for internal use (not exposed to frontend)
