@@ -1,3 +1,4 @@
+import { isEmailEnabled } from '../_core/email';
 import nodemailer from "nodemailer";
 import { getDb } from "../db";
 import { cases, employees, notifications, smtpConfig } from "../../drizzle/schema";
@@ -72,8 +73,6 @@ export type EmailTemplate =
   | "contract_expiring"
   | "custom";
 
-/** Guard global: EMAIL_ENABLED=true activa el envío real en producción */
-const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
 
 /**
  * Send email with retry logic
@@ -85,8 +84,9 @@ export async function sendEmail(options: {
   template?: EmailTemplate;
   retries?: number;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  // ── MODO PAUSA ──────────────────────────────────────────────────────────
-  if (!EMAIL_ENABLED) {
+  // Guard centralizado: lee emailEnabled desde la BD
+  const enabled = await isEmailEnabled();
+  if (!enabled) {
     console.log(
       "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
       { to: options.to, subject: options.subject }

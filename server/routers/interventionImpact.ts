@@ -4,6 +4,7 @@ import { getDb } from "../db";
 import { companyLogo, departments, interventionImpactAnalysis, reportCache, sharedReportsLog, trainingEvaluations, workplaceViolenceCases } from "../../drizzle/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
+import { isEmailEnabled } from "../_core/email";
 
 export const interventionImpactRouter = router({
   // Listar análisis de impacto con filtros
@@ -683,6 +684,13 @@ Genera un análisis completo con factores de éxito, desafíos, recomendaciones 
     )
     .mutation(async ({ input, ctx }) => {
       const { reportUrl, reportType, recipients, subject, message } = input;
+
+      // Guard centralizado: verificar si el envío de correos está habilitado
+      const emailEnabled = await isEmailEnabled();
+      if (!emailEnabled) {
+        console.log("[Email PAUSADO] Envío desactivado desde configuración. Reporte no enviado a:", recipients);
+        return { success: false, message: "El envío de correos está pausado. Activa el envío desde Administración \u2192 Configuración SMTP." };
+      }
 
       // Importar nodemailer dinámicamente
       const nodemailer = await import("nodemailer");

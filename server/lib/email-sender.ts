@@ -1,15 +1,8 @@
 import nodemailer from 'nodemailer';
-
+import { isEmailEnabled } from '../_core/email';
 /**
  * Helper para envío de correos electrónicos usando SMTP
- * 
- * Configuración mediante variables de entorno:
- * - SMTP_HOST: Servidor SMTP
- * - SMTP_PORT: Puerto SMTP
- * - SMTP_USER: Usuario para autenticación
- * - SMTP_PASSWORD: Contraseña para autenticación
- * - SMTP_FROM_EMAIL: Email del remitente
- * - SMTP_FROM_NAME: Nombre del remitente
+ * Guard centralizado: lee emailEnabled desde la BD (con caché 30s).
  */
 
 interface EmailOptions {
@@ -43,22 +36,20 @@ function createTransporter() {
   });
 }
 
-/** Guard global: EMAIL_ENABLED=true activa el envío real en producción */
-const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
 
 /**
  * Envía un correo electrónico
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
-  // ── MODO PAUSA ──────────────────────────────────────────────────────────
-  if (!EMAIL_ENABLED) {
+  // Guard centralizado: lee emailEnabled desde la BD
+  const enabled = await isEmailEnabled();
+  if (!enabled) {
     console.log(
-      "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
+      "[Email PAUSADO] Envío desactivado desde configuración. Se habría enviado:",
       { to: options.to, subject: options.subject }
     );
     return true;
   }
-  // ────────────────────────────────────────────────────────────────────────
   try {
     const transporter = createTransporter();
     

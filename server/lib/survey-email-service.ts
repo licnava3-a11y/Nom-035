@@ -1,3 +1,4 @@
+import { isEmailEnabled } from '../_core/email';
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 
@@ -250,8 +251,6 @@ export const getSurveyCompletionTemplate = (data: {
   return getEmailTemplate(content, 'Encuesta NOM-035 Completada');
 };
 
-/** Guard global: EMAIL_ENABLED=true activa el envío real en producción */
-const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
 
 /**
  * Enviar correo electrónico
@@ -262,8 +261,9 @@ export async function sendEmail(options: {
   html: string;
   from?: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  // ── MODO PAUSA ──────────────────────────────────────────────────────────
-  if (!EMAIL_ENABLED) {
+  // Guard centralizado: lee emailEnabled desde la BD
+  const enabled = await isEmailEnabled();
+  if (!enabled) {
     console.log(
       "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
       { to: options.to, subject: options.subject }

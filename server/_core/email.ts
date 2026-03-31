@@ -18,7 +18,7 @@ let _emailEnabledCache: boolean | null = null;
 let _emailEnabledCacheAt = 0;
 const CACHE_TTL_MS = 30_000; // 30 segundos
 
-async function isEmailEnabled(): Promise<boolean> {
+export async function isEmailEnabled(): Promise<boolean> {
   const now = Date.now();
   if (_emailEnabledCache !== null && now - _emailEnabledCacheAt < CACHE_TTL_MS) {
     return _emailEnabledCache;
