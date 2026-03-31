@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import { getDb } from "../db";
+import { smtpConfig } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 interface EmailOptions {
   to: string | string[];
@@ -8,23 +11,55 @@ interface EmailOptions {
 }
 
 /**
- * Guard global de envío de correos.
- *
- * Por defecto está DESACTIVADO (EMAIL_ENABLED != 'true').
- * Para activar en producción, agregar al archivo .env:
- *   EMAIL_ENABLED=true
- *
- * Mientras esté desactivado, todos los correos se registran en consola
- * pero NO se envían al exterior. Los flujos que dependen del resultado
- * siguen funcionando con normalidad (retorna true).
+ * Cache del estado emailEnabled para evitar consultas a BD en cada envío.
+ * Se invalida cada 30 segundos o cuando el toggle cambia desde la UI.
  */
-const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
+let _emailEnabledCache: boolean | null = null;
+let _emailEnabledCacheAt = 0;
+const CACHE_TTL_MS = 30_000; // 30 segundos
+
+async function isEmailEnabled(): Promise<boolean> {
+  const now = Date.now();
+  if (_emailEnabledCache !== null && now - _emailEnabledCacheAt < CACHE_TTL_MS) {
+    return _emailEnabledCache;
+  }
+  try {
+    const db = await getDb();
+    if (!db) {
+      _emailEnabledCache = process.env.EMAIL_ENABLED === "true";
+    } else {
+      const configs = await db
+        .select({ emailEnabled: smtpConfig.emailEnabled })
+        .from(smtpConfig)
+        .where(eq(smtpConfig.isActive, true))
+        .limit(1);
+      if (configs.length > 0) {
+        _emailEnabledCache = Boolean(configs[0].emailEnabled);
+      } else {
+        // Sin registro SMTP: usar variable de entorno como fallback
+        _emailEnabledCache = process.env.EMAIL_ENABLED === "true";
+      }
+    }
+  } catch {
+    _emailEnabledCache = process.env.EMAIL_ENABLED === "true";
+  }
+  _emailEnabledCacheAt = now;
+  return _emailEnabledCache!;
+}
+
+/** Invalida el caché (llamar tras cambiar el toggle en la UI) */
+export function invalidateEmailEnabledCache(): void {
+  _emailEnabledCache = null;
+  _emailEnabledCacheAt = 0;
+}
 
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  const enabled = await isEmailEnabled();
+
   // ── MODO PAUSA ──────────────────────────────────────────────────────────────
-  if (!EMAIL_ENABLED) {
+  if (!enabled) {
     console.log(
-      "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
+      "[Email PAUSADO] Envío desactivado desde la configuración. Se habría enviado:",
       {
         to: options.to,
         subject: options.subject,
@@ -36,7 +71,6 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   // ────────────────────────────────────────────────────────────────────────────
 
   try {
-    // Configuración SMTP (usar variables de entorno en producción)
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || "smtp.gmail.com",
       port: parseInt(process.env.SMTP_PORT || "587"),
@@ -47,7 +81,6 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       },
     });
 
-    // Si no hay configuración SMTP, simular envío exitoso en desarrollo
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
       console.log("[Email Simulation] Would send email:", {
         to: options.to,
@@ -57,7 +90,6 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       return true;
     }
 
-    // Enviar email
     await transporter.sendMail({
       from: options.from || process.env.SMTP_FROM || "noreply@example.com",
       to: Array.isArray(options.to) ? options.to.join(", ") : options.to,

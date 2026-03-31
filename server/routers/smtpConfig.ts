@@ -5,6 +5,7 @@ import { smtpConfig } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import { invalidateEmailEnabledCache } from "../_core/email";
 
 // Encryption key (in production, use environment variable)
 const ENCRYPTION_KEY = process.env.SMTP_ENCRYPTION_KEY || "your-32-character-secret-key-here!";
@@ -31,30 +32,27 @@ function decrypt(text: string): string {
 }
 
 export const smtpConfigRouter = router({
-  // Get email system status (admin only)
+  // Get email system status (admin only) — reads emailEnabled from DB
   getEmailStatus: protectedProcedure
     .query(async ({ ctx }) => {
       if (ctx.user.role !== "admin") {
         throw new Error("No autorizado");
       }
-      const emailEnabled = process.env.EMAIL_ENABLED === "true";
       const db = await getDb();
-      let smtpConfigured = false;
-      let smtpHost = "";
-      let smtpFromEmail = "";
-      if (db) {
-        const configs = await db
-          .select()
-          .from(smtpConfig)
-          .where(eq(smtpConfig.isActive, true))
-          .limit(1);
-        if (configs.length > 0) {
-          smtpConfigured = true;
-          smtpHost = configs[0].host;
-          smtpFromEmail = configs[0].fromEmail;
-        }
-      }
-      // status: 'active' | 'paused' | 'no_smtp'
+      if (!db) throw new Error("Base de datos no disponible");
+      const configs = await db
+        .select()
+        .from(smtpConfig)
+        .where(eq(smtpConfig.isActive, true))
+        .limit(1);
+      const record = configs[0] ?? null;
+      // emailEnabled: DB value takes precedence; fall back to env var for backward compat
+      const emailEnabled: boolean = record
+        ? Boolean(record.emailEnabled)
+        : process.env.EMAIL_ENABLED === "true";
+      const smtpConfigured = Boolean(record);
+      const smtpHost = record?.host ?? "";
+      const smtpFromEmail = record?.fromEmail ?? "";
       const status: "active" | "paused" | "no_smtp" =
         emailEnabled && smtpConfigured
           ? "active"
@@ -64,28 +62,48 @@ export const smtpConfigRouter = router({
       return { emailEnabled, smtpConfigured, smtpHost, smtpFromEmail, status };
     }),
 
-  // Get SMTP configuration (admin only)
-  getConfig: protectedProcedure
-    .query(async ({ ctx }) => {
-      // Only admin can view SMTP config
+  // Toggle email sending on/off (admin only)
+  setEmailEnabled: protectedProcedure
+    .input(z.object({ enabled: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") {
         throw new Error("No autorizado");
       }
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+      const existing = await db.select().from(smtpConfig).limit(1);
+      if (existing.length === 0) {
+        throw new Error("No hay configuración SMTP guardada. Guarda primero la configuración del servidor.");
+      }
+      await db
+        .update(smtpConfig)
+        .set({ emailEnabled: input.enabled, updatedAt: new Date() } as any);
+      // Invalidar caché del guard de email para que el cambio sea inmediato
+      invalidateEmailEnabledCache();
+      return {
+        success: true,
+        emailEnabled: input.enabled,
+        message: input.enabled
+          ? "Envío de correos activado correctamente."
+          : "Envío de correos pausado. Los correos se registrarán en consola pero no saldrán al exterior.",
+      };
+    }),
 
+  // Get SMTP configuration (admin only)
+  getConfig: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new Error("No autorizado");
+      }
       const db = await getDb();
       if (!db) {
         throw new Error("Base de datos no disponible");
       }
-
       const configs = await db.select().from(smtpConfig).where(eq(smtpConfig.isActive, true)).limit(1);
-      
       if (configs.length === 0) {
         return null;
       }
-
       const config = configs[0];
-      
-      // Return config with masked password
       return {
         ...config,
         password: "********", // Never return real password
@@ -104,24 +122,16 @@ export const smtpConfigRouter = router({
       fromName: z.string().min(1, "Nombre es requerido"),
     }))
     .mutation(async ({ ctx, input }) => {
-      // Only admin can update SMTP config
       if (ctx.user.role !== "admin") {
         throw new Error("No autorizado");
       }
-
-      // Encrypt password
       const encryptedPassword = encrypt(input.password);
-
       const db = await getDb();
       if (!db) {
         throw new Error("Base de datos no disponible");
       }
-
-      // Check if config exists
       const existingConfigs = await db.select().from(smtpConfig).limit(1);
-
       if (existingConfigs.length > 0) {
-        // Update existing config
         await db.update(smtpConfig)
           .set({
             host: input.host,
@@ -134,10 +144,8 @@ export const smtpConfigRouter = router({
             updatedAt: new Date(),
           } as any)
           .where(eq(smtpConfig.id, existingConfigs[0].id));
-
         return { success: true, message: "Configuración SMTP actualizada correctamente" };
       } else {
-        // Insert new config
         await (db.insert(smtpConfig) as any).values({
           host: input.host,
           port: input.port,
@@ -148,7 +156,6 @@ export const smtpConfigRouter = router({
           fromName: input.fromName,
           isActive: true,
         });
-
         return { success: true, message: "Configuración SMTP creada correctamente" };
       }
     }),
@@ -165,13 +172,10 @@ export const smtpConfigRouter = router({
       testEmail: z.string().email("Email de prueba inválido"),
     }))
     .mutation(async ({ ctx, input }) => {
-      // Only admin can test SMTP connection
       if (ctx.user.role !== "admin") {
         throw new Error("No autorizado");
       }
-
       try {
-        // Create transporter with provided config
         const transporter = nodemailer.createTransport({
           host: input.host,
           port: input.port,
@@ -181,11 +185,7 @@ export const smtpConfigRouter = router({
             pass: input.password,
           },
         });
-
-        // Verify connection
         await transporter.verify();
-
-        // Send test email
         await transporter.sendMail({
           from: `"${input.fromEmail}" <${input.fromEmail}>`,
           to: input.testEmail,
@@ -209,7 +209,6 @@ export const smtpConfigRouter = router({
             </div>
           `,
         });
-
         return { 
           success: true, 
           message: `Conexión exitosa. Correo de prueba enviado a ${input.testEmail}` 
@@ -230,15 +229,11 @@ export const smtpConfigRouter = router({
       if (!db) {
         throw new Error("Base de datos no disponible");
       }
-
       const configs = await db.select().from(smtpConfig).where(eq(smtpConfig.isActive, true)).limit(1);
-      
       if (configs.length === 0) {
         return null;
       }
-
       const config = configs[0];
-      
       try {
         const decryptedPassword = decrypt(config.password);
         return {

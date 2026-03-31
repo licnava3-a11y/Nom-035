@@ -2885,12 +2885,12 @@ export const smtpConfig = mysqlTable("smtp_config", {
   fromEmail: varchar("from_email", { length: 320 }).notNull(),
   fromName: varchar("from_name", { length: 255 }).notNull().default("Sistema NOM-035"),
   isActive: boolean("is_active").notNull().default(true),
+  emailEnabled: boolean("email_enabled").notNull().default(false), // false = paused, true = active
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
-
 export type SmtpConfig = typeof smtpConfig.$inferSelect;
-export type InsertSmtpConfig = typeof smtpConfig.$inferInsert;
+export type InsertSmtpConfig = typeof smtpConfig.$inferInsert;;
 
 
 
