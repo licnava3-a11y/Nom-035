@@ -47,6 +47,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       if (user.email !== undefined) updateData.email = user.email;
       if (user.loginMethod !== undefined) updateData.loginMethod = user.loginMethod;
       if (user.role !== undefined) updateData.role = user.role;
+      if ((user as any).passwordHash !== undefined) (updateData as any).passwordHash = (user as any).passwordHash;
 
       await db
         .update(users)
@@ -99,6 +100,20 @@ export async function getUserById(id: number) {
   if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function adminExists(): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const result = await db.select({ id: users.id }).from(users).where(eq(users.role, 'admin')).limit(1);
+  return result.length > 0;
 }
 
 export async function updateUserRole(userId: number, role: "admin" | "instructor" | "student" | "committee") {

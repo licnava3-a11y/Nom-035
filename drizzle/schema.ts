@@ -43,6 +43,9 @@ export const users = mysqlTable("users", {
   salario: decimal("salario", { precision: 10, scale: 2 }), // Salario mensual bruto
   nivelJerarquico: mysqlEnum("nivelJerarquico", ["Operativo", "Especialista", "Supervisor", "Gerencial", "Directivo", "Alta Dirección"]),
   
+  // Autenticación local (cuando LOCAL_AUTH=true, sin Manus OAuth)
+  passwordHash: varchar("passwordHash", { length: 255 }),
+
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

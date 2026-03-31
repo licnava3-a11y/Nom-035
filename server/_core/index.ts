@@ -7,6 +7,7 @@ import { globalLimiter, authLimiter, contactFormLimiter, apiLimiter, exportLimit
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
+import { registerLocalAuthRoutes } from "./localAuth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -105,8 +106,15 @@ async function startServer() {
   
 
   
-  // OAuth callback under /api/oauth/callback
-  registerOAuthRoutes(app);
+  // Autenticación: local (usuario/contraseña) o Manus OAuth
+  const useLocalAuth = process.env.LOCAL_AUTH === 'true';
+  if (useLocalAuth) {
+    registerLocalAuthRoutes(app);
+    console.log('[Auth] Modo: Autenticación local (usuario/contraseña)');
+  } else {
+    registerOAuthRoutes(app);
+    console.log('[Auth] Modo: Manus OAuth');
+  }
   // Upload API
   app.use("/api", uploadRouter);
   // Export API
