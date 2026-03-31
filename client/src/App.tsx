@@ -35,6 +35,7 @@ const DepartmentalTrends = lazy(() => import("./pages/DepartmentalTrends"));
 const PostCaseSurveysDashboard = lazy(() => import("./pages/PostCaseSurveysDashboard"));
 const SurveyPublicResponse = lazy(() => import("./pages/SurveyPublicResponse"));
 const SentimentAnalysisDashboard = lazy(() => import("./pages/SentimentAnalysisDashboard"));
+const PsychosocialAIDashboard = lazy(() => import("./pages/PsychosocialAIDashboard"));
 const ExecutiveReportsPanel = lazy(() => import("./pages/ExecutiveReportsPanel"));
 const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 const ComplianceNOM035Dashboard = lazy(() => import("./pages/ComplianceNOM035Dashboard"));
@@ -987,6 +988,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <SentimentAnalysisDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/psychosocial-ai"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <PsychosocialAIDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
