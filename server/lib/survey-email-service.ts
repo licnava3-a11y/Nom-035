@@ -250,6 +250,9 @@ export const getSurveyCompletionTemplate = (data: {
   return getEmailTemplate(content, 'Encuesta NOM-035 Completada');
 };
 
+/** Guard global: EMAIL_ENABLED=true activa el envío real en producción */
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
+
 /**
  * Enviar correo electrónico
  */
@@ -259,6 +262,15 @@ export async function sendEmail(options: {
   html: string;
   from?: string;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  // ── MODO PAUSA ──────────────────────────────────────────────────────────
+  if (!EMAIL_ENABLED) {
+    console.log(
+      "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
+      { to: options.to, subject: options.subject }
+    );
+    return { success: true, messageId: "paused" };
+  }
+  // ────────────────────────────────────────────────────────────────────────
   try {
     const transporter = createTransporter();
     

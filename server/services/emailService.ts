@@ -72,6 +72,9 @@ export type EmailTemplate =
   | "contract_expiring"
   | "custom";
 
+/** Guard global: EMAIL_ENABLED=true activa el envío real en producción */
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
+
 /**
  * Send email with retry logic
  */
@@ -82,6 +85,15 @@ export async function sendEmail(options: {
   template?: EmailTemplate;
   retries?: number;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  // ── MODO PAUSA ──────────────────────────────────────────────────────────
+  if (!EMAIL_ENABLED) {
+    console.log(
+      "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
+      { to: options.to, subject: options.subject }
+    );
+    return { success: true, messageId: "paused" };
+  }
+  // ────────────────────────────────────────────────────────────────────────
   const maxRetries = options.retries || 3;
   let lastError: any;
 

@@ -43,10 +43,22 @@ function createTransporter() {
   });
 }
 
+/** Guard global: EMAIL_ENABLED=true activa el envío real en producción */
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
+
 /**
  * Envía un correo electrónico
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  // ── MODO PAUSA ──────────────────────────────────────────────────────────
+  if (!EMAIL_ENABLED) {
+    console.log(
+      "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
+      { to: options.to, subject: options.subject }
+    );
+    return true;
+  }
+  // ────────────────────────────────────────────────────────────────────────
   try {
     const transporter = createTransporter();
     

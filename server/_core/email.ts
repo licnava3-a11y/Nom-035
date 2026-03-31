@@ -8,12 +8,33 @@ interface EmailOptions {
 }
 
 /**
- * Enviar email usando configuración SMTP del sistema
- * 
- * Nota: Esta es una implementación básica. En producción, configurar SMTP
- * a través de variables de entorno o panel de administración.
+ * Guard global de envío de correos.
+ *
+ * Por defecto está DESACTIVADO (EMAIL_ENABLED != 'true').
+ * Para activar en producción, agregar al archivo .env:
+ *   EMAIL_ENABLED=true
+ *
+ * Mientras esté desactivado, todos los correos se registran en consola
+ * pero NO se envían al exterior. Los flujos que dependen del resultado
+ * siguen funcionando con normalidad (retorna true).
  */
+const EMAIL_ENABLED = process.env.EMAIL_ENABLED === "true";
+
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  // ── MODO PAUSA ──────────────────────────────────────────────────────────────
+  if (!EMAIL_ENABLED) {
+    console.log(
+      "[Email PAUSADO] Envío desactivado (EMAIL_ENABLED != true). Se habría enviado:",
+      {
+        to: options.to,
+        subject: options.subject,
+        from: options.from || process.env.SMTP_FROM || "noreply@example.com",
+      }
+    );
+    return true; // No rompe flujos que dependen del resultado
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   try {
     // Configuración SMTP (usar variables de entorno en producción)
     const transporter = nodemailer.createTransport({
