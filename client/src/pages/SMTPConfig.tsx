@@ -27,12 +27,14 @@ export default function SMTPConfig() {
 
   // Queries
   const { data: config, isLoading, refetch } = trpc.smtpConfig.getConfig.useQuery();
+  const { data: emailStatus, refetch: refetchStatus } = trpc.smtpConfig.getEmailStatus.useQuery();
 
   // Mutations
   const updateConfig = trpc.smtpConfig.updateConfig.useMutation({
     onSuccess: (data) => {
       toast.success(data.message);
       refetch();
+      refetchStatus();
     },
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
@@ -128,6 +130,99 @@ export default function SMTPConfig() {
           Configura el servidor de correo electrónico para enviar notificaciones automáticas
         </p>
       </div>
+
+      {/* ── Estado del sistema de correo ─────────────────────────────────── */}
+      {emailStatus && (
+        <div
+          className={`flex items-start gap-4 rounded-lg border-2 p-4 mb-4 ${
+            emailStatus.status === "active"
+              ? "border-green-500 bg-green-50 dark:bg-green-950/30"
+              : emailStatus.status === "paused"
+              ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30"
+              : "border-red-400 bg-red-50 dark:bg-red-950/30"
+          }`}
+        >
+          <div
+            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+              emailStatus.status === "active"
+                ? "bg-green-500"
+                : emailStatus.status === "paused"
+                ? "bg-amber-400"
+                : "bg-red-400"
+            }`}
+          >
+            {emailStatus.status === "active" ? (
+              <CheckCircle2 className="h-5 w-5 text-white" />
+            ) : emailStatus.status === "paused" ? (
+              <AlertCircle className="h-5 w-5 text-white" />
+            ) : (
+              <XCircle className="h-5 w-5 text-white" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p
+              className={`font-semibold text-base ${
+                emailStatus.status === "active"
+                  ? "text-green-800 dark:text-green-300"
+                  : emailStatus.status === "paused"
+                  ? "text-amber-800 dark:text-amber-300"
+                  : "text-red-800 dark:text-red-300"
+              }`}
+            >
+              {emailStatus.status === "active"
+                ? "Envío de correos ACTIVO"
+                : emailStatus.status === "paused"
+                ? "Envío de correos PAUSADO"
+                : "Sin configuración SMTP activa"}
+            </p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {emailStatus.status === "active" && (
+                <>
+                  Los correos se envían desde{" "}
+                  <strong>{emailStatus.smtpFromEmail}</strong> vía{" "}
+                  <strong>{emailStatus.smtpHost}</strong>.
+                </>
+              )}
+              {emailStatus.status === "paused" && (
+                <>
+                  El envío está desactivado por la variable de entorno{" "}
+                  <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded text-xs font-mono">
+                    EMAIL_ENABLED
+                  </code>
+                  . Los correos se registran en consola pero no salen al exterior. Para activar en
+                  producción, establece{" "}
+                  <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded text-xs font-mono">
+                    EMAIL_ENABLED=true
+                  </code>{" "}
+                  en el archivo <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded text-xs font-mono">.env</code> del servidor.
+                </>
+              )}
+              {emailStatus.status === "no_smtp" && (
+                <>
+                  El envío está habilitado pero no hay configuración SMTP activa. Completa el
+                  formulario a continuación para activarlo.
+                </>
+              )}
+            </p>
+          </div>
+          <span
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
+              emailStatus.status === "active"
+                ? "bg-green-500 text-white"
+                : emailStatus.status === "paused"
+                ? "bg-amber-400 text-white"
+                : "bg-red-400 text-white"
+            }`}
+          >
+            {emailStatus.status === "active"
+              ? "Activo"
+              : emailStatus.status === "paused"
+              ? "Pausado"
+              : "Sin SMTP"}
+          </span>
+        </div>
+      )}
+      {/* ─────────────────────────────────────────────────────────────────── */}
 
       <div className="grid gap-6">
         {/* Info Alert */}

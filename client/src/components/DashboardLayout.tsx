@@ -392,6 +392,20 @@ function DashboardLayoutContent({
   });
   const urgentSurveysCount = urgentSurveys?.count ?? 0;
 
+  // Estado del sistema de correo (badge en enlace SMTP del menú)
+  const { data: emailStatus } = trpc.smtpConfig.getEmailStatus.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    enabled: user?.role === "admin",
+  });
+  const emailStatusBadge =
+    emailStatus?.status === "paused"
+      ? "Pausado"
+      : emailStatus?.status === "no_smtp"
+      ? "Sin SMTP"
+      : null;
+
   // Obtener contador de reconocimientos no leídos
   const { data: recognitionsCount } = trpc.recognitions.getUnreadCount.useQuery(undefined, {
     refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
@@ -605,6 +619,17 @@ function DashboardLayoutContent({
                                   )}
                                   {subItem.label === "Reconocimientos" && recognitionsCount && recognitionsCount.count > 0 && (
                                     <MenuBadge count={recognitionsCount.count} variant="info" />
+                                  )}
+                                  {subItem.label === "Configuración SMTP" && emailStatusBadge && (
+                                    <span
+                                      className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold leading-none uppercase tracking-wide ${
+                                        emailStatus?.status === "paused"
+                                          ? "bg-amber-400 text-white"
+                                          : "bg-red-500 text-white"
+                                      }`}
+                                    >
+                                      {emailStatusBadge}
+                                    </span>
                                   )}
                                   {hasNestedSubmenu && (
                                     <div className="ml-auto">

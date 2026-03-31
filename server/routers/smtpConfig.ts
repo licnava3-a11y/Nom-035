@@ -31,6 +31,39 @@ function decrypt(text: string): string {
 }
 
 export const smtpConfigRouter = router({
+  // Get email system status (admin only)
+  getEmailStatus: protectedProcedure
+    .query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new Error("No autorizado");
+      }
+      const emailEnabled = process.env.EMAIL_ENABLED === "true";
+      const db = await getDb();
+      let smtpConfigured = false;
+      let smtpHost = "";
+      let smtpFromEmail = "";
+      if (db) {
+        const configs = await db
+          .select()
+          .from(smtpConfig)
+          .where(eq(smtpConfig.isActive, true))
+          .limit(1);
+        if (configs.length > 0) {
+          smtpConfigured = true;
+          smtpHost = configs[0].host;
+          smtpFromEmail = configs[0].fromEmail;
+        }
+      }
+      // status: 'active' | 'paused' | 'no_smtp'
+      const status: "active" | "paused" | "no_smtp" =
+        emailEnabled && smtpConfigured
+          ? "active"
+          : !emailEnabled
+          ? "paused"
+          : "no_smtp";
+      return { emailEnabled, smtpConfigured, smtpHost, smtpFromEmail, status };
+    }),
+
   // Get SMTP configuration (admin only)
   getConfig: protectedProcedure
     .query(async ({ ctx }) => {
