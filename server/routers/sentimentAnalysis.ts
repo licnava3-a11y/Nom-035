@@ -8,8 +8,8 @@ import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb, getSentimentTrends } from "../db";
-import { sentimentAnalysis, surveyResponses, users, cases } from "../../drizzle/schema";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { sentimentAnalysis, surveyResponses, users, cases, surveys, departments, employees } from "../../drizzle/schema";
+import { eq, and, sql, desc, like, inArray } from "drizzle-orm";
 import { processPendingResponses } from "../jobs/sentiment-analysis-job";
 import {
   analyzeSurveyResponse,
@@ -221,19 +221,79 @@ export const sentimentAnalysisRouter = router({
     )
     .query(async ({ input }) => {
       try {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
         const startDate = input.startDate ? new Date(input.startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
         const endDate = input.endDate ? new Date(input.endDate) : new Date();
 
+        // Primero intentar con datos de sentiment_analysis
         const trends = await getSentimentTrends(input.departmentId, startDate, endDate);
-        const sentimentData = (trends || []).map((t: any) => ({
+        let sentimentData = (trends || []).map((t: any) => ({
           sentiment: t.sentiment as string,
           riskLevel: t.riskLevel as string,
           riskIndicators: (t.riskIndicators as string[]) || [],
           analyzedAt: new Date(t.analyzedAt),
         }));
 
+        // Si no hay datos de sentimiento, usar directamente survey_responses (Guía III)
+        if (sentimentData.length === 0) {
+          // Buscar el departamento por nombre para obtener su ID
+          const [deptRow] = await db
+            .select({ id: departments.id })
+            .from(departments)
+            .where(like(departments.name, `%${input.departmentName}%`))
+            .limit(1);
+
+          if (deptRow) {
+            // Obtener empleados del departamento
+            const empRows = await db
+              .select({ userId: employees.userId })
+              .from(employees)
+              .where(eq(employees.departmentId, deptRow.id));
+
+            const userIds = empRows.map((e: any) => e.userId).filter(Boolean);
+
+            if (userIds.length > 0) {
+              // Obtener encuesta Guía III
+              const [g3Survey] = await db
+                .select({ id: surveys.id })
+                .from(surveys)
+                .where(eq(surveys.type as any, "guia_iii"))
+                .limit(1);
+
+              if (g3Survey) {
+                const rawResponses = await db
+                  .select({ results: surveyResponses.results, userId: surveyResponses.userId })
+                  .from(surveyResponses)
+                  .where(and(
+                    eq(surveyResponses.surveyId, g3Survey.id),
+                    inArray(surveyResponses.userId, userIds)
+                  ));
+
+                // Convertir resultados crudos a formato de sentimentData
+                sentimentData = rawResponses.map((r: any) => {
+                  let parsed: any = {};
+                  try { parsed = JSON.parse(r.results || "{}"); } catch {}
+                  const score = parsed.overallScore || 3;
+                  const riskLevel = score < 2.5 ? "critical" : score < 3.0 ? "high" : score < 3.5 ? "medium" : "low";
+                  const sentiment = score < 2.5 ? "critical" : score < 3.0 ? "negative" : score < 3.5 ? "neutral" : "positive";
+                  const domainScores = parsed.domainScores || {};
+                  const riskIndicators: string[] = [];
+                  if (domainScores.tiempo_trabajo < 3) riskIndicators.push("Carga de trabajo excesiva");
+                  if (domainScores.liderazgo < 3) riskIndicators.push("Problemas de liderazgo");
+                  if (domainScores.violencia < 3.5) riskIndicators.push("Riesgo de violencia laboral");
+                  if (domainScores.ambiente_trabajo < 3) riskIndicators.push("Condiciones de trabajo deficientes");
+                  if (domainScores.actividad < 3) riskIndicators.push("Factores de actividad laboral");
+                  return { sentiment, riskLevel, riskIndicators, analyzedAt: new Date() };
+                });
+              }
+            }
+          }
+        }
+
         const profile = await analyzeDepartmentRisk(input.departmentName, sentimentData);
-        return { success: true, profile };
+        return { success: true, profile, dataSource: sentimentData.length > 0 ? "survey_responses" : "no_data" };
       } catch (error) {
         console.error("[SentimentAnalysis] Error generating department risk profile:", error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error instanceof Error ? error.message : "Error al generar perfil de riesgo" });

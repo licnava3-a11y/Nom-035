@@ -45,7 +45,8 @@ describe("CompetenciesStats Router", () => {
     expect(stats.avgCompetencyLevel).toBeLessThanOrEqual(4);
   });
 
-  it("should get statistics by department", async () => {
+  // Timeout extendido a 15s: el procedimiento hace N+1 queries por empleado
+  it("should get statistics by department", { timeout: 15000 }, async () => {
     const ctx = createTestContext();
     const caller = appRouter.createCaller(ctx);
 

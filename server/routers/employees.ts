@@ -101,6 +101,14 @@ export const employeesRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         if (!ctx.user) throw new Error('User not authenticated');
+
+        // Solo administradores pueden crear empleados
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Solo los administradores pueden crear empleados',
+          });
+        }
         
         // Validar CURP si se proporciona
       if (input.curp) {
