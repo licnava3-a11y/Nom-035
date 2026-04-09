@@ -326,14 +326,12 @@ function AnalyzeTextTab() {
 function DepartmentRiskTab() {
   const [departmentName, setDepartmentName] = useState("");
   const [dateRange, setDateRange] = useState("90");
-  const [enabled, setEnabled] = useState(false);
+  // Estabilizar el input de la query para evitar re-fetches infinitos
+  const [queryInput, setQueryInput] = useState<{ departmentName: string; startDate: string; endDate: string } | null>(null);
 
-  const endDate = new Date().toISOString();
-  const startDate = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString();
-
-  const { data, isLoading, refetch } = trpc.sentimentAnalysis.getDepartmentRiskProfile.useQuery(
-    { departmentName, startDate, endDate },
-    { enabled: enabled && departmentName.length > 0 }
+  const { data, isLoading } = trpc.sentimentAnalysis.getDepartmentRiskProfile.useQuery(
+    queryInput ?? { departmentName: "", startDate: "", endDate: "" },
+    { enabled: queryInput !== null && queryInput.departmentName.length > 0 }
   );
 
   const handleGenerate = () => {
@@ -341,8 +339,10 @@ function DepartmentRiskTab() {
       toast.error("Ingresa el nombre del departamento");
       return;
     }
-    setEnabled(true);
-    refetch();
+    const endDate = new Date().toISOString();
+    const startDate = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString();
+    // Crear un nuevo objeto para forzar la re-ejecución de la query
+    setQueryInput({ departmentName: departmentName.trim(), startDate, endDate });
   };
 
   const profile = data?.profile;
