@@ -7779,3 +7779,232 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Widget de encuestas pendientes y score en Dashboard principal
 - [x] Exportacion a PDF en dashboard de encuestas post-caso
 - [ ] Badge de notificacion en menu lateral para encuestas pendientes urgentes (>5 dias)
+
+---
+
+## NUEVA FUNCIONALIDAD: Gestor de Cumplimiento NOM-035 Punto 8.5 — Acciones Preventivas y Correctivas
+
+> Integrar en la plataforma web el módulo completo de gestión de acciones preventivas y correctivas del punto 8.5 de la NOM-035-STPS-2018, en tres niveles (organizacional, grupal, individual), con validación de responsables clínicos para nivel 3.
+
+### 1. Schema y Migración de Base de Datos
+- [ ] Crear tabla `compliance_actions` en drizzle/schema.ts (id, descripción, nivel 1/2/3, fecha, responsable, estado, fechaCompletación)
+- [ ] Agregar enum `compliance_level` (organizacional, grupal, individual)
+- [ ] Agregar enum `compliance_status` (pendiente, en_progreso, completado)
+- [ ] Agregar campo `isClinicianResponsible` (boolean, requerido para nivel 3)
+- [ ] Generar migración con `pnpm drizzle-kit generate` y aplicar con `webdev_execute_sql`
+
+### 2. Backend — Validación y CRUD de Acciones
+- [ ] Crear `server/routers/complianceActions.ts` con procedures tRPC
+- [ ] Implementar `complianceActions.create` con validación Zod completa (nivel, estado, fecha YYYY-MM-DD, responsable)
+- [ ] Validar responsable clínico para nivel 3 (detectar: médico, psicólogo, psiquiatra via regex)
+- [ ] Implementar `complianceActions.list` con filtro por nivel y estado
+- [ ] Implementar `complianceActions.update` (actualizar estado: pendiente → en_progreso → completado)
+- [ ] Implementar `complianceActions.delete` con confirmación
+- [ ] Registrar fecha de completación automáticamente al cambiar estado a "completado"
+- [ ] Implementar `complianceActions.getReport` — reporte de cumplimiento por nivel con estadísticas
+- [ ] Implementar `complianceActions.getAlerts` — alertas de nivel 3 sin responsable clínico
+- [ ] Implementar `complianceActions.getExecutiveSummary` — resumen ejecutivo de cumplimiento NOM-035
+- [ ] Registrar router en `server/routers.ts` (appRouter)
+
+### 3. Frontend — Página de Gestión de Acciones
+- [ ] Crear `client/src/pages/ComplianceActions.tsx` con DashboardLayout
+- [ ] Implementar formulario de creación de acción (descripción, nivel, fecha, responsable, estado)
+- [ ] Mostrar validación en tiempo real para responsable clínico en nivel 3
+- [ ] Implementar tabla de acciones con filtros por nivel y estado
+- [ ] Agregar botones de actualización de estado (pendiente → en_progreso → completado)
+- [ ] Agregar confirmación antes de eliminar acciones
+- [ ] Implementar panel de reportes de cumplimiento por nivel (con gráficas Chart.js)
+- [ ] Mostrar alertas de incumplimiento (nivel 3 sin responsable clínico)
+- [ ] Implementar resumen ejecutivo de cumplimiento (porcentaje completado por nivel)
+- [ ] Agregar exportación a CSV de acciones filtradas
+- [ ] Registrar ruta `/compliance-actions` en `client/src/App.tsx`
+- [ ] Agregar entrada en menú lateral bajo "Prevención de Riesgos Psicosociales"
+
+### 4. Estructura de Niveles NOM-035 Punto 8.5
+- [ ] **Nivel 1 — Organizacional**: Política, prevención, organización del trabajo (sin restricción de responsable)
+- [ ] **Nivel 2 — Grupal**: Liderazgo, comunicación, trabajo en equipo (sin restricción de responsable)
+- [ ] **Nivel 3 — Individual**: Acciones clínicas — solo personal clínico (médico, psicólogo, psiquiatra)
+
+### 5. Pruebas Unitarias
+- [ ] Crear `server/complianceActions.test.ts` con suite vitest
+- [ ] Probar validación de responsables clínicos (regex médico/psicólogo/psiquiatra)
+- [ ] Probar CRUD completo (crear, listar, actualizar, eliminar)
+- [ ] Probar reporte por nivel y alertas de incumplimiento
+- [ ] Probar resumen ejecutivo de cumplimiento
+- [ ] Probar persistencia y filtros
+- [ ] Meta: 28+ pruebas con 100% pasando
+
+### 6. Integración con Módulos Existentes
+- [ ] Vincular acciones de cumplimiento con casos NOM-035 existentes (campo `caseId` opcional)
+- [ ] Mostrar badge de acciones pendientes en menú lateral
+- [ ] Agregar widget de cumplimiento punto 8.5 en Dashboard Ejecutivo
+- [ ] Incluir métricas de cumplimiento en reportes PDF automatizados existentes
+
+---
+
+## NUEVA FUNCIONALIDAD: Generador de Documentos Técnico-Jurídicos NOM-035 — Prompt N°1
+
+> **Contexto:** Módulo de generación de documentación técnico-jurídica impecable para cumplir con la NOM-035-STPS-2018, desde la perspectiva de un especialista en seguridad y salud en el trabajo. Genera documentos completos y autónomos listos para integrar al expediente de cumplimiento normativo.
+
+### Documento 1 — "Investigación de Caso" (11 apartados obligatorios)
+
+#### 1. Schema y Persistencia
+- [ ] Crear tabla `case_investigation_docs` en drizzle/schema.ts (id, caseId opcional, título, versión, estado borrador/final, creadoPor, fechaCreación, fechaAprobación, aprobadoPor, contenidoJSON)
+- [ ] Agregar campo `qrCode` (texto, URL de validación NOM-151) para trazabilidad
+- [ ] Agregar campo `folioCode` con nomenclatura: `INV-{consecutivo}/{año}` (configurable por admin)
+- [ ] Generar migración con `pnpm drizzle-kit generate` y aplicar con `webdev_execute_sql`
+
+#### 2. Backend — Generación con IA (Forge LLM)
+- [ ] Crear `server/routers/caseInvestigationDocs.ts` con procedures tRPC
+- [ ] Implementar `caseInvestigationDocs.generate` — llama a Forge LLM con prompt especializado en derecho laboral/SST para generar los 11 apartados
+- [ ] El prompt debe instruir al LLM a actuar como abogado laboral especialista en SST México
+- [ ] Generar **Apartado 1 — Fundamento normativo**: artículos y puntos de la NOM-035 que exigen la investigación
+- [ ] Generar **Apartado 2 — Objetivo de la investigación**: objetivo general y específicos
+- [ ] Generar **Apartado 3 — Alcance**: puestos, áreas, modalidades de trabajo cubiertas
+- [ ] Generar **Apartado 4 — Instrumentos de evaluación**: Guía de Referencia I, II y III; especificar cuál se usa para qué propósito
+- [ ] Generar **Apartado 5 — Población objetivo y muestra**: criterios de inclusión, exclusión y cálculo muestral
+- [ ] Generar **Apartado 6 — Periodicidad**: cada 12 o 24 meses según tamaño de empresa; eventos traumáticos severos
+- [ ] Generar **Apartado 7 — Responsables**: perfil requerido (psicólogo con experiencia en SST, cédula profesional)
+- [ ] Generar **Apartado 8 — Calendario de etapas**: planeación, aplicación, análisis, integración del expediente
+- [ ] Generar **Apartado 9 — Mecanismos de confidencialidad y no represalias**: protocolos y compromisos formales
+- [ ] Generar **Apartado 10 — Criterios de integración con otras normas**: relación con NOM-036, NOM-037 y otras aplicables
+- [ ] Generar **Apartado 11 — Aprobación y registro**: visto bueno del patrón o responsable de SST, firma y fecha
+- [ ] Implementar `caseInvestigationDocs.save` — guardar borrador o versión final en BD
+- [ ] Implementar `caseInvestigationDocs.list` — listar documentos con filtro por estado y folio
+- [ ] Implementar `caseInvestigationDocs.getById` — obtener documento completo por ID
+- [ ] Implementar `caseInvestigationDocs.approve` — marcar como aprobado con nombre del aprobador y fecha
+- [ ] Implementar `caseInvestigationDocs.exportPDF` — generar PDF con folio, QR NOM-151 y pie de página con código de formato
+- [ ] Registrar router en `server/routers.ts` (appRouter)
+
+#### 3. Frontend — Página de Generación y Gestión
+- [ ] Crear `client/src/pages/CaseInvestigationDocs.tsx` con DashboardLayout
+- [ ] Implementar formulario de parámetros de entrada (nombre empresa, área/departamento, fecha de investigación, responsable SST)
+- [ ] Agregar selector de vinculación con caso NOM-035 existente (opcional)
+- [ ] Mostrar spinner "Generando documento con IA..." durante la llamada a Forge LLM
+- [ ] Renderizar los 11 apartados generados en secciones colapsables y editables
+- [ ] Permitir edición manual de cada apartado antes de guardar
+- [ ] Implementar botones: Guardar Borrador / Guardar Versión Final / Aprobar / Exportar PDF
+- [ ] Mostrar folio asignado automáticamente (`INV-001/2026`) en cabecera del documento
+- [ ] Implementar tabla de historial de documentos con filtros (estado, folio, fecha)
+- [ ] Agregar vista previa del PDF antes de descarga
+- [ ] Registrar ruta `/case-investigation-docs` en `client/src/App.tsx`
+- [ ] Agregar entrada en menú lateral bajo "Prevención de Riesgos Psicosociales"
+
+#### 4. Configuración Administrativa
+- [ ] Agregar panel en Administración para configurar: código de formato, versión, fecha de versión y referencia normativa
+- [ ] Permitir cambiar nomenclatura de folios desde el panel admin (sin tocar código)
+- [ ] Guardar configuración en tabla `doc_format_config` (clave-valor)
+
+#### 5. Pruebas Unitarias
+- [ ] Crear `server/caseInvestigationDocs.test.ts` con suite vitest
+- [ ] Probar generación de los 11 apartados (mock de Forge LLM)
+- [ ] Probar CRUD de documentos (crear, listar, obtener, aprobar)
+- [ ] Probar generación de folio con nomenclatura correcta
+- [ ] Probar exportación PDF con folio y QR
+- [ ] Meta: 15+ pruebas con 100% pasando
+
+#### 6. Notas de Implementación
+- [ ] Verificar que no existe funcionalidad de "Investigación de Caso" duplicada (revisado: solo existe `[x] Investigación de Casos` como ítem de menú en línea 854, sin implementación de generador de documentos — **NO es duplicado**)
+- [ ] El documento generado debe cumplir con NOM-151 (trazabilidad mediante QR único por documento)
+- [ ] Integrar con módulo de Casos NOM-035 existente mediante `caseId` opcional
+
+---
+
+## NUEVA FUNCIONALIDAD: Generador de Documentos Técnico-Jurídicos NOM-035 — Documento 2 "Dictamen"
+
+> **Nota de verificación de duplicados:** Las líneas 6389-6390 y 7009-7010 del todo.md mencionan "Dictamen de cumplimiento emitido" y "Dictamen vigente" como **ítems de verificación de cumplimiento** (checklist normativo). El presente módulo es distinto: genera el **documento formal de Dictamen** con sus 11 apartados técnico-jurídicos mediante IA, con folio, firmas y exportación PDF. **No es duplicado.**
+
+> **Tono del documento generado:** Técnico-jurídico, formal, estructurado. Exclusivo para NOM-035-STPS-2018.
+
+### Documento 2 — "Dictamen" (11 apartados obligatorios)
+
+#### 1. Extensión del Schema para el Dictamen
+- [ ] Crear tabla `dictamen_docs` en drizzle/schema.ts (id, caseId opcional, investigationDocId opcional, folio `DIC-{n}/{año}`, estado borrador/final/aprobado, creadoPor, fechaEmisión, aprobadoPor, fechaAprobación, contenidoJSON, qrCode)
+- [ ] Agregar campo `numeroDictamen` (texto, generado automáticamente con folio)
+- [ ] Agregar campo `anexos` (JSON array con lista de documentos adjuntos)
+- [ ] Generar migración con `pnpm drizzle-kit generate` y aplicar con `webdev_execute_sql`
+
+#### 2. Backend — Generación con IA (Forge LLM)
+- [ ] Crear `server/routers/dictamenDocs.ts` con procedures tRPC
+- [ ] Implementar `dictamenDocs.generate` — llama a Forge LLM con prompt técnico-jurídico formal para generar los 11 apartados del Dictamen NOM-035
+- [ ] Generar **Apartado 1 — Encabezado formal**: razón social, domicilio fiscal, número de trabajadores desglosado por sexo (hombres/mujeres/total)
+- [ ] Generar **Apartado 2 — Número de dictamen y fecha de emisión**: folio con nomenclatura `DIC-{n}/{año}`, lugar y fecha formal
+- [ ] Generar **Apartado 3 — Metodología aplicada**: instrumentos utilizados (Guía I/II/III), fechas de aplicación, tamaño de muestra, tasa de respuesta obtenida
+- [ ] Generar **Apartado 4 — Hallazgos clave**: niveles de riesgo por dominio (bajo, medio, alto, muy alto) con tabla de resultados por área/departamento
+- [ ] Generar **Apartado 5 — Análisis de impacto legal**: artículos de la LFT y puntos de la NOM-035 que se incumplen según los hallazgos
+- [ ] Generar **Apartado 6 — Conclusiones técnicas**: determinación del nivel de riesgo global (ausente, bajo, medio, alto o muy alto) con justificación técnica
+- [ ] Generar **Apartado 7 — Conclusiones jurídicas**: redacción clara de imputación normativa, señalando obligaciones incumplidas y su base legal
+- [ ] Generar **Apartado 8 — Medidas correctivas**: acciones específicas, plazos en días hábiles y responsable designado para cada medida
+- [ ] Generar **Apartado 9 — Recomendaciones de seguimiento**: fecha de próxima evaluación, indicadores de cumplimiento a monitorear
+- [ ] Generar **Apartado 10 — Firmas**: espacio formal para responsable técnico (nombre, cédula profesional, cargo) y representante legal (nombre, cargo, firma)
+- [ ] Generar **Apartado 11 — Anexos**: listado numerado de documentos que integran el expediente (encuestas, evidencias, actas, etc.)
+- [ ] Implementar `dictamenDocs.save` — guardar borrador o versión final en BD
+- [ ] Implementar `dictamenDocs.list` — listar dictámenes con filtro por estado, folio y fecha
+- [ ] Implementar `dictamenDocs.getById` — obtener dictamen completo por ID
+- [ ] Implementar `dictamenDocs.approve` — marcar como aprobado con nombre del aprobador y fecha
+- [ ] Implementar `dictamenDocs.exportPDF` — generar PDF con folio `DIC-{n}/{año}`, QR NOM-151, firmas y pie de página con código de formato
+- [ ] Permitir vincular el Dictamen con su Investigación de Caso correspondiente (`investigationDocId`)
+- [ ] Registrar router en `server/routers.ts` (appRouter)
+
+#### 3. Frontend — Página de Generación y Gestión del Dictamen
+- [ ] Crear `client/src/pages/DictamenDocs.tsx` con DashboardLayout
+- [ ] Implementar formulario de parámetros de entrada (razón social, domicilio, total trabajadores H/M, período evaluado, responsable técnico, representante legal)
+- [ ] Agregar selector para vincular con Investigación de Caso existente (pre-carga datos de metodología y hallazgos)
+- [ ] Mostrar spinner "Generando Dictamen con IA..." durante la llamada a Forge LLM
+- [ ] Renderizar los 11 apartados generados en secciones colapsables y editables
+- [ ] Mostrar tabla de hallazgos por dominio con colores semáforo (verde/amarillo/naranja/rojo)
+- [ ] Implementar botones: Guardar Borrador / Guardar Versión Final / Aprobar / Exportar PDF
+- [ ] Mostrar folio asignado automáticamente (`DIC-001/2026`) en cabecera del documento
+- [ ] Implementar tabla de historial de dictámenes con filtros (estado, folio, fecha, nivel de riesgo)
+- [ ] Agregar vista previa del PDF antes de descarga
+- [ ] Registrar ruta `/dictamen-docs` en `client/src/App.tsx`
+- [ ] Agregar entrada en menú lateral bajo "Prevención de Riesgos Psicosociales"
+
+#### 4. Integración entre Documento 1 y Documento 2
+- [ ] Crear página unificada `client/src/pages/LegalDocGenerator.tsx` como punto de entrada para ambos documentos
+- [ ] Mostrar flujo visual: Investigación de Caso → Dictamen (paso a paso)
+- [ ] Permitir generar el Dictamen pre-cargando datos del Documento 1 (Investigación de Caso) vinculado
+- [ ] Agregar entrada unificada en menú lateral: "Documentos Técnico-Jurídicos NOM-035"
+
+#### 5. Pruebas Unitarias del Dictamen
+- [ ] Crear `server/dictamenDocs.test.ts` con suite vitest
+- [ ] Probar generación de los 11 apartados (mock de Forge LLM)
+- [ ] Probar CRUD de dictámenes (crear, listar, obtener, aprobar)
+- [ ] Probar generación de folio con nomenclatura `DIC-{n}/{año}`
+- [ ] Probar vinculación con Investigación de Caso
+- [ ] Probar exportación PDF con folio, QR y firmas
+- [ ] Meta: 15+ pruebas con 100% pasando
+
+
+---
+
+## ✅ COMPLETADO — Generador de Documentos Técnico-Jurídicos NOM-035 (Sesión actual)
+
+### Schema y Migración
+- [x] Tabla `case_investigation_docs` creada en drizzle/schema.ts
+- [x] Tabla `dictamen_docs` creada en drizzle/schema.ts
+- [x] Tabla `doc_format_config` creada en drizzle/schema.ts
+- [x] Migración SQL aplicada a la base de datos
+
+### Backend
+- [x] Router `caseInvestigationDocs.ts` — generate, save, approve, list, getById, delete
+- [x] Router `dictamenDocs.ts` — generate, save, approve, list, getById, delete, listInvestigaciones
+- [x] Ambos routers registrados en appRouter (routers.ts)
+- [x] Forge LLM genera los 11 apartados obligatorios de cada documento con response_format JSON schema
+- [x] Folio automático INV-{n}/{año} para Investigación de Caso
+- [x] Folio automático DIC-{n}/{año} para Dictamen
+- [x] Vinculación opcional Dictamen → Investigación de Caso
+
+### Frontend
+- [x] Página `LegalDocGenerator.tsx` — tabs Investigación de Caso / Dictamen
+- [x] Formulario de generación con validación de campos obligatorios
+- [x] Editor por secciones (11 apartados colapsables con Textarea)
+- [x] Historial de documentos con tabla (folio, empresa, estado, fecha)
+- [x] Exportación HTML/PDF (descarga directa)
+- [x] Botones: Borrador, Versión Final, Aprobar, Exportar
+- [x] Ruta `/legal-doc-generator` registrada en App.tsx
+- [x] Ítem `⚖️ Documentos Técnico-Jurídicos` en menú lateral (Encuestas NOM-035)
+
+### Pruebas
+- [x] Suite vitest `legalDocs.test.ts` — 16/16 tests pasando
+- [x] TypeScript: 0 errores

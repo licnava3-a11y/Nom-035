@@ -144,6 +144,8 @@ import { scheduledReportsRouter } from "./routers/scheduledReports";
 import { talentDashboardRouter } from "./routers/talentDashboard";
 import { testDataRouter } from "./routers/testData";
 import { interventionsRouter } from "./routers/interventions";
+import { caseInvestigationDocsRouter } from "./routers/caseInvestigationDocs";
+import { dictamenDocsRouter } from "./routers/dictamenDocs";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1452,6 +1454,8 @@ export const appRouter = router({
   nineBox: nineBoxRouter,
   notificationLogs: notificationLogsRouter,
   skillsMatrixSnapshots: skillsMatrixSnapshotsRouter,
+  caseInvestigationDocs: caseInvestigationDocsRouter,
+  dictamenDocs: dictamenDocsRouter,
 });
 
 export type AppRouter = typeof appRouter;

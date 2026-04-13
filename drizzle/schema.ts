@@ -5308,3 +5308,101 @@ export const emailQueue = mysqlTable("email_queue", {
 });
 export type EmailQueue = typeof emailQueue.$inferSelect;
 export type InsertEmailQueue = typeof emailQueue.$inferInsert;
+
+
+// ── Documentos Técnico-Jurídicos NOM-035 ─────────────────────────────────────
+// Tabla 1: Investigación de Caso (Prompt N°1, 11 apartados)
+export const caseInvestigationDocs = mysqlTable("case_investigation_docs", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 30 }).notNull(), // INV-001/2026
+  titulo: varchar("titulo", { length: 500 }).notNull().default("Investigación de caso"),
+  version: varchar("version", { length: 20 }).notNull().default("1.0"),
+  estado: mysqlEnum("estado", ["borrador", "final", "aprobado"]).notNull().default("borrador"),
+  // Parámetros de entrada para la generación IA
+  empresa: varchar("empresa", { length: 500 }),
+  area: varchar("area", { length: 255 }),
+  fechaInvestigacion: varchar("fecha_investigacion", { length: 50 }),
+  responsableSst: varchar("responsable_sst", { length: 255 }),
+  // Contenido generado por IA (11 apartados en JSON)
+  contenido: json("contenido").$type<{
+    fundamento_normativo?: string;
+    objetivo?: string;
+    alcance?: string;
+    instrumentos?: string;
+    poblacion_muestra?: string;
+    periodicidad?: string;
+    responsables?: string;
+    calendario?: string;
+    confidencialidad?: string;
+    integracion_normas?: string;
+    aprobacion_registro?: string;
+  }>(),
+  qrCode: text("qr_code"),
+  creadoPor: int("creado_por").notNull(),
+  aprobadoPor: int("aprobado_por"),
+  fechaAprobacion: timestamp("fecha_aprobacion"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type CaseInvestigationDoc = typeof caseInvestigationDocs.$inferSelect;
+export type InsertCaseInvestigationDoc = typeof caseInvestigationDocs.$inferInsert;
+
+// Tabla 2: Dictamen (Prompt N°1 — Documento 2, 11 apartados)
+export const dictamenDocs = mysqlTable("dictamen_docs", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 30 }).notNull(), // DIC-001/2026
+  numeroDictamen: varchar("numero_dictamen", { length: 50 }).notNull(),
+  titulo: varchar("titulo", { length: 500 }).notNull().default("Dictamen"),
+  version: varchar("version", { length: 20 }).notNull().default("1.0"),
+  estado: mysqlEnum("estado", ["borrador", "final", "aprobado"]).notNull().default("borrador"),
+  // Vinculación opcional con Investigación de Caso
+  investigationDocId: int("investigation_doc_id"),
+  // Parámetros de entrada para la generación IA
+  razonSocial: varchar("razon_social", { length: 500 }),
+  domicilio: text("domicilio"),
+  totalTrabajadores: int("total_trabajadores"),
+  trabajadoresHombres: int("trabajadores_hombres"),
+  trabajadoresMujeres: int("trabajadores_mujeres"),
+  periodoEvaluado: varchar("periodo_evaluado", { length: 100 }),
+  responsableTecnico: varchar("responsable_tecnico", { length: 255 }),
+  cedulaProfesional: varchar("cedula_profesional", { length: 50 }),
+  representanteLegal: varchar("representante_legal", { length: 255 }),
+  // Contenido generado por IA (11 apartados en JSON)
+  contenido: json("contenido").$type<{
+    encabezado_formal?: string;
+    numero_fecha?: string;
+    metodologia?: string;
+    hallazgos_clave?: string;
+    impacto_legal?: string;
+    conclusiones_tecnicas?: string;
+    conclusiones_juridicas?: string;
+    medidas_correctivas?: string;
+    recomendaciones_seguimiento?: string;
+    firmas?: string;
+    anexos?: string;
+  }>(),
+  // Nivel de riesgo global determinado
+  nivelRiesgoGlobal: mysqlEnum("nivel_riesgo_global", ["ausente", "bajo", "medio", "alto", "muy_alto"]),
+  qrCode: text("qr_code"),
+  anexosList: json("anexos_list").$type<string[]>(),
+  creadoPor: int("creado_por").notNull(),
+  aprobadoPor: int("aprobado_por"),
+  fechaAprobacion: timestamp("fecha_aprobacion"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type DictamenDoc = typeof dictamenDocs.$inferSelect;
+export type InsertDictamenDoc = typeof dictamenDocs.$inferInsert;
+
+// Tabla de configuración de formatos (nomenclatura de folios, versión, referencia)
+export const docFormatConfig = mysqlTable("doc_format_config", {
+  id: int("id").autoincrement().primaryKey(),
+  docType: varchar("doc_type", { length: 50 }).notNull().unique(), // 'investigacion' | 'dictamen'
+  codigoFormato: varchar("codigo_formato", { length: 30 }).notNull(), // 'INV' | 'DIC'
+  version: varchar("version", { length: 20 }).notNull().default("1.0"),
+  fechaVersion: varchar("fecha_version", { length: 20 }),
+  referenciaNormativa: varchar("referencia_normativa", { length: 200 }),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type DocFormatConfig = typeof docFormatConfig.$inferSelect;
+export type InsertDocFormatConfig = typeof docFormatConfig.$inferInsert;

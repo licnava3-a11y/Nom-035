@@ -127,6 +127,7 @@ const hierarchicalMenuItems = [
       { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo de encuestas" },
       { label: "Análisis de Sentimiento", path: "/surveys/sentiment-analysis", description: "Dashboard de análisis de sentimiento con IA" },
       { label: "✨ IA Psicosocial — Forge LLM", path: "/psychosocial-ai", description: "Análisis de texto, reportes ejecutivos y planes de intervención con IA" },
+      { label: "⚖️ Documentos Técnico-Jurídicos", path: "/legal-doc-generator", description: "Generación IA de Investigación de Caso y Dictamen NOM-035" },
       { label: "Correlación Sentimiento-Casos", path: "/sentiment-cases-correlation", description: "Visualiza la relación entre sentimiento y casos generados" },
       { label: "Análisis Predictivo de Rotación", path: "/predictive-turnover", description: "Predicciones de rotación con recomendaciones de retención" },
       { label: "Precisión del Modelo Predictivo", path: "/predictive-correlation", description: "Métricas de precisión y matriz de confusión" },

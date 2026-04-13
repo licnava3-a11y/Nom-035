@@ -1002,6 +1002,13 @@
       "when": 1774981190819,
       "tag": "0142_young_squirrel_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 143,
+      "version": "5",
+      "when": 1775897132573,
+      "tag": "0143_lush_norrin_radd",
+      "breakpoints": true
     }
   ]
 }
