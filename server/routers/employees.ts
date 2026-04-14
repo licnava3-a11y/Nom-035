@@ -255,6 +255,8 @@ export const employeesRouter = router({
         hireDate: z.string().optional(),
         contractType: z.enum(["permanent", "temporary", "contract"]).optional(),
         cedulaProfesional: z.string().max(20).optional().nullable(),
+        rfc: z.string().max(13).optional().nullable(),
+        nss: z.string().max(11).optional().nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {

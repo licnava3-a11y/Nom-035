@@ -212,6 +212,33 @@ export default function EmployeeProfile() {
                 </div>
               </div>
             )}
+            {(employee as any).rfc && (
+              <div className="flex items-start">
+                <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">RFC</p>
+                  <p className="text-sm text-muted-foreground font-mono">{(employee as any).rfc}</p>
+                </div>
+              </div>
+            )}
+            {(employee as any).nss && (
+              <div className="flex items-start">
+                <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">NSS — Número de Seguridad Social</p>
+                  <p className="text-sm text-muted-foreground font-mono">{(employee as any).nss}</p>
+                </div>
+              </div>
+            )}
+            {(employee as any).cedulaProfesional && (
+              <div className="flex items-start">
+                <FileText className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Cédula Profesional</p>
+                  <p className="text-sm text-muted-foreground font-mono">{(employee as any).cedulaProfesional}</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { useValidation } from "@/hooks/useValidation";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
+import { validateRFC, validateNSS } from "../../../shared/validators";
 import { DepartmentSelector } from "@/components/DepartmentSelector";
 import { toast } from "sonner";
 
@@ -367,24 +368,44 @@ export default function EmployeeNew() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="rfc">RFC</Label>
-                <Input
+                <InputWithValidation
                   id="rfc"
+                  label="RFC"
                   value={formData.rfc}
-                  onChange={(e) => handleChange("rfc", e.target.value.toUpperCase())}
+                  onValueChange={(v: string) => handleChange("rfc", v.toUpperCase())}
                   placeholder="Ej: PEGJ850101ABC"
                   maxLength={13}
+                  validationRules={{
+                    custom: (v) => {
+                      if (!v) return { isValid: true, message: "", type: "idle" };
+                      const r = validateRFC(v, 'fisica');
+                      return r.valid
+                        ? { isValid: true, message: "RFC válido", type: "success" }
+                        : { isValid: false, message: r.error || "RFC inválido", type: "error" };
+                    }
+                  }}
+                  showValidationIcon={true}
                 />
                 <p className="text-xs text-muted-foreground">Registro Federal de Contribuyentes (12-13 caracteres)</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nss">NSS — Número de Seguridad Social</Label>
-                <Input
+                <InputWithValidation
                   id="nss"
+                  label="NSS — Número de Seguridad Social"
                   value={formData.nss}
-                  onChange={(e) => handleChange("nss", e.target.value.replace(/\D/g, ''))}
+                  onValueChange={(v: string) => handleChange("nss", v.replace(/\D/g, ''))}
                   placeholder="Ej: 12345678901"
                   maxLength={11}
+                  validationRules={{
+                    custom: (v) => {
+                      if (!v) return { isValid: true, message: "", type: "idle" };
+                      const r = validateNSS(v);
+                      return r.valid
+                        ? { isValid: true, message: "NSS válido", type: "success" }
+                        : { isValid: false, message: r.error || "NSS inválido", type: "error" };
+                    }
+                  }}
+                  showValidationIcon={true}
                 />
                 <p className="text-xs text-muted-foreground">Número IMSS de 11 dígitos</p>
               </div>

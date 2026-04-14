@@ -8116,3 +8116,8 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Selector responsable técnico desde catálogo en formulario del Dictamen con auto-relleno de cédula
 - [ ] Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida
 - [ ] Campos RFC y NSS en formulario de alta de nuevo empleado (EmployeeNew.tsx)
+
+## Sprint: RFC/NSS en edición, validación tiempo real, perfil empleado (14 Abr 2026)
+- [ ] RFC y NSS en formulario de edición de empleados (EmployeeEdit.tsx)
+- [ ] Validación en tiempo real del RFC con InputWithValidation
+- [ ] Mostrar RFC y NSS en el perfil del empleado (EmployeeDetail.tsx)

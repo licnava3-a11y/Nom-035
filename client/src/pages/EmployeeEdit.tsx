@@ -4,6 +4,8 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
+import { InputWithValidation } from "@/components/ui/input-with-validation";
+import { validateRFC, validateNSS } from "../../../shared/validators";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 // Select components replaced with native HTML elements
@@ -22,6 +24,8 @@ export default function EmployeeEdit() {
     email: "",
     phone: "",
     curp: "",
+    rfc: "",
+    nss: "",
     cedulaProfesional: "",
     employeeNumber: "",
     department: "" as string | number,
@@ -56,6 +60,8 @@ export default function EmployeeEdit() {
         email: employee.email || "",
         phone: employee.phone || "",
         curp: employee.curp || "",
+        rfc: (employee as any).rfc || "",
+        nss: (employee as any).nss || "",
         cedulaProfesional: (employee as any).cedulaProfesional || "",
         employeeNumber: employee.employeeNumber || "",
         department: (employee as any).department || employee.departmentId || "",
@@ -260,6 +266,51 @@ export default function EmployeeEdit() {
                 <p className="text-xs text-muted-foreground">
                   18 caracteres alfanuméricos
                 </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <InputWithValidation
+                  id="rfc"
+                  label="RFC"
+                  value={formData.rfc}
+                  onValueChange={(v: string) => handleChange("rfc", v.toUpperCase())}
+                  placeholder="Ej: PEGJ850101ABC"
+                  maxLength={13}
+                  validationRules={{
+                    custom: (v) => {
+                      if (!v) return { isValid: true, message: "", type: "idle" };
+                      const r = validateRFC(v, 'fisica');
+                      return r.valid
+                        ? { isValid: true, message: "RFC válido", type: "success" }
+                        : { isValid: false, message: r.error || "RFC inválido", type: "error" };
+                    }
+                  }}
+                  showValidationIcon={true}
+                />
+                <p className="text-xs text-muted-foreground">Registro Federal de Contribuyentes (12-13 caracteres)</p>
+              </div>
+              <div className="space-y-2">
+                <InputWithValidation
+                  id="nss"
+                  label="NSS — Número de Seguridad Social"
+                  value={formData.nss}
+                  onValueChange={(v: string) => handleChange("nss", v.replace(/\D/g, ''))}
+                  placeholder="Ej: 12345678901"
+                  maxLength={11}
+                  validationRules={{
+                    custom: (v) => {
+                      if (!v) return { isValid: true, message: "", type: "idle" };
+                      const r = validateNSS(v);
+                      return r.valid
+                        ? { isValid: true, message: "NSS válido", type: "success" }
+                        : { isValid: false, message: r.error || "NSS inválido", type: "error" };
+                    }
+                  }}
+                  showValidationIcon={true}
+                />
+                <p className="text-xs text-muted-foreground">Número IMSS de 11 dígitos</p>
               </div>
             </div>
 
