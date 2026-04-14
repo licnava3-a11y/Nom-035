@@ -957,6 +957,12 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   atsDetected: boolean("atsDetected").default(false), // Acontecimientos Traumáticos Severos detectados
   source_guide: mysqlEnum("source_guide", ["guia_i", "guia_ii", "guia_iii"]), // Guía de origen
   
+  // PROMPT 8.5 — REQ-1: Fecha de inicio
+  startDate: date("startDate"),
+  // PROMPT 8.5 — REQ-2: Responsable clínico para nivel individual
+  clinicalTitle: mysqlEnum("clinicalTitle", ["medico", "psicologo", "psiquiatra"]),
+  cedulaProfesional: varchar("cedulaProfesional", { length: 20 }),
+
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

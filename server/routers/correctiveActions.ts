@@ -19,15 +19,30 @@ export const correctiveActionsRouter = router({
       category: z.string().optional(),
       departamento: z.string().optional(),
       responsibleUserId: z.number().optional(),
-      dueDate: z.string().optional(), // ISO date string
+      dueDate: z.string().optional(),
       surveyResponseId: z.number().optional(),
+      // PROMPT 8.5 — REQ-1
+      actionLevel: z.enum(['organizacional', 'grupal', 'individual']).default('organizacional'),
+      startDate: z.string().optional(),
+      title: z.string().optional(),
+      // PROMPT 8.5 — REQ-2
+      clinicalTitle: z.enum(['medico', 'psicologo', 'psiquiatra']).optional(),
+      cedulaProfesional: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const dbInstance = await db.getDb();
       if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
       const { correctiveActions, users } = await import('../../drizzle/schema');
-      
+
+      // REQ-2: Validar que acciones de nivel individual tengan responsable clínico
+      if (input.actionLevel === 'individual' && !input.clinicalTitle) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Las acciones de Nivel 3 (individual) requieren un responsable clínico válido: médico, psiólogo o psiquiatra.',
+        });
+      }
+
       // Insertar acción correctiva
       const [action] = await dbInstance.insert(correctiveActions).values({
         description: input.description,
@@ -37,9 +52,13 @@ export const correctiveActionsRouter = router({
         responsibleUserId: input.responsibleUserId,
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
         surveyResponseId: input.surveyResponseId,
-        actionLevel: 'individual', // Valor por defecto para acciones manuales
+        actionLevel: input.actionLevel,
+        title: input.title,
+        startDate: input.startDate ? new Date(input.startDate) : null,
+        clinicalTitle: input.clinicalTitle,
+        cedulaProfesional: input.cedulaProfesional,
         status: 'pendiente',
-      }).$returningId();
+      } as any).$returningId();
 
       // Enviar correo de asignación si hay responsable
       if (input.responsibleUserId) {
@@ -899,5 +918,128 @@ export const correctiveActionsRouter = router({
         .where(and(...conditions));
 
       return actions;
+    }),
+
+  // PROMPT 8.5 — REQ-3: Reporte de cumplimiento por nivel
+  getComplianceByLevel: protectedProcedure
+    .query(async () => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      const { correctiveActions } = await import('../../drizzle/schema');
+      const { sql } = await import('drizzle-orm');
+
+      const rows = await dbInstance
+        .select({
+          actionLevel: correctiveActions.actionLevel,
+          total: sql<number>`count(*)`,
+          completadas: sql<number>`sum(case when ${correctiveActions.status}='completada' then 1 else 0 end)`,
+          pendientes: sql<number>`sum(case when ${correctiveActions.status}='pendiente' then 1 else 0 end)`,
+          enProceso: sql<number>`sum(case when ${correctiveActions.status}='en_proceso' then 1 else 0 end)`,
+        })
+        .from(correctiveActions)
+        .groupBy(correctiveActions.actionLevel);
+
+      const levels = ['organizacional', 'grupal', 'individual'] as const;
+      return levels.map(level => {
+        const row = rows.find(r => r.actionLevel === level);
+        return {
+          level,
+          label: level === 'organizacional' ? 'Nivel 1 — Organizacional' :
+                 level === 'grupal' ? 'Nivel 2 — Grupal' : 'Nivel 3 — Individual',
+          total: Number(row?.total ?? 0),
+          completadas: Number(row?.completadas ?? 0),
+          pendientes: Number(row?.pendientes ?? 0),
+          enProceso: Number(row?.enProceso ?? 0),
+        };
+      });
+    }),
+
+  // PROMPT 8.5 — REQ-4: Alerta de acciones nivel 3 sin responsable clínico
+  alertLevel3WithoutClinical: protectedProcedure
+    .query(async () => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      const { correctiveActions, users } = await import('../../drizzle/schema');
+      const { eq, and, isNull, sql } = await import('drizzle-orm');
+
+      const alerts = await dbInstance
+        .select({
+          id: correctiveActions.id,
+          title: correctiveActions.title,
+          description: correctiveActions.description,
+          departamento: correctiveActions.departamento,
+          status: correctiveActions.status,
+          createdAt: correctiveActions.createdAt,
+          responsibleUserName: users.name,
+        })
+        .from(correctiveActions)
+        .leftJoin(users, eq(correctiveActions.responsibleUserId, users.id))
+        .where(
+          and(
+            eq(correctiveActions.actionLevel, 'individual'),
+            isNull((correctiveActions as any).clinicalTitle),
+            sql`${correctiveActions.status} != 'cancelada'`
+          )
+        );
+
+      return { count: alerts.length, hasAlerts: alerts.length > 0, actions: alerts };
+    }),
+
+  // PROMPT 8.5 — REQ-5: Resumen ejecutivo de cumplimiento del punto 8.5
+  getExecutiveSummary: protectedProcedure
+    .query(async () => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+      const { correctiveActions } = await import('../../drizzle/schema');
+      const { sql } = await import('drizzle-orm');
+
+      const rows = await dbInstance
+        .select({
+          actionLevel: correctiveActions.actionLevel,
+          total: sql<number>`count(*)`,
+          completadas: sql<number>`sum(case when ${correctiveActions.status}='completada' then 1 else 0 end)`,
+        })
+        .from(correctiveActions)
+        .where(sql`${correctiveActions.status} != 'cancelada'`)
+        .groupBy(correctiveActions.actionLevel);
+
+      const byLevel: Record<string, { total: number; completadas: number }> = {};
+      for (const row of rows) {
+        if (row.actionLevel) byLevel[row.actionLevel] = { total: Number(row.total), completadas: Number(row.completadas) };
+      }
+
+      const tieneOrganizacional = (byLevel['organizacional']?.total ?? 0) > 0;
+      const tieneGrupal = (byLevel['grupal']?.total ?? 0) > 0;
+      const tieneIndividual = (byLevel['individual']?.total ?? 0) > 0;
+      const totalAcciones = Object.values(byLevel).reduce((s, v) => s + v.total, 0);
+      const totalCompletadas = Object.values(byLevel).reduce((s, v) => s + v.completadas, 0);
+
+      const [alertRow] = await dbInstance
+        .select({ count: sql<number>`count(*)` })
+        .from(correctiveActions)
+        .where(sql`${correctiveActions.actionLevel}='individual' and (${correctiveActions as any}.clinicalTitle is null) and ${correctiveActions.status}!='cancelada'`);
+      const alertasNivel3 = Number(alertRow?.count ?? 0);
+
+      let cumplimiento: 'cumple' | 'riesgo' | 'incumple';
+      if (totalAcciones === 0) cumplimiento = 'incumple';
+      else if (alertasNivel3 > 0) cumplimiento = 'riesgo';
+      else cumplimiento = 'cumple';
+
+      return {
+        cumplimiento,
+        totalAcciones,
+        totalCompletadas,
+        porcentajeCompletado: totalAcciones > 0 ? Math.round((totalCompletadas / totalAcciones) * 100) : 0,
+        tieneOrganizacional,
+        tieneGrupal,
+        tieneIndividual,
+        alertasNivel3SinClinico: alertasNivel3,
+        byLevel,
+        mensaje: cumplimiento === 'cumple'
+          ? 'El centro de trabajo cumple con el punto 8.5 de la NOM-035-STPS-2018.'
+          : cumplimiento === 'riesgo'
+          ? `Atención: ${alertasNivel3} acción(es) de Nivel 3 sin responsable clínico asignado.`
+          : 'El centro de trabajo no tiene acciones registradas para el punto 8.5.',
+      };
     }),
 });

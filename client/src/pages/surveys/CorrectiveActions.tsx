@@ -19,10 +19,17 @@ export default function CorrectiveActions() {
   
   // Form state
   const [description, setDescription] = useState("");
+  const [title, setTitle] = useState("");
   const [riskLevel, setRiskLevel] = useState<RiskLevel>("medio");
   const [department, setDepartment] = useState("");
   const [responsibleUserId, setResponsibleUserId] = useState("");
   const [dueDate, setDueDate] = useState("");
+  // PROMPT 8.5 — REQ-1
+  const [actionLevel, setActionLevel] = useState<'organizacional'|'grupal'|'individual'>('organizacional');
+  const [startDate, setStartDate] = useState("");
+  // PROMPT 8.5 — REQ-2
+  const [clinicalTitle, setClinicalTitle] = useState<'medico'|'psicologo'|'psiquiatra'|''>('');
+  const [cedulaProfesional, setCedulaProfesional] = useState("");
   
   // Filter state
   const [statusFilter, setStatusFilter] = useState<ActionStatus | "todas">("todas");
@@ -40,16 +47,18 @@ export default function CorrectiveActions() {
   const { data: actions, refetch: refetchActions } = trpc.correctiveActions.getAll.useQuery();
   const { data: stats } = trpc.correctiveActions.getStatistics.useQuery();
   const { data: users } = trpc.users.list.useQuery() as any;
+  // PROMPT 8.5 — REQ-3, REQ-4, REQ-5
+  const { data: complianceByLevel } = trpc.correctiveActions.getComplianceByLevel.useQuery();
+  const { data: level3Alerts } = trpc.correctiveActions.alertLevel3WithoutClinical.useQuery();
+  const { data: executiveSummary } = trpc.correctiveActions.getExecutiveSummary.useQuery();
 
   // Mutations
   const createAction = trpc.correctiveActions.create.useMutation({
     onSuccess: () => {
       toast.success("Acción correctiva registrada exitosamente");
-      setDescription("");
-      setRiskLevel("medio");
-      setDepartment("");
-      setResponsibleUserId("");
-      setDueDate("");
+      setDescription(""); setTitle(""); setRiskLevel("medio"); setDepartment("");
+      setResponsibleUserId(""); setDueDate(""); setStartDate("");
+      setActionLevel('organizacional'); setClinicalTitle(''); setCedulaProfesional("");
       refetchActions();
       setActiveTab("seguimiento");
     },
@@ -108,13 +117,23 @@ export default function CorrectiveActions() {
       toast.error("Por favor complete todos los campos obligatorios");
       return;
     }
+    // REQ-2: Validar responsable clínico para nivel individual
+    if (actionLevel === 'individual' && !clinicalTitle) {
+      toast.error("Las acciones de Nivel 3 (individual) requieren un responsable clínico válido.");
+      return;
+    }
 
     createAction.mutate({
       description,
+      title: title || undefined,
       riskLevel,
       departamento: department,
       responsibleUserId: parseInt(responsibleUserId),
       dueDate,
+      actionLevel,
+      startDate: startDate || undefined,
+      clinicalTitle: clinicalTitle || undefined,
+      cedulaProfesional: cedulaProfesional || undefined,
     });
   };
 
@@ -245,10 +264,11 @@ export default function CorrectiveActions() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="registro">Registro</TabsTrigger>
           <TabsTrigger value="seguimiento">Seguimiento</TabsTrigger>
           <TabsTrigger value="estadisticas">Estadísticas</TabsTrigger>
+          <TabsTrigger value="resumen85">Resumen 8.5</TabsTrigger>
         </TabsList>
 
         {/* TAB: REGISTRO */}
@@ -272,6 +292,45 @@ export default function CorrectiveActions() {
                     rows={4}
                     required
                   />
+                </div>
+
+                {/* PROMPT 8.5 — REQ-1: Nivel de intervención */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Título de la Acción</Label>
+                    <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej: Programa de bienestar laboral" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="actionLevel">Nivel de Intervención 8.5 *</Label>
+                    <select id="actionLevel" value={actionLevel} onChange={(e) => setActionLevel(e.target.value as any)}
+                      className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option value="organizacional">Nivel 1 — Organizacional</option>
+                      <option value="grupal">Nivel 2 — Grupal</option>
+                      <option value="individual">Nivel 3 — Individual (clínico)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Fecha de Inicio</Label>
+                    <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                  </div>
+                  {actionLevel === 'individual' && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="clinicalTitle">Título Clínico del Responsable *</Label>
+                        <select id="clinicalTitle" value={clinicalTitle} onChange={(e) => setClinicalTitle(e.target.value as any)}
+                          className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-white">
+                          <option value="">Seleccione título clínico</option>
+                          <option value="medico">Médico</option>
+                          <option value="psicologo">Psiólogo</option>
+                          <option value="psiquiatra">Psiquiatra</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cedula">Cédula Profesional</Label>
+                        <Input id="cedula" value={cedulaProfesional} onChange={(e) => setCedulaProfesional(e.target.value)} placeholder="Ej: 12345678" />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -339,6 +398,102 @@ export default function CorrectiveActions() {
               </form>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* TAB: RESUMEN EJECUTIVO 8.5 */}
+        <TabsContent value="resumen85">
+          <div className="space-y-6">
+            {executiveSummary && (
+              <Card className={`border-2 ${
+                executiveSummary.cumplimiento === 'cumple' ? 'border-green-500 bg-green-50' :
+                executiveSummary.cumplimiento === 'riesgo' ? 'border-yellow-500 bg-yellow-50' :
+                'border-red-500 bg-red-50'
+              }`}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {executiveSummary.cumplimiento === 'cumple'
+                      ? <CheckCircle2 className="h-6 w-6 text-green-600" />
+                      : <AlertCircle className="h-6 w-6 text-red-600" />}
+                    Resumen Ejecutivo — Punto 8.5 NOM-035-STPS-2018
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className={`text-lg font-semibold mb-4 ${
+                    executiveSummary.cumplimiento === 'cumple' ? 'text-green-800' :
+                    executiveSummary.cumplimiento === 'riesgo' ? 'text-yellow-800' : 'text-red-800'
+                  }`}>{executiveSummary.mensaje}</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center"><div className="text-3xl font-bold">{executiveSummary.totalAcciones}</div><div className="text-sm text-gray-600">Total acciones</div></div>
+                    <div className="text-center"><div className="text-3xl font-bold text-green-700">{executiveSummary.totalCompletadas}</div><div className="text-sm text-gray-600">Completadas</div></div>
+                    <div className="text-center"><div className="text-3xl font-bold text-blue-700">{executiveSummary.porcentajeCompletado}%</div><div className="text-sm text-gray-600">Avance</div></div>
+                    <div className="text-center"><div className={`text-3xl font-bold ${
+                      executiveSummary.alertasNivel3SinClinico > 0 ? 'text-red-700' : 'text-green-700'
+                    }`}>{executiveSummary.alertasNivel3SinClinico}</div><div className="text-sm text-gray-600">Alertas Nivel 3</div></div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                    {(['tieneOrganizacional', 'tieneGrupal', 'tieneIndividual'] as const).map((key, i) => (
+                      <span key={key} className={`px-3 py-1 rounded-full ${
+                        executiveSummary[key] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {executiveSummary[key] ? '✓' : '✕'} Nivel {i+1} {['Organizacional','Grupal','Individual'][i]}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card>
+              <CardHeader><CardTitle>Reporte por Nivel de Intervención</CardTitle><CardDescription>Acciones registradas según los tres niveles del punto 8.5</CardDescription></CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {(complianceByLevel ?? []).map((row: any) => (
+                    <div key={row.level} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="font-semibold">{row.label}</h4>
+                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">{row.total} acciones</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 text-sm text-center">
+                        <div><div className="font-bold text-green-700 text-xl">{row.completadas}</div><div className="text-gray-500">Completadas</div></div>
+                        <div><div className="font-bold text-yellow-700 text-xl">{row.enProceso}</div><div className="text-gray-500">En proceso</div></div>
+                        <div><div className="font-bold text-red-700 text-xl">{row.pendientes}</div><div className="text-gray-500">Pendientes</div></div>
+                      </div>
+                      {row.total > 0 && (
+                        <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-green-500 rounded-full" style={{ width: `${Math.round((row.completadas/row.total)*100)}%` }} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {level3Alerts?.hasAlerts && (
+              <Card className="border-red-400 bg-red-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-800">
+                    <AlertCircle className="h-5 w-5" />
+                    Alerta: {level3Alerts.count} acción(es) Nivel 3 sin responsable clínico
+                  </CardTitle>
+                  <CardDescription className="text-red-700">Estas acciones individuales no tienen asignado un médico, psiólogo o psiquiatra. Incumple el punto 8.5.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {level3Alerts.actions.map((a: any) => (
+                      <div key={a.id} className="flex justify-between items-center p-3 bg-white rounded border border-red-200">
+                        <div>
+                          <div className="font-medium text-sm">{a.title || a.description?.substring(0, 60)}</div>
+                          <div className="text-xs text-gray-500">{a.departamento} — {a.status}</div>
+                        </div>
+                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Sin clínico</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </TabsContent>
 
         {/* TAB: SEGUIMIENTO */}

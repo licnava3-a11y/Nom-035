@@ -1009,6 +1009,13 @@
       "when": 1775897132573,
       "tag": "0143_lush_norrin_radd",
       "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "5",
+      "when": 1776194996132,
+      "tag": "0144_far_miss_america",
+      "breakpoints": true
     }
   ]
 }
