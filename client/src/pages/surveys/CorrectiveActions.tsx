@@ -344,7 +344,12 @@ export default function CorrectiveActions() {
                                   const emp = clinicalEmployees.find(c => c.id === empId);
                                   if (emp) {
                                     setClinicalTitle(emp.clinicalTitle as any);
-                                    // No auto-rellenamos cédula desde aquí (no está en employees)
+                                    // Auto-rellenar cédula desde el catálogo de empleados
+                                    if (emp.cedulaProfesional) {
+                                      setCedulaProfesional(emp.cedulaProfesional);
+                                    } else {
+                                      setCedulaProfesional('');
+                                    }
                                   }
                                 } else {
                                   setClinicalTitle('');
@@ -382,9 +387,13 @@ export default function CorrectiveActions() {
                           value={cedulaProfesional}
                           onChange={(e) => setCedulaProfesional(e.target.value)}
                           placeholder="Ej: 12345678"
-                          className="border-red-300 focus:ring-red-500"
+                          className={`border-red-300 focus:ring-red-500 ${selectedClinicalEmployeeId && cedulaProfesional ? 'bg-green-50 border-green-400' : ''}`}
                         />
-                        <p className="text-xs text-gray-500">Número de cédula profesional del responsable clínico</p>
+                        <p className="text-xs text-gray-500">
+                          {selectedClinicalEmployeeId && cedulaProfesional
+                            ? '✅ Cédula auto-rellenada desde el catálogo de empleados'
+                            : 'Número de cédula profesional del responsable clínico'}
+                        </p>
                       </div>
                       {clinicalTitle && (
                         <div className="space-y-2">

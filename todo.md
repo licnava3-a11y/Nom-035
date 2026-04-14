@@ -8093,3 +8093,11 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Validar cédula automáticamente al seleccionar responsable clínico
 - [ ] Seed de 15 preguntas estándar para Entrevistas de Salida
 - [ ] Botón "Cargar preguntas predeterminadas" en la UI de Entrevistas de Salida
+
+## Sprint: 3 Mejoras Solicitadas (14 Abr 2026)
+
+- [x] Campo cedulaProfesional en schema employees + migración SQL
+- [x] Mostrar/editar cedulaProfesional en formulario de empleados
+- [x] Auto-relleno de cédula en selector de responsable clínico (CorrectiveActions)
+- [x] Pestaña "Catálogo de Preguntas" en ExitInterviews (CRUD admin)
+- [x] Exportar Dictamen a PDF firmable con los 11 apartados y espacio de firma

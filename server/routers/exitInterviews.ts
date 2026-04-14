@@ -398,6 +398,66 @@ export const exitInterviewsRouter = router({
       return { id: plan.id };
     }),
 
+  // ── CRUD Catálogo de Preguntas (admin) ──────────────────────────────────
+  getAllQuestions: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo administradores' });
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB no disponible' });
+    return db.select().from(exitInterviewQuestions).orderBy(exitInterviewQuestions.order);
+  }),
+
+  addQuestion: protectedProcedure
+    .input(z.object({
+      questionText: z.string().min(5, 'La pregunta debe tener al menos 5 caracteres'),
+      category: z.string().min(1, 'Categoría requerida'),
+      options: z.array(z.string()).min(2, 'Se requieren al menos 2 opciones').optional(),
+      order: z.number().int().min(1).optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo administradores' });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB no disponible' });
+      const [{ maxOrder }] = await db.select({ maxOrder: sql<number>`COALESCE(MAX(${exitInterviewQuestions.order}), 0)` }).from(exitInterviewQuestions);
+      await (db.insert(exitInterviewQuestions) as any).values({
+        questionText: input.questionText,
+        questionType: 'multiple_choice',
+        options: input.options ?? ['Muy satisfecho', 'Satisfecho', 'Neutral', 'Insatisfecho', 'Muy insatisfecho'],
+        category: input.category,
+        order: input.order ?? (maxOrder + 1),
+        isActive: true,
+      });
+      return { success: true };
+    }),
+
+  updateQuestion: protectedProcedure
+    .input(z.object({
+      id: z.number().int().positive(),
+      questionText: z.string().min(5).optional(),
+      category: z.string().optional(),
+      options: z.array(z.string()).min(2).optional(),
+      order: z.number().int().min(1).optional(),
+      isActive: z.boolean().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo administradores' });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB no disponible' });
+      const { id, ...data } = input;
+      await (db.update(exitInterviewQuestions) as any).set({ ...data, updatedAt: new Date() }).where(eq(exitInterviewQuestions.id, id));
+      return { success: true };
+    }),
+
+  deleteQuestion: protectedProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo administradores' });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB no disponible' });
+      // Soft delete: marcar como inactiva
+      await (db.update(exitInterviewQuestions) as any).set({ isActive: false }).where(eq(exitInterviewQuestions.id, input.id));
+      return { success: true };
+    }),
+
   // ── Listar planes de acción ───────────────────────────────────────────────
   listActionPlans: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") {

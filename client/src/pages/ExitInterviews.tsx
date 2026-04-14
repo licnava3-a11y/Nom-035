@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2 } from "lucide-react";
+import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X } from "lucide-react";
 
 const TERMINATION_REASON_LABELS: Record<string, string> = {
   resignation: "Renuncia voluntaria",
@@ -368,7 +368,147 @@ function AnalyticsDashboard() {
   );
 }
 
-// ── Página Principal ─────────────────────────────────────────────────────────
+// ── Gestor del Catálogo de Preguntas (admin) ──────────────────────────────────
+const CATEGORIES = ['Clima Laboral', 'Compensación', 'Liderazgo', 'Desarrollo', 'Motivo de Salida', 'Proceso de Salida', 'Otro'];
+
+function QuestionsManager() {
+  const utils = trpc.useUtils();
+  const { data: questions, isLoading } = trpc.exitInterviews.getAllQuestions.useQuery();
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editActive, setEditActive] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newText, setNewText] = useState('');
+  const [newCategory, setNewCategory] = useState('Clima Laboral');
+
+  const updateMutation = trpc.exitInterviews.updateQuestion.useMutation({
+    onSuccess: () => { toast.success('Pregunta actualizada'); setEditingId(null); utils.exitInterviews.getAllQuestions.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteMutation = trpc.exitInterviews.deleteQuestion.useMutation({
+    onSuccess: () => { toast.success('Pregunta desactivada'); utils.exitInterviews.getAllQuestions.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const addMutation = trpc.exitInterviews.addQuestion.useMutation({
+    onSuccess: () => { toast.success('Pregunta agregada'); setShowAddForm(false); setNewText(''); utils.exitInterviews.getAllQuestions.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const startEdit = (q: { id: number; questionText: string; category: string; isActive: boolean }) => {
+    setEditingId(q.id);
+    setEditText(q.questionText);
+    setEditCategory(q.category);
+    setEditActive(q.isActive);
+  };
+
+  if (isLoading) return <div className="text-center py-12 text-muted-foreground">Cargando catálogo...</div>;
+
+  const active = questions?.filter(q => q.isActive) ?? [];
+  const inactive = questions?.filter(q => !q.isActive) ?? [];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2"><BookOpen className="w-5 h-5 text-primary" /> Catálogo de Preguntas</h2>
+          <p className="text-sm text-muted-foreground">{active.length} preguntas activas &bull; {inactive.length} inactivas</p>
+        </div>
+        <Button size="sm" onClick={() => setShowAddForm(v => !v)}>
+          <Plus className="w-4 h-4 mr-1" /> Agregar Pregunta
+        </Button>
+      </div>
+
+      {showAddForm && (
+        <Card className="border-primary/30">
+          <CardHeader className="pb-2"><CardTitle className="text-base">Nueva Pregunta</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label>Texto de la pregunta *</Label>
+              <Textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="Escribe la pregunta aquí..." rows={2} />
+            </div>
+            <div>
+              <Label>Categoría *</Label>
+              <Select value={newCategory} onValueChange={setNewCategory}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setShowAddForm(false)}><X className="w-4 h-4 mr-1" /> Cancelar</Button>
+              <Button size="sm" onClick={() => addMutation.mutate({ questionText: newText, category: newCategory })} disabled={addMutation.isPending || newText.length < 5}>
+                <Save className="w-4 h-4 mr-1" /> {addMutation.isPending ? 'Guardando...' : 'Guardar'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-2">
+        {active.map((q) => (
+          <Card key={q.id} className="">
+            <CardContent className="p-4">
+              {editingId === q.id ? (
+                <div className="space-y-3">
+                  <Textarea value={editText} onChange={e => setEditText(e.target.value)} rows={2} />
+                  <div className="flex gap-2 items-center">
+                    <Select value={editCategory} onValueChange={setEditCategory}>
+                      <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                      <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <Button size="sm" onClick={() => updateMutation.mutate({ id: q.id, questionText: editText, category: editCategory })} disabled={updateMutation.isPending}>
+                      <Save className="w-4 h-4 mr-1" /> Guardar
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditingId(null)}><X className="w-4 h-4" /></Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{q.order}. {q.questionText}</p>
+                    <Badge variant="outline" className="mt-1 text-xs">{q.category}</Badge>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => startEdit({ ...q, category: q.category ?? 'Otro' })}><Pencil className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteMutation.mutate({ id: q.id })} disabled={deleteMutation.isPending}><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {inactive.length > 0 && (
+        <details className="mt-4">
+          <summary className="text-sm text-muted-foreground cursor-pointer hover:text-foreground">{inactive.length} preguntas inactivas (clic para ver)</summary>
+          <div className="mt-2 space-y-2">
+            {inactive.map(q => (
+              <Card key={q.id} className="opacity-50">
+                <CardContent className="p-3 flex items-center justify-between">
+                  <p className="text-sm">{q.order}. {q.questionText}</p>
+                  <Button size="sm" variant="outline" onClick={() => updateMutation.mutate({ id: q.id, isActive: true })}>
+                    Reactivar
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </details>
+      )}
+
+      {active.length === 0 && !showAddForm && (
+        <div className="text-center py-12 text-muted-foreground">
+          <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
+          <p>No hay preguntas activas.</p>
+          <p className="text-sm">Usa el botón "Cargar preguntas predeterminadas" o agrega una nueva.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Página Principal ───────────────────────────────────────────────
 export default function ExitInterviews() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
@@ -433,6 +573,7 @@ export default function ExitInterviews() {
           {isAdmin && <TabsTrigger value="list">Todas las Entrevistas</TabsTrigger>}
           <TabsTrigger value="pending">Pendientes</TabsTrigger>
           {isAdmin && <TabsTrigger value="analytics">Análisis de Rotación</TabsTrigger>}
+          {isAdmin && <TabsTrigger value="questions"><BookOpen className="w-4 h-4 mr-1" />Catálogo de Preguntas</TabsTrigger>}
         </TabsList>
 
         {/* Lista de entrevistas (admin) */}
@@ -554,6 +695,13 @@ export default function ExitInterviews() {
         {isAdmin && (
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+          </TabsContent>
+        )}
+
+        {/* Catálogo de Preguntas (solo admin) */}
+        {isAdmin && (
+          <TabsContent value="questions">
+            <QuestionsManager />
           </TabsContent>
         )}
       </Tabs>

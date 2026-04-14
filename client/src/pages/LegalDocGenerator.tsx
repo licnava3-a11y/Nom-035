@@ -329,8 +329,8 @@ function InvestigacionTab() {
               <Button size="sm" onClick={() => approveMut.mutate({ id: activeDoc.id })} disabled={approveMut.isPending}>
                 <CheckCircle className="h-4 w-4 mr-1" /> Aprobar
               </Button>
-              <Button size="sm" variant="secondary" onClick={handleExportPDF}>
-                <Download className="h-4 w-4 mr-1" /> Exportar
+              <Button size="sm" variant="secondary" onClick={handleExportPDF} title="Genera un archivo HTML listo para imprimir como PDF con espacios de firma">
+                <Download className="h-4 w-4 mr-1" /> Exportar PDF Firmable
               </Button>
             </div>
           </div>
@@ -418,33 +418,104 @@ function DictamenTab() {
     if (!activeDoc) return;
     const sections = DICTAMEN_SECTIONS;
     const contenido = editedContenido;
-    let html = `<html><head><meta charset="UTF-8"><style>
-      body { font-family: Arial, sans-serif; font-size: 11pt; margin: 40px; color: #1a1a1a; }
-      h1 { font-size: 16pt; text-align: center; border-bottom: 2px solid #1a1a1a; padding-bottom: 10px; }
-      h2 { font-size: 12pt; margin-top: 24px; color: #6b1a1a; }
-      p { line-height: 1.6; margin: 8px 0; text-align: justify; }
-      .folio { text-align: right; font-size: 9pt; color: #666; }
-      .riesgo { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: bold; background: #fee2e2; color: #991b1b; }
-      .footer { margin-top: 40px; border-top: 1px solid #ccc; padding-top: 10px; font-size: 9pt; color: #666; text-align: center; }
-    </style></head><body>`;
-    html += `<div class="folio">Folio: ${activeDoc.folio} | Versión: 1.0 | Ref: NOM-035-STPS-2018</div>`;
-    html += `<h1>DICTAMEN<br><small>NOM-035-STPS-2018</small></h1>`;
-    if (activeDoc.nivelRiesgoGlobal) {
-      html += `<p><strong>Nivel de Riesgo Global:</strong> <span class="riesgo">${RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ?? activeDoc.nivelRiesgoGlobal}</span></p>`;
-    }
-    sections.forEach(s => {
-      html += `<h2>${s.label}</h2><p>${(contenido[s.key] ?? "").replace(/\n/g, "<br>")}</p>`;
+    const fechaEmision = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+    const riesgoLabel = RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ?? activeDoc.nivelRiesgoGlobal ?? 'No determinado';
+    const riesgoColor = activeDoc.nivelRiesgoGlobal === 'muy_alto' ? '#991b1b' : activeDoc.nivelRiesgoGlobal === 'alto' ? '#c2410c' : activeDoc.nivelRiesgoGlobal === 'medio' ? '#92400e' : '#166534';
+    const riesgoBg = activeDoc.nivelRiesgoGlobal === 'muy_alto' ? '#fee2e2' : activeDoc.nivelRiesgoGlobal === 'alto' ? '#ffedd5' : activeDoc.nivelRiesgoGlobal === 'medio' ? '#fef9c3' : '#dcfce7';
+
+    let html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+    <style>
+      @page { size: letter; margin: 20mm 20mm 25mm 25mm; }
+      * { box-sizing: border-box; }
+      body { font-family: 'Arial', sans-serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.5; }
+      .header-bar { background: #7f1d1d; color: white; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+      .header-bar h1 { font-size: 14pt; margin: 0; letter-spacing: 1px; }
+      .header-bar .folio-box { font-size: 9pt; text-align: right; }
+      .sub-header { background: #fef2f2; border: 1px solid #fecaca; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 9pt; color: #7f1d1d; }
+      .riesgo-badge { display: inline-block; padding: 3px 10px; border-radius: 3px; font-weight: bold; font-size: 10pt; background: ${riesgoBg}; color: ${riesgoColor}; border: 1px solid ${riesgoColor}; }
+      h2 { font-size: 10.5pt; margin-top: 18px; margin-bottom: 4px; color: #7f1d1d; border-left: 3px solid #7f1d1d; padding-left: 8px; }
+      p { margin: 4px 0 10px 0; text-align: justify; white-space: pre-wrap; }
+      .firma-section { margin-top: 40px; page-break-inside: avoid; }
+      .firma-section h2 { border-left: 3px solid #1e3a5f; color: #1e3a5f; }
+      .firma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px; }
+      .firma-box { border: 1px solid #ccc; padding: 16px; border-radius: 4px; }
+      .firma-line { border-bottom: 1px solid #333; margin: 50px 0 6px 0; }
+      .firma-label { font-size: 9pt; color: #555; text-align: center; }
+      .firma-name { font-size: 9.5pt; font-weight: bold; text-align: center; margin-top: 4px; }
+      .firma-cedula { font-size: 8.5pt; color: #666; text-align: center; }
+      .firma-date { font-size: 8.5pt; color: #666; text-align: center; margin-top: 8px; }
+      .sello-box { border: 2px dashed #999; width: 100px; height: 100px; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #999; text-align: center; border-radius: 50%; }
+      .footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #ccc; padding: 6px 20mm; font-size: 8pt; color: #666; display: flex; justify-content: space-between; }
+      .aviso-confidencial { background: #fffbeb; border: 1px solid #fcd34d; padding: 6px 12px; font-size: 8.5pt; color: #92400e; margin-bottom: 12px; text-align: center; }
+      @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+    <script>window.onload = function() { window.print(); }<\/script>
+    </head><body>`;
+
+    // Encabezado
+    html += `
+    <div class="header-bar">
+      <h1>DICTAMEN NOM-035-STPS-2018</h1>
+      <div class="folio-box">
+        <div><strong>Folio:</strong> ${activeDoc.folio}</div>
+        <div><strong>Fecha:</strong> ${fechaEmision}</div>
+      </div>
+    </div>
+    <div class="sub-header">
+      <span>Ref. Normativa: NOM-035-STPS-2018 | Factores de Riesgo Psicosocial en el Trabajo</span>
+      <span>Nivel de Riesgo Global: <span class="riesgo-badge">${riesgoLabel}</span></span>
+    </div>
+    <div class="aviso-confidencial">⚠️ DOCUMENTO CONFIDENCIAL — Uso exclusivo del área de Seguridad y Salud en el Trabajo. Prohibida su reproducción parcial sin autorización.</div>`;
+
+    // Secciones 1-9
+    sections.filter(s => s.key !== 'firmas').forEach(s => {
+      html += `<h2>${s.label}</h2><p>${(contenido[s.key] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
     });
-    html += `<div class="footer">Folio: ${activeDoc.folio} | NOM-035-STPS-2018 | Generado: ${new Date().toLocaleDateString("es-MX")}</div>`;
-    html += `</body></html>`;
-    const blob = new Blob([html], { type: "text/html" });
+
+    // Sección 10: Firmas con espacios firmables
+    html += `
+    <div class="firma-section">
+      <h2>10. Firmas y Validación</h2>
+      <div class="firma-grid">
+        <div class="firma-box">
+          <div class="sello-box">SELLO<br>EMPRESA</div>
+          <div class="firma-line"></div>
+          <div class="firma-label">Firma del Responsable Técnico</div>
+          <div class="firma-name">${form.responsableTecnico || '___________________________'}</div>
+          <div class="firma-cedula">Cédula Profesional: ${form.cedulaProfesional || '_______________'}</div>
+          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().getFullYear()}</div>
+        </div>
+        <div class="firma-box">
+          <div class="sello-box">SELLO<br>EMPRESA</div>
+          <div class="firma-line"></div>
+          <div class="firma-label">Firma del Representante Legal</div>
+          <div class="firma-name">${form.representanteLegal || '___________________________'}</div>
+          <div class="firma-cedula">Cargo: Representante Legal</div>
+          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().getFullYear()}</div>
+        </div>
+      </div>
+    </div>`;
+
+    // Sección 11: Anexos
+    html += `<h2>11. Anexos</h2><p>${(contenido['anexos'] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
+
+    // Footer
+    html += `
+    <div class="footer">
+      <span>Folio: ${activeDoc.folio} | NOM-035-STPS-2018</span>
+      <span>Generado: ${fechaEmision}</span>
+      <span>Página <span class="page-num"></span></span>
+    </div>
+    </body></html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `Dictamen_${activeDoc.folio.replace("/", "-")}.html`;
+    a.download = `Dictamen_NOM035_${activeDoc.folio.replace(/\//g, '-')}_${new Date().getFullYear()}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Dictamen exportado", description: "Abre el archivo HTML en tu navegador e imprime como PDF" });
+    toast({ title: 'Dictamen exportado para imprimir como PDF', description: 'El archivo se abrirá con el diálogo de impresión. Selecciona “Guardar como PDF”. Incluye espacios de firma para el Responsable Técnico y el Representante Legal.' });
   };
 
   return (
@@ -559,8 +630,8 @@ function DictamenTab() {
               <Button size="sm" onClick={() => approveMut.mutate({ id: activeDoc.id })} disabled={approveMut.isPending}>
                 <CheckCircle className="h-4 w-4 mr-1" /> Aprobar
               </Button>
-              <Button size="sm" variant="secondary" onClick={handleExportPDF}>
-                <Download className="h-4 w-4 mr-1" /> Exportar
+              <Button size="sm" variant="secondary" onClick={handleExportPDF} title="Genera un archivo HTML listo para imprimir como PDF con espacios de firma">
+                <Download className="h-4 w-4 mr-1" /> Exportar PDF Firmable
               </Button>
             </div>
           </div>

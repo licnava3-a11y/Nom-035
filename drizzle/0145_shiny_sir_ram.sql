@@ -1,0 +1,1 @@
+ALTER TABLE `employees` ADD `cedula_profesional` varchar(20);

@@ -575,6 +575,9 @@ export const employees = mysqlTable("employees", {
   // Relationship with users table
   userId: int("userId").unique(), // Link to users table when employee has system access
   
+  // Professional credentials (for clinical staff)
+  cedulaProfesional: varchar("cedula_profesional", { length: 20 }), // Cédula profesional (médicos, psicólogos, etc.)
+  
   // Timestamps
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

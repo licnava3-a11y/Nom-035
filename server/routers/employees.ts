@@ -253,6 +253,7 @@ export const employeesRouter = router({
         position: z.string().optional(),
         hireDate: z.string().optional(),
         contractType: z.enum(["permanent", "temporary", "contract"]).optional(),
+        cedulaProfesional: z.string().max(20).optional().nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -771,6 +772,7 @@ export const employeesRouter = router({
           lastName: employees.lastName,
           email: employees.email,
           positionTitle: positions.title,
+          cedulaProfesional: employees.cedulaProfesional,
         })
         .from(employees)
         .leftJoin(positions, eq(employees.positionId, positions.id))
@@ -797,6 +799,7 @@ export const employeesRouter = router({
         fullName: `${emp.firstName} ${emp.lastName}`,
         email: emp.email,
         positionTitle: emp.positionTitle || 'Sin puesto',
+        cedulaProfesional: emp.cedulaProfesional || null,
         // Inferir el clinicalTitle desde el puesto
         clinicalTitle: emp.positionTitle
           ? emp.positionTitle.toLowerCase().includes('psiquiatra')
