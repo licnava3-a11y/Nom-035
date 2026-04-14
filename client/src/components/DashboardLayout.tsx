@@ -72,6 +72,7 @@ const hierarchicalMenuItems = [
       { label: "Trabajadores", path: "/employees", description: "Catálogo de trabajadores y expedientes digitales" },
       { label: "Departamentos", path: "/departments", description: "Catálogo de departamentos organizacionales" },
       { label: "Puestos", path: "/positions", description: "Catálogo de puestos y descripciones de trabajo" },
+      { label: "Perfiles de Puesto", path: "/job-profile-management", description: "Gestión de perfiles de puesto con competencias y funciones" },
       { label: "Dashboard Organizacional", path: "/organization/dashboard", description: "Estadísticas visuales de empleados" },
       { label: "Organigrama", path: "/organization/chart", description: "Visualización de la estructura organizacional" },
       { label: "Cambios Organizacionales", path: "/organization/changes", description: "Historial de cambios organizacionales" },

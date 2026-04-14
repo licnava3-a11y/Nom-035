@@ -229,6 +229,7 @@ const ScheduledReports = lazy(() => import("./pages/ScheduledReports"));
 const TestDataSeeder = lazy(() => import("./pages/TestDataSeeder"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const JobProfileManagement = lazy(() => import("./pages/JobProfileManagement"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -540,6 +541,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <JobPositions />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/job-profile-management"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <JobProfileManagement />
             </Suspense>
           </DashboardLayout>
         </Route>

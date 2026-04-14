@@ -8008,3 +8008,38 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 ### Pruebas
 - [x] Suite vitest `legalDocs.test.ts` — 16/16 tests pasando
 - [x] TypeScript: 0 errores
+
+---
+
+## ✅ AUDITORÍA DE CÓDIGO — Reporte Completo (Apr 14, 2026)
+
+### Correcciones aplicadas
+- [x] `JobProfileManagement.tsx` — Ruta `/job-profile-management` agregada en App.tsx (estaba huérfana)
+- [x] `JobProfileManagement.tsx` — Entrada "Perfiles de Puesto" agregada en menú lateral (Organización)
+- [x] TypeScript: 0 errores confirmados tras cambios
+- [x] Servidor: HTTP 200 en todos los endpoints
+
+### Hallazgos — Pendientes de decisión del usuario
+
+#### Tablas completamente huérfanas (0 usos fuera del schema)
+- [ ] `employeeTerminations` — ¿Implementar módulo de bajas o eliminar?
+- [ ] `exitInterviewQuestions`, `exitInterviews`, `exitInterviewResponses` — Módulo de entrevistas de salida sin implementar
+- [ ] `turnoverActionPlans` — Planes de acción de rotación sin implementar
+- [ ] `salaryHistory` — Historial de salarios sin implementar
+- [ ] `approvalCalendarEvents` — Eventos de calendario de aprobaciones sin implementar
+
+#### Módulos CRM/Ventas (fuera de scope NOM-035) — Decisión pendiente
+- [ ] Routers: `leads.ts`, `salespeople.ts`, `whatsappTracking.ts`
+- [ ] Páginas: `LeadsPipeline.tsx`, `SalesComparativeDashboard.tsx`, `SalesPeopleManagement.tsx`, `SalespersonPerformance.tsx`, `WhatsAppMetrics.tsx`
+- [ ] Tablas: `leads`, `salespeople`, `whatsappTrackingEvents`
+- [ ] ¿Mantener como módulo adicional o eliminar para reducir complejidad?
+
+#### Componentes duplicados — Consolidar en próxima iteración
+- [ ] `Breadcrumb.tsx` (45 usos, activo) vs `Breadcrumbs.tsx` (6 usos, legacy) — Migrar los 6 usos a `Breadcrumb` y eliminar `Breadcrumbs.tsx`
+- [ ] `DashboardSkeleton.tsx` vs `DashboardLayoutSkeleton.tsx` vs `SkeletonLoader.tsx` — Consolidar en `SkeletonLoader.tsx` como único componente
+
+#### Pares de tablas similares verificados (NO son duplicados)
+- [x] `cases` vs `nom035Cases` — Diferentes propósitos: reportes anónimos vs gestión NOM-035
+- [x] `questions` vs `nom035Questions` — Diferentes propósitos: exámenes vs cuestionarios NOM-035
+- [x] `surveyPeriods` vs `nom035SurveyPeriods` — Diferentes contextos
+
