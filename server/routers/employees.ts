@@ -748,5 +748,64 @@ export const employeesRouter = router({
       data: base64,
     };
   }),
+
+  /**
+   * Obtener empleados con título clínico (médico, psicólogo, psiquiatra)
+   * Usado para el selector de responsable clínico en acciones correctivas Nivel 3
+   */
+  getClinicalEmployees: protectedProcedure
+    .query(async () => {
+      const dbInstance = await (await import('../db')).getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { employees, positions } = await import('../../drizzle/schema');
+      const { eq, or, like, and, isNotNull } = await import('drizzle-orm');
+
+      // Buscar empleados cuyo puesto contenga términos clínicos
+      const clinicalKeywords = ['médico', 'medico', 'psicólogo', 'psicologo', 'psiquiatra', 'psicóloga', 'psicologa', 'terapeuta', 'enfermero', 'enfermera'];
+
+      const results = await dbInstance
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          positionTitle: positions.title,
+        })
+        .from(employees)
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .where(
+          and(
+            eq(employees.isActive, true),
+            or(
+              like(positions.title, '%médico%'),
+              like(positions.title, '%medico%'),
+              like(positions.title, '%psicólogo%'),
+              like(positions.title, '%psicologo%'),
+              like(positions.title, '%psiquiatra%'),
+              like(positions.title, '%psicóloga%'),
+              like(positions.title, '%psicologa%'),
+              like(positions.title, '%terapeuta%'),
+              like(positions.title, '%enfermero%'),
+              like(positions.title, '%enfermera%'),
+            )
+          )
+        );
+
+      return results.map(emp => ({
+        id: emp.id,
+        fullName: `${emp.firstName} ${emp.lastName}`,
+        email: emp.email,
+        positionTitle: emp.positionTitle || 'Sin puesto',
+        // Inferir el clinicalTitle desde el puesto
+        clinicalTitle: emp.positionTitle
+          ? emp.positionTitle.toLowerCase().includes('psiquiatra')
+            ? 'psiquiatra'
+            : emp.positionTitle.toLowerCase().includes('psicologo') || emp.positionTitle.toLowerCase().includes('psicólogo') || emp.positionTitle.toLowerCase().includes('psicologa') || emp.positionTitle.toLowerCase().includes('psicóloga')
+              ? 'psicologo'
+              : 'medico'
+          : 'medico',
+      }));
+    }),
 });
 

@@ -413,9 +413,15 @@ export default function ExitInterviews() {
         </div>
         {isAdmin && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => initMutation.mutate()} disabled={initMutation.isPending}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => initMutation.mutate()}
+              disabled={initMutation.isPending}
+              title="Carga las 15 preguntas estándar NOM-035 sobre clima laboral, compensación, liderazgo y desarrollo"
+            >
               <FileText className="w-4 h-4 mr-2" />
-              Inicializar Preguntas
+              {initMutation.isPending ? 'Cargando...' : 'Cargar preguntas predeterminadas (15)'}
             </Button>
             <RegisterTerminationDialog onSuccess={handleRefresh} />
           </div>

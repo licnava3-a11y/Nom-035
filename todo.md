@@ -8083,3 +8083,13 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Exportación PDF del Resumen 8.5 con fecha y sello digital (botón en pestaña Resumen 8.5)
 - [ ] Conectar Resumen 8.5 como Sección 8 del Dictamen (incluir datos reales de cumplimiento en prompt LLM)
 
+
+---
+
+## TAREAS ACTIVAS — Dictamen + Clínico + Entrevistas de Salida
+
+- [ ] Probar generación del Dictamen con datos reales (Apartado 8 con datos del punto 8.5)
+- [ ] Vincular selector de responsable clínico al catálogo de empleados (filtro por clinicalTitle)
+- [ ] Validar cédula automáticamente al seleccionar responsable clínico
+- [ ] Seed de 15 preguntas estándar para Entrevistas de Salida
+- [ ] Botón "Cargar preguntas predeterminadas" en la UI de Entrevistas de Salida

@@ -30,6 +30,7 @@ export default function CorrectiveActions() {
   // PROMPT 8.5 — REQ-2
   const [clinicalTitle, setClinicalTitle] = useState<'medico'|'psicologo'|'psiquiatra'|''>('');
   const [cedulaProfesional, setCedulaProfesional] = useState("");
+  const [selectedClinicalEmployeeId, setSelectedClinicalEmployeeId] = useState<number|null>(null);
   
   // Filter state
   const [statusFilter, setStatusFilter] = useState<ActionStatus | "todas">("todas");
@@ -47,6 +48,8 @@ export default function CorrectiveActions() {
   const { data: actions, refetch: refetchActions } = trpc.correctiveActions.getAll.useQuery();
   const { data: stats } = trpc.correctiveActions.getStatistics.useQuery();
   const { data: users } = trpc.users.list.useQuery() as any;
+  // PROMPT 8.5 — REQ-2: Catálogo de empleados clínicos
+  const { data: clinicalEmployees } = trpc.employees.getClinicalEmployees.useQuery();
   // PROMPT 8.5 — REQ-3, REQ-4, REQ-5
   const { data: complianceByLevel } = trpc.correctiveActions.getComplianceByLevel.useQuery();
   const { data: level3Alerts } = trpc.correctiveActions.alertLevel3WithoutClinical.useQuery();
@@ -70,7 +73,7 @@ export default function CorrectiveActions() {
       toast.success("Acción correctiva registrada exitosamente");
       setDescription(""); setTitle(""); setRiskLevel("medio"); setDepartment("");
       setResponsibleUserId(""); setDueDate(""); setStartDate("");
-      setActionLevel('organizacional'); setClinicalTitle(''); setCedulaProfesional("");
+      setActionLevel('organizacional'); setClinicalTitle(''); setCedulaProfesional(""); setSelectedClinicalEmployeeId(null);
       refetchActions();
       setActiveTab("seguimiento");
     },
@@ -327,20 +330,70 @@ export default function CorrectiveActions() {
                   </div>
                   {actionLevel === 'individual' && (
                     <>
-                      <div className="space-y-2">
-                        <Label htmlFor="clinicalTitle">Título Clínico del Responsable *</Label>
-                        <select id="clinicalTitle" value={clinicalTitle} onChange={(e) => setClinicalTitle(e.target.value as any)}
-                          className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-white">
-                          <option value="">Seleccione título clínico</option>
-                          <option value="medico">Médico</option>
-                          <option value="psicologo">Psiólogo</option>
-                          <option value="psiquiatra">Psiquiatra</option>
-                        </select>
+                      <div className="space-y-2 col-span-2">
+                        <Label htmlFor="clinicalEmployee">Responsable Clínico *</Label>
+                        {clinicalEmployees && clinicalEmployees.length > 0 ? (
+                          <>
+                            <select
+                              id="clinicalEmployee"
+                              value={selectedClinicalEmployeeId ?? ''}
+                              onChange={(e) => {
+                                const empId = e.target.value ? Number(e.target.value) : null;
+                                setSelectedClinicalEmployeeId(empId);
+                                if (empId) {
+                                  const emp = clinicalEmployees.find(c => c.id === empId);
+                                  if (emp) {
+                                    setClinicalTitle(emp.clinicalTitle as any);
+                                    // No auto-rellenamos cédula desde aquí (no está en employees)
+                                  }
+                                } else {
+                                  setClinicalTitle('');
+                                  setCedulaProfesional('');
+                                }
+                              }}
+                              className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                            >
+                              <option value="">Seleccione responsable clínico del catálogo...</option>
+                              {clinicalEmployees.map(emp => (
+                                <option key={emp.id} value={emp.id}>
+                                  {emp.fullName} — {emp.positionTitle}
+                                </option>
+                              ))}
+                            </select>
+                            <p className="text-xs text-gray-500">Empleados con puesto clínico registrado en el catálogo</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-xs text-amber-600 mb-2">⚠️ No hay empleados con puesto clínico en el catálogo. Capture manualmente:</p>
+                            <select id="clinicalTitle" value={clinicalTitle} onChange={(e) => setClinicalTitle(e.target.value as any)}
+                              className="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 bg-white">
+                              <option value="">Seleccione título clínico</option>
+                              <option value="medico">Médico</option>
+                              <option value="psicologo">Psicólogo</option>
+                              <option value="psiquiatra">Psiquiatra</option>
+                            </select>
+                          </>
+                        )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="cedula">Cédula Profesional</Label>
-                        <Input id="cedula" value={cedulaProfesional} onChange={(e) => setCedulaProfesional(e.target.value)} placeholder="Ej: 12345678" />
+                        <Label htmlFor="cedula">Cédula Profesional *</Label>
+                        <Input
+                          id="cedula"
+                          value={cedulaProfesional}
+                          onChange={(e) => setCedulaProfesional(e.target.value)}
+                          placeholder="Ej: 12345678"
+                          className="border-red-300 focus:ring-red-500"
+                        />
+                        <p className="text-xs text-gray-500">Número de cédula profesional del responsable clínico</p>
                       </div>
+                      {clinicalTitle && (
+                        <div className="space-y-2">
+                          <Label>Título Clínico Detectado</Label>
+                          <div className="px-3 py-2 bg-red-50 border border-red-200 rounded-md text-sm text-red-800 font-medium">
+                            {clinicalTitle === 'medico' ? '👨‍⚕️ Médico' : clinicalTitle === 'psicologo' ? '🧠 Psicólogo' : '🏥 Psiquiatra'}
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
