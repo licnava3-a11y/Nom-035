@@ -578,6 +578,10 @@ export const employees = mysqlTable("employees", {
   // Professional credentials (for clinical staff)
   cedulaProfesional: varchar("cedula_profesional", { length: 20 }), // Cédula profesional (médicos, psicólogos, etc.)
   
+  // Tax & Social Security
+  rfc: varchar("rfc", { length: 13 }), // RFC (Registro Federal de Contribuyentes)
+  nss: varchar("nss", { length: 11 }), // NSS (Número de Seguridad Social IMSS)
+  
   // Timestamps
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

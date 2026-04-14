@@ -378,6 +378,7 @@ function QuestionsManager() {
   const [editText, setEditText] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [editActive, setEditActive] = useState(true);
+  const [editOrder, setEditOrder] = useState<number>(1);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newText, setNewText] = useState('');
   const [newCategory, setNewCategory] = useState('Clima Laboral');
@@ -396,11 +397,12 @@ function QuestionsManager() {
     onError: (e) => toast.error(e.message),
   });
 
-  const startEdit = (q: { id: number; questionText: string; category: string; isActive: boolean }) => {
+  const startEdit = (q: { id: number; questionText: string; category: string; isActive: boolean; order: number }) => {
     setEditingId(q.id);
     setEditText(q.questionText);
     setEditCategory(q.category);
     setEditActive(q.isActive);
+    setEditOrder(q.order ?? 1);
   };
 
   const exportToExcel = () => {
@@ -517,12 +519,23 @@ function QuestionsManager() {
               {editingId === q.id ? (
                 <div className="space-y-3">
                   <Textarea value={editText} onChange={e => setEditText(e.target.value)} rows={2} />
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center flex-wrap">
                     <Select value={editCategory} onValueChange={setEditCategory}>
-                      <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
                       <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                     </Select>
-                    <Button size="sm" onClick={() => updateMutation.mutate({ id: q.id, questionText: editText, category: editCategory })} disabled={updateMutation.isPending}>
+                    <div className="flex items-center gap-1">
+                      <label className="text-xs text-muted-foreground whitespace-nowrap">Núm. orden:</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={editOrder}
+                        onChange={e => setEditOrder(Number(e.target.value))}
+                        className="w-16 h-9 rounded-md border border-input bg-background px-2 text-sm text-center"
+                      />
+                    </div>
+                    <Button size="sm" onClick={() => updateMutation.mutate({ id: q.id, questionText: editText, category: editCategory, order: editOrder })} disabled={updateMutation.isPending}>
                       <Save className="w-4 h-4 mr-1" /> Guardar
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => setEditingId(null)}><X className="w-4 h-4" /></Button>
@@ -535,7 +548,7 @@ function QuestionsManager() {
                     <Badge variant="outline" className="mt-1 text-xs">{q.category}</Badge>
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => startEdit({ ...q, category: q.category ?? 'Otro' })}><Pencil className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => startEdit({ ...q, category: q.category ?? 'Otro', order: q.order ?? 1 })}><Pencil className="w-4 h-4" /></Button>
                     <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => deleteMutation.mutate({ id: q.id })} disabled={deleteMutation.isPending}><Trash2 className="w-4 h-4" /></Button>
                   </div>
                 </div>

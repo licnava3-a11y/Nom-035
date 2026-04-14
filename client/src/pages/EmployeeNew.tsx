@@ -21,6 +21,8 @@ export default function EmployeeNew() {
     email: "",
     phone: "",
     curp: "",
+    rfc: "",
+    nss: "",
     cedulaProfesional: "",
     employeeNumber: "",
     department: "" as string | number,
@@ -360,6 +362,31 @@ export default function EmployeeNew() {
                 <p className="text-xs text-muted-foreground">
                   Campo obligatorio
                 </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="rfc">RFC</Label>
+                <Input
+                  id="rfc"
+                  value={formData.rfc}
+                  onChange={(e) => handleChange("rfc", e.target.value.toUpperCase())}
+                  placeholder="Ej: PEGJ850101ABC"
+                  maxLength={13}
+                />
+                <p className="text-xs text-muted-foreground">Registro Federal de Contribuyentes (12-13 caracteres)</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nss">NSS — Número de Seguridad Social</Label>
+                <Input
+                  id="nss"
+                  value={formData.nss}
+                  onChange={(e) => handleChange("nss", e.target.value.replace(/\D/g, ''))}
+                  placeholder="Ej: 12345678901"
+                  maxLength={11}
+                />
+                <p className="text-xs text-muted-foreground">Número IMSS de 11 dígitos</p>
               </div>
             </div>
 

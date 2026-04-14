@@ -8111,3 +8111,8 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] cedulaProfesional en formulario de alta de nuevo empleado (EmployeeNew.tsx)
 - [ ] Exportar Catálogo de Preguntas a Excel (cliente, sin dependencias extra)
 - [ ] Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla
+
+## Sprint: 3 Mejoras (14 Abr 2026 - Cuarta Ronda)
+- [ ] Selector responsable técnico desde catálogo en formulario del Dictamen con auto-relleno de cédula
+- [ ] Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida
+- [ ] Campos RFC y NSS en formulario de alta de nuevo empleado (EmployeeNew.tsx)

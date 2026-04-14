@@ -379,6 +379,8 @@ function DictamenTab() {
 
   const { data: docs, refetch } = trpc.dictamenDocs.list.useQuery();
   const { data: investigaciones } = trpc.dictamenDocs.listInvestigaciones.useQuery();
+  const { data: clinicalEmployees } = trpc.employees.getClinicalEmployees.useQuery();
+  const [useManualResponsable, setUseManualResponsable] = useState(false);
 
   const generateMut = trpc.dictamenDocs.generate.useMutation({
     onSuccess: (data) => {
@@ -600,11 +602,68 @@ function DictamenTab() {
               </div>
               <div className="space-y-1">
                 <Label>Responsable Técnico *</Label>
-                <Input placeholder="Ej: Psic. María García López" value={form.responsableTecnico} onChange={e => setForm(p => ({ ...p, responsableTecnico: e.target.value }))} />
+                {!useManualResponsable && clinicalEmployees && clinicalEmployees.length > 0 ? (
+                  <div className="space-y-1">
+                    <Select
+                      value={form.responsableTecnico || ''}
+                      onValueChange={(v) => {
+                        if (v === '__manual__') {
+                          setUseManualResponsable(true);
+                          return;
+                        }
+                        const emp = clinicalEmployees.find(e => `${e.clinicalTitle ? e.clinicalTitle + '. ' : ''}${e.fullName}` === v || e.fullName === v);
+                        const fullName = emp ? `${emp.clinicalTitle ? emp.clinicalTitle + '. ' : ''}${emp.fullName}` : v;
+                        setForm(p => ({
+                          ...p,
+                          responsableTecnico: fullName,
+                          cedulaProfesional: emp?.cedulaProfesional || p.cedulaProfesional,
+                        }));
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar del catálogo de empleados..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clinicalEmployees.map(emp => {
+                          const fullName = `${emp.clinicalTitle ? emp.clinicalTitle + '. ' : ''}${emp.fullName}`;
+                          return (
+                            <SelectItem key={emp.id} value={fullName}>
+                              {fullName}
+                              {emp.cedulaProfesional && <span className="text-xs text-muted-foreground ml-2">(Céd: {emp.cedulaProfesional})</span>}
+                            </SelectItem>
+                          );
+                        })}
+                        <SelectItem value="__manual__" className="text-muted-foreground italic">Captura manual...</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {form.responsableTecnico && (
+                      <p className="text-xs text-green-600">Seleccionado del catálogo. <button type="button" className="underline" onClick={() => { setUseManualResponsable(true); }}>Editar manualmente</button></p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <Input
+                      placeholder="Ej: Psic. María García López"
+                      value={form.responsableTecnico}
+                      onChange={e => setForm(p => ({ ...p, responsableTecnico: e.target.value }))}
+                    />
+                    {clinicalEmployees && clinicalEmployees.length > 0 && (
+                      <button type="button" className="text-xs text-primary underline" onClick={() => setUseManualResponsable(false)}>Seleccionar del catálogo</button>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="space-y-1">
                 <Label>Cédula Profesional *</Label>
-                <Input placeholder="Ej: 1234567" value={form.cedulaProfesional} onChange={e => setForm(p => ({ ...p, cedulaProfesional: e.target.value }))} />
+                <Input
+                  placeholder="Ej: 1234567"
+                  value={form.cedulaProfesional}
+                  onChange={e => setForm(p => ({ ...p, cedulaProfesional: e.target.value }))}
+                  className={form.cedulaProfesional && !useManualResponsable && clinicalEmployees?.some(e => e.cedulaProfesional === form.cedulaProfesional) ? 'border-green-500' : ''}
+                />
+                {form.cedulaProfesional && !useManualResponsable && clinicalEmployees?.some(e => e.cedulaProfesional === form.cedulaProfesional) && (
+                  <p className="text-xs text-green-600">Auto-rellenada desde el catálogo de empleados</p>
+                )}
               </div>
               <div className="col-span-2 space-y-1">
                 <Label>Representante Legal *</Label>
