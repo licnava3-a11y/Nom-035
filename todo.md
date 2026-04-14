@@ -8074,3 +8074,12 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Crear página `ExitInterviews.tsx` con formulario y dashboard
 - [ ] Agregar ruta y entrada en menú lateral
 - [ ] Suite vitest con pruebas unitarias
+
+---
+
+## TAREAS ACTIVAS — Punto 8.5 Fase 2 (14-Abr-2026)
+
+- [ ] Registrar 3 acciones de prueba (Nivel 1, 2 y 3) para verificar Resumen 8.5
+- [ ] Exportación PDF del Resumen 8.5 con fecha y sello digital (botón en pestaña Resumen 8.5)
+- [ ] Conectar Resumen 8.5 como Sección 8 del Dictamen (incluir datos reales de cumplimiento en prompt LLM)
+

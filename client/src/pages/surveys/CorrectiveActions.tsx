@@ -51,6 +51,18 @@ export default function CorrectiveActions() {
   const { data: complianceByLevel } = trpc.correctiveActions.getComplianceByLevel.useQuery();
   const { data: level3Alerts } = trpc.correctiveActions.alertLevel3WithoutClinical.useQuery();
   const { data: executiveSummary } = trpc.correctiveActions.getExecutiveSummary.useQuery();
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const generateResumen85PDF = trpc.correctiveActions.generateResumen85PDF.useMutation({
+    onSuccess: (data) => {
+      window.open(data.pdfUrl, '_blank');
+      toast.success(`PDF generado: ${data.filename} (Folio: ${data.folio})`);
+      setIsExportingPdf(false);
+    },
+    onError: (error) => {
+      toast.error(`Error al generar PDF: ${error.message}`);
+      setIsExportingPdf(false);
+    },
+  });
 
   // Mutations
   const createAction = trpc.correctiveActions.create.useMutation({
@@ -438,6 +450,17 @@ export default function CorrectiveActions() {
                         {executiveSummary[key] ? '✓' : '✕'} Nivel {i+1} {['Organizacional','Grupal','Individual'][i]}
                       </span>
                     ))}
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <Button
+                      onClick={() => { setIsExportingPdf(true); generateResumen85PDF.mutate(); }}
+                      disabled={isExportingPdf}
+                      className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white"
+                    >
+                      <Download className="h-4 w-4" />
+                      {isExportingPdf ? 'Generando PDF...' : 'Exportar Resumen 8.5 como PDF'}
+                    </Button>
+                    <p className="text-xs text-gray-500 mt-1">Genera un PDF con sello digital y folio único, válido como evidencia ante la STPS.</p>
                   </div>
                 </CardContent>
               </Card>

@@ -1042,4 +1042,142 @@ export const correctiveActionsRouter = router({
           : 'El centro de trabajo no tiene acciones registradas para el punto 8.5.',
       };
     }),
+
+  // PROMPT 8.5 — REQ-2: Exportar Resumen Ejecutivo 8.5 como PDF con fecha y sello digital
+  generateResumen85PDF: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      const { correctiveActions } = await import('../../drizzle/schema');
+
+      // Obtener datos del resumen por nivel
+      const rows = await dbInstance
+        .select({
+          actionLevel: correctiveActions.actionLevel,
+          total: sql<number>`count(*)`,
+          completadas: sql<number>`sum(case when ${correctiveActions.status}='completada' then 1 else 0 end)`,
+          pendientes: sql<number>`sum(case when ${correctiveActions.status}='pendiente' then 1 else 0 end)`,
+          enProceso: sql<number>`sum(case when ${correctiveActions.status}='en_proceso' then 1 else 0 end)`,
+        })
+        .from(correctiveActions)
+        .groupBy(correctiveActions.actionLevel);
+
+      const [alertRow] = await dbInstance
+        .select({ count: sql<number>`count(*)` })
+        .from(correctiveActions)
+        .where(sql`${correctiveActions.actionLevel}='individual' and (${correctiveActions as any}.clinicalTitle is null) and ${correctiveActions.status}!='cancelada'`);
+      const alertasNivel3 = Number(alertRow?.count ?? 0);
+
+      const byLevel: Record<string, { total: number; completadas: number; pendientes: number; enProceso: number }> = {};
+      for (const row of rows) {
+        if (row.actionLevel) {
+          byLevel[row.actionLevel] = {
+            total: Number(row.total),
+            completadas: Number(row.completadas),
+            pendientes: Number(row.pendientes),
+            enProceso: Number(row.enProceso),
+          };
+        }
+      }
+
+      const tieneOrganizacional = (byLevel['organizacional']?.total ?? 0) > 0;
+      const tieneGrupal = (byLevel['grupal']?.total ?? 0) > 0;
+      const tieneIndividual = (byLevel['individual']?.total ?? 0) > 0;
+      const totalAcciones = Object.values(byLevel).reduce((s, v) => s + v.total, 0);
+      const totalCompletadas = Object.values(byLevel).reduce((s, v) => s + v.completadas, 0);
+      const cumplimiento = totalAcciones === 0 ? 'incumple' : alertasNivel3 > 0 ? 'riesgo' : 'cumple';
+
+      const fechaEmision = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+      const horaEmision = new Date().toLocaleTimeString('es-MX');
+      const responsable = ctx.user?.name ?? 'Responsable de SST';
+      const folioDoc = `RES85-${Date.now()}`;
+
+      // Generar PDF con PDFKit
+      const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+
+      // Encabezado
+      doc.fontSize(18).fillColor('#1a365d').text('RESUMEN EJECUTIVO', { align: 'center' });
+      doc.fontSize(14).fillColor('#2d3748').text('Punto 8.5 — NOM-035-STPS-2018', { align: 'center' });
+      doc.fontSize(10).fillColor('#718096').text('Clasificación y Seguimiento de Acciones Preventivas y Correctivas', { align: 'center' });
+      doc.moveDown();
+      doc.moveTo(50, doc.y).lineTo(562, doc.y).strokeColor('#e2e8f0').stroke();
+      doc.moveDown(0.5);
+
+      // Datos de emisión
+      doc.fontSize(10).fillColor('#4a5568');
+      doc.text(`Fecha de emisión: ${fechaEmision} ${horaEmision}`, { align: 'right' });
+      doc.text(`Emitido por: ${responsable}`, { align: 'right' });
+      doc.text(`Folio: ${folioDoc}`, { align: 'right' });
+      doc.moveDown();
+
+      // Veredicto
+      const veredictoColor = cumplimiento === 'cumple' ? '#276749' : cumplimiento === 'riesgo' ? '#c05621' : '#c53030';
+      const veredictoTexto = cumplimiento === 'cumple'
+        ? '✓ CUMPLE — El centro de trabajo cumple con el punto 8.5 de la NOM-035-STPS-2018'
+        : cumplimiento === 'riesgo'
+        ? `⚠ EN RIESGO — ${alertasNivel3} acción(es) de Nivel 3 sin responsable clínico asignado`
+        : '✗ INCUMPLE — No hay acciones registradas para el punto 8.5';
+      doc.fontSize(12).fillColor(veredictoColor).text(veredictoTexto, { align: 'center' });
+      doc.moveDown();
+
+      // Métricas generales
+      doc.fontSize(12).fillColor('#1a365d').text('Métricas Generales', { underline: true });
+      doc.moveDown(0.3);
+      doc.fontSize(10).fillColor('#4a5568');
+      doc.text(`Total de acciones registradas: ${totalAcciones}`);
+      doc.text(`Acciones completadas: ${totalCompletadas}`);
+      doc.text(`Porcentaje de avance: ${totalAcciones > 0 ? Math.round((totalCompletadas / totalAcciones) * 100) : 0}%`);
+      doc.text(`Alertas Nivel 3 sin clínico: ${alertasNivel3}`);
+      doc.moveDown();
+
+      // Reporte por nivel
+      doc.fontSize(12).fillColor('#1a365d').text('Reporte por Nivel de Intervención', { underline: true });
+      doc.moveDown(0.3);
+
+      const niveles = [
+        { key: 'organizacional', label: 'Nivel 1 — Organizacional', tiene: tieneOrganizacional },
+        { key: 'grupal', label: 'Nivel 2 — Grupal', tiene: tieneGrupal },
+        { key: 'individual', label: 'Nivel 3 — Individual (Clínico)', tiene: tieneIndividual },
+      ];
+
+      for (const nivel of niveles) {
+        const data = byLevel[nivel.key] ?? { total: 0, completadas: 0, pendientes: 0, enProceso: 0 };
+        const statusColor = nivel.tiene ? '#276749' : '#c53030';
+        const statusMark = nivel.tiene ? '✓' : '✗';
+        doc.fontSize(11).fillColor(statusColor).text(`${statusMark} ${nivel.label}`);
+        doc.fontSize(10).fillColor('#4a5568');
+        doc.text(`   Total: ${data.total}  |  Completadas: ${data.completadas}  |  En proceso: ${data.enProceso}  |  Pendientes: ${data.pendientes}`);
+        doc.moveDown(0.5);
+      }
+
+      doc.moveDown();
+      doc.moveTo(50, doc.y).lineTo(562, doc.y).strokeColor('#e2e8f0').stroke();
+      doc.moveDown(0.5);
+
+      // Sello digital
+      doc.fontSize(9).fillColor('#a0aec0').text('Documento generado digitalmente por la Plataforma NOM-035 STPS', { align: 'center' });
+      doc.text(`Folio: ${folioDoc} | Fecha: ${fechaEmision} | Responsable: ${responsable}`, { align: 'center' });
+      doc.text('Este documento tiene validez como evidencia de cumplimiento normativo conforme a la NOM-035-STPS-2018.', { align: 'center' });
+
+      // Espacio para firma
+      doc.moveDown(2);
+      doc.moveTo(150, doc.y).lineTo(350, doc.y).strokeColor('#4a5568').stroke();
+      doc.moveDown(0.3);
+      doc.fontSize(10).fillColor('#4a5568').text(responsable, { align: 'center' });
+      doc.text('Responsable de Seguridad y Salud en el Trabajo', { align: 'center' });
+
+      doc.end();
+      await new Promise<void>(resolve => doc.on('end', resolve));
+
+      const pdfBuffer = Buffer.concat(chunks);
+      const filename = `resumen_85_${Date.now()}.pdf`;
+      const fileKey = `legal-docs/resumen85/${filename}`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
+
+      return { pdfUrl, filename, folio: folioDoc };
+    }),
 });
+

@@ -2,7 +2,8 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { dictamenDocs, docFormatConfig, caseInvestigationDocs } from "../../drizzle/schema";
+import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions } from "../../drizzle/schema";
+import { inArray } from "drizzle-orm";
 import { eq, desc, sql } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
@@ -38,6 +39,21 @@ async function generateDictamenContent(params: {
   representanteLegal: string;
   folio: string;
   fechaEmision: string;
+  // SECCIÓN 8.5 — datos reales de cumplimiento
+  resumen85?: {
+    cumplimiento: string;
+    mensaje: string;
+    totalAcciones: number;
+    totalCompletadas: number;
+    porcentajeCompletado: number;
+    tieneOrganizacional: boolean;
+    tieneGrupal: boolean;
+    tieneIndividual: boolean;
+    alertasNivel3SinClinico: number;
+    accionesOrganizacional: number;
+    accionesGrupal: number;
+    accionesIndividual: number;
+  };
 }): Promise<{ contenido: Record<string, string>; nivelRiesgoGlobal: string }> {
   const userPrompt = `Genera el documento "Dictamen" para la NOM-035-STPS-2018 con los siguientes datos:
 - Razón social: ${params.razonSocial}
@@ -68,10 +84,22 @@ También determina el nivel de riesgo global en el campo "nivel_riesgo_global" c
 
 Cada apartado debe ser extenso, técnico-jurídico y completamente desarrollado (mínimo 3 párrafos por apartado). El tono debe ser formal, estructurado y con precisión normativa.`;
 
+  // Inyectar datos reales del Resumen 8.5 en el prompt del Apartado 8
+  let finalPrompt = userPrompt;
+  if (params.resumen85) {
+    const r = params.resumen85;
+    const nivelesPresentes = [
+      r.tieneOrganizacional ? `Nivel 1 Organizacional (${r.accionesOrganizacional} acciones)` : null,
+      r.tieneGrupal ? `Nivel 2 Grupal (${r.accionesGrupal} acciones)` : null,
+      r.tieneIndividual ? `Nivel 3 Individual (${r.accionesIndividual} acciones)` : null,
+    ].filter(Boolean).join(", ");
+    finalPrompt = userPrompt + `\n\n--- DATOS REALES DEL PUNTO 8.5 (inyectados automáticamente) ---\nEstado de cumplimiento: ${r.cumplimiento.toUpperCase()} — ${r.mensaje}\nTotal de acciones correctivas registradas: ${r.totalAcciones} (${r.totalCompletadas} completadas, ${r.porcentajeCompletado}% de avance)\nNiveles con acciones: ${nivelesPresentes || 'Ninguno'}\nAlertas Nivel 3 sin responsable clínico: ${r.alertasNivel3SinClinico}\nNOTA: El Apartado 8 (Medidas Correctivas) DEBE reflejar estos datos reales. Si hay alertas de Nivel 3 sin clínico, inclúyelas como medidas urgentes con plazo de 15 días hábiles.`;
+  }
+
   const response = await invokeLLM({
     messages: [
       { role: "system", content: SYSTEM_PROMPT_DICTAMEN },
-      { role: "user", content: userPrompt },
+      { role: "user", content: finalPrompt },
     ],
     response_format: {
       type: "json_schema",
@@ -135,10 +163,46 @@ export const dictamenDocsRouter = router({
       const { folio, numeroDictamen } = await generateFolio(db);
       const fechaEmision = new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" });
 
+      // Consultar automáticamente el Resumen 8.5 para inyectarlo en el Apartado 8
+      let resumen85: Parameters<typeof generateDictamenContent>[0]['resumen85'];
+      try {
+        const allActions = await db.select().from(correctiveActions);
+        const byLevel = {
+          organizacional: allActions.filter(a => a.actionLevel === 'organizacional'),
+          grupal: allActions.filter(a => a.actionLevel === 'grupal'),
+          individual: allActions.filter(a => a.actionLevel === 'individual'),
+        };
+        const totalAcciones = allActions.length;
+        const totalCompletadas = allActions.filter(a => a.status === 'completada').length;
+        const alertasNivel3 = byLevel.individual.filter(a => !a.clinicalTitle).length;
+        const tieneOrganizacional = byLevel.organizacional.length > 0;
+        const tieneGrupal = byLevel.grupal.length > 0;
+        const tieneIndividual = byLevel.individual.length > 0;
+        const cumplimiento = tieneOrganizacional && tieneGrupal && tieneIndividual && alertasNivel3 === 0
+          ? 'cumple' : tieneOrganizacional || tieneGrupal || tieneIndividual ? 'riesgo' : 'incumple';
+        resumen85 = {
+          cumplimiento,
+          mensaje: cumplimiento === 'cumple' ? 'Centro de trabajo CUMPLE con el punto 8.5' : 'Requiere atención en acciones correctivas',
+          totalAcciones,
+          totalCompletadas,
+          porcentajeCompletado: totalAcciones > 0 ? Math.round((totalCompletadas / totalAcciones) * 100) : 0,
+          tieneOrganizacional,
+          tieneGrupal,
+          tieneIndividual,
+          alertasNivel3SinClinico: alertasNivel3,
+          accionesOrganizacional: byLevel.organizacional.length,
+          accionesGrupal: byLevel.grupal.length,
+          accionesIndividual: byLevel.individual.length,
+        };
+      } catch {
+        // Si falla la consulta, continuar sin datos del 8.5
+      }
+
       const { contenido, nivelRiesgoGlobal } = await generateDictamenContent({
         ...input,
         folio,
         fechaEmision,
+        resumen85,
       });
 
       const [result] = await db.insert(dictamenDocs).values({
