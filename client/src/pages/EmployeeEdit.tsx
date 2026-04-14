@@ -22,6 +22,7 @@ export default function EmployeeEdit() {
     email: "",
     phone: "",
     curp: "",
+    cedulaProfesional: "",
     employeeNumber: "",
     department: "" as string | number,
     position: "" as string | number,
@@ -55,6 +56,7 @@ export default function EmployeeEdit() {
         email: employee.email || "",
         phone: employee.phone || "",
         curp: employee.curp || "",
+        cedulaProfesional: (employee as any).cedulaProfesional || "",
         employeeNumber: employee.employeeNumber || "",
         department: (employee as any).department || employee.departmentId || "",
         position: (employee as any).position || employee.positionId || "",
@@ -259,6 +261,23 @@ export default function EmployeeEdit() {
                   18 caracteres alfanuméricos
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cedulaProfesional">
+                Cédula Profesional
+                <span className="ml-1 text-xs text-muted-foreground font-normal">(para responsables técnicos / personal clínico)</span>
+              </Label>
+              <Input
+                id="cedulaProfesional"
+                value={formData.cedulaProfesional}
+                onChange={(e) => handleChange("cedulaProfesional", e.target.value)}
+                placeholder="Ej: 12345678"
+                maxLength={20}
+              />
+              <p className="text-xs text-muted-foreground">
+                Número de cédula emitido por la SEP / DGP. Se auto-rellena en documentos NOM-035 al seleccionar este empleado como responsable clínico.
+              </p>
             </div>
           </CardContent>
         </Card>

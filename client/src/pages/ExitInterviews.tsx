@@ -381,6 +381,7 @@ function QuestionsManager() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newText, setNewText] = useState('');
   const [newCategory, setNewCategory] = useState('Clima Laboral');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
 
   const updateMutation = trpc.exitInterviews.updateQuestion.useMutation({
     onSuccess: () => { toast.success('Pregunta actualizada'); setEditingId(null); utils.exitInterviews.getAllQuestions.invalidate(); },
@@ -404,19 +405,52 @@ function QuestionsManager() {
 
   if (isLoading) return <div className="text-center py-12 text-muted-foreground">Cargando catálogo...</div>;
 
-  const active = questions?.filter(q => q.isActive) ?? [];
+  const allActive = questions?.filter(q => q.isActive) ?? [];
+  const active = filterCategory === 'all' ? allActive : allActive.filter(q => (q.category ?? 'Otro') === filterCategory);
   const inactive = questions?.filter(q => !q.isActive) ?? [];
+  const categoryCounts = CATEGORIES.reduce((acc, cat) => {
+    acc[cat] = allActive.filter(q => (q.category ?? 'Otro') === cat).length;
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2"><BookOpen className="w-5 h-5 text-primary" /> Catálogo de Preguntas</h2>
-          <p className="text-sm text-muted-foreground">{active.length} preguntas activas &bull; {inactive.length} inactivas</p>
+          <p className="text-sm text-muted-foreground">{allActive.length} preguntas activas &bull; {inactive.length} inactivas</p>
         </div>
         <Button size="sm" onClick={() => setShowAddForm(v => !v)}>
           <Plus className="w-4 h-4 mr-1" /> Agregar Pregunta
         </Button>
+      </div>
+
+      {/* Filtro por categoría */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-sm text-muted-foreground font-medium">Filtrar:</span>
+        <button
+          onClick={() => setFilterCategory('all')}
+          className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+            filterCategory === 'all'
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-background text-muted-foreground border-border hover:border-primary hover:text-primary'
+          }`}
+        >
+          Todas ({allActive.length})
+        </button>
+        {CATEGORIES.filter(cat => (categoryCounts[cat] ?? 0) > 0).map(cat => (
+          <button
+            key={cat}
+            onClick={() => setFilterCategory(cat)}
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+              filterCategory === cat
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background text-muted-foreground border-border hover:border-primary hover:text-primary'
+            }`}
+          >
+            {cat} ({categoryCounts[cat]})
+          </button>
+        ))}
       </div>
 
       {showAddForm && (
@@ -500,8 +534,17 @@ function QuestionsManager() {
       {active.length === 0 && !showAddForm && (
         <div className="text-center py-12 text-muted-foreground">
           <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>No hay preguntas activas.</p>
-          <p className="text-sm">Usa el botón "Cargar preguntas predeterminadas" o agrega una nueva.</p>
+          {filterCategory !== 'all' ? (
+            <>
+              <p>No hay preguntas activas en la categoría <strong>{filterCategory}</strong>.</p>
+              <button onClick={() => setFilterCategory('all')} className="text-sm text-primary underline mt-1">Ver todas las categorías</button>
+            </>
+          ) : (
+            <>
+              <p>No hay preguntas activas en el catálogo.</p>
+              <p className="text-sm">Usa el botón "Cargar preguntas predeterminadas" o agrega una nueva.</p>
+            </>
+          )}
         </div>
       )}
     </div>

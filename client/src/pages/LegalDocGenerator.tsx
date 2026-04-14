@@ -499,12 +499,26 @@ function DictamenTab() {
     // Sección 11: Anexos
     html += `<h2>11. Anexos</h2><p>${(contenido['anexos'] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
 
-    // Footer
+    // QR de verificación NOM-151 + Footer
+    const qrData = encodeURIComponent(`DICTAMEN NOM-035\nFolio: ${activeDoc.folio}\nFecha: ${fechaEmision}\nNivel Riesgo: ${riesgoLabel}\nResponsable: ${form.responsableTecnico || 'N/D'}\nCédula: ${form.cedulaProfesional || 'N/D'}\nReferencia: NOM-035-STPS-2018`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrData}`;
+
     html += `
+    <div style="margin-top: 32px; page-break-inside: avoid; border-top: 1px solid #e5e7eb; padding-top: 16px; display: flex; align-items: flex-start; gap: 20px;">
+      <div style="flex-shrink: 0; text-align: center;">
+        <img src="${qrUrl}" alt="QR de verificación" width="90" height="90" style="display: block; border: 1px solid #ccc; padding: 4px;" />
+        <p style="font-size: 7pt; color: #888; margin: 3px 0 0 0; max-width: 90px;">Verificación NOM-151</p>
+      </div>
+      <div style="flex: 1; font-size: 8pt; color: #555; line-height: 1.5;">
+        <strong style="font-size: 8.5pt; color: #374151;">Autenticidad del Documento</strong><br>
+        Este código QR contiene los datos de identificación del Dictamen (folio, fecha, nivel de riesgo y responsable técnico). Escánelo para verificar la autenticidad del documento conforme a la NOM-151-SCFI-2016 (conservación de mensajes de datos).<br>
+        <span style="color: #9ca3af;">Folio: ${activeDoc.folio} &bull; Generado: ${fechaEmision} &bull; NOM-035-STPS-2018</span>
+      </div>
+    </div>
     <div class="footer">
       <span>Folio: ${activeDoc.folio} | NOM-035-STPS-2018</span>
       <span>Generado: ${fechaEmision}</span>
-      <span>Página <span class="page-num"></span></span>
+      <span>Documento con verificación NOM-151</span>
     </div>
     </body></html>`;
 
@@ -515,7 +529,7 @@ function DictamenTab() {
     a.download = `Dictamen_NOM035_${activeDoc.folio.replace(/\//g, '-')}_${new Date().getFullYear()}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: 'Dictamen exportado para imprimir como PDF', description: 'El archivo se abrirá con el diálogo de impresión. Selecciona “Guardar como PDF”. Incluye espacios de firma para el Responsable Técnico y el Representante Legal.' });
+    toast({ title: 'Dictamen exportado para imprimir como PDF', description: 'Incluye espacios de firma, sello y código QR de verificación NOM-151. Selecciona “Guardar como PDF” en el diálogo de impresión.' });
   };
 
   return (

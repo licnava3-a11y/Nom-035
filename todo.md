@@ -8101,3 +8101,8 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] Auto-relleno de cédula en selector de responsable clínico (CorrectiveActions)
 - [x] Pestaña "Catálogo de Preguntas" en ExitInterviews (CRUD admin)
 - [x] Exportar Dictamen a PDF firmable con los 11 apartados y espacio de firma
+
+## Sprint: 3 Mejoras Adicionales (14 Abr 2026 - Segunda Ronda)
+- [ ] cedulaProfesional en formulario de edición de empleados (visible y editable en perfil)
+- [ ] Código QR de verificación NOM-151 en PDF del Dictamen (enlace al folio en el sistema)
+- [ ] Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida
