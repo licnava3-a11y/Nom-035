@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function SalaryGap() {
   const [isCalculating, setIsCalculating] = useState(false);
@@ -86,8 +86,8 @@ export default function SalaryGap() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumbs items={[
-        { label: "Igualdad Laboral y No Discriminación", path: "/equality/policy" },
+      <Breadcrumb items={[
+        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
         { label: "Indicadores de Brecha Salarial" }
       ]} />
       

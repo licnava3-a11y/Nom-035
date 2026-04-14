@@ -8043,3 +8043,34 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [x] `questions` vs `nom035Questions` — Diferentes propósitos: exámenes vs cuestionarios NOM-035
 - [x] `surveyPeriods` vs `nom035SurveyPeriods` — Diferentes contextos
 
+
+---
+
+## TAREAS ACTIVAS — Limpieza y Mejoras (Apr 14, 2026)
+
+### Tarea 1: Eliminar Módulos CRM (fuera de scope NOM-035)
+- [ ] Eliminar router `server/routers/leads.ts`
+- [ ] Eliminar router `server/routers/salespeople.ts`
+- [ ] Eliminar router `server/routers/whatsappTracking.ts`
+- [ ] Eliminar páginas: `LeadsPipeline.tsx`, `SalesComparativeDashboard.tsx`, `SalesPeopleManagement.tsx`, `SalespersonPerformance.tsx`, `WhatsAppMetrics.tsx`
+- [ ] Eliminar imports y rutas de App.tsx
+- [ ] Eliminar entradas del menú lateral en DashboardLayout.tsx
+- [ ] Eliminar imports de routers.ts y desregistrar del appRouter
+- [ ] Verificar TypeScript: 0 errores tras eliminación
+
+### Tarea 2: Consolidar Breadcrumbs duplicados
+- [ ] Identificar los 6 archivos que usan `Breadcrumbs.tsx`
+- [ ] Migrar cada uso a `Breadcrumb.tsx` (componente principal)
+- [ ] Eliminar `Breadcrumbs.tsx`
+- [ ] Verificar TypeScript: 0 errores tras eliminación
+
+### Tarea 3: Implementar Módulo de Entrevistas de Salida
+- [ ] Crear router `server/routers/exitInterviews.ts` con CRUD completo
+- [ ] 15 preguntas de opción múltiple sobre causas de rotación
+- [ ] Campo de observaciones puntuales (texto libre)
+- [ ] Confidencialidad: solo admin puede ver resultados individuales
+- [ ] Gráficos acumulativos de causas de rotación (mensual)
+- [ ] Plan de acción basado en resultados
+- [ ] Crear página `ExitInterviews.tsx` con formulario y dashboard
+- [ ] Agregar ruta y entrada en menú lateral
+- [ ] Suite vitest con pruebas unitarias

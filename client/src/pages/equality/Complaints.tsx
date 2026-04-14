@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Plus, AlertCircle, CheckCircle, Clock, XCircle, AlertTriangle } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Complaints() {
   const [isCreating, setIsCreating] = useState(false);
@@ -112,8 +112,8 @@ export default function Complaints() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumbs items={[
-        { label: "Igualdad Laboral y No Discriminación", path: "/equality/policy" },
+      <Breadcrumb items={[
+        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
         { label: "Quejas y Denuncias" }
       ]} />
       

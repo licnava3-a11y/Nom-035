@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, UserMinus, Users, CheckCircle, XCircle } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function Committee() {
   const [isAdding, setIsAdding] = useState(false);
@@ -77,8 +77,8 @@ export default function Committee() {
 
   return (
     <div className="p-6 space-y-6">
-      <Breadcrumbs items={[
-        { label: "Igualdad Laboral y No Discriminación", path: "/equality/policy" },
+      <Breadcrumb items={[
+        { label: "Igualdad Laboral y No Discriminación", href: "/equality/policy" },
         { label: "Comité de Igualdad" }
       ]} />
       

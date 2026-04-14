@@ -100,12 +100,7 @@ const DepartmentManagement = lazy(() => import("./pages/DepartmentManagement"));
 const DepartmentMetrics = lazy(() => import("./pages/DepartmentMetrics"));
 const AlgorithmConfig = lazy(() => import("./pages/AlgorithmConfig"));
 const AlgorithmEffectiveness = lazy(() => import("./pages/AlgorithmEffectiveness"));
-const WhatsAppMetrics = lazy(() => import("./pages/WhatsAppMetrics"));
-const LeadsPipeline = lazy(() => import("./pages/LeadsPipeline"));
-const SalesPeopleManagement = lazy(() => import("./pages/SalesPeopleManagement"));
-const SalespersonPerformance = lazy(() => import("./pages/SalespersonPerformance"));
 const ReportConfigurationPanel = lazy(() => import("./pages/ReportConfigurationPanel"));
-const SalesComparativeDashboard = lazy(() => import("./pages/SalesComparativeDashboard"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NOM035Landing = lazy(() => import("./pages/NOM035Landing"));
 const NOM037Landing = lazy(() => import("./pages/NOM037Landing"));
@@ -230,6 +225,7 @@ const TestDataSeeder = lazy(() => import("./pages/TestDataSeeder"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const JobProfileManagement = lazy(() => import("./pages/JobProfileManagement"));
+const ExitInterviews = lazy(() => import("./pages/ExitInterviews"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -544,6 +540,13 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
+        <Route path={"/exit-interviews"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ExitInterviews />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
         <Route path={"/job-profile-management"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -705,41 +708,7 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/whatsapp-metrics"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <WhatsAppMetrics />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path={"/leads-pipeline"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <LeadsPipeline />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path={"/salespeople-management"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <SalesPeopleManagement />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path={"/salesperson-performance"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <SalespersonPerformance />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path={"/sales-comparative"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <SalesComparativeDashboard />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
+
         <Route path={"/report-configuration"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>

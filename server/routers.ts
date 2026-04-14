@@ -135,9 +135,7 @@ import { casesPaginatedRouter } from "./routers/casesPaginated";
 import { usersPaginatedRouter } from "./routers/usersPaginated";
 import { surveysPaginatedRouter } from "./routers/surveysPaginated";
 import { sharedReportsRouter } from "./routers/sharedReports";
-import { whatsappTrackingRouter } from "./routers/whatsappTracking";
-import { leadsRouter } from "./routers/leads";
-import { salespeopleRouter } from "./routers/salespeople";
+
 import { performanceEvaluation360Router } from "./routers/performanceEvaluation360";
 import { riskAlertsRouter } from "./routers/riskAlerts";
 import { scheduledReportsRouter } from "./routers/scheduledReports";
@@ -146,6 +144,7 @@ import { testDataRouter } from "./routers/testData";
 import { interventionsRouter } from "./routers/interventions";
 import { caseInvestigationDocsRouter } from "./routers/caseInvestigationDocs";
 import { dictamenDocsRouter } from "./routers/dictamenDocs";
+import { exitInterviewsRouter } from "./routers/exitInterviews";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -252,9 +251,7 @@ export const appRouter = router({
   correctiveActionPlans: correctiveActionPlansRouter,
   interventionImpact: interventionImpactRouter,
   sharedReports: sharedReportsRouter,
-  whatsappTracking: whatsappTrackingRouter,
-  leads: leadsRouter,
-  salespeople: salespeopleRouter,
+
   performanceEvaluation360: performanceEvaluation360Router,
   riskAlerts: riskAlertsRouter,
   scheduledReports: scheduledReportsRouter,
@@ -1456,6 +1453,7 @@ export const appRouter = router({
   skillsMatrixSnapshots: skillsMatrixSnapshotsRouter,
   caseInvestigationDocs: caseInvestigationDocsRouter,
   dictamenDocs: dictamenDocsRouter,
+  exitInterviews: exitInterviewsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 import { openWhatsAppDemo, DemoRequestData, NORMATIVAS_MAP } from "@/lib/whatsapp";
-import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
 
 interface WhatsAppButtonProps {
   phoneNumber?: string; // Número de WhatsApp del negocio (formato: 525512345678)
@@ -25,30 +23,7 @@ export function WhatsAppButton({
   className = "",
   children,
 }: WhatsAppButtonProps) {
-  const trackEventMutation = trpc.whatsappTracking.trackEvent.useMutation();
-
-  const handleClick = async () => {
-    try {
-      // Registrar evento de tracking
-      await trackEventMutation.mutateAsync({
-        eventType: userData ? "demo_request" : "click",
-        normativas: userData?.normativas,
-        userData: userData ? {
-          nombre: userData.nombre,
-          email: userData.email,
-          empresa: userData.empresa,
-        } : undefined,
-        metadata: {
-          userAgent: navigator.userAgent,
-          referrer: document.referrer,
-          source: window.location.pathname,
-        },
-      });
-    } catch (error) {
-      console.error("Error tracking WhatsApp event:", error);
-      // No bloquear la apertura de WhatsApp si falla el tracking
-    }
-
+  const handleClick = () => {
     // Abrir WhatsApp
     if (userData && phoneNumber) {
       openWhatsAppDemo(phoneNumber, userData);
