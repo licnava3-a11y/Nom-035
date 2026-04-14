@@ -87,6 +87,7 @@ export const employeesRouter = router({
         email: emailValidator,
         phone: phoneValidatorMXOptional,
         curp: z.string().length(18, "CURP debe tener 18 caracteres").optional(),
+        cedulaProfesional: z.string().max(20).optional().nullable(),
         rfc: z.string().optional(),
         nss: z.string().optional(),
         birthDate: z.string().optional(),

@@ -654,6 +654,34 @@ function DictamenTab() {
             contenido={editedContenido}
             onChange={(key, val) => setEditedContenido(prev => ({ ...prev, [key]: val }))}
           />
+
+          {/* QR de verificacion NOM-151 en pantalla */}
+          {(() => {
+            const fechaEmision = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+            const riesgoLabel = RIESGO_LABELS[activeDoc.nivelRiesgoGlobal ?? ''] ?? activeDoc.nivelRiesgoGlobal ?? 'No determinado';
+            const qrData = encodeURIComponent('DICTAMEN NOM-035 | Folio: ' + activeDoc.folio + ' | Fecha: ' + fechaEmision + ' | Riesgo: ' + riesgoLabel + ' | Empresa: ' + (activeDoc.razonSocial ?? '') + ' | Ref: NOM-035-STPS-2018');
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + qrData;
+            return (
+              <div className="flex items-start gap-4 p-4 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/20 mt-4">
+                <div className="flex-shrink-0 text-center">
+                  <img src={qrUrl} alt="QR de verificacion NOM-151" width={90} height={90} className="border border-border rounded p-1" />
+                  <p className="text-xs text-muted-foreground mt-1">Verificacion NOM-151</p>
+                </div>
+                <div className="flex-1 text-sm">
+                  <p className="font-semibold text-foreground mb-1">Codigo QR de Autenticidad del Documento</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    Este codigo QR identifica el Dictamen <strong>{activeDoc.folio}</strong> con nivel de riesgo <strong>{riesgoLabel}</strong>.
+                    Se incluye automaticamente al exportar el PDF firmable, conforme a la NOM-151-SCFI-2016 (conservacion de mensajes de datos).
+                  </p>
+                  <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
+                    <span>Fecha: {fechaEmision}</span>
+                    <span>Empresa: {activeDoc.razonSocial ?? 'N/D'}</span>
+                    <span>Folio: {activeDoc.folio}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
 

@@ -21,6 +21,7 @@ export default function EmployeeNew() {
     email: "",
     phone: "",
     curp: "",
+    cedulaProfesional: "",
     employeeNumber: "",
     department: "" as string | number,
     position: "" as string | number,
@@ -360,6 +361,23 @@ export default function EmployeeNew() {
                   Campo obligatorio
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cedulaProfesional">
+                Cédula Profesional
+                <span className="ml-1 text-xs text-muted-foreground font-normal">(para responsables técnicos / personal clínico)</span>
+              </Label>
+              <Input
+                id="cedulaProfesional"
+                value={formData.cedulaProfesional}
+                onChange={(e) => handleChange("cedulaProfesional", e.target.value)}
+                placeholder="Ej: 12345678"
+                maxLength={20}
+              />
+              <p className="text-xs text-muted-foreground">
+                Número de cédula emitido por la SEP / DGP. Se auto-rellena en documentos NOM-035 al seleccionar este empleado como responsable clínico.
+              </p>
             </div>
           </CardContent>
         </Card>

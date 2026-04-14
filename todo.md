@@ -8106,3 +8106,8 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] cedulaProfesional en formulario de edición de empleados (visible y editable en perfil)
 - [ ] Código QR de verificación NOM-151 en PDF del Dictamen (enlace al folio en el sistema)
 - [ ] Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida
+
+## Sprint: 3 Mejoras Adicionales (14 Abr 2026 - Tercera Ronda)
+- [ ] cedulaProfesional en formulario de alta de nuevo empleado (EmployeeNew.tsx)
+- [ ] Exportar Catálogo de Preguntas a Excel (cliente, sin dependencias extra)
+- [ ] Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla

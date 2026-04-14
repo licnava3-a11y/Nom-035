@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X } from "lucide-react";
+import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X, Download } from "lucide-react";
 
 const TERMINATION_REASON_LABELS: Record<string, string> = {
   resignation: "Renuncia voluntaria",
@@ -403,6 +403,33 @@ function QuestionsManager() {
     setEditActive(q.isActive);
   };
 
+  const exportToExcel = () => {
+    if (!questions || questions.length === 0) {
+      toast.error('No hay preguntas para exportar');
+      return;
+    }
+    // Generar CSV con BOM UTF-8 para compatibilidad con Excel
+    const bom = '\uFEFF';
+    const headers = ['Número', 'Categoría', 'Pregunta', 'Estado'];
+    const rows = questions
+      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+      .map((q, i) => [
+        i + 1,
+        q.category ?? 'Otro',
+        `"${(q.questionText ?? '').replace(/"/g, '""')}"`,
+        q.isActive ? 'Activa' : 'Inactiva',
+      ]);
+    const csvContent = bom + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Catalogo_Preguntas_EntrevistasSalida_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${questions.length} preguntas exportadas a CSV (compatible con Excel)`);
+  };
+
   if (isLoading) return <div className="text-center py-12 text-muted-foreground">Cargando catálogo...</div>;
 
   const allActive = questions?.filter(q => q.isActive) ?? [];
@@ -420,9 +447,14 @@ function QuestionsManager() {
           <h2 className="text-lg font-semibold flex items-center gap-2"><BookOpen className="w-5 h-5 text-primary" /> Catálogo de Preguntas</h2>
           <p className="text-sm text-muted-foreground">{allActive.length} preguntas activas &bull; {inactive.length} inactivas</p>
         </div>
-        <Button size="sm" onClick={() => setShowAddForm(v => !v)}>
-          <Plus className="w-4 h-4 mr-1" /> Agregar Pregunta
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={exportToExcel} title="Exportar catálogo a Excel/CSV">
+            <Download className="w-4 h-4 mr-1" /> Exportar
+          </Button>
+          <Button size="sm" onClick={() => setShowAddForm(v => !v)}>
+            <Plus className="w-4 h-4 mr-1" /> Agregar Pregunta
+          </Button>
+        </div>
       </div>
 
       {/* Filtro por categoría */}
