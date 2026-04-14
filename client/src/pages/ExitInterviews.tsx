@@ -412,7 +412,7 @@ function QuestionsManager() {
     const bom = '\uFEFF';
     const headers = ['Número', 'Categoría', 'Pregunta', 'Estado'];
     const rows = questions
-      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((q, i) => [
         i + 1,
         q.category ?? 'Otro',
