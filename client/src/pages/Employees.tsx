@@ -45,6 +45,7 @@ export default function Employees() {
   const [importResult, setImportResult] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [showRfcNss, setShowRfcNss] = useState(false);
 
   // Fetch employees with filters
   const { data: employeesData, isLoading, refetch } = trpc.employees.list.useQuery({
@@ -250,6 +251,15 @@ export default function Employees() {
         </div>
         <div className="flex gap-2">
           <Button
+            variant={showRfcNss ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowRfcNss(v => !v)}
+            title={showRfcNss ? "Ocultar RFC y NSS" : "Mostrar RFC y NSS"}
+          >
+            <ICONS.documents.generic className="mr-2 h-4 w-4" />
+            {showRfcNss ? "Ocultar RFC/NSS" : "Mostrar RFC/NSS"}
+          </Button>
+          <Button
             variant="outline"
             onClick={() => setIsImportDialogOpen(true)}
           >
@@ -419,6 +429,23 @@ export default function Employees() {
                     <div className="flex items-center text-muted-foreground">
                       <ICONS.datetime.calendar className="mr-2 h-4 w-4" />
                       Ingreso: {new Date(employee.hireDate).toLocaleDateString("es-MX")}
+                    </div>
+                  )}
+                  {showRfcNss && employee.rfc && (
+                    <div className="flex items-center text-muted-foreground font-mono text-xs">
+                      <ICONS.documents.generic className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="font-semibold mr-1">RFC:</span> {employee.rfc}
+                    </div>
+                  )}
+                  {showRfcNss && employee.nss && (
+                    <div className="flex items-center text-muted-foreground font-mono text-xs">
+                      <ICONS.documents.generic className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="font-semibold mr-1">NSS:</span> {employee.nss}
+                    </div>
+                  )}
+                  {showRfcNss && !employee.rfc && !employee.nss && (
+                    <div className="text-xs text-amber-600 italic">
+                      RFC y NSS no capturados
                     </div>
                   )}
                 </div>

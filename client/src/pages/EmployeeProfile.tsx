@@ -21,6 +21,7 @@ import {
   UserCheck,
   FolderOpen,
   Target,
+  Download,
 } from "lucide-react";
 
 export default function EmployeeProfile() {
@@ -67,6 +68,113 @@ export default function EmployeeProfile() {
   const handleReactivate = () => {
     if (employee && window.confirm(`¿Está seguro de reactivar a ${employee.firstName} ${employee.lastName}?`)) {
       reactivateMutation.mutate({ id: employeeId });
+    }
+  };
+
+  const handleExportPDF = () => {
+    if (!employee) return;
+    const emp = employee as any;
+    const contractTypeLabel = emp.contractType === 'permanent' ? 'Permanente' : emp.contractType === 'temporary' ? 'Temporal' : emp.contractType === 'project' ? 'Por Proyecto' : emp.contractType || 'No especificado';
+    const statusLabel = emp.isActive ? 'Activo' : 'Inactivo';
+    const hireDateStr = emp.hireDate ? new Date(emp.hireDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No registrada';
+    const createdAtStr = emp.createdAt ? new Date(emp.createdAt).toLocaleDateString('es-MX') : '';
+    const printDate = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Expediente — ${emp.firstName} ${emp.lastName}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 11pt; color: #1a1a1a; background: #fff; }
+    .header { background: #7c3aed; color: #fff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 18pt; font-weight: bold; }
+    .header .meta { text-align: right; font-size: 9pt; opacity: 0.9; }
+    .confidential { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 8px 16px; font-size: 9pt; color: #92400e; margin: 0 30px; }
+    .content { padding: 20px 30px; }
+    .section { margin-bottom: 20px; }
+    .section-title { font-size: 12pt; font-weight: bold; color: #7c3aed; border-bottom: 2px solid #7c3aed; padding-bottom: 4px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+    .field { margin-bottom: 6px; }
+    .field-label { font-size: 8.5pt; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px; }
+    .field-value { font-size: 10.5pt; font-weight: 500; color: #111827; }
+    .field-value.mono { font-family: 'Courier New', monospace; font-size: 10pt; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 9pt; font-weight: bold; }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-inactive { background: #f3f4f6; color: #374151; }
+    .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+    .sig-box { border-top: 2px solid #374151; padding-top: 8px; text-align: center; }
+    .sig-box .sig-name { font-weight: bold; font-size: 10pt; }
+    .sig-box .sig-role { font-size: 9pt; color: #6b7280; }
+    .footer { text-align: center; font-size: 8pt; color: #9ca3af; margin-top: 20px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Expediente del Trabajador</h1>
+      <div style="font-size:10pt;opacity:0.85;margin-top:4px;">Plataforma NOM-035 STPS 2018</div>
+    </div>
+    <div class="meta">
+      <div>Generado: ${printDate}</div>
+      <div>No. Empleado: ${emp.employeeNumber || 'N/A'}</div>
+      <div>Folio: EXP-${emp.id}-${new Date().getFullYear()}</div>
+    </div>
+  </div>
+  <div class="confidential">⚠ DOCUMENTO CONFIDENCIAL — Uso exclusivo de Recursos Humanos y Administración. NOM-035-STPS-2018.</div>
+  <div class="content">
+    <div class="section">
+      <div class="section-title">1. Datos Generales del Trabajador</div>
+      <div class="grid">
+        <div class="field"><div class="field-label">Nombre Completo</div><div class="field-value">${emp.firstName} ${emp.lastName}</div></div>
+        <div class="field"><div class="field-label">Estado</div><div class="field-value"><span class="badge ${emp.isActive ? 'badge-active' : 'badge-inactive'}">${statusLabel}</span></div></div>
+        <div class="field"><div class="field-label">Correo Electrónico</div><div class="field-value">${emp.email || '—'}</div></div>
+        <div class="field"><div class="field-label">Teléfono</div><div class="field-value">${emp.phone || '—'}</div></div>
+        <div class="field"><div class="field-label">CURP</div><div class="field-value mono">${emp.curp || '—'}</div></div>
+        <div class="field"><div class="field-label">RFC</div><div class="field-value mono">${emp.rfc || '—'}</div></div>
+        <div class="field"><div class="field-label">NSS (IMSS)</div><div class="field-value mono">${emp.nss || '—'}</div></div>
+        <div class="field"><div class="field-label">Cédula Profesional</div><div class="field-value mono">${emp.cedulaProfesional || '—'}</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">2. Información Laboral</div>
+      <div class="grid">
+        <div class="field"><div class="field-label">Número de Empleado</div><div class="field-value">${emp.employeeNumber || '—'}</div></div>
+        <div class="field"><div class="field-label">Departamento</div><div class="field-value">${emp.department || '—'}</div></div>
+        <div class="field"><div class="field-label">Puesto</div><div class="field-value">${emp.position || '—'}</div></div>
+        <div class="field"><div class="field-label">Tipo de Contrato</div><div class="field-value">${contractTypeLabel}</div></div>
+        <div class="field"><div class="field-label">Fecha de Ingreso</div><div class="field-value">${hireDateStr}</div></div>
+        <div class="field"><div class="field-label">Alta en Sistema</div><div class="field-value">${createdAtStr}</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">3. Declaración de Autenticidad</div>
+      <p style="font-size:10pt;line-height:1.6;color:#374151;">El presente expediente contiene información veraz y verificada del trabajador, generada a partir de los registros oficiales de la organización en cumplimiento con la NOM-035-STPS-2018. La información aquí contenida es confidencial y su uso está restringido al personal autorizado del área de Recursos Humanos y Administración.</p>
+    </div>
+    <div class="signatures">
+      <div class="sig-box">
+        <div style="height:50px;"></div>
+        <div class="sig-name">Responsable de Recursos Humanos</div>
+        <div class="sig-role">Nombre y Firma</div>
+      </div>
+      <div class="sig-box">
+        <div style="height:50px;"></div>
+        <div class="sig-name">${emp.firstName} ${emp.lastName}</div>
+        <div class="sig-role">Trabajador — Firma de Conformidad</div>
+      </div>
+    </div>
+    <div class="footer">Expediente generado el ${printDate} · Plataforma NOM-035 STPS 2018 · Folio EXP-${emp.id}-${new Date().getFullYear()}</div>
+  </div>
+  <script>window.onload = function() { window.print(); };<\/script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
     }
   };
 
@@ -135,7 +243,11 @@ export default function EmployeeProfile() {
                 )}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" onClick={handleExportPDF} title="Exportar expediente completo a PDF">
+                <Download className="mr-2 h-4 w-4" />
+                Exportar Expediente PDF
+              </Button>
               <Link href={`/employees/${employeeId}/documents`}>
                 <Button variant="default">
                   <FolderOpen className="mr-2 h-4 w-4" />

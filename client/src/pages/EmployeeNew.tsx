@@ -386,6 +386,23 @@ export default function EmployeeNew() {
                   }}
                   showValidationIcon={true}
                 />
+                {formData.rfc && formData.rfc.length >= 12 && (() => {
+                  const r = validateRFC(formData.rfc, 'fisica');
+                  if (!r.valid) return null;
+                  const rfc = formData.rfc.toUpperCase();
+                  const year = rfc.substring(4, 6);
+                  const month = rfc.substring(6, 8);
+                  const day = rfc.substring(8, 10);
+                  const yearFull = parseInt(year) > 30 ? `19${year}` : `20${year}`;
+                  return (
+                    <div className="mt-1 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-800 space-y-0.5">
+                      <p className="font-semibold">✓ RFC válido — Desglose:</p>
+                      <p>Iniciales nombre: <span className="font-mono">{rfc.substring(0, 4)}</span></p>
+                      <p>Fecha nacimiento: <span className="font-mono">{day}/{month}/{yearFull}</span></p>
+                      <p>Homoclave: <span className="font-mono">{rfc.substring(10, 12)}</span> · Dígito verificador: <span className="font-mono">{rfc.charAt(12)}</span></p>
+                    </div>
+                  );
+                })()}
                 <p className="text-xs text-muted-foreground">Registro Federal de Contribuyentes (12-13 caracteres)</p>
               </div>
               <div className="space-y-2">

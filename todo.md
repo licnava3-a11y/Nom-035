@@ -8121,3 +8121,8 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] RFC y NSS en formulario de edición de empleados (EmployeeEdit.tsx)
 - [ ] Validación en tiempo real del RFC con InputWithValidation
 - [ ] Mostrar RFC y NSS en el perfil del empleado (EmployeeDetail.tsx)
+
+## Sprint: RFC/NSS tabla, validación SAT, expediente PDF
+- [ ] RFC y NSS como columnas visibles en tabla catálogo de empleados
+- [ ] Validación RFC contra SAT en tiempo real
+- [ ] Exportar expediente del empleado a PDF desde EmployeeProfile
