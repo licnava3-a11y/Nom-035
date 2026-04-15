@@ -498,6 +498,96 @@ export const jobProfilesRouter = router({
     }),
 
   /**
+   * Get profile comparison: position requirements vs employee's actual competencies
+   * Used to generate the DNC visual panel in EmployeeProfile
+   */
+  getProfileComparison: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+      const [employee] = await db
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          positionId: employees.positionId,
+          positionTitle: positions.title,
+          educationLevel: employees.educationLevel,
+          minimumEducation: positions.minimumEducation,
+        })
+        .from(employees)
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .where(eq(employees.id, input.employeeId))
+        .limit(1);
+
+      if (!employee) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado" });
+
+      // Find matching jobPosition by position title
+      let positionRequirements: any[] = [];
+      if (employee.positionTitle) {
+        const [jobPos] = await db
+          .select()
+          .from(jobPositions)
+          .where(eq(jobPositions.positionName, employee.positionTitle))
+          .limit(1);
+        if (jobPos) {
+          positionRequirements = await db
+            .select()
+            .from(jobProfiles)
+            .where(eq(jobProfiles.positionId, jobPos.id));
+        }
+      }
+
+      // Get employee's actual competencies
+      const empCompetencies = await db
+        .select()
+        .from(employeeCompetencies)
+        .where(eq(employeeCompetencies.employeeId, input.employeeId));
+
+      // Get existing training needs for this employee
+      const existingNeeds = await db
+        .select()
+        .from(trainingNeeds)
+        .where(eq(trainingNeeds.employeeId, input.employeeId));
+
+      const competencyMap = new Map(empCompetencies.map((c: any) => [c.competencyName, c]));
+      const levelValue: Record<string, number> = { ninguno: 0, basico: 1, intermedio: 2, avanzado: 3, experto: 4 };
+
+      // Education level comparison
+      const educationOrder = ["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado", "otro"];
+      const empEduIdx = employee.educationLevel ? educationOrder.indexOf(employee.educationLevel) : -1;
+      const reqEduIdx = employee.minimumEducation ? educationOrder.indexOf(employee.minimumEducation) : -1;
+      const educationCompliant = reqEduIdx < 0 || empEduIdx >= reqEduIdx;
+
+      // Build comparison items
+      const comparisonItems = positionRequirements.map((req: any) => {
+        const empComp = competencyMap.get(req.competencyName);
+        const currentLevel = empComp?.currentLevel || "ninguno";
+        const gap = levelValue[req.requiredLevel] - levelValue[currentLevel];
+        const hasNeed = existingNeeds.some((n: any) => n.competencyName === req.competencyName && n.status === "pendiente");
+        let priority: string | null = null;
+        if (gap >= 3) priority = "critica";
+        else if (gap === 2) priority = "alta";
+        else if (gap === 1) priority = "media";
+        else if (gap > 0) priority = "baja";
+        return { competencyName: req.competencyName, competencyType: req.competencyType, requiredLevel: req.requiredLevel, currentLevel, gap, compliant: gap <= 0, priority, hasTrainingNeed: hasNeed };
+      });
+
+      const totalCompetencies = comparisonItems.length;
+      const compliantCount = comparisonItems.filter((c: any) => c.compliant).length;
+      const gapCount = totalCompetencies - compliantCount;
+      const compliancePercentage = totalCompetencies > 0 ? Math.round((compliantCount / totalCompetencies) * 100) : 100;
+
+      return {
+        employee: { id: employee.id, name: `${employee.firstName} ${employee.lastName}`, positionTitle: employee.positionTitle, educationLevel: employee.educationLevel, minimumEducation: employee.minimumEducation, educationCompliant },
+        comparison: comparisonItems,
+        summary: { totalCompetencies, compliantCount, gapCount, compliancePercentage, hasPositionProfile: positionRequirements.length > 0 },
+      };
+    }),
+
+  /**
    * Get all positions with their competency requirements
    */
   getAllPositionsWithProfiles: protectedProcedure.query(async ({ ctx }) => {

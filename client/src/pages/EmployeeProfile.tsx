@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import { useLocation, useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ReentryBadge } from "@/components/ReentryBadge";
 import { EmployeeTimeline } from "@/components/EmployeeTimeline";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   User,
@@ -23,27 +25,145 @@ import {
   Target,
   Download,
   GraduationCap,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  BookOpen,
+  Upload,
+  Trash2,
+  Eye,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+
+// Helper: contract expiration status
+function contractStatus(dateStr: string | null | undefined): { label: string; color: string; icon: React.ReactNode; daysLeft: number | null } {
+  if (!dateStr) return { label: "Sin fecha", color: "text-muted-foreground", icon: null, daysLeft: null };
+  const expDate = new Date(dateStr);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysLeft = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  if (daysLeft < 0) return { label: `Vencido hace ${Math.abs(daysLeft)} días`, color: "text-red-600", icon: <XCircle className="h-4 w-4 text-red-500" />, daysLeft };
+  if (daysLeft <= 7) return { label: `Vence en ${daysLeft} día${daysLeft !== 1 ? 's' : ''}`, color: "text-red-600", icon: <AlertTriangle className="h-4 w-4 text-red-500" />, daysLeft };
+  if (daysLeft <= 30) return { label: `Vence en ${daysLeft} días`, color: "text-amber-600", icon: <Clock className="h-4 w-4 text-amber-500" />, daysLeft };
+  return { label: `Vigente (${daysLeft} días)`, color: "text-green-600", icon: <CheckCircle2 className="h-4 w-4 text-green-500" />, daysLeft };
+}
+
+const DOC_LABELS: Record<string, string> = {
+  ine: "INE / Identificación Oficial",
+  curp_document: "CURP",
+  rfc_document: "RFC",
+  nss_document: "NSS (IMSS)",
+  birth_certificate: "Acta de Nacimiento",
+  proof_of_address: "Comprobante de Domicilio",
+  contract: "Contrato de Trabajo",
+  job_offer: "Oferta de Empleo",
+  resignation: "Carta de Renuncia",
+  termination: "Finiquito / Baja",
+  recommendation: "Carta de Recomendación",
+  diploma: "Título / Diploma",
+  certificate: "Certificado / Constancia",
+  medical_exam: "Examen Médico",
+  background_check: "Estudio Socioeconómico",
+  other: "Otro Documento",
+};
+
+const REQUIRED_DOCS = ["ine", "curp_document", "rfc_document", "nss_document", "birth_certificate", "contract"];
 
 export default function EmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const employeeId = parseInt(id || "0");
+  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs">("info");
+  const [uploadType, setUploadType] = useState<string>("ine");
+  const [uploadNotes, setUploadNotes] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const utils = trpc.useUtils();
 
   const { data: employee, isLoading, refetch } = trpc.employees.getById.useQuery(
     { id: employeeId },
     { enabled: employeeId > 0 }
   ) as { data: any; isLoading: boolean; refetch: () => void };
-
   const { data: employeeHistory } = trpc.employees.getHistory.useQuery(
     { employeeId },
     { enabled: employeeId > 0 }
   );
-
   const { data: coursesHistory } = trpc.employees.getCoursesHistory.useQuery(
     { employeeId },
     { enabled: employeeId > 0 }
   );
+  const { data: profileComparison, isLoading: dncLoading, refetch: refetchDNC } = trpc.jobProfiles.getProfileComparison.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "dnc" }
+  );
+  const { data: empDocuments, isLoading: docsLoading, refetch: refetchDocs } = trpc.employeeDocuments.list.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "docs" }
+  );
+  const { data: docStats } = trpc.employeeDocuments.getStats.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "docs" }
+  );
+
+  const generateDNCMutation = trpc.jobProfiles.generateDNC.useMutation({
+    onSuccess: (data: any) => {
+      toast.success(`DNC generada: ${data.needsCreated} necesidades de capacitación registradas`);
+      refetchDNC();
+    },
+    onError: (error: any) => {
+      toast.error(`Error al generar DNC: ${error.message}`);
+    },
+  });
+
+  const deleteDocMutation = trpc.employeeDocuments.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Documento eliminado");
+      refetchDocs();
+    },
+    onError: (error: any) => {
+      toast.error(`Error: ${error.message}`);
+    },
+  });
+
+  const uploadDocMutation = trpc.employeeDocuments.upload.useMutation({
+    onSuccess: () => {
+      toast.success("Documento cargado exitosamente");
+      setIsUploading(false);
+      setUploadNotes("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      refetchDocs();
+    },
+    onError: (error: any) => {
+      toast.error(`Error al cargar: ${error.message}`);
+      setIsUploading(false);
+    },
+  });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 16 * 1024 * 1024) {
+      toast.error("El archivo no puede superar 16 MB");
+      return;
+    }
+    setIsUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      uploadDocMutation.mutate({
+        employeeId,
+        documentType: uploadType as any,
+        fileName: file.name,
+        fileData: base64,
+        mimeType: file.type,
+        notes: uploadNotes || undefined,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const deactivateMutation = trpc.employees.deactivate.useMutation({
     onSuccess: () => {
@@ -143,7 +263,7 @@ export default function EmployeeProfile() {
         <div class="field"><div class="field-label">RFC</div><div class="field-value mono">${emp.rfc || '—'}</div></div>
         <div class="field"><div class="field-label">NSS (IMSS)</div><div class="field-value mono">${emp.nss || '—'}</div></div>
         <div class="field"><div class="field-label">Cédula Profesional</div><div class="field-value mono">${emp.cedulaProfesional || '—'}</div></div>
-        <div class="field"><div class="field-label">Nivel de Estudios</div><div class="field-value">${{
+        <div class="field"><div class="field-label">Nivel de Estudios</div><div class="field-value">${({
           primaria: 'Primaria',
           secundaria: 'Secundaria',
           preparatoria: 'Preparatoria / Bachillerato',
@@ -153,7 +273,7 @@ export default function EmployeeProfile() {
           maestria: 'Maestría',
           doctorado: 'Doctorado',
           otro: 'Otro',
-        }[(emp as any).educationLevel] || (emp as any).educationLevel || '—'}</div></div>
+        } as Record<string, string>)[(emp as any).educationLevel] || (emp as any).educationLevel || '—'}</div></div>
       </div>
     </div>
     <div class="section">
@@ -513,8 +633,7 @@ export default function EmployeeProfile() {
         </Card>
       </div>
 
-      {/* Future sections placeholder */}
-      {/* Timeline de historial laboral */}
+       {/* Timeline de historial laboral */}
       <div className="mt-6">
         <EmployeeTimeline 
           history={employeeHistory || []}
@@ -522,20 +641,397 @@ export default function EmployeeProfile() {
         />
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Secciones Adicionales</CardTitle>
-          <CardDescription>
-            Próximamente: Historial de capacitación, evaluaciones de desempeño, documentos del expediente
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Esta sección se expandirá con información adicional del empleado como historial de cursos,
-            evaluaciones, documentos del expediente digital, y más.
-          </p>
-        </CardContent>
-      </Card>
+      {/* ===== TABS PANEL ===== */}
+      <div className="mt-8">
+        {/* Tab navigation */}
+        <div className="flex gap-1 border-b mb-6">
+          {([
+            { key: "info", label: "Información", icon: <User className="h-4 w-4" /> },
+            { key: "contracts", label: "Contratos", icon: <Calendar className="h-4 w-4" /> },
+            { key: "dnc", label: "Comparativa DNC", icon: <Target className="h-4 w-4" /> },
+            { key: "docs", label: "Expediente Electrónico", icon: <FolderOpen className="h-4 w-4" /> },
+          ] as const).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.key
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── TAB: INFORMACIÓN (placeholder) ── */}
+        {activeTab === "info" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Historial de Capacitación</CardTitle>
+              <CardDescription>Cursos completados en la plataforma NOM-035</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {(coursesHistory || []).length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">Sin cursos completados registrados.</p>
+              ) : (
+                <div className="space-y-2">
+                  {(coursesHistory as any[]).map((c: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+                      <div>
+                        <p className="text-sm font-medium">{c.courseName}</p>
+                        <p className="text-xs text-muted-foreground">{c.completedAt}</p>
+                      </div>
+                      <Badge variant="outline">{c.progressPercentage}%</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ── TAB: CONTRATOS ── */}
+        {activeTab === "contracts" && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Vencimiento de Contratos</CardTitle>
+                <CardDescription>Fechas de vencimiento de los contratos del trabajador</CardDescription>
+              </div>
+              <Link href={`/employees/${employeeId}/edit`}>
+                <Button variant="outline" size="sm">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Actualizar fechas
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {([1, 2, 3] as const).map((n) => {
+                  const dateKey = `contract${n}ExpirationDate` as string;
+                  const dateVal = (employee as any)[dateKey];
+                  const status = contractStatus(dateVal);
+                  return (
+                    <div key={n} className={`rounded-lg border p-4 ${
+                      !dateVal ? "bg-muted/30" :
+                      status.daysLeft !== null && status.daysLeft < 0 ? "bg-red-50 border-red-200" :
+                      status.daysLeft !== null && status.daysLeft <= 7 ? "bg-red-50 border-red-200" :
+                      status.daysLeft !== null && status.daysLeft <= 30 ? "bg-amber-50 border-amber-200" :
+                      "bg-green-50 border-green-200"
+                    }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-semibold">Contrato {n}</span>
+                      </div>
+                      {dateVal ? (
+                        <>
+                          <p className="text-sm font-mono mb-1">
+                            {new Date(dateVal).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}
+                          </p>
+                          <div className={`flex items-center gap-1.5 text-xs font-medium ${status.color}`}>
+                            {status.icon}
+                            {status.label}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">Sin fecha registrada</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">
+                <AlertTriangle className="inline h-3 w-3 mr-1" />
+                Se envía alerta automática a RH 7 días antes del vencimiento de cualquier contrato.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ── TAB: COMPARATIVA DNC ── */}
+        {activeTab === "dnc" && (
+          <div className="space-y-4">
+            {dncLoading ? (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">Cargando comparativa...</CardContent></Card>
+            ) : !profileComparison ? (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">No se pudo cargar la comparativa.</CardContent></Card>
+            ) : (
+              <>
+                {/* Summary cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="rounded-lg border p-3 text-center">
+                    <p className="text-2xl font-bold">{(profileComparison as any).summary.compliancePercentage}%</p>
+                    <p className="text-xs text-muted-foreground mt-1">Cumplimiento</p>
+                  </div>
+                  <div className="rounded-lg border p-3 text-center">
+                    <p className="text-2xl font-bold text-green-600">{(profileComparison as any).summary.compliantCount}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Competencias OK</p>
+                  </div>
+                  <div className="rounded-lg border p-3 text-center">
+                    <p className="text-2xl font-bold text-red-600">{(profileComparison as any).summary.gapCount}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Con Brecha</p>
+                  </div>
+                  <div className="rounded-lg border p-3 text-center">
+                    <p className={`text-sm font-semibold ${ (profileComparison as any).employee.educationCompliant ? "text-green-600" : "text-red-600" }`}>
+                      {(profileComparison as any).employee.educationCompliant ? "✓ Cumple" : "✗ No cumple"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">Escolaridad</p>
+                  </div>
+                </div>
+
+                {/* Education comparison */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Escolaridad</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Nivel del empleado</p>
+                        <Badge variant={(profileComparison as any).employee.educationCompliant ? "default" : "destructive"} className="capitalize">
+                          {(profileComparison as any).employee.educationLevel || "No registrado"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Mínimo requerido por el puesto</p>
+                        <Badge variant="outline" className="capitalize">
+                          {(profileComparison as any).employee.minimumEducation || "Sin requisito"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Competency comparison table */}
+                {!(profileComparison as any).summary.hasPositionProfile ? (
+                  <Card>
+                    <CardContent className="py-6 text-center">
+                      <BookOpen className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">El puesto de este empleado no tiene un perfil de competencias configurado.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Configúralo en Gestión de Talento → Perfiles de Puesto.</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-base">Competencias del Puesto vs Empleado</CardTitle>
+                      <LoadingButton
+                        size="sm"
+                        loading={generateDNCMutation.isPending}
+                        loadingText="Generando DNC..."
+                        onClick={() => generateDNCMutation.mutate({ employeeId })}
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Generar DNC
+                      </LoadingButton>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {(profileComparison as any).comparison.map((item: any, i: number) => (
+                          <div key={i} className={`flex items-center justify-between p-3 rounded-lg border ${
+                            item.compliant ? "bg-green-50/50 border-green-100" : "bg-red-50/50 border-red-100"
+                          }`}>
+                            <div className="flex items-center gap-3">
+                              {item.compliant
+                                ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                                : <XCircle className="h-4 w-4 text-red-500 shrink-0" />}
+                              <div>
+                                <p className="text-sm font-medium">{item.competencyName}</p>
+                                <p className="text-xs text-muted-foreground capitalize">{item.competencyType}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs">
+                              <div className="text-center">
+                                <p className="text-muted-foreground">Actual</p>
+                                <Badge variant="outline" className="capitalize text-xs">{item.currentLevel}</Badge>
+                              </div>
+                              <span className="text-muted-foreground">→</span>
+                              <div className="text-center">
+                                <p className="text-muted-foreground">Requerido</p>
+                                <Badge variant={item.compliant ? "default" : "destructive"} className="capitalize text-xs">{item.requiredLevel}</Badge>
+                              </div>
+                              {!item.compliant && item.priority && (
+                                <Badge variant="outline" className={`text-xs ${
+                                  item.priority === "critica" ? "border-red-400 text-red-600" :
+                                  item.priority === "alta" ? "border-orange-400 text-orange-600" :
+                                  item.priority === "media" ? "border-amber-400 text-amber-600" :
+                                  "border-gray-300 text-gray-500"
+                                }`}>
+                                  {item.priority}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB: EXPEDIENTE ELECTRÓNICO ── */}
+        {activeTab === "docs" && (
+          <div className="space-y-4">
+            {/* Stats bar */}
+            {docStats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="rounded-lg border p-3 text-center">
+                  <p className="text-2xl font-bold">{(docStats as any).total}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Total documentos</p>
+                </div>
+                <div className="rounded-lg border p-3 text-center">
+                  <p className="text-2xl font-bold text-green-600">{(docStats as any).vigente}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Vigentes</p>
+                </div>
+                <div className="rounded-lg border p-3 text-center">
+                  <p className="text-2xl font-bold text-amber-600">{(docStats as any).porVencer}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Por vencer</p>
+                </div>
+                <div className="rounded-lg border p-3 text-center">
+                  <p className="text-2xl font-bold text-red-600">{(docStats as any).vencido}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Vencidos</p>
+                </div>
+              </div>
+            )}
+
+            {/* Completeness indicator */}
+            {empDocuments && (() => {
+              const uploadedTypes = new Set((empDocuments as any[]).map((d: any) => d.documentType));
+              const completedRequired = REQUIRED_DOCS.filter(t => uploadedTypes.has(t)).length;
+              const pct = Math.round((completedRequired / REQUIRED_DOCS.length) * 100);
+              return (
+                <Card>
+                  <CardContent className="pt-4 pb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium">Completitud del expediente obligatorio</p>
+                      <span className="text-sm font-bold">{completedRequired}/{REQUIRED_DOCS.length} ({pct}%)</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full rounded-full transition-all ${ pct === 100 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500" }`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {REQUIRED_DOCS.map(t => (
+                        <span key={t} className={`text-xs px-2 py-0.5 rounded-full border ${ uploadedTypes.has(t) ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700" }`}>
+                          {uploadedTypes.has(t) ? "✓" : "✗"} {DOC_LABELS[t]}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+            {/* Upload form */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Cargar Nuevo Documento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">Tipo de documento</label>
+                    <select
+                      value={uploadType}
+                      onChange={e => setUploadType(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                    >
+                      {Object.entries(DOC_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>{v}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">Notas (opcional)</label>
+                    <input
+                      type="text"
+                      value={uploadNotes}
+                      onChange={e => setUploadNotes(e.target.value)}
+                      placeholder="Observaciones..."
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">Archivo (máx. 16 MB)</label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium cursor-pointer"
+                    />
+                  </div>
+                </div>
+                {isUploading && <p className="text-xs text-muted-foreground mt-2">Cargando documento...</p>}
+              </CardContent>
+            </Card>
+
+            {/* Document list */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-base">Documentos Cargados</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => refetchDocs()}>
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {docsLoading ? (
+                  <p className="text-sm text-muted-foreground">Cargando...</p>
+                ) : !(empDocuments as any[])?.length ? (
+                  <div className="text-center py-6">
+                    <FolderOpen className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">No hay documentos cargados aún.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {(empDocuments as any[]).map((doc: any) => (
+                      <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium">{DOC_LABELS[doc.documentType] || doc.documentType}</p>
+                            <p className="text-xs text-muted-foreground">{doc.fileName} · {new Date(doc.createdAt).toLocaleDateString("es-MX")}</p>
+                            {doc.notes && <p className="text-xs text-muted-foreground italic">{doc.notes}</p>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={doc.status === "vigente" ? "default" : doc.status === "por_vencer" ? "secondary" : "destructive"} className="text-xs">
+                            {doc.status === "vigente" ? "Vigente" : doc.status === "por_vencer" ? "Por vencer" : "Vencido"}
+                          </Badge>
+                          <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Ver documento">
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                          </a>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            title="Eliminar documento"
+                            onClick={() => {
+                              if (window.confirm(`¿Eliminar "${DOC_LABELS[doc.documentType] || doc.documentType}"?`)) {
+                                deleteDocMutation.mutate({ documentId: doc.id });
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

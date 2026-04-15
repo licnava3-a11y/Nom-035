@@ -259,6 +259,9 @@ export const employeesRouter = router({
         rfc: z.string().max(13).optional().nullable(),
         nss: z.string().max(11).optional().nullable(),
         educationLevel: z.enum(["primaria","secundaria","preparatoria","tecnico","licenciatura","especialidad","maestria","doctorado","otro"]).optional().nullable(),
+        contract1ExpirationDate: z.string().optional().nullable(),
+        contract2ExpirationDate: z.string().optional().nullable(),
+        contract3ExpirationDate: z.string().optional().nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -288,6 +291,9 @@ export const employeesRouter = router({
       const updated = await employeesDb.updateEmployee(id, {
         ...updateData,
         hireDate: updateData.hireDate ? new Date(updateData.hireDate) : undefined,
+        contract1ExpirationDate: updateData.contract1ExpirationDate ? new Date(updateData.contract1ExpirationDate) : (updateData.contract1ExpirationDate === null ? null : undefined),
+        contract2ExpirationDate: updateData.contract2ExpirationDate ? new Date(updateData.contract2ExpirationDate) : (updateData.contract2ExpirationDate === null ? null : undefined),
+        contract3ExpirationDate: updateData.contract3ExpirationDate ? new Date(updateData.contract3ExpirationDate) : (updateData.contract3ExpirationDate === null ? null : undefined),
       });
 
       return {

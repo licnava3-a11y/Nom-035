@@ -44,6 +44,7 @@ import { initializeWebSocket } from "./websocket";
 import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
 import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
 import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
+import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-alerts-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -269,6 +270,16 @@ async function startServer() {
     
     // Compliance Reminders Job
     initializeComplianceRemindersJob();
+
+    // Contract Expiration Alerts Job (daily at 8:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 8 && now.getMinutes() === 0) {
+        console.log("[Contract Expiration Alerts Job] Triggering daily contract expiration check");
+        runContractExpirationAlertsJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
+    console.log("[Contract Expiration Alerts Job] Scheduled to run daily at 08:00");
     
     // Monthly Reports Job (1st day of month at 8:00 AM)
     setInterval(() => {

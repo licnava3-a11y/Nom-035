@@ -39,6 +39,9 @@ export default function EmployeeEdit() {
     position: "" as string | number,
     hireDate: "",
     contractType: "permanent" as "permanent" | "temporary" | "contract",
+    contract1ExpirationDate: "",
+    contract2ExpirationDate: "",
+    contract3ExpirationDate: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -76,6 +79,9 @@ export default function EmployeeEdit() {
         position: (employee as any).position || employee.positionId || "",
         hireDate: employee.hireDate ? new Date(employee.hireDate).toISOString().split("T")[0] : "",
         contractType: employee.contractType || "permanent",
+        contract1ExpirationDate: (employee as any).contract1ExpirationDate ? new Date((employee as any).contract1ExpirationDate).toISOString().split("T")[0] : "",
+        contract2ExpirationDate: (employee as any).contract2ExpirationDate ? new Date((employee as any).contract2ExpirationDate).toISOString().split("T")[0] : "",
+        contract3ExpirationDate: (employee as any).contract3ExpirationDate ? new Date((employee as any).contract3ExpirationDate).toISOString().split("T")[0] : "",
       });
     }
   }, [employee]);
@@ -452,6 +458,41 @@ export default function EmployeeEdit() {
                 <option value="temporary">Temporal</option>
                 <option value="contract">Por Contrato</option>
               </select>
+            </div>
+
+            {/* Fechas de vencimiento de contratos */}
+            <div className="pt-2">
+              <p className="text-sm font-medium mb-3 text-muted-foreground">Fechas de Vencimiento de Contratos</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contract1ExpirationDate">Contrato 1 — Vencimiento</Label>
+                  <Input
+                    id="contract1ExpirationDate"
+                    type="date"
+                    value={formData.contract1ExpirationDate}
+                    onChange={(e) => handleChange("contract1ExpirationDate", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contract2ExpirationDate">Contrato 2 — Vencimiento</Label>
+                  <Input
+                    id="contract2ExpirationDate"
+                    type="date"
+                    value={formData.contract2ExpirationDate}
+                    onChange={(e) => handleChange("contract2ExpirationDate", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contract3ExpirationDate">Contrato 3 — Vencimiento</Label>
+                  <Input
+                    id="contract3ExpirationDate"
+                    type="date"
+                    value={formData.contract3ExpirationDate}
+                    onChange={(e) => handleChange("contract3ExpirationDate", e.target.value)}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Se enviará alerta automática a RH 7 días antes del vencimiento.</p>
             </div>
           </CardContent>
         </Card>

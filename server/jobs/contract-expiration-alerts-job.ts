@@ -50,9 +50,9 @@ export async function runContractExpirationAlertsJob() {
     for (const employee of activeEmployees) {
       // Verificar cada tipo de contrato
       const contractFields = [
-        { field: (employee as any).contractEndDate1, type: "Contrato 1" },
-        { field: (employee as any).contractEndDate2, type: "Contrato 2" },
-        { field: (employee as any).contractEndDate3, type: "Contrato 3" },
+        { field: (employee as any).contract1ExpirationDate, type: "Contrato 1" },
+        { field: (employee as any).contract2ExpirationDate, type: "Contrato 2" },
+        { field: (employee as any).contract3ExpirationDate, type: "Contrato 3" },
       ];
 
       for (const contract of contractFields) {
@@ -121,15 +121,4 @@ export async function runContractExpirationAlertsJob() {
   }
 }
 
-// Ejecutar el job inmediatamente si se ejecuta directamente
-if (require.main === module) {
-  runContractExpirationAlertsJob()
-    .then((result) => {
-      console.log("Resultado del job:", result);
-      process.exit(result.success ? 0 : 1);
-    })
-    .catch((error) => {
-      console.error("Error fatal:", error);
-      process.exit(1);
-    });
-}
+

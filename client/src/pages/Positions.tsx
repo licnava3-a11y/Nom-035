@@ -65,7 +65,7 @@ export default function Positions() {
     code: "",
     departmentId: 0,
     level: "specialist" as "executive" | "management" | "supervisor" | "specialist" | "entry",
-    minimumEducation: "" as string,
+    minimumEducation: "" as "primaria" | "secundaria" | "preparatoria" | "tecnico" | "licenciatura" | "especialidad" | "maestria" | "doctorado" | "",
   });
 
   const { data, isLoading, refetch } = trpc.positions.list.useQuery({
@@ -124,7 +124,7 @@ export default function Positions() {
       code: "",
       departmentId: 0,
       level: "specialist",
-      minimumEducation: "",
+      minimumEducation: "" as any,
     });
     setSelectedPosition(null);
   };
@@ -134,7 +134,10 @@ export default function Positions() {
       toast.error("El título, código y departamento son obligatorios");
       return;
     }
-    createMutation.mutate(formData);
+    createMutation.mutate({
+      ...formData,
+      minimumEducation: (formData.minimumEducation || null) as any,
+    });
   };
 
   const handleEdit = (position: any) => {
@@ -158,6 +161,7 @@ export default function Positions() {
     updateMutation.mutate({
       id: selectedPosition.id,
       ...formData,
+      minimumEducation: (formData.minimumEducation || null) as any,
     });
   };
 

@@ -8138,3 +8138,27 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Mostrar educationLevel en EmployeeProfile
 - [ ] Agregar educationLevel al PDF del expediente
 - [ ] Filtrar candidatos por nivel de estudios en vacantes
+
+## Sprint: Gestión Avanzada de Talento (Abril 2026)
+
+- [x] Comparativa automática perfil de puesto vs empleado con DNC individual
+  - [x] Procedure `getProfileComparison` en router jobProfiles
+  - [x] Panel "Comparativa DNC" en EmployeeProfile con semáforo de competencias
+  - [x] Botón "Generar DNC" para crear necesidades de capacitación automáticamente
+  - [x] Comparativa de nivel de escolaridad (empleado vs requisito del puesto)
+- [x] Alertas de vencimiento de contratos con correo automático a RH
+  - [x] Campos contract1/2/3ExpirationDate ya en schema y db-employees
+  - [x] Formulario EmployeeEdit con 3 campos de fecha de vencimiento
+  - [x] Panel "Vencimiento de Contratos" en EmployeeProfile con semáforo visual
+  - [x] Job `runContractExpirationAlertsJob` registrado en servidor (diario 8:00 AM)
+  - [x] Email consolidado a RH con todos los contratos que vencen en 7 días
+- [x] Gestión de expediente electrónico con carga de documentos a S3
+  - [x] Router employeeDocuments con upload/list/delete/getStats
+  - [x] Panel "Expediente Electrónico" en EmployeeProfile con carga de archivos
+  - [x] Visualización de documentos con estado (vigente/por_vencer/vencido)
+  - [x] Indicador de documentos requeridos vs cargados
+- [x] Correcciones TypeScript
+  - [x] Error TS7053 en EmployeeProfile (índice de educationLevel)
+  - [x] Error TS2353 en EmployeeProfile (deleteDocMutation sin employeeId)
+  - [x] Error TS2345 en Positions.tsx (tipo de minimumEducation)
+  - [x] Eliminado require.main del job de contratos (ES module)
