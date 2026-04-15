@@ -11,6 +11,29 @@ import {
   candidateReferences 
 } from "../../drizzle/schema";
 
+// Education level order for comparison
+const EDUCATION_ORDER: Record<string, number> = {
+  primaria: 1,
+  secundaria: 2,
+  preparatoria: 3,
+  tecnico: 4,
+  licenciatura: 5,
+  especialidad: 6,
+  maestria: 7,
+  doctorado: 8,
+};
+
+const EDUCATION_LABELS: Record<string, string> = {
+  primaria: "Primaria",
+  secundaria: "Secundaria",
+  preparatoria: "Preparatoria / Bachillerato",
+  tecnico: "Técnico Superior",
+  licenciatura: "Licenciatura",
+  especialidad: "Especialidad",
+  maestria: "Maestría",
+  doctorado: "Doctorado",
+};
+
 export const recruitmentRouter = router({
   // Crear vacante
   createJobOpening: protectedProcedure
@@ -24,8 +47,9 @@ export const recruitmentRouter = router({
       salaryRange: z.string().optional(),
       location: z.string().optional(),
       employmentType: z.enum(["permanent", "temporary", "contract", "internship"]).default("permanent"),
+      minimumEducation: z.enum(["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]).optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
@@ -39,11 +63,36 @@ export const recruitmentRouter = router({
         salaryRange: input.salaryRange || null,
         location: input.location || null,
         employmentType: input.employmentType,
+        minimumEducation: input.minimumEducation || null,
         status: "open",
-        createdBy: 1, // TODO: usar ctx.user.id cuando esté disponible
+        createdBy: ctx.user.id,
       });
 
       return { success: true, id: result.insertId };
+    }),
+
+  // Actualizar vacante
+  updateJobOpening: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      requirements: z.string().optional(),
+      responsibilities: z.string().optional(),
+      departmentId: z.number().optional(),
+      positionId: z.number().optional(),
+      salaryRange: z.string().optional(),
+      location: z.string().optional(),
+      employmentType: z.enum(["permanent", "temporary", "contract", "internship"]).optional(),
+      minimumEducation: z.enum(["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]).nullable().optional(),
+      status: z.enum(["draft", "open", "closed", "filled"]).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const { id, ...updateData } = input;
+      await db.update(jobOpenings).set(updateData as any).where(eq(jobOpenings.id, id));
+      return { success: true };
     }),
 
   // Obtener todas las vacantes
@@ -169,26 +218,59 @@ export const recruitmentRouter = router({
       return { success: true, candidateId };
     }),
 
-  // Obtener candidatos por vacante
+  // Obtener candidatos por vacante — con indicador de cumplimiento de escolaridad
   getCandidatesByJob: protectedProcedure
     .input(z.object({
       jobOpeningId: z.number(),
       status: z.enum(["new", "reviewing", "interview", "offer", "hired", "rejected", "all"]).default("all"),
+      educationFilter: z.enum(["all", "meets", "does_not_meet"]).default("all"),
     }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
+      // Get the job opening to know the minimum education requirement
+      const [jobOpening] = await db.select({ minimumEducation: jobOpenings.minimumEducation })
+        .from(jobOpenings)
+        .where(eq(jobOpenings.id, input.jobOpeningId));
+
       const whereConditions = [eq(candidates.jobOpeningId, input.jobOpeningId)];
       
       if (input.status !== "all") {
         whereConditions.push(eq(candidates.status, input.status));
       }
       
-      const query = db.select().from(candidates).where(and(...whereConditions));
-      
-      const results = await query.orderBy(desc(candidates.appliedAt));
-      return results;
+      const results = await db.select().from(candidates)
+        .where(and(...whereConditions))
+        .orderBy(desc(candidates.appliedAt));
+
+      // Annotate each candidate with education compliance
+      const minEduLevel = jobOpening?.minimumEducation
+        ? (EDUCATION_ORDER[jobOpening.minimumEducation] ?? 0)
+        : 0;
+
+      const annotated = results.map((c: any) => {
+        const candidateEduLevel = c.education ? (EDUCATION_ORDER[c.education] ?? 0) : 0;
+        const meetsEducation = minEduLevel === 0 ? null : candidateEduLevel >= minEduLevel;
+        return {
+          ...c,
+          meetsEducation,
+          educationLabel: c.education ? (EDUCATION_LABELS[c.education] ?? c.education) : null,
+          minimumEducationRequired: jobOpening?.minimumEducation ?? null,
+          minimumEducationLabel: jobOpening?.minimumEducation
+            ? (EDUCATION_LABELS[jobOpening.minimumEducation] ?? jobOpening.minimumEducation)
+            : null,
+        };
+      });
+
+      // Apply education filter
+      if (input.educationFilter === "meets") {
+        return annotated.filter((c: any) => c.meetsEducation === true);
+      } else if (input.educationFilter === "does_not_meet") {
+        return annotated.filter((c: any) => c.meetsEducation === false);
+      }
+
+      return annotated;
     }),
 
   // Obtener detalle de candidato

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useLocation, useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,10 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
+  PenLine,
+  ShieldCheck,
 } from "lucide-react";
+import SignatureCanvas from "@/components/SignatureCanvas";
 
 // Helper: contract expiration status
 function contractStatus(dateStr: string | null | undefined): { label: string; color: string; icon: React.ReactNode; daysLeft: number | null } {
@@ -77,6 +80,9 @@ export default function EmployeeProfile() {
   const [, setLocation] = useLocation();
   const employeeId = parseInt(id || "0");
   const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs">("info");
+  const [signingContract, setSigningContract] = useState<"1" | "2" | "3" | null>(null);
+  const [signerName, setSignerName] = useState("");
+  const [signerRole, setSignerRole] = useState("");
   const [uploadType, setUploadType] = useState<string>("ine");
   const [uploadNotes, setUploadNotes] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -107,6 +113,34 @@ export default function EmployeeProfile() {
     { employeeId },
     { enabled: employeeId > 0 && activeTab === "docs" }
   );
+
+  const { data: contractSigs, refetch: refetchContractSigs } = trpc.hiring.getContractSignatures.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "contracts" }
+  );
+  const saveContractSigMutation = trpc.hiring.saveContractSignature.useMutation({
+    onSuccess: () => {
+      toast.success("Firma guardada exitosamente (NOM-151)");
+      setSigningContract(null);
+      setSignerName("");
+      setSignerRole("");
+      refetchContractSigs();
+    },
+    onError: (error: any) => toast.error(`Error al guardar firma: ${error.message}`),
+  });
+  const handleContractSignature = useCallback((dataUrl: string) => {
+    if (!signingContract || !signerName.trim()) {
+      toast.error("Ingrese el nombre del firmante");
+      return;
+    }
+    saveContractSigMutation.mutate({
+      employeeId,
+      contractNumber: signingContract,
+      signatureDataUrl: dataUrl,
+      signerName: signerName.trim(),
+      signerRole: signerRole.trim() || undefined,
+    });
+  }, [signingContract, signerName, signerRole, employeeId, saveContractSigMutation]);
 
   const generateDNCMutation = trpc.jobProfiles.generateDNC.useMutation({
     onSuccess: (data: any) => {
@@ -695,60 +729,133 @@ export default function EmployeeProfile() {
 
         {/* ── TAB: CONTRATOS ── */}
         {activeTab === "contracts" && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Vencimiento de Contratos</CardTitle>
-                <CardDescription>Fechas de vencimiento de los contratos del trabajador</CardDescription>
-              </div>
-              <Link href={`/employees/${employeeId}/edit`}>
-                <Button variant="outline" size="sm">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Actualizar fechas
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {([1, 2, 3] as const).map((n) => {
-                  const dateKey = `contract${n}ExpirationDate` as string;
-                  const dateVal = (employee as any)[dateKey];
-                  const status = contractStatus(dateVal);
-                  return (
-                    <div key={n} className={`rounded-lg border p-4 ${
-                      !dateVal ? "bg-muted/30" :
-                      status.daysLeft !== null && status.daysLeft < 0 ? "bg-red-50 border-red-200" :
-                      status.daysLeft !== null && status.daysLeft <= 7 ? "bg-red-50 border-red-200" :
-                      status.daysLeft !== null && status.daysLeft <= 30 ? "bg-amber-50 border-amber-200" :
-                      "bg-green-50 border-green-200"
-                    }`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-semibold">Contrato {n}</span>
-                      </div>
-                      {dateVal ? (
-                        <>
-                          <p className="text-sm font-mono mb-1">
-                            {new Date(dateVal).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}
-                          </p>
-                          <div className={`flex items-center gap-1.5 text-xs font-medium ${status.color}`}>
-                            {status.icon}
-                            {status.label}
+          <div className="space-y-4">
+            {/* ── Vencimiento de contratos ── */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Vencimiento de Contratos</CardTitle>
+                  <CardDescription>Fechas de vencimiento y estado de cada contrato</CardDescription>
+                </div>
+                <Link href={`/employees/${employeeId}/edit`}>
+                  <Button variant="outline" size="sm">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Actualizar fechas
+                  </Button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {([1, 2, 3] as const).map((n) => {
+                    const dateKey = `contract${n}ExpirationDate` as string;
+                    const dateVal = (employee as any)[dateKey];
+                    const status = contractStatus(dateVal);
+                    const sigForContract = (contractSigs || []).filter((s: any) => s.contractNumber === String(n));
+                    const lastSig = sigForContract[sigForContract.length - 1];
+                    return (
+                      <div key={n} className={`rounded-lg border p-4 space-y-3 ${
+                        !dateVal ? "bg-muted/30" :
+                        status.daysLeft !== null && status.daysLeft < 0 ? "bg-red-50 border-red-200" :
+                        status.daysLeft !== null && status.daysLeft <= 7 ? "bg-red-50 border-red-200" :
+                        status.daysLeft !== null && status.daysLeft <= 30 ? "bg-amber-50 border-amber-200" :
+                        "bg-green-50 border-green-200"
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-semibold">Contrato {n}</span>
+                        </div>
+                        {dateVal ? (
+                          <>
+                            <p className="text-sm font-mono">
+                              {new Date(dateVal).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}
+                            </p>
+                            <div className={`flex items-center gap-1.5 text-xs font-medium ${status.color}`}>
+                              {status.icon}
+                              {status.label}
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">Sin fecha registrada</p>
+                        )}
+                        {/* Firma digital */}
+                        {lastSig ? (
+                          <div className="border-t pt-2 space-y-1">
+                            <div className="flex items-center gap-1.5 text-xs text-green-700 font-medium">
+                              <ShieldCheck className="h-3.5 w-3.5" />
+                              Firmado digitalmente
+                            </div>
+                            <img src={lastSig.signatureImageUrl} alt="Firma" className="h-10 object-contain border rounded bg-white" />
+                            <p className="text-xs text-muted-foreground">{lastSig.signerName}</p>
+                            <p className="text-xs text-muted-foreground font-mono truncate" title={lastSig.signatureHash ?? undefined}>
+                              SHA-256: {lastSig.signatureHash?.substring(0, 12)}…
+                            </p>
                           </div>
-                        </>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">Sin fecha registrada</p>
-                      )}
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full gap-1.5 text-xs"
+                            onClick={() => setSigningContract(String(n) as "1" | "2" | "3")}
+                          >
+                            <PenLine className="h-3.5 w-3.5" />
+                            Agregar firma digital
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  <AlertTriangle className="inline h-3 w-3 mr-1" />
+                  Se envía alerta automática a RH 7 días antes del vencimiento de cualquier contrato.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* ── Panel de firma digital ── */}
+            {signingContract && (
+              <Card className="border-blue-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <PenLine className="h-4 w-4 text-blue-600" />
+                    Firma Digital — Contrato {signingContract} (NOM-151)
+                  </CardTitle>
+                  <CardDescription>
+                    La firma se almacenará con hash SHA-256 y marca de tiempo del servidor para garantizar su validez legal.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">Nombre del firmante *</label>
+                      <input
+                        className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                        placeholder="Nombre completo"
+                        value={signerName}
+                        onChange={(e) => setSignerName(e.target.value)}
+                      />
                     </div>
-                  );
-                })}
-              </div>
-              <p className="text-xs text-muted-foreground mt-4">
-                <AlertTriangle className="inline h-3 w-3 mr-1" />
-                Se envía alerta automática a RH 7 días antes del vencimiento de cualquier contrato.
-              </p>
-            </CardContent>
-          </Card>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">Cargo / Rol</label>
+                      <input
+                        className="w-full border rounded-md px-3 py-2 text-sm bg-background"
+                        placeholder="Ej: Trabajador, Representante Legal"
+                        value={signerRole}
+                        onChange={(e) => setSignerRole(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <SignatureCanvas
+                    onSave={handleContractSignature}
+                    onCancel={() => { setSigningContract(null); setSignerName(""); setSignerRole(""); }}
+                  />
+                  {saveContractSigMutation.isPending && (
+                    <p className="text-sm text-blue-600 animate-pulse">Guardando firma y subiendo a S3…</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
 
         {/* ── TAB: COMPARATIVA DNC ── */}

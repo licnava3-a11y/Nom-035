@@ -8162,3 +8162,36 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
   - [x] Error TS2353 en EmployeeProfile (deleteDocMutation sin employeeId)
   - [x] Error TS2345 en Positions.tsx (tipo de minimumEducation)
   - [x] Eliminado require.main del job de contratos (ES module)
+
+## Sprint: Firma Digital, Filtro Escolaridad y Dashboard Vencimientos (Abril 2026)
+
+- [ ] Firma digital en contratos con canvas (NOM-151)
+  - [ ] Componente SignatureCanvas reutilizable con hash SHA-256
+  - [ ] Integración en EmployeeProfile tab "Contratos" para firmar cada contrato
+  - [ ] Guardar firma en tabla signatures con timestamp del servidor
+  - [ ] Mostrar estado de firma (firmado/pendiente) en panel de contratos
+- [ ] Filtro de candidatos por escolaridad en vacantes
+  - [ ] Agregar campo minimumEducation a jobOpenings
+  - [ ] Migración SQL para agregar columna a job_openings
+  - [ ] Actualizar procedure getJobOpenings para incluir minimumEducation
+  - [ ] Actualizar procedure getCandidatesByJob con filtro de escolaridad
+  - [ ] Indicador visual en lista de candidatos (cumple/no cumple escolaridad)
+  - [ ] Filtro en formulario de vacante para capturar minimumEducation
+- [ ] Dashboard de vencimientos consolidado con exportación Excel
+  - [ ] Nueva página ContractExpirationDashboard
+  - [ ] Tabla consolidada con filtros 7/15/30 días
+  - [ ] Exportación a Excel con SheetJS (xlsx)
+  - [ ] Ruta /contract-expiration-dashboard en App.tsx
+  - [ ] Enlace en sidebar de navegación
+
+## Sprint: Firma Digital, Filtro Escolaridad y Dashboard Vencimientos (2026-04-15)
+- [x] Tabla contract_signatures creada en BD (SHA-256, S3 URL, signerName)
+- [x] Procedures saveContractSignature y getContractSignatures en router hiring
+- [x] Componente SignatureCanvas integrado en tab Contratos de EmployeeProfile
+- [x] Campo minimumEducation agregado a tabla job_openings
+- [x] Router recruitment actualizado con indicador meetsEducation por candidato
+- [x] Página RecruitmentManagement con gestión de vacantes y filtro de escolaridad
+- [x] Enlace "Reclutamiento" agregado al sidebar en Gestión de Talento
+- [x] Página ContractExpirationDashboard con tabla consolidada 7/15/30 días
+- [x] Exportación a Excel (XLSX) con hoja de datos y hoja de resumen ejecutivo
+- [x] Enlace "Vencimientos de Contratos" agregado al sidebar en Gestión de Talento

@@ -175,6 +175,8 @@ const RegulatoryReports = lazy(() => import("./pages/RegulatoryReports"));
 const MassSurveyEmail = lazy(() => import("./pages/surveys/MassSurveyEmail"));
 const JobApplication = lazy(() => import("./pages/JobApplication"));
 const ApplicationSuccess = lazy(() => import("./pages/ApplicationSuccess"));
+const RecruitmentManagement = lazy(() => import("./pages/RecruitmentManagement"));
+const ContractExpirationDashboard = lazy(() => import("./pages/ContractExpirationDashboard"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
 const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
@@ -1319,6 +1321,20 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <MassSurveyEmail />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/recruitment"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RecruitmentManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/contract-expiration-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ContractExpirationDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

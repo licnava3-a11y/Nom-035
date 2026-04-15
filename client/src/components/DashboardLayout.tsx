@@ -86,6 +86,8 @@ const hierarchicalMenuItems = [
       { label: "Alertas Tempranas", path: "/risk-alerts", description: "Sistema de alertas automáticas de riesgo psicosocial" },
       { label: "Reportes Automáticos", path: "/scheduled-reports", description: "Dashboards ejecutivos mensuales con métricas NMX-025 y NOM-035" },
       { label: "Importación Masiva", path: "/admin/import", description: "Importar datos desde Excel" },
+      { label: "Reclutamiento", path: "/recruitment", description: "Gestión de vacantes y candidatos con filtro de escolaridad" },
+      { label: "Vencimientos de Contratos", path: "/contract-expiration-dashboard", description: "Dashboard consolidado de contratos próximos a vencer con exportación Excel" },
     ],
   },
   {

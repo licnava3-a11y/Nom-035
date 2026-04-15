@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, users, departments, positions } from "../../drizzle/schema";
+import { employees, users, departments, positions, contractSignatures } from "../../drizzle/schema";
+import { storagePut } from "../storage";
+import crypto from "crypto";
 import { eq, and, lte, gte, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { sendEmail } from "../lib/email-service";
@@ -447,5 +449,78 @@ export const hiringRouter = router({
         contractsCount: expiringEmployees.length,
         message: "Reporte enviado exitosamente",
       };
+    }),
+
+  /**
+   * Guardar firma digital de un contrato de empleado (NOM-151)
+   */
+  saveContractSignature: protectedProcedure
+    .input(
+      z.object({
+        employeeId: z.number(),
+        contractNumber: z.enum(["1", "2", "3"]),
+        signatureDataUrl: z.string().min(100),
+        signerName: z.string().min(2),
+        signerRole: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+      const [employee] = await db.select({ id: employees.id }).from(employees).where(eq(employees.id, input.employeeId)).limit(1);
+      if (!employee) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado" });
+
+      if (!input.signatureDataUrl.startsWith("data:image/")) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Formato de firma inv\u00e1lido" });
+      }
+
+      const base64Data = input.signatureDataUrl.split(",")[1];
+      if (!base64Data) throw new TRPCError({ code: "BAD_REQUEST", message: "Datos de firma vac\u00edos" });
+
+      const signatureHash = crypto.createHash("sha256").update(base64Data).digest("hex");
+      const fileBuffer = Buffer.from(base64Data, "base64");
+      const fileKey = `contract-signatures/emp-${input.employeeId}-contract-${input.contractNumber}-${Date.now()}.png`;
+      const { url: signatureImageUrl } = await storagePut(fileKey, fileBuffer, "image/png");
+
+      const serverTimestamp = Date.now();
+      const ipAddress = (ctx.req as any)?.ip || (ctx.req as any)?.headers?.["x-forwarded-for"] || "unknown";
+      const deviceInfo = ((ctx.req as any)?.headers?.["user-agent"] || "unknown").substring(0, 200);
+
+      await (db.insert(contractSignatures) as any).values({
+        employeeId: input.employeeId,
+        contractNumber: input.contractNumber,
+        signerName: input.signerName,
+        signerRole: input.signerRole || null,
+        signatureImageUrl,
+        signatureHash,
+        ipAddress,
+        deviceInfo,
+        serverTimestamp,
+        signedBy: ctx.user.id,
+      });
+
+      return {
+        success: true,
+        signatureImageUrl,
+        signatureHash,
+        serverTimestamp,
+        message: "Firma guardada exitosamente",
+      };
+    }),
+
+  /**
+   * Obtener firmas de contratos de un empleado
+   */
+  getContractSignatures: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      const sigs = await db
+        .select()
+        .from(contractSignatures)
+        .where(eq(contractSignatures.employeeId, input.employeeId));
+      return sigs;
     }),
 });

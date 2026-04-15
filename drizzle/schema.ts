@@ -2121,6 +2121,7 @@ export const jobOpenings = mysqlTable("job_openings", {
   status: mysqlEnum("status", ["draft", "open", "closed", "filled"]).default("draft").notNull(),
   openDate: date("open_date"),
   closeDate: date("close_date"),
+  minimumEducation: mysqlEnum("minimum_education", ["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]), // Escolaridad mínima requerida
   createdBy: int("created_by").references(() => users.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
@@ -5433,3 +5434,21 @@ export const docFormatConfig = mysqlTable("doc_format_config", {
 });
 export type DocFormatConfig = typeof docFormatConfig.$inferSelect;
 export type InsertDocFormatConfig = typeof docFormatConfig.$inferInsert;
+
+// ─── Firmas de Contratos de Empleados (NOM-151) ────────────────────────────
+export const contractSignatures = mysqlTable("contract_signatures", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull().references(() => employees.id, { onDelete: "cascade" }),
+  contractNumber: mysqlEnum("contract_number", ["1", "2", "3"]).notNull(), // Contrato 1, 2 o 3
+  signerName: varchar("signer_name", { length: 255 }).notNull(), // Nombre del firmante
+  signerRole: varchar("signer_role", { length: 100 }), // Cargo del firmante
+  signatureImageUrl: text("signature_image_url").notNull(), // URL de la imagen en S3
+  signatureHash: varchar("signature_hash", { length: 64 }), // SHA-256 de la imagen base64
+  ipAddress: varchar("ip_address", { length: 45 }),
+  deviceInfo: text("device_info"),
+  serverTimestamp: bigint("server_timestamp", { mode: "number" }).notNull(), // Unix ms del servidor
+  signedAt: timestamp("signed_at").defaultNow().notNull(),
+  signedBy: int("signed_by").references(() => users.id), // Usuario autenticado que registró la firma
+});
+export type ContractSignature = typeof contractSignatures.$inferSelect;
+export type InsertContractSignature = typeof contractSignatures.$inferInsert;
