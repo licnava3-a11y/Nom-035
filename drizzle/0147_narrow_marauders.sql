@@ -1,0 +1,1 @@
+ALTER TABLE `employees` ADD `educationLevel` enum('primaria','secundaria','preparatoria','tecnico','licenciatura','especialidad','maestria','doctorado','otro');

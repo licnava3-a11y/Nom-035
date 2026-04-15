@@ -578,6 +578,19 @@ export const employees = mysqlTable("employees", {
   // Professional credentials (for clinical staff)
   cedulaProfesional: varchar("cedula_profesional", { length: 20 }), // Cédula profesional (médicos, psicólogos, etc.)
   
+  // Education
+  educationLevel: mysqlEnum("educationLevel", [
+    "primaria",
+    "secundaria",
+    "preparatoria",
+    "tecnico",
+    "licenciatura",
+    "especialidad",
+    "maestria",
+    "doctorado",
+    "otro"
+  ]), // Último nivel de estudios
+
   // Tax & Social Security
   rfc: varchar("rfc", { length: 13 }), // RFC (Registro Federal de Contribuyentes)
   nss: varchar("nss", { length: 11 }), // NSS (Número de Seguridad Social IMSS)

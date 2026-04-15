@@ -8,7 +8,13 @@ import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { validateRFC, validateNSS } from "../../../shared/validators";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// Select components replaced with native HTML elements
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
 import { DepartmentSelector } from "@/components/DepartmentSelector";
 import { toast } from "sonner";
@@ -27,6 +33,7 @@ export default function EmployeeEdit() {
     rfc: "",
     nss: "",
     cedulaProfesional: "",
+    educationLevel: "" as string,
     employeeNumber: "",
     department: "" as string | number,
     position: "" as string | number,
@@ -63,6 +70,7 @@ export default function EmployeeEdit() {
         rfc: (employee as any).rfc || "",
         nss: (employee as any).nss || "",
         cedulaProfesional: (employee as any).cedulaProfesional || "",
+        educationLevel: (employee as any).educationLevel || "",
         employeeNumber: employee.employeeNumber || "",
         department: (employee as any).department || employee.departmentId || "",
         position: (employee as any).position || employee.positionId || "",
@@ -329,6 +337,30 @@ export default function EmployeeEdit() {
               <p className="text-xs text-muted-foreground">
                 Número de cédula emitido por la SEP / DGP. Se auto-rellena en documentos NOM-035 al seleccionar este empleado como responsable clínico.
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="educationLevel">Nivel de Estudios</Label>
+              <Select
+                value={formData.educationLevel || ""}
+                onValueChange={(val) => handleChange("educationLevel", val)}
+              >
+                <SelectTrigger id="educationLevel">
+                  <SelectValue placeholder="Seleccionar nivel..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="primaria">Primaria</SelectItem>
+                  <SelectItem value="secundaria">Secundaria</SelectItem>
+                  <SelectItem value="preparatoria">Preparatoria / Bachillerato</SelectItem>
+                  <SelectItem value="tecnico">Técnico / Carrera Técnica</SelectItem>
+                  <SelectItem value="licenciatura">Licenciatura</SelectItem>
+                  <SelectItem value="especialidad">Especialidad</SelectItem>
+                  <SelectItem value="maestria">Maestría</SelectItem>
+                  <SelectItem value="doctorado">Doctorado</SelectItem>
+                  <SelectItem value="otro">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Último grado de estudios concluido.</p>
             </div>
           </CardContent>
         </Card>

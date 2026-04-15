@@ -290,7 +290,7 @@ export default function Employees() {
             <div className="relative">
               <ICONS.actions.search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nombre, email o número..."
+                placeholder="Buscar por nombre, email, número, RFC o NSS..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"

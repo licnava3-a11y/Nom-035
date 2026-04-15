@@ -39,6 +39,11 @@ export default function EmployeeProfile() {
     { enabled: employeeId > 0 }
   );
 
+  const { data: coursesHistory } = trpc.employees.getCoursesHistory.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 }
+  );
+
   const deactivateMutation = trpc.employees.deactivate.useMutation({
     onSuccess: () => {
       alert("Empleado desactivado exitosamente");
@@ -74,6 +79,7 @@ export default function EmployeeProfile() {
   const handleExportPDF = () => {
     if (!employee) return;
     const emp = employee as any;
+    const courses = coursesHistory || [];
     const contractTypeLabel = emp.contractType === 'permanent' ? 'Permanente' : emp.contractType === 'temporary' ? 'Temporal' : emp.contractType === 'project' ? 'Por Proyecto' : emp.contractType || 'No especificado';
     const statusLabel = emp.isActive ? 'Activo' : 'Inactivo';
     const hireDateStr = emp.hireDate ? new Date(emp.hireDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No registrada';
@@ -148,6 +154,28 @@ export default function EmployeeProfile() {
         <div class="field"><div class="field-label">Fecha de Ingreso</div><div class="field-value">${hireDateStr}</div></div>
         <div class="field"><div class="field-label">Alta en Sistema</div><div class="field-value">${createdAtStr}</div></div>
       </div>
+    </div>
+    <div class="section">
+      <div class="section-title">4. Historial de Capacitación NOM-035</div>
+      ${courses.length === 0
+        ? '<p style="font-size:10pt;color:#6b7280;font-style:italic;">Sin cursos completados registrados en el sistema.</p>'
+        : `<table style="width:100%;border-collapse:collapse;font-size:10pt;">
+            <thead><tr style="background:#7c3aed;color:#fff;">
+              <th style="padding:6px 10px;text-align:left;">Núm.</th>
+              <th style="padding:6px 10px;text-align:left;">Curso</th>
+              <th style="padding:6px 10px;text-align:center;">Fecha de Término</th>
+              <th style="padding:6px 10px;text-align:center;">Avance</th>
+            </tr></thead>
+            <tbody>${courses.map((c: any, i: number) =>
+              `<tr style="background:${i % 2 === 0 ? '#f9fafb' : '#fff'};">
+                <td style="padding:5px 10px;">${i + 1}</td>
+                <td style="padding:5px 10px;font-weight:500;">${c.courseName}</td>
+                <td style="padding:5px 10px;text-align:center;">${c.completedAt}</td>
+                <td style="padding:5px 10px;text-align:center;">${c.progressPercentage}%</td>
+              </tr>`
+            ).join('')}</tbody>
+          </table>`
+      }
     </div>
     <div class="section">
       <div class="section-title">3. Declaración de Autenticidad</div>

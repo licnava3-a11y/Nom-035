@@ -1030,6 +1030,13 @@
       "when": 1776205342453,
       "tag": "0146_elite_silk_fever",
       "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "5",
+      "when": 1776215392008,
+      "tag": "0147_narrow_marauders",
+      "breakpoints": true
     }
   ]
 }

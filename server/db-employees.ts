@@ -38,7 +38,9 @@ export async function getAllEmployees(filters?: {
         like(employees.firstName, `%${filters.search}%`),
         like(employees.lastName, `%${filters.search}%`),
         like(employees.email, `%${filters.search}%`),
-        like(employees.employeeNumber, `%${filters.search}%`)
+        like(employees.employeeNumber, `%${filters.search}%`),
+        like(employees.rfc, `%${filters.search}%`),
+        like(employees.nss, `%${filters.search}%`)
       )
     );
   }
@@ -64,7 +66,8 @@ export async function getAllEmployees(filters?: {
         createdAt: employees.createdAt,
         updatedAt: employees.updatedAt,
         department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`
+        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+        educationLevel: employees.educationLevel,
       })
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
@@ -91,13 +94,13 @@ export async function getAllEmployees(filters?: {
         createdAt: employees.createdAt,
         updatedAt: employees.updatedAt,
         department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`
+        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+        educationLevel: employees.educationLevel,
       })
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
       .leftJoin(positions, eq(employees.positionId, positions.id))
-      .orderBy(desc(employees.createdAt));
-
+      .orderBy(desc(employees.createdAt))
   // Contar total de empleados
   const countQuery = conditions.length > 0
     ? db.select({ count: sql<number>`count(*)` }).from(employees).where(and(...conditions))

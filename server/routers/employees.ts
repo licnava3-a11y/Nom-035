@@ -90,6 +90,7 @@ export const employeesRouter = router({
         cedulaProfesional: z.string().max(20).optional().nullable(),
         rfc: z.string().optional(),
         nss: z.string().optional(),
+        educationLevel: z.enum(["primaria","secundaria","preparatoria","tecnico","licenciatura","especialidad","maestria","doctorado","otro"]).optional().nullable(),
         birthDate: z.string().optional(),
         sexo: z.enum(["Masculino", "Femenino", "Otro"]).optional(),
         employeeNumber: z.string().optional(),
@@ -257,6 +258,7 @@ export const employeesRouter = router({
         cedulaProfesional: z.string().max(20).optional().nullable(),
         rfc: z.string().max(13).optional().nullable(),
         nss: z.string().max(11).optional().nullable(),
+        educationLevel: z.enum(["primaria","secundaria","preparatoria","tecnico","licenciatura","especialidad","maestria","doctorado","otro"]).optional().nullable(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -811,6 +813,55 @@ export const employeesRouter = router({
               ? 'psicologo'
               : 'medico'
           : 'medico',
+      }));
+    }),
+
+  /**
+   * Get completed courses history for an employee (for PDF export)
+   */
+  getCoursesHistory: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .query(async ({ input }) => {
+      const dbInstance = await (await import('../db')).getDb();
+      if (!dbInstance) return [];
+      const { employees, studentProgress, courses } = await import('../../drizzle/schema');
+      const { eq, and } = await import('drizzle-orm');
+
+      // Find the userId linked to this employee
+      const empRow = await dbInstance
+        .select({ userId: employees.userId })
+        .from(employees)
+        .where(eq(employees.id, input.employeeId))
+        .limit(1);
+
+      if (!empRow[0]?.userId) return [];
+
+      const userId = empRow[0].userId;
+
+      const completedCourses = await dbInstance
+        .select({
+          courseId: studentProgress.courseId,
+          courseName: courses.title,
+          completedAt: studentProgress.completedAt,
+          progressPercentage: studentProgress.progressPercentage,
+        })
+        .from(studentProgress)
+        .innerJoin(courses, eq(studentProgress.courseId, courses.id))
+        .where(
+          and(
+            eq(studentProgress.userId, userId),
+            eq(studentProgress.status, 'completed')
+          )
+        )
+        .orderBy(studentProgress.completedAt);
+
+      return completedCourses.map(c => ({
+        courseId: c.courseId,
+        courseName: c.courseName,
+        completedAt: c.completedAt
+          ? new Date(c.completedAt).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+          : 'Sin fecha',
+        progressPercentage: c.progressPercentage,
       }));
     }),
 });

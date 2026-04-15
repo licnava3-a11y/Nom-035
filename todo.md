@@ -8126,3 +8126,9 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] RFC y NSS como columnas visibles en tabla catálogo de empleados
 - [ ] Validación RFC contra SAT en tiempo real
 - [ ] Exportar expediente del empleado a PDF desde EmployeeProfile
+
+## Sprint: Expediente PDF + Búsqueda RFC/NSS + educationLevel
+
+- [ ] Historial de cursos en el PDF del expediente del empleado
+- [ ] Búsqueda por RFC y NSS en el catálogo de empleados
+- [ ] Campo educationLevel en formularios de alta y edición de empleados
