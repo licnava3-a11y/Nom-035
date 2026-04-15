@@ -46,6 +46,7 @@ export const positionsRouter = router({
           departmentId: positions.departmentId,
           departmentName: departments.name,
           level: positions.level,
+          minimumEducation: positions.minimumEducation,
           isActive: positions.isActive,
           createdAt: positions.createdAt,
           employeeCount: sql<number>`(
@@ -93,6 +94,7 @@ export const positionsRouter = router({
           departmentId: positions.departmentId,
           departmentName: departments.name,
           level: positions.level,
+          minimumEducation: positions.minimumEducation,
           isActive: positions.isActive,
           createdAt: positions.createdAt,
         })
@@ -120,6 +122,7 @@ export const positionsRouter = router({
         code: z.string().min(1, "El código es obligatorio"),
         departmentId: z.number({ message: "El departamento es obligatorio" }),
         level: z.enum(["executive", "management", "supervisor", "specialist", "entry"]).optional(),
+        minimumEducation: z.enum(["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]).optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -147,6 +150,7 @@ export const positionsRouter = router({
           code: input.code,
           departmentId: input.departmentId,
           level: input.level,
+          minimumEducation: input.minimumEducation,
           isActive: true,
         });
 
@@ -163,6 +167,7 @@ export const positionsRouter = router({
         code: z.string().min(1).optional(),
         departmentId: z.number().optional(),
         level: z.enum(["executive", "management", "supervisor", "specialist", "entry"]).optional(),
+        minimumEducation: z.enum(["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]).optional().nullable(),
         isActive: z.boolean().optional(),
       })
     )

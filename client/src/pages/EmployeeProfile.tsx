@@ -22,6 +22,7 @@ import {
   FolderOpen,
   Target,
   Download,
+  GraduationCap,
 } from "lucide-react";
 
 export default function EmployeeProfile() {
@@ -142,6 +143,17 @@ export default function EmployeeProfile() {
         <div class="field"><div class="field-label">RFC</div><div class="field-value mono">${emp.rfc || '—'}</div></div>
         <div class="field"><div class="field-label">NSS (IMSS)</div><div class="field-value mono">${emp.nss || '—'}</div></div>
         <div class="field"><div class="field-label">Cédula Profesional</div><div class="field-value mono">${emp.cedulaProfesional || '—'}</div></div>
+        <div class="field"><div class="field-label">Nivel de Estudios</div><div class="field-value">${{
+          primaria: 'Primaria',
+          secundaria: 'Secundaria',
+          preparatoria: 'Preparatoria / Bachillerato',
+          tecnico: 'Técnico / Carrera Técnica',
+          licenciatura: 'Licenciatura',
+          especialidad: 'Especialidad',
+          maestria: 'Maestría',
+          doctorado: 'Doctorado',
+          otro: 'Otro',
+        }[(emp as any).educationLevel] || (emp as any).educationLevel || '—'}</div></div>
       </div>
     </div>
     <div class="section">
@@ -376,6 +388,38 @@ export default function EmployeeProfile() {
                 <div>
                   <p className="text-sm font-medium">Cédula Profesional</p>
                   <p className="text-sm text-muted-foreground font-mono">{(employee as any).cedulaProfesional}</p>
+                </div>
+              </div>
+            )}
+            {(employee as any).educationLevel && (
+              <div className="flex items-start">
+                <GraduationCap className="mr-3 h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium">Nivel de Estudios
+                    {(() => {
+                      const eduOrder = ['primaria','secundaria','preparatoria','tecnico','licenciatura','especialidad','maestria','doctorado'];
+                      const empEdu = (employee as any).educationLevel;
+                      const posEdu = (employee as any).positionMinimumEducation;
+                      if (!posEdu || !empEdu) return null;
+                      const meets = eduOrder.indexOf(empEdu) >= eduOrder.indexOf(posEdu);
+                      return (
+                        <span className={`ml-2 text-xs px-1.5 py-0.5 rounded font-normal ${meets ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {meets ? '✓ Cumple requisito' : '⚠ No cumple requisito del puesto'}
+                        </span>
+                      );
+                    })()}
+                  </p>
+                  <p className="text-sm text-muted-foreground capitalize">{{
+                    primaria: 'Primaria',
+                    secundaria: 'Secundaria',
+                    preparatoria: 'Preparatoria / Bachillerato',
+                    tecnico: 'Técnico / Carrera Técnica',
+                    licenciatura: 'Licenciatura',
+                    especialidad: 'Especialidad',
+                    maestria: 'Maestría',
+                    doctorado: 'Doctorado',
+                    otro: 'Otro',
+                  }[(employee as any).educationLevel as string] || (employee as any).educationLevel}</p>
                 </div>
               </div>
             )}

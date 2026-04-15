@@ -65,6 +65,7 @@ export default function Positions() {
     code: "",
     departmentId: 0,
     level: "specialist" as "executive" | "management" | "supervisor" | "specialist" | "entry",
+    minimumEducation: "" as string,
   });
 
   const { data, isLoading, refetch } = trpc.positions.list.useQuery({
@@ -123,6 +124,7 @@ export default function Positions() {
       code: "",
       departmentId: 0,
       level: "specialist",
+      minimumEducation: "",
     });
     setSelectedPosition(null);
   };
@@ -143,6 +145,7 @@ export default function Positions() {
       code: position.code,
       departmentId: position.departmentId,
       level: position.level || "specialist",
+      minimumEducation: position.minimumEducation || "",
     });
     setIsEditOpen(true);
   };
@@ -394,6 +397,30 @@ export default function Positions() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label htmlFor="minimumEducation">Escolaridad Mínima</Label>
+              <Select
+                value={formData.minimumEducation || ""}
+                onValueChange={(value: any) =>
+                  setFormData({ ...formData, minimumEducation: value === "_none" ? "" : value })
+                }
+              >
+                <SelectTrigger id="minimumEducation">
+                  <SelectValue placeholder="Sin requisito" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">Sin requisito</SelectItem>
+                  <SelectItem value="primaria">Primaria</SelectItem>
+                  <SelectItem value="secundaria">Secundaria</SelectItem>
+                  <SelectItem value="preparatoria">Preparatoria / Bachillerato</SelectItem>
+                  <SelectItem value="tecnico">Técnico / Carrera Técnica</SelectItem>
+                  <SelectItem value="licenciatura">Licenciatura</SelectItem>
+                  <SelectItem value="especialidad">Especialidad</SelectItem>
+                  <SelectItem value="maestria">Maestría</SelectItem>
+                  <SelectItem value="doctorado">Doctorado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="col-span-2">
               <Label htmlFor="description">Descripción</Label>
               <Textarea
@@ -484,6 +511,30 @@ export default function Positions() {
                       {label}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-minimumEducation">Escolaridad Mínima</Label>
+              <Select
+                value={formData.minimumEducation || ""}
+                onValueChange={(value: any) =>
+                  setFormData({ ...formData, minimumEducation: value === "_none" ? "" : value })
+                }
+              >
+                <SelectTrigger id="edit-minimumEducation">
+                  <SelectValue placeholder="Sin requisito" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">Sin requisito</SelectItem>
+                  <SelectItem value="primaria">Primaria</SelectItem>
+                  <SelectItem value="secundaria">Secundaria</SelectItem>
+                  <SelectItem value="preparatoria">Preparatoria / Bachillerato</SelectItem>
+                  <SelectItem value="tecnico">Técnico / Carrera Técnica</SelectItem>
+                  <SelectItem value="licenciatura">Licenciatura</SelectItem>
+                  <SelectItem value="especialidad">Especialidad</SelectItem>
+                  <SelectItem value="maestria">Maestría</SelectItem>
+                  <SelectItem value="doctorado">Doctorado</SelectItem>
                 </SelectContent>
               </Select>
             </div>

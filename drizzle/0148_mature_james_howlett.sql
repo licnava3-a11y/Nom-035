@@ -1,0 +1,1 @@
+ALTER TABLE `positions` ADD `minimumEducation` enum('primaria','secundaria','preparatoria','tecnico','licenciatura','especialidad','maestria','doctorado');

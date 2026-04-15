@@ -157,8 +157,10 @@ export async function getEmployeeById(id: number): Promise<EmployeeWithRelations
       nss: employees.nss,
       createdAt: employees.createdAt,
       updatedAt: employees.updatedAt,
+      educationLevel: employees.educationLevel,
       department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-      position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`
+      position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+      positionMinimumEducation: positions.minimumEducation,
     })
     .from(employees)
     .leftJoin(departments, eq(employees.departmentId, departments.id))

@@ -8132,3 +8132,9 @@ Según la Ley Federal del Trabajo, las multas por incumplimiento de la NOM-035-S
 - [ ] Historial de cursos en el PDF del expediente del empleado
 - [ ] Búsqueda por RFC y NSS en el catálogo de empleados
 - [ ] Campo educationLevel en formularios de alta y edición de empleados
+
+## Sprint Actual
+
+- [ ] Mostrar educationLevel en EmployeeProfile
+- [ ] Agregar educationLevel al PDF del expediente
+- [ ] Filtrar candidatos por nivel de estudios en vacantes

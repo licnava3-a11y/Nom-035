@@ -532,6 +532,7 @@ export const positions = mysqlTable("positions", {
   code: varchar("code", { length: 50 }).unique(), // Código del puesto (ej: "GER-001", "ANA-002")
   departmentId: int("departmentId").references(() => departments.id), // Departamento al que pertenece
   level: mysqlEnum("level", ["executive", "management", "supervisor", "specialist", "entry"]),
+  minimumEducation: mysqlEnum("minimumEducation", ["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]),
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
