@@ -366,7 +366,7 @@ export default function VacationCalendar() {
                         </div>
 
                         {/* Filas de empleados */}
-                        {entries.map((entry) => {
+                        {entries.map((entry: any) => {
                           const bar = getGanttBar(String(entry.startDate), String(entry.endDate));
                           const isApproved = entry.status === "approved";
                           return (
@@ -453,11 +453,13 @@ export default function VacationCalendar() {
                           {day}
                         </div>
                         {hasConflict && (
-                          <AlertTriangle className="h-3 w-3 text-red-500" title={`Conflicto: ${deptConflicts.join(", ")}`} />
+                          <span title={`Conflicto: ${deptConflicts.join(", ")}`}>
+                            <AlertTriangle className="h-3 w-3 text-red-500" />
+                          </span>
                         )}
                       </div>
                       <div className="space-y-0.5">
-                        {entries.slice(0, 3).map((entry) => {
+                        {entries.slice(0, 3).map((entry: any) => {
                           const deptIdx = deptNames.indexOf(entry.department);
                           const color = DEPT_COLORS[deptIdx >= 0 ? deptIdx % DEPT_COLORS.length : 0];
                           const isApproved = entry.status === "approved";
