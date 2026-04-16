@@ -12,6 +12,7 @@ import {
 } from "../../drizzle/schema";
 import { eq, desc, sql, and, gte, lte, ne } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
+import { sendEmail } from "../_core/email";
 
 // ── Tabla LFT por defecto ────────────────────────────────────────────────────
 const DEFAULT_LFT_TABLE = [
@@ -45,6 +46,31 @@ function calcYearsOfService(hireDate: Date | string): number {
     years--;
   }
   return Math.max(0, years);
+}
+
+// ── Helper: calcular saldo de un empleado ────────────────────────────────────
+async function calcEmployeeBalance(
+  db: Awaited<ReturnType<typeof getDb>>,
+  employeeId: number,
+  table: { yearsMin: number; yearsMax: number | null; vacationDays: number }[],
+  hireDate: Date | string | null
+) {
+  const yearsOfService = hireDate ? calcYearsOfService(hireDate) : 0;
+  const earnedDays = getDaysByYears(yearsOfService, table);
+
+  const approved = await db!
+    .select({ requestedDays: vacationRequests.requestedDays })
+    .from(vacationRequests)
+    .where(and(eq(vacationRequests.employeeId, employeeId), eq(vacationRequests.status, "approved")));
+  const usedDays = approved.reduce((sum, r) => sum + r.requestedDays, 0);
+
+  const pending = await db!
+    .select({ requestedDays: vacationRequests.requestedDays })
+    .from(vacationRequests)
+    .where(and(eq(vacationRequests.employeeId, employeeId), eq(vacationRequests.status, "pending")));
+  const pendingDays = pending.reduce((sum, r) => sum + r.requestedDays, 0);
+
+  return { yearsOfService, earnedDays, usedDays, pendingDays, availableDays: earnedDays - usedDays - pendingDays };
 }
 
 export const vacationsRouter = router({
@@ -105,41 +131,13 @@ export const vacationsRouter = router({
 
       if (!emp) throw new TRPCError({ code: "NOT_FOUND", message: "Empleado no encontrado" });
 
-      // Calcular antigüedad
-      const yearsOfService = emp.hireDate ? calcYearsOfService(emp.hireDate) : 0;
-
-      // Obtener tabla de antigüedad
       const seniorityRows = await db.select().from(vacationSeniority).orderBy(vacationSeniority.yearsMin);
       const table =
         seniorityRows.length > 0
           ? seniorityRows.map((r) => ({ yearsMin: r.yearsMin, yearsMax: r.yearsMax, vacationDays: r.vacationDays }))
           : DEFAULT_LFT_TABLE;
 
-      const earnedDays = getDaysByYears(yearsOfService, table);
-
-      // Días usados (solicitudes aprobadas)
-      const approved = await db
-        .select({ requestedDays: vacationRequests.requestedDays })
-        .from(vacationRequests)
-        .where(
-          and(
-            eq(vacationRequests.employeeId, input.employeeId),
-            eq(vacationRequests.status, "approved")
-          )
-        );
-      const usedDays = approved.reduce((sum, r) => sum + r.requestedDays, 0);
-
-      // Días pendientes (solicitudes en espera)
-      const pending = await db
-        .select({ requestedDays: vacationRequests.requestedDays })
-        .from(vacationRequests)
-        .where(
-          and(
-            eq(vacationRequests.employeeId, input.employeeId),
-            eq(vacationRequests.status, "pending")
-          )
-        );
-      const pendingDays = pending.reduce((sum, r) => sum + r.requestedDays, 0);
+      const balance = await calcEmployeeBalance(db, input.employeeId, table, emp.hireDate);
 
       return {
         employeeId: emp.id,
@@ -147,11 +145,7 @@ export const vacationsRouter = router({
         department: emp.department,
         position: emp.position,
         hireDate: emp.hireDate,
-        yearsOfService,
-        earnedDays,
-        usedDays,
-        pendingDays,
-        availableDays: earnedDays - usedDays - pendingDays,
+        ...balance,
       };
     }),
 
@@ -180,7 +174,7 @@ export const vacationsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
-      const query = db
+      const rows = await db
         .select({
           id: vacationRequests.id,
           employeeId: vacationRequests.employeeId,
@@ -192,6 +186,7 @@ export const vacationsRouter = router({
           requestedDays: vacationRequests.requestedDays,
           status: vacationRequests.status,
           notes: vacationRequests.notes,
+          rejectionReason: vacationRequests.rejectionReason,
           createdAt: vacationRequests.createdAt,
         })
         .from(vacationRequests)
@@ -199,9 +194,70 @@ export const vacationsRouter = router({
         .leftJoin(departments, eq(employees.departmentId, departments.id))
         .orderBy(desc(vacationRequests.createdAt));
 
-      const rows = await query;
       if (input.status === "all") return rows;
       return rows.filter((r) => r.status === input.status);
+    }),
+
+  // ── Listar solicitudes pendientes del equipo de un supervisor ────────────
+  listByManager: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().int().positive().optional(),
+        status: z.enum(["pending", "approved", "rejected", "cancelled", "all"]).default("pending"),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      // Obtener el empleado asociado al usuario actual
+      const [currentEmployee] = await db
+        .select({ id: employees.id, departmentId: employees.departmentId })
+        .from(employees)
+        .where(eq(employees.userId, ctx.user.id))
+        .limit(1);
+
+      // Si es admin o RH, puede ver todos los departamentos
+      const isAdminOrRH = ["admin", "rh", "recursos_humanos", "auxiliar_rh"].includes(ctx.user.role);
+
+      // Construir query base
+      const rows = await db
+        .select({
+          id: vacationRequests.id,
+          employeeId: vacationRequests.employeeId,
+          employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          employeeEmail: employees.email,
+          department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+          departmentId: employees.departmentId,
+          position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+          startDate: vacationRequests.startDate,
+          endDate: vacationRequests.endDate,
+          returnDate: vacationRequests.returnDate,
+          requestedDays: vacationRequests.requestedDays,
+          status: vacationRequests.status,
+          notes: vacationRequests.notes,
+          rejectionReason: vacationRequests.rejectionReason,
+          createdAt: vacationRequests.createdAt,
+        })
+        .from(vacationRequests)
+        .leftJoin(employees, eq(vacationRequests.employeeId, employees.id))
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .orderBy(desc(vacationRequests.createdAt));
+
+      // Filtrar por departamento si no es admin/RH
+      let filtered = rows;
+      if (!isAdminOrRH && currentEmployee?.departmentId) {
+        filtered = rows.filter((r) => r.departmentId === currentEmployee.departmentId);
+      } else if (input.departmentId) {
+        filtered = rows.filter((r) => r.departmentId === input.departmentId);
+      }
+
+      if (input.status !== "all") {
+        filtered = filtered.filter((r) => r.status === input.status);
+      }
+
+      return filtered;
     }),
 
   // ── Crear solicitud de vacaciones ─────────────────────────────────────────
@@ -220,7 +276,6 @@ export const vacationsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
-      // Verificar saldo disponible
       const [emp] = await db
         .select({ hireDate: employees.hireDate, firstName: employees.firstName, lastName: employees.lastName })
         .from(employees)
@@ -267,7 +322,6 @@ export const vacationsRouter = router({
         status: "pending",
       });
 
-      // Notificar al owner (RH)
       await notifyOwner({
         title: `Nueva solicitud de vacaciones — ${emp.firstName} ${emp.lastName}`,
         content: `${emp.firstName} ${emp.lastName} solicita ${input.requestedDays} días de vacaciones del ${input.startDate} al ${input.endDate}. Regreso: ${input.returnDate}. Saldo disponible: ${available} días.`,
@@ -286,12 +340,31 @@ export const vacationsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "rh" && ctx.user.role !== "recursos_humanos" && ctx.user.role !== "jefe_area") {
+      const allowedRoles = ["admin", "rh", "recursos_humanos", "jefe_area", "gerente", "supervisor", "auxiliar_rh"];
+      if (!allowedRoles.includes(ctx.user.role)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Sin permisos para aprobar/rechazar solicitudes" });
       }
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
+      // Obtener datos de la solicitud y del empleado para el correo
+      const [req] = await db
+        .select({
+          id: vacationRequests.id,
+          employeeId: vacationRequests.employeeId,
+          startDate: vacationRequests.startDate,
+          endDate: vacationRequests.endDate,
+          returnDate: vacationRequests.returnDate,
+          requestedDays: vacationRequests.requestedDays,
+          employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          employeeEmail: employees.email,
+        })
+        .from(vacationRequests)
+        .leftJoin(employees, eq(vacationRequests.employeeId, employees.id))
+        .where(eq(vacationRequests.id, input.requestId))
+        .limit(1);
+
+      // Actualizar estado
       await db
         .update(vacationRequests)
         .set({
@@ -301,6 +374,52 @@ export const vacationsRouter = router({
           rejectionReason: input.rejectionReason ?? null,
         } as any)
         .where(eq(vacationRequests.id, input.requestId));
+
+      // Enviar correo al empleado si tiene email registrado
+      if (req?.employeeEmail) {
+        const isApproved = input.status === "approved";
+        const statusLabel = isApproved ? "APROBADA ✅" : "RECHAZADA ❌";
+        const approverName = ctx.user.name ?? "RH";
+
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: ${isApproved ? "#16a34a" : "#dc2626"};">
+              Solicitud de Vacaciones ${statusLabel}
+            </h2>
+            <p>Estimado/a <strong>${req.employeeName}</strong>,</p>
+            <p>Tu solicitud de vacaciones ha sido <strong>${isApproved ? "aprobada" : "rechazada"}</strong> por <strong>${approverName}</strong>.</p>
+            <table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
+              <tr style="background: #f3f4f6;">
+                <td style="padding: 8px 12px; font-weight: bold;">Período solicitado</td>
+                <td style="padding: 8px 12px;">${req.startDate} al ${req.endDate}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 12px; font-weight: bold;">Días solicitados</td>
+                <td style="padding: 8px 12px;">${req.requestedDays} días</td>
+              </tr>
+              <tr style="background: #f3f4f6;">
+                <td style="padding: 8px 12px; font-weight: bold;">Fecha de regreso</td>
+                <td style="padding: 8px 12px;">${req.returnDate}</td>
+              </tr>
+              ${!isApproved && input.rejectionReason ? `
+              <tr>
+                <td style="padding: 8px 12px; font-weight: bold; color: #dc2626;">Motivo de rechazo</td>
+                <td style="padding: 8px 12px; color: #dc2626;">${input.rejectionReason}</td>
+              </tr>` : ""}
+            </table>
+            ${isApproved ? `<p style="color: #16a34a;">¡Disfruta tus vacaciones! 🌴</p>` : `<p>Si tienes dudas, comunícate con el área de Recursos Humanos.</p>`}
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+            <p style="color: #6b7280; font-size: 12px;">Este es un mensaje automático del sistema de gestión de RH. No responder a este correo.</p>
+          </div>
+        `;
+
+        await sendEmail({
+          to: req.employeeEmail,
+          subject: `Solicitud de Vacaciones ${statusLabel} — ${req.startDate} al ${req.endDate}`,
+          html: emailHtml,
+          text: `Tu solicitud de vacaciones del ${req.startDate} al ${req.endDate} (${req.requestedDays} días) ha sido ${isApproved ? "aprobada" : "rechazada"} por ${approverName}.${!isApproved && input.rejectionReason ? ` Motivo: ${input.rejectionReason}` : ""}`,
+        });
+      }
 
       return { success: true };
     }),
@@ -316,5 +435,77 @@ export const vacationsRouter = router({
         .set({ status: "cancelled" } as any)
         .where(and(eq(vacationRequests.id, input.requestId), eq(vacationRequests.status, "pending")));
       return { success: true };
+    }),
+
+  // ── Reporte de saldo de vacaciones por departamento ───────────────────────
+  getBalanceReport: protectedProcedure
+    .input(
+      z.object({
+        departmentId: z.number().int().positive().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const allowedRoles = ["admin", "rh", "recursos_humanos", "auxiliar_rh", "gerente", "jefe_area", "supervisor"];
+      if (!allowedRoles.includes(ctx.user.role)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Sin permisos para ver el reporte de saldos" });
+      }
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      // Obtener tabla de antigüedad
+      const seniorityRows = await db.select().from(vacationSeniority).orderBy(vacationSeniority.yearsMin);
+      const table =
+        seniorityRows.length > 0
+          ? seniorityRows.map((r) => ({ yearsMin: r.yearsMin, yearsMax: r.yearsMax, vacationDays: r.vacationDays }))
+          : DEFAULT_LFT_TABLE;
+
+      // Obtener todos los empleados activos con su departamento
+      const empQuery = db
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          hireDate: employees.hireDate,
+          departmentId: employees.departmentId,
+          departmentName: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+          positionTitle: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .where(eq(employees.isActive, true));
+
+      const allEmployees = await empQuery;
+
+      // Filtrar por departamento si se especifica
+      const filtered = input.departmentId
+        ? allEmployees.filter((e) => e.departmentId === input.departmentId)
+        : allEmployees;
+
+      // Calcular saldo para cada empleado
+      const report = await Promise.all(
+        filtered.map(async (emp) => {
+          const balance = await calcEmployeeBalance(db, emp.id, table, emp.hireDate);
+          return {
+            employeeId: emp.id,
+            name: `${emp.firstName} ${emp.lastName}`,
+            email: emp.email,
+            department: emp.departmentName,
+            position: emp.positionTitle,
+            hireDate: emp.hireDate,
+            yearsOfService: balance.yearsOfService,
+            earnedDays: balance.earnedDays,
+            usedDays: balance.usedDays,
+            pendingDays: balance.pendingDays,
+            availableDays: balance.availableDays,
+          };
+        })
+      );
+
+      // Ordenar por departamento y nombre
+      report.sort((a, b) => a.department.localeCompare(b.department) || a.name.localeCompare(b.name));
+
+      return report;
     }),
 });

@@ -190,3 +190,11 @@
 - [x] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport
 - [x] Tab "Vacaciones" en EmployeeProfile con saldo LFT (días ganados/usados/pendientes/disponibles) e historial de solicitudes
 - [x] Botón "Exportar a PDF" en TurnoverDashboard usando window.print con estilos de impresión A4 landscape
+
+## Sprint: Mejoras de Gestión de Vacaciones (2026-04-16)
+- [x] Procedure `listByManager` en vacations router — lista solicitudes pendientes del equipo del supervisor/gerente/jefe_area filtradas por departamento
+- [x] Procedure `getBalanceReport` en vacations router — saldo LFT por empleado agrupado por departamento, filtrable por departamento
+- [x] Notificación por correo al empleado al aprobar/rechazar (sendEmail con HTML estilizado en updateStatus)
+- [x] Tab "Aprobación de Equipo" en VacationManagement.tsx — visible para supervisor/gerente/jefe_area con botones Aprobar/Rechazar y campo de motivo de rechazo
+- [x] Tab "Reporte de Saldo" en VacationManagement.tsx — tabla agrupada por departamento con saldo disponible por empleado y botón "Exportar XLSX" (2 hojas: detalle + resumen por departamento)
+- [x] 0 errores TypeScript verificados (tsc --noEmit EXIT_CODE: 0)
