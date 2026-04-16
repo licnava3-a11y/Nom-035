@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { TermsAcceptanceModal } from "@/components/TermsAcceptanceModal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -316,6 +317,18 @@ export default function DashboardLayout({
   const { loading, user } = useAuth();
   const { isConnected, lastAlert, requestNotificationPermission } = useWebSocket();
   const [location] = useLocation();
+  const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
+
+  // Verificar si el usuario ya aceptó los términos
+  const { data: termsStatus } = trpc.terms.hasAccepted.useQuery(undefined, {
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (termsStatus !== undefined) {
+      setTermsAccepted(termsStatus.accepted);
+    }
+  }, [termsStatus]);
 
   // Solicitar permiso para notificaciones al montar
   useEffect(() => {
@@ -363,18 +376,26 @@ export default function DashboardLayout({
     );
   }
 
+  const showTermsModal = !!user && termsStatus !== undefined && !termsStatus?.accepted;
+
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": `${sidebarWidth}px`,
-        } as CSSProperties
-      }
-    >
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
-        {children}
-      </DashboardLayoutContent>
-    </SidebarProvider>
+    <>
+      <TermsAcceptanceModal
+        open={showTermsModal}
+        onAccepted={() => setTermsAccepted(true)}
+      />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": `${sidebarWidth}px`,
+          } as CSSProperties
+        }
+      >
+        <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+          {children}
+        </DashboardLayoutContent>
+      </SidebarProvider>
+    </>
   );
 }
 

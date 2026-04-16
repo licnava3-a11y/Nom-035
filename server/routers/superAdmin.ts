@@ -3,7 +3,7 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { companies, users } from "../../drizzle/schema";
-import { eq, desc, count, like, or, and } from "drizzle-orm";
+import { eq, isNull, like, or, and, count, desc } from "drizzle-orm";
 
 // Middleware: solo super_admin puede acceder
 const superAdminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -303,6 +303,25 @@ export const superAdminRouter = router({
         .where(eq(users.id, input.userId));
       return { success: true };
     }),
+
+  /** Listar usuarios sin empresa asignada */
+  listUnassignedUsers: superAdminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+    const unassigned = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(isNull(users.companyId))
+      .orderBy(users.name);
+    return unassigned;
+  }),
 
   // ─── Estadísticas globales ────────────────────────────────────────────────
 

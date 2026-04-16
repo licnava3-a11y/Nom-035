@@ -133,6 +133,37 @@
   }
 }
 
+/* ── Estilos de impresión A4 para portada legal ─────────────────────────── */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+
+  aside,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  body,
+  html {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+
+  .max-w-5xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .border.border-border.rounded-lg {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
 @layer components {
   /**
    * Custom container utility that centers content and adds responsive padding.

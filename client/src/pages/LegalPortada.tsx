@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Lock, FileText, Scale, Eye, Building2, Phone, Mail, Globe, ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from "lucide-react";
+import { Shield, Lock, FileText, Scale, Eye, Building2, Phone, Mail, Globe, ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Download, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ function CollapsibleSection({ title, icon, children, defaultOpen = false }: {
 }
 
 export default function LegalPortada() {
-  const { data: company } = trpc.company.getGeneralData.useQuery();
+  const { data: company } = trpc.company.generalData.get.useQuery();
 
   const companyName = company?.razonSocial || "Gestión de Talento — Plataforma NOM-035 STPS";
   const companyRFC = company?.rfc || "";
@@ -93,9 +93,31 @@ export default function LegalPortada() {
           </div>
 
           {/* Fecha de vigencia */}
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 text-sm text-white/80">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2 text-sm text-white/80 mb-6">
             <FileText className="h-4 w-4" />
             Vigente a partir del 1 de enero de {CURRENT_YEAR} — Última actualización: {new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })}
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex justify-center gap-3 print:hidden">
+            <Button
+              variant="outline"
+              className="border-white/30 text-white hover:bg-white/10 gap-2"
+              onClick={() => window.print()}
+            >
+              <Printer className="h-4 w-4" />
+              Imprimir
+            </Button>
+            <Button
+              className="bg-white text-slate-900 hover:bg-white/90 gap-2"
+              onClick={() => {
+                document.title = `Aviso Legal - ${companyName} - ${CURRENT_YEAR}`;
+                window.print();
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Descargar PDF
+            </Button>
           </div>
         </div>
       </div>

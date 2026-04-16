@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +42,8 @@ import {
   Search,
   Globe,
   Shield,
+  AlertTriangle,
+  UserCheck,
 } from "lucide-react";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -313,6 +315,10 @@ export default function SuperAdminPanel() {
             <Users className="w-4 h-4" />
             Usuarios por Empresa
           </TabsTrigger>
+          <TabsTrigger value="unassigned" className="gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            Sin Empresa
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab: Empresas */}
@@ -581,6 +587,11 @@ export default function SuperAdminPanel() {
             </div>
           )}
         </TabsContent>
+
+        {/* Tab: Usuarios sin empresa */}
+        <TabsContent value="unassigned" className="space-y-4">
+          <UnassignedUsersSection companiesData={companiesData?.data ?? []} />
+        </TabsContent>
       </Tabs>
 
       {/* Diálogo: Crear / Editar empresa */}
@@ -721,6 +732,128 @@ export default function SuperAdminPanel() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// ─── Componente: Usuarios sin empresa ─────────────────────────────────────────
+function UnassignedUsersSection({
+  companiesData,
+}: {
+  companiesData: Array<{ id: number; razonSocial: string }>;
+}) {
+  const utils = trpc.useUtils();
+  const [assigningId, setAssigningId] = useState<number | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Record<number, string>>({});
+
+  const { data: unassigned, isLoading } = trpc.superAdmin.listUnassignedUsers.useQuery();
+
+  const assignUser = trpc.superAdmin.assignUserToCompany.useMutation({
+    onSuccess: (_, vars) => {
+      toast.success("Usuario asignado correctamente");
+      utils.superAdmin.listUnassignedUsers.invalidate();
+      utils.superAdmin.getGlobalStats.invalidate();
+      setAssigningId(null);
+    },
+    onError: (e) => toast.error(`Error: ${e.message}`),
+  });
+
+  const handleAssign = (userId: number) => {
+    const companyId = selectedCompany[userId];
+    if (!companyId) {
+      toast.error("Selecciona una empresa primero");
+      return;
+    }
+    assignUser.mutate({ userId, companyId: Number(companyId) });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (!unassigned?.length) {
+    return (
+      <div className="text-center py-12 border rounded-lg">
+        <UserCheck className="w-12 h-12 mx-auto mb-3 text-green-500 opacity-70" />
+        <p className="font-medium text-green-700">Todos los usuarios tienen empresa asignada</p>
+        <p className="text-sm text-muted-foreground mt-1">No hay usuarios sin empresa en el sistema</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0" />
+        <p className="text-sm text-yellow-800">
+          <strong>{unassigned.length} usuario(s)</strong> no tienen empresa asignada.
+          Asígnalos a una empresa para completar el aislamiento de tenant.
+        </p>
+      </div>
+
+      <div className="border rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Correo</TableHead>
+              <TableHead>Rol</TableHead>
+              <TableHead>Registro</TableHead>
+              <TableHead>Asignar a empresa</TableHead>
+              <TableHead className="text-right">Acción</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {unassigned.map((u) => (
+              <TableRow key={u.id}>
+                <TableCell className="font-medium">{u.name ?? "—"}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{u.email ?? "—"}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="text-xs">{u.role}</Badge>
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground">
+                  {u.createdAt ? new Date(u.createdAt).toLocaleDateString("es-MX") : "—"}
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={selectedCompany[u.id] ?? ""}
+                    onValueChange={(v) =>
+                      setSelectedCompany((prev) => ({ ...prev, [u.id]: v }))
+                    }
+                  >
+                    <SelectTrigger className="w-48 h-8 text-xs">
+                      <SelectValue placeholder="Seleccionar empresa..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companiesData.map((c) => (
+                        <SelectItem key={c.id} value={c.id.toString()} className="text-xs">
+                          {c.razonSocial}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    disabled={!selectedCompany[u.id] || assignUser.isPending}
+                    onClick={() => handleAssign(u.id)}
+                    className="gap-1"
+                  >
+                    <UserCheck className="w-3 h-3" />
+                    Asignar
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

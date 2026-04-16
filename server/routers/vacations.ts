@@ -347,7 +347,7 @@ export const vacationsRouter = router({
           const deptEmployees = await db
             .select({ id: employees.id })
             .from(employees)
-            .where(and(eq(employees.departmentId, empInfo.departmentId), eq(employees.status, "activo")));
+            .where(and(eq(employees.departmentId, empInfo.departmentId), eq(employees.isActive, true)));
           const totalInDept = deptEmployees.length || 1;
 
           // Contar cuántos están de vacaciones en el período solicitado
@@ -359,8 +359,8 @@ export const vacationsRouter = router({
               and(
                 eq(employees.departmentId, empInfo.departmentId),
                 eq(vacationRequests.status, "approved"),
-                lte(vacationRequests.startDate, input.endDate),
-                gte(vacationRequests.endDate, input.startDate)
+                sql`${vacationRequests.startDate} <= ${input.endDate}`,
+                sql`${vacationRequests.endDate} >= ${input.startDate}`
               )
             );
 

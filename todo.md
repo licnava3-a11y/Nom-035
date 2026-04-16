@@ -278,3 +278,13 @@
   - Contacto del Responsable y Autoridades (INAI, STPS, IMSS)
 - [x] Footer del DashboardLayout actualizado con enlaces a /legal (Aviso Legal y Privacidad | Términos de Uso | NOM-035-STPS-2018 • LFPDPPP)
 - [x] Portada legal lee datos dinámicos de company.getGeneralData (razón social, RFC, representante legal, email, teléfono)
+
+## Sprint: Términos LFPDPPP + Asignación Empresa + PDF Legal — Pendiente
+
+- [ ] Tabla terms_acceptance en schema (userId, acceptedAt, ipAddress, userAgent, version)
+- [ ] Migración SQL aplicada a la base de datos
+- [ ] Procedure terms.accept y terms.hasAccepted en router
+- [ ] Modal de aceptación de términos en primer login (App.tsx o layout)
+- [ ] Botón "Asignar empresa" en tabla de usuarios del SuperAdminPanel
+- [ ] Procedure superAdmin.assignCompany para vincular userId a companyId
+- [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4

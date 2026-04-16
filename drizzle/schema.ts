@@ -5540,3 +5540,16 @@ export const vacationRequests = mysqlTable("vacation_requests", {
 });
 export type VacationRequest = typeof vacationRequests.$inferSelect;
 export type InsertVacationRequest = typeof vacationRequests.$inferInsert;
+
+// ─── Aceptación de Términos y Aviso de Privacidad (LFPDPPP Art. 8) ────────────
+export const termsAcceptance = mysqlTable("terms_acceptance", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id),
+  version: varchar("version", { length: 20 }).notNull().default("1.0"), // Versión del aviso de privacidad
+  acceptedAt: timestamp("accepted_at").defaultNow().notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }), // IPv4 o IPv6
+  userAgent: text("user_agent"), // Navegador/dispositivo
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type TermsAcceptance = typeof termsAcceptance.$inferSelect;
+export type InsertTermsAcceptance = typeof termsAcceptance.$inferInsert;
