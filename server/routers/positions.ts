@@ -249,7 +249,7 @@ export const positionsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "hr") {
+      if (ctx.user.role !== "admin" && ctx.user.role !== "rh") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores o RH pueden importar puestos" });
       }
       const db = await getDb();

@@ -214,7 +214,7 @@ export const organizationalCompetenciesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin" && ctx.user.role !== "hr") {
+      if (ctx.user.role !== "admin" && ctx.user.role !== "rh") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores o RH pueden importar competencias" });
       }
       const db = await getDb();
