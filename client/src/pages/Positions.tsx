@@ -39,9 +39,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Search, Briefcase, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Briefcase, Users, Download } from "lucide-react";
 import ProtectedButton from "@/components/ProtectedButton";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
 const LEVEL_LABELS: Record<string, string> = {
   executive: "Ejecutivo",
@@ -185,15 +186,42 @@ export default function Positions() {
             Gestión de puestos organizacionales
           </p>
         </div>
-        <ProtectedButton
-          onClick={() => setIsCreateOpen(true)}
-          requiredPermission="can_create"
-          fallbackMessage="Solo los administradores pueden crear puestos"
-          hideIfNoPermission
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Puesto
-        </ProtectedButton>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (!data?.data?.length) { toast.error("No hay puestos para exportar"); return; }
+              const rows = data.data.map((p: any) => ({
+                "Código": p.code,
+                "Título": p.title,
+                "Departamento": p.departmentName || "",
+                "Nivel": p.level ? (LEVEL_LABELS[p.level] ?? p.level) : "",
+                "Escolaridad mínima": p.minimumEducation || "",
+                "Empleados asignados": p.employeeCount ?? 0,
+                "Descripción": p.description || "",
+              }));
+              const ws = XLSX.utils.json_to_sheet(rows);
+              // Ajustar ancho de columnas
+              ws["!cols"] = [{ wch: 12 }, { wch: 35 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 12 }, { wch: 50 }];
+              const wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, "Catálogo de Puestos");
+              XLSX.writeFile(wb, `catalogo_puestos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+              toast.success("Catálogo exportado correctamente");
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar XLSX
+          </Button>
+          <ProtectedButton
+            onClick={() => setIsCreateOpen(true)}
+            requiredPermission="can_create"
+            fallbackMessage="Solo los administradores pueden crear puestos"
+            hideIfNoPermission
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Puesto
+          </ProtectedButton>
+        </div>
       </div>
 
       {/* Filtros */}

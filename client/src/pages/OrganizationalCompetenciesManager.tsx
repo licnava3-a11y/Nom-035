@@ -24,8 +24,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Download } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import * as XLSX from "xlsx";
 
 type CompetencyCategory = "soft_skill" | "organizational" | "leadership" | "technical_transversal";
 type CompetencyLevel = "basico" | "intermedio" | "avanzado" | "experto";
@@ -211,10 +212,36 @@ export default function OrganizationalCompetenciesManager() {
             Administra el catálogo de habilidades blandas, liderazgo y competencias transversales
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva Competencia
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (!competencies.length) { toast.error("No hay competencias para exportar"); return; }
+              const rows = filteredCompetencies.map((c: any) => ({
+                "Nombre": c.competencyName,
+                "Categoría": categoryLabels[c.competencyCategory as CompetencyCategory] ?? c.competencyCategory,
+                "Nivel requerido": levelLabels[c.requiredLevel as CompetencyLevel] ?? c.requiredLevel,
+                "Aplica a departamentos": c.appliesToDepartments || "Todos",
+                "Aplica a roles": c.appliesToRoles || "Todos",
+                "Estado": c.isActive ? "Activo" : "Inactivo",
+                "Descripción": c.description || "",
+              }));
+              const ws = XLSX.utils.json_to_sheet(rows);
+              ws["!cols"] = [{ wch: 35 }, { wch: 22 }, { wch: 18 }, { wch: 28 }, { wch: 28 }, { wch: 10 }, { wch: 60 }];
+              const wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, "Competencias");
+              XLSX.writeFile(wb, `catalogo_competencias_${new Date().toISOString().slice(0, 10)}.xlsx`);
+              toast.success("Catálogo exportado correctamente");
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar XLSX
+          </Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva Competencia
+          </Button>
+        </div>
       </div>
 
       {/* Statistics */}
