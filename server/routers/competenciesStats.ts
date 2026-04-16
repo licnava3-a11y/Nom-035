@@ -1,30 +1,26 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { competencies, departments, employeeCompetencies, employees, jobPositions, jobProfiles, positions } from "../../drizzle/schema";
-import { eq, and, sql, gte, lte } from "drizzle-orm";
+import { departments, employeeCompetencies, employees, jobPositions, jobProfiles, positions } from "../../drizzle/schema";
+import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
-export const competenciesStatsRouter = router({
-  /**
-   * Get competencies statistics by department
-   */
-  getByDepartment: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }).optional())
-    .query(async ({ ctx, input }) => {
-    const db = await getDb();
-    if (!db) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Database connection failed",
-      });
-    }
+// Nivel → valor numérico (compartido en todo el router)
+const LEVEL_VALUE: Record<string, number> = {
+  ninguno: 0,
+  basico: 1,
+  intermedio: 2,
+  avanzado: 3,
+  experto: 4,
+};
 
-    // Get all active employees with their competencies
-    const activeEmployees = (await db
+/**
+ * Carga masiva de datos para evitar N+1:
+ * Ejecuta 4 queries en paralelo y construye mapas en memoria.
+ */
+async function loadBulkData(db: NonNullable<Awaited<ReturnType<typeof getDb>>>) {
+  const [activeEmployees, allCompetencies, allJobPositions, allJobProfiles] = await Promise.all([
+    db
       .select({
         id: employees.id,
         firstName: employees.firstName,
@@ -33,265 +29,169 @@ export const competenciesStatsRouter = router({
         departmentId: employees.departmentId,
         positionId: employees.positionId,
         departmentName: departments.name,
-        positionName: positions.title,
+        positionTitle: positions.title,
       })
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
       .leftJoin(positions, eq(employees.positionId, positions.id))
-      .where(eq(employees.isActive, true))) as unknown as Array<{
-      id: number;
-      firstName: string;
-      lastName: string;
-      email: string;
-      departmentId: number | null;
-      positionId: number | null;
-      departmentName: string | null;
-      positionName: string | null;
-    }>;
+      .where(eq(employees.isActive, true)),
+    db.select().from(employeeCompetencies),
+    db.select().from(jobPositions),
+    db.select().from(jobProfiles),
+  ]);
 
-    // Get all competencies
-    const allCompetencies = await db.select().from(employeeCompetencies);
+  // Mapa: positionTitle → jobPositionId
+  const positionNameToId = new Map<string, number>(
+    allJobPositions.map((p) => [p.positionName, p.id])
+  );
 
-    // Level mapping
-    const levelValue: Record<string, number> = {
-      ninguno: 0,
-      basico: 1,
-      intermedio: 2,
-      avanzado: 3,
-      experto: 4,
-    };
+  // Mapa: jobPositionId → requerimientos[]
+  const profilesByPositionId = new Map<number, typeof allJobProfiles>();
+  for (const profile of allJobProfiles) {
+    const list = profilesByPositionId.get(profile.positionId) ?? [];
+    list.push(profile);
+    profilesByPositionId.set(profile.positionId, list);
+  }
 
-    // Group by department
-    const departmentStats: Record<
-      string,
-      {
-        department: string;
-        employeeCount: number;
-        avgCompetencyLevel: number;
-        competenciesCount: number;
-        criticalGaps: number;
-      }
-    > = {};
+  // Mapa: employeeId → competencias[]
+  const competenciesByEmployee = new Map<number, typeof allCompetencies>();
+  for (const comp of allCompetencies) {
+    const list = competenciesByEmployee.get(comp.employeeId) ?? [];
+    list.push(comp);
+    competenciesByEmployee.set(comp.employeeId, list);
+  }
 
-    for (const emp of activeEmployees) {
-      const dept = emp.departmentName || "Sin Departamento";
+  return {
+    activeEmployees: activeEmployees as Array<{
+      id: number; firstName: string; lastName: string; email: string;
+      departmentId: number | null; positionId: number | null;
+      departmentName: string | null; positionTitle: string | null;
+    }>,
+    allCompetencies,
+    positionNameToId,
+    profilesByPositionId,
+    competenciesByEmployee,
+  };
+}
 
-      if (!departmentStats[dept]) {
-        departmentStats[dept] = {
-          department: dept,
-          employeeCount: 0,
-          avgCompetencyLevel: 0,
-          competenciesCount: 0,
-          criticalGaps: 0,
-        };
-      }
+export const competenciesStatsRouter = router({
+  /**
+   * Estadísticas de competencias por departamento — sin N+1
+   */
+  getByDepartment: protectedProcedure
+    .input(z.object({ startDate: z.string().optional(), endDate: z.string().optional() }).optional())
+    .query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
 
-      departmentStats[dept].employeeCount++;
+      const { activeEmployees, positionNameToId, profilesByPositionId, competenciesByEmployee } =
+        await loadBulkData(db);
 
-      // Get employee competencies
-      const empCompetencies = allCompetencies.filter((c: any) => c.employeeId === emp.id);
+      const departmentStats: Record<
+        string,
+        { department: string; employeeCount: number; totalLevel: number; competenciesCount: number; criticalGaps: number }
+      > = {};
 
-      if (empCompetencies.length > 0) {
-        const totalLevel = empCompetencies.reduce(
-          (sum, c) => sum + (levelValue[c.currentLevel] || 0),
-          0
-        );
-        departmentStats[dept].avgCompetencyLevel += totalLevel / empCompetencies.length;
-        departmentStats[dept].competenciesCount += empCompetencies.length;
-      }
+      for (const emp of activeEmployees) {
+        const dept = emp.departmentName ?? "Sin Departamento";
+        if (!departmentStats[dept]) {
+          departmentStats[dept] = { department: dept, employeeCount: 0, totalLevel: 0, competenciesCount: 0, criticalGaps: 0 };
+        }
+        departmentStats[dept].employeeCount++;
 
-      // Count critical gaps (employees with competencies below required)
-      if (emp.positionName) {
-        const [positionRecord] = await db
-          .select()
-          .from(jobPositions)
-          .where(eq(jobPositions.positionName, emp.positionName))
-          .limit(1);
+        const empComps = competenciesByEmployee.get(emp.id) ?? [];
+        if (empComps.length > 0) {
+          const levelSum = empComps.reduce((sum, c) => sum + (LEVEL_VALUE[c.currentLevel] ?? 0), 0);
+          departmentStats[dept].totalLevel += levelSum / empComps.length;
+          departmentStats[dept].competenciesCount += empComps.length;
+        }
 
-        if (positionRecord) {
-          const requirements = await db
-            .select()
-            .from(jobProfiles)
-            .where(eq(jobProfiles.positionId, positionRecord.id));
-
-          const competencyMap = new Map(
-            empCompetencies.map((c: any) => [c.competencyName, c.currentLevel])
-          );
-
-          for (const req of requirements) {
-            const currentLevel = competencyMap.get(req.competencyName) || "ninguno";
-            const gap = levelValue[req.requiredLevel] - levelValue[currentLevel];
-
-            if (gap >= 3) {
-              departmentStats[dept].criticalGaps++;
+        if (emp.positionTitle) {
+          const posId = positionNameToId.get(emp.positionTitle);
+          if (posId !== undefined) {
+            const requirements = profilesByPositionId.get(posId) ?? [];
+            const compMap = new Map(empComps.map((c) => [c.competencyName, c.currentLevel]));
+            for (const req of requirements) {
+              const current = compMap.get(req.competencyName) ?? "ninguno";
+              const gap = (LEVEL_VALUE[req.requiredLevel] ?? 0) - (LEVEL_VALUE[current] ?? 0);
+              if (gap >= 3) departmentStats[dept].criticalGaps++;
             }
           }
         }
       }
-    }
 
-    // Calculate averages
-    const result = Object.values(departmentStats).map((dept: any) => ({
-      ...dept,
-      avgCompetencyLevel:
-        dept.employeeCount > 0 ? dept.avgCompetencyLevel / dept.employeeCount : 0,
-    }));
+      const result = Object.values(departmentStats).map((d) => ({
+        department: d.department,
+        employeeCount: d.employeeCount,
+        avgCompetencyLevel: d.employeeCount > 0 ? d.totalLevel / d.employeeCount : 0,
+        competenciesCount: d.competenciesCount,
+        criticalGaps: d.criticalGaps,
+      }));
 
-    return result.sort((a: any, b: any) => b.criticalGaps - a.criticalGaps);
-  }),
+      return result.sort((a, b) => b.criticalGaps - a.criticalGaps);
+    }),
 
   /**
-   * Get competencies statistics by type
+   * Estadísticas de competencias por tipo
    */
   getByType: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }).optional())
-    .query(async ({ ctx, input }) => {
-    const db = await getDb();
-    if (!db) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Database connection failed",
-      });
-    }
-
-    // Get all competencies
-    const allCompetencies = await db.select().from(employeeCompetencies);
-
-    // Level mapping
-    const levelValue: Record<string, number> = {
-      ninguno: 0,
-      basico: 1,
-      intermedio: 2,
-      avanzado: 3,
-      experto: 4,
-    };
-
-    // Group by type
-    const typeStats: Record<
-      string,
-      {
-        type: string;
-        count: number;
-        avgLevel: number;
-        totalLevel: number;
-      }
-    > = {
-      tecnica: { type: "Técnica", count: 0, avgLevel: 0, totalLevel: 0 },
-      transversal: { type: "Transversal", count: 0, avgLevel: 0, totalLevel: 0 },
-      conocimiento: { type: "Conocimiento", count: 0, avgLevel: 0, totalLevel: 0 },
-    };
-
-    for (const comp of allCompetencies) {
-      const type = comp.competencyType;
-      if (typeStats[type]) {
-        typeStats[type].count++;
-        typeStats[type].totalLevel += levelValue[comp.currentLevel] || 0;
-      }
-    }
-
-    // Calculate averages
-    return Object.values(typeStats).map((stat: any) => ({
-      ...stat,
-      avgLevel: stat.count > 0 ? stat.totalLevel / stat.count : 0,
-    }));
-  }),
-
-  /**
-   * Get top competencies gaps across organization
-   */
-  getTopGaps: protectedProcedure
-    .input(z.object({ 
-      limit: z.number().default(10),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }))
-    .query(async ({ ctx, input }) => {
+    .input(z.object({ startDate: z.string().optional(), endDate: z.string().optional() }).optional())
+    .query(async ({ ctx }) => {
       const db = await getDb();
-      if (!db) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Database connection failed",
-        });
-      }
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
 
-      // Get all active employees
-      const activeEmployees = (await db
-        .select({
-          id: employees.id,
-          firstName: employees.firstName,
-          lastName: employees.lastName,
-          email: employees.email,
-          departmentId: employees.departmentId,
-          positionId: employees.positionId,
-          departmentName: departments.name,
-          positionName: positions.title,
-        })
-        .from(employees)
-        .leftJoin(departments, eq(employees.departmentId, departments.id))
-        .leftJoin(positions, eq(employees.positionId, positions.id))
-        .where(eq(employees.isActive, true))) as unknown as Array<{
-        id: number;
-        firstName: string;
-        lastName: string;
-        email: string;
-        departmentId: number | null;
-        positionId: number | null;
-        departmentName: string | null;
-        positionName: string | null;
-      }>;
-
-      // Get all competencies
       const allCompetencies = await db.select().from(employeeCompetencies);
 
-      // Level mapping
-      const levelValue: Record<string, number> = {
-        ninguno: 0,
-        basico: 1,
-        intermedio: 2,
-        avanzado: 3,
-        experto: 4,
+      const typeStats: Record<string, { type: string; count: number; totalLevel: number }> = {
+        tecnica: { type: "Técnica", count: 0, totalLevel: 0 },
+        transversal: { type: "Transversal", count: 0, totalLevel: 0 },
+        conocimiento: { type: "Conocimiento", count: 0, totalLevel: 0 },
       };
 
-      // Track gaps by competency
+      for (const comp of allCompetencies) {
+        const type = comp.competencyType;
+        if (typeStats[type]) {
+          typeStats[type].count++;
+          typeStats[type].totalLevel += LEVEL_VALUE[comp.currentLevel] ?? 0;
+        }
+      }
+
+      return Object.values(typeStats).map((stat) => ({
+        type: stat.type,
+        count: stat.count,
+        avgLevel: stat.count > 0 ? stat.totalLevel / stat.count : 0,
+      }));
+    }),
+
+  /**
+   * Top brechas de competencias en la organización — sin N+1
+   */
+  getTopGaps: protectedProcedure
+    .input(z.object({ limit: z.number().default(10), startDate: z.string().optional(), endDate: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+      const { activeEmployees, positionNameToId, profilesByPositionId, competenciesByEmployee } =
+        await loadBulkData(db);
+
       const gapsByCompetency: Record<
         string,
-        {
-          competencyName: string;
-          competencyType: string;
-          totalGap: number;
-          employeesAffected: number;
-          criticalCount: number;
-        }
+        { competencyName: string; competencyType: string; totalGap: number; employeesAffected: number; criticalCount: number }
       > = {};
 
       for (const emp of activeEmployees) {
-        if (!emp.positionName) continue;
+        if (!emp.positionTitle) continue;
+        const posId = positionNameToId.get(emp.positionTitle);
+        if (posId === undefined) continue;
 
-        const [positionRecord] = await db
-          .select()
-          .from(jobPositions)
-          .where(eq(jobPositions.positionName, emp.positionName))
-          .limit(1);
-
-        if (!positionRecord) continue;
-
-        const requirements = await db
-          .select()
-          .from(jobProfiles)
-          .where(eq(jobProfiles.positionId, positionRecord.id));
-
-        const empCompetencies = allCompetencies.filter((c: any) => c.employeeId === emp.id);
-        const competencyMap = new Map(
-          empCompetencies.map((c: any) => [c.competencyName, c.currentLevel])
-        );
+        const requirements = profilesByPositionId.get(posId) ?? [];
+        const empComps = competenciesByEmployee.get(emp.id) ?? [];
+        const compMap = new Map(empComps.map((c) => [c.competencyName, c.currentLevel]));
 
         for (const req of requirements) {
-          const currentLevel = competencyMap.get(req.competencyName) || "ninguno";
-          const gap = levelValue[req.requiredLevel] - levelValue[currentLevel];
-
+          const current = compMap.get(req.competencyName) ?? "ninguno";
+          const gap = (LEVEL_VALUE[req.requiredLevel] ?? 0) - (LEVEL_VALUE[current] ?? 0);
           if (gap > 0) {
             if (!gapsByCompetency[req.competencyName]) {
               gapsByCompetency[req.competencyName] = {
@@ -302,80 +202,42 @@ export const competenciesStatsRouter = router({
                 criticalCount: 0,
               };
             }
-
             gapsByCompetency[req.competencyName].totalGap += gap;
             gapsByCompetency[req.competencyName].employeesAffected++;
-
-            if (gap >= 3) {
-              gapsByCompetency[req.competencyName].criticalCount++;
-            }
+            if (gap >= 3) gapsByCompetency[req.competencyName].criticalCount++;
           }
         }
       }
 
-      // Sort by total gap and limit
-      const result = Object.values(gapsByCompetency)
-        .sort((a: any, b: any) => b.totalGap - a.totalGap)
+      return Object.values(gapsByCompetency)
+        .sort((a, b) => b.totalGap - a.totalGap)
         .slice(0, input.limit);
-
-      return result;
     }),
 
   /**
-   * Get overall organization statistics
+   * Estadísticas globales de la organización
    */
   getOverallStats: protectedProcedure
-    .input(z.object({
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    }).optional())
-    .query(async ({ ctx, input }) => {
-    const db = await getDb();
-    if (!db) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Database connection failed",
-      });
-    }
+    .input(z.object({ startDate: z.string().optional(), endDate: z.string().optional() }).optional())
+    .query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
 
-    // Get counts
-    const [employeesResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(employees)
-      .where(eq(employees.isActive, true));
+      const [[employeesResult], [competenciesResult], [profilesResult], allCompetencies] = await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(employees).where(eq(employees.isActive, true)),
+        db.select({ count: sql<number>`count(*)` }).from(employeeCompetencies),
+        db.select({ count: sql<number>`count(*)` }).from(jobProfiles),
+        db.select().from(employeeCompetencies),
+      ]);
 
-    const [competenciesResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(employeeCompetencies);
+      const totalLevel = allCompetencies.reduce((sum, c) => sum + (LEVEL_VALUE[c.currentLevel] ?? 0), 0);
+      const avgLevel = allCompetencies.length > 0 ? totalLevel / allCompetencies.length : 0;
 
-    const [profilesResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(jobProfiles);
-
-    // Get all competencies for average calculation
-    const allCompetencies = await db.select().from(employeeCompetencies);
-
-    const levelValue: Record<string, number> = {
-      ninguno: 0,
-      basico: 1,
-      intermedio: 2,
-      avanzado: 3,
-      experto: 4,
-    };
-
-    const totalLevel = allCompetencies.reduce(
-      (sum, c) => sum + (levelValue[c.currentLevel] || 0),
-      0
-    );
-
-    const avgLevel =
-      allCompetencies.length > 0 ? totalLevel / allCompetencies.length : 0;
-
-    return {
-      totalEmployees: Number(employeesResult?.count || 0),
-      totalCompetencies: Number(competenciesResult?.count || 0),
-      totalProfiles: Number(profilesResult?.count || 0),
-      avgCompetencyLevel: avgLevel,
-    };
-  }),
+      return {
+        totalEmployees: Number(employeesResult?.count ?? 0),
+        totalCompetencies: Number(competenciesResult?.count ?? 0),
+        totalProfiles: Number(profilesResult?.count ?? 0),
+        avgCompetencyLevel: avgLevel,
+      };
+    }),
 });
