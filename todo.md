@@ -198,3 +198,14 @@
 - [x] Tab "Aprobación de Equipo" en VacationManagement.tsx — visible para supervisor/gerente/jefe_area con botones Aprobar/Rechazar y campo de motivo de rechazo
 - [x] Tab "Reporte de Saldo" en VacationManagement.tsx — tabla agrupada por departamento con saldo disponible por empleado y botón "Exportar XLSX" (2 hojas: detalle + resumen por departamento)
 - [x] 0 errores TypeScript verificados (tsc --noEmit EXIT_CODE: 0)
+
+## Sprint: Mejoras Avanzadas de Vacaciones — Notificaciones, Widget y Calendario (2026-04-16)
+- [x] Notificación push WebSocket al supervisor al crear solicitud de vacaciones (emitNotificationToUser + insert notifications)
+- [x] Widget de vacaciones en Home.tsx — saldo disponible (ganados/usados/pendientes/disponibles) para empleados
+- [x] Widget de vacaciones en Home.tsx — contador de solicitudes pendientes de aprobación para supervisores
+- [x] Procedure `getCalendar` en vacations router — filtro por año/mes/departamento, retorna períodos aprobados y pendientes
+- [x] Página VacationCalendar.tsx — vista Gantt con barras por empleado y departamento + vista mensual tipo grid
+- [x] Ruta /vacation-calendar registrada en App.tsx
+- [x] Alias /vacations → VacationManagement registrado en App.tsx
+- [x] Enlace "Calendario de Vacaciones" agregado al sidebar en Gestión de Talento
+- [x] 0 errores TypeScript verificados

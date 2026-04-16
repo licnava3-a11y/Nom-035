@@ -178,6 +178,7 @@ const ApplicationSuccess = lazy(() => import("./pages/ApplicationSuccess"));
 const RecruitmentManagement = lazy(() => import("./pages/RecruitmentManagement"));
 const ContractExpirationDashboard = lazy(() => import("./pages/ContractExpirationDashboard"));
 const VacationManagement = lazy(() => import("./pages/VacationManagement"));
+const VacationCalendar = lazy(() => import("./pages/VacationCalendar"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
 const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
@@ -1343,6 +1344,20 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <VacationManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/vacations"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <VacationManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/vacation-calendar"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <VacationCalendar />
             </Suspense>
           </DashboardLayout>
         </Route>

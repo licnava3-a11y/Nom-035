@@ -10,9 +10,11 @@ import {
   positions,
   users,
 } from "../../drizzle/schema";
-import { eq, desc, sql, and, gte, lte, ne } from "drizzle-orm";
+import { eq, desc, sql, and, gte, lte, ne, asc } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
+import { emitNotificationToUser } from "../_core/websocket";
+import { notifications } from "../../drizzle/schema";
 
 // ── Tabla LFT por defecto ────────────────────────────────────────────────────
 const DEFAULT_LFT_TABLE = [
@@ -327,6 +329,57 @@ export const vacationsRouter = router({
         content: `${emp.firstName} ${emp.lastName} solicita ${input.requestedDays} días de vacaciones del ${input.startDate} al ${input.endDate}. Regreso: ${input.returnDate}. Saldo disponible: ${available} días.`,
       });
 
+      // ── Notificación push al supervisor/jefe del departamento ────────────
+      try {
+        // Obtener el departamento del empleado y su manager
+        const [empDept] = await db
+          .select({
+            deptManagerId: departments.managerId,
+            deptName: departments.name,
+          })
+          .from(employees)
+          .leftJoin(departments, eq(employees.departmentId, departments.id))
+          .where(eq(employees.id, input.employeeId))
+          .limit(1);
+
+        if (empDept?.deptManagerId) {
+          // Obtener el userId del manager (empleado → usuario)
+          const [managerEmployee] = await db
+            .select({ userId: employees.userId })
+            .from(employees)
+            .where(eq(employees.id, empDept.deptManagerId))
+            .limit(1);
+
+          if (managerEmployee?.userId) {
+            const notifTitle = `📋 Nueva solicitud de vacaciones`;
+            const notifMsg = `${emp.firstName} ${emp.lastName} solicita ${input.requestedDays} días (${input.startDate} al ${input.endDate}). Requiere tu aprobación.`;
+
+            // Guardar en tabla notifications
+            await (db.insert(notifications) as any).values({
+              userId: managerEmployee.userId,
+              type: "system",
+              title: notifTitle,
+              message: notifMsg,
+              relatedEntityType: "vacation_request",
+              isRead: false,
+            });
+
+            // Emitir por WebSocket en tiempo real
+            emitNotificationToUser(managerEmployee.userId, {
+              id: Date.now(),
+              type: "system",
+              title: notifTitle,
+              message: notifMsg,
+              read: false,
+              createdAt: new Date(),
+            });
+          }
+        }
+      } catch (notifError) {
+        // No fallar la solicitud si la notificación falla
+        console.error("[Vacaciones] Error enviando notificación al supervisor:", notifError);
+      }
+
       return { success: true };
     }),
 
@@ -507,5 +560,63 @@ export const vacationsRouter = router({
       report.sort((a, b) => a.department.localeCompare(b.department) || a.name.localeCompare(b.name));
 
       return report;
+    }),
+
+  // ── Calendario de vacaciones aprobadas por mes/departamento ────────────────
+  getCalendar: protectedProcedure
+    .input(
+      z.object({
+        year: z.number().int().min(2020).max(2030),
+        month: z.number().int().min(1).max(12),
+        departmentId: z.number().int().positive().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      // Primer y último día del mes
+      const firstDay = `${input.year}-${String(input.month).padStart(2, "0")}-01`;
+      const lastDayDate = new Date(input.year, input.month, 0);
+      const lastDay = `${input.year}-${String(input.month).padStart(2, "0")}-${String(lastDayDate.getDate()).padStart(2, "0")}`;
+
+      // Obtener solicitudes aprobadas y pendientes que se solapan con el mes
+      const rows = await db
+        .select({
+          id: vacationRequests.id,
+          employeeId: vacationRequests.employeeId,
+          employeeName: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+          departmentId: employees.departmentId,
+          startDate: vacationRequests.startDate,
+          endDate: vacationRequests.endDate,
+          requestedDays: vacationRequests.requestedDays,
+          status: vacationRequests.status,
+        })
+        .from(vacationRequests)
+        .leftJoin(employees, eq(vacationRequests.employeeId, employees.id))
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .where(
+          and(
+            // Solicitudes que se solapan con el mes: startDate <= lastDay AND endDate >= firstDay
+            sql`${vacationRequests.startDate} <= ${lastDay}`,
+            sql`${vacationRequests.endDate} >= ${firstDay}`,
+            // Solo aprobadas y pendientes
+            sql`${vacationRequests.status} IN ('approved', 'pending')`
+          )
+        )
+        .orderBy(asc(employees.departmentId), asc(vacationRequests.startDate));
+
+      // Filtrar por departamento si se especifica
+      const filtered = input.departmentId
+        ? rows.filter((r) => r.departmentId === input.departmentId)
+        : rows;
+
+      return {
+        year: input.year,
+        month: input.month,
+        daysInMonth: lastDayDate.getDate(),
+        entries: filtered,
+      };
     }),
 });

@@ -89,6 +89,7 @@ const hierarchicalMenuItems = [
       { label: "Reclutamiento", path: "/recruitment", description: "Gestión de vacantes y candidatos con filtro de escolaridad" },
       { label: "Vencimientos de Contratos", path: "/contract-expiration-dashboard", description: "Dashboard consolidado de contratos próximos a vencer con exportación Excel" },
       { label: "Gestión de Vacaciones", path: "/vacation-management", description: "Solicitudes con saldo LFT automático, flujo de aprobación y notificación a RH" },
+      { label: "Calendario de Vacaciones", path: "/vacation-calendar", description: "Vista Gantt y mensual de períodos aprobados y pendientes por departamento" },
     ],
   },
   {

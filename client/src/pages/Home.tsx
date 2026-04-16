@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight } from "lucide-react";
+import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AlertBanner } from "@/components/AlertBanner";
@@ -53,6 +53,26 @@ export default function Home() {
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
   const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
+
+  // Determinar si el usuario es supervisor/gerente/jefe_area
+  const isSupervisor = ["supervisor", "gerente", "jefe_area", "admin", "rh", "recursos_humanos"].includes(user?.role ?? "");
+
+  // Widget de vacaciones: solicitudes pendientes de aprobación (para supervisores)
+  const { data: pendingVacations } = trpc.vacations.listByManager.useQuery(
+    { status: "pending" },
+    { enabled: isSupervisor }
+  );
+
+  // Widget de vacaciones: saldo disponible del usuario actual (para empleados)
+  const { data: myEmployeeData } = trpc.employees.list.useQuery(
+    { search: user?.name ?? "", isActive: true },
+    { enabled: !!user }
+  );
+  const myEmployeeId = myEmployeeData?.employees?.[0]?.id;
+  const { data: myVacationBalance } = trpc.vacations.getBalance.useQuery(
+    { employeeId: myEmployeeId! },
+    { enabled: !!myEmployeeId }
+  );
   
   // Mutation para crear alertas
   const createAlertMutation = trpc.alerts.create.useMutation({
@@ -244,6 +264,92 @@ export default function Home() {
           )}
         </div>
       )}
+
+      {/* ── Widget de Vacaciones ─────────────────────────────────────────── */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        {/* Saldo de vacaciones del empleado */}
+        {myVacationBalance && (
+          <Card className="border-teal-200 dark:border-teal-800">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Palmtree className="h-4 w-4 text-teal-600" />
+                  Mi Saldo de Vacaciones
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setLocation("/vacations")} className="text-xs text-teal-600 hover:text-teal-700">
+                  Ver detalle <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-4 gap-3">
+                <div className="text-center p-2 bg-teal-50 dark:bg-teal-950/30 rounded-lg">
+                  <div className="text-2xl font-bold text-teal-700 dark:text-teal-400">{myVacationBalance.earnedDays}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Ganados</div>
+                </div>
+                <div className="text-center p-2 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
+                  <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{myVacationBalance.usedDays}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Usados</div>
+                </div>
+                <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg">
+                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{myVacationBalance.pendingDays}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Pendientes</div>
+                </div>
+                <div className="text-center p-2 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                  <div className="text-2xl font-bold text-green-700 dark:text-green-400">{myVacationBalance.availableDays}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Disponibles</div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Antigüedad: {myVacationBalance.yearsOfService} año{myVacationBalance.yearsOfService !== 1 ? "s" : ""} • LFT: {myVacationBalance.earnedDays} días/año
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Solicitudes pendientes de aprobación (supervisores) */}
+        {isSupervisor && (
+          <Card className="border-orange-200 dark:border-orange-800">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-orange-500" />
+                  Solicitudes de Vacaciones Pendientes
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setLocation("/vacations")} className="text-xs text-orange-600 hover:text-orange-700">
+                  Revisar <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {!pendingVacations || pendingVacations.length === 0 ? (
+                <div className="flex items-center gap-2 text-green-600 py-2">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span className="text-sm">Sin solicitudes pendientes</span>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 text-xs font-bold">
+                      {pendingVacations.length}
+                    </span>
+                    <span className="text-sm text-muted-foreground">solicitud{pendingVacations.length !== 1 ? "es" : ""} esperando aprobación</span>
+                  </div>
+                  {pendingVacations.slice(0, 3).map((req: any) => (
+                    <div key={req.id} className="flex items-center justify-between text-xs border-b border-border pb-1 last:border-0">
+                      <span className="font-medium truncate max-w-[140px]">{req.employeeName}</span>
+                      <span className="text-muted-foreground">{req.requestedDays}d · {req.startDate}</span>
+                    </div>
+                  ))}
+                  {pendingVacations.length > 3 && (
+                    <p className="text-xs text-muted-foreground text-center pt-1">+{pendingVacations.length - 3} más</p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* ── Accesos Rápidos ─────────────────────────────────────────────── */}
       <div>
