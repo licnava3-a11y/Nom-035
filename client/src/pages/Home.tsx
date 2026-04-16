@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, TrendingUp, Users, FileText, BarChart3 } from "lucide-react";
+import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AlertBanner } from "@/components/AlertBanner";
 import { WhatsAppDemoButton } from "@/components/WhatsAppButton";
@@ -243,6 +244,31 @@ export default function Home() {
           )}
         </div>
       )}
+
+      {/* ── Accesos Rápidos ─────────────────────────────────────────────── */}
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Accesos Rápidos</h2>
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          {[
+            { label: "Vencimientos de Contratos", icon: <CalendarClock className="h-5 w-5" />, href: "/contract-expiration-dashboard", color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/30" },
+            { label: "Entrevistas de Salida", icon: <UserMinus className="h-5 w-5" />, href: "/exit-interviews", color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30" },
+            { label: "Comparativa DNC", icon: <Target className="h-5 w-5" />, href: "/job-profiles", color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
+            { label: "Reclutamiento", icon: <Briefcase className="h-5 w-5" />, href: "/recruitment", color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30" },
+            { label: "Historial de Salarios", icon: <DollarSign className="h-5 w-5" />, href: "/employees", color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/30" },
+            { label: "Gestión de Vacaciones", icon: <Palmtree className="h-5 w-5" />, href: "/vacations", color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-950/30" },
+          ].map((item) => (
+            <button
+              key={item.href}
+              onClick={() => setLocation(item.href)}
+              className={`flex flex-col items-center gap-2 p-4 rounded-lg border border-border ${item.bg} hover:shadow-md transition-all text-center group`}
+            >
+              <span className={`${item.color} group-hover:scale-110 transition-transform`}>{item.icon}</span>
+              <span className="text-xs font-medium leading-tight">{item.label}</span>
+              <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Cards de métricas principales */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -5452,3 +5452,53 @@ export const contractSignatures = mysqlTable("contract_signatures", {
 });
 export type ContractSignature = typeof contractSignatures.$inferSelect;
 export type InsertContractSignature = typeof contractSignatures.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GESTIÓN DE VACACIONES — Módulo LFT
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Tabla de antigüedad y días de vacaciones (configurable por admin, basada en LFT)
+ * Por defecto: 1 año=12d, 2=14d, 3=16d, 4=18d, 5-9=20d, 10-14=22d, 15-19=24d, 20-24=26d, 25+=28d
+ */
+export const vacationSeniority = mysqlTable("vacation_seniority", {
+  id: int("id").autoincrement().primaryKey(),
+  yearsMin: int("years_min").notNull(),    // Año mínimo de antigüedad (inclusive)
+  yearsMax: int("years_max"),              // Año máximo (null = sin límite)
+  vacationDays: int("vacation_days").notNull(),  // Días de vacaciones correspondientes
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type VacationSeniority = typeof vacationSeniority.$inferSelect;
+export type InsertVacationSeniority = typeof vacationSeniority.$inferInsert;
+
+/**
+ * Solicitudes de vacaciones de empleados
+ */
+export const vacationRequests = mysqlTable("vacation_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull().references(() => employees.id),
+
+  // Fechas de la solicitud
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  returnDate: date("return_date").notNull(),  // Fecha de regreso al trabajo
+  requestedDays: int("requested_days").notNull(),
+
+  // Estado del flujo de aprobación
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "cancelled"]).default("pending").notNull(),
+  approvedBy: int("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
+
+  // Notas
+  notes: text("notes"),
+
+  // Saldo al momento de la solicitud (snapshot)
+  availableDaysAtRequest: int("available_days_at_request"),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type VacationRequest = typeof vacationRequests.$inferSelect;
+export type InsertVacationRequest = typeof vacationRequests.$inferInsert;

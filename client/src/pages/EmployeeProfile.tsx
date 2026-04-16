@@ -38,6 +38,11 @@ import {
   ChevronUp,
   PenLine,
   ShieldCheck,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Plus,
 } from "lucide-react";
 import SignatureCanvas from "@/components/SignatureCanvas";
 
@@ -79,7 +84,14 @@ export default function EmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const employeeId = parseInt(id || "0");
-  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs" | "salary">("info");
+  // Salary history state
+  const [showAddSalary, setShowAddSalary] = useState(false);
+  const [newSalary, setNewSalary] = useState("");
+  const [prevSalary, setPrevSalary] = useState("");
+  const [salaryReason, setSalaryReason] = useState("");
+  const [salaryDate, setSalaryDate] = useState(new Date().toISOString().split("T")[0]);
+  const [salaryType, setSalaryType] = useState<"annual_review" | "promotion" | "market_adjustment" | "retention" | "correction" | "other">("annual_review");
   const [signingContract, setSigningContract] = useState<"1" | "2" | "3" | null>(null);
   const [signerName, setSignerName] = useState("");
   const [signerRole, setSignerRole] = useState("");
@@ -113,6 +125,31 @@ export default function EmployeeProfile() {
     { employeeId },
     { enabled: employeeId > 0 && activeTab === "docs" }
   );
+
+  // Salary history queries
+  const { data: salaryHistoryData, isLoading: salaryLoading, refetch: refetchSalary } = trpc.salaryHistory.list.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "salary" }
+  );
+  const { data: currentSalaryData } = trpc.salaryHistory.getCurrentSalary.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "salary" }
+  );
+  const addSalaryMutation = trpc.salaryHistory.add.useMutation({
+    onSuccess: () => {
+      toast.success("Cambio salarial registrado");
+      setShowAddSalary(false);
+      setNewSalary("");
+      setPrevSalary("");
+      setSalaryReason("");
+      refetchSalary();
+    },
+    onError: (e: any) => toast.error(`Error: ${e.message}`),
+  });
+  const deleteSalaryMutation = trpc.salaryHistory.delete.useMutation({
+    onSuccess: () => { toast.success("Registro eliminado"); refetchSalary(); },
+    onError: (e: any) => toast.error(`Error: ${e.message}`),
+  });
 
   const { data: contractSigs, refetch: refetchContractSigs } = trpc.hiring.getContractSignatures.useQuery(
     { employeeId },
@@ -684,6 +721,7 @@ export default function EmployeeProfile() {
             { key: "contracts", label: "Contratos", icon: <Calendar className="h-4 w-4" /> },
             { key: "dnc", label: "Comparativa DNC", icon: <Target className="h-4 w-4" /> },
             { key: "docs", label: "Expediente Electrónico", icon: <FolderOpen className="h-4 w-4" /> },
+            { key: "salary", label: "Historial Salarial", icon: <DollarSign className="h-4 w-4" /> },
           ] as const).map((tab) => (
             <button
               key={tab.key}
@@ -1132,6 +1170,171 @@ export default function EmployeeProfile() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        {/* ── TAB: HISTORIAL SALARIAL ── */}
+        {activeTab === "salary" && (
+          <div className="space-y-4">
+            {/* Current salary card */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2"><DollarSign className="h-5 w-5 text-primary" /> Salario Actual</CardTitle>
+                  <CardDescription>Salario mensual bruto registrado en el sistema</CardDescription>
+                </div>
+                <Button size="sm" onClick={() => setShowAddSalary(!showAddSalary)} className="gap-1">
+                  <Plus className="h-4 w-4" /> Registrar Cambio
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">
+                  {currentSalaryData?.currentSalary
+                    ? new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(parseFloat(currentSalaryData.currentSalary))
+                    : <span className="text-muted-foreground text-lg">No registrado</span>}
+                </div>
+                {currentSalaryData?.position && (
+                  <p className="text-sm text-muted-foreground mt-1">{currentSalaryData.position} · {currentSalaryData.department}</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Add salary form */}
+            {showAddSalary && (
+              <Card className="border-primary/30">
+                <CardHeader><CardTitle className="text-base">Registrar Cambio Salarial</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Salario Anterior (MXN)</label>
+                      <input type="number" value={prevSalary} onChange={e => setPrevSalary(e.target.value)} placeholder="Ej. 25000" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Nuevo Salario (MXN) *</label>
+                      <input type="number" value={newSalary} onChange={e => setNewSalary(e.target.value)} placeholder="Ej. 28000" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tipo de Ajuste</label>
+                      <select value={salaryType} onChange={e => setSalaryType(e.target.value as any)} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                        <option value="annual_review">Revisión Anual</option>
+                        <option value="promotion">Promoción</option>
+                        <option value="market_adjustment">Ajuste de Mercado</option>
+                        <option value="retention">Retención</option>
+                        <option value="correction">Corrección</option>
+                        <option value="other">Otro</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fecha Efectiva *</label>
+                      <input type="date" value={salaryDate} onChange={e => setSalaryDate(e.target.value)} className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Motivo / Notas</label>
+                      <input type="text" value={salaryReason} onChange={e => setSalaryReason(e.target.value)} placeholder="Descripción del cambio salarial" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      onClick={() => {
+                        if (!newSalary || parseFloat(newSalary) <= 0) { toast.error("Ingrese el nuevo salario"); return; }
+                        addSalaryMutation.mutate({
+                          employeeId,
+                          previousSalary: prevSalary ? parseFloat(prevSalary) : undefined,
+                          newSalary: parseFloat(newSalary),
+                          adjustmentType: salaryType,
+                          effectiveDate: salaryDate,
+                          reason: salaryReason || undefined,
+                        });
+                      }}
+                      disabled={addSalaryMutation.isPending}
+                    >
+                      {addSalaryMutation.isPending ? "Guardando..." : "Guardar Cambio"}
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowAddSalary(false)}>Cancelar</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Salary history table */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Historial de Cambios Salariales</CardTitle>
+                <CardDescription>Registro de ajustes salariales para auditoría NMX-025 (Igualdad Laboral)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {salaryLoading ? (
+                  <p className="text-sm text-muted-foreground">Cargando historial...</p>
+                ) : !salaryHistoryData || salaryHistoryData.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <DollarSign className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">No hay cambios salariales registrados</p>
+                    <p className="text-xs mt-1">Use el botón "Registrar Cambio" para agregar el primer registro</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Fecha Efectiva</th>
+                          <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Salario Anterior</th>
+                          <th className="text-right py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Nuevo Salario</th>
+                          <th className="text-center py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Ajuste</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Tipo</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-muted-foreground uppercase">Motivo</th>
+                          <th className="py-2 px-3"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {salaryHistoryData.map((row: any) => {
+                          const pct = row.adjustmentPercentage ? parseFloat(row.adjustmentPercentage) : null;
+                          const isPositive = pct !== null && pct > 0;
+                          const isNegative = pct !== null && pct < 0;
+                          const typeLabels: Record<string, string> = {
+                            annual_review: "Revisión Anual",
+                            promotion: "Promoción",
+                            market_adjustment: "Ajuste de Mercado",
+                            retention: "Retención",
+                            correction: "Corrección",
+                            other: "Otro",
+                          };
+                          return (
+                            <tr key={row.id} className="border-b hover:bg-muted/30">
+                              <td className="py-2 px-3">{row.effectiveDate ? new Date(row.effectiveDate).toLocaleDateString("es-MX") : "—"}</td>
+                              <td className="py-2 px-3 text-right text-muted-foreground">
+                                {row.previousSalary ? new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(parseFloat(row.previousSalary)) : "—"}
+                              </td>
+                              <td className="py-2 px-3 text-right font-medium">
+                                {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(parseFloat(row.newSalary))}
+                              </td>
+                              <td className="py-2 px-3 text-center">
+                                {pct !== null ? (
+                                  <span className={`flex items-center justify-center gap-1 text-xs font-medium ${isPositive ? "text-green-600" : isNegative ? "text-red-600" : "text-muted-foreground"}`}>
+                                    {isPositive ? <TrendingUp className="h-3 w-3" /> : isNegative ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                                    {isPositive ? "+" : ""}{pct.toFixed(1)}%
+                                  </span>
+                                ) : "—"}
+                              </td>
+                              <td className="py-2 px-3">
+                                <Badge variant="outline" className="text-xs">{typeLabels[row.adjustmentType] || row.adjustmentType || "—"}</Badge>
+                              </td>
+                              <td className="py-2 px-3 text-muted-foreground text-xs max-w-[200px] truncate">{row.reason || "—"}</td>
+                              <td className="py-2 px-3">
+                                <Button
+                                  variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                                  onClick={() => { if (window.confirm("¿Eliminar este registro?")) deleteSalaryMutation.mutate({ id: row.id }); }}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </CardContent>

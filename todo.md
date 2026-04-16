@@ -145,14 +145,14 @@
 
 ## 🟡 PENDIENTES MEDIOS (mejoras de UX y completitud)
 
-- [ ] Accesos directos a módulos clave en el dashboard principal (Home.tsx)
+- [x] Accesos directos a módulos clave en el dashboard principal (Home.tsx)
 - [ ] Filtro temporal detallado en paneles de gestión (hoy / semana / mes / año / personalizado)
 - [ ] Exportar Catálogo de Competencias a Excel desde OrganizationalCompetenciesManager.tsx
 - [ ] Exportar Catálogo de Puestos a Excel desde Positions.tsx
 - [ ] Preview de reporte ejecutivo antes de envío en ReportConfigurationPanel.tsx
 - [ ] Validación RFC contra SAT en tiempo real (requiere API externa)
-- [ ] Historial de salarios por empleado (tabla salaryHistory)
-- [ ] Gestión de vacaciones: solicitud, saldo por antigüedad, tabla de días por año
+- [x] Historial de salarios por empleado (tabla salaryHistory, router salaryHistory, tab en EmployeeProfile)
+- [x] Gestión de vacaciones: solicitud, saldo LFT, flujo de aprobación, notificación a RH (VacationManagement.tsx)
 
 ---
 
