@@ -239,3 +239,42 @@
 - [ ] Panel de administración para editar tabla de días de vacaciones por año de antigüedad (VacationSeniorityManager.tsx)
 - [ ] Procedure CRUD para vacation_seniority en vacations router
 - [ ] Acceso al panel de tabla de vacaciones desde sidebar (Administración)
+
+## Sprint: Multiempresa + Super Admin + Portada Legal — Abril 2026
+
+- [ ] Agregar rol super_admin al enum de users en el schema
+- [ ] Crear tabla companies con todos los campos de empresa
+- [ ] Agregar company_id como FK en users para aislamiento de tenant
+- [ ] Migración SQL y aplicar en base de datos
+- [ ] Router super_admin: gestión de empresas, usuarios cross-tenant, estadísticas globales
+- [ ] Panel SuperAdmin en frontend: lista de empresas, crear/editar empresa
+- [ ] Umbral de conflicto configurable en panel de configuración del sistema
+- [ ] Notificación automática al supervisor cuando se detecta conflicto de ausencias
+- [ ] Filtro temporal DateRangeFilter en Dashboard de Casos
+- [ ] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables
+
+## Sprint: Multiempresa + Super Admin + Portada Legal — Abril 2026
+
+- [x] Tabla companies en schema (name, rfc, address, phone, email, logo, plan, isActive, conflictThreshold)
+- [x] Rol super_admin agregado al enum de roles en users
+- [x] Campo company_id (FK nullable) agregado a tabla users
+- [x] Migración SQL aplicada a la base de datos (companies + company_id + super_admin)
+- [x] Router superAdmin.ts con CRUD de empresas, estadísticas globales y gestión cross-tenant
+- [x] Página SuperAdminPanel.tsx con tabs: Empresas, Usuarios, Estadísticas globales
+- [x] Ruta /super-admin registrada en App.tsx
+- [x] Enlace "Super Administrador" en sidebar (visible solo para rol super_admin)
+- [x] Campo conflict_threshold agregado a company_general_data (migración aplicada)
+- [x] Detección de conflictos de ausencias simultáneas en procedure create de vacaciones (umbral dinámico desde BD)
+- [x] Notificación push WebSocket + correo al supervisor cuando se detecta conflicto de ausencias
+- [x] Filtro temporal en CasesManagement.tsx (DateRangeFilter conectado a listPaginated con dateFrom/dateTo)
+- [x] Portada legal profesional /legal con 8 secciones colapsables:
+  - Derechos Reservados y Propiedad Intelectual (LFDA, LPI, T-MEC)
+  - Aviso de Privacidad LFPDPPP con Derechos ARCO
+  - Marco Legal NOM-035-STPS-2018 con obligaciones del patrón
+  - Confidencialidad y Uso de la Información
+  - Términos y Condiciones de Uso
+  - Seguridad de la Información (ISO 27001, OWASP, NIST)
+  - Responsabilidad y Limitación de Garantías
+  - Contacto del Responsable y Autoridades (INAI, STPS, IMSS)
+- [x] Footer del DashboardLayout actualizado con enlaces a /legal (Aviso Legal y Privacidad | Términos de Uso | NOM-035-STPS-2018 • LFPDPPP)
+- [x] Portada legal lee datos dinámicos de company.getGeneralData (razón social, RFC, representante legal, email, teléfono)

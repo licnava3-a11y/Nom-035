@@ -147,6 +147,7 @@ import { dictamenDocsRouter } from "./routers/dictamenDocs";
 import { exitInterviewsRouter } from "./routers/exitInterviews";
 import { salaryHistoryRouter } from "./routers/salaryHistory";
 import { vacationsRouter } from "./routers/vacations";
+import { superAdminRouter } from "./routers/superAdmin";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1458,6 +1459,7 @@ export const appRouter = router({
   exitInterviews: exitInterviewsRouter,
   salaryHistory: salaryHistoryRouter,
   vacations: vacationsRouter,
+  superAdmin: superAdminRouter,
 });
 
 export type AppRouter = typeof appRouter;

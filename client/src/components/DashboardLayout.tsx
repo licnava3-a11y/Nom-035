@@ -34,7 +34,7 @@ import { MenuBadge } from "./MenuBadge";
 import { LanguageSelector } from "./LanguageSelector";
 import { trpc } from "@/lib/trpc";
 
-import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart, Bell } from "lucide-react";
+import { BookOpen, ClipboardCheck, FileText, Briefcase, BarChart3, AlertCircle, Settings, Inbox, UserCog, ClipboardList, ChevronDown, ChevronRight, Target, FileSignature, ShieldCheck, Building2, Scale, GraduationCap, PieChart, Bell, Shield } from "lucide-react";
 
 // Nueva arquitectura jerárquica optimizada con 9 menús principales
 const hierarchicalMenuItems = [
@@ -283,6 +283,15 @@ const hierarchicalMenuItems = [
       { label: "Alertas de Seguridad", path: "/security-alerts", description: "Monitoreo de actividad sospechosa" },
       { label: "Monitoreo de Jobs", path: "/job-monitoring", description: "Historial y ejecución manual de jobs automáticos" },
       { label: "Configuración de Reportes", path: "/report-configuration", description: "Gestionar reportes ejecutivos automatizados" },
+    ],
+  },
+  {
+    icon: Shield,
+    label: "Super Administrador",
+    description: "Gestión global de empresas y usuarios del sistema",
+    roles: ["super_admin"],
+    submenu: [
+      { label: "Panel Super Admin", path: "/super-admin", description: "Gestión de empresas, usuarios cross-tenant y estadísticas globales" },
     ],
   },
 ];
@@ -767,20 +776,20 @@ function DashboardLayoutContent({
             </div>
             <div className="flex items-center gap-3">
               <a
-                href="/privacy-policy"
+                href="/legal"
                 className="hover:text-foreground transition-colors underline-offset-2 hover:underline"
               >
-                Aviso de Privacidad
+                Aviso Legal y Privacidad
               </a>
               <span className="text-muted-foreground/50">|</span>
               <a
-                href="/terms-of-use"
+                href="/legal#terminos"
                 className="hover:text-foreground transition-colors underline-offset-2 hover:underline"
               >
                 Términos de Uso
               </a>
               <span className="text-muted-foreground/50">|</span>
-              <span>Cumplimiento NOM-035-STPS-2018</span>
+              <span>NOM-035-STPS-2018 • LFPDPPP</span>
             </div>
           </div>
         </footer>

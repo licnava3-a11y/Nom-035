@@ -179,6 +179,8 @@ const RecruitmentManagement = lazy(() => import("./pages/RecruitmentManagement")
 const ContractExpirationDashboard = lazy(() => import("./pages/ContractExpirationDashboard"));
 const VacationManagement = lazy(() => import("./pages/VacationManagement"));
 const VacationCalendar = lazy(() => import("./pages/VacationCalendar"));
+const SuperAdminPanel = lazy(() => import("./pages/SuperAdminPanel"));
+const LegalPortada = lazy(() => import("./pages/LegalPortada"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
 const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
@@ -1360,6 +1362,18 @@ function Router() {
               <VacationCalendar />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path={"/super-admin"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <SuperAdminPanel />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/legal"}>
+          <Suspense fallback={<PageLoader />}>
+            <LegalPortada />
+          </Suspense>
         </Route>
         <Route path={"/job-application"}>
           <Suspense fallback={<PageLoader />}>

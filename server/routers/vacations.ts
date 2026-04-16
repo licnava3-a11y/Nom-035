@@ -9,6 +9,7 @@ import {
   departments,
   positions,
   notifications,
+  companyGeneralData,
 } from "../../drizzle/schema";
 import { eq, desc, sql, and, gte, lte, ne, asc } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
@@ -327,6 +328,87 @@ export const vacationsRouter = router({
         title: `Nueva solicitud de vacaciones — ${emp.firstName} ${emp.lastName}`,
         content: `${emp.firstName} ${emp.lastName} solicita ${input.requestedDays} días de vacaciones del ${input.startDate} al ${input.endDate}. Regreso: ${input.returnDate}. Saldo disponible: ${available} días.`,
       });
+
+      // ── Detección de conflictos de ausencias simultáneas ─────────────────
+      try {
+        // Obtener umbral configurable desde company_general_data
+        const [companyConfig] = await db.select({ conflictThreshold: companyGeneralData.conflictThreshold }).from(companyGeneralData).limit(1);
+        const threshold = companyConfig?.conflictThreshold ? parseFloat(String(companyConfig.conflictThreshold)) : 30;
+
+        // Obtener el departamento del empleado
+        const [empInfo] = await db
+          .select({ departmentId: employees.departmentId })
+          .from(employees)
+          .where(eq(employees.id, input.employeeId))
+          .limit(1);
+
+        if (empInfo?.departmentId) {
+          // Contar empleados activos del departamento
+          const deptEmployees = await db
+            .select({ id: employees.id })
+            .from(employees)
+            .where(and(eq(employees.departmentId, empInfo.departmentId), eq(employees.status, "activo")));
+          const totalInDept = deptEmployees.length || 1;
+
+          // Contar cuántos están de vacaciones en el período solicitado
+          const overlapping = await db
+            .select({ id: vacationRequests.id })
+            .from(vacationRequests)
+            .leftJoin(employees, eq(vacationRequests.employeeId, employees.id))
+            .where(
+              and(
+                eq(employees.departmentId, empInfo.departmentId),
+                eq(vacationRequests.status, "approved"),
+                lte(vacationRequests.startDate, input.endDate),
+                gte(vacationRequests.endDate, input.startDate)
+              )
+            );
+
+          const conflictPct = ((overlapping.length + 1) / totalInDept) * 100;
+
+          if (conflictPct >= threshold) {
+            // Notificar al supervisor del departamento
+            const [deptInfo] = await db
+              .select({ managerId: departments.managerId, name: departments.name })
+              .from(departments)
+              .where(eq(departments.id, empInfo.departmentId))
+              .limit(1);
+
+            if (deptInfo?.managerId) {
+              const [managerUser] = await db
+                .select({ userId: employees.userId })
+                .from(employees)
+                .where(eq(employees.id, deptInfo.managerId))
+                .limit(1);
+
+              if (managerUser?.userId) {
+                const conflictTitle = `⚠️ Conflicto de ausencias — ${deptInfo.name}`;
+                const conflictMsg = `${emp.firstName} ${emp.lastName} solicita vacaciones del ${input.startDate} al ${input.endDate}. El ${conflictPct.toFixed(0)}% del departamento estará ausente (umbral: ${threshold}%). Revisa el calendario antes de aprobar.`;
+
+                await (db.insert(notifications) as any).values({
+                  userId: managerUser.userId,
+                  type: "warning",
+                  title: conflictTitle,
+                  message: conflictMsg,
+                  relatedEntityType: "vacation_conflict",
+                  isRead: false,
+                });
+
+                emitNotificationToUser(managerUser.userId, {
+                  id: Date.now() + 1,
+                  type: "warning",
+                  title: conflictTitle,
+                  message: conflictMsg,
+                  read: false,
+                  createdAt: new Date(),
+                });
+              }
+            }
+          }
+        }
+      } catch (conflictError) {
+        // No fallar la solicitud si la detección de conflictos falla
+      }
 
       // ── Notificación push al supervisor/jefe del departamento ────────────
       try {

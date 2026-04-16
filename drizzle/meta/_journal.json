@@ -1051,6 +1051,13 @@
       "when": 1776260265950,
       "tag": "0149_hard_deadpool",
       "breakpoints": true
+    },
+    {
+      "idx": 150,
+      "version": "5",
+      "when": 1776368048448,
+      "tag": "0150_burly_photon",
+      "breakpoints": true
     }
   ]
 }

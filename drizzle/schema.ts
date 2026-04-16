@@ -2,6 +2,42 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal,
 import { relations } from "drizzle-orm";
 
 /**
+ * Tabla de empresas para soporte multiempresa (multi-tenant)
+ * El super_admin puede gestionar todas las empresas.
+ * Cada empresa tiene su propio conjunto de empleados, cursos y configuración.
+ */
+export const companies = mysqlTable("companies", {
+  id: int("id").autoincrement().primaryKey(),
+  razonSocial: varchar("razon_social", { length: 255 }).notNull(),
+  rfc: varchar("rfc", { length: 13 }).notNull().unique(),
+  direccionFiscal: text("direccion_fiscal"),
+  giro: varchar("giro", { length: 255 }),
+  actividadesPreponderantes: text("actividades_preponderantes"),
+  numeroTrabajadores: int("numero_trabajadores"),
+  representanteLegal: varchar("representante_legal", { length: 255 }),
+  telefonoContacto: varchar("telefono_contacto", { length: 20 }),
+  emailContacto: varchar("email_contacto", { length: 320 }),
+  paginaWeb: varchar("pagina_web", { length: 255 }),
+  logoUrl: varchar("logo_url", { length: 512 }),
+  logoKey: varchar("logo_key", { length: 512 }),
+  // Plan y estado
+  plan: mysqlEnum("plan", ["trial", "basic", "professional", "enterprise"]).default("trial").notNull(),
+  status: mysqlEnum("status", ["active", "suspended", "cancelled"]).default("active").notNull(),
+  trialEndsAt: timestamp("trial_ends_at"),
+  // Configuración NOM-035
+  conflictThreshold: decimal("conflict_threshold", { precision: 5, scale: 2 }).default("30.00"), // % de ausencias simultáneas para alerta
+  notificationEmail: varchar("notification_email", { length: 320 }),
+  noreplyEmail: varchar("noreply_email", { length: 320 }),
+  // Notas internas del super_admin
+  internalNotes: text("internal_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = typeof companies.$inferInsert;
+
+/**
  * Core user table backing auth flow.
  * Extended with role field for access control.
  */
@@ -11,7 +47,8 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["admin", "instructor", "student", "committee", "committee_member", "committee_coordinator", "administrativo", "director", "responsable_nom035", "gerente", "rh", "supervisor", "jefe_area", "empleado", "auxiliar_rh", "recursos_humanos", "demo"]).default("student").notNull(),
+  role: mysqlEnum("role", ["super_admin", "admin", "instructor", "student", "committee", "committee_member", "committee_coordinator", "administrativo", "director", "responsable_nom035", "gerente", "rh", "supervisor", "jefe_area", "empleado", "auxiliar_rh", "recursos_humanos", "demo"]).default("student").notNull(),
+  companyId: int("company_id"), // FK a companies — null = sin empresa asignada (super_admin)
   customPermissions: json("customPermissions").$type<{
     can_view?: boolean;
     can_create?: boolean;
@@ -1434,6 +1471,7 @@ export const companyGeneralData = mysqlTable("company_general_data", {
   paginaWeb: varchar("pagina_web", { length: 255 }),
   notificationEmail: varchar("notification_email", { length: 320 }),
   noreplyEmail: varchar("noreply_email", { length: 320 }),
+  conflictThreshold: decimal("conflict_threshold", { precision: 5, scale: 2 }).default("30.00"), // % de ausencias simultáneas para alerta
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
