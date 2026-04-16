@@ -51,7 +51,7 @@ export default function VacationCalendar() {
 
   // Agrupar entradas por departamento
   const byDept = useMemo(() => {
-    if (!calendarData) return {} as Record<string, typeof calendarData.entries>;
+    if (!calendarData?.entries) return {} as Record<string, Array<{ id: number; employeeName: string; department: string; startDate: string; endDate: string; status: string; requestedDays: number }>>;    
     const map: Record<string, typeof calendarData.entries> = {};
     for (const entry of calendarData.entries) {
       if (!map[entry.department]) map[entry.department] = [];
@@ -260,7 +260,7 @@ export default function VacationCalendar() {
             <div className="space-y-1">
               {Object.entries(conflictsByDept).map(([dept, days]) => {
                 // Agrupar días consecutivos en rangos
-                const sortedDays = [...new Set(days.map(d => d.day))].sort((a, b) => a - b);
+                const sortedDays = Array.from(new Set(days.map(d => d.day))).sort((a, b) => a - b);
                 const ranges: string[] = [];
                 let rangeStart = sortedDays[0];
                 let prev = sortedDays[0];
@@ -532,7 +532,7 @@ export default function VacationCalendar() {
                 </div>
                 <div className="text-center">
                   <div className={`text-2xl font-bold ${hasConflicts ? "text-red-600" : "text-gray-400"}`}>
-                    {conflictDays.length > 0 ? [...new Set(conflictDays.map(c => `${c.dept}|${c.day}`))].length : 0}
+                    {conflictDays.length > 0 ? Array.from(new Set(conflictDays.map(c => `${c.dept}|${c.day}`))).length : 0}
                   </div>
                   <div className="text-xs text-muted-foreground">Días con conflicto</div>
                 </div>
