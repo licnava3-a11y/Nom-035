@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Search, Briefcase, Users, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Briefcase, Users, Download, Upload, FileSpreadsheet } from "lucide-react";
 import ProtectedButton from "@/components/ProtectedButton";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
@@ -55,6 +55,9 @@ const LEVEL_LABELS: Record<string, string> = {
 export default function Positions() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResults, setImportResults] = useState<{ created: number; updated: number; errors: string[]; total: number } | null>(null);
+  const [isImportResultsOpen, setIsImportResultsOpen] = useState(false);
   const [filterDepartment, setFilterDepartment] = useState<number | undefined>();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -68,6 +71,80 @@ export default function Positions() {
     level: "specialist" as "executive" | "management" | "supervisor" | "specialist" | "entry",
     minimumEducation: "" as "primaria" | "secundaria" | "preparatoria" | "tecnico" | "licenciatura" | "especialidad" | "maestria" | "doctorado" | "",
   });
+
+  const bulkImportMutation = trpc.positions.bulkImport.useMutation({
+    onSuccess: (result) => {
+      setImportResults(result);
+      setIsImportResultsOpen(true);
+      setIsImporting(false);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Error al importar puestos");
+      setIsImporting(false);
+    },
+  });
+
+  const handleDownloadTemplate = () => {
+    const template = [
+      ["Codigo", "Titulo", "Departamento", "Nivel", "EscolaridadMinima", "Descripcion"],
+      ["GTE-001", "Gerente de Tecnología", "Tecnología", "management", "licenciatura", "Responsable del área de TI"],
+      ["OPE-001", "Operador de Producción", "Operaciones", "entry", "preparatoria", "Operación de maquinaria"],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(template);
+    ws["!cols"] = [{ wch: 12 }, { wch: 35 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 50 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Plantilla Puestos");
+    XLSX.writeFile(wb, "plantilla_importar_puestos.xlsx");
+    toast.info("Plantilla descargada. Niveles válidos: executive, management, supervisor, specialist, entry");
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const wb = XLSX.read(data, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json<any>(ws);
+        const LEVEL_MAP: Record<string, string> = {
+          ejecutivo: "executive", executive: "executive",
+          gerencial: "management", management: "management",
+          supervisor: "supervisor",
+          especialista: "specialist", specialist: "specialist",
+          operativo: "entry", entry: "entry",
+        };
+        const EDU_MAP: Record<string, string> = {
+          primaria: "primaria", secundaria: "secundaria", preparatoria: "preparatoria",
+          tecnico: "tecnico", técnico: "tecnico", licenciatura: "licenciatura",
+          especialidad: "especialidad", maestria: "maestria", maestría: "maestria",
+          doctorado: "doctorado",
+        };
+        const parsed = rows.map((r: any) => ({
+          code: String(r.Codigo || r.Código || r.code || "").trim(),
+          title: String(r.Titulo || r.Título || r.title || "").trim(),
+          departmentName: String(r.Departamento || r.departmentName || "").trim() || undefined,
+          level: LEVEL_MAP[(r.Nivel || r.level || "").toString().toLowerCase().trim()] as any || undefined,
+          minimumEducation: EDU_MAP[(r.EscolaridadMinima || r.Escolaridad || r.minimumEducation || "").toString().toLowerCase().trim()] as any || undefined,
+          description: String(r.Descripcion || r.Descripción || r.description || "").trim() || undefined,
+        })).filter((r: any) => r.code && r.title);
+        if (parsed.length === 0) {
+          toast.error("No se encontraron filas válidas. Verifica las columnas del archivo.");
+          setIsImporting(false);
+          return;
+        }
+        bulkImportMutation.mutate({ rows: parsed });
+      } catch {
+        toast.error("Error al leer el archivo Excel");
+        setIsImporting(false);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  };
 
   const { data, isLoading, refetch } = trpc.positions.list.useQuery({
     page,
@@ -187,6 +264,26 @@ export default function Positions() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handleDownloadTemplate} title="Descargar plantilla Excel para importar">
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Plantilla
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => document.getElementById("import-positions-file")?.click()}
+            disabled={isImporting}
+            title="Importar puestos desde Excel"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {isImporting ? "Importando..." : "Importar XLSX"}
+          </Button>
+          <input
+            id="import-positions-file"
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleImportFile}
+          />
           <Button
             variant="outline"
             onClick={() => {
@@ -588,6 +685,46 @@ export default function Positions() {
             <LoadingButton onClick={handleUpdate}
               loading={updateMutation.isPending} loadingText="Guardando..."
             >Guardar</LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo Resultados de Importación */}
+      <Dialog open={isImportResultsOpen} onOpenChange={setIsImportResultsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Resultados de Importación</DialogTitle>
+            <DialogDescription>Resumen del proceso de importación de puestos</DialogDescription>
+          </DialogHeader>
+          {importResults && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{importResults.created}</div>
+                  <div className="text-xs text-muted-foreground">Creados</div>
+                </div>
+                <div className="text-center p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{importResults.updated}</div>
+                  <div className="text-xs text-muted-foreground">Actualizados</div>
+                </div>
+                <div className="text-center p-3 bg-red-50 dark:bg-red-950 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{importResults.errors.length}</div>
+                  <div className="text-xs text-muted-foreground">Errores</div>
+                </div>
+              </div>
+              {importResults.errors.length > 0 && (
+                <div className="border rounded p-3 max-h-40 overflow-y-auto">
+                  <p className="text-sm font-medium text-destructive mb-2">Errores:</p>
+                  {importResults.errors.map((err, i) => (
+                    <p key={i} className="text-xs text-muted-foreground">{err}</p>
+                  ))}
+                </div>
+              )}
+              <p className="text-sm text-muted-foreground text-center">Total procesado: {importResults.total} filas</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setIsImportResultsOpen(false)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

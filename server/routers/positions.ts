@@ -234,6 +234,65 @@ export const positionsRouter = router({
       return { success: true };
     }),
 
+  // Importación masiva desde Excel (XLSX)
+  bulkImport: protectedProcedure
+    .input(
+      z.object({
+        rows: z.array(z.object({
+          code: z.string().min(1),
+          title: z.string().min(1),
+          departmentName: z.string().optional(),
+          level: z.enum(["executive", "management", "supervisor", "specialist", "entry"]).optional(),
+          minimumEducation: z.enum(["primaria", "secundaria", "preparatoria", "tecnico", "licenciatura", "especialidad", "maestria", "doctorado"]).optional().nullable(),
+          description: z.string().optional(),
+        }))
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin" && ctx.user.role !== "hr") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores o RH pueden importar puestos" });
+      }
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const allDepts = await db.select({ id: departments.id, name: departments.name }).from(departments);
+      const deptMap = new Map(allDepts.map(d => [d.name.toLowerCase().trim(), d.id]));
+      let created = 0;
+      let updated = 0;
+      const errors: string[] = [];
+      for (const row of input.rows) {
+        try {
+          const departmentId = row.departmentName
+            ? (deptMap.get(row.departmentName.toLowerCase().trim()) ?? null)
+            : null;
+          const existing = await db.select({ id: positions.id }).from(positions).where(eq(positions.code, row.code)).limit(1);
+          if (existing.length > 0) {
+            await (db.update(positions) as any).set({
+              title: row.title,
+              description: row.description ?? null,
+              level: row.level ?? null,
+              minimumEducation: row.minimumEducation ?? null,
+              ...(departmentId ? { departmentId } : {}),
+            }).where(eq(positions.id, existing[0].id));
+            updated++;
+          } else {
+            await (db.insert(positions) as any).values({
+              code: row.code,
+              title: row.title,
+              description: row.description ?? null,
+              departmentId: departmentId ?? 1,
+              level: row.level ?? null,
+              minimumEducation: row.minimumEducation ?? null,
+              isActive: true,
+            });
+            created++;
+          }
+        } catch (e: any) {
+          errors.push(`Código ${row.code}: ${e.message}`);
+        }
+      }
+      return { created, updated, errors, total: input.rows.length };
+    }),
+
   // Obtener estadísticas por puesto
   getStats: protectedProcedure
     .input(

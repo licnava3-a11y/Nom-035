@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Search, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Download, Upload, FileSpreadsheet } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import * as XLSX from "xlsx";
 
@@ -79,6 +79,9 @@ export default function OrganizationalCompetenciesManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<CompetencyCategory | "all">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResults, setImportResults] = useState<{ created: number; updated: number; errors: string[]; total: number } | null>(null);
+  const [isImportResultsOpen, setIsImportResultsOpen] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -110,6 +113,80 @@ export default function OrganizationalCompetenciesManager() {
       toast.error(`Error al actualizar competencia: ${error.message}`);
     },
   });
+
+  const bulkImportMutation = trpc.organizationalCompetencies.bulkImport.useMutation({
+    onSuccess: (result) => {
+      setImportResults(result);
+      setIsImportResultsOpen(true);
+      setIsImporting(false);
+      utils.organizationalCompetencies.list.invalidate();
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Error al importar competencias");
+      setIsImporting(false);
+    },
+  });
+
+  const handleDownloadTemplate = () => {
+    const template = [
+      ["NombreCompetencia", "Categoria", "NivelRequerido", "AplicaDepartamentos", "AplicaRoles", "Descripcion"],
+      ["Comunicación Efectiva", "soft_skill", "intermedio", "Todos", "Todos", "Capacidad de comunicarse con claridad"],
+      ["Liderazgo de Equipos", "leadership", "avanzado", "Operaciones,Tecnología", "Gerente,Supervisor", "Liderar equipos de trabajo"],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(template);
+    ws["!cols"] = [{ wch: 30 }, { wch: 25 }, { wch: 15 }, { wch: 30 }, { wch: 30 }, { wch: 50 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Plantilla Competencias");
+    XLSX.writeFile(wb, "plantilla_importar_competencias.xlsx");
+    toast.info("Plantilla descargada. Categorías: soft_skill, organizational, leadership, technical_transversal. Niveles: basico, intermedio, avanzado, experto");
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const wb = XLSX.read(data, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json<any>(ws);
+        const CAT_MAP: Record<string, string> = {
+          soft_skill: "soft_skill", "habilidad blanda": "soft_skill",
+          organizational: "organizational", organizacional: "organizational",
+          leadership: "leadership", liderazgo: "leadership",
+          technical_transversal: "technical_transversal", "técnica transversal": "technical_transversal",
+          "tecnica transversal": "technical_transversal",
+        };
+        const LVL_MAP: Record<string, string> = {
+          basico: "basico", básico: "basico",
+          intermedio: "intermedio",
+          avanzado: "avanzado",
+          experto: "experto",
+        };
+        const parsed = rows.map((r: any) => ({
+          competencyName: String(r.NombreCompetencia || r.Nombre || r.competencyName || "").trim(),
+          competencyCategory: (CAT_MAP[(r.Categoria || r.Categoría || r.competencyCategory || "").toString().toLowerCase().trim()] || "soft_skill") as any,
+          requiredLevel: (LVL_MAP[(r.NivelRequerido || r.Nivel || r.requiredLevel || "").toString().toLowerCase().trim()] || "intermedio") as any,
+          appliesToDepartments: String(r.AplicaDepartamentos || r.appliesToDepartments || "").trim() || undefined,
+          appliesToRoles: String(r.AplicaRoles || r.appliesToRoles || "").trim() || undefined,
+          description: String(r.Descripcion || r.Descripción || r.description || "").trim() || undefined,
+        })).filter((r: any) => r.competencyName);
+        if (parsed.length === 0) {
+          toast.error("No se encontraron filas válidas. Verifica las columnas del archivo.");
+          setIsImporting(false);
+          return;
+        }
+        bulkImportMutation.mutate({ rows: parsed });
+      } catch {
+        toast.error("Error al leer el archivo Excel");
+        setIsImporting(false);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = "";
+  };
 
   const deleteMutation = trpc.organizationalCompetencies.delete.useMutation({
     onSuccess: () => {
@@ -237,6 +314,26 @@ export default function OrganizationalCompetenciesManager() {
             <Download className="mr-2 h-4 w-4" />
             Exportar XLSX
           </Button>
+          <Button variant="outline" onClick={handleDownloadTemplate} title="Descargar plantilla Excel para importar">
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Plantilla
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => document.getElementById("import-competencies-file")?.click()}
+            disabled={isImporting}
+            title="Importar competencias desde Excel"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {isImporting ? "Importando..." : "Importar XLSX"}
+          </Button>
+          <input
+            id="import-competencies-file"
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleImportFile}
+          />
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Nueva Competencia

@@ -198,6 +198,72 @@ export const organizationalCompetenciesRouter = router({
     }),
 
   /**
+   * Importación masiva desde Excel (XLSX)
+   */
+  bulkImport: protectedProcedure
+    .input(
+      z.object({
+        rows: z.array(z.object({
+          competencyName: z.string().min(1),
+          competencyCategory: z.enum(["soft_skill", "organizational", "leadership", "technical_transversal"]),
+          description: z.string().optional(),
+          requiredLevel: z.enum(["basico", "intermedio", "avanzado", "experto"]),
+          appliesToDepartments: z.string().optional(),
+          appliesToRoles: z.string().optional(),
+        }))
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin" && ctx.user.role !== "hr") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores o RH pueden importar competencias" });
+      }
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      let created = 0;
+      let updated = 0;
+      const errors: string[] = [];
+      for (const row of input.rows) {
+        try {
+          const existing = await db
+            .select({ id: organizationalCompetencies.id })
+            .from(organizationalCompetencies)
+            .where(eq(organizationalCompetencies.competencyName, row.competencyName))
+            .limit(1);
+          const depts = row.appliesToDepartments
+            ? row.appliesToDepartments.split(",").map((s: string) => s.trim()).filter(Boolean)
+            : [];
+          const roles = row.appliesToRoles
+            ? row.appliesToRoles.split(",").map((s: string) => s.trim()).filter(Boolean)
+            : [];
+          if (existing.length > 0) {
+            await (db.update(organizationalCompetencies) as any).set({
+              competencyCategory: row.competencyCategory,
+              description: row.description ?? null,
+              requiredLevel: row.requiredLevel,
+              appliesToDepartments: depts.length ? JSON.stringify(depts) : null,
+              appliesToRoles: roles.length ? JSON.stringify(roles) : null,
+            }).where(eq(organizationalCompetencies.id, existing[0].id));
+            updated++;
+          } else {
+            await (db.insert(organizationalCompetencies) as any).values({
+              competencyName: row.competencyName,
+              competencyCategory: row.competencyCategory,
+              description: row.description ?? null,
+              requiredLevel: row.requiredLevel,
+              appliesToDepartments: depts.length ? JSON.stringify(depts) : null,
+              appliesToRoles: roles.length ? JSON.stringify(roles) : null,
+              isActive: true,
+            });
+            created++;
+          }
+        } catch (e: any) {
+          errors.push(`${row.competencyName}: ${e.message}`);
+        }
+      }
+      return { created, updated, errors, total: input.rows.length };
+    }),
+
+  /**
    * Delete an organizational competency
    */
   delete: protectedProcedure

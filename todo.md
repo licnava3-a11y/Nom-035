@@ -177,3 +177,16 @@
 - [x] Página ContractExpirationDashboard con tabla consolidada 7/15/30 días
 - [x] Exportación a Excel (XLSX) con hoja de datos y hoja de resumen ejecutivo
 - [x] Enlace "Vencimientos de Contratos" agregado al sidebar en Gestión de Talento
+
+## Sprint: Importación XLSX, Tab Vacaciones y Reporte de Rotación PDF (2026-04-16)
+- [ ] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport
+- [ ] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport
+- [ ] Tab "Vacaciones" en EmployeeProfile con saldo LFT e historial de solicitudes
+- [ ] Datos por departamento en procedure getAnalytics de exitInterviews
+- [ ] Exportación PDF en TurnoverDashboard con gráficas y tabla por departamento
+
+## Sprint: Importación XLSX, Tab Vacaciones, Exportación PDF (2026-04-16)
+- [x] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport
+- [x] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport
+- [x] Tab "Vacaciones" en EmployeeProfile con saldo LFT (días ganados/usados/pendientes/disponibles) e historial de solicitudes
+- [x] Botón "Exportar a PDF" en TurnoverDashboard usando window.print con estilos de impresión A4 landscape

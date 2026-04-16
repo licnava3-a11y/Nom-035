@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/DateRangePicker";
 import { trpc } from "@/lib/trpc";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingDown, Users, Calendar, Download, FileSpreadsheet } from "lucide-react";
+import { TrendingDown, Users, Calendar, Download, FileSpreadsheet, Printer } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { subWeeks, subMonths, subYears, format } from "date-fns";
 import * as XLSX from 'xlsx';
@@ -99,6 +99,33 @@ export default function TurnoverDashboard() {
     name: d.departmentName || "Sin departamento",
     bajas: d.count,
   })) || [];
+
+  const handleExportToPDF = () => {
+    if (!stats || !trends || !byReason || !byDepartment) {
+      toast.error("Error", { description: "No hay datos disponibles para exportar" });
+      return;
+    }
+    // Inject print styles temporarily
+    const existing = document.getElementById('turnover-pdf-style');
+    if (existing) existing.remove();
+    const style = document.createElement('style');
+    style.id = 'turnover-pdf-style';
+    style.textContent = `
+      @media print {
+        .no-print, nav, aside, header { display: none !important; }
+        body { background: white !important; }
+        @page { margin: 1.5cm; size: A4 landscape; }
+        .recharts-wrapper { break-inside: avoid; }
+      }
+    `;
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => {
+      const s = document.getElementById('turnover-pdf-style');
+      if (s) s.remove();
+    }, 2000);
+    toast.success("Éxito", { description: "Seleccione \"Guardar como PDF\" en el diálogo de impresión" });
+  };
 
   const handleExportToExcel = () => {
     if (!stats || !trends || !byReason || !byDepartment) {
@@ -197,9 +224,13 @@ export default function TurnoverDashboard() {
             <DateRangePicker value={customRange} onChange={setCustomRange} />
           )}
           
-          <Button onClick={handleExportToExcel} variant="outline">
+          <Button onClick={handleExportToExcel} variant="outline" className="no-print">
             <FileSpreadsheet className="mr-2 h-4 w-4" />
             Exportar a Excel
+          </Button>
+          <Button onClick={handleExportToPDF} variant="outline" className="no-print">
+            <Printer className="mr-2 h-4 w-4" />
+            Exportar a PDF
           </Button>
         </div>
       </div>

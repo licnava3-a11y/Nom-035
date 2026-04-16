@@ -84,7 +84,7 @@ export default function EmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const employeeId = parseInt(id || "0");
-  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs" | "salary">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs" | "salary" | "vacations">("info");
   // Salary history state
   const [showAddSalary, setShowAddSalary] = useState(false);
   const [newSalary, setNewSalary] = useState("");
@@ -150,6 +150,16 @@ export default function EmployeeProfile() {
     onSuccess: () => { toast.success("Registro eliminado"); refetchSalary(); },
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
+
+  // Vacation balance and history
+  const { data: vacationBalance } = trpc.vacations.getBalance.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "vacations" }
+  );
+  const { data: vacationHistory = [] } = trpc.vacations.list.useQuery(
+    { employeeId },
+    { enabled: employeeId > 0 && activeTab === "vacations" }
+  );
 
   const { data: contractSigs, refetch: refetchContractSigs } = trpc.hiring.getContractSignatures.useQuery(
     { employeeId },
@@ -722,6 +732,7 @@ export default function EmployeeProfile() {
             { key: "dnc", label: "Comparativa DNC", icon: <Target className="h-4 w-4" /> },
             { key: "docs", label: "Expediente Electrónico", icon: <FolderOpen className="h-4 w-4" /> },
             { key: "salary", label: "Historial Salarial", icon: <DollarSign className="h-4 w-4" /> },
+            { key: "vacations", label: "Vacaciones", icon: <Calendar className="h-4 w-4" /> },
           ] as const).map((tab) => (
             <button
               key={tab.key}
@@ -1330,6 +1341,99 @@ export default function EmployeeProfile() {
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        {/* ===== VACATION TAB ===== */}
+        {activeTab === "vacations" && (
+          <div className="space-y-6">
+            {/* Balance cards */}
+            {vacationBalance ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días ganados</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-green-600">{vacationBalance.earnedDays}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Antigüedad: {vacationBalance.yearsOfService} año{vacationBalance.yearsOfService !== 1 ? 's' : ''}</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días usados</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-amber-600">{vacationBalance.usedDays}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Solicitudes aprobadas</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días pendientes</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-blue-600">{vacationBalance.pendingDays}</div>
+                    <p className="text-xs text-muted-foreground mt-1">En espera de aprobación</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Días disponibles</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className={`text-3xl font-bold ${(vacationBalance.availableDays ?? 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>{vacationBalance.availableDays}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Saldo actual</p>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">Calculando saldo de vacaciones...</CardContent></Card>
+            )}
+
+            {/* Vacation history table */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5" /> Historial de Solicitudes</CardTitle>
+                <CardDescription>Todas las solicitudes de vacaciones del empleado, ordenadas por fecha de creación</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {(vacationHistory as any[]).length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">No hay solicitudes de vacaciones registradas</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead><tr className="border-b bg-muted/30">
+                        <th className="text-left py-2 px-3">Periodo</th>
+                        <th className="text-left py-2 px-3">Días</th>
+                        <th className="text-left py-2 px-3">Regreso</th>
+                        <th className="text-left py-2 px-3">Estado</th>
+                        <th className="text-left py-2 px-3">Notas</th>
+                        <th className="text-left py-2 px-3">Solicitado</th>
+                      </tr></thead>
+                      <tbody>
+                        {(vacationHistory as any[]).map((req) => {
+                          const statusMap: Record<string, { label: string; cls: string }> = {
+                            pending: { label: "Pendiente", cls: "bg-amber-100 text-amber-800" },
+                            approved: { label: "Aprobado", cls: "bg-green-100 text-green-800" },
+                            rejected: { label: "Rechazado", cls: "bg-red-100 text-red-800" },
+                            cancelled: { label: "Cancelado", cls: "bg-gray-100 text-gray-600" },
+                          };
+                          const s = statusMap[req.status] || { label: req.status, cls: "bg-gray-100" };
+                          return (
+                            <tr key={req.id} className="border-b hover:bg-muted/30">
+                              <td className="py-2 px-3">
+                                {req.startDate ? new Date(req.startDate).toLocaleDateString('es-MX') : '-'}
+                                {' — '}
+                                {req.endDate ? new Date(req.endDate).toLocaleDateString('es-MX') : '-'}
+                              </td>
+                              <td className="py-2 px-3 font-semibold">{req.requestedDays}</td>
+                              <td className="py-2 px-3">{req.returnDate ? new Date(req.returnDate).toLocaleDateString('es-MX') : '-'}</td>
+                              <td className="py-2 px-3">
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.cls}`}>{s.label}</span>
+                              </td>
+                              <td className="py-2 px-3 text-muted-foreground max-w-[200px] truncate">{req.notes || '-'}</td>
+                              <td className="py-2 px-3 text-muted-foreground">{req.createdAt ? new Date(req.createdAt).toLocaleDateString('es-MX') : '-'}</td>
                             </tr>
                           );
                         })}
