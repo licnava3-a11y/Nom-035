@@ -8,7 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingDown, Users, Calendar, Download, FileSpreadsheet, Printer } from "lucide-react";
 import { DateRange } from "react-day-picker";
-import { subWeeks, subMonths, subYears, format } from "date-fns";
+import { subWeeks, subMonths, subYears, format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, startOfDay, endOfDay } from "date-fns";
 import * as XLSX from 'xlsx';
 import { toast } from "sonner";
 
@@ -23,25 +23,47 @@ export default function TurnoverDashboard() {
     const today = new Date();
     
     switch (period) {
-      case "week":
+      case "today":
         return {
-          startDate: format(subWeeks(today, 1), "yyyy-MM-dd"),
+          startDate: format(startOfDay(today), "yyyy-MM-dd"),
+          endDate: format(endOfDay(today), "yyyy-MM-dd"),
+        };
+      case "this_week":
+        return {
+          startDate: format(startOfWeek(today, { weekStartsOn: 1 }), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
+      case "week":
+        const lastWeekStart = startOfWeek(subWeeks(today, 1), { weekStartsOn: 1 });
+        const lastWeekEnd = endOfWeek(subWeeks(today, 1), { weekStartsOn: 1 });
+        return {
+          startDate: format(lastWeekStart, "yyyy-MM-dd"),
+          endDate: format(lastWeekEnd, "yyyy-MM-dd"),
+        };
+      case "this_month":
+        return {
+          startDate: format(startOfMonth(today), "yyyy-MM-dd"),
           endDate: format(today, "yyyy-MM-dd"),
         };
       case "month":
         return {
-          startDate: format(subMonths(today, 1), "yyyy-MM-dd"),
-          endDate: format(today, "yyyy-MM-dd"),
+          startDate: format(startOfMonth(subMonths(today, 1)), "yyyy-MM-dd"),
+          endDate: format(endOfMonth(subMonths(today, 1)), "yyyy-MM-dd"),
         };
       case "quarter":
         return {
           startDate: format(subMonths(today, 3), "yyyy-MM-dd"),
           endDate: format(today, "yyyy-MM-dd"),
         };
+      case "this_year":
+        return {
+          startDate: format(startOfYear(today), "yyyy-MM-dd"),
+          endDate: format(today, "yyyy-MM-dd"),
+        };
       case "year":
         return {
-          startDate: format(subYears(today, 1), "yyyy-MM-dd"),
-          endDate: format(today, "yyyy-MM-dd"),
+          startDate: format(startOfYear(subYears(today, 1)), "yyyy-MM-dd"),
+          endDate: format(endOfYear(subYears(today, 1)), "yyyy-MM-dd"),
         };
       case "custom":
         if (customRange?.from && customRange?.to) {
@@ -208,14 +230,18 @@ export default function TurnoverDashboard() {
         </div>
         <div className="flex gap-3">
           <Select value={period} onValueChange={(v) => setPeriod(v as any)}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-52">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="today">Hoy</SelectItem>
+              <SelectItem value="this_week">Esta semana</SelectItem>
               <SelectItem value="week">Semana anterior</SelectItem>
-              <SelectItem value="month">Último mes</SelectItem>
+              <SelectItem value="this_month">Este mes</SelectItem>
+              <SelectItem value="month">Mes anterior</SelectItem>
               <SelectItem value="quarter">Último trimestre</SelectItem>
-              <SelectItem value="year">Último año</SelectItem>
+              <SelectItem value="this_year">Este año</SelectItem>
+              <SelectItem value="year">Año anterior</SelectItem>
               <SelectItem value="custom">Personalizado</SelectItem>
             </SelectContent>
           </Select>

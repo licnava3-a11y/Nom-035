@@ -229,3 +229,13 @@
 - [x] Bundle optimizado: vite.config.ts con manualChunks por vendor
 - [x] 218 páginas con lazy loading en App.tsx
 - [x] Servidor estable: 0 errores en runtime
+
+## Sprint: Calendario Conflictos, PDF, Filtros Temporales y Tabla de Vacaciones (2026-04-16)
+- [ ] Detección de conflictos de ausencias simultáneas en VacationCalendar.tsx (>30% departamento ausente → resaltado rojo + alerta)
+- [ ] Exportar calendario de vacaciones a PDF (Gantt + mensual) con botón en VacationCalendar.tsx
+- [ ] Filtro temporal detallado (hoy / semana / mes / año / rango personalizado) en CasesManagement.tsx
+- [ ] Filtro temporal detallado en TurnoverDashboard.tsx
+- [ ] Filtro temporal detallado en TrainingDashboard.tsx
+- [ ] Panel de administración para editar tabla de días de vacaciones por año de antigüedad (VacationSeniorityManager.tsx)
+- [ ] Procedure CRUD para vacation_seniority en vacations router
+- [ ] Acceso al panel de tabla de vacaciones desde sidebar (Administración)

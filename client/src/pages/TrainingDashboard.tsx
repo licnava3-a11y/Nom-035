@@ -2,15 +2,35 @@ import { useState, useEffect, useRef } from 'react';
 import { trpc } from '../lib/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Award, Users, BookOpen, TrendingUp, AlertTriangle, Calendar } from 'lucide-react';
+import { Award, Users, BookOpen, TrendingUp, AlertTriangle, Calendar, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import Chart from 'chart.js/auto';
 
+function getPeriodDates(period: string): { startDate: string; endDate: string } {
+  const today = new Date();
+  const fmt = (d: Date) => d.toISOString().split('T')[0];
+  const startOfWeek = (d: Date) => { const r = new Date(d); r.setDate(d.getDate() - ((d.getDay() + 6) % 7)); r.setHours(0,0,0,0); return r; };
+  const endOfWeek = (d: Date) => { const r = startOfWeek(d); r.setDate(r.getDate() + 6); r.setHours(23,59,59,999); return r; };
+  const startOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1);
+  const endOfMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  const startOfYear = (d: Date) => new Date(d.getFullYear(), 0, 1);
+  const endOfYear = (d: Date) => new Date(d.getFullYear(), 11, 31);
+  switch (period) {
+    case 'today': return { startDate: fmt(today), endDate: fmt(today) };
+    case 'this_week': return { startDate: fmt(startOfWeek(today)), endDate: fmt(today) };
+    case 'last_week': { const lw = new Date(today); lw.setDate(today.getDate() - 7); return { startDate: fmt(startOfWeek(lw)), endDate: fmt(endOfWeek(lw)) }; }
+    case 'this_month': return { startDate: fmt(startOfMonth(today)), endDate: fmt(today) };
+    case 'last_month': { const lm = new Date(today.getFullYear(), today.getMonth() - 1, 1); return { startDate: fmt(startOfMonth(lm)), endDate: fmt(endOfMonth(lm)) }; }
+    case 'this_year': return { startDate: fmt(startOfYear(today)), endDate: fmt(today) };
+    case 'last_year': { const ly = new Date(today.getFullYear() - 1, 0, 1); return { startDate: fmt(startOfYear(ly)), endDate: fmt(endOfYear(ly)) }; }
+    default: return { startDate: '', endDate: '' };
+  }
+}
+
 export default function TrainingDashboard() {
-  const [dateRange, setDateRange] = useState({
-    startDate: '',
-    endDate: '',
-  });
+  const [period, setPeriod] = useState('all');
+  const dateRange = period === 'all' ? { startDate: '', endDate: '' } : getPeriodDates(period);
 
   const monthlyChartRef = useRef<HTMLCanvasElement>(null);
   const departmentChartRef = useRef<HTMLCanvasElement>(null);
@@ -136,14 +156,34 @@ export default function TrainingDashboard() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <TrendingUp className="h-8 w-8" />
-          Dashboard de Capacitación
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Estadísticas y métricas de certificados de capacitación STPS/RED CONOCER
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <TrendingUp className="h-8 w-8" />
+            Dashboard de Capacitación
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Estadísticas y métricas de certificados de capacitación STPS/RED CONOCER
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-52">
+              <SelectValue placeholder="Todo el tiempo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todo el tiempo</SelectItem>
+              <SelectItem value="today">Hoy</SelectItem>
+              <SelectItem value="this_week">Esta semana</SelectItem>
+              <SelectItem value="last_week">Semana anterior</SelectItem>
+              <SelectItem value="this_month">Este mes</SelectItem>
+              <SelectItem value="last_month">Mes anterior</SelectItem>
+              <SelectItem value="this_year">Este año</SelectItem>
+              <SelectItem value="last_year">Año anterior</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Tarjetas de métricas */}

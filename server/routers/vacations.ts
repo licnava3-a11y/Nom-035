@@ -495,7 +495,7 @@ export const vacationsRouter = router({
           await (db.insert(notifications) as any).values({
             userId: empUser.userId,
             title: notifTitle,
-            content: notifContent,
+            message: notifContent,
             type: "vacation",
             isRead: false,
             createdAt: new Date(),
@@ -503,9 +503,12 @@ export const vacationsRouter = router({
 
           // Emitir en tiempo real
           emitNotificationToUser(empUser.userId, {
+            id: 0,
             title: notifTitle,
-            content: notifContent,
+            message: notifContent,
             type: "vacation",
+            read: false,
+            createdAt: new Date(),
           });
         }
       } catch (_e) {

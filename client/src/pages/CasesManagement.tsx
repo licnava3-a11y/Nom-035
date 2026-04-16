@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Search, Filter, FileText, User, AlertCircle, CheckCircle, Clock, UserCheck } from "lucide-react";
+import { DateRangeFilter, type DateRange } from "@/components/DateRangeFilter";
+import { startOfDay, endOfDay } from "date-fns";
 import { Pagination } from "@/components/Pagination";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -24,6 +26,7 @@ export default function CasesManagement() {
     priority: "",
     search: ""
   });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newCase, setNewCase] = useState({
     caseType: "mobbing" as const,
@@ -46,6 +49,8 @@ export default function CasesManagement() {
     priority: filters.priority && filters.priority !== "all" ? filters.priority as "low" | "medium" | "high" | "critical" : undefined,
     departmentId: filters.departmentId && filters.departmentId !== "all" ? parseInt(filters.departmentId) : undefined,
     search: filters.search || undefined,
+    dateFrom: dateRange?.from ? startOfDay(dateRange.from).toISOString().split("T")[0] : undefined,
+    dateTo: dateRange?.to ? endOfDay(dateRange.to).toISOString().split("T")[0] : undefined,
   });
 
   const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
@@ -421,6 +426,11 @@ export default function CasesManagement() {
 
       {/* Filters */}
       <Card className="p-4 mb-6">
+        {/* Filtro temporal */}
+        <div className="mb-4 pb-3 border-b border-border">
+          <Label className="text-xs text-muted-foreground mb-2 block">Período</Label>
+          <DateRangeFilter value={dateRange} onChange={setDateRange} />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
             <Label>Buscar</Label>

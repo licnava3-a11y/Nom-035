@@ -19,7 +19,14 @@ import {
   Download,
   FileSpreadsheet,
   Building2,
+  Edit3,
+  Save,
+  X,
+  RotateCcw,
+  Trash2,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function statusBadge(status: string) {
@@ -56,7 +63,9 @@ function addBusinessDays(dateStr: string, _days: number): string {
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function VacationManagement() {
   const { user } = useAuth();
+  const utils = trpc.useUtils();
   const isRH = ["admin", "rh", "recursos_humanos", "auxiliar_rh"].includes(user?.role ?? "");
+  const isAdmin = user?.role === "admin";
   const isSupervisor = ["admin", "rh", "recursos_humanos", "auxiliar_rh", "jefe_area", "gerente", "supervisor"].includes(user?.role ?? "");
 
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected" | "cancelled">("all");
@@ -76,6 +85,22 @@ export default function VacationManagement() {
 
   // Balance report state
   const [balanceDeptFilter, setBalanceDeptFilter] = useState<number | undefined>(undefined);
+
+  // Seniority table edit state
+  const [editingSeniority, setEditingSeniority] = useState(false);
+  const [seniorityDraft, setSeniorityDraft] = useState<Array<{ yearsMin: number; yearsMax: number | null; vacationDays: number }>>([]);
+
+  const DEFAULT_LFT_TABLE = [
+    { yearsMin: 1, yearsMax: 1, vacationDays: 12 },
+    { yearsMin: 2, yearsMax: 2, vacationDays: 14 },
+    { yearsMin: 3, yearsMax: 3, vacationDays: 16 },
+    { yearsMin: 4, yearsMax: 4, vacationDays: 18 },
+    { yearsMin: 5, yearsMax: 9, vacationDays: 20 },
+    { yearsMin: 10, yearsMax: 14, vacationDays: 22 },
+    { yearsMin: 15, yearsMax: 19, vacationDays: 24 },
+    { yearsMin: 20, yearsMax: 24, vacationDays: 26 },
+    { yearsMin: 25, yearsMax: null, vacationDays: 28 },
+  ];
 
   // Queries
   const { data: allRequests, isLoading: allLoading, refetch: refetchAll } = trpc.vacations.listAll.useQuery(
@@ -131,6 +156,44 @@ export default function VacationManagement() {
     },
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
+
+  const updateSeniorityMutation = trpc.vacations.updateSeniorityTable.useMutation({
+    onSuccess: () => {
+      toast.success("Tabla de antigüedad actualizada correctamente.");
+      setEditingSeniority(false);
+      utils.vacations.getSeniorityTable.invalidate();
+    },
+    onError: (e: any) => toast.error(`Error: ${e.message}`),
+  });
+
+  const handleStartEditSeniority = () => {
+    setSeniorityDraft(seniorityTable ? seniorityTable.map((r: any) => ({ yearsMin: r.yearsMin, yearsMax: r.yearsMax, vacationDays: r.vacationDays })) : [...DEFAULT_LFT_TABLE]);
+    setEditingSeniority(true);
+  };
+
+  const handleSaveSeniority = () => {
+    if (seniorityDraft.length === 0) { toast.error("La tabla no puede estar vacía."); return; }
+    updateSeniorityMutation.mutate(seniorityDraft);
+  };
+
+  const handleRestoreLFT = () => {
+    setSeniorityDraft([...DEFAULT_LFT_TABLE]);
+    toast.info("Tabla restaurada a valores LFT. Guarda para aplicar.");
+  };
+
+  const updateSeniorityRow = (i: number, field: "yearsMin" | "yearsMax" | "vacationDays", value: string) => {
+    setSeniorityDraft((prev) => prev.map((row, idx) => idx === i ? { ...row, [field]: field === "yearsMax" && value === "" ? null : parseInt(value) || 0 } : row));
+  };
+
+  const addSeniorityRow = () => {
+    const last = seniorityDraft[seniorityDraft.length - 1];
+    const newMin = last ? (last.yearsMax !== null ? last.yearsMax + 1 : last.yearsMin + 5) : 1;
+    setSeniorityDraft((prev) => [...prev, { yearsMin: newMin, yearsMax: null, vacationDays: 6 }]);
+  };
+
+  const removeSeniorityRow = (i: number) => {
+    setSeniorityDraft((prev) => prev.filter((_, idx) => idx !== i));
+  };
 
   const updateStatusMutation = trpc.vacations.updateStatus.useMutation({
     onSuccess: () => {
@@ -883,29 +946,96 @@ export default function VacationManagement() {
         </div>
       )}
 
-      {/* Seniority table reference */}
+      {/* Seniority table — editable for admin */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" /> Tabla de Antigüedad (LFT)
-          </CardTitle>
-          <CardDescription>Días de vacaciones según años de servicio — Ley Federal del Trabajo Art. 76</CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Clock className="h-4 w-4 text-primary" /> Tabla de Antigüedad — Días de Vacaciones
+              </CardTitle>
+              <CardDescription>Días de vacaciones según años de servicio. {isAdmin ? "Como administrador puedes personalizar esta tabla." : "Ley Federal del Trabajo Art. 76."}</CardDescription>
+            </div>
+            {isAdmin && !editingSeniority && (
+              <Button size="sm" variant="outline" onClick={handleStartEditSeniority}>
+                <Edit3 className="h-4 w-4 mr-2" /> Editar tabla
+              </Button>
+            )}
+            {isAdmin && editingSeniority && (
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={handleRestoreLFT}>
+                  <RotateCcw className="h-4 w-4 mr-2" /> Restaurar LFT
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setEditingSeniority(false)}>
+                  <X className="h-4 w-4 mr-2" /> Cancelar
+                </Button>
+                <Button size="sm" onClick={handleSaveSeniority} disabled={updateSeniorityMutation.isPending}>
+                  <Save className="h-4 w-4 mr-2" /> {updateSeniorityMutation.isPending ? "Guardando..." : "Guardar"}
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          {seniorityTable ? (
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-              {seniorityTable.map((row: any, i: number) => (
-                <div key={i} className="text-center p-3 rounded-lg bg-muted/40 border">
-                  <p className="text-xs text-muted-foreground">
-                    {row.yearsMax ? `${row.yearsMin}–${row.yearsMax} años` : `${row.yearsMin}+ años`}
-                  </p>
-                  <p className="text-xl font-bold text-primary mt-1">{row.vacationDays}</p>
-                  <p className="text-xs text-muted-foreground">días</p>
+          {!editingSeniority ? (
+            seniorityTable ? (
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                {seniorityTable.map((row: any, i: number) => (
+                  <div key={i} className="text-center p-3 rounded-lg bg-muted/40 border">
+                    <p className="text-xs text-muted-foreground">
+                      {row.yearsMax ? `${row.yearsMin}–${row.yearsMax} años` : `${row.yearsMin}+ años`}
+                    </p>
+                    <p className="text-xl font-bold text-primary mt-1">{row.vacationDays}</p>
+                    <p className="text-xs text-muted-foreground">días</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Cargando tabla...</p>
+            )
+          ) : (
+            <div className="space-y-3">
+              <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-xs font-medium text-muted-foreground px-1">
+                <span>Años mín.</span>
+                <span>Años máx. (vacío = sin límite)</span>
+                <span>Días de vacaciones</span>
+                <span></span>
+              </div>
+              {seniorityDraft.map((row, i) => (
+                <div key={i} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={row.yearsMin}
+                    onChange={(e) => updateSeniorityRow(i, "yearsMin", e.target.value)}
+                    placeholder="Año mín."
+                  />
+                  <Input
+                    type="number"
+                    min={1}
+                    value={row.yearsMax ?? ""}
+                    onChange={(e) => updateSeniorityRow(i, "yearsMax", e.target.value)}
+                    placeholder="Sin límite"
+                  />
+                  <Input
+                    type="number"
+                    min={1}
+                    value={row.vacationDays}
+                    onChange={(e) => updateSeniorityRow(i, "vacationDays", e.target.value)}
+                    placeholder="Días"
+                  />
+                  <Button size="icon" variant="ghost" onClick={() => removeSeniorityRow(i)} className="text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
+              <Button size="sm" variant="outline" onClick={addSeniorityRow} className="w-full mt-2">
+                <Plus className="h-4 w-4 mr-2" /> Agregar fila
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                * Los cambios afectarán el cálculo de saldo de vacaciones de todos los empleados al guardar.
+              </p>
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Cargando tabla...</p>
           )}
         </CardContent>
       </Card>

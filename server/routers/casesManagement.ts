@@ -143,6 +143,9 @@ export const casesManagementRouter = router({
         status: z.enum(["open", "investigating", "resolved", "closed", "all"]).default("all"),
         priority: z.enum(["low", "medium", "high", "critical", "all"]).default("all"),
         departmentId: z.number().optional(),
+        search: z.string().optional(),
+        dateFrom: z.string().optional(), // ISO date string YYYY-MM-DD
+        dateTo: z.string().optional(),   // ISO date string YYYY-MM-DD
         page: z.number().default(1),
         pageSize: z.number().default(20),
       }).optional()
@@ -170,6 +173,21 @@ export const casesManagementRouter = router({
         }
         if (input?.departmentId) {
           conditions.push(eq(cases.departmentId, input.departmentId));
+        }
+        if (input?.search) {
+          conditions.push(or(
+            like(cases.reporterName, `%${input.search}%`),
+            like(cases.caseNumber, `%${input.search}%`),
+            like(cases.description, `%${input.search}%`),
+          ) as any);
+        }
+        if (input?.dateFrom) {
+          conditions.push(sql`${cases.createdAt} >= ${new Date(input.dateFrom)}`);
+        }
+        if (input?.dateTo) {
+          const toDate = new Date(input.dateTo);
+          toDate.setHours(23, 59, 59, 999);
+          conditions.push(sql`${cases.createdAt} <= ${toDate}`);
         }
 
         const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
