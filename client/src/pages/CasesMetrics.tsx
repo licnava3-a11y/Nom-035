@@ -82,10 +82,7 @@ export default function CasesMetrics() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
-      console.log(`Reporte PDF generado con ${result.totalCases} casos`);
     } catch (error) {
-      console.error('Error al generar reporte:', error);
       alert('Error al generar reporte PDF');
     } finally {
       setIsGenerating(false);

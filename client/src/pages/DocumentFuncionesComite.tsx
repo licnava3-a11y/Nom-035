@@ -67,7 +67,6 @@ export default function DocumentFuncionesComite() {
   ];
 
   const handleSave = () => {
-    console.log("Guardando funciones del comité:", formData);
     alert("Funciones del comité guardadas exitosamente");
   };
 

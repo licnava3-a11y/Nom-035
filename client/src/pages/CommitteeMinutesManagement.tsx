@@ -189,7 +189,6 @@ export default function CommitteeMinutesManagement() {
       alert('Firma guardada exitosamente');
     } catch (error) {
       alert('Error al guardar firma');
-      console.error(error);
     }
   };
 
@@ -717,7 +716,6 @@ export default function CommitteeMinutesManagement() {
                         accept="image/*"
                         onFileSelect={(file) => {
                           // TODO: Implementar subida a S3
-                          console.log('File selected:', file);
                         }}
                         currentFileUrl={documentation.groupPhotoUrl}
                       />
@@ -729,7 +727,6 @@ export default function CommitteeMinutesManagement() {
                         accept="application/pdf"
                         onFileSelect={(file) => {
                           // TODO: Implementar subida a S3
-                          console.log('File selected:', file);
                         }}
                         currentFileUrl={documentation.attendanceListUrl}
                       />

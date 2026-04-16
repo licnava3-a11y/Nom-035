@@ -42,21 +42,18 @@ export default function AssessmentsManagement() {
       refetch();
       setIsCreateDialogOpen(false);
       resetForm();
-      console.log('Evaluación creada exitosamente');
     },
   });
 
   const deleteMutation = trpc.assessments.delete.useMutation({
     onSuccess: () => {
       refetch();
-      console.log('Evaluación eliminada exitosamente');
     },
   });
 
   const updateStatusMutation = trpc.assessments.update.useMutation({
     onSuccess: () => {
       refetch();
-      console.log('Estado actualizado exitosamente');
     },
   });
 

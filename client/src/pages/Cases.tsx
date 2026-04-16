@@ -124,9 +124,7 @@ export default function Cases() {
       document.body.removeChild(a);
       
       // Show success toast (if available)
-      console.log(`Exportados ${result.totalRecords} casos a Excel`);
     } catch (error) {
-      console.error('Error al exportar:', error);
       alert('Error al exportar casos a Excel');
     } finally {
       setIsExporting(false);
@@ -153,7 +151,6 @@ export default function Cases() {
       // Mostrar mensaje de éxito
       alert(`Caso asignado automáticamente a ${result.assignedTo.name} (${result.assignedTo.workload} casos activos)`);
     } catch (error: any) {
-      console.error('Error al asignar automáticamente:', error);
       alert(error.message || 'Error al asignar caso automáticamente');
     }
   };

@@ -209,3 +209,23 @@
 - [x] Alias /vacations → VacationManagement registrado en App.tsx
 - [x] Enlace "Calendario de Vacaciones" agregado al sidebar en Gestión de Talento
 - [x] 0 errores TypeScript verificados
+
+## Auditoría Profunda — Abril 2026
+
+### Backend
+- [x] Optimización N+1 en competenciesStats.ts: de ~200 queries por request a 4 queries en paralelo (Promise.all + mapas en memoria)
+- [x] Notificación push WebSocket simétrica al empleado al aprobar/rechazar vacación (updateStatus)
+- [x] Limpieza de import duplicado (notifications) y no usado (users) en vacations.ts
+- [x] 0 errores TypeScript en watch mode
+
+### Frontend
+- [x] Eliminación de console.log/error/warn en 25 archivos de producción
+- [x] ErrorBoundary con auto-recuperación de errores DOM (verificado)
+- [x] EmptyState e InlineEmptyState reutilizables (verificado)
+- [x] 0 errores en logs del servidor y browser console
+
+### Hallazgos (sin cambios necesarios — ya implementados)
+- [x] Todos los pendientes P1-P9 del todo.md ya estaban implementados
+- [x] Bundle optimizado: vite.config.ts con manualChunks por vendor
+- [x] 218 páginas con lazy loading en App.tsx
+- [x] Servidor estable: 0 errores en runtime

@@ -161,7 +161,6 @@ export default function DocumentActaRecorridoNOM019() {
       alert(`✅ Acta de recorrido guardada exitosamente con folio: ${result.folio}`);
       setLocation("/documents");
     } catch (error: any) {
-      console.error("Error guardando acta:", error);
       alert(`Error al guardar el acta: ${error.message || "Ocurrió un error inesperado"}`);
     }
   };

@@ -64,7 +64,6 @@ export default function DocumentGallery() {
         window.open(result.pdfUrl, '_blank');
       }
     } catch (error) {
-      console.error('Error generating PDF:', error);
       alert('Error al generar PDF. Por favor intente nuevamente.');
     }
   };

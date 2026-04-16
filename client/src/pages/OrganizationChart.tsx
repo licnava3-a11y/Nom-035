@@ -343,7 +343,6 @@ export default function OrganizationChart() {
         setIsCalculatingLayout(false);
       })
       .catch((error) => {
-        console.error('Error al calcular layout:', error);
         setIsCalculatingLayout(false);
       });
   }, [hierarchy, historicalHierarchy, isHistoricalView, isCompactMode, orientation, setNodes, setEdges]);
@@ -460,7 +459,6 @@ export default function OrganizationChart() {
           setIsExporting(false);
         })
         .catch((err) => {
-          console.error('Error al exportar:', err);
           setIsExporting(false);
         });
     }

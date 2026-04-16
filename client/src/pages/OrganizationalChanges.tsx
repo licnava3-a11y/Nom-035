@@ -287,7 +287,6 @@ export default function OrganizationalChanges() {
         yPosition += imgHeight + 10;
       }
     } catch (error) {
-      console.error('Error al capturar gráficas:', error);
     }
     
     // Línea de tiempo de cambios recientes

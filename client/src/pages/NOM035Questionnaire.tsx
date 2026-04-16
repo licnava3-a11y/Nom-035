@@ -149,7 +149,6 @@ export default function NOM035Questionnaire() {
           response: numValue,
         });
       } catch (error) {
-        console.error("Error guardando respuesta:", error);
       }
     }
   };

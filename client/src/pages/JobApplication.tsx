@@ -269,7 +269,6 @@ export default function JobApplication() {
         references: references.filter((ref: any) => ref.name && ref.phone),
       });
     } catch (error) {
-      console.error("Error submitting application:", error);
     }
   };
 

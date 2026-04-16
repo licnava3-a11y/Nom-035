@@ -8,13 +8,12 @@ import {
   employees,
   departments,
   positions,
-  users,
+  notifications,
 } from "../../drizzle/schema";
 import { eq, desc, sql, and, gte, lte, ne, asc } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { emitNotificationToUser } from "../_core/websocket";
-import { notifications } from "../../drizzle/schema";
 
 // ── Tabla LFT por defecto ────────────────────────────────────────────────────
 const DEFAULT_LFT_TABLE = [
@@ -472,6 +471,45 @@ export const vacationsRouter = router({
           html: emailHtml,
           text: `Tu solicitud de vacaciones del ${req.startDate} al ${req.endDate} (${req.requestedDays} días) ha sido ${isApproved ? "aprobada" : "rechazada"} por ${approverName}.${!isApproved && input.rejectionReason ? ` Motivo: ${input.rejectionReason}` : ""}`,
         });
+      }
+
+      // ── Notificación push WebSocket al empleado (simétrica al push al supervisor) ──
+      try {
+        // Obtener el userId del empleado
+        const [empUser] = await db
+          .select({ userId: employees.userId })
+          .from(employees)
+          .where(eq(employees.id, req.employeeId))
+          .limit(1);
+
+        if (empUser?.userId) {
+          const isApproved = input.status === "approved";
+          const notifTitle = isApproved
+            ? "✅ Vacaciones aprobadas"
+            : "❌ Solicitud de vacaciones rechazada";
+          const notifContent = isApproved
+            ? `Tu solicitud del ${req.startDate} al ${req.endDate} (${req.requestedDays} días) fue aprobada.`
+            : `Tu solicitud del ${req.startDate} al ${req.endDate} fue rechazada.${input.rejectionReason ? ` Motivo: ${input.rejectionReason}` : ""}`;
+
+          // Guardar en tabla notifications
+          await (db.insert(notifications) as any).values({
+            userId: empUser.userId,
+            title: notifTitle,
+            content: notifContent,
+            type: "vacation",
+            isRead: false,
+            createdAt: new Date(),
+          });
+
+          // Emitir en tiempo real
+          emitNotificationToUser(empUser.userId, {
+            title: notifTitle,
+            content: notifContent,
+            type: "vacation",
+          });
+        }
+      } catch (_e) {
+        // No bloquear la respuesta si falla la notificación push
       }
 
       return { success: true };

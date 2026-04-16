@@ -95,7 +95,6 @@ export default function MassiveImport() {
       
       if (result.duplicates > 0) {
         toast.warning(`${result.message}. Ver detalles en la consola.`);
-        console.log("Duplicados encontrados:", result.duplicateDetails);
       } else {
         toast.success(result.message);
       }

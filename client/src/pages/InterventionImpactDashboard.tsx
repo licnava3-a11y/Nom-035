@@ -134,7 +134,6 @@ export default function InterventionImpactDashboard() {
       try {
         chartImage = chartRef.current.toBase64Image();
       } catch (error) {
-        console.error("Error al capturar gráfico:", error);
       }
     }
 
@@ -152,7 +151,6 @@ export default function InterventionImpactDashboard() {
       try {
         chartImage = chartRef.current.toBase64Image();
       } catch (error) {
-        console.error("Error al capturar gráfico:", error);
       }
     }
 

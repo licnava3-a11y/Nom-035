@@ -84,7 +84,6 @@ export default function ReportsHistory() {
           doc.text('Verificar', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 3, { align: 'center' });
           doc.text('autenticidad', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 6, { align: 'center' });
         } catch (error) {
-          console.warn('No se pudo generar el código QR:', error);
         }
       }
       
@@ -104,7 +103,6 @@ export default function ReportsHistory() {
           const logoHeight = 15;
           doc.addImage(logoImg, 'PNG', 14, yPosition, logoWidth, logoHeight);
         } catch (error) {
-          console.warn('No se pudo cargar el logo:', error);
         }
       }
       
@@ -204,7 +202,6 @@ export default function ReportsHistory() {
       
       toast.success("Reporte descargado exitosamente");
     } catch (error: any) {
-      console.error('Error al re-descargar:', error);
       toast.error(error.message || "Error al re-descargar el reporte");
     }
   };

@@ -220,7 +220,6 @@ export default function SurveysAdminPanel() {
       XLSX.writeFile(wb, filename);
       toast.success(`Archivo Excel generado: ${data.length} registros exportados`);
     } catch (error) {
-      console.error("Error al exportar:", error);
       toast.error("Error al generar el archivo Excel");
     }
   };

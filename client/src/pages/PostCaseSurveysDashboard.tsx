@@ -333,7 +333,6 @@ export default function PostCaseSurveysDashboard() {
       doc.save(`Encuestas_PostCaso_NOM035_${dateStr}.pdf`);
       toast.success("✅ PDF generado correctamente");
     } catch (err) {
-      console.error(err);
       toast.error("❌ Error al generar el PDF");
     } finally {
       setIsExporting(false);

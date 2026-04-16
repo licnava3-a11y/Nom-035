@@ -139,7 +139,6 @@ export default function NumeralsVerification() {
             doc.text('Verificar', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 3, { align: 'center' });
             doc.text('autenticidad', pageWidth - qrSize / 2 - 14, yPosition + qrSize + 6, { align: 'center' });
           } catch (error) {
-            console.warn('No se pudo generar el código QR:', error);
           }
         }
         
@@ -160,7 +159,6 @@ export default function NumeralsVerification() {
             const logoHeight = 15;
             doc.addImage(logoImg, 'PNG', 14, yPosition, logoWidth, logoHeight);
           } catch (error) {
-            console.warn('No se pudo cargar el logo:', error);
           }
         }
         
@@ -300,7 +298,6 @@ export default function NumeralsVerification() {
                 const firmaHeight = 15;
                 doc.addImage(firmaImg, 'PNG', xPosition, yPosition, firmaWidth, firmaHeight);
               } catch (error) {
-                console.warn('No se pudo cargar la firma:', error);
               }
             }
             
@@ -360,7 +357,6 @@ export default function NumeralsVerification() {
         });
       }
     } catch (error) {
-      console.error('Error al generar PDF:', error);
       toast.error('Error al generar PDF', {
         description: 'Ocurrió un error al generar el reporte en PDF',
       });

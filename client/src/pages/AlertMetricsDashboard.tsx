@@ -112,7 +112,6 @@ export default function AlertMetricsDashboard() {
         description: "El PDF se ha generado correctamente",
       });
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       toast({
         title: "Error",
         description: "No se pudo generar el PDF. Intenta nuevamente.",

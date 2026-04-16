@@ -354,7 +354,6 @@ export default function SkillsMatrix() {
       XLSX.writeFile(wb, filename);
       toast.success(`Exportación exitosa: ${data.data.length} empleados + análisis completo`);
     } catch (error: any) {
-      console.error("Error al exportar:", error);
       toast.error("Error", { description: error.message || "No se pudo exportar la matriz" });
     }
   };

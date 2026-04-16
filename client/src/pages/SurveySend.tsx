@@ -62,7 +62,6 @@ export default function SurveySend() {
     onSuccess: (result) => {
       toast.success(`Invitaciones enviadas: ${result.sent} exitosas, ${result.failed} fallidas`);
       if (result.errors.length > 0) {
-        console.error("Errores de envío:", result.errors);
       }
       setSelectedEmployees([]);
       setCustomSubject("");

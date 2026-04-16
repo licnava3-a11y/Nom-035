@@ -34,7 +34,6 @@ export default function DocumentAceptacionCargo() {
   ], []);
 
   const handleSave = () => {
-    console.log("Guardando aceptación de cargo:", formData);
     alert("Aceptación de cargo guardada exitosamente");
   };
 

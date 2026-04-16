@@ -89,7 +89,6 @@ export default function DepartmentMetrics() {
       link.click();
     },
     onError: (error) => {
-      console.error('Error al generar PDF:', error);
       alert('Error al generar el reporte PDF');
     },
   });

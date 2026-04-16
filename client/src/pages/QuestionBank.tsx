@@ -40,7 +40,6 @@ export default function QuestionBank() {
       refetch();
       setIsAddDialogOpen(false);
       resetForm();
-      console.log('Pregunta agregada exitosamente');
     },
   });
 
@@ -49,14 +48,12 @@ export default function QuestionBank() {
       refetch();
       setEditingQuestion(null);
       resetForm();
-      console.log('Pregunta actualizada exitosamente');
     },
   });
 
   const deleteQuestionMutation = trpc.assessments.deleteQuestion.useMutation({
     onSuccess: () => {
       refetch();
-      console.log('Pregunta eliminada exitosamente');
     },
   });
 
