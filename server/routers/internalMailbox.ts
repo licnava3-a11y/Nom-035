@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { internalMessages, users } from "../../drizzle/schema";
-import { eq, desc, and, or } from "drizzle-orm";
+import { internalMessages, notifications } from "../../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { emitNotificationToUser } from "../_core/websocket";
 
 export const internalMailboxRouter = router({
   list: protectedProcedure
@@ -78,6 +79,8 @@ export const internalMailboxRouter = router({
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      // Update message with response
       await db.update(internalMessages)
         .set({
           responseBody: input.responseBody,
@@ -86,6 +89,48 @@ export const internalMailboxRouter = router({
           status: "resuelto",
         })
         .where(eq(internalMessages.id, input.id));
+
+      // Fetch the updated message to get sender info
+      const [msg] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.id)).limit(1);
+
+      // Send WebSocket push notification to original sender (if not anonymous)
+      if (msg && msg.senderId && !msg.isAnonymous) {
+        const categoryLabels: Record<string, string> = {
+          sugerencia: "Sugerencia",
+          queja: "Queja",
+          felicitacion: "Felicitación",
+          capacitacion: "Solicitud de Capacitación",
+          otro: "Mensaje",
+        };
+        const categoryLabel = categoryLabels[msg.category] || "Mensaje";
+        const notifTitle = `Tu ${categoryLabel} ha sido respondida`;
+        const notifMsg = `El responsable respondió tu mensaje "${msg.subject}": ${input.responseBody.substring(0, 120)}${input.responseBody.length > 120 ? "..." : ""}`;
+
+        // Persist notification in BD
+        const inserted = await db.insert(notifications).values({
+          userId: msg.senderId,
+          type: "mailbox_status_change",
+          title: notifTitle,
+          message: notifMsg,
+          relatedEntityType: "mailbox",
+          relatedEntityId: input.id,
+          isRead: false,
+        }).$returningId();
+
+        const notifId = Array.isArray(inserted) ? inserted[0]?.id : (inserted as any)?.id;
+        if (notifId) {
+          emitNotificationToUser(msg.senderId, {
+            id: notifId,
+            type: "mailbox_status_change",
+            title: notifTitle,
+            message: `El responsable respondió tu mensaje "${msg.subject}".`,
+            read: false,
+            createdAt: new Date(),
+          });
+        }
+      }
+
       return { success: true };
     }),
 

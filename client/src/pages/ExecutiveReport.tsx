@@ -1,11 +1,96 @@
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, Printer } from "lucide-react";
+import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, Printer, BarChart2 } from "lucide-react";
+
+// Chart.js loaded from CDN via useEffect
+declare const Chart: any;
+
+function TrendChart({
+  id,
+  labels,
+  datasets,
+  title,
+}: {
+  id: string;
+  labels: string[];
+  datasets: { label: string; data: number[]; color: string }[];
+  title: string;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || typeof Chart === "undefined") return;
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "line",
+      data: {
+        labels,
+        datasets: datasets.map(ds => ({
+          label: ds.label,
+          data: ds.data,
+          borderColor: ds.color,
+          backgroundColor: ds.color + "22",
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.3,
+          fill: true,
+        })),
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+          title: { display: false },
+          tooltip: { mode: "index", intersect: false },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: "#f0f0f0" } },
+        },
+      },
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [labels, datasets]);
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <BarChart2 className="h-4 w-4 text-indigo-500" />{title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div style={{ height: "220px" }}>
+          <canvas ref={canvasRef} id={id} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function ExecutiveReport() {
+  const [trendMonths, setTrendMonths] = useState(6);
+  const [chartJsLoaded, setChartJsLoaded] = useState(false);
+
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
+  const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
+
+  // Load Chart.js from CDN
+  useEffect(() => {
+    if (typeof Chart !== "undefined") { setChartJsLoaded(true); return; }
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js";
+    script.onload = () => setChartJsLoaded(true);
+    document.head.appendChild(script);
+  }, []);
 
   if (isLoading) {
     return (
@@ -23,6 +108,7 @@ export default function ExecutiveReport() {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6 print:p-4">
+        {/* Header */}
         <div className="flex items-center justify-between print:hidden">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -41,6 +127,7 @@ export default function ExecutiveReport() {
           </div>
         </div>
 
+        {/* Print header */}
         <div className="hidden print:block border-b pb-4 mb-4">
           <h1 className="text-2xl font-bold">Reporte Ejecutivo Consolidado NOM-035 STPS</h1>
           <p className="text-sm text-gray-600">Fecha: {new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</p>
@@ -48,14 +135,15 @@ export default function ExecutiveReport() {
 
         {kpis && (
           <>
+            {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {[
-                { label: "Empleados Activos",      value: kpis.employees.active,             total: kpis.employees.total,   icon: <Users className="h-5 w-5 text-blue-600" />,     color: "text-blue-700",   bg: "bg-blue-50" },
-                { label: "Cursos Disponibles",     value: kpis.training.totalCourses,         total: null,                   icon: <BookOpen className="h-5 w-5 text-purple-600" />, color: "text-purple-700", bg: "bg-purple-50" },
-                { label: "Tasa Capacitacion",      value: `${kpis.training.completionRate}%`, total: null,                   icon: <ClipboardCheck className="h-5 w-5 text-green-600" />, color: "text-green-700", bg: "bg-green-50" },
-                { label: "Vacaciones Pendientes",  value: kpis.vacations.pending,             total: kpis.vacations.total,   icon: <Calendar className="h-5 w-5 text-orange-600" />, color: "text-orange-700", bg: "bg-orange-50" },
-                { label: "Casos Abiertos NOM-035", value: kpis.cases.open,                   total: kpis.cases.total,       icon: <AlertTriangle className="h-5 w-5 text-red-600" />, color: "text-red-700",   bg: "bg-red-50" },
-                { label: "Mensajes Pendientes",    value: kpis.mailbox.pending,               total: kpis.mailbox.total,     icon: <MessageSquare className="h-5 w-5 text-teal-600" />, color: "text-teal-700", bg: "bg-teal-50" },
+                { label: "Empleados Activos",      value: kpis.employees.active,             total: kpis.employees.total,   icon: <Users className="h-5 w-5 text-blue-600" />,          color: "text-blue-700",   bg: "bg-blue-50" },
+                { label: "Cursos Disponibles",     value: kpis.training.totalCourses,         total: null,                   icon: <BookOpen className="h-5 w-5 text-purple-600" />,      color: "text-purple-700", bg: "bg-purple-50" },
+                { label: "Tasa Capacitación",      value: `${kpis.training.completionRate}%`, total: null,                   icon: <ClipboardCheck className="h-5 w-5 text-green-600" />, color: "text-green-700",  bg: "bg-green-50" },
+                { label: "Vacaciones Pendientes",  value: kpis.vacations.pending,             total: kpis.vacations.total,   icon: <Calendar className="h-5 w-5 text-orange-600" />,      color: "text-orange-700", bg: "bg-orange-50" },
+                { label: "Casos Abiertos NOM-035", value: kpis.cases.open,                   total: kpis.cases.total,       icon: <AlertTriangle className="h-5 w-5 text-red-600" />,    color: "text-red-700",    bg: "bg-red-50" },
+                { label: "Mensajes Pendientes",    value: kpis.mailbox.pending,               total: kpis.mailbox.total,     icon: <MessageSquare className="h-5 w-5 text-teal-600" />,   color: "text-teal-700",   bg: "bg-teal-50" },
               ].map(kpi => (
                 <Card key={kpi.label} className={`${kpi.bg} border-0`}>
                   <CardContent className="pt-4 pb-3">
@@ -68,6 +156,86 @@ export default function ExecutiveReport() {
               ))}
             </div>
 
+            {/* Trend Charts Section */}
+            <div className="print:hidden">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-indigo-600" />
+                  Tendencias Mensuales
+                </h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Período:</span>
+                  {[3, 6, 9, 12].map(m => (
+                    <button key={m} onClick={() => setTrendMonths(m)}
+                      className={`text-xs px-3 py-1 rounded-full border transition-all ${trendMonths === m ? "bg-indigo-600 text-white border-indigo-600" : "border-muted hover:border-indigo-400"}`}>
+                      {m} meses
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {trendsLoading || !chartJsLoaded ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[1, 2].map(i => (
+                    <Card key={i}><CardContent className="h-64 flex items-center justify-center text-muted-foreground text-sm">
+                      Cargando gráfica...
+                    </CardContent></Card>
+                  ))}
+                </div>
+              ) : trends && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TrendChart
+                    id="chart-cases-training"
+                    title="Casos NOM-035 vs Capacitaciones Completadas"
+                    labels={trends.labels}
+                    datasets={[
+                      { label: "Casos NOM-035", data: trends.cases, color: "#dc2626" },
+                      { label: "Capacitaciones completadas", data: trends.trainingCompletions, color: "#16a34a" },
+                    ]}
+                  />
+                  <TrendChart
+                    id="chart-exits-psycho"
+                    title="Rotación de Personal vs Evaluaciones Psicométricas"
+                    labels={trends.labels}
+                    datasets={[
+                      { label: "Salidas de empleados", data: trends.employeeExits, color: "#1d4ed8" },
+                      { label: "Evaluaciones psicométricas", data: trends.psychometricAssessments, color: "#7c3aed" },
+                    ]}
+                  />
+                  <TrendChart
+                    id="chart-mailbox"
+                    title="Mensajes en Buzón Interno por Mes"
+                    labels={trends.labels}
+                    datasets={[
+                      { label: "Mensajes recibidos", data: trends.mailboxMessages, color: "#0891b2" },
+                    ]}
+                  />
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-orange-500" />Resumen del Período ({trendMonths} meses)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {[
+                        { label: "Total casos NOM-035",          value: trends.cases.reduce((a, b) => a + b, 0),                    color: "text-red-600" },
+                        { label: "Capacitaciones completadas",   value: trends.trainingCompletions.reduce((a, b) => a + b, 0),      color: "text-green-600" },
+                        { label: "Salidas de empleados",         value: trends.employeeExits.reduce((a, b) => a + b, 0),            color: "text-blue-600" },
+                        { label: "Evaluaciones psicométricas",   value: trends.psychometricAssessments.reduce((a, b) => a + b, 0),  color: "text-purple-600" },
+                        { label: "Mensajes en buzón",            value: trends.mailboxMessages.reduce((a, b) => a + b, 0),          color: "text-teal-600" },
+                      ].map(row => (
+                        <div key={row.label} className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">{row.label}</span>
+                          <span className={`text-sm font-bold ${row.color}`}>{row.value}</span>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+
+            {/* Detail cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader className="pb-3">
@@ -80,7 +248,7 @@ export default function ExecutiveReport() {
                     { label: "Total de empleados",  value: kpis.employees.total },
                     { label: "Empleados activos",   value: `${kpis.employees.active} (${kpis.employees.total > 0 ? Math.round((kpis.employees.active / kpis.employees.total) * 100) : 0}%)` },
                     { label: "Empleados inactivos", value: `${kpis.employees.inactive} (${kpis.employees.total > 0 ? Math.round((kpis.employees.inactive / kpis.employees.total) * 100) : 0}%)` },
-                    { label: "Tasa de rotacion",    value: `${kpis.employees.turnoverRate}%` },
+                    { label: "Tasa de rotación",    value: `${kpis.employees.turnoverRate}%` },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">{row.label}</span>
@@ -103,7 +271,7 @@ export default function ExecutiveReport() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-purple-600" />Capacitacion y Desarrollo
+                    <BookOpen className="h-4 w-4 text-purple-600" />Capacitación y Desarrollo
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -111,7 +279,7 @@ export default function ExecutiveReport() {
                     { label: "Cursos disponibles",        value: kpis.training.totalCourses },
                     { label: "Asignaciones totales",      value: kpis.training.totalAssignments },
                     { label: "Asignaciones completadas",  value: kpis.training.completedAssignments },
-                    { label: "Tasa de completacion",      value: `${kpis.training.completionRate}%` },
+                    { label: "Tasa de completación",      value: `${kpis.training.completionRate}%` },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">{row.label}</span>
@@ -139,11 +307,11 @@ export default function ExecutiveReport() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { label: "Total de casos",              value: kpis.cases.total,               alert: false },
-                    { label: "Casos abiertos",              value: kpis.cases.open,                alert: kpis.cases.open > 0 },
-                    { label: "Casos de alto riesgo",        value: kpis.cases.highRisk,            alert: kpis.cases.highRisk > 0 },
-                    { label: "Evaluaciones psicometricas",  value: kpis.psychometric.total,        alert: false },
-                    { label: "Riesgo alto/muy alto",        value: kpis.psychometric.highRisk,     alert: kpis.psychometric.highRisk > 0 },
+                    { label: "Total de casos",              value: kpis.cases.total,           alert: false },
+                    { label: "Casos abiertos",              value: kpis.cases.open,            alert: kpis.cases.open > 0 },
+                    { label: "Casos de alto riesgo",        value: kpis.cases.highRisk,        alert: kpis.cases.highRisk > 0 },
+                    { label: "Evaluaciones psicométricas",  value: kpis.psychometric.total,    alert: false },
+                    { label: "Riesgo alto/muy alto",        value: kpis.psychometric.highRisk, alert: kpis.psychometric.highRisk > 0 },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">{row.label}</span>
@@ -156,16 +324,16 @@ export default function ExecutiveReport() {
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-teal-600" />Buzon Interno y Vacaciones
+                    <MessageSquare className="h-4 w-4 text-teal-600" />Buzón Interno y Vacaciones
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { label: "Mensajes totales",          value: kpis.mailbox.total,          alert: false },
-                    { label: "Mensajes pendientes",       value: kpis.mailbox.pending,        alert: kpis.mailbox.pending > 0 },
-                    { label: "Solicitudes de vacaciones", value: kpis.vacations.total,        alert: false },
-                    { label: "Vacaciones pendientes",     value: kpis.vacations.pending,      alert: kpis.vacations.pending > 0 },
-                    { label: "Vacaciones aprobadas",      value: kpis.vacations.approved,     alert: false },
+                    { label: "Mensajes totales",          value: kpis.mailbox.total,      alert: false },
+                    { label: "Mensajes pendientes",       value: kpis.mailbox.pending,    alert: kpis.mailbox.pending > 0 },
+                    { label: "Solicitudes de vacaciones", value: kpis.vacations.total,    alert: false },
+                    { label: "Vacaciones pendientes",     value: kpis.vacations.pending,  alert: kpis.vacations.pending > 0 },
+                    { label: "Vacaciones aprobadas",      value: kpis.vacations.approved, alert: false },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">{row.label}</span>
@@ -176,9 +344,10 @@ export default function ExecutiveReport() {
               </Card>
             </div>
 
+            {/* Print footer */}
             <div className="hidden print:block border-t pt-4 mt-6 text-xs text-gray-500">
-              <p>Plataforma de Capacitacion NOM-035 STPS 2018 — Reporte generado el {new Date().toLocaleString("es-MX")}</p>
-              <p className="mt-1">Documento confidencial — uso exclusivo para auditoria interna y cumplimiento STPS.</p>
+              <p>Plataforma de Capacitación NOM-035 STPS 2018 — Reporte generado el {new Date().toLocaleString("es-MX")}</p>
+              <p className="mt-1">Documento confidencial — uso exclusivo para auditoría interna y cumplimiento STPS.</p>
             </div>
           </>
         )}

@@ -3,6 +3,7 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
+import { sql } from "drizzle-orm";
 
 export const executiveReportRouter = router({
   getKPIs: protectedProcedure
@@ -52,6 +53,85 @@ export const executiveReportRouter = router({
         mailbox: { pending: pendingMessages, total: allMessages.length },
         psychometric: { total: allPsycho.length, highRisk: highPsychoRisk },
         generatedAt: new Date().toISOString(),
+      };
+    }),
+
+  getTrends: protectedProcedure
+    .input(z.object({ months: z.number().min(3).max(12).default(6) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const { months } = input;
+      const now = new Date();
+
+      // Build last N months labels
+      const monthLabels: string[] = [];
+      for (let i = months - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        monthLabels.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+      }
+
+      // Cases per month (NOM-035 cases)
+      const casesRaw = await db.execute(sql`
+        SELECT DATE_FORMAT(createdAt, '%Y-%m') as month, COUNT(*) as count
+        FROM cases
+        WHERE createdAt >= DATE_SUB(NOW(), INTERVAL ${months} MONTH)
+        GROUP BY month ORDER BY month ASC
+      `);
+      const casesMap: Record<string, number> = {};
+      for (const row of (casesRaw as any[])) casesMap[row.month] = Number(row.count);
+
+      // Training completions per month
+      const trainingRaw = await db.execute(sql`
+        SELECT DATE_FORMAT(completion_date, '%Y-%m') as month, COUNT(*) as count
+        FROM training_assignments
+        WHERE status = 'completed' AND completion_date >= DATE_SUB(NOW(), INTERVAL ${months} MONTH)
+        GROUP BY month ORDER BY month ASC
+      `);
+      const trainingMap: Record<string, number> = {};
+      for (const row of (trainingRaw as any[])) trainingMap[row.month] = Number(row.count);
+
+      // Employee exits per month (isActive=0, using updatedAt as proxy for exit date)
+      const exitRaw = await db.execute(sql`
+        SELECT DATE_FORMAT(updatedAt, '%Y-%m') as month, COUNT(*) as count
+        FROM employees
+        WHERE isActive = 0 AND updatedAt >= DATE_SUB(NOW(), INTERVAL ${months} MONTH)
+        GROUP BY month ORDER BY month ASC
+      `);
+      const exitMap: Record<string, number> = {};
+      for (const row of (exitRaw as any[])) exitMap[row.month] = Number(row.count);
+
+      // Psychometric assessments per month
+      const psychoRaw = await db.execute(sql`
+        SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
+        FROM psychometric_assessments
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${months} MONTH)
+        GROUP BY month ORDER BY month ASC
+      `);
+      const psychoMap: Record<string, number> = {};
+      for (const row of (psychoRaw as any[])) psychoMap[row.month] = Number(row.count);
+
+      // Internal mailbox messages per month
+      const mailboxRaw = await db.execute(sql`
+        SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
+        FROM internal_messages
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL ${months} MONTH)
+        GROUP BY month ORDER BY month ASC
+      `);
+      const mailboxMap: Record<string, number> = {};
+      for (const row of (mailboxRaw as any[])) mailboxMap[row.month] = Number(row.count);
+
+      return {
+        labels: monthLabels.map(m => {
+          const [y, mo] = m.split("-");
+          return new Date(Number(y), Number(mo) - 1, 1).toLocaleDateString("es-MX", { month: "short", year: "2-digit" });
+        }),
+        cases: monthLabels.map(m => casesMap[m] || 0),
+        trainingCompletions: monthLabels.map(m => trainingMap[m] || 0),
+        employeeExits: monthLabels.map(m => exitMap[m] || 0),
+        psychometricAssessments: monthLabels.map(m => psychoMap[m] || 0),
+        mailboxMessages: monthLabels.map(m => mailboxMap[m] || 0),
       };
     }),
 });
