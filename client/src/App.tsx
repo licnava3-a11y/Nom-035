@@ -181,6 +181,8 @@ const VacationManagement = lazy(() => import("./pages/VacationManagement"));
 const VacationCalendar = lazy(() => import("./pages/VacationCalendar"));
 const SuperAdminPanel = lazy(() => import("./pages/SuperAdminPanel"));
 const LegalPortada = lazy(() => import("./pages/LegalPortada"));
+const InternalMailbox = lazy(() => import("./pages/InternalMailbox"));
+const ExecutiveReport = lazy(() => import("./pages/ExecutiveReport"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
 const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
@@ -1373,6 +1375,16 @@ function Router() {
         <Route path={"/legal"}>
           <Suspense fallback={<PageLoader />}>
             <LegalPortada />
+          </Suspense>
+        </Route>
+        <Route path="/mailbox-internal">
+          <Suspense fallback={<PageLoader />}>
+            <InternalMailbox />
+          </Suspense>
+        </Route>
+        <Route path="/executive-report">
+          <Suspense fallback={<PageLoader />}>
+            <ExecutiveReport />
           </Suspense>
         </Route>
         <Route path={"/job-application"}>

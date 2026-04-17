@@ -1,0 +1,110 @@
+import { z } from "zod";
+import { protectedProcedure, router } from "../_core/trpc";
+import { getDb } from "../db";
+import { internalMessages, users } from "../../drizzle/schema";
+import { eq, desc, and, or } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+
+export const internalMailboxRouter = router({
+  list: protectedProcedure
+    .input(z.object({
+      category: z.enum(["sugerencia", "queja", "felicitacion", "capacitacion", "otro", "all"]).default("all"),
+      status: z.enum(["nuevo", "en_proceso", "resuelto", "cerrado", "all"]).default("all"),
+      limit: z.number().min(1).max(100).default(50),
+    }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const rows = await db.select().from(internalMessages)
+        .orderBy(desc(internalMessages.createdAt))
+        .limit(input.limit);
+      return rows;
+    }),
+
+  getById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [msg] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.id)).limit(1);
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND", message: "Mensaje no encontrado" });
+      return msg;
+    }),
+
+  create: protectedProcedure
+    .input(z.object({
+      category: z.enum(["sugerencia", "queja", "felicitacion", "capacitacion", "otro"]),
+      subject: z.string().min(3).max(200),
+      body: z.string().min(10),
+      priority: z.enum(["baja", "normal", "alta", "urgente"]).default("normal"),
+      isAnonymous: z.boolean().default(false),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      await db.insert(internalMessages).values({
+        senderId: input.isAnonymous ? null : ctx.user.id,
+        category: input.category,
+        subject: input.subject,
+        body: input.body,
+        priority: input.priority,
+        isAnonymous: input.isAnonymous,
+        status: "nuevo",
+      });
+      return { success: true };
+    }),
+
+  updateStatus: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      status: z.enum(["nuevo", "en_proceso", "resuelto", "cerrado"]),
+      assignedTo: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      await db.update(internalMessages)
+        .set({ status: input.status, assignedTo: input.assignedTo || null })
+        .where(eq(internalMessages.id, input.id));
+      return { success: true };
+    }),
+
+  respond: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      responseBody: z.string().min(5),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      await db.update(internalMessages)
+        .set({
+          responseBody: input.responseBody,
+          respondedBy: ctx.user.id,
+          respondedAt: new Date(),
+          status: "resuelto",
+        })
+        .where(eq(internalMessages.id, input.id));
+      return { success: true };
+    }),
+
+  getStats: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    const all = await db.select().from(internalMessages);
+    const total = all.length;
+    const nuevo = all.filter(m => m.status === "nuevo").length;
+    const en_proceso = all.filter(m => m.status === "en_proceso").length;
+    const resuelto = all.filter(m => m.status === "resuelto").length;
+    const cerrado = all.filter(m => m.status === "cerrado").length;
+    const byCategory = {
+      sugerencia: all.filter(m => m.category === "sugerencia").length,
+      queja: all.filter(m => m.category === "queja").length,
+      felicitacion: all.filter(m => m.category === "felicitacion").length,
+      capacitacion: all.filter(m => m.category === "capacitacion").length,
+      otro: all.filter(m => m.category === "otro").length,
+    };
+    return { total, nuevo, en_proceso, resuelto, cerrado, byCategory };
+  }),
+});

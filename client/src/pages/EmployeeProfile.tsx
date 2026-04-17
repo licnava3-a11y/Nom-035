@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { PsychometricTab } from "@/components/PsychometricTab";
 import { useLocation, useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ export default function EmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const employeeId = parseInt(id || "0");
-  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs" | "salary" | "vacations">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "dnc" | "contracts" | "docs" | "salary" | "vacations" | "psychometric">("info");
   // Salary history state
   const [showAddSalary, setShowAddSalary] = useState(false);
   const [newSalary, setNewSalary] = useState("");
@@ -733,6 +734,7 @@ export default function EmployeeProfile() {
             { key: "docs", label: "Expediente Electrónico", icon: <FolderOpen className="h-4 w-4" /> },
             { key: "salary", label: "Historial Salarial", icon: <DollarSign className="h-4 w-4" /> },
             { key: "vacations", label: "Vacaciones", icon: <Calendar className="h-4 w-4" /> },
+            { key: "psychometric", label: "Evaluación Psicometrica", icon: <ShieldCheck className="h-4 w-4" /> },
           ] as const).map((tab) => (
             <button
               key={tab.key}
@@ -1446,6 +1448,15 @@ export default function EmployeeProfile() {
           </div>
         )}
       </div>
+
+        {activeTab === "psychometric" && employee && (
+          <div className="mt-4">
+            <PsychometricTab
+              employeeId={employeeId}
+              employeeName={`${employee.firstName} ${employee.lastName}`}
+            />
+          </div>
+        )}
     </div>
   );
 }

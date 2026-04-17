@@ -149,6 +149,9 @@ import { salaryHistoryRouter } from "./routers/salaryHistory";
 import { vacationsRouter } from "./routers/vacations";
 import { superAdminRouter } from "./routers/superAdmin";
 import { termsRouter } from "./routers/terms";
+import { psychometricRouter } from "./routers/psychometric";
+import { internalMailboxRouter } from "./routers/internalMailbox";
+import { executiveReportRouter } from "./routers/executiveReport";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1462,6 +1465,9 @@ export const appRouter = router({
   vacations: vacationsRouter,
   superAdmin: superAdminRouter,
   terms: termsRouter,
+  psychometric: psychometricRouter,
+  internalMailbox: internalMailboxRouter,
+  executiveReport: executiveReportRouter,
 });
 
 export type AppRouter = typeof appRouter;

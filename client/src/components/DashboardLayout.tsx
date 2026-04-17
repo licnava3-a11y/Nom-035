@@ -170,6 +170,7 @@ const hierarchicalMenuItems = [
       { label: "Investigación", path: "/cases/investigations", description: "Cuestionarios de mobbing y burnout" },
       { label: "Protocolo de Violencia Laboral", path: "/cases/workplace-violence", description: "Gestión de casos de violencia laboral" },
       { label: "Buzón de Quejas", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
+      { label: "Buzón Comunicación Interna", path: "/mailbox-internal", description: "Sugerencias, quejas, felicitaciones y solicitudes de capacitación" },
       { label: "Análisis de Riesgos", path: "/risk-analysis", description: "Reportes de análisis de riesgos psicosociales" },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar riesgos" },
       { label: "Alertas Tempranas", path: "/alerts", description: "Dashboard de alertas críticas" },
@@ -256,6 +257,7 @@ const hierarchicalMenuItems = [
       { label: "Histórico de Alertas", path: "/alert-history", description: "Registro de alertas para auditoría" },
       { label: "Análisis Predictivo", path: "/alerts/predictive", description: "Predicción de alertas basada en datos históricos" },
       { label: "Reportes Ejecutivos", path: "/executive-reports", description: "Generación de reportes ejecutivos en PDF" },
+      { label: "Reporte Ejecutivo Consolidado", path: "/executive-report", description: "KPIs globales NOM-035: empleados, capacitación, vacaciones, casos y buzón" },
     ],
   },
   {

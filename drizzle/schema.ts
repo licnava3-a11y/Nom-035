@@ -5553,3 +5553,53 @@ export const termsAcceptance = mysqlTable("terms_acceptance", {
 });
 export type TermsAcceptance = typeof termsAcceptance.$inferSelect;
 export type InsertTermsAcceptance = typeof termsAcceptance.$inferInsert;
+
+// ─── Evaluaciones Psicométricas NOM-035 Guía de Referencia III ────────────────
+export const psychometricAssessments = mysqlTable("psychometric_assessments", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull().references(() => employees.id),
+  assessedBy: int("assessed_by").references(() => users.id),
+  companyId: int("company_id"),
+  // Respuestas: JSON array de {questionId, answer: 0|1|2|3|4}
+  answers: json("answers").notNull(),
+  // Puntajes por dominio
+  scoreWorkConditions: int("score_work_conditions").default(0),
+  scoreWorkload: int("score_workload").default(0),
+  scoreLackControl: int("score_lack_control").default(0),
+  scoreWorkdayHours: int("score_workday_hours").default(0),
+  scoreInterference: int("score_interference").default(0),
+  scoreLeadership: int("score_leadership").default(0),
+  scoreRelationships: int("score_relationships").default(0),
+  scoreViolence: int("score_violence").default(0),
+  scoreTotal: int("score_total").default(0),
+  // Nivel de riesgo: "null" | "bajo" | "medio" | "alto" | "muy_alto"
+  riskLevel: varchar("risk_level", { length: 20 }).default("null"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type PsychometricAssessment = typeof psychometricAssessments.$inferSelect;
+export type InsertPsychometricAssessment = typeof psychometricAssessments.$inferInsert;
+
+// ─── Buzón de Comunicación Interna ────────────────────────────────────────────
+export const internalMessages = mysqlTable("internal_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("company_id"),
+  senderId: int("sender_id").references(() => users.id),
+  assignedTo: int("assigned_to").references(() => users.id),
+  // Categoría: "sugerencia" | "queja" | "felicitacion" | "capacitacion" | "otro"
+  category: varchar("category", { length: 30 }).notNull().default("sugerencia"),
+  subject: varchar("subject", { length: 200 }).notNull(),
+  body: text("body").notNull(),
+  // Estado: "nuevo" | "en_proceso" | "resuelto" | "cerrado"
+  status: varchar("status", { length: 20 }).notNull().default("nuevo"),
+  priority: varchar("priority", { length: 10 }).notNull().default("normal"),
+  isAnonymous: boolean("is_anonymous").default(false),
+  responseBody: text("response_body"),
+  respondedBy: int("responded_by").references(() => users.id),
+  respondedAt: timestamp("responded_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type InternalMessage = typeof internalMessages.$inferSelect;
+export type InsertInternalMessage = typeof internalMessages.$inferInsert;
