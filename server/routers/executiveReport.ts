@@ -34,10 +34,10 @@ export const executiveReportRouter = router({
       const pendingVacations = allVacations.filter(v => v.status === "pending").length;
       const approvedVacations = allVacations.filter(v => v.status === "approved").length;
 
-      const allCases = await db.select({ status: cases.status, riskLevel: cases.riskLevel }).from(cases);
+      const allCases = await db.select({ status: cases.status, priority: cases.priority }).from(cases);
       const totalCases = allCases.length;
       const openCases = allCases.filter(c => c.status !== "closed" && c.status !== "resolved").length;
-      const highRiskCases = allCases.filter(c => c.riskLevel === "high" || c.riskLevel === "critical").length;
+      const highRiskCases = allCases.filter(c => c.priority === "high" || c.priority === "critical").length;
 
       const allMessages = await db.select({ status: internalMessages.status }).from(internalMessages);
       const pendingMessages = allMessages.filter(m => m.status === "nuevo" || m.status === "en_proceso").length;

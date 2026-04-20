@@ -49,10 +49,10 @@ interface ExtraFields {
 }
 
 const defaultForm = {
-  category: "sugerencia" as string,
+  category: "sugerencia" as "sugerencia" | "queja" | "felicitacion" | "capacitacion" | "otro",
   subject: "",
   body: "",
-  priority: "normal" as string,
+  priority: "normal" as "baja" | "normal" | "alta" | "urgente",
   isAnonymous: false,
   extra: {} as ExtraFields,
 };
@@ -389,7 +389,7 @@ export default function InternalMailbox() {
                   <div className="grid grid-cols-3 gap-2">
                     {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
                       <button key={k} type="button"
-                        onClick={() => setForm(f => ({ ...f, category: k, extra: {} }))}
+                        onClick={() => setForm(f => ({ ...f, category: k as "sugerencia" | "queja" | "felicitacion" | "capacitacion" | "otro", extra: {} }))}
                         className={`flex flex-col items-center gap-1 p-2 rounded-lg border text-xs font-medium transition-all ${form.category === k ? "border-blue-500 bg-blue-50 text-blue-700" : "border-muted hover:border-blue-300"}`}>
                         {v.icon}
                         <span>{v.label}</span>
@@ -405,7 +405,7 @@ export default function InternalMailbox() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Prioridad</label>
-                    <select className="w-full text-sm border rounded px-2 py-1.5 mt-1" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}>
+                    <select className="w-full text-sm border rounded px-2 py-1.5 mt-1" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value as "baja" | "normal" | "alta" | "urgente" }))}>
                       {Object.entries(PRIORITY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                     </select>
                   </div>
