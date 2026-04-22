@@ -297,3 +297,9 @@
 - [ ] Instalar xlsx y agregar exportación a Excel en ExecutiveReport.tsx
 - [ ] Agregar alerta automática de alto riesgo psicométrico en psychometric router
 - [ ] Guardar checkpoint final del sprint
+
+## Sprint: Filtro Mapa Calor + Badge Sidebar + PDF Psicométrico — Abril 2026
+
+- [ ] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo
+- [ ] Badge mensajes no leídos en sidebar junto a Mis Mensajes
+- [ ] Exportación PDF expediente psicométrico completo en PsychometricTab

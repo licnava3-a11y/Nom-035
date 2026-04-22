@@ -3,7 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock, FileText, ExternalLink } from "lucide-react";
+import { ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock, FileText, ExternalLink, Download } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface Props {
@@ -69,6 +69,102 @@ export function PsychometricTab({ employeeId, employeeName }: Props) {
   const pageQuestions = questions.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
   const answeredCount = Object.keys(answers).length;
   const allAnswered = answeredCount === questions.length;
+
+  const exportPDF = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) { toast.error("No se pudo abrir la ventana de impresión"); return; }
+
+    const riskColors: Record<string, string> = {
+      nulo: "#6b7280", bajo: "#16a34a", medio: "#ca8a04", alto: "#ea580c", muy_alto: "#dc2626"
+    };
+    const riskLabels: Record<string, string> = {
+      nulo: "Nulo", bajo: "Bajo", medio: "Medio", alto: "Alto", muy_alto: "Muy Alto"
+    };
+
+    const historyRows = (history || []).map((rec: any) => `
+      <tr>
+        <td>${new Date(rec.createdAt).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</td>
+        <td style="color:${riskColors[rec.riskLevel || "nulo"]};font-weight:bold">${riskLabels[rec.riskLevel || "nulo"]}</td>
+        <td style="text-align:center">${rec.scoreTotal}</td>
+        <td>${rec.notes || "—"}</td>
+      </tr>
+    `).join("");
+
+    const domainRows = latest ? Object.entries(DOMAIN_LABELS).map(([key, label]) => {
+      const camel = "score" + key.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
+      const score = (latest as any)[camel] as number || 0;
+      const color = score > 8 ? "#dc2626" : score > 4 ? "#ca8a04" : "#16a34a";
+      return `<tr><td>${label}</td><td style="text-align:center;color:${color};font-weight:bold">${score}</td></tr>`;
+    }).join("") : "";
+
+    const casesRows = (relatedCases as any[]).map((c: any) => `
+      <tr>
+        <td>${c.caseNumber}</td>
+        <td>${c.caseType === "stress" ? "Estrés laboral" : c.caseType === "burnout" ? "Burnout" : c.caseType}</td>
+        <td>${c.priority === "critical" ? "Crítico" : c.priority === "high" ? "Alto" : "Medio"}</td>
+        <td>${c.status === "open" ? "Abierto" : c.status === "investigating" ? "En investigación" : c.status === "resolved" ? "Resuelto" : "Cerrado"}</td>
+        <td>${new Date(c.createdAt).toLocaleDateString("es-MX")}</td>
+      </tr>
+    `).join("");
+
+    printWindow.document.write(`
+      <!DOCTYPE html><html lang="es"><head>
+      <meta charset="UTF-8">
+      <title>Expediente Psicométrico — ${employeeName}</title>
+      <style>
+        @page { size: A4; margin: 20mm 15mm; }
+        body { font-family: Arial, sans-serif; font-size: 11px; color: #1f2937; }
+        h1 { font-size: 18px; color: #1e1b4b; margin: 0 0 4px; }
+        h2 { font-size: 13px; color: #4338ca; border-bottom: 2px solid #4338ca; padding-bottom: 4px; margin: 20px 0 10px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .header-info { color: #6b7280; font-size: 10px; }
+        .risk-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        th { background: #4338ca; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+        td { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; }
+        tr:nth-child(even) td { background: #f9fafb; }
+        .footer { margin-top: 30px; font-size: 9px; color: #9ca3af; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 10px; }
+        .no-data { color: #9ca3af; font-style: italic; padding: 8px; }
+      </style>
+      </head><body>
+      <div class="header">
+        <div>
+          <h1>Expediente Psicométrico NOM-035</h1>
+          <p style="margin:4px 0;color:#6b7280">Guía de Referencia III — Evaluación del Entorno Organizacional</p>
+          <p style="margin:4px 0;font-size:13px;font-weight:bold">${employeeName}</p>
+        </div>
+        <div class="header-info" style="text-align:right">
+          <p>Generado: ${new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</p>
+          <p>Conforme a NOM-035-STPS-2018</p>
+        </div>
+      </div>
+
+      ${latest ? `
+      <h2>Evaluación Más Reciente</h2>
+      <p>Fecha: <strong>${new Date(latest.createdAt).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}</strong> &nbsp;|&nbsp;
+         Puntaje total: <strong>${latest.scoreTotal}</strong> &nbsp;|&nbsp;
+         Nivel de riesgo: <span class="risk-badge" style="background:${riskColors[latest.riskLevel || "nulo"]}22;color:${riskColors[latest.riskLevel || "nulo"]}">${riskLabels[latest.riskLevel || "nulo"]}</span>
+      </p>
+      <h2>Puntajes por Dominio</h2>
+      <table><thead><tr><th>Dominio</th><th style="text-align:center">Puntaje</th></tr></thead><tbody>${domainRows}</tbody></table>
+      ` : "<p class='no-data'>Sin evaluaciones registradas</p>"}
+
+      <h2>Historial de Evaluaciones</h2>
+      ${historyRows ? `<table><thead><tr><th>Fecha</th><th>Nivel de Riesgo</th><th style="text-align:center">Puntaje</th><th>Notas</th></tr></thead><tbody>${historyRows}</tbody></table>` : "<p class='no-data'>Sin historial</p>"}
+
+      <h2>Casos NOM-035 Generados Automáticamente</h2>
+      ${casesRows ? `<table><thead><tr><th>Número de Caso</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Fecha</th></tr></thead><tbody>${casesRows}</tbody></table>` : "<p class='no-data'>Sin casos generados</p>"}
+
+      <div class="footer">
+        <p>Este documento es confidencial y forma parte del expediente de cumplimiento NOM-035-STPS-2018.</p>
+        <p>Generado automáticamente por el Sistema de Gestión de Talento — ${new Date().toLocaleString("es-MX")}</p>
+      </div>
+      </body></html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); }, 500);
+  };
 
   const handleSubmit = () => {
     if (!allAnswered) {
@@ -158,8 +254,8 @@ export function PsychometricTab({ employeeId, employeeName }: Props) {
           <p className="text-sm text-muted-foreground">{employeeName} — Guia de Referencia III</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <FileText className="h-4 w-4 mr-1" />Imprimir PDF
+          <Button variant="outline" size="sm" onClick={exportPDF}>
+            <Download className="h-4 w-4 mr-1" />Exportar PDF
           </Button>
           <Button size="sm" onClick={() => setMode("questionnaire")} className="bg-purple-600 hover:bg-purple-700 text-white">
             Nueva Evaluacion

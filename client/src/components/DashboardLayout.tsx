@@ -461,6 +461,11 @@ function DashboardLayoutContent({
     staleTime: 1 * 60 * 1000, // 1 minuto - reconocimientos cambian frecuentemente
     gcTime: 5 * 60 * 1000, // 5 minutos en cache
   });
+  const { data: mailboxUnread } = trpc.internalMailbox.getUnreadCount.useQuery(undefined, {
+    refetchInterval: 2 * 60 * 1000,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
@@ -668,6 +673,9 @@ function DashboardLayoutContent({
                                   )}
                                   {subItem.label === "Reconocimientos" && recognitionsCount && recognitionsCount.count > 0 && (
                                     <MenuBadge count={recognitionsCount.count} variant="info" />
+                                  )}
+                                  {subItem.label === "Mis Mensajes" && mailboxUnread && mailboxUnread.count > 0 && (
+                                    <MenuBadge count={mailboxUnread.count} variant="danger" />
                                   )}
                                   {subItem.label === "Configuración SMTP" && (
                                     <span className="ml-auto flex items-center gap-1 shrink-0">

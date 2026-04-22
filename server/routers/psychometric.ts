@@ -158,13 +158,14 @@ export const psychometricRouter = router({
       return { success: true, scoreTotal, riskLevel, autoCaseCreated };
     }),
 
-  getRiskByDepartment: protectedProcedure.query(async () => {
+  getRiskByDepartment: protectedProcedure
+    .input(z.object({ companyId: z.number().optional() }).optional())
+    .query(async ({ input }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-    const { departments } = await import("../../drizzle/schema");
     const { sql: drizzleSql } = await import("drizzle-orm");
-
-    // Get latest assessment per employee with their department
+    const companyId = input?.companyId;
+    // Get latest assessment per employee with their department, filtered by companyId if provided
     const rows = await db.execute(drizzleSql`
       SELECT
         d.id AS departmentId,
@@ -184,13 +185,14 @@ export const psychometricRouter = router({
         INNER JOIN (
           SELECT employee_id, MAX(created_at) AS max_date
           FROM psychometric_assessments
+          ${companyId ? drizzleSql`WHERE company_id = ${companyId}` : drizzleSql``}
           GROUP BY employee_id
         ) pa2 ON pa1.employee_id = pa2.employee_id AND pa1.created_at = pa2.max_date
+        ${companyId ? drizzleSql`WHERE pa1.company_id = ${companyId}` : drizzleSql``}
       ) pa ON pa.employee_id = e.id
       GROUP BY d.id, d.name
       ORDER BY avgScore DESC
     `);
-
     return (rows as any).rows || rows || [];
   }),
 });

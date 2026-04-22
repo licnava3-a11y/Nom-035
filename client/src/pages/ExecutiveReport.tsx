@@ -80,10 +80,14 @@ function TrendChart({
 export default function ExecutiveReport() {
   const [trendMonths, setTrendMonths] = useState(6);
   const [chartJsLoaded, setChartJsLoaded] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(undefined);
 
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
   const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
-  const { data: deptRisk = [] } = trpc.psychometric.getRiskByDepartment.useQuery();
+  const { data: deptRisk = [] } = trpc.psychometric.getRiskByDepartment.useQuery(
+    selectedCompanyId !== undefined ? { companyId: selectedCompanyId } : undefined
+  );
+  const { data: companiesList = [] } = trpc.superAdmin.listCompaniesSimple.useQuery();
 
   function exportToExcel() {
     const wb = XLSX.utils.book_new();
@@ -407,11 +411,30 @@ export default function ExecutiveReport() {
             {/* Mapa de calor psicométrico por departamento */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <ClipboardCheck className="h-4 w-4 text-purple-600" />
-                  Riesgo Psicométrico por Departamento
-                </CardTitle>
-                <p className="text-xs text-muted-foreground">Basado en la última evaluación NOM-035 Guía III de cada empleado activo</p>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <ClipboardCheck className="h-4 w-4 text-purple-600" />
+                      Riesgo Psicométrico por Departamento
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Basado en la última evaluación NOM-035 Guía III de cada empleado activo</p>
+                  </div>
+                  {(companiesList as any[]).length > 0 && (
+                    <div className="flex items-center gap-2 print:hidden">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">Empresa:</span>
+                      <select
+                        className="text-xs border rounded px-2 py-1 bg-background"
+                        value={selectedCompanyId ?? ""}
+                        onChange={e => setSelectedCompanyId(e.target.value ? Number(e.target.value) : undefined)}
+                      >
+                        <option value="">Todas</option>
+                        {(companiesList as any[]).map((c: any) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {(deptRisk as any[]).length === 0 ? (

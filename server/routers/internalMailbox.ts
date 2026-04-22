@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { internalMessages, notifications } from "../../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, isNotNull, isNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { emitNotificationToUser } from "../_core/websocket";
 
@@ -181,5 +181,18 @@ export const internalMailboxRouter = router({
       otro: all.filter(m => m.category === "otro").length,
     };
     return { total, nuevo, en_proceso, resuelto, cerrado, byCategory };
+  }),
+
+  /** Conteo de mensajes con respuesta no leída para el badge del sidebar */
+  getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    const unread = await db.select({ id: internalMessages.id }).from(internalMessages)
+      .where(and(
+        eq(internalMessages.senderId, ctx.user.id),
+        isNotNull(internalMessages.responseBody),
+        isNull(internalMessages.responseReadAt)
+      ));
+    return { count: unread.length };
   }),
 });

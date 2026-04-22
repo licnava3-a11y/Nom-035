@@ -358,4 +358,16 @@ export const superAdminRouter = router({
       })),
     };
   }),
+
+  /** Listado simple de empresas activas para selectores en el frontend (accesible para todos los usuarios autenticados) */
+  listCompaniesSimple: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    const rows = await db
+      .select({ id: companies.id, name: companies.razonSocial, rfc: companies.rfc })
+      .from(companies)
+      .where(eq(companies.status, "active"))
+      .orderBy(companies.razonSocial);
+    return rows;
+  }),
 });
