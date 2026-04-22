@@ -1001,6 +1001,29 @@ export const appRouter = router({
           casesByStatus: (casesByStatus as any).rows || [],
         };
       }),
+
+    getByEmployeeId: protectedProcedure
+      .input(z.object({ employeeId: z.number() }))
+      .query(async ({ input }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+        const { cases } = await import('../drizzle/schema');
+        const { eq, desc } = await import('drizzle-orm');
+        // Cases linked by reporterEmail matching employee email, or by description containing employee id
+        // We use the caseNumber prefix 'AUTO-' to identify auto-generated cases and filter by description
+        const allCases = await dbInstance
+          .select()
+          .from(cases)
+          .orderBy(desc(cases.createdAt))
+          .limit(200);
+        // Filter cases that mention this employee in description (auto-generated cases include employee id)
+        const employeeCases = allCases.filter((c: any) =>
+          c.description?.includes(`empleado #${input.employeeId}`) ||
+          c.description?.includes(`employee_id:${input.employeeId}`) ||
+          c.caseNumber?.startsWith(`AUTO-PSICO-${input.employeeId}-`)
+        );
+        return employeeCases;
+      }),
   }),
 
   // Committee members

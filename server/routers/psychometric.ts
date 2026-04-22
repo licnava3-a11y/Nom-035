@@ -157,4 +157,40 @@ export const psychometricRouter = router({
 
       return { success: true, scoreTotal, riskLevel, autoCaseCreated };
     }),
+
+  getRiskByDepartment: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    const { departments } = await import("../../drizzle/schema");
+    const { sql: drizzleSql } = await import("drizzle-orm");
+
+    // Get latest assessment per employee with their department
+    const rows = await db.execute(drizzleSql`
+      SELECT
+        d.id AS departmentId,
+        d.name AS departmentName,
+        COUNT(DISTINCT pa.employee_id) AS totalAssessed,
+        AVG(pa.score_total) AS avgScore,
+        SUM(CASE WHEN pa.risk_level IN ('alto', 'muy_alto') THEN 1 ELSE 0 END) AS highRiskCount,
+        SUM(CASE WHEN pa.risk_level = 'muy_alto' THEN 1 ELSE 0 END) AS veryHighRiskCount,
+        SUM(CASE WHEN pa.risk_level = 'alto' THEN 1 ELSE 0 END) AS highCount,
+        SUM(CASE WHEN pa.risk_level = 'medio' THEN 1 ELSE 0 END) AS mediumCount,
+        SUM(CASE WHEN pa.risk_level IN ('bajo', 'nulo') THEN 1 ELSE 0 END) AS lowCount
+      FROM departments d
+      LEFT JOIN employees e ON e.department_id = d.id AND e.is_active = 1
+      LEFT JOIN (
+        SELECT pa1.*
+        FROM psychometric_assessments pa1
+        INNER JOIN (
+          SELECT employee_id, MAX(created_at) AS max_date
+          FROM psychometric_assessments
+          GROUP BY employee_id
+        ) pa2 ON pa1.employee_id = pa2.employee_id AND pa1.created_at = pa2.max_date
+      ) pa ON pa.employee_id = e.id
+      GROUP BY d.id, d.name
+      ORDER BY avgScore DESC
+    `);
+
+    return (rows as any).rows || rows || [];
+  }),
 });

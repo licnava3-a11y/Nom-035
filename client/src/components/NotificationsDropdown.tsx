@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { Bell, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -82,6 +82,12 @@ export function NotificationsDropdown() {
     return new Date(date).toLocaleDateString();
   };
   
+  // Mensajes no leídos del buzón interno del usuario
+  const { data: myMessages = [] } = trpc.internalMailbox.myMessages.useQuery({ limit: 50 }, {
+    refetchInterval: 30000,
+  });
+  const unreadMailboxCount = (myMessages as any[]).filter((m: any) => m.responseBody && !m.responseReadAt).length;
+
   const recentNotifications = notifications.slice(0, 5);
   
   return (
@@ -106,6 +112,24 @@ export function NotificationsDropdown() {
             <Badge variant="secondary">{displayUnreadCount} nuevas</Badge>
           )}
         </DropdownMenuLabel>
+        {unreadMailboxCount > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="flex items-center gap-2 p-3 cursor-pointer bg-blue-50 hover:bg-blue-100"
+              onClick={() => setLocation("/my-mailbox")}
+            >
+              <MessageSquare className="h-4 w-4 text-blue-600 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-blue-700">
+                  {unreadMailboxCount} respuesta{unreadMailboxCount > 1 ? "s" : ""} sin leer
+                </p>
+                <p className="text-xs text-blue-500">Ver en Mis Mensajes</p>
+              </div>
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         {recentNotifications.length === 0 ? (
           <div className="p-4 text-center text-sm text-muted-foreground">

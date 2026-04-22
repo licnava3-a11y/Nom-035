@@ -3,7 +3,8 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock, FileText } from "lucide-react";
+import { ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock, FileText, ExternalLink } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface Props {
   employeeId: number;
@@ -35,10 +36,12 @@ export function PsychometricTab({ employeeId, employeeName }: Props) {
   const [notes, setNotes] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const PAGE_SIZE = 5;
+  const [, setLocation] = useLocation();
 
   const { data: questData } = trpc.psychometric.getQuestions.useQuery();
   const { data: history, isLoading: hLoading, refetch } = trpc.psychometric.getHistory.useQuery({ employeeId });
   const { data: latest } = trpc.psychometric.getLatest.useQuery({ employeeId });
+  const { data: relatedCases = [] } = trpc.cases.getByEmployeeId.useQuery({ employeeId });
 
   const submitMutation = trpc.psychometric.submit.useMutation({
     onSuccess: (data) => {
@@ -228,6 +231,44 @@ export function PsychometricTab({ employeeId, employeeName }: Props) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Casos NOM-035 generados automáticamente */}
+      {(relatedCases as any[]).length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            Casos NOM-035 Generados Automáticamente
+          </h4>
+          {(relatedCases as any[]).map((c: any) => (
+            <div
+              key={c.id}
+              className="flex items-center justify-between p-3 rounded-lg border border-orange-200 bg-orange-50 cursor-pointer hover:bg-orange-100 transition-colors"
+              onClick={() => setLocation(`/cases/${c.id}`)}
+            >
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-4 w-4 text-orange-600 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-orange-800">{c.caseNumber}</p>
+                  <p className="text-xs text-orange-600">
+                    {c.caseType === "stress" ? "Estrés laboral" : c.caseType === "burnout" ? "Burnout" : c.caseType} — {c.status === "open" ? "Abierto" : c.status === "investigating" ? "En investigación" : c.status === "resolved" ? "Resuelto" : "Cerrado"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{new Date(c.createdAt).toLocaleDateString("es-MX")}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  c.priority === "critical" ? "bg-red-100 text-red-700" :
+                  c.priority === "high" ? "bg-orange-100 text-orange-700" :
+                  "bg-yellow-100 text-yellow-700"
+                }`}>
+                  {c.priority === "critical" ? "Crítico" : c.priority === "high" ? "Alto" : "Medio"}
+                </span>
+                <ExternalLink className="h-4 w-4 text-orange-500" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

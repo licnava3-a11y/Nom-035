@@ -83,6 +83,7 @@ export default function ExecutiveReport() {
 
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
   const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
+  const { data: deptRisk = [] } = trpc.psychometric.getRiskByDepartment.useQuery();
 
   function exportToExcel() {
     const wb = XLSX.utils.book_new();
@@ -402,6 +403,59 @@ export default function ExecutiveReport() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Mapa de calor psicométrico por departamento */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ClipboardCheck className="h-4 w-4 text-purple-600" />
+                  Riesgo Psicométrico por Departamento
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">Basado en la última evaluación NOM-035 Guía III de cada empleado activo</p>
+              </CardHeader>
+              <CardContent>
+                {(deptRisk as any[]).length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">Sin datos de evaluaciones psicométricas aún</p>
+                ) : (
+                  <div className="space-y-2">
+                    {(deptRisk as any[]).map((dept: any) => {
+                      const avg = parseFloat(dept.avgScore) || 0;
+                      const total = parseInt(dept.totalAssessed) || 0;
+                      const highRisk = parseInt(dept.highRiskCount) || 0;
+                      const pct = total > 0 ? Math.round((highRisk / total) * 100) : 0;
+                      const riskColor = avg >= 80 ? "bg-red-500" : avg >= 50 ? "bg-orange-400" : avg >= 25 ? "bg-yellow-400" : "bg-green-400";
+                      const textColor = avg >= 80 ? "text-red-700" : avg >= 50 ? "text-orange-700" : avg >= 25 ? "text-yellow-700" : "text-green-700";
+                      const bgColor = avg >= 80 ? "bg-red-50" : avg >= 50 ? "bg-orange-50" : avg >= 25 ? "bg-yellow-50" : "bg-green-50";
+                      return (
+                        <div key={dept.departmentId} className={`flex items-center gap-3 p-2 rounded-lg ${bgColor}`}>
+                          <div className="w-36 text-xs font-medium truncate" title={dept.departmentName}>{dept.departmentName || "Sin departamento"}</div>
+                          <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div className={`h-3 rounded-full transition-all ${riskColor}`} style={{ width: `${Math.min((avg / 140) * 100, 100)}%` }} />
+                          </div>
+                          <div className="w-16 text-right">
+                            <span className={`text-xs font-bold ${textColor}`}>{avg.toFixed(1)}</span>
+                            <span className="text-xs text-muted-foreground">/140</span>
+                          </div>
+                          <div className="w-20 text-right text-xs">
+                            {total > 0 ? (
+                              <span className={highRisk > 0 ? "text-red-600 font-semibold" : "text-muted-foreground"}>
+                                {highRisk > 0 ? `⚠ ${pct}% riesgo` : `${total} eval.`}
+                              </span>
+                            ) : <span className="text-gray-400">Sin datos</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-muted-foreground border-t">
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-400 inline-block" /> Bajo (0–24)</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" /> Medio (25–49)</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-400 inline-block" /> Alto (50–79)</span>
+                      <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> Muy alto (80+)</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Print footer */}
             <div className="hidden print:block border-t pt-4 mt-6 text-xs text-gray-500">
