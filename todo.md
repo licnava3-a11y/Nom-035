@@ -303,3 +303,9 @@
 - [ ] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo
 - [ ] Badge mensajes no leídos en sidebar junto a Mis Mensajes
 - [ ] Exportación PDF expediente psicométrico completo en PsychometricTab
+
+## Sprint: Gráfica Psicométrica + Excel Buzón + Job Recordatorio — Abril 2026
+
+- [ ] Gráfica Chart.js evolución puntaje psicométrico en PsychometricTab con umbrales de riesgo
+- [ ] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal
+- [ ] Job programado recordatorio anual evaluación psicométrica con notificación al admin RH

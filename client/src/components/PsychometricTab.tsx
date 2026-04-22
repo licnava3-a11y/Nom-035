@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock, FileText, ExternalLink, Download } from "lucide-react";
+import { ClipboardCheck, AlertTriangle, CheckCircle2, XCircle, Clock, FileText, ExternalLink, Download, TrendingUp } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface Props {
@@ -29,6 +29,117 @@ const DOMAIN_LABELS: Record<string, string> = {
   relationships: "Relaciones en el trabajo",
   violence: "Violencia",
 };
+
+// Chart.js component for psychometric score evolution
+function PsychometricChart({ history }: { history: Array<{ createdAt: Date | string; scoreTotal: number; riskLevel: string | null }> }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Dynamically import Chart.js to avoid SSR issues
+    import("chart.js/auto").then(({ default: Chart }) => {
+      // Sort history ascending by date
+      const sorted = [...history].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      const labels = sorted.map(r => new Date(r.createdAt).toLocaleDateString("es-MX", { month: "short", year: "2-digit" }));
+      const scores = sorted.map(r => r.scoreTotal);
+
+      // Destroy existing chart if any
+      const existing = Chart.getChart(canvas);
+      if (existing) existing.destroy();
+
+      new Chart(canvas, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Puntaje Total",
+              data: scores,
+              borderColor: "#7c3aed",
+              backgroundColor: "rgba(124,58,237,0.08)",
+              borderWidth: 2.5,
+              pointBackgroundColor: scores.map(s => s > 50 ? "#dc2626" : s > 30 ? "#ea580c" : s > 16 ? "#ca8a04" : "#16a34a"),
+              pointRadius: 5,
+              tension: 0.3,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx: any) => {
+                  const s = ctx.parsed?.y ?? 0;
+                  const risk = s > 50 ? "Muy Alto" : s > 30 ? "Alto" : s > 16 ? "Medio" : s > 0 ? "Bajo" : "Nulo";
+                  return `Puntaje: ${s} — Riesgo: ${risk}`;
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: 80,
+              ticks: { stepSize: 10 },
+              grid: { color: "rgba(0,0,0,0.05)" },
+              title: { display: true, text: "Puntaje", font: { size: 11 } },
+            },
+            x: { grid: { display: false } },
+          },
+        },
+        plugins: [
+          {
+            id: "riskThresholds",
+            afterDraw(chart: any) {
+              const { ctx, chartArea, scales } = chart;
+              if (!chartArea) return;
+              const { left, right } = chartArea;
+              const y = scales.y;
+              const thresholds = [
+                { value: 16, color: "#ca8a04", label: "Bajo/Medio" },
+                { value: 30, color: "#ea580c", label: "Medio/Alto" },
+                { value: 50, color: "#dc2626", label: "Alto/Muy Alto" },
+              ];
+              thresholds.forEach(({ value, color, label }) => {
+                const yPos = y.getPixelForValue(value);
+                ctx.save();
+                ctx.setLineDash([6, 3]);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(left, yPos);
+                ctx.lineTo(right, yPos);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = color;
+                ctx.font = "9px sans-serif";
+                ctx.fillText(label, right + 4, yPos + 3);
+                ctx.restore();
+              });
+            },
+          },
+        ],
+      });
+    });
+  }, [history]);
+
+  return (
+    <div style={{ height: 220 }}>
+      <canvas ref={canvasRef} />
+      <div className="flex gap-4 mt-2 justify-center text-xs text-muted-foreground">
+        <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-green-600 inline-block" /> Bajo (0-16)</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-yellow-600 inline-block" /> Medio (17-30)</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-orange-600 inline-block" /> Alto (31-50)</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-red-600 inline-block" /> Muy Alto (&gt;50)</span>
+      </div>
+    </div>
+  );
+}
 
 export function PsychometricTab({ employeeId, employeeName }: Props) {
   const [mode, setMode] = useState<"history" | "questionnaire">("history");
@@ -292,6 +403,21 @@ export function PsychometricTab({ employeeId, employeeName }: Props) {
                 })}
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Gráfica de evolución del puntaje psicométrico */}
+      {history && history.length >= 2 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-purple-600" />
+              Evolución del Puntaje Psicométrico
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PsychometricChart history={(history || []).map(h => ({ ...h, scoreTotal: h.scoreTotal ?? 0 }))} />
           </CardContent>
         </Card>
       )}

@@ -45,6 +45,7 @@ import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
 import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
 import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
 import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-alerts-job";
+import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -289,6 +290,9 @@ async function startServer() {
         runMonthlyReportsJob().catch(console.error);
       }
     }, 60000); // Check every minute
+
+    // Psychometric Annual Reminder Job (1st of each month at 9:00 AM)
+    startPsychometricReminderJob();
   });
 }
 

@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip } from "lucide-react";
+import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip, FileDown } from "lucide-react";
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode; description: string }> = {
   sugerencia:   { label: "Sugerencia",             color: "bg-blue-100 text-blue-800",   icon: <HelpCircle className="h-4 w-4" />,    description: "Propuesta de mejora para la organización" },
@@ -197,6 +197,34 @@ export default function InternalMailbox() {
     return true;
   });
 
+  const exportToExcel = async () => {
+    try {
+      const { utils, writeFile } = await import("xlsx");
+      const rows = (filteredMessages as any[]).map((m) => ({
+        "ID": m.id,
+        "Asunto": m.subject,
+        "Categoría": CATEGORY_CONFIG[m.category]?.label || m.category,
+        "Estado": STATUS_CONFIG[m.status]?.label || m.status,
+        "Prioridad": PRIORITY_CONFIG[m.priority]?.label || m.priority,
+        "Anónimo": m.isAnonymous ? "Sí" : "No",
+        "Remitente ID": m.isAnonymous ? "Anónimo" : String(m.senderId || ""),
+        "Asignado a ID": String(m.assignedTo || ""),
+        "Respuesta": m.responseBody || "",
+        "Fecha Creación": new Date(m.createdAt).toLocaleDateString("es-MX"),
+        "Fecha Respuesta": m.respondedAt ? new Date(m.respondedAt).toLocaleDateString("es-MX") : "",
+      }));
+      const ws = utils.json_to_sheet(rows);
+      const wb = utils.book_new();
+      utils.book_append_sheet(wb, ws, "Buzón Interno");
+      const catLabel = filterCategory !== "all" ? `_${CATEGORY_CONFIG[filterCategory]?.label || filterCategory}` : "";
+      const stLabel = filterStatus !== "all" ? `_${STATUS_CONFIG[filterStatus]?.label || filterStatus}` : "";
+      writeFile(wb, `buzon_interno${catLabel}${stLabel}_${new Date().toISOString().slice(0,10)}.xlsx`);
+      toast.success(`${rows.length} mensajes exportados a Excel`);
+    } catch (err) {
+      toast.error("Error al exportar a Excel");
+    }
+  };
+
   // Build body with extra fields appended
   const buildBody = () => {
     let body = form.body;
@@ -275,6 +303,9 @@ export default function InternalMailbox() {
                 <option value="all">Todos los estados</option>
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select>
+              <Button variant="outline" size="sm" className="text-xs h-7 px-2" onClick={exportToExcel}>
+                <FileDown className="h-3.5 w-3.5 mr-1" />Excel
+              </Button>
             </div>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground text-sm">Cargando...</div>
