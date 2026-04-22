@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { internalMessages, notifications } from "../../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { emitNotificationToUser } from "../_core/websocket";
 
@@ -131,6 +131,36 @@ export const internalMailboxRouter = router({
         }
       }
 
+      return { success: true };
+    }),
+
+  // Employee view: see own messages with unread indicator
+  myMessages: protectedProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(50),
+    }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const rows = await db.select().from(internalMessages)
+        .where(eq(internalMessages.senderId, ctx.user.id))
+        .orderBy(desc(internalMessages.createdAt))
+        .limit(input.limit);
+      return rows;
+    }),
+
+  // Mark a message response as read (clear unread indicator)
+  markResponseRead: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      await db.update(internalMessages)
+        .set({ responseReadAt: new Date() })
+        .where(and(
+          eq(internalMessages.id, input.id),
+          eq(internalMessages.senderId, ctx.user.id)
+        ));
       return { success: true };
     }),
 

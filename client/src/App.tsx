@@ -183,6 +183,7 @@ const SuperAdminPanel = lazy(() => import("./pages/SuperAdminPanel"));
 const LegalPortada = lazy(() => import("./pages/LegalPortada"));
 const InternalMailbox = lazy(() => import("./pages/InternalMailbox"));
 const ExecutiveReport = lazy(() => import("./pages/ExecutiveReport"));
+const MyMailbox = lazy(() => import("./pages/MyMailbox"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
 const WorkplaceViolenceProtocol = lazy(() => import("./pages/cases/WorkplaceViolenceProtocol"));
@@ -1385,6 +1386,11 @@ function Router() {
         <Route path="/executive-report">
           <Suspense fallback={<PageLoader />}>
             <ExecutiveReport />
+          </Suspense>
+        </Route>
+        <Route path="/my-mailbox">
+          <Suspense fallback={<PageLoader />}>
+            <MyMailbox />
           </Suspense>
         </Route>
         <Route path={"/job-application"}>

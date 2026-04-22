@@ -42,7 +42,15 @@ export function PsychometricTab({ employeeId, employeeName }: Props) {
 
   const submitMutation = trpc.psychometric.submit.useMutation({
     onSuccess: (data) => {
-      toast.success(`Evaluacion completada — Riesgo: ${RISK_CONFIG[data.riskLevel]?.label || data.riskLevel} (Puntaje: ${data.scoreTotal})`);
+      const riskLabel = RISK_CONFIG[data.riskLevel]?.label || data.riskLevel;
+      if (data.autoCaseCreated) {
+        toast.warning(
+          `⚠️ Riesgo ${riskLabel} detectado (Puntaje: ${data.scoreTotal}). Se creó automáticamente un caso NOM-035 y se notificó al administrador de RH.`,
+          { duration: 8000 }
+        );
+      } else {
+        toast.success(`Evaluación completada — Riesgo: ${riskLabel} (Puntaje: ${data.scoreTotal})`);
+      }
       setMode("history");
       setAnswers({});
       setNotes("");

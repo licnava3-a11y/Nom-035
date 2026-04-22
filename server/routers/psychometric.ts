@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { psychometricAssessments } from "../../drizzle/schema";
+import { psychometricAssessments, cases, employees } from "../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { notifyOwner } from "../_core/notification";
 
 export const NOM035_QUESTIONS = [
   { id: 1, domain: "work_conditions", text: "Mi trabajo me exige hacer mucho esfuerzo fisico" },
@@ -122,6 +123,38 @@ export const psychometricRouter = router({
         scoreInterference, scoreLeadership, scoreRelationships, scoreViolence,
         scoreTotal, riskLevel, notes: notes || null,
       });
-      return { success: true, scoreTotal, riskLevel };
+
+      // Alerta automática si el riesgo es alto o muy alto
+      let autoCaseCreated = false;
+      if (riskLevel === "alto" || riskLevel === "muy_alto") {
+        try {
+          // Obtener nombre del empleado para el reporte
+          const [emp] = await db.select({ firstName: employees.firstName, lastName: employees.lastName, departmentId: employees.departmentId })
+            .from(employees).where(eq(employees.id, employeeId)).limit(1);
+          const empName = emp ? `${emp.firstName} ${emp.lastName}` : `Empleado #${employeeId}`;
+          const caseNumber = `PSI-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+          const priority = riskLevel === "muy_alto" ? "critical" : "high";
+          await db.insert(cases).values({
+            caseNumber,
+            caseType: "stress",
+            description: `Caso generado automáticamente por evaluación psicométrica NOM-035 con nivel de riesgo ${riskLevel === "muy_alto" ? "MUY ALTO" : "ALTO"}. Empleado: ${empName}. Puntaje total: ${scoreTotal}/140. Dominios críticos: condiciones de trabajo (${scoreWorkConditions}), carga de trabajo (${scoreWorkload}), falta de control (${scoreLackControl}), violencia (${scoreViolence}).`,
+            isAnonymous: false,
+            status: "open",
+            priority,
+            departmentId: emp?.departmentId || null,
+          });
+          autoCaseCreated = true;
+          // Notificar al propietario/administrador de RH
+          await notifyOwner({
+            title: `⚠️ Alerta Psicométrica ${riskLevel === "muy_alto" ? "MUY ALTO" : "ALTO"} — ${empName}`,
+            content: `La evaluación NOM-035 del empleado ${empName} arrojó un nivel de riesgo psicosocial ${riskLevel === "muy_alto" ? "MUY ALTO" : "ALTO"} (puntaje: ${scoreTotal}/140). Se creó automáticamente el caso ${caseNumber} para seguimiento inmediato. Dominios críticos: carga de trabajo (${scoreWorkload}), falta de control (${scoreLackControl}), violencia (${scoreViolence}).`,
+          });
+        } catch (err) {
+          // No bloquear el flujo si la alerta falla
+          console.error("[Psychometric Alert] Error al crear caso automático:", err);
+        }
+      }
+
+      return { success: true, scoreTotal, riskLevel, autoCaseCreated };
     }),
 });

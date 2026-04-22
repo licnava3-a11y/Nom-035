@@ -5598,6 +5598,7 @@ export const internalMessages = mysqlTable("internal_messages", {
   responseBody: text("response_body"),
   respondedBy: int("responded_by").references(() => users.id),
   respondedAt: timestamp("responded_at"),
+  responseReadAt: timestamp("response_read_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });

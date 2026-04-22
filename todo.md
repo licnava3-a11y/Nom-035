@@ -288,3 +288,12 @@
 - [ ] Botón "Asignar empresa" en tabla de usuarios del SuperAdminPanel
 - [ ] Procedure superAdmin.assignCompany para vincular userId a companyId
 - [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4
+
+## Sprint: My-Mailbox + Excel Export + Alerta Psicométrica — Abril 2026
+
+- [ ] Crear página /my-mailbox para empleados con historial de mensajes e indicador no-leído
+- [ ] Agregar procedure myMessages en internalMailbox router
+- [ ] Agregar ruta /my-mailbox en App.tsx y entrada en sidebar DashboardLayout
+- [ ] Instalar xlsx y agregar exportación a Excel en ExecutiveReport.tsx
+- [ ] Agregar alerta automática de alto riesgo psicométrico en psychometric router
+- [ ] Guardar checkpoint final del sprint

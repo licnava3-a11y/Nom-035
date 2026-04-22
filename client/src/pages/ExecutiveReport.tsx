@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import * as XLSX from "xlsx";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, Printer, BarChart2 } from "lucide-react";
+import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, Printer, BarChart2, FileSpreadsheet } from "lucide-react";
 
 // Chart.js loaded from CDN via useEffect
 declare const Chart: any;
@@ -83,6 +84,61 @@ export default function ExecutiveReport() {
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
   const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
 
+  function exportToExcel() {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: KPIs Globales
+    if (kpis) {
+      const kpiRows = [
+        ["KPI", "Valor", "Descripción"],
+        ["Total Empleados", kpis.employees.total, "Total de empleados en el sistema"],
+        ["Empleados Activos", kpis.employees.active, "Empleados activos"],
+        ["Tasa de Rotación", `${kpis.employees.turnoverRate}%`, "Porcentaje de rotación"],
+        ["Cursos Totales", kpis.training.totalCourses, "Cursos registrados"],
+        ["Capacitaciones Completadas", kpis.training.completedAssignments, "Asignaciones completadas"],
+        ["Tasa de Completación", `${kpis.training.completionRate}%`, "Porcentaje de completación"],
+        ["Vacaciones Pendientes", kpis.vacations.pending, "Solicitudes pendientes de aprobación"],
+        ["Vacaciones Aprobadas", kpis.vacations.approved, "Solicitudes aprobadas"],
+        ["Casos NOM-035 Abiertos", kpis.cases.open, "Casos abiertos de riesgo psicosocial"],
+        ["Casos de Alto Riesgo", kpis.cases.highRisk, "Casos con prioridad alta o crítica"],
+        ["Mensajes Buzón Interno", kpis.mailbox.total, "Total de mensajes en el buzón"],
+        ["Mensajes Pendientes", kpis.mailbox.pending, "Mensajes sin resolver"],
+        ["Evaluaciones Psicométricas", kpis.psychometric.total, "Total de evaluaciones realizadas"],
+        ["Alto Riesgo Psicométrico", kpis.psychometric.highRisk, "Evaluaciones con riesgo alto o muy alto"],
+      ];
+      const wsKPIs = XLSX.utils.aoa_to_sheet(kpiRows);
+      wsKPIs["!cols"] = [{ wch: 35 }, { wch: 15 }, { wch: 45 }];
+      XLSX.utils.book_append_sheet(wb, wsKPIs, "KPIs Globales");
+    }
+
+    // Sheet 2: Tendencias Mensuales
+    if (trends && trends.labels && trends.cases) {
+      const trendHeader = ["Mes", "Casos NOM-035", "Capacitaciones Completadas", "Buzón Interno", "Salidas", "Psicométricas"];
+      const trendRows = trends.labels.map((label: string, i: number) => [
+        label,
+        trends.cases?.[i] ?? 0,
+        trends.trainingCompletions?.[i] ?? 0,
+        trends.mailboxMessages?.[i] ?? 0,
+        trends.employeeExits?.[i] ?? 0,
+        trends.psychometricAssessments?.[i] ?? 0,
+      ]);
+      const wsTrends = XLSX.utils.aoa_to_sheet([trendHeader, ...trendRows]);
+      wsTrends["!cols"] = [{ wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, wsTrends, "Tendencias Mensuales");
+    }
+
+    // Sheet 3: Metadata
+    const metaRows = [
+      ["Reporte Ejecutivo Consolidado NOM-035 STPS"],
+      ["Generado el", new Date().toLocaleString("es-MX")],
+      ["Período de tendencias", `${trendMonths} meses`],
+    ];
+    const wsMeta = XLSX.utils.aoa_to_sheet(metaRows);
+    XLSX.utils.book_append_sheet(wb, wsMeta, "Metadatos");
+
+    XLSX.writeFile(wb, `Reporte_Ejecutivo_NOM035_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+
   // Load Chart.js from CDN
   useEffect(() => {
     if (typeof Chart !== "undefined") { setChartJsLoaded(true); return; }
@@ -121,6 +177,9 @@ export default function ExecutiveReport() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => refetch()}>Actualizar</Button>
+            <Button variant="outline" onClick={exportToExcel} className="border-green-600 text-green-700 hover:bg-green-50">
+              <FileSpreadsheet className="h-4 w-4 mr-2" />Exportar Excel
+            </Button>
             <Button onClick={() => window.print()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
               <Printer className="h-4 w-4 mr-2" />Imprimir / PDF
             </Button>
