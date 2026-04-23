@@ -184,6 +184,41 @@ export const internalMailboxRouter = router({
   }),
 
   /**
+   * Historial de notificaciones enviadas al empleado para un mensaje específico
+   */
+  getNotificationHistory: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      // Fetch the message to get senderId
+      const [msg] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.messageId)).limit(1);
+      if (!msg || !msg.senderId) return { history: [], total: 0 };
+
+      const history = await db.select({
+        id: notifications.id,
+        title: notifications.title,
+        message: notifications.message,
+        createdAt: notifications.createdAt,
+        isRead: notifications.isRead,
+      })
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.userId, msg.senderId),
+            eq(notifications.type, "mailbox_status_change"),
+            eq(notifications.relatedEntityId, input.messageId),
+          )
+        )
+        .orderBy(desc(notifications.createdAt))
+        .limit(20);
+
+      return { history, total: history.length };
+    }),
+
+  /**
    * Enviar notificación push al empleado remitente indicando que tiene una respuesta pendiente en Mi Buzón
    */
   notifyEmployee: protectedProcedure

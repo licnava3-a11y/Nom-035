@@ -169,11 +169,17 @@ export default function InternalMailbox() {
   const [filterDateTo, setFilterDateTo] = useState("");
   const [form, setForm] = useState(defaultForm);
   const [responseText, setResponseText] = useState("");
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [notifyCustomMsg, setNotifyCustomMsg] = useState("");
+  const [showNotifHistory, setShowNotifHistory] = useState(false);
 
   const { data: stats } = trpc.internalMailbox.getStats.useQuery();
   const { data: messages, isLoading, refetch } = trpc.internalMailbox.list.useQuery({ category: "all", status: "all" });
   const { data: selectedMsg, refetch: refetchSelected } = trpc.internalMailbox.getById.useQuery(
     { id: selectedId! }, { enabled: selectedId !== null }
+  );
+  const { data: notifHistory, refetch: refetchHistory } = trpc.internalMailbox.getNotificationHistory.useQuery(
+    { messageId: selectedId! }, { enabled: selectedId !== null && showNotifHistory }
   );
 
   const createMutation = trpc.internalMailbox.create.useMutation({
@@ -194,7 +200,12 @@ export default function InternalMailbox() {
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
   const notifyEmployeeMutation = trpc.internalMailbox.notifyEmployee.useMutation({
-    onSuccess: () => toast.success("Notificación push enviada al empleado correctamente"),
+    onSuccess: () => {
+      toast.success("Notificación push enviada al empleado correctamente");
+      setShowNotifyModal(false);
+      setNotifyCustomMsg("");
+      if (showNotifHistory) refetchHistory();
+    },
     onError: (e: any) => toast.error(`Error al notificar: ${e.message}`),
   });
 
@@ -425,6 +436,43 @@ export default function InternalMailbox() {
                       ))}
                     </div>
                   </div>
+                  {/* Notification history toggle */}
+                  {!selectedMsg.isAnonymous && selectedMsg.senderId && (
+                    <div className="border-t pt-3">
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => { setShowNotifHistory(v => !v); }}
+                      >
+                        <Bell className="h-3.5 w-3.5" />
+                        Historial de notificaciones enviadas
+                        {notifHistory && notifHistory.total > 0 && (
+                          <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full font-semibold">{notifHistory.total}</span>
+                        )}
+                        <span className="ml-auto">{showNotifHistory ? "▲" : "▼"}</span>
+                      </button>
+                      {showNotifHistory && (
+                        <div className="mt-2 space-y-1.5 max-h-40 overflow-y-auto">
+                          {!notifHistory || notifHistory.history.length === 0 ? (
+                            <p className="text-xs text-muted-foreground italic">No se han enviado notificaciones aún para este mensaje.</p>
+                          ) : notifHistory.history.map((n: any) => (
+                            <div key={n.id} className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-100 rounded text-xs">
+                              <Bell className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-amber-800 truncate">{n.title}</p>
+                                {n.message && <p className="text-muted-foreground truncate">{n.message}</p>}
+                                <p className="text-muted-foreground/70 mt-0.5">{new Date(n.createdAt).toLocaleString("es-MX")}</p>
+                              </div>
+                              <span className={`shrink-0 text-xs px-1.5 py-0.5 rounded-full ${n.isRead ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-700 font-medium"}`}>
+                                {n.isRead ? "Leída" : "No leída"}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {selectedMsg.status !== "cerrado" && (
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-muted-foreground">Responder al remitente:</p>
@@ -438,13 +486,11 @@ export default function InternalMailbox() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => notifyEmployeeMutation.mutate({ id: selectedMsg.id })}
-                            disabled={notifyEmployeeMutation.isPending}
+                            onClick={() => setShowNotifyModal(true)}
                             className="border-amber-500 text-amber-700 hover:bg-amber-50"
                             title="Enviar notificación push al empleado para que revise su buzón"
                           >
-                            <Bell className="h-4 w-4 mr-1" />
-                            {notifyEmployeeMutation.isPending ? "Notificando..." : "Notificar al empleado"}
+                            <Bell className="h-4 w-4 mr-1" />Notificar al empleado
                           </Button>
                         ) : (
                           <span className="text-xs text-muted-foreground flex items-center gap-1 italic">
@@ -467,8 +513,59 @@ export default function InternalMailbox() {
           </div>
         </div>
 
-        {/* New message modal */}
-        {showNew && (
+          {/* Notify employee modal */}
+          {showNotifyModal && selectedMsg && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <Card className="w-full max-w-md">
+                <CardHeader className="pb-3 border-b">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <span className="flex items-center gap-2">
+                      <Bell className="h-4 w-4 text-amber-600" />
+                      Notificar al Empleado
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={() => { setShowNotifyModal(false); setNotifyCustomMsg(""); }}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div className="bg-amber-50 border border-amber-200 rounded p-3">
+                    <p className="text-xs font-medium text-amber-800 mb-1">Mensaje seleccionado:</p>
+                    <p className="text-sm font-medium truncate">{selectedMsg.subject}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Se notificará al remitente para que revise su buzón en <strong>/mi-buzon</strong></p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Mensaje personalizado <span className="text-muted-foreground/60">(opcional, máx. 300 caracteres)</span>
+                    </label>
+                    <textarea
+                      className="w-full text-sm border rounded p-2 resize-none"
+                      rows={3}
+                      maxLength={300}
+                      placeholder="Ej: Hemos revisado su mensaje y tenemos una respuesta para usted. Por favor revise su buzón..."
+                      value={notifyCustomMsg}
+                      onChange={e => setNotifyCustomMsg(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground text-right">{notifyCustomMsg.length}/300</p>
+                  </div>
+                  <div className="flex gap-2 justify-end pt-2 border-t">
+                    <Button variant="outline" onClick={() => { setShowNotifyModal(false); setNotifyCustomMsg(""); }}>Cancelar</Button>
+                    <Button
+                      onClick={() => notifyEmployeeMutation.mutate({ id: selectedMsg.id, customMessage: notifyCustomMsg.trim() || undefined })}
+                      disabled={notifyEmployeeMutation.isPending}
+                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      <Bell className="h-4 w-4 mr-1" />
+                      {notifyEmployeeMutation.isPending ? "Enviando..." : "Enviar Notificación"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* New message modal */}
+          {showNew && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <Card className="w-full max-w-xl max-h-[90vh] overflow-y-auto">
               <CardHeader className="pb-3 sticky top-0 bg-card z-10 border-b">

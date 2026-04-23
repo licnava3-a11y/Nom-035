@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, TrendingDown, Printer, BarChart2, FileSpreadsheet, ArrowUp, ArrowDown, Minus } from "lucide-react";
+import { toast } from "sonner";
 
 // Chart.js loaded from CDN via useEffect
 declare const Chart: any;
@@ -90,6 +91,45 @@ export default function ExecutiveReport() {
   const { data: riskComparison } = trpc.psychometric.getRiskComparison.useQuery(
     selectedCompanyId !== undefined ? { companyId: selectedCompanyId } : undefined
   );
+
+  const exportRiskComparisonToExcel = async () => {
+    if (!riskComparison || riskComparison.comparison.length === 0) return;
+    try {
+      const { utils, writeFile } = await import("xlsx");
+      const trendLabel = (t: string) => t === "up" ? "Sube" : t === "down" ? "Baja" : "Estable";
+      const rows = riskComparison.comparison.map((row: any) => ({
+        "Departamento": row.departmentName,
+        [`Puntaje ${riskComparison.previousMonthLabel}`]: row.previous.avgScore > 0 ? row.previous.avgScore.toFixed(1) : "Sin datos",
+        [`Puntaje ${riskComparison.currentMonthLabel}`]: row.current.avgScore > 0 ? row.current.avgScore.toFixed(1) : "Sin datos",
+        "Δ Puntaje": row.deltaScore !== 0 ? (row.deltaScore > 0 ? `+${row.deltaScore.toFixed(1)}` : row.deltaScore.toFixed(1)) : "0",
+        "Empleados evaluados (actual)": row.current.totalAssessed,
+        "Alto riesgo (actual)": row.current.highRiskCount,
+        "Δ Alto riesgo": row.deltaHighRisk !== 0 ? (row.deltaHighRisk > 0 ? `+${row.deltaHighRisk}` : row.deltaHighRisk) : "0",
+        "Tendencia": trendLabel(row.trend),
+      }));
+      const ws = utils.json_to_sheet(rows);
+      const wb = utils.book_new();
+      utils.book_append_sheet(wb, ws, "Comparativa Psicométrica");
+      // Metadata sheet
+      const meta = utils.json_to_sheet([
+        { "Campo": "Período actual", "Valor": riskComparison.currentMonthLabel },
+        { "Campo": "Período anterior", "Valor": riskComparison.previousMonthLabel },
+        { "Campo": "Generado el", "Valor": new Date().toLocaleString("es-MX") },
+        { "Campo": "Escala puntaje", "Valor": "0–140 (NOM-035 STPS 2018)" },
+        { "Campo": "Umbral tendencia", "Valor": "±2 puntos" },
+        { "Campo": "Riesgo bajo", "Valor": "0–24" },
+        { "Campo": "Riesgo medio", "Valor": "25–49" },
+        { "Campo": "Riesgo alto", "Valor": "50–79" },
+        { "Campo": "Riesgo muy alto", "Valor": "80–140" },
+      ]);
+      utils.book_append_sheet(wb, meta, "Referencia NOM-035");
+      const dateStr = new Date().toISOString().slice(0, 10);
+      writeFile(wb, `comparativa_psicometrica_NOM035_${dateStr}.xlsx`);
+      toast.success(`${rows.length} departamentos exportados a Excel`);
+    } catch {
+      toast.error("Error al exportar la comparativa");
+    }
+  };
   const { data: companiesList = [] } = trpc.superAdmin.listCompaniesSimple.useQuery();
 
   function exportToExcel() {
@@ -501,6 +541,15 @@ export default function ExecutiveReport() {
                       <span className="flex items-center gap-1"><ArrowUp className="h-3 w-3 text-red-500" /> Riesgo aumentó</span>
                       <span className="flex items-center gap-1"><ArrowDown className="h-3 w-3 text-green-500" /> Riesgo bajó</span>
                       <span className="flex items-center gap-1"><Minus className="h-3 w-3 text-gray-400" /> Sin cambio</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2 text-xs border-green-600 text-green-700 hover:bg-green-50 ml-2"
+                        onClick={exportRiskComparisonToExcel}
+                        title="Exportar comparativa a Excel para auditoría STPS"
+                      >
+                        <FileSpreadsheet className="h-3.5 w-3.5 mr-1" />Excel STPS
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>

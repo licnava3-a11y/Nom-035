@@ -309,3 +309,6 @@
 - [ ] Gráfica Chart.js evolución puntaje psicométrico en PsychometricTab con umbrales de riesgo
 - [ ] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal
 - [ ] Job programado recordatorio anual evaluación psicométrica con notificación al admin RH
+- [x] Exportar comparativa psicométrica a Excel en /executive-report
+- [x] Modal de mensaje personalizado en "Notificar al empleado" del buzón
+- [x] Historial de notificaciones enviadas por mensaje en detalle del buzón
