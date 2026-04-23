@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, Printer, BarChart2, FileSpreadsheet } from "lucide-react";
+import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, TrendingDown, Printer, BarChart2, FileSpreadsheet, ArrowUp, ArrowDown, Minus } from "lucide-react";
 
 // Chart.js loaded from CDN via useEffect
 declare const Chart: any;
@@ -85,6 +85,9 @@ export default function ExecutiveReport() {
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
   const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
   const { data: deptRisk = [] } = trpc.psychometric.getRiskByDepartment.useQuery(
+    selectedCompanyId !== undefined ? { companyId: selectedCompanyId } : undefined
+  );
+  const { data: riskComparison } = trpc.psychometric.getRiskComparison.useQuery(
     selectedCompanyId !== undefined ? { companyId: selectedCompanyId } : undefined
   );
   const { data: companiesList = [] } = trpc.superAdmin.listCompaniesSimple.useQuery();
@@ -479,6 +482,106 @@ export default function ExecutiveReport() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Dashboard comparativo psicométrico: mes actual vs. mes anterior */}
+            {riskComparison && riskComparison.comparison.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <TrendingDown className="h-4 w-4 text-indigo-600" />
+                        Comparativa de Riesgo Psicométrico por Período
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Tendencia por departamento: <span className="font-semibold">{riskComparison.currentMonthLabel}</span> vs. <span className="font-semibold">{riskComparison.previousMonthLabel}</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground print:hidden">
+                      <span className="flex items-center gap-1"><ArrowUp className="h-3 w-3 text-red-500" /> Riesgo aumentó</span>
+                      <span className="flex items-center gap-1"><ArrowDown className="h-3 w-3 text-green-500" /> Riesgo bajó</span>
+                      <span className="flex items-center gap-1"><Minus className="h-3 w-3 text-gray-400" /> Sin cambio</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-xs text-muted-foreground">
+                          <th className="text-left py-2 pr-4 font-medium">Departamento</th>
+                          <th className="text-right py-2 px-3 font-medium">{riskComparison.previousMonthLabel}</th>
+                          <th className="text-right py-2 px-3 font-medium">{riskComparison.currentMonthLabel}</th>
+                          <th className="text-right py-2 px-3 font-medium">Δ Puntaje</th>
+                          <th className="text-right py-2 px-3 font-medium">Alto Riesgo</th>
+                          <th className="text-center py-2 pl-3 font-medium">Tendencia</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {riskComparison.comparison.map((row: any) => {
+                          const currAvg = row.current.avgScore;
+                          const prevAvg = row.previous.avgScore;
+                          const riskColor = currAvg >= 80 ? "text-red-700" : currAvg >= 50 ? "text-orange-600" : currAvg >= 25 ? "text-yellow-600" : "text-green-600";
+                          const deltaColor = row.deltaScore > 2 ? "text-red-600" : row.deltaScore < -2 ? "text-green-600" : "text-gray-500";
+                          const deltaHighRiskColor = row.deltaHighRisk > 0 ? "text-red-600" : row.deltaHighRisk < 0 ? "text-green-600" : "text-gray-500";
+                          return (
+                            <tr key={row.departmentId} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                              <td className="py-2 pr-4">
+                                <span className="font-medium truncate block max-w-[160px]" title={row.departmentName}>{row.departmentName}</span>
+                                <span className="text-xs text-muted-foreground">{row.current.totalAssessed} eval. actuales</span>
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                <span className="text-muted-foreground">{prevAvg > 0 ? prevAvg.toFixed(1) : "—"}</span>
+                                {prevAvg > 0 && <span className="text-xs text-muted-foreground">/140</span>}
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                <span className={`font-semibold ${riskColor}`}>{currAvg > 0 ? currAvg.toFixed(1) : "—"}</span>
+                                {currAvg > 0 && <span className="text-xs text-muted-foreground">/140</span>}
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                <span className={`font-semibold ${deltaColor}`}>
+                                  {row.deltaScore > 0 ? "+" : ""}{row.deltaScore !== 0 ? row.deltaScore.toFixed(1) : "—"}
+                                </span>
+                              </td>
+                              <td className="text-right py-2 px-3">
+                                <span className={`font-semibold ${deltaHighRiskColor}`}>
+                                  {row.current.highRiskCount > 0 ? (
+                                    <>
+                                      {row.current.highRiskCount}
+                                      {row.deltaHighRisk !== 0 && (
+                                        <span className="text-xs ml-1">({row.deltaHighRisk > 0 ? "+" : ""}{row.deltaHighRisk})</span>
+                                      )}
+                                    </>
+                                  ) : <span className="text-muted-foreground">0</span>}
+                                </span>
+                              </td>
+                              <td className="text-center py-2 pl-3">
+                                {row.trend === "up" ? (
+                                  <span className="inline-flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                                    <ArrowUp className="h-3 w-3" />Sube
+                                  </span>
+                                ) : row.trend === "down" ? (
+                                  <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                    <ArrowDown className="h-3 w-3" />Baja
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                    <Minus className="h-3 w-3" />Estable
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3 border-t pt-2">
+                    Δ Puntaje: diferencia de puntaje promedio NOM-035 (escala 0–140). Valores positivos indican mayor riesgo psicosocial. Umbral de tendencia: ±2 puntos.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Print footer */}
             <div className="hidden print:block border-t pt-4 mt-6 text-xs text-gray-500">

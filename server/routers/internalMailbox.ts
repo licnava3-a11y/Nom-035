@@ -183,6 +183,63 @@ export const internalMailboxRouter = router({
     return { total, nuevo, en_proceso, resuelto, cerrado, byCategory };
   }),
 
+  /**
+   * Enviar notificación push al empleado remitente indicando que tiene una respuesta pendiente en Mi Buzón
+   */
+  notifyEmployee: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      customMessage: z.string().max(300).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const [msg] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.id)).limit(1);
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND", message: "Mensaje no encontrado" });
+      if (msg.isAnonymous || !msg.senderId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No se puede notificar a un remitente anónimo" });
+      }
+
+      const categoryLabels: Record<string, string> = {
+        sugerencia: "Sugerencia",
+        queja: "Queja",
+        felicitacion: "Felicitación",
+        capacitacion: "Solicitud de Capacitación",
+        otro: "Mensaje",
+      };
+      const categoryLabel = categoryLabels[msg.category] || "Mensaje";
+      const notifTitle = `Tienes una respuesta pendiente en tu ${categoryLabel}`;
+      const notifMsg = input.customMessage
+        ? input.customMessage
+        : `Tu ${categoryLabel} "${msg.subject}" tiene una respuesta del responsable de RH. Ingresa a Mi Buzón para leerla.`;
+
+      const inserted = await db.insert(notifications).values({
+        userId: msg.senderId,
+        type: "mailbox_status_change",
+        title: notifTitle,
+        message: notifMsg,
+        relatedEntityType: "mailbox",
+        relatedEntityId: input.id,
+        isRead: false,
+      }).$returningId();
+
+      const notifId = Array.isArray(inserted) ? inserted[0]?.id : (inserted as any)?.id;
+      if (notifId) {
+        emitNotificationToUser(msg.senderId, {
+          id: notifId,
+          type: "mailbox_status_change",
+          title: notifTitle,
+          message: notifMsg,
+          read: false,
+          createdAt: new Date(),
+        });
+      }
+
+      return { success: true, notifiedUserId: msg.senderId };
+    }),
+
   /** Conteo de mensajes con respuesta no leída para el badge del sidebar */
   getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();

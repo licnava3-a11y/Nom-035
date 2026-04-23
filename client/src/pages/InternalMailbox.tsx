@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip, FileDown } from "lucide-react";
+import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip, FileDown, Bell } from "lucide-react";
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode; description: string }> = {
   sugerencia:   { label: "Sugerencia",             color: "bg-blue-100 text-blue-800",   icon: <HelpCircle className="h-4 w-4" />,    description: "Propuesta de mejora para la organización" },
@@ -164,6 +164,9 @@ export default function InternalMailbox() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterPriority, setFilterPriority] = useState("all");
+  const [filterDateFrom, setFilterDateFrom] = useState("");
+  const [filterDateTo, setFilterDateTo] = useState("");
   const [form, setForm] = useState(defaultForm);
   const [responseText, setResponseText] = useState("");
 
@@ -190,12 +193,37 @@ export default function InternalMailbox() {
     onSuccess: () => { toast.success("Respuesta enviada al remitente"); setResponseText(""); refetch(); refetchSelected(); },
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
+  const notifyEmployeeMutation = trpc.internalMailbox.notifyEmployee.useMutation({
+    onSuccess: () => toast.success("Notificación push enviada al empleado correctamente"),
+    onError: (e: any) => toast.error(`Error al notificar: ${e.message}`),
+  });
 
   const filteredMessages = (messages || []).filter(m => {
     if (filterCategory !== "all" && m.category !== filterCategory) return false;
     if (filterStatus !== "all" && m.status !== filterStatus) return false;
+    if (filterPriority !== "all" && m.priority !== filterPriority) return false;
+    if (filterDateFrom) {
+      const msgDate = new Date(m.createdAt);
+      const from = new Date(filterDateFrom + "T00:00:00");
+      if (msgDate < from) return false;
+    }
+    if (filterDateTo) {
+      const msgDate = new Date(m.createdAt);
+      const to = new Date(filterDateTo + "T23:59:59");
+      if (msgDate > to) return false;
+    }
     return true;
   });
+
+  const clearFilters = () => {
+    setFilterCategory("all");
+    setFilterStatus("all");
+    setFilterPriority("all");
+    setFilterDateFrom("");
+    setFilterDateTo("");
+  };
+
+  const hasActiveFilters = filterCategory !== "all" || filterStatus !== "all" || filterPriority !== "all" || filterDateFrom !== "" || filterDateTo !== "";
 
   const exportToExcel = async () => {
     try {
@@ -218,7 +246,9 @@ export default function InternalMailbox() {
       utils.book_append_sheet(wb, ws, "Buzón Interno");
       const catLabel = filterCategory !== "all" ? `_${CATEGORY_CONFIG[filterCategory]?.label || filterCategory}` : "";
       const stLabel = filterStatus !== "all" ? `_${STATUS_CONFIG[filterStatus]?.label || filterStatus}` : "";
-      writeFile(wb, `buzon_interno${catLabel}${stLabel}_${new Date().toISOString().slice(0,10)}.xlsx`);
+      const prLabel = filterPriority !== "all" ? `_${PRIORITY_CONFIG[filterPriority]?.label || filterPriority}` : "";
+      const dateLabel = filterDateFrom || filterDateTo ? `_${filterDateFrom || "inicio"}_a_${filterDateTo || "hoy"}` : "";
+      writeFile(wb, `buzon_interno${catLabel}${stLabel}${prLabel}${dateLabel}_${new Date().toISOString().slice(0,10)}.xlsx`);
       toast.success(`${rows.length} mensajes exportados a Excel`);
     } catch (err) {
       toast.error("Error al exportar a Excel");
@@ -294,18 +324,37 @@ export default function InternalMailbox() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Message list */}
           <div className="lg:col-span-1 space-y-3">
-            <div className="flex gap-2 flex-wrap">
-              <select className="text-xs border rounded px-2 py-1" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-                <option value="all">Todas las categorías</option>
-                {Object.entries(CATEGORY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-              </select>
-              <select className="text-xs border rounded px-2 py-1" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-                <option value="all">Todos los estados</option>
-                {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-              </select>
-              <Button variant="outline" size="sm" className="text-xs h-7 px-2" onClick={exportToExcel}>
-                <FileDown className="h-3.5 w-3.5 mr-1" />Excel
-              </Button>
+            <div className="space-y-2">
+              <div className="flex gap-2 flex-wrap">
+                <select className="text-xs border rounded px-2 py-1" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                  <option value="all">Todas las categorías</option>
+                  {Object.entries(CATEGORY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                </select>
+                <select className="text-xs border rounded px-2 py-1" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                  <option value="all">Todos los estados</option>
+                  {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                </select>
+                <select className="text-xs border rounded px-2 py-1" value={filterPriority} onChange={e => setFilterPriority(e.target.value)}>
+                  <option value="all">Todas las prioridades</option>
+                  {Object.entries(PRIORITY_CONFIG).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                </select>
+              </div>
+              <div className="flex gap-2 flex-wrap items-center">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground">Desde:</span>
+                  <input type="date" className="text-xs border rounded px-2 py-1" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground">Hasta:</span>
+                  <input type="date" className="text-xs border rounded px-2 py-1" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} />
+                </div>
+                {hasActiveFilters && (
+                  <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-foreground underline">Limpiar filtros</button>
+                )}
+                <Button variant="outline" size="sm" className="text-xs h-7 px-2 border-green-600 text-green-700 hover:bg-green-50" onClick={exportToExcel}>
+                  <FileDown className="h-3.5 w-3.5 mr-1" />Excel ({filteredMessages.length})
+                </Button>
+              </div>
             </div>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground text-sm">Cargando...</div>
@@ -380,10 +429,29 @@ export default function InternalMailbox() {
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-muted-foreground">Responder al remitente:</p>
                       <textarea className="w-full text-sm border rounded p-2 resize-none" rows={3} placeholder="Escribir respuesta..." value={responseText} onChange={e => setResponseText(e.target.value)} />
-                      <Button size="sm" onClick={() => respondMutation.mutate({ id: selectedMsg.id, responseBody: responseText })}
-                        disabled={!responseText.trim() || respondMutation.isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Send className="h-4 w-4 mr-1" />{respondMutation.isPending ? "Enviando..." : "Enviar Respuesta"}
-                      </Button>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button size="sm" onClick={() => respondMutation.mutate({ id: selectedMsg.id, responseBody: responseText })}
+                          disabled={!responseText.trim() || respondMutation.isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
+                          <Send className="h-4 w-4 mr-1" />{respondMutation.isPending ? "Enviando..." : "Enviar Respuesta"}
+                        </Button>
+                        {!selectedMsg.isAnonymous && selectedMsg.senderId ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => notifyEmployeeMutation.mutate({ id: selectedMsg.id })}
+                            disabled={notifyEmployeeMutation.isPending}
+                            className="border-amber-500 text-amber-700 hover:bg-amber-50"
+                            title="Enviar notificación push al empleado para que revise su buzón"
+                          >
+                            <Bell className="h-4 w-4 mr-1" />
+                            {notifyEmployeeMutation.isPending ? "Notificando..." : "Notificar al empleado"}
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1 italic">
+                            <Bell className="h-3 w-3" />Mensaje anónimo — no se puede notificar
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </CardContent>

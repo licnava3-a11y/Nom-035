@@ -158,6 +158,90 @@ export const psychometricRouter = router({
       return { success: true, scoreTotal, riskLevel, autoCaseCreated };
     }),
 
+  getRiskComparison: protectedProcedure
+    .input(z.object({ companyId: z.number().optional() }).optional())
+    .query(async ({ input }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    const { sql: drizzleSql } = await import("drizzle-orm");
+    const companyId = input?.companyId;
+
+    const getRiskForPeriod = async (monthOffset: number) => {
+      const companyFilter = companyId ? drizzleSql`AND pa1.company_id = ${companyId}` : drizzleSql``;
+      const companyFilterInner = companyId ? drizzleSql`AND company_id = ${companyId}` : drizzleSql``;
+      const rows = await db.execute(drizzleSql`
+        SELECT
+          d.id AS departmentId,
+          d.name AS departmentName,
+          COUNT(DISTINCT pa.employee_id) AS totalAssessed,
+          AVG(pa.score_total) AS avgScore,
+          SUM(CASE WHEN pa.risk_level IN ('alto', 'muy_alto') THEN 1 ELSE 0 END) AS highRiskCount
+        FROM departments d
+        LEFT JOIN employees e ON e.department_id = d.id AND e.is_active = 1
+        LEFT JOIN (
+          SELECT pa1.*
+          FROM psychometric_assessments pa1
+          INNER JOIN (
+            SELECT employee_id, MAX(created_at) AS max_date
+            FROM psychometric_assessments
+            WHERE created_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${monthOffset + 1} MONTH), '%Y-%m-01')
+              AND created_at < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${monthOffset} MONTH), '%Y-%m-01')
+            ${companyFilterInner}
+            GROUP BY employee_id
+          ) pa2 ON pa1.employee_id = pa2.employee_id AND pa1.created_at = pa2.max_date
+          WHERE pa1.created_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${monthOffset + 1} MONTH), '%Y-%m-01')
+            AND pa1.created_at < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ${monthOffset} MONTH), '%Y-%m-01')
+          ${companyFilter}
+        ) pa ON pa.employee_id = e.id
+        GROUP BY d.id, d.name
+        ORDER BY d.name ASC
+      `);
+      return ((rows as any).rows || rows || []) as any[];
+    };
+
+    const [currentRows, previousRows] = await Promise.all([
+      getRiskForPeriod(0),
+      getRiskForPeriod(1),
+    ]);
+
+    const prevMap: Record<number, { avgScore: number; highRiskCount: number; totalAssessed: number }> = {};
+    for (const r of previousRows) {
+      prevMap[r.departmentId] = {
+        avgScore: parseFloat(r.avgScore) || 0,
+        highRiskCount: parseInt(r.highRiskCount) || 0,
+        totalAssessed: parseInt(r.totalAssessed) || 0,
+      };
+    }
+
+    const comparison = currentRows.map((r: any) => {
+      const curr = {
+        avgScore: parseFloat(r.avgScore) || 0,
+        highRiskCount: parseInt(r.highRiskCount) || 0,
+        totalAssessed: parseInt(r.totalAssessed) || 0,
+      };
+      const prev = prevMap[r.departmentId] || { avgScore: 0, highRiskCount: 0, totalAssessed: 0 };
+      const deltaScore = curr.avgScore - prev.avgScore;
+      const deltaHighRisk = curr.highRiskCount - prev.highRiskCount;
+      const trend: "up" | "down" | "stable" = deltaScore > 2 ? "up" : deltaScore < -2 ? "down" : "stable";
+      return {
+        departmentId: r.departmentId,
+        departmentName: r.departmentName || "Sin departamento",
+        current: curr,
+        previous: prev,
+        deltaScore: Math.round(deltaScore * 10) / 10,
+        deltaHighRisk,
+        trend,
+      };
+    });
+
+    const now = new Date();
+    const currentMonthLabel = now.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
+    const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const previousMonthLabel = prevDate.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
+
+    return { comparison, currentMonthLabel, previousMonthLabel };
+  }),
+
   getRiskByDepartment: protectedProcedure
     .input(z.object({ companyId: z.number().optional() }).optional())
     .query(async ({ input }) => {
