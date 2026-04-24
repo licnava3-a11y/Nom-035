@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip, FileDown, Bell } from "lucide-react";
+import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip, FileDown, Bell, FileText } from "lucide-react";
 
 const CATEGORY_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode; description: string }> = {
   sugerencia:   { label: "Sugerencia",             color: "bg-blue-100 text-blue-800",   icon: <HelpCircle className="h-4 w-4" />,    description: "Propuesta de mejora para la organización" },
@@ -159,6 +159,65 @@ function CategoryFormFields({ category, extra, onChange }: { category: string; e
   return null;
 }
 
+/**
+ * Genera y descarga un PDF con el historial de notificaciones de un mensaje del buzón
+ * Útil como evidencia documental para auditorías STPS
+ */
+function exportNotifHistoryToPDF(msg: any, history: any[]) {
+  const now = new Date().toLocaleString("es-MX");
+  const categoryLabels: Record<string, string> = {
+    sugerencia: "Sugerencia", queja: "Queja", felicitacion: "Felicitación",
+    capacitacion: "Solicitud de Capacitación", otro: "Mensaje",
+  };
+  const categoryLabel = categoryLabels[msg.category] || msg.category;
+
+  const rows = history.map((n: any, i: number) => `
+    <tr style="background:${i % 2 === 0 ? "#fffbeb" : "#ffffff"}">
+      <td style="padding:6px 10px;border:1px solid #fcd34d;font-size:12px">${i + 1}</td>
+      <td style="padding:6px 10px;border:1px solid #fcd34d;font-size:12px">${new Date(n.createdAt).toLocaleString("es-MX")}</td>
+      <td style="padding:6px 10px;border:1px solid #fcd34d;font-size:12px">${n.title}</td>
+      <td style="padding:6px 10px;border:1px solid #fcd34d;font-size:12px">${n.message || "—"}</td>
+      <td style="padding:6px 10px;border:1px solid #fcd34d;font-size:12px;text-align:center">
+        <span style="background:${n.isRead ? "#f3f4f6" : "#dbeafe"};color:${n.isRead ? "#6b7280" : "#1d4ed8"};padding:2px 8px;border-radius:9999px;font-size:11px">
+          ${n.isRead ? "Leída" : "No leída"}
+        </span>
+      </td>
+    </tr>`).join("");
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>Historial de Notificaciones — Evidencia STPS</title>
+  <style>body{font-family:Arial,sans-serif;margin:32px;color:#1e293b}h1{font-size:18px;color:#1e3a5f;margin-bottom:4px}h2{font-size:14px;color:#78350f;margin:0 0 16px}table{width:100%;border-collapse:collapse}th{background:#1e3a5f;color:#fff;padding:8px 10px;font-size:12px;text-align:left;border:1px solid #1e3a5f}.meta{font-size:12px;color:#64748b;margin-bottom:16px}.footer{margin-top:24px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px}</style>
+  </head><body>
+  <h1>Plataforma NOM-035 STPS 2018 — Evidencia de Comunicación Interna</h1>
+  <h2>Historial de Notificaciones Enviadas al Empleado</h2>
+  <div class="meta">
+    <strong>Asunto:</strong> ${msg.subject}<br>
+    <strong>Categoría:</strong> ${categoryLabel}<br>
+    <strong>Estado:</strong> ${msg.status}<br>
+    <strong>Total de notificaciones:</strong> ${history.length}<br>
+    <strong>Generado:</strong> ${now}
+  </div>
+  <table>
+    <thead><tr>
+      <th>#</th><th>Fecha y Hora</th><th>Título de Notificación</th><th>Mensaje Personalizado</th><th>Estado</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">Documento generado automáticamente por la Plataforma NOM-035 STPS 2018. Conservar como evidencia de cumplimiento normativo.</div>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `historial-notificaciones-${msg.id}-${new Date().toISOString().slice(0, 10)}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+  // Abrir en nueva pestaña para imprimir como PDF
+  const win = window.open(url, "_blank");
+  if (win) setTimeout(() => win.print(), 800);
+}
+
 export default function InternalMailbox() {
   const [showNew, setShowNew] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -180,6 +239,9 @@ export default function InternalMailbox() {
   );
   const { data: notifHistory, refetch: refetchHistory } = trpc.internalMailbox.getNotificationHistory.useQuery(
     { messageId: selectedId! }, { enabled: selectedId !== null && showNotifHistory }
+  );
+  const { data: lastNotifData } = trpc.internalMailbox.getLastNotification.useQuery(
+    { messageId: selectedId! }, { enabled: selectedId !== null && showNotifyModal }
   );
 
   const createMutation = trpc.internalMailbox.create.useMutation({
@@ -206,7 +268,10 @@ export default function InternalMailbox() {
       setNotifyCustomMsg("");
       if (showNotifHistory) refetchHistory();
     },
-    onError: (e: any) => toast.error(`Error al notificar: ${e.message}`),
+    onError: (e: any) => {
+      // Mostrar el mensaje del servidor directamente (incluye la fecha del próximo envío)
+      toast.error(e.message || "Error al notificar al empleado");
+    },
   });
 
   const filteredMessages = (messages || []).filter(m => {
@@ -439,18 +504,30 @@ export default function InternalMailbox() {
                   {/* Notification history toggle */}
                   {!selectedMsg.isAnonymous && selectedMsg.senderId && (
                     <div className="border-t pt-3">
-                      <button
-                        type="button"
-                        className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        onClick={() => { setShowNotifHistory(v => !v); }}
-                      >
-                        <Bell className="h-3.5 w-3.5" />
-                        Historial de notificaciones enviadas
-                        {notifHistory && notifHistory.total > 0 && (
-                          <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full font-semibold">{notifHistory.total}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex-1"
+                          onClick={() => { setShowNotifHistory(v => !v); }}
+                        >
+                          <Bell className="h-3.5 w-3.5" />
+                          Historial de notificaciones enviadas
+                          {notifHistory && notifHistory.total > 0 && (
+                            <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full font-semibold">{notifHistory.total}</span>
+                          )}
+                          <span className="ml-auto">{showNotifHistory ? "▲" : "▼"}</span>
+                        </button>
+                        {showNotifHistory && notifHistory && notifHistory.history.length > 0 && (
+                          <button
+                            type="button"
+                            title="Exportar historial a PDF (evidencia STPS)"
+                            onClick={() => exportNotifHistoryToPDF(selectedMsg, notifHistory.history)}
+                            className="shrink-0 flex items-center gap-1 text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 rounded border border-red-200 hover:bg-red-50 transition-colors"
+                          >
+                            <FileText className="h-3.5 w-3.5" />PDF
+                          </button>
                         )}
-                        <span className="ml-auto">{showNotifHistory ? "▲" : "▼"}</span>
-                      </button>
+                      </div>
                       {showNotifHistory && (
                         <div className="mt-2 space-y-1.5 max-h-40 overflow-y-auto">
                           {!notifHistory || notifHistory.history.length === 0 ? (
@@ -534,6 +611,20 @@ export default function InternalMailbox() {
                     <p className="text-sm font-medium truncate">{selectedMsg.subject}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Se notificará al remitente para que revise su buzón en <strong>/mi-buzon</strong></p>
                   </div>
+                  {lastNotifData?.isBlocked && (
+                    <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded p-3">
+                      <span className="text-red-500 text-lg leading-none mt-0.5">⚠️</span>
+                      <div>
+                        <p className="text-xs font-semibold text-red-700">Límite de 24 horas activo</p>
+                        <p className="text-xs text-red-600 mt-0.5">
+                          Ya se envió una notificación a este empleado. Próximo envío permitido:
+                        </p>
+                        <p className="text-xs font-medium text-red-700 mt-0.5">
+                          {lastNotifData.blockedUntil ? new Date(lastNotifData.blockedUntil).toLocaleString("es-MX") : ""}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <label className="text-xs font-medium text-muted-foreground block mb-1">
                       Mensaje personalizado <span className="text-muted-foreground/60">(opcional, máx. 300 caracteres)</span>
@@ -552,11 +643,12 @@ export default function InternalMailbox() {
                     <Button variant="outline" onClick={() => { setShowNotifyModal(false); setNotifyCustomMsg(""); }}>Cancelar</Button>
                     <Button
                       onClick={() => notifyEmployeeMutation.mutate({ id: selectedMsg.id, customMessage: notifyCustomMsg.trim() || undefined })}
-                      disabled={notifyEmployeeMutation.isPending}
-                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                      disabled={notifyEmployeeMutation.isPending || lastNotifData?.isBlocked === true}
+                      className="bg-amber-600 hover:bg-amber-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={lastNotifData?.isBlocked ? `Bloqueado hasta: ${lastNotifData.blockedUntil ? new Date(lastNotifData.blockedUntil).toLocaleString("es-MX") : ""}` : ""}
                     >
                       <Bell className="h-4 w-4 mr-1" />
-                      {notifyEmployeeMutation.isPending ? "Enviando..." : "Enviar Notificación"}
+                      {notifyEmployeeMutation.isPending ? "Enviando..." : lastNotifData?.isBlocked ? "Bloqueado (24h)" : "Enviar Notificación"}
                     </Button>
                   </div>
                 </CardContent>

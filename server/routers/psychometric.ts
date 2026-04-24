@@ -159,12 +159,16 @@ export const psychometricRouter = router({
     }),
 
   getRiskComparison: protectedProcedure
-    .input(z.object({ companyId: z.number().optional() }).optional())
+    .input(z.object({
+      companyId: z.number().optional(),
+      compareMonthsAgo: z.number().min(1).max(12).optional().default(1),
+    }).optional())
     .query(async ({ input }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
     const { sql: drizzleSql } = await import("drizzle-orm");
     const companyId = input?.companyId;
+    const compareMonthsAgo = input?.compareMonthsAgo ?? 1;
 
     const getRiskForPeriod = async (monthOffset: number) => {
       const companyFilter = companyId ? drizzleSql`AND pa1.company_id = ${companyId}` : drizzleSql``;
@@ -201,7 +205,7 @@ export const psychometricRouter = router({
 
     const [currentRows, previousRows] = await Promise.all([
       getRiskForPeriod(0),
-      getRiskForPeriod(1),
+      getRiskForPeriod(compareMonthsAgo),
     ]);
 
     const prevMap: Record<number, { avgScore: number; highRiskCount: number; totalAssessed: number }> = {};
@@ -236,10 +240,10 @@ export const psychometricRouter = router({
 
     const now = new Date();
     const currentMonthLabel = now.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
-    const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevDate = new Date(now.getFullYear(), now.getMonth() - compareMonthsAgo, 1);
     const previousMonthLabel = prevDate.toLocaleDateString("es-MX", { month: "long", year: "numeric" });
 
-    return { comparison, currentMonthLabel, previousMonthLabel };
+    return { comparison, currentMonthLabel, previousMonthLabel, compareMonthsAgo };
   }),
 
   getRiskByDepartment: protectedProcedure

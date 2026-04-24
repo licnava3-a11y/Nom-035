@@ -312,3 +312,6 @@
 - [x] Exportar comparativa psicométrica a Excel en /executive-report
 - [x] Modal de mensaje personalizado en "Notificar al empleado" del buzón
 - [x] Historial de notificaciones enviadas por mensaje en detalle del buzón
+- [ ] Límite 24h de notificaciones duplicadas en notifyEmployee
+- [x] Exportación PDF del historial de notificaciones del buzón
+- [ ] Selector de período histórico en comparativa psicométrica de /executive-report

@@ -82,6 +82,7 @@ export default function ExecutiveReport() {
   const [trendMonths, setTrendMonths] = useState(6);
   const [chartJsLoaded, setChartJsLoaded] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(undefined);
+  const [compareMonthsAgo, setCompareMonthsAgo] = useState(1);
 
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
   const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
@@ -89,7 +90,7 @@ export default function ExecutiveReport() {
     selectedCompanyId !== undefined ? { companyId: selectedCompanyId } : undefined
   );
   const { data: riskComparison } = trpc.psychometric.getRiskComparison.useQuery(
-    selectedCompanyId !== undefined ? { companyId: selectedCompanyId } : undefined
+    { companyId: selectedCompanyId, compareMonthsAgo }
   );
 
   const exportRiskComparisonToExcel = async () => {
@@ -537,14 +538,29 @@ export default function ExecutiveReport() {
                         Tendencia por departamento: <span className="font-semibold">{riskComparison.currentMonthLabel}</span> vs. <span className="font-semibold">{riskComparison.previousMonthLabel}</span>
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground print:hidden">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground print:hidden">
                       <span className="flex items-center gap-1"><ArrowUp className="h-3 w-3 text-red-500" /> Riesgo aumentó</span>
                       <span className="flex items-center gap-1"><ArrowDown className="h-3 w-3 text-green-500" /> Riesgo bajó</span>
                       <span className="flex items-center gap-1"><Minus className="h-3 w-3 text-gray-400" /> Sin cambio</span>
+                      <div className="flex items-center gap-1 ml-1 border-l pl-2">
+                        <span className="text-muted-foreground font-medium">Comparar con:</span>
+                        <select
+                          value={compareMonthsAgo}
+                          onChange={e => setCompareMonthsAgo(Number(e.target.value))}
+                          className="text-xs border rounded px-1.5 py-0.5 bg-background text-foreground h-6 cursor-pointer"
+                          title="Seleccionar período histórico a comparar contra el mes actual"
+                        >
+                          <option value={1}>Mes anterior</option>
+                          <option value={2}>Hace 2 meses</option>
+                          <option value={3}>Hace 3 meses</option>
+                          <option value={6}>Hace 6 meses</option>
+                          <option value={12}>Hace 12 meses</option>
+                        </select>
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 px-2 text-xs border-green-600 text-green-700 hover:bg-green-50 ml-2"
+                        className="h-7 px-2 text-xs border-green-600 text-green-700 hover:bg-green-50"
                         onClick={exportRiskComparisonToExcel}
                         title="Exportar comparativa a Excel para auditoría STPS"
                       >

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { internalMessages, notifications } from "../../drizzle/schema";
-import { eq, desc, and, isNotNull, isNull } from "drizzle-orm";
+import { eq, desc, and, isNotNull, isNull, gte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { emitNotificationToUser } from "../_core/websocket";
 
@@ -219,6 +219,43 @@ export const internalMailboxRouter = router({
     }),
 
   /**
+   * Consultar la última notificación enviada al empleado para un mensaje (para el modal de aviso 24h)
+   */
+  getLastNotification: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const [msg] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.messageId)).limit(1);
+      if (!msg || !msg.senderId) return { lastNotification: null, blockedUntil: null, isBlocked: false };
+
+      const [last] = await db.select({
+        id: notifications.id,
+        createdAt: notifications.createdAt,
+      })
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.userId, msg.senderId),
+            eq(notifications.type, "mailbox_status_change"),
+            eq(notifications.relatedEntityId, input.messageId),
+          )
+        )
+        .orderBy(desc(notifications.createdAt))
+        .limit(1);
+
+      if (!last) return { lastNotification: null, blockedUntil: null, isBlocked: false };
+
+      const lastTs = new Date(last.createdAt).getTime();
+      const blockedUntil = new Date(lastTs + 24 * 60 * 60 * 1000);
+      const isBlocked = Date.now() < blockedUntil.getTime();
+
+      return { lastNotification: last.createdAt, blockedUntil: blockedUntil.toISOString(), isBlocked };
+    }),
+
+  /**
    * Enviar notificación push al empleado remitente indicando que tiene una respuesta pendiente en Mi Buzón
    */
   notifyEmployee: protectedProcedure
@@ -235,6 +272,29 @@ export const internalMailboxRouter = router({
       if (!msg) throw new TRPCError({ code: "NOT_FOUND", message: "Mensaje no encontrado" });
       if (msg.isAnonymous || !msg.senderId) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "No se puede notificar a un remitente anónimo" });
+      }
+
+      // Validar límite de 24 horas entre notificaciones
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const [recentNotif] = await db.select({ id: notifications.id, createdAt: notifications.createdAt })
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.userId, msg.senderId),
+            eq(notifications.type, "mailbox_status_change"),
+            eq(notifications.relatedEntityId, input.id),
+            gte(notifications.createdAt, cutoff),
+          )
+        )
+        .orderBy(desc(notifications.createdAt))
+        .limit(1);
+
+      if (recentNotif) {
+        const blockedUntil = new Date(new Date(recentNotif.createdAt).getTime() + 24 * 60 * 60 * 1000);
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: `Ya se envió una notificación a este empleado. Próximo envío permitido: ${blockedUntil.toLocaleString("es-MX")}.`,
+        });
       }
 
       const categoryLabels: Record<string, string> = {
