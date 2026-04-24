@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   BookOpen, Plus, Pencil, Trash2, Eye, FileText, Search,
   CheckCircle2, Clock, XCircle, PlayCircle, Download, ChevronLeft,
-  Calendar, Users, DollarSign, BarChart3,
+  Calendar, Users, DollarSign, BarChart3, FileDown,
 } from "lucide-react";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -46,6 +47,57 @@ function ItemStatusBadge({ status }: { status: string }) {
       <Icon className="w-3 h-3" />{s.label}
     </span>
   );
+}
+
+// ─── Días sin actualizar ─────────────────────────────────────────────────────
+function diasSinActualizar(updatedAt: string | Date | null | undefined): number | null {
+  if (!updatedAt) return null;
+  return Math.floor((Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24));
+}
+function StaleBadge({ dias }: { dias: number | null }) {
+  if (dias === null) return <span className="text-slate-400 text-xs">—</span>;
+  if (dias <= 7)  return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">{dias}d</span>;
+  if (dias <= 30) return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700">{dias}d</span>;
+  return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">{dias}d ⚠</span>;
+}
+
+// ─── Exportar PAC a XLSX ──────────────────────────────────────────────────────
+function exportXLSX(plan: any, items: any[]) {
+  const MOD: Record<string, string> = { presencial: "Presencial", virtual: "Virtual", mixta: "Mixta", e_learning: "E-Learning" };
+  const STA: Record<string, string> = { pendiente: "Pendiente", en_proceso: "En Proceso", completado: "Completado", cancelado: "Cancelado" };
+  const rows = items.map((item) => ({
+    "Curso": item.courseName ?? "",
+    "Modalidad": MOD[item.modality] ?? item.modality ?? "",
+    "Horas": item.durationHours ?? "",
+    "Fecha Planeada": item.plannedDate ? new Date(item.plannedDate).toLocaleDateString("es-MX") : "",
+    "Fecha Real": item.actualDate ? new Date(item.actualDate).toLocaleDateString("es-MX") : "",
+    "Instructor": item.instructor ?? "",
+    "Participantes Meta": item.participantsTarget ?? "",
+    "Participantes Real": item.participantsActual ?? "",
+    "Costo Estimado": item.estimatedCost ?? "",
+    "Costo Real": item.actualCost ?? "",
+    "Ref. Normativa": item.normativeReference ?? "",
+    "Estatus": STA[item.status] ?? item.status ?? "",
+    "Días sin actualizar": diasSinActualizar(item.updatedAt) ?? "",
+    "Última actualización": item.updatedAt ? new Date(item.updatedAt).toLocaleDateString("es-MX") : "",
+  }));
+  const resumen = [
+    ["Plan", plan.title ?? ""], ["Año", plan.year ?? ""],
+    ["Departamento", plan.departmentName ?? "General"], ["Estatus", plan.status ?? ""],
+    ["Total cursos", items.length],
+    ["Completados", items.filter((i: any) => i.status === "completado").length],
+    ["En proceso", items.filter((i: any) => i.status === "en_proceso").length],
+    ["Pendientes", items.filter((i: any) => i.status === "pendiente").length],
+    ["Cancelados", items.filter((i: any) => i.status === "cancelado").length],
+  ];
+  const wb = XLSX.utils.book_new();
+  const wsR = XLSX.utils.aoa_to_sheet(resumen);
+  wsR["!cols"] = [{ wch: 20 }, { wch: 40 }];
+  XLSX.utils.book_append_sheet(wb, wsR, "Resumen");
+  const wsC = XLSX.utils.json_to_sheet(rows);
+  wsC["!cols"] = [{ wch: 35 }, { wch: 14 }, { wch: 8 }, { wch: 16 }, { wch: 16 }, { wch: 20 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 14 }, { wch: 18 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, wsC, "Cursos");
+  XLSX.writeFile(wb, `PAC_${plan.year}_${(plan.title ?? "plan").replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
 // ─── Exportar PDF ─────────────────────────────────────────────────────────────
@@ -411,9 +463,14 @@ function PlanDetail({ planId, onBack }: { planId: number; onBack: () => void }) 
           </div>
           {data.description && <p className="text-sm text-slate-500 mt-1">{data.description}</p>}
         </div>
-        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportPDF(data, data.items)}>
-          <Download className="w-4 h-4" />PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => exportPDF(data, data.items)}>
+            <Download className="w-4 h-4" />PDF
+          </Button>
+          <Button size="sm" variant="outline" className="gap-1.5 text-emerald-700 border-emerald-300 hover:bg-emerald-50" onClick={() => exportXLSX(data, data.items)}>
+            <FileDown className="w-4 h-4" />XLSX
+          </Button>
+        </div>
       </div>
 
       {/* KPIs del plan */}
@@ -466,12 +523,13 @@ function PlanDetail({ planId, onBack }: { planId: number; onBack: () => void }) 
                 <TableHead>Participantes</TableHead>
                 <TableHead>Ref. Normativa</TableHead>
                 <TableHead>Estatus</TableHead>
+                <TableHead className="w-28 text-center">Sin actualizar</TableHead>
                 <TableHead className="w-20">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.items.length === 0 && (
-                <TableRow><TableCell colSpan={9} className="text-center text-slate-400 py-8">Sin cursos registrados. Haz clic en "Agregar curso".</TableCell></TableRow>
+                <TableRow><TableCell colSpan={10} className="text-center text-slate-400 py-8">Sin cursos registrados. Haz clic en "Agregar curso".</TableCell></TableRow>
               )}
               {data.items.map((item: any) => (
                 <TableRow key={item.id} className="hover:bg-slate-50">
@@ -483,6 +541,7 @@ function PlanDetail({ planId, onBack }: { planId: number; onBack: () => void }) 
                   <TableCell className="text-sm">{item.participantsActual ?? "-"}/{item.participantsTarget ?? "-"}</TableCell>
                   <TableCell className="text-xs text-slate-500">{item.normativeReference ?? "-"}</TableCell>
                   <TableCell><ItemStatusBadge status={item.status} /></TableCell>
+                  <TableCell className="text-center"><StaleBadge dias={diasSinActualizar(item.updatedAt)} /></TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button size="icon" variant="ghost" className="w-7 h-7" onClick={() => setEditItem(item)}>

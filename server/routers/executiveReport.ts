@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments } from "../../drizzle/schema";
+import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems } from "../../drizzle/schema";
 import { eq, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -158,7 +158,9 @@ export const executiveReportRouter = router({
     }),
   // --- Vista comparativa de departamentos ---
   getComparativaDepts: protectedProcedure
-    .query(async () => {
+    .input(z.object({ year: z.number().optional() }))
+    .query(async ({ input }) => {
+      const { year } = input;
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 

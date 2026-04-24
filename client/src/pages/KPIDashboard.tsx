@@ -91,6 +91,9 @@ function CustomTooltip({ active, payload, label }: any) {
 export default function KPIDashboard() {
   const [trendMonths, setTrendMonths] = useState(6);
   const [selectedDeptId, setSelectedDeptId] = useState<number | undefined>(undefined);
+  const [comparativaYear, setComparativaYear] = useState<number | undefined>(undefined);
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
   const { data: deptList } = trpc.departments.list.useQuery(
     { page: 1, pageSize: 100, isActive: true },
@@ -107,7 +110,7 @@ export default function KPIDashboard() {
     trpc.executiveReport.getTrends.useQuery({ months: trendMonths }, { retry: false });
 
   const { data: comparativaDepts, isLoading: loadingComparativa } =
-    trpc.executiveReport.getComparativaDepts.useQuery(undefined, { retry: false });
+    trpc.executiveReport.getComparativaDepts.useQuery({ year: comparativaYear }, { retry: false });
 
   const isLoading = loadingKPIs || loadingTrends;
 
@@ -477,17 +480,29 @@ export default function KPIDashboard() {
               <BarChart3 className="w-4 h-4 text-blue-600" />
               Comparativa de Departamentos
             </h2>
-            {comparativaDepts && comparativaDepts.length > 0 && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={exportComparativaXLSX}
-                className="gap-1.5 border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+            <div className="flex items-center gap-2">
+              <select
+                value={comparativaYear ?? ""}
+                onChange={(e) => setComparativaYear(e.target.value ? Number(e.target.value) : undefined)}
+                className="text-xs border border-slate-300 rounded px-2 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <FileDown className="w-3.5 h-3.5" />
-                Exportar XLSX
-              </Button>
-            )}
+                <option value="">Todos los años</option>
+                {yearOptions.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              {comparativaDepts && comparativaDepts.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={exportComparativaXLSX}
+                  className="gap-1.5 border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  Exportar XLSX
+                </Button>
+              )}
+            </div>
           </div>
           {loadingComparativa ? (
             <div className="flex items-center justify-center h-24">
