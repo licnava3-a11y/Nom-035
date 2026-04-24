@@ -91,6 +91,7 @@ const hierarchicalMenuItems = [
       { label: "Vencimientos de Contratos", path: "/contract-expiration-dashboard", description: "Dashboard consolidado de contratos próximos a vencer con exportación Excel" },
       { label: "Gestión de Vacaciones", path: "/vacation-management", description: "Solicitudes con saldo LFT automático, flujo de aprobación y notificación a RH" },
       { label: "Calendario de Vacaciones", path: "/vacation-calendar", description: "Vista Gantt y mensual de períodos aprobados y pendientes por departamento" },
+      { label: "Tabla de Antigüedad", path: "/vacation-seniority", description: "Configura los días de vacaciones por años de servicio (LFT y política interna)" },
     ],
   },
   {

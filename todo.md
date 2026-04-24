@@ -322,3 +322,14 @@
 - [x] Exportar dictamen a PDF con hash NOM-151, folio configurable, QR de verificación y firma del responsable
 - [x] Badges de cumplimiento normativo en portada pública: NOM-151, LGPD/LFPDPPP, GDPR, ISO 27001, ISO 27002
 - [x] Badges de cumplimiento normativo en header del dashboard autenticado
+## Sprint 10: Portada Profesional + QR en Pantalla + Filtro Histórico + VacationSeniorityManager — Abril 2026
+- [x] Rediseño completo de portada pública: dark, hero asimétrico con glow, grid de 6 features, stats bar, compliance strip, footer
+- [x] Badges de cumplimiento NOM-151/LGPD/GDPR/ISO27001/ISO27002 en portada y dashboard
+- [x] QR NOM-151 en vista previa del Dictamen en pantalla (no solo en PDF)
+- [x] Filtro histórico en widget de calidad: Todo / 30 días / 90 días / 365 días
+- [x] Backend bugReports.getStats acepta parámetro days opcional
+- [x] Backend featureRequests.getStats acepta parámetro days opcional
+- [x] Página VacationSeniorityManager.tsx: tabla editable de días por antigüedad con validación LFT
+- [x] Ruta /vacation-seniority registrada en App.tsx
+- [x] Enlace "Tabla de Antigüedad" en sidebar DashboardLayout
+- [x] 487 pruebas unitarias pasando, 0 errores TypeScript

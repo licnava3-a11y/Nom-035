@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun, Shield, Bug, Lightbulb, ShieldCheck } from "lucide-react";
+import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun, Shield, Bug, Lightbulb, ShieldCheck, Activity, Award, BookOpen, ChevronRight, Lock, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getLoginUrl } from "@/const";
@@ -56,8 +56,9 @@ export default function Home() {
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
   // Widget de calidad
-  const { data: bugStats } = trpc.bugReports.getStats.useQuery();
-  const { data: featureStats } = trpc.featureRequests.getStats.useQuery();
+  const [qualityPeriod, setQualityPeriod] = useState<number | undefined>(undefined);
+  const { data: bugStats } = trpc.bugReports.getStats.useQuery(qualityPeriod ? { days: qualityPeriod } : undefined);
+  const { data: featureStats } = trpc.featureRequests.getStats.useQuery(qualityPeriod ? { days: qualityPeriod } : undefined);
   const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
 
   // Determinar si el usuario es supervisor/gerente/jefe_area
@@ -188,83 +189,201 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 flex flex-col">
-        {/* Hero Section */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div className="mb-6 flex items-center justify-center gap-3">
-            <ShieldCheck className="h-14 w-14 text-red-400" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-3">
-            Plataforma NOM-035 STPS 2018
-          </h1>
-          <p className="text-lg text-red-200 mb-2 max-w-2xl">
-            Gestión Integral de Riesgos Psicosociales en el Trabajo
-          </p>
-          <p className="text-sm text-slate-400 mb-8 max-w-xl">
-            Sistema de cumplimiento normativo, trazabilidad documental y bienestar organizacional conforme a la NOM-035-STPS-2018 y estándares internacionales de seguridad de la información.
-          </p>
-          <a
-            href={getLoginUrl()}
-            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg text-base transition-colors shadow-lg shadow-red-900/40"
-          >
-            <Shield className="h-5 w-5" />
-            Acceder a la Plataforma
-          </a>
-        </div>
-
-        {/* Badges de Cumplimiento Normativo */}
-        <div className="w-full bg-slate-900/80 border-t border-slate-700/60 py-8 px-6">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-center text-xs font-semibold uppercase tracking-widest text-slate-400 mb-5">
-              Cumplimiento y Estándares de Seguridad
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {/* NOM-151 */}
-              <div className="flex items-center gap-2 bg-green-900/40 border border-green-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
-                <ShieldCheck className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-green-300">NOM-151-SCFI-2016</p>
-                  <p className="text-xs text-green-500/80">Conservación de mensajes de datos</p>
-                </div>
+      <div className="min-h-screen bg-[#0a0f1e] flex flex-col overflow-x-hidden">
+        {/* ── TOP NAV ─────────────────────────────────────────────────────── */}
+        <nav className="w-full border-b border-white/5 bg-[#0a0f1e]/90 backdrop-blur-md sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-lg shadow-red-900/50">
+                <ShieldCheck className="h-5 w-5 text-white" />
               </div>
-              {/* LGPD */}
-              <div className="flex items-center gap-2 bg-blue-900/40 border border-blue-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
-                <Shield className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-blue-300">LGPD / LFPDPPP</p>
-                  <p className="text-xs text-blue-500/80">Protección de datos personales</p>
-                </div>
-              </div>
-              {/* GDPR */}
-              <div className="flex items-center gap-2 bg-purple-900/40 border border-purple-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
-                <Shield className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-purple-300">GDPR</p>
-                  <p className="text-xs text-purple-500/80">Reglamento Europeo de Datos</p>
-                </div>
-              </div>
-              {/* ISO 27001 */}
-              <div className="flex items-center gap-2 bg-amber-900/40 border border-amber-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
-                <ShieldCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-amber-300">ISO/IEC 27001</p>
-                  <p className="text-xs text-amber-500/80">Sistema de Gestión de Seguridad</p>
-                </div>
-              </div>
-              {/* ISO 27002 */}
-              <div className="flex items-center gap-2 bg-orange-900/40 border border-orange-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
-                <ShieldCheck className="h-5 w-5 text-orange-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-orange-300">ISO/IEC 27002</p>
-                  <p className="text-xs text-orange-500/80">Controles de Seguridad de la Información</p>
-                </div>
+              <div>
+                <span className="text-white font-bold text-sm tracking-wide">NOM-035</span>
+                <span className="text-red-400 font-bold text-sm tracking-wide"> STPS</span>
               </div>
             </div>
-            <p className="text-center text-xs text-slate-600 mt-5">
-              © {new Date().getFullYear()} Plataforma NOM-035 STPS 2018 — Todos los derechos reservados
+            <a
+              href={getLoginUrl()}
+              className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-all duration-200 shadow-lg shadow-red-900/30"
+            >
+              <Lock className="h-4 w-4" />
+              Iniciar Sesión
+            </a>
+          </div>
+        </nav>
+
+        {/* ── HERO ────────────────────────────────────────────────────────── */}
+        <div className="relative flex-1 flex flex-col items-center justify-center px-6 py-24 text-center overflow-hidden">
+          {/* Glow background */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-red-900/20 rounded-full blur-[120px]" />
+            <div className="absolute top-1/4 right-1/4 w-[300px] h-[300px] bg-blue-900/10 rounded-full blur-[80px]" />
+          </div>
+          {/* Grid overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+
+          <div className="relative z-10 max-w-4xl mx-auto">
+            {/* Pill badge */}
+            <div className="inline-flex items-center gap-2 bg-red-950/60 border border-red-800/50 text-red-300 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+              Plataforma certificada NOM-035-STPS-2018
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-none mb-6">
+              Gestión Integral de<br />
+              <span className="bg-gradient-to-r from-red-400 via-red-300 to-orange-300 bg-clip-text text-transparent">
+                Riesgos Psicosociales
+              </span>
+            </h1>
+
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+              Plataforma empresarial para el cumplimiento de la <strong className="text-slate-200">NOM-035-STPS-2018</strong>.
+              Diagnóstico, seguimiento de casos, dictámenes con trazabilidad NOM-151 y reportes STPS listos para presentar.
             </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href={getLoginUrl()}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold px-8 py-4 rounded-xl text-base transition-all duration-200 shadow-2xl shadow-red-900/40 group"
+              >
+                Acceder a la Plataforma
+                <ChevronRight className="h-5 w-5" />
+              </a>
+              <a
+                href="/legal"
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-semibold px-8 py-4 rounded-xl text-base transition-all duration-200"
+              >
+                <BookOpen className="h-5 w-5" />
+                Marco Legal
+              </a>
+            </div>
           </div>
         </div>
+
+        {/* ── STATS BAR ───────────────────────────────────────────────────── */}
+        <div className="w-full border-y border-white/5 bg-white/[0.02] py-8 px-6">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { value: "NOM-035", label: "Normativa STPS", icon: <Award className="h-5 w-5 text-red-400 mx-auto mb-1" /> },
+              { value: "NOM-151", label: "Trazabilidad documental", icon: <ShieldCheck className="h-5 w-5 text-green-400 mx-auto mb-1" /> },
+              { value: "ISO 27001", label: "Seguridad de la información", icon: <Lock className="h-5 w-5 text-amber-400 mx-auto mb-1" /> },
+              { value: "GDPR / LGPD", label: "Protección de datos", icon: <Shield className="h-5 w-5 text-blue-400 mx-auto mb-1" /> },
+            ].map((s) => (
+              <div key={s.value} className="flex flex-col items-center">
+                {s.icon}
+                <div className="text-xl font-black text-white">{s.value}</div>
+                <div className="text-xs text-slate-500 mt-0.5">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── FEATURES GRID ───────────────────────────────────────────────── */}
+        <div className="w-full py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-14">
+              <p className="text-xs font-semibold uppercase tracking-widest text-red-400 mb-3">Módulos del sistema</p>
+              <h2 className="text-3xl md:text-4xl font-black text-white">Todo lo que necesita para cumplir</h2>
+              <p className="text-slate-400 mt-3 max-w-xl mx-auto">Una solución completa para diagnosticar, gestionar y documentar el cumplimiento de la NOM-035-STPS-2018.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[
+                {
+                  icon: <Activity className="h-6 w-6 text-red-400" />,
+                  bg: "from-red-950/60 to-red-900/20",
+                  border: "border-red-800/30",
+                  title: "Diagnóstico NOM-035",
+                  desc: "Cuestionario completo con análisis automático de riesgo psicosocial por empleado, departamento y empresa.",
+                },
+                {
+                  icon: <FileText className="h-6 w-6 text-blue-400" />,
+                  bg: "from-blue-950/60 to-blue-900/20",
+                  border: "border-blue-800/30",
+                  title: "Dictamen Legal con IA",
+                  desc: "Generación automática del dictamen NOM-035 con folio configurable, hash NOM-151 y QR de verificación.",
+                },
+                {
+                  icon: <ShieldCheck className="h-6 w-6 text-green-400" />,
+                  bg: "from-green-950/60 to-green-900/20",
+                  border: "border-green-800/30",
+                  title: "Trazabilidad NOM-151",
+                  desc: "Cada documento genera un hash SHA-256 y QR único para verificar autenticidad ante la STPS.",
+                },
+                {
+                  icon: <Users className="h-6 w-6 text-purple-400" />,
+                  bg: "from-purple-950/60 to-purple-900/20",
+                  border: "border-purple-800/30",
+                  title: "Gestión de Casos",
+                  desc: "Seguimiento de casos críticos, planes de intervención y análisis de causas raíz con inteligencia artificial.",
+                },
+                {
+                  icon: <BarChart3 className="h-6 w-6 text-amber-400" />,
+                  bg: "from-amber-950/60 to-amber-900/20",
+                  border: "border-amber-800/30",
+                  title: "Dashboard Ejecutivo",
+                  desc: "Métricas en tiempo real, alertas automáticas, tendencias y reportes para la dirección.",
+                },
+                {
+                  icon: <Zap className="h-6 w-6 text-cyan-400" />,
+                  bg: "from-cyan-950/60 to-cyan-900/20",
+                  border: "border-cyan-800/30",
+                  title: "Automatización STPS",
+                  desc: "Reportes normativos, encuestas masivas, notificaciones automáticas y cumplimiento continuo.",
+                },
+              ].map((f) => (
+                <div key={f.title} className={`bg-gradient-to-br ${f.bg} border ${f.border} rounded-2xl p-6`}>
+                  <div className="mb-4">{f.icon}</div>
+                  <h3 className="text-white font-bold text-base mb-2">{f.title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── COMPLIANCE STRIP ────────────────────────────────────────────── */}
+        <div className="w-full border-t border-white/5 bg-[#060a14] py-10 px-6">
+          <div className="max-w-5xl mx-auto">
+            <p className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-6">
+              Cumplimiento y Estándares de Seguridad de la Información
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {[
+                { label: "NOM-151-SCFI-2016", sub: "Conservación de mensajes de datos", icon: <ShieldCheck className="h-4 w-4 text-green-400 flex-shrink-0" /> },
+                { label: "LGPD / LFPDPPP", sub: "Protección de datos personales", icon: <Shield className="h-4 w-4 text-blue-400 flex-shrink-0" /> },
+                { label: "GDPR", sub: "Reglamento Europeo de Datos", icon: <Shield className="h-4 w-4 text-purple-400 flex-shrink-0" /> },
+                { label: "ISO/IEC 27001", sub: "Sistema de Gestión de Seguridad", icon: <ShieldCheck className="h-4 w-4 text-amber-400 flex-shrink-0" /> },
+                { label: "ISO/IEC 27002", sub: "Controles de Seguridad", icon: <ShieldCheck className="h-4 w-4 text-orange-400 flex-shrink-0" /> },
+              ].map((b) => (
+                <div key={b.label} className="flex items-center gap-2.5 bg-white/[0.03] border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 min-w-[175px] transition-colors duration-200">
+                  {b.icon}
+                  <div>
+                    <p className="text-xs font-bold text-white">{b.label}</p>
+                    <p className="text-xs text-slate-500">{b.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── FOOTER ──────────────────────────────────────────────────────── */}
+        <footer className="w-full border-t border-white/5 bg-[#060a14] py-6 px-6">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center">
+                <ShieldCheck className="h-3 w-3 text-white" />
+              </div>
+              <span className="text-slate-400 font-semibold">Plataforma NOM-035 STPS 2018</span>
+            </div>
+            <span>© {new Date().getFullYear()} — Todos los derechos reservados</span>
+            <div className="flex items-center gap-4">
+              <a href="/legal" className="hover:text-slate-400 transition-colors">Aviso de Privacidad</a>
+              <a href="/legal" className="hover:text-slate-400 transition-colors">Términos de Uso</a>
+            </div>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -716,7 +835,23 @@ export default function Home() {
       </Card>
 
       {/* ── Widget de Calidad del Sistema ───────────────────────────────── */}
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+      <div className="space-y-3">
+        {/* Selector de período */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Calidad del Sistema</h3>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            {([undefined, 30, 90, 365] as (number | undefined)[]).map((d) => (
+              <button
+                key={d ?? 'all'}
+                onClick={() => setQualityPeriod(d)}
+                className={`text-xs px-3 py-1 rounded-md font-medium transition-all ${qualityPeriod === d ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                {d === undefined ? 'Todo' : d === 30 ? '30 días' : d === 90 ? '90 días' : '365 días'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         {/* Bug Reports */}
         <Card className="border-red-200 dark:border-red-900">
           <CardHeader className="pb-2">
@@ -812,6 +947,7 @@ export default function Home() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {/* Distribución por Departamento */}

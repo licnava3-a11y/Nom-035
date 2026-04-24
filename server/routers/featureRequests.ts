@@ -61,10 +61,16 @@ export const featureRequestsRouter = router({
       return { success: true };
     }),
 
-  getStats: protectedProcedure.query(async () => {
+  getStats: protectedProcedure
+    .input(z.object({ days: z.number().optional() }).optional())
+    .query(async ({ input }) => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-    const all = await db.select().from(featureRequests);
+    let all = await db.select().from(featureRequests);
+    if (input?.days) {
+      const cutoff = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+      all = all.filter(r => r.createdAt >= cutoff);
+    }
     const total = all.length;
     const implementada = all.filter(r => r.status === "implementada").length;
     const en_desarrollo = all.filter(r => r.status === "en_desarrollo").length;

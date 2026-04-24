@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { bugReports } from "../../drizzle/schema";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const bugReportsRouter = router({
@@ -61,18 +61,24 @@ export const bugReportsRouter = router({
       return { success: true };
     }),
 
-  getStats: protectedProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
-    const all = await db.select().from(bugReports);
-    return {
-      total: all.length,
-      pendiente: all.filter(r => r.status === "pendiente").length,
-      en_revision: all.filter(r => r.status === "en_revision").length,
-      corregido: all.filter(r => r.status === "corregido").length,
-      descartado: all.filter(r => r.status === "descartado").length,
-      critico: all.filter(r => r.severity === "critico").length,
-      alto: all.filter(r => r.severity === "alto").length,
-    };
-  }),
+  getStats: protectedProcedure
+    .input(z.object({ days: z.number().optional() }).optional())
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      let all = await db.select().from(bugReports);
+      if (input?.days) {
+        const cutoff = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+        all = all.filter(r => r.createdAt >= cutoff);
+      }
+      return {
+        total: all.length,
+        pendiente: all.filter(r => r.status === "pendiente").length,
+        en_revision: all.filter(r => r.status === "en_revision").length,
+        corregido: all.filter(r => r.status === "corregido").length,
+        descartado: all.filter(r => r.status === "descartado").length,
+        critico: all.filter(r => r.severity === "critico").length,
+        alto: all.filter(r => r.severity === "alto").length,
+      };
+    }),
 });
