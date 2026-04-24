@@ -351,3 +351,11 @@
 - [x] Campo email obligatorio en EmployeeNew.tsx y EmployeeEdit.tsx verificado y completo
 - [x] Comparativa Q1/Q2 en widget de calidad: botón toggle + panel período B
 - [x] Pruebas unitarias Sprint 13: 10/10 passed
+
+## Sprint 14: Exportación Excel, KPIs Ejecutivos, CURP Autocompletado
+- [x] Exportación Excel en NOM035DetailedReport.tsx (xlsx con hojas: Resumen, Categorías, Dominios, Dimensiones, Plan de Acción)
+- [x] Panel KPIs ejecutivos /kpi-dashboard con métricas de personal, capacitación, bienestar y gráficas de tendencia
+- [x] Enlace "Panel KPIs Ejecutivos" agregado al sidebar en sección de Reportes y Análisis
+- [x] Autocompletado CURP verificado: decodifica fecha, sexo y estado de nacimiento localmente
+- [x] Corrección TypeScript: propiedades de getTrends (labels/cases/trainingCompletions/employeeExits)
+- [x] Pruebas unitarias Sprint 14: 18 tests (Excel, KPIs, CURP, tendencias)

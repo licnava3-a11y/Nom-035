@@ -162,6 +162,7 @@ const EqualityPolicy = lazy(() => import("./pages/equality/Policy"));
 const NOM035Questionnaire = lazy(() => import("./pages/NOM035Questionnaire"));
 const NOM035Results = lazy(() => import("./pages/NOM035Results"));
 const NOM035DetailedReport = lazy(() => import("./pages/NOM035DetailedReport"));
+const KPIDashboard = lazy(() => import("./pages/KPIDashboard"));
 const Departments = lazy(() => import("./pages/Departments"));
 const Positions = lazy(() => import("./pages/Positions"));
 const OrganizationDashboard = lazy(() => import("./pages/OrganizationDashboard"));
@@ -1182,6 +1183,11 @@ function Router() {
         <Route path={"/nom035/detailed-report"}>
           <Suspense fallback={<PageLoader />}>
             <NOM035DetailedReport />
+          </Suspense>
+        </Route>
+        <Route path={"/kpi-dashboard"}>
+          <Suspense fallback={<PageLoader />}>
+            <KPIDashboard />
           </Suspense>
         </Route>
         <Route path={"/nom035-admin"}>

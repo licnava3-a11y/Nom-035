@@ -261,6 +261,7 @@ const hierarchicalMenuItems = [
       { label: "Análisis Predictivo", path: "/alerts/predictive", description: "Predicción de alertas basada en datos históricos" },
       { label: "Reportes Ejecutivos", path: "/executive-reports", description: "Generación de reportes ejecutivos en PDF" },
       { label: "Reporte Ejecutivo Consolidado", path: "/executive-report", description: "KPIs globales NOM-035: empleados, capacitación, vacaciones, casos y buzón" },
+      { label: "📊 Panel KPIs Ejecutivos", path: "/kpi-dashboard", description: "Métricas clave: rotación, % capacitado, bienestar y tendencias históricas" },
     ],
   },
   {

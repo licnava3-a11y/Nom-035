@@ -5,7 +5,103 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle2, BarChart3, Layers, Grid3X3, Lightbulb, ClipboardList, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, BarChart3, Layers, Grid3X3, Lightbulb, ClipboardList, RefreshCw, FileDown } from "lucide-react";
+import * as XLSX from "xlsx";
+
+// ─── Exportación Excel ──────────────────────────────────────────────────────
+function exportToExcel(data: any) {
+  if (!data) return;
+  const wb = XLSX.utils.book_new();
+  const fecha = new Date().toLocaleString("es-MX");
+
+  // Hoja 1: Resumen ejecutivo
+  const resumenRows: any[][] = [
+    ["REPORTE NOM-035-STPS-2018 — ANÁLISIS EXTENDIDO"],
+    ["Generado:", fecha],
+    ["Total de respuestas:", data.totalRespuestas ?? 0],
+    [],
+    ["SECCIÓN", "TOTAL DE ELEMENTOS", "CON RIESGO ALTO/MUY ALTO"],
+    ["Categorías", (data.categorias ?? []).length, (data.categorias ?? []).filter((c: any) => c.nivel?.labelClass === "alto" || c.nivel?.labelClass === "muy_alto").length],
+    ["Dominios", (data.dominios ?? []).length, (data.dominios ?? []).filter((d: any) => d.nivel?.labelClass === "alto" || d.nivel?.labelClass === "muy_alto").length],
+    ["Dimensiones", (data.dimensiones ?? []).length, (data.dimensiones ?? []).filter((d: any) => d.nivel?.labelClass === "alto" || d.nivel?.labelClass === "muy_alto").length],
+  ];
+  const wsRes = XLSX.utils.aoa_to_sheet(resumenRows);
+  wsRes["!cols"] = [{ wch: 40 }, { wch: 22 }, { wch: 25 }];
+  XLSX.utils.book_append_sheet(wb, wsRes, "Resumen Ejecutivo");
+
+  // Hoja 2: Categorías
+  const catRows: any[][] = [
+    ["CATEGORÍA", "PUNTAJE (%)", "NIVEL DE RIESGO"],
+  ];
+  (data.categorias ?? []).forEach((c: any) => {
+    catRows.push([c.nombre, c.puntaje, c.nivel?.nivel?.toUpperCase() ?? "—"]);
+  });
+  const wsCat = XLSX.utils.aoa_to_sheet(catRows);
+  wsCat["!cols"] = [{ wch: 45 }, { wch: 14 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsCat, "Categorías");
+
+  // Hoja 3: Dominios
+  const domRows: any[][] = [
+    ["DOMINIO", "PUNTAJE (%)", "NIVEL DE RIESGO"],
+  ];
+  (data.dominios ?? []).forEach((d: any) => {
+    domRows.push([d.nombre, d.puntaje, d.nivel?.nivel?.toUpperCase() ?? "—"]);
+  });
+  const wsDom = XLSX.utils.aoa_to_sheet(domRows);
+  wsDom["!cols"] = [{ wch: 45 }, { wch: 14 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsDom, "Dominios");
+
+  // Hoja 4: Dimensiones
+  const dimRows: any[][] = [
+    ["DIMENSIÓN", "PUNTAJE (%)", "NIVEL DE RIESGO"],
+  ];
+  (data.dimensiones ?? []).forEach((d: any) => {
+    dimRows.push([d.nombre, d.puntaje, d.nivel?.nivel?.toUpperCase() ?? "—"]);
+  });
+  const wsDim = XLSX.utils.aoa_to_sheet(dimRows);
+  wsDim["!cols"] = [{ wch: 45 }, { wch: 14 }, { wch: 18 }];
+  XLSX.utils.book_append_sheet(wb, wsDim, "Dimensiones");
+
+  // Hoja 5: Plan de Trabajo
+  const planRows: any[][] = [
+    ["PLAN DE TRABAJO NOM-035 — ACCIONES CORRECTIVAS"],
+    ["Generado:", fecha],
+    [],
+    ["ÁREA / DIMENSIÓN", "NIVEL", "ACCIÓN RECOMENDADA", "RESPONSABLE", "FECHA COMPROMISO", "ESTATUS"],
+  ];
+  const itemsAlto = [
+    ...(data.dimensiones ?? []).filter((d: any) => d.nivel?.labelClass === "alto" || d.nivel?.labelClass === "muy_alto"),
+    ...(data.dominios ?? []).filter((d: any) => d.nivel?.labelClass === "alto" || d.nivel?.labelClass === "muy_alto"),
+  ];
+  if (itemsAlto.length === 0) {
+    planRows.push(["Sin áreas de riesgo alto o muy alto identificadas", "", "", "", "", ""]);
+  } else {
+    itemsAlto.forEach((item: any) => {
+      planRows.push([item.nombre, item.nivel?.nivel?.toUpperCase() ?? "", "Definir intervención específica", "Por asignar", "", "Pendiente"]);
+    });
+  }
+  const wsPlan = XLSX.utils.aoa_to_sheet(planRows);
+  wsPlan["!cols"] = [{ wch: 45 }, { wch: 12 }, { wch: 50 }, { wch: 25 }, { wch: 18 }, { wch: 15 }];
+  XLSX.utils.book_append_sheet(wb, wsPlan, "Plan de Trabajo");
+
+  // Hoja 6: Recomendaciones
+  if (data.recomendaciones?.length) {
+    const recRows: any[][] = [
+      ["RECOMENDACIONES NOM-035"],
+      [],
+      ["ÁREA", "RECOMENDACIÓN"],
+    ];
+    data.recomendaciones.forEach((r: any) => {
+      recRows.push([r.area ?? r.nombre ?? "", r.texto ?? r.recomendacion ?? ""]);
+    });
+    const wsRec = XLSX.utils.aoa_to_sheet(recRows);
+    wsRec["!cols"] = [{ wch: 40 }, { wch: 80 }];
+    XLSX.utils.book_append_sheet(wb, wsRec, "Recomendaciones");
+  }
+
+  const fechaFile = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  XLSX.writeFile(wb, `NOM035_Reporte_Extendido_${fechaFile}.xlsx`);
+}
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList, ReferenceLine,
 } from "recharts";
@@ -217,6 +313,16 @@ export default function NOM035DetailedReport() {
               <RefreshCw className="w-4 h-4 mr-2" />
               Generar Dictamen NOM-035
             </Button>
+            {data && data.totalRespuestas > 0 && (
+              <Button
+                onClick={() => exportToExcel(data)}
+                variant="outline"
+                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-full px-6"
+              >
+                <FileDown className="w-4 h-4 mr-2" />
+                Descargar Excel
+              </Button>
+            )}
           </CardContent>
         </Card>
 
