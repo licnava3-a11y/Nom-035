@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -231,6 +231,11 @@ export default function InternalMailbox() {
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notifyCustomMsg, setNotifyCustomMsg] = useState("");
   const [showNotifHistory, setShowNotifHistory] = useState(false);
+  const [blockCountdown, setBlockCountdown] = useState<string | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [statusReason, setStatusReason] = useState("");
 
   const { data: stats } = trpc.internalMailbox.getStats.useQuery();
   const { data: messages, isLoading, refetch } = trpc.internalMailbox.list.useQuery({ category: "all", status: "all" });
@@ -244,6 +249,26 @@ export default function InternalMailbox() {
     { messageId: selectedId! }, { enabled: selectedId !== null && showNotifyModal }
   );
 
+  // Contador de tiempo restante del bloqueo 24h
+  useEffect(() => {
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (!lastNotifData?.isBlocked || !lastNotifData.blockedUntil) {
+      setBlockCountdown(null);
+      return;
+    }
+    const update = () => {
+      const diff = new Date(lastNotifData.blockedUntil!).getTime() - Date.now();
+      if (diff <= 0) { setBlockCountdown(null); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setBlockCountdown(`${h}h ${m.toString().padStart(2, "0")}min ${s.toString().padStart(2, "0")}s`);
+    };
+    update();
+    countdownRef.current = setInterval(update, 1000);
+    return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
+  }, [lastNotifData]);
+
   const createMutation = trpc.internalMailbox.create.useMutation({
     onSuccess: () => {
       toast.success("Mensaje enviado correctamente");
@@ -254,9 +279,29 @@ export default function InternalMailbox() {
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
   const updateStatusMutation = trpc.internalMailbox.updateStatus.useMutation({
-    onSuccess: () => { toast.success("Estado actualizado"); refetch(); refetchSelected(); },
+    onSuccess: () => {
+      toast.success("Estado actualizado");
+      setShowStatusModal(false);
+      setPendingStatus(null);
+      setStatusReason("");
+      refetch();
+      refetchSelected();
+    },
     onError: (e: any) => toast.error(`Error: ${e.message}`),
   });
+  const requestStatusChange = (newStatus: string) => {
+    setPendingStatus(newStatus);
+    setStatusReason("");
+    setShowStatusModal(true);
+  };
+  const confirmStatusChange = () => {
+    if (!selectedId || !pendingStatus) return;
+    updateStatusMutation.mutate({
+      id: selectedId,
+      status: pendingStatus as any,
+      reason: statusReason.trim() || undefined,
+    });
+  };
   const respondMutation = trpc.internalMailbox.respond.useMutation({
     onSuccess: () => { toast.success("Respuesta enviada al remitente"); setResponseText(""); refetch(); refetchSelected(); },
     onError: (e: any) => toast.error(`Error: ${e.message}`),
@@ -495,7 +540,7 @@ export default function InternalMailbox() {
                     <div className="flex gap-2 flex-wrap">
                       {Object.entries(STATUS_CONFIG).map(([k, v]) => (
                         <Button key={k} variant="outline" size="sm" disabled={selectedMsg.status === k}
-                          onClick={() => updateStatusMutation.mutate({ id: selectedMsg.id, status: k as any })} className="text-xs">
+                          onClick={() => requestStatusChange(k)} className="text-xs">
                           {v.label}
                         </Button>
                       ))}
@@ -622,6 +667,11 @@ export default function InternalMailbox() {
                         <p className="text-xs font-medium text-red-700 mt-0.5">
                           {lastNotifData.blockedUntil ? new Date(lastNotifData.blockedUntil).toLocaleString("es-MX") : ""}
                         </p>
+                        {blockCountdown && (
+                          <p className="text-xs font-bold text-red-800 mt-1 bg-red-100 px-2 py-0.5 rounded inline-block">
+                            ⏱ Disponible en: {blockCountdown}
+                          </p>
+                        )}
                       </div>
                     </div>
                   )}
@@ -649,6 +699,51 @@ export default function InternalMailbox() {
                     >
                       <Bell className="h-4 w-4 mr-1" />
                       {notifyEmployeeMutation.isPending ? "Enviando..." : lastNotifData?.isBlocked ? "Bloqueado (24h)" : "Enviar Notificación"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Status change reason modal */}
+          {showStatusModal && pendingStatus && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <Card className="w-full max-w-md">
+                <CardHeader className="pb-3 border-b">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <span className="flex items-center gap-2">
+                      <span className="text-sm">Cambiar estado</span>
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={() => { setShowStatusModal(false); setPendingStatus(null); setStatusReason(""); }}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                    <p className="text-xs font-medium text-blue-800 mb-1">Nuevo estado:</p>
+                    <p className="text-sm font-semibold">{STATUS_CONFIG[pendingStatus as keyof typeof STATUS_CONFIG]?.label ?? pendingStatus}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground block mb-1">
+                      Motivo del cambio <span className="text-muted-foreground">(opcional)</span>
+                    </label>
+                    <textarea
+                      className="w-full text-sm border rounded px-3 py-2 resize-none"
+                      rows={3}
+                      maxLength={500}
+                      placeholder="Describe el motivo del cambio de estado (máx. 500 caracteres)..."
+                      value={statusReason}
+                      onChange={e => setStatusReason(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground text-right mt-0.5">{statusReason.length}/500</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">El motivo quedará registrado como evidencia de gestión en el historial del mensaje.</p>
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => { setShowStatusModal(false); setPendingStatus(null); setStatusReason(""); }}>Cancelar</Button>
+                    <Button size="sm" onClick={confirmStatusChange} disabled={updateStatusMutation.isPending}>
+                      {updateStatusMutation.isPending ? "Guardando..." : "Confirmar cambio"}
                     </Button>
                   </div>
                 </CardContent>

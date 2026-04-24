@@ -61,13 +61,33 @@ export const internalMailboxRouter = router({
       id: z.number(),
       status: z.enum(["nuevo", "en_proceso", "resuelto", "cerrado"]),
       assignedTo: z.number().optional(),
+      reason: z.string().max(500).optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [current] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.id)).limit(1);
       await db.update(internalMessages)
         .set({ status: input.status, assignedTo: input.assignedTo || null })
         .where(eq(internalMessages.id, input.id));
+      if (current) {
+        const prevStatus = current.status ?? "desconocido";
+        const noteContent = [
+          `Cambio de estado: ${prevStatus} → ${input.status}`,
+          input.reason ? `Motivo: ${input.reason}` : null,
+          `Por: ${ctx.user.name ?? ctx.user.id}`,
+        ].filter(Boolean).join(" | ");
+        await db.insert(notifications).values({
+          userId: ctx.user.id,
+          type: "mailbox_status_change",
+          title: `Estado actualizado: ${input.status}`,
+          message: noteContent,
+          relatedEntityType: "mailbox",
+          relatedEntityId: input.id,
+          isRead: false,
+        });
+      }
       return { success: true };
     }),
 

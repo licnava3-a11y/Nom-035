@@ -78,6 +78,71 @@ function TrendChart({
   );
 }
 
+function RiskComparisonChart({ data }: { data: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || !data || typeof Chart === "undefined") return;
+    if (chartRef.current) chartRef.current.destroy();
+    const labels = data.comparison.map((r: any) => r.departmentName);
+    const prevData = data.comparison.map((r: any) => r.previous.avgScore > 0 ? parseFloat(r.previous.avgScore.toFixed(1)) : 0);
+    const currData = data.comparison.map((r: any) => r.current.avgScore > 0 ? parseFloat(r.current.avgScore.toFixed(1)) : 0);
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: data.previousMonthLabel,
+            data: prevData,
+            backgroundColor: "rgba(99, 102, 241, 0.65)",
+            borderColor: "rgba(99, 102, 241, 1)",
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            label: data.currentMonthLabel,
+            data: currData,
+            backgroundColor: "rgba(239, 68, 68, 0.65)",
+            borderColor: "rgba(239, 68, 68, 1)",
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+          tooltip: {
+            mode: "index",
+            intersect: false,
+            callbacks: {
+              label: (ctx: any) => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}/140`,
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 30 } },
+          y: {
+            beginAtZero: true,
+            max: 140,
+            ticks: { font: { size: 10 }, stepSize: 20 },
+            grid: { color: "#f0f0f0" },
+            title: { display: true, text: "Puntaje NOM-035 (0–140)", font: { size: 10 } },
+          },
+        },
+      },
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [data]);
+
+  if (!data || data.comparison.length === 0) return null;
+  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+}
+
 export default function ExecutiveReport() {
   const [trendMonths, setTrendMonths] = useState(6);
   const [chartJsLoaded, setChartJsLoaded] = useState(false);
@@ -642,11 +707,18 @@ export default function ExecutiveReport() {
                     </table>
                   </div>
                   <p className="text-xs text-muted-foreground mt-3 border-t pt-2">
-                    Δ Puntaje: diferencia de puntaje promedio NOM-035 (escala 0–140). Valores positivos indican mayor riesgo psicosocial. Umbral de tendencia: ±2 puntos.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+                     Δ Puntaje: diferencia de puntaje promedio NOM-035 (escala 0–140). Valores positivos indican mayor riesgo psicosocial. Umbral de tendencia: ±2 puntos.
+                   </p>
+                   {/* Grouped bar chart */}
+                   <div className="mt-4 border-t pt-4">
+                     <p className="text-xs font-semibold text-muted-foreground mb-3">Gráfica comparativa por departamento</p>
+                     <div style={{ height: 260 }}>
+                       <RiskComparisonChart data={riskComparison} />
+                     </div>
+                   </div>
+                 </CardContent>
+               </Card>
+             )}
 
             {/* Print footer */}
             <div className="hidden print:block border-t pt-4 mt-6 text-xs text-gray-500">
