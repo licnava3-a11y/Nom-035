@@ -343,3 +343,11 @@
 - [x] Filtro de período personalizado (rango libre) en widget de calidad: botón "Rango libre" + inputs fecha inicio/fin
 - [x] Backend bugReports.getStats acepta dateFrom/dateTo (rango libre)
 - [x] Backend featureRequests.getStats acepta dateFrom/dateTo (rango libre)
+
+## Sprint 13: Auditoría Profunda + Gráfica NOM-035 + Seguimiento Acuerdos
+- [x] Auditoría TypeScript: 4 errores corregidos en Home.tsx (propiedades widget de calidad)
+- [x] Gráfica de barras Recharts en NOM035DetailedReport.tsx (colores por nivel de riesgo)
+- [x] Módulo Seguimiento de Acuerdos del Comité: AgreementsDashboard.tsx verificado y completo
+- [x] Campo email obligatorio en EmployeeNew.tsx y EmployeeEdit.tsx verificado y completo
+- [x] Comparativa Q1/Q2 en widget de calidad: botón toggle + panel período B
+- [x] Pruebas unitarias Sprint 13: 10/10 passed

@@ -919,14 +919,14 @@ export default function Home() {
                     <div className="bg-white rounded-lg p-3 border border-indigo-100">
                       <p className="text-xs font-semibold text-slate-500 mb-1">Bug Reports — Q2</p>
                       <p className="text-lg font-bold text-slate-800">{bugStatsB.total ?? 0} total</p>
-                      <p className="text-xs text-red-600">{bugStatsB.pending ?? 0} pendientes</p>
-                      <p className="text-xs text-green-600">{bugStatsB.resolved ?? 0} resueltos</p>
+                      <p className="text-xs text-red-600">{bugStatsB.pendiente ?? 0} pendientes</p>
+                      <p className="text-xs text-green-600">{bugStatsB.corregido ?? 0} resueltos</p>
                     </div>
                     <div className="bg-white rounded-lg p-3 border border-indigo-100">
                       <p className="text-xs font-semibold text-slate-500 mb-1">Features — Q2</p>
                       <p className="text-lg font-bold text-slate-800">{featureStatsB.total ?? 0} total</p>
-                      <p className="text-xs text-green-600">{featureStatsB.implemented ?? 0} implementadas</p>
-                      <p className="text-xs text-slate-400">{featureStatsB.implementationRate ?? 0}% tasa</p>
+                      <p className="text-xs text-green-600">{featureStatsB.implementada ?? 0} implementadas</p>
+                      <p className="text-xs text-slate-400">{featureStatsB.pctImplemented ?? 0}% tasa</p>
                     </div>
                   </div>
                 )}
