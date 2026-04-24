@@ -133,6 +133,7 @@ const hierarchicalMenuItems = [
       { label: "Periodos de Aplicación", path: "/surveys/periods", description: "Configuración de periodos de aplicación" },
       { label: "Envío Masivo", path: "/surveys/mass-email", description: "Envío masivo de invitaciones" },
       { label: "Panel de Administración", path: "/surveys/nom035-admin", description: "Panel administrativo de encuestas" },
+      { label: "📊 Dictamen Extendido (Categoría/Dominio/Dimensión)", path: "/nom035/detailed-report", description: "Análisis NOM-035 por Categoría, Dominio y Dimensión con plan de intervención" },
       { label: "Análisis de Sentimiento", path: "/surveys/sentiment-analysis", description: "Dashboard de análisis de sentimiento con IA" },
       { label: "✨ IA Psicosocial — Forge LLM", path: "/psychosocial-ai", description: "Análisis de texto, reportes ejecutivos y planes de intervención con IA" },
       { label: "⚖️ Documentos Técnico-Jurídicos", path: "/legal-doc-generator", description: "Generación IA de Investigación de Caso y Dictamen NOM-035" },

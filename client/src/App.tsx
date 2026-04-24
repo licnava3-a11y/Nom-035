@@ -161,6 +161,7 @@ const NotificationSettings = lazy(() => import("./pages/settings/NotificationSet
 const EqualityPolicy = lazy(() => import("./pages/equality/Policy"));
 const NOM035Questionnaire = lazy(() => import("./pages/NOM035Questionnaire"));
 const NOM035Results = lazy(() => import("./pages/NOM035Results"));
+const NOM035DetailedReport = lazy(() => import("./pages/NOM035DetailedReport"));
 const Departments = lazy(() => import("./pages/Departments"));
 const Positions = lazy(() => import("./pages/Positions"));
 const OrganizationDashboard = lazy(() => import("./pages/OrganizationDashboard"));
@@ -1177,6 +1178,11 @@ function Router() {
               <SurveyPeriodsManager />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path={"/nom035/detailed-report"}>
+          <Suspense fallback={<PageLoader />}>
+            <NOM035DetailedReport />
+          </Suspense>
         </Route>
         <Route path={"/nom035-admin"}>
           <DashboardLayout>

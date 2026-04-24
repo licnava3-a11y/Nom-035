@@ -60,11 +60,22 @@ export default function Home() {
   const [qualityDateFrom, setQualityDateFrom] = useState<string>("");
   const [qualityDateTo, setQualityDateTo] = useState<string>("");
   const [showCustomRange, setShowCustomRange] = useState(false);
+  const [compareMode, setCompareMode] = useState(false);
+  const [qualityDateFromB, setQualityDateFromB] = useState<string>("");
+  const [qualityDateToB, setQualityDateToB] = useState<string>("");
   // Construir input del query: rango libre tiene precedencia
   const qualityInput = (qualityDateFrom || qualityDateTo)
     ? { dateFrom: qualityDateFrom || undefined, dateTo: qualityDateTo || undefined }
     : qualityPeriod ? { days: qualityPeriod } : undefined;
   const { data: bugStats } = trpc.bugReports.getStats.useQuery(qualityInput);
+  const { data: bugStatsB } = trpc.bugReports.getStats.useQuery(
+    { dateFrom: qualityDateFromB || undefined, dateTo: qualityDateToB || undefined },
+    { enabled: compareMode && !!qualityDateFromB && !!qualityDateToB }
+  );
+  const { data: featureStatsB } = trpc.featureRequests.getStats.useQuery(
+    { dateFrom: qualityDateFromB || undefined, dateTo: qualityDateToB || undefined },
+    { enabled: compareMode && !!qualityDateFromB && !!qualityDateToB }
+  );
   const { data: featureStats } = trpc.featureRequests.getStats.useQuery(qualityInput);
   const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
 
@@ -868,11 +879,60 @@ export default function Home() {
                 >
                   Rango libre
                 </button>
+                <button
+                  onClick={() => setCompareMode(v => !v)}
+                  className={`text-xs px-3 py-1 rounded-md font-medium transition-all ${
+                    compareMode ? 'bg-indigo-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Comparativa Q1/Q2
+                </button>
               </div>
             </div>
           </div>
           {/* Selector de rango libre de fechas */}
-          {showCustomRange && (
+          {compareMode && (
+              <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                <p className="text-xs font-semibold text-indigo-700 mb-2">Período B (Q2) — Rango de comparación</p>
+                <div className="flex flex-wrap gap-2 items-center">
+                  <div className="flex items-center gap-1">
+                    <label className="text-xs text-slate-500">Desde:</label>
+                    <input
+                      type="date"
+                      value={qualityDateFromB}
+                      onChange={(e) => setQualityDateFromB(e.target.value)}
+                      className="text-xs border border-indigo-200 rounded px-2 py-1 bg-white"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <label className="text-xs text-slate-500">Hasta:</label>
+                    <input
+                      type="date"
+                      value={qualityDateToB}
+                      onChange={(e) => setQualityDateToB(e.target.value)}
+                      className="text-xs border border-indigo-200 rounded px-2 py-1 bg-white"
+                    />
+                  </div>
+                </div>
+                {bugStatsB && featureStatsB && (
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                      <p className="text-xs font-semibold text-slate-500 mb-1">Bug Reports — Q2</p>
+                      <p className="text-lg font-bold text-slate-800">{bugStatsB.total ?? 0} total</p>
+                      <p className="text-xs text-red-600">{bugStatsB.pending ?? 0} pendientes</p>
+                      <p className="text-xs text-green-600">{bugStatsB.resolved ?? 0} resueltos</p>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border border-indigo-100">
+                      <p className="text-xs font-semibold text-slate-500 mb-1">Features — Q2</p>
+                      <p className="text-lg font-bold text-slate-800">{featureStatsB.total ?? 0} total</p>
+                      <p className="text-xs text-green-600">{featureStatsB.implemented ?? 0} implementadas</p>
+                      <p className="text-xs text-slate-400">{featureStatsB.implementationRate ?? 0}% tasa</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {showCustomRange && (
             <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg border border-border">
               <CalendarClock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <div className="flex items-center gap-2 flex-wrap">

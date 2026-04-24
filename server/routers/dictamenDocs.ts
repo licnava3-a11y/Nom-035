@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { sendEmail } from "../_core/email";
 import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users } from "../../drizzle/schema";
+import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users , employees } from "../../drizzle/schema";
 import { createHash } from "crypto";
 import { inArray } from "drizzle-orm";
 import { eq, desc, sql } from "drizzle-orm";

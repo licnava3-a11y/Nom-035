@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { surveyResponses, surveyPeriods, surveys, users } from "../../drizzle/schema";
+import { surveyResponses, surveyPeriods, surveys, users, surveyQuestions, surveyAnswers } from "../../drizzle/schema";
 import { eq, and, sql, gte, lte, desc } from "drizzle-orm";
 
 export const nom035AdminRouter = router({
@@ -611,6 +611,129 @@ export const nom035AdminRouter = router({
       return {
         base64: pdfBuffer.toString('base64'),
         filename,
+      };
+    }),
+
+  /**
+   * Resultados detallados por Categoría, Dominio y Dimensión (NOM-035 extendido)
+   * Fórmula: puntajeDimension = (sumaReactivos / máximoPosible) * 100
+   * Niveles: Nulo (0-5), Bajo (6-40), Medio (41-60), Alto (61-85), Muy Alto (86-100)
+   */
+  getDetailedResults: protectedProcedure
+    .input(z.object({
+      surveyPeriodId: z.number().optional(),
+      showCategoria: z.boolean().default(true),
+      showDominio: z.boolean().default(true),
+      showDimension: z.boolean().default(true),
+      showRecomendaciones: z.boolean().default(false),
+      showPlanTrabajo: z.boolean().default(false),
+    }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+
+      function getNivelRiesgo(puntaje: number) {
+        if (puntaje <= 5) return { nivel: "Nulo", color: "#2e7d32", labelClass: "nulo" };
+        if (puntaje <= 40) return { nivel: "Bajo", color: "#2c7a47", labelClass: "bajo" };
+        if (puntaje <= 60) return { nivel: "Medio", color: "#b76e0e", labelClass: "medio" };
+        if (puntaje <= 85) return { nivel: "Alto", color: "#d95b0f", labelClass: "alto" };
+        return { nivel: "Muy Alto", color: "#c62828", labelClass: "muy_alto" };
+      }
+
+      const completedResponses = await db
+        .select({ id: surveyResponses.id })
+        .from(surveyResponses)
+        .where(
+          input.surveyPeriodId
+            ? and(eq(surveyResponses.periodId, input.surveyPeriodId), sql`${surveyResponses.completedAt} IS NOT NULL`)
+            : sql`${surveyResponses.completedAt} IS NOT NULL`
+        );
+
+      if (completedResponses.length === 0) {
+        return { totalRespuestas: 0, categoriaGeneral: null, dominios: [], dimensiones: [], requierePlanObligatorio: false, recomendaciones: [], planTrabajo: null };
+      }
+
+      const responseIds = completedResponses.map(r => r.id);
+
+      const answers = await db
+        .select({
+          answerValue: surveyAnswers.answerValue,
+          category: surveyQuestions.category,
+          domain: surveyQuestions.domain,
+          dimension: surveyQuestions.dimension,
+          isReverseScored: surveyQuestions.isReverseScored,
+        })
+        .from(surveyAnswers)
+        .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+        .where(sql`${surveyAnswers.responseId} IN (${sql.join(responseIds.map(id => sql`${id}`), sql`, `)})`);
+
+      const dimMap: Record<string, { valores: number[]; maxPosible: number; category?: string; domain?: string }> = {};
+      for (const ans of answers) {
+        const dimKey = ans.dimension || ans.domain || ans.category || "Sin clasificar";
+        if (!dimMap[dimKey]) dimMap[dimKey] = { valores: [], maxPosible: 0, category: ans.category ?? undefined, domain: ans.domain ?? undefined };
+        const rawVal = parseInt(ans.answerValue, 10);
+        const val = isNaN(rawVal) ? 0 : Math.max(0, Math.min(4, rawVal));
+        const finalVal = ans.isReverseScored ? (4 - val) : val;
+        dimMap[dimKey].valores.push(finalVal);
+        dimMap[dimKey].maxPosible += 4;
+      }
+
+      const dimensiones = Object.entries(dimMap).map(([nombre, data]) => {
+        const suma = data.valores.reduce((s, v) => s + v, 0);
+        const puntaje = data.maxPosible > 0 ? parseFloat(((suma / data.maxPosible) * 100).toFixed(2)) : 0;
+        return { nombre, puntaje, nivel: getNivelRiesgo(puntaje), category: data.category, domain: data.domain, totalReactivos: data.valores.length };
+      }).sort((a, b) => b.puntaje - a.puntaje);
+
+      const domMap: Record<string, number[]> = {};
+      for (const dim of dimensiones) {
+        const domKey = dim.domain || dim.category || "Sin dominio";
+        if (!domMap[domKey]) domMap[domKey] = [];
+        domMap[domKey].push(dim.puntaje);
+      }
+      const dominios = Object.entries(domMap).map(([nombre, puntajes]) => {
+        const puntaje = parseFloat((puntajes.reduce((s, v) => s + v, 0) / puntajes.length).toFixed(2));
+        return { nombre, puntaje, nivel: getNivelRiesgo(puntaje), totalDimensiones: puntajes.length };
+      }).sort((a, b) => b.puntaje - a.puntaje);
+
+      const catPuntaje = dominios.length > 0
+        ? parseFloat((dominios.reduce((s, d) => s + d.puntaje, 0) / dominios.length).toFixed(2))
+        : 0;
+      const categoriaGeneral = { puntaje: catPuntaje, nivel: getNivelRiesgo(catPuntaje) };
+
+      const requierePlan = dimensiones.some(d => d.nivel.nivel === "Alto" || d.nivel.nivel === "Muy Alto")
+        || dominios.some(d => d.nivel.nivel === "Alto" || d.nivel.nivel === "Muy Alto")
+        || categoriaGeneral.nivel.nivel === "Alto" || categoriaGeneral.nivel.nivel === "Muy Alto";
+
+      const criticas = [...dimensiones.filter(d => d.puntaje > 60), ...dominios.filter(d => d.puntaje > 60)];
+      const recomendaciones: string[] = [];
+      if (criticas.length > 0) {
+        recomendaciones.push(`Áreas críticas (puntaje >60): ${criticas.map(c => c.nombre).join(', ')}`);
+        recomendaciones.push("Revisar cargas de trabajo y jornadas excesivas (Guía de Referencia III STPS)");
+        recomendaciones.push("Establecer mecanismos de reconocimiento y liderazgo positivo");
+        recomendaciones.push("Realizar pausas activas obligatorias cada 2 horas");
+        recomendaciones.push("Difundir política de prevención de riesgos psicosociales (Art. 9 NOM-035)");
+      } else {
+        recomendaciones.push("Sin alertas críticas. Mantener capacitación semestral en factores psicosociales");
+        recomendaciones.push("Fomentar canales de retroalimentación y encuestas de clima organizacional");
+        recomendaciones.push("Monitoreo anual conforme a NOM-035 (mejora continua)");
+      }
+
+      const planTrabajo = requierePlan ? {
+        nivel1: "Reunión con responsables de RH y dirección. Aplicación de cuestionario complementario.",
+        nivel2: "Talleres de liderazgo, clarificación de roles y pausas activas en jornada laboral.",
+        nivel3: "Re-evaluación en 3 meses, bitácora de medidas correctivas.",
+        comite: "Integrar comité de seguridad y salud en el trabajo para abordar dimensiones con puntaje >60.",
+      } : null;
+
+      return {
+        totalRespuestas: completedResponses.length,
+        categoriaGeneral: input.showCategoria ? categoriaGeneral : null,
+        dominios: input.showDominio ? dominios : [],
+        dimensiones: input.showDimension ? dimensiones : [],
+        requierePlanObligatorio: requierePlan,
+        recomendaciones: input.showRecomendaciones ? recomendaciones : [],
+        planTrabajo: input.showPlanTrabajo ? planTrabajo : null,
       };
     }),
 });
