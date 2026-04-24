@@ -18,6 +18,7 @@ import {
   notifications,
 } from "../../drizzle/schema";
 import { eq, and, lte, inArray, sql, ne } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 import { sendEmail } from "../_core/email";
 import { notifyOwner } from "../_core/notification";
 
@@ -57,8 +58,7 @@ export async function runPacStaleItemsJob(): Promise<{
         responsibleId: annualTrainingPlans.responsibleId,
         responsibleFirstName: employees.firstName,
         responsibleLastName: employees.lastName,
-        responsibleWorkEmail: employees.workEmail,
-        responsiblePersonalEmail: employees.personalEmail,
+        responsibleEmail: employees.email,
       })
       .from(annualTrainingPlanItems)
       .innerJoin(annualTrainingPlans, eq(annualTrainingPlanItems.planId, annualTrainingPlans.id))
@@ -81,32 +81,34 @@ export async function runPacStaleItemsJob(): Promise<{
     }
 
     // Agrupar por plan para enviar un solo correo por responsable
-    const byPlan = new Map<number, typeof staleItems>();
+    const byPlanMap = new Map<number, typeof staleItems>();
     for (const item of staleItems) {
-      const list = byPlan.get(item.planId) ?? [];
+      const list = byPlanMap.get(item.planId) ?? [];
       list.push(item);
-      byPlan.set(item.planId, list);
+      byPlanMap.set(item.planId, list);
     }
+    const byPlan = Array.from(byPlanMap.entries());
 
     const today = new Date().toISOString().slice(0, 10);
 
     for (const [planId, items] of byPlan) {
       const first = items[0];
-      const responsibleEmail = first.responsibleWorkEmail ?? first.responsiblePersonalEmail;
+      const responsibleEmail = first.responsibleEmail;
       const responsibleName = first.responsibleFirstName
         ? `${first.responsibleFirstName} ${first.responsibleLastName ?? ""}`.trim()
         : "Responsable del PAC";
 
       // Deduplicación: verificar si ya se envió notificación hoy para este plan
-      const dedupKey = `pac_stale_${planId}_${today}`;
+      // Usamos relatedEntityType='pac_stale' y relatedEntityId=planId como clave de deduplicación
       const existing = await db
         .select({ id: notifications.id })
         .from(notifications)
         .where(
           and(
-            eq(notifications.type, "pac_stale_alert"),
-            sql`DATE(${notifications.createdAt}) = ${today}`,
-            sql`JSON_EXTRACT(${notifications.metadata}, '$.planId') = ${planId}`
+            eq(notifications.type, "system"),
+            eq(notifications.relatedEntityType, "pac_stale"),
+            eq(notifications.relatedEntityId, planId),
+            sql`DATE(${notifications.createdAt}) = ${today}`
           )
         )
         .limit(1);
@@ -117,7 +119,7 @@ export async function runPacStaleItemsJob(): Promise<{
       }
 
       // Construir lista de cursos para el correo
-      const courseList = items
+      const courseList = (items as typeof staleItems)
         .map((i) => {
           const diasSinActualizar = Math.floor(
             (Date.now() - new Date(i.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
@@ -126,14 +128,16 @@ export async function runPacStaleItemsJob(): Promise<{
         })
         .join("\n");
 
-      // Registrar notificación interna
+      // Registrar notificación interna (usando userId=1 como owner/sistema)
       await db.insert(notifications).values({
-        type: "pac_stale_alert",
+        userId: 1,
+        type: "system",
         title: `PAC ${first.planYear}: ${items.length} curso(s) sin actualizar (>${STALE_DAYS} días)`,
         message: `El plan "${first.planTitle}" tiene ${items.length} curso(s) que llevan más de ${STALE_DAYS} días sin actualizar su avance.`,
+        relatedEntityType: "pac_stale",
+        relatedEntityId: planId,
         isRead: false,
-        metadata: JSON.stringify({ planId, planTitle: first.planTitle, planYear: first.planYear, staleCount: items.length }),
-      } as any);
+      });
 
       // Enviar correo al responsable (si tiene email)
       if (responsibleEmail) {
@@ -184,7 +188,7 @@ export async function runPacStaleItemsJob(): Promise<{
     }
 
     // Notificación al owner con resumen
-    const totalPlans = byPlan.size;
+    const totalPlans = byPlan.length;
     if (totalPlans > 0) {
       await notifyOwner({
         title: `PAC: ${result.checked} curso(s) sin actualizar en ${totalPlans} plan(es)`,
