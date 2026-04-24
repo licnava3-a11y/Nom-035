@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Lightbulb, Plus, CheckCircle, Clock, TrendingUp, BarChart2, Download, X, Search } from "lucide-react";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const PRI_COLOR: Record<string, string> = { critica: "bg-red-100 text-red-800", alta: "bg-orange-100 text-orange-800", normal: "bg-blue-100 text-blue-800", baja: "bg-slate-100 text-slate-700" };
 const STATUS_COLOR: Record<string, string> = { pendiente: "bg-slate-100 text-slate-700", aprobada: "bg-blue-100 text-blue-700", en_desarrollo: "bg-yellow-100 text-yellow-800", implementada: "bg-green-100 text-green-700", descartada: "bg-red-100 text-red-700" };
