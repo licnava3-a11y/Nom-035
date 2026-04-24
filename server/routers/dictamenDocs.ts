@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users } from "../../drizzle/schema";
@@ -336,5 +336,48 @@ export const dictamenDocsRouter = router({
         area: caseInvestigationDocs.area,
         estado: caseInvestigationDocs.estado,
       }).from(caseInvestigationDocs).orderBy(desc(caseInvestigationDocs.createdAt));
+    }),
+
+  // ── Configuración del catálogo de formatos (folio configurable) ──────────────
+  getDocFormatConfig: protectedProcedure
+    .input(z.object({ docType: z.enum(["dictamen", "investigacion"]) }))
+    .query(async ({ input }) => {
+      const db = await requireDb();
+      const [config] = await db.select().from(docFormatConfig)
+        .where(eq(docFormatConfig.docType, input.docType)).limit(1);
+      return config ?? null;
+    }),
+
+  updateDocFormatConfig: adminProcedure
+    .input(z.object({
+      docType: z.enum(["dictamen", "investigacion"]),
+      codigoFormato: z.string().min(1).max(30),
+      version: z.string().min(1).max(20),
+      fechaVersion: z.string().max(20).optional(),
+      referenciaNormativa: z.string().max(200).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await requireDb();
+      const [existing] = await db.select().from(docFormatConfig)
+        .where(eq(docFormatConfig.docType, input.docType)).limit(1);
+      if (existing) {
+        await db.update(docFormatConfig)
+          .set({
+            codigoFormato: input.codigoFormato,
+            version: input.version,
+            fechaVersion: input.fechaVersion ?? null,
+            referenciaNormativa: input.referenciaNormativa ?? null,
+          })
+          .where(eq(docFormatConfig.docType, input.docType));
+      } else {
+        await db.insert(docFormatConfig).values({
+          docType: input.docType,
+          codigoFormato: input.codigoFormato,
+          version: input.version,
+          fechaVersion: input.fechaVersion ?? null,
+          referenciaNormativa: input.referenciaNormativa ?? null,
+        });
+      }
+      return { success: true };
     }),
 });

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Scale, ChevronDown, ChevronUp, Loader2, CheckCircle, Download, Save, Eye, Trash2, Plus } from "lucide-react";
+import { FileText, Scale, ChevronDown, ChevronUp, Loader2, CheckCircle, Download, Save, Eye, Trash2, Plus, Settings2 } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -381,6 +382,26 @@ function DictamenTab() {
   const { data: investigaciones } = trpc.dictamenDocs.listInvestigaciones.useQuery();
   const { data: clinicalEmployees } = trpc.employees.getClinicalEmployees.useQuery();
   const [useManualResponsable, setUseManualResponsable] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  // Configuración de folio
+  const { data: folioConfig, refetch: refetchFolioConfig } = trpc.dictamenDocs.getDocFormatConfig.useQuery({ docType: "dictamen" });
+  const [folioConfigOpen, setFolioConfigOpen] = useState(false);
+  const [folioForm, setFolioForm] = useState({ codigoFormato: "NOM035-DICT", version: "1.0", fechaVersion: "", referenciaNormativa: "NOM-035-STPS-2018" });
+  useEffect(() => {
+    if (folioConfig) {
+      setFolioForm({
+        codigoFormato: folioConfig.codigoFormato ?? "NOM035-DICT",
+        version: folioConfig.version ?? "1.0",
+        fechaVersion: folioConfig.fechaVersion ?? "",
+        referenciaNormativa: folioConfig.referenciaNormativa ?? "NOM-035-STPS-2018",
+      });
+    }
+  }, [folioConfig]);
+  const updateFolioConfigMut = trpc.dictamenDocs.updateDocFormatConfig.useMutation({
+    onSuccess: () => { toast({ title: "Configuración de folio actualizada" }); refetchFolioConfig(); setFolioConfigOpen(false); },
+    onError: (e) => toast({ title: "Error al actualizar configuración", description: e.message, variant: "destructive" }),
+  });
 
   // Prellenado automático desde datos del sistema
   const { data: prefilledData } = trpc.dictamenDocs.getPrefilledData.useQuery();
@@ -443,7 +464,11 @@ function DictamenTab() {
     const riesgoLabel = RIESGO_LABELS[activeDoc.nivelRiesgoGlobal] ?? activeDoc.nivelRiesgoGlobal ?? 'No determinado';
     const riesgoColor = activeDoc.nivelRiesgoGlobal === 'muy_alto' ? '#991b1b' : activeDoc.nivelRiesgoGlobal === 'alto' ? '#c2410c' : activeDoc.nivelRiesgoGlobal === 'medio' ? '#92400e' : '#166534';
     const riesgoBg = activeDoc.nivelRiesgoGlobal === 'muy_alto' ? '#fee2e2' : activeDoc.nivelRiesgoGlobal === 'alto' ? '#ffedd5' : activeDoc.nivelRiesgoGlobal === 'medio' ? '#fef9c3' : '#dcfce7';
-
+    // Datos de folio configurable y NOM-151
+    const refNormativa = folioConfig?.referenciaNormativa ?? 'NOM-035-STPS-2018';
+    const versionDoc = folioConfig?.version ?? '1.0';
+    const fechaVersionDoc = folioConfig?.fechaVersion ?? '';
+    const integrityHash = (activeDoc as any).integrityHash ?? null;
     let html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
     <style>
       @page { size: letter; margin: 20mm 20mm 25mm 25mm; }
@@ -459,40 +484,39 @@ function DictamenTab() {
       .firma-section { margin-top: 40px; page-break-inside: avoid; }
       .firma-section h2 { border-left: 3px solid #1e3a5f; color: #1e3a5f; }
       .firma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px; }
-      .firma-box { border: 1px solid #ccc; padding: 16px; border-radius: 4px; }
-      .firma-line { border-bottom: 1px solid #333; margin: 50px 0 6px 0; }
-      .firma-label { font-size: 9pt; color: #555; text-align: center; }
-      .firma-name { font-size: 9.5pt; font-weight: bold; text-align: center; margin-top: 4px; }
-      .firma-cedula { font-size: 8.5pt; color: #666; text-align: center; }
-      .firma-date { font-size: 8.5pt; color: #666; text-align: center; margin-top: 8px; }
-      .sello-box { border: 2px dashed #999; width: 100px; height: 100px; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 8pt; color: #999; text-align: center; border-radius: 50%; }
-      .footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #ccc; padding: 6px 20mm; font-size: 8pt; color: #666; display: flex; justify-content: space-between; }
+      .firma-box { text-align: center; }
+      .firma-line { border-top: 1.5px solid #1a1a1a; margin: 60px 10px 6px 10px; }
+      .firma-label { font-size: 9pt; font-weight: bold; color: #1e3a5f; }
+      .firma-name { font-size: 9pt; margin-top: 2px; }
+      .firma-cedula { font-size: 8pt; color: #555; }
+      .firma-date { font-size: 8pt; color: #555; margin-top: 4px; }
+      .sello-box { width: 60px; height: 60px; border: 2px dashed #9ca3af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; color: #9ca3af; margin: 0 auto 8px auto; text-align: center; }
+      .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 7.5pt; color: #666; display: flex; justify-content: space-between; border-top: 1px solid #e5e7eb; padding: 4px 20mm; background: white; }
       .aviso-confidencial { background: #fffbeb; border: 1px solid #fcd34d; padding: 6px 12px; font-size: 8.5pt; color: #92400e; margin-bottom: 12px; text-align: center; }
+      .hash-box { background: #f0fdf4; border: 1px solid #86efac; padding: 8px 12px; font-size: 7.5pt; color: #166534; margin-top: 8px; border-radius: 4px; font-family: monospace; word-break: break-all; }
       @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     </style>
     <script>window.onload = function() { window.print(); }<\/script>
     </head><body>`;
-
     // Encabezado
     html += `
     <div class="header-bar">
       <h1>DICTAMEN NOM-035-STPS-2018</h1>
       <div class="folio-box">
         <div><strong>Folio:</strong> ${activeDoc.folio}</div>
+        <div><strong>Versión:</strong> ${versionDoc}${fechaVersionDoc ? ' | ' + fechaVersionDoc : ''}</div>
         <div><strong>Fecha:</strong> ${fechaEmision}</div>
       </div>
     </div>
     <div class="sub-header">
-      <span>Ref. Normativa: NOM-035-STPS-2018 | Factores de Riesgo Psicosocial en el Trabajo</span>
+      <span>Ref. Normativa: ${refNormativa}</span>
       <span>Nivel de Riesgo Global: <span class="riesgo-badge">${riesgoLabel}</span></span>
     </div>
     <div class="aviso-confidencial">⚠️ DOCUMENTO CONFIDENCIAL — Uso exclusivo del área de Seguridad y Salud en el Trabajo. Prohibida su reproducción parcial sin autorización.</div>`;
-
     // Secciones 1-9
     sections.filter(s => s.key !== 'firmas').forEach(s => {
       html += `<h2>${s.label}</h2><p>${(contenido[s.key] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
     });
-
     // Sección 10: Firmas con espacios firmables
     html += `
     <div class="firma-section">
@@ -516,14 +540,11 @@ function DictamenTab() {
         </div>
       </div>
     </div>`;
-
     // Sección 11: Anexos
     html += `<h2>11. Anexos</h2><p>${(contenido['anexos'] ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`;
-
-    // QR de verificación NOM-151 + Footer
-    const qrData = encodeURIComponent(`DICTAMEN NOM-035\nFolio: ${activeDoc.folio}\nFecha: ${fechaEmision}\nNivel Riesgo: ${riesgoLabel}\nResponsable: ${form.responsableTecnico || 'N/D'}\nCédula: ${form.cedulaProfesional || 'N/D'}\nReferencia: NOM-035-STPS-2018`);
+    // QR de verificación NOM-151 + Hash de integridad + Footer
+    const qrData = encodeURIComponent(`DICTAMEN NOM-035\nFolio: ${activeDoc.folio}\nFecha: ${fechaEmision}\nNivel Riesgo: ${riesgoLabel}\nResponsable: ${form.responsableTecnico || 'N/D'}\nCédula: ${form.cedulaProfesional || 'N/D'}\nReferencia: ${refNormativa}`);
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrData}`;
-
     html += `
     <div style="margin-top: 32px; page-break-inside: avoid; border-top: 1px solid #e5e7eb; padding-top: 16px; display: flex; align-items: flex-start; gap: 20px;">
       <div style="flex-shrink: 0; text-align: center;">
@@ -531,18 +552,18 @@ function DictamenTab() {
         <p style="font-size: 7pt; color: #888; margin: 3px 0 0 0; max-width: 90px;">Verificación NOM-151</p>
       </div>
       <div style="flex: 1; font-size: 8pt; color: #555; line-height: 1.5;">
-        <strong style="font-size: 8.5pt; color: #374151;">Autenticidad del Documento</strong><br>
+        <strong style="font-size: 8.5pt; color: #374151;">Autenticidad del Documento — Trazabilidad NOM-151-SCFI-2016</strong><br>
         Este código QR contiene los datos de identificación del Dictamen (folio, fecha, nivel de riesgo y responsable técnico). Escánelo para verificar la autenticidad del documento conforme a la NOM-151-SCFI-2016 (conservación de mensajes de datos).<br>
-        <span style="color: #9ca3af;">Folio: ${activeDoc.folio} &bull; Generado: ${fechaEmision} &bull; NOM-035-STPS-2018</span>
+        <span style="color: #9ca3af;">Folio: ${activeDoc.folio} &bull; Versión: ${versionDoc} &bull; Generado: ${fechaEmision} &bull; ${refNormativa}</span>
+        ${integrityHash ? `<div class="hash-box" style="margin-top:6px;"><strong>Hash SHA-256 NOM-151:</strong> ${integrityHash}</div>` : ''}
       </div>
     </div>
     <div class="footer">
-      <span>Folio: ${activeDoc.folio} | NOM-035-STPS-2018</span>
-      <span>Generado: ${fechaEmision}</span>
-      <span>Documento con verificación NOM-151</span>
+      <span>Folio: ${activeDoc.folio} | ${refNormativa}</span>
+      <span>Versión: ${versionDoc} | Generado: ${fechaEmision}</span>
+      <span>Trazabilidad NOM-151 | ${integrityHash ? 'Hash: ' + integrityHash.substring(0, 16) + '...' : 'Sin hash'}</span>
     </div>
     </body></html>`;
-
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -550,7 +571,7 @@ function DictamenTab() {
     a.download = `Dictamen_NOM035_${activeDoc.folio.replace(/\//g, '-')}_${new Date().getFullYear()}.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: 'Dictamen exportado para imprimir como PDF', description: 'Incluye espacios de firma, sello y código QR de verificación NOM-151. Selecciona “Guardar como PDF” en el diálogo de impresión.' });
+    toast({ title: 'Dictamen exportado para imprimir como PDF', description: 'Incluye hash NOM-151, folio configurable, espacios de firma y QR de verificación. Selecciona "Guardar como PDF" en el diálogo de impresión.' });
   };
 
   return (
@@ -569,6 +590,47 @@ function DictamenTab() {
         )}
       </div>
 
+      {/* Panel de configuración de folio — solo visible para admins */}
+      {isAdmin && (
+        <Card className="border-amber-200 dark:border-amber-800">
+          <CardHeader className="pb-2 cursor-pointer" onClick={() => setFolioConfigOpen(o => !o)}>
+            <CardTitle className="flex items-center justify-between text-sm font-medium text-amber-800 dark:text-amber-300">
+              <span className="flex items-center gap-2"><Settings2 className="h-4 w-4" /> Configuración de Folio y Formato del Dictamen</span>
+              {folioConfigOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </CardTitle>
+            {!folioConfigOpen && folioConfig && (
+              <p className="text-xs text-muted-foreground mt-1">Prefijo actual: <span className="font-mono font-semibold">{folioConfig.codigoFormato}</span> · Versión: {folioConfig.version} · Ref: {folioConfig.referenciaNormativa ?? "NOM-035-STPS-2018"}</p>
+            )}
+          </CardHeader>
+          {folioConfigOpen && (
+            <CardContent className="space-y-3 pt-0">
+              <p className="text-xs text-muted-foreground">Define el prefijo del folio, versión del documento y referencia normativa que aparecerán en el encabezado y pie de página del PDF exportado.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Prefijo del Folio (Código de Formato)</Label>
+                  <Input className="font-mono text-sm" placeholder="Ej: NOM035-DICT" value={folioForm.codigoFormato} onChange={e => setFolioForm(p => ({ ...p, codigoFormato: e.target.value }))} maxLength={30} />
+                  <p className="text-xs text-muted-foreground">El folio generado será: <span className="font-mono">{folioForm.codigoFormato || "NOM035-DICT"}-AAAA-NNN</span></p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Versión del Documento</Label>
+                  <Input className="text-sm" placeholder="Ej: 1.0" value={folioForm.version} onChange={e => setFolioForm(p => ({ ...p, version: e.target.value }))} maxLength={20} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Fecha de Versión</Label>
+                  <Input type="date" className="text-sm" value={folioForm.fechaVersion} onChange={e => setFolioForm(p => ({ ...p, fechaVersion: e.target.value }))} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Referencia Normativa</Label>
+                  <Input className="text-sm" placeholder="Ej: NOM-035-STPS-2018" value={folioForm.referenciaNormativa} onChange={e => setFolioForm(p => ({ ...p, referenciaNormativa: e.target.value }))} maxLength={200} />
+                </div>
+              </div>
+              <Button size="sm" onClick={() => updateFolioConfigMut.mutate({ docType: "dictamen", ...folioForm })} disabled={updateFolioConfigMut.isPending || !folioForm.codigoFormato || !folioForm.version}>
+                {updateFolioConfigMut.isPending ? <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Guardando...</> : <><CheckCircle className="h-3 w-3 mr-1" /> Guardar Configuración</>}
+              </Button>
+            </CardContent>
+          )}
+        </Card>
+      )}
       {view === "form" && (
         <Card>
           <CardHeader>

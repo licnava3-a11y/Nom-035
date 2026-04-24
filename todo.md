@@ -315,3 +315,10 @@
 - [ ] Límite 24h de notificaciones duplicadas en notifyEmployee
 - [x] Exportación PDF del historial de notificaciones del buzón
 - [ ] Selector de período histórico en comparativa psicométrica de /executive-report
+
+## Sprint 9: Folio Configurable + Dashboard Calidad + PDF NOM-151 + Badges Cumplimiento — Abril 2026
+- [x] Panel de configuración de folio con prefijo configurable (NOM035-DICT-) y consecutivo en LegalDocGenerator.tsx
+- [x] Widget de calidad en Home.tsx — resumen Bug Reports (pendientes/corregidos) y Feature Requests (% implementadas)
+- [x] Exportar dictamen a PDF con hash NOM-151, folio configurable, QR de verificación y firma del responsable
+- [x] Badges de cumplimiento normativo en portada pública: NOM-151, LGPD/LFPDPPP, GDPR, ISO 27001, ISO 27002
+- [x] Badges de cumplimiento normativo en header del dashboard autenticado

@@ -10,7 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun } from "lucide-react";
+import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun, Shield, Bug, Lightbulb, ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AlertBanner } from "@/components/AlertBanner";
@@ -52,6 +55,9 @@ export default function Home() {
 
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
+  // Widget de calidad
+  const { data: bugStats } = trpc.bugReports.getStats.useQuery();
+  const { data: featureStats } = trpc.featureRequests.getStats.useQuery();
   const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
 
   // Determinar si el usuario es supervisor/gerente/jefe_area
@@ -182,13 +188,83 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Acceso Restringido</CardTitle>
-            <CardDescription>Debes iniciar sesión para ver el dashboard</CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 flex flex-col">
+        {/* Hero Section */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="mb-6 flex items-center justify-center gap-3">
+            <ShieldCheck className="h-14 w-14 text-red-400" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-3">
+            Plataforma NOM-035 STPS 2018
+          </h1>
+          <p className="text-lg text-red-200 mb-2 max-w-2xl">
+            Gestión Integral de Riesgos Psicosociales en el Trabajo
+          </p>
+          <p className="text-sm text-slate-400 mb-8 max-w-xl">
+            Sistema de cumplimiento normativo, trazabilidad documental y bienestar organizacional conforme a la NOM-035-STPS-2018 y estándares internacionales de seguridad de la información.
+          </p>
+          <a
+            href={getLoginUrl()}
+            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded-lg text-base transition-colors shadow-lg shadow-red-900/40"
+          >
+            <Shield className="h-5 w-5" />
+            Acceder a la Plataforma
+          </a>
+        </div>
+
+        {/* Badges de Cumplimiento Normativo */}
+        <div className="w-full bg-slate-900/80 border-t border-slate-700/60 py-8 px-6">
+          <div className="max-w-4xl mx-auto">
+            <p className="text-center text-xs font-semibold uppercase tracking-widest text-slate-400 mb-5">
+              Cumplimiento y Estándares de Seguridad
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {/* NOM-151 */}
+              <div className="flex items-center gap-2 bg-green-900/40 border border-green-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
+                <ShieldCheck className="h-5 w-5 text-green-400 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-green-300">NOM-151-SCFI-2016</p>
+                  <p className="text-xs text-green-500/80">Conservación de mensajes de datos</p>
+                </div>
+              </div>
+              {/* LGPD */}
+              <div className="flex items-center gap-2 bg-blue-900/40 border border-blue-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
+                <Shield className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-blue-300">LGPD / LFPDPPP</p>
+                  <p className="text-xs text-blue-500/80">Protección de datos personales</p>
+                </div>
+              </div>
+              {/* GDPR */}
+              <div className="flex items-center gap-2 bg-purple-900/40 border border-purple-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
+                <Shield className="h-5 w-5 text-purple-400 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-purple-300">GDPR</p>
+                  <p className="text-xs text-purple-500/80">Reglamento Europeo de Datos</p>
+                </div>
+              </div>
+              {/* ISO 27001 */}
+              <div className="flex items-center gap-2 bg-amber-900/40 border border-amber-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
+                <ShieldCheck className="h-5 w-5 text-amber-400 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-amber-300">ISO/IEC 27001</p>
+                  <p className="text-xs text-amber-500/80">Sistema de Gestión de Seguridad</p>
+                </div>
+              </div>
+              {/* ISO 27002 */}
+              <div className="flex items-center gap-2 bg-orange-900/40 border border-orange-700/60 rounded-lg px-4 py-2.5 min-w-[160px]">
+                <ShieldCheck className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-orange-300">ISO/IEC 27002</p>
+                  <p className="text-xs text-orange-500/80">Controles de Seguridad de la Información</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-center text-xs text-slate-600 mt-5">
+              © {new Date().getFullYear()} Plataforma NOM-035 STPS 2018 — Todos los derechos reservados
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -228,6 +304,25 @@ export default function Home() {
         </Select>
       </div>
 
+      {/* Badges de Cumplimiento Normativo — siempre visibles en el dashboard */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="text-xs text-muted-foreground font-medium mr-1">Cumplimiento:</span>
+        <Badge variant="outline" className="text-xs border-green-500 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/30 gap-1">
+          <ShieldCheck className="h-3 w-3" /> NOM-151-SCFI-2016
+        </Badge>
+        <Badge variant="outline" className="text-xs border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 gap-1">
+          <Shield className="h-3 w-3" /> LGPD / LFPDPPP
+        </Badge>
+        <Badge variant="outline" className="text-xs border-purple-500 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30 gap-1">
+          <Shield className="h-3 w-3" /> GDPR
+        </Badge>
+        <Badge variant="outline" className="text-xs border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 gap-1">
+          <ShieldCheck className="h-3 w-3" /> ISO 27001
+        </Badge>
+        <Badge variant="outline" className="text-xs border-orange-500 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 gap-1">
+          <ShieldCheck className="h-3 w-3" /> ISO 27002
+        </Badge>
+      </div>
       {/* Sistema de Alertas Visuales */}
       {metrics && (
         <div className="space-y-2">
@@ -619,6 +714,105 @@ export default function Home() {
           </div>
         </CardContent>
       </Card>
+
+      {/* ── Widget de Calidad del Sistema ───────────────────────────────── */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        {/* Bug Reports */}
+        <Card className="border-red-200 dark:border-red-900">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Bug className="h-4 w-4 text-red-500" />
+                Reportes de Errores (Bug Reports)
+              </CardTitle>
+              <a href="/bug-reports" className="text-xs text-primary hover:underline flex items-center gap-1">
+                Ver todos <ArrowRight className="h-3 w-3" />
+              </a>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {bugStats ? (
+              <div className="space-y-2">
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="p-2 bg-red-50 dark:bg-red-950/30 rounded-lg">
+                    <div className="text-xl font-bold text-red-600 dark:text-red-400">{bugStats.pendiente}</div>
+                    <div className="text-xs text-muted-foreground">Pendientes</div>
+                  </div>
+                  <div className="p-2 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg">
+                    <div className="text-xl font-bold text-yellow-600 dark:text-yellow-400">{bugStats.en_revision}</div>
+                    <div className="text-xs text-muted-foreground">En revisión</div>
+                  </div>
+                  <div className="p-2 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                    <div className="text-xl font-bold text-green-600 dark:text-green-400">{bugStats.corregido}</div>
+                    <div className="text-xs text-muted-foreground">Corregidos</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                  <span>Total: <strong>{bugStats.total}</strong></span>
+                  {bugStats.critico > 0 && (
+                    <Badge variant="destructive" className="text-xs">
+                      {bugStats.critico} crítico{bugStats.critico !== 1 ? 's' : ''}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">Cargando estadísticas...</div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Feature Requests */}
+        <Card className="border-blue-200 dark:border-blue-900">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-blue-500" />
+                Peticiones de Mejora (Feature Requests)
+              </CardTitle>
+              <a href="/feature-requests" className="text-xs text-primary hover:underline flex items-center gap-1">
+                Ver todas <ArrowRight className="h-3 w-3" />
+              </a>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {featureStats ? (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Mejoras implementadas</span>
+                    <span className="font-semibold text-green-600 dark:text-green-400">{featureStats.pctImplemented}%</span>
+                  </div>
+                  <Progress value={featureStats.pctImplemented} className="h-2" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">En progreso (implementadas + en desarrollo)</span>
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">{featureStats.pctInProgress}%</span>
+                  </div>
+                  <Progress value={featureStats.pctInProgress} className="h-2 [&>div]:bg-blue-500" />
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center pt-1">
+                  <div className="p-1.5 bg-green-50 dark:bg-green-950/30 rounded">
+                    <div className="text-lg font-bold text-green-600 dark:text-green-400">{featureStats.implementada}</div>
+                    <div className="text-xs text-muted-foreground">Implementadas</div>
+                  </div>
+                  <div className="p-1.5 bg-blue-50 dark:bg-blue-950/30 rounded">
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{featureStats.en_desarrollo}</div>
+                    <div className="text-xs text-muted-foreground">En desarrollo</div>
+                  </div>
+                  <div className="p-1.5 bg-gray-50 dark:bg-gray-900/30 rounded">
+                    <div className="text-lg font-bold text-gray-600 dark:text-gray-400">{featureStats.pendiente}</div>
+                    <div className="text-xs text-muted-foreground">Pendientes</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">Cargando estadísticas...</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Distribución por Departamento */}
       {metrics && (
