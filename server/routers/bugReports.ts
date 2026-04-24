@@ -62,12 +62,25 @@ export const bugReportsRouter = router({
     }),
 
   getStats: protectedProcedure
-    .input(z.object({ days: z.number().optional() }).optional())
+    .input(z.object({
+      days: z.number().optional(),
+      dateFrom: z.string().optional(), // ISO date "YYYY-MM-DD"
+      dateTo: z.string().optional(),   // ISO date "YYYY-MM-DD"
+    }).optional())
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       let all = await db.select().from(bugReports);
-      if (input?.days) {
+      // Rango libre de fechas tiene precedencia sobre days
+      if (input?.dateFrom || input?.dateTo) {
+        const from = input.dateFrom ? new Date(input.dateFrom + "T00:00:00") : null;
+        const to = input.dateTo ? new Date(input.dateTo + "T23:59:59") : null;
+        all = all.filter(r => {
+          if (from && r.createdAt < from) return false;
+          if (to && r.createdAt > to) return false;
+          return true;
+        });
+      } else if (input?.days) {
         const cutoff = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
         all = all.filter(r => r.createdAt >= cutoff);
       }

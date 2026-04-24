@@ -57,8 +57,15 @@ export default function Home() {
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
   // Widget de calidad
   const [qualityPeriod, setQualityPeriod] = useState<number | undefined>(undefined);
-  const { data: bugStats } = trpc.bugReports.getStats.useQuery(qualityPeriod ? { days: qualityPeriod } : undefined);
-  const { data: featureStats } = trpc.featureRequests.getStats.useQuery(qualityPeriod ? { days: qualityPeriod } : undefined);
+  const [qualityDateFrom, setQualityDateFrom] = useState<string>("");
+  const [qualityDateTo, setQualityDateTo] = useState<string>("");
+  const [showCustomRange, setShowCustomRange] = useState(false);
+  // Construir input del query: rango libre tiene precedencia
+  const qualityInput = (qualityDateFrom || qualityDateTo)
+    ? { dateFrom: qualityDateFrom || undefined, dateTo: qualityDateTo || undefined }
+    : qualityPeriod ? { days: qualityPeriod } : undefined;
+  const { data: bugStats } = trpc.bugReports.getStats.useQuery(qualityInput);
+  const { data: featureStats } = trpc.featureRequests.getStats.useQuery(qualityInput);
   const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
 
   // Determinar si el usuario es supervisor/gerente/jefe_area
@@ -837,19 +844,72 @@ export default function Home() {
       {/* ── Widget de Calidad del Sistema ───────────────────────────────── */}
       <div className="space-y-3">
         {/* Selector de período */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Calidad del Sistema</h3>
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            {([undefined, 30, 90, 365] as (number | undefined)[]).map((d) => (
-              <button
-                key={d ?? 'all'}
-                onClick={() => setQualityPeriod(d)}
-                className={`text-xs px-3 py-1 rounded-md font-medium transition-all ${qualityPeriod === d ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                {d === undefined ? 'Todo' : d === 30 ? '30 días' : d === 90 ? '90 días' : '365 días'}
-              </button>
-            ))}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Calidad del Sistema</h3>
+            <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                {([undefined, 30, 90, 365] as (number | undefined)[]).map((d) => (
+                  <button
+                    key={d ?? 'all'}
+                    onClick={() => { setQualityPeriod(d); setQualityDateFrom(''); setQualityDateTo(''); setShowCustomRange(false); }}
+                    className={`text-xs px-3 py-1 rounded-md font-medium transition-all ${
+                      !showCustomRange && qualityPeriod === d ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {d === undefined ? 'Todo' : d === 30 ? '30 días' : d === 90 ? '90 días' : '365 días'}
+                  </button>
+                ))}
+                <button
+                  onClick={() => { setShowCustomRange(v => !v); setQualityPeriod(undefined); }}
+                  className={`text-xs px-3 py-1 rounded-md font-medium transition-all ${
+                    showCustomRange ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Rango libre
+                </button>
+              </div>
+            </div>
           </div>
+          {/* Selector de rango libre de fechas */}
+          {showCustomRange && (
+            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg border border-border">
+              <CalendarClock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1">
+                  <label className="text-xs text-muted-foreground">Desde:</label>
+                  <input
+                    type="date"
+                    value={qualityDateFrom}
+                    onChange={e => setQualityDateFrom(e.target.value)}
+                    className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
+                  />
+                </div>
+                <div className="flex items-center gap-1">
+                  <label className="text-xs text-muted-foreground">Hasta:</label>
+                  <input
+                    type="date"
+                    value={qualityDateTo}
+                    onChange={e => setQualityDateTo(e.target.value)}
+                    className="text-xs border border-border rounded px-2 py-1 bg-background text-foreground"
+                  />
+                </div>
+                {(qualityDateFrom || qualityDateTo) && (
+                  <button
+                    onClick={() => { setQualityDateFrom(''); setQualityDateTo(''); }}
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                  >
+                    Limpiar
+                  </button>
+                )}
+                {qualityDateFrom && qualityDateTo && (
+                  <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    {new Date(qualityDateFrom).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })} — {new Date(qualityDateTo).toLocaleDateString('es-MX', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         {/* Bug Reports */}

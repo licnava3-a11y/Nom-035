@@ -333,3 +333,13 @@
 - [x] Ruta /vacation-seniority registrada en App.tsx
 - [x] Enlace "Tabla de Antigüedad" en sidebar DashboardLayout
 - [x] 487 pruebas unitarias pasando, 0 errores TypeScript
+## Sprint 11: Selector Responsable Técnico + Seed Preguntas Salida + Filtro Período Libre + Backup Drive — Abril 2026
+- [ ] P2: Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen
+- [ ] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida
+- [ ] Filtro de período personalizado (rango libre) en widget de calidad del dashboard
+- [ ] Exportar código completo a Google Drive (ZIP) y programar tarea semanal
+- [x] P2: Selector de responsable técnico con auto-relleno de cédula (ya estaba implementado, verificado)
+- [x] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida (ya estaba implementado, verificado)
+- [x] Filtro de período personalizado (rango libre) en widget de calidad: botón "Rango libre" + inputs fecha inicio/fin
+- [x] Backend bugReports.getStats acepta dateFrom/dateTo (rango libre)
+- [x] Backend featureRequests.getStats acepta dateFrom/dateTo (rango libre)
