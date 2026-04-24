@@ -295,6 +295,24 @@ export const annualTrainingPlanRouter = router({
       return needs;
     }),
 
+  // ─── Años disponibles en la BD ────────────────────────────────────────────────
+  getAvailableYears: protectedProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const rows = await db
+        .selectDistinct({ year: annualTrainingPlans.year })
+        .from(annualTrainingPlans)
+        .orderBy(desc(annualTrainingPlans.year));
+
+      const years = rows.map((r) => r.year);
+      // Incluir el año actual si no está
+      const currentYear = new Date().getFullYear();
+      if (!years.includes(currentYear)) years.unshift(currentYear);
+      return years;
+    }),
+
   // ─── Estadísticas del plan ────────────────────────────────────────────────────
   getStats: protectedProcedure
     .input(z.object({ planId: z.number() }))

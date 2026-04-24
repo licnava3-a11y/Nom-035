@@ -47,6 +47,7 @@ import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
 import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-alerts-job";
 import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job";
 import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
+import { runPacStaleItemsJob } from "../jobs/pac-stale-items-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -304,6 +305,16 @@ async function startServer() {
       }
     }, 60000); // Check every minute
     console.log("[Dictamen Expiry Alert Job] Scheduled to run daily at 08:00");
+
+    // PAC Stale Items Job (daily at 09:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 9 && now.getMinutes() === 0) {
+        console.log("[PAC Stale Items Job] Triggering daily PAC stale items check");
+        runPacStaleItemsJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
+    console.log("[PAC Stale Items Job] Scheduled to run daily at 09:00");
   });
 }
 

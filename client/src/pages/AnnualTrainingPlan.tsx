@@ -544,6 +544,8 @@ export default function AnnualTrainingPlan() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [page, setPage] = useState(1);
 
+  const { data: availableYears } = trpc.annualTrainingPlan.getAvailableYears.useQuery(undefined, { retry: false });
+
   const { data, isLoading } = trpc.annualTrainingPlan.list.useQuery({
     page,
     pageSize: 15,
@@ -575,7 +577,7 @@ export default function AnnualTrainingPlan() {
     );
   }
 
-  const years = [2024, 2025, 2026, 2027];
+  const years = availableYears ?? [new Date().getFullYear()];
 
   return (
     <DashboardLayout>
@@ -596,6 +598,35 @@ export default function AnnualTrainingPlan() {
             <Plus className="w-4 h-4" />Nuevo PAC
           </Button>
         </div>
+
+        {/* Selector de año — historial rápido */}
+        {years.length > 1 && (
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => { setFilterYear("all"); setPage(1); }}
+              className={`px-3 py-1.5 text-xs rounded-full font-medium border transition-colors ${
+                filterYear === "all"
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-slate-600 border-slate-300 hover:border-blue-400 hover:text-blue-600"
+              }`}
+            >
+              Todos los años
+            </button>
+            {years.map((y) => (
+              <button
+                key={y}
+                onClick={() => { setFilterYear(String(y)); setPage(1); }}
+                className={`px-3 py-1.5 text-xs rounded-full font-medium border transition-colors ${
+                  filterYear === String(y)
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-slate-600 border-slate-300 hover:border-blue-400 hover:text-blue-600"
+                }`}
+              >
+                {y}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Filtros */}
         <div className="flex gap-3 flex-wrap items-center">

@@ -1,11 +1,12 @@
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2 } from "lucide-react";
+import { Building2, FileDown } from "lucide-react";
 import {
   Users, BookOpen, Calendar, AlertTriangle, Mail, Brain,
   TrendingUp, TrendingDown, Minus, RefreshCw, BarChart3,
@@ -109,6 +110,55 @@ export default function KPIDashboard() {
     trpc.executiveReport.getComparativaDepts.useQuery(undefined, { retry: false });
 
   const isLoading = loadingKPIs || loadingTrends;
+
+  // ── Exportar comparativa a Excel ─────────────────────────────────────────────
+  function exportComparativaXLSX() {
+    if (!comparativaDepts || comparativaDepts.length === 0) return;
+
+    const now = new Date();
+    const fechaStr = now.toLocaleDateString("es-MX", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, "-");
+
+    // Hoja 1: Datos por departamento
+    const rows = comparativaDepts.map((d) => ({
+      "Departamento": d.deptName,
+      "Total Empleados": d.totalEmployees,
+      "Rotación %": d.turnoverRate,
+      "% Personal Capacitado": d.trainingRate,
+      "Puntaje NOM-035": d.nom035Score,
+      "Vacaciones Pendientes": d.pendingVacations,
+      "Riesgo Psicométrico Alto": d.highRiskPsycho,
+    }));
+
+    // Fila de promedios
+    const n = comparativaDepts.length;
+    rows.push({
+      "Departamento": "PROMEDIO GENERAL",
+      "Total Empleados": Math.round(comparativaDepts.reduce((s, d) => s + d.totalEmployees, 0) / n),
+      "Rotación %": Math.round(comparativaDepts.reduce((s, d) => s + d.turnoverRate, 0) / n),
+      "% Personal Capacitado": Math.round(comparativaDepts.reduce((s, d) => s + d.trainingRate, 0) / n),
+      "Puntaje NOM-035": Math.round(comparativaDepts.reduce((s, d) => s + d.nom035Score, 0) / n),
+      "Vacaciones Pendientes": comparativaDepts.reduce((s, d) => s + d.pendingVacations, 0),
+      "Riesgo Psicométrico Alto": comparativaDepts.reduce((s, d) => s + d.highRiskPsycho, 0),
+    });
+
+    const ws1 = XLSX.utils.json_to_sheet(rows);
+    ws1["!cols"] = [{ wch: 30 }, { wch: 16 }, { wch: 12 }, { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 24 }];
+
+    // Hoja 2: Referencia NOM-035
+    const ref = [
+      { "Indicador": "Rotación %", "Nivel Bajo": "< 8%", "Nivel Medio": "8% – 15%", "Nivel Alto": "> 15%", "Referencia": "NOM-035-STPS-2018" },
+      { "Indicador": "% Personal Capacitado", "Nivel Bajo": "< 50%", "Nivel Medio": "50% – 80%", "Nivel Alto": "> 80%", "Referencia": "NOM-035-STPS-2018" },
+      { "Indicador": "Puntaje NOM-035", "Nivel Bajo": "< 60", "Nivel Medio": "60 – 80", "Nivel Alto": "> 80", "Referencia": "NOM-035-STPS-2018" },
+      { "Indicador": "Riesgo Psicométrico", "Nivel Bajo": "0", "Nivel Medio": "1 – 3", "Nivel Alto": "> 3", "Referencia": "NOM-035-STPS-2018" },
+    ];
+    const ws2 = XLSX.utils.json_to_sheet(ref);
+    ws2["!cols"] = [{ wch: 28 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 22 }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws1, "Comparativa Departamentos");
+    XLSX.utils.book_append_sheet(wb, ws2, "Referencia NOM-035");
+    XLSX.writeFile(wb, `Comparativa_Departamentos_${fechaStr}.xlsx`);
+  }
 
   // ── Preparar datos de tendencia para Recharts ─────────────────────────────
   const trendData = trends?.labels?.map((label: string, i: number) => ({
@@ -422,10 +472,23 @@ export default function KPIDashboard() {
 
         {/* Tabla Comparativa de Departamentos */}
         <div>
-          <h2 className="text-base font-semibold text-slate-800 mb-3 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-blue-600" />
-            Comparativa de Departamentos
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-blue-600" />
+              Comparativa de Departamentos
+            </h2>
+            {comparativaDepts && comparativaDepts.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={exportComparativaXLSX}
+                className="gap-1.5 border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+              >
+                <FileDown className="w-3.5 h-3.5" />
+                Exportar XLSX
+              </Button>
+            )}
+          </div>
           {loadingComparativa ? (
             <div className="flex items-center justify-center h-24">
               <div className="animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full" />

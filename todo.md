@@ -388,3 +388,17 @@
 - [x] Widget Dictamen: semáforo verde/amarillo/rojo en Home.tsx dashboard
 - [x] Comparativa Depts: procedure getComparativaDepts en executiveReport router
 - [x] Comparativa Depts: tabla comparativa en /kpi-dashboard con rotación, % capacitado, NOM-035
+
+## Sprint 17: Exportar XLSX comparativa, Historial PAC por año, Notificación responsable PAC (2026-04-24)
+- [ ] Exportar comparativa de departamentos a Excel desde /kpi-dashboard (botón "Exportar XLSX")
+- [ ] Historial de PAC por año: selector de año en AnnualTrainingPlan.tsx (filtro por año fiscal)
+- [ ] Historial de PAC: procedure `listByYear` en annualTrainingPlan router con parámetro year
+- [ ] Job de notificación al responsable del PAC: pac-stale-items-job.ts (cursos >30 días sin actualizar)
+- [ ] Job registrado en server/_core/index.ts con schedule diario
+- [ ] 0 errores TypeScript antes de checkpoint
+
+## Sprint 17 — Completado (2026-04-24)
+- [x] Exportar comparativa de departamentos a XLSX en /kpi-dashboard (botón "Exportar XLSX" con librería xlsx)
+- [x] Historial de PAC por año: procedure getAvailableYears, selector de pills y filtro dinámico en AnnualTrainingPlan
+- [x] Job pac-stale-items-job: notificación diaria (09:00) al responsable del PAC cuando un curso lleva >30 días sin actualizar
+- [x] Tests del job pac-stale-items-job (2 casos: BD no disponible, sin items estancados)
