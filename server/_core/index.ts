@@ -46,6 +46,7 @@ import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-j
 import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
 import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-alerts-job";
 import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job";
+import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -293,6 +294,16 @@ async function startServer() {
 
     // Psychometric Annual Reminder Job (1st of each month at 9:00 AM)
     startPsychometricReminderJob();
+
+    // Dictamen NOM-035 Expiry Alert Job (daily at 08:00 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 8 && now.getMinutes() === 0) {
+        console.log("[Dictamen Expiry Alert Job] Triggering daily dictamen expiry check");
+        runDictamenExpiryAlertJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
+    console.log("[Dictamen Expiry Alert Job] Scheduled to run daily at 08:00");
   });
 }
 

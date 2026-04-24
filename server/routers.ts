@@ -155,6 +155,7 @@ import { companyVisitsRouter } from "./routers/companyVisits";
 import { bugReportsRouter } from "./routers/bugReports";
 import { featureRequestsRouter } from "./routers/featureRequests";
 import { executiveReportRouter } from "./routers/executiveReport";
+import { annualTrainingPlanRouter } from "./routers/annualTrainingPlan";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1497,6 +1498,7 @@ export const appRouter = router({
   companyVisits: companyVisitsRouter,
   bugReports: bugReportsRouter,
   featureRequests: featureRequestsRouter,
+  annualTrainingPlan: annualTrainingPlanRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,21 +1,30 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments } from "../../drizzle/schema";
+import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments } from "../../drizzle/schema";
+import { eq, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { sql } from "drizzle-orm";
 
 export const executiveReportRouter = router({
   getKPIs: protectedProcedure
     .input(z.object({
       startDate: z.string().optional(),
       endDate: z.string().optional(),
+      departmentId: z.number().optional(),
     }))
-    .query(async () => {
+    .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
-      const allEmployees = await db.select({ id: employees.id, isActive: employees.isActive }).from(employees);
+      const { departmentId } = input;
+
+      // Filtrar empleados por departamento si se especifica
+      const employeeQuery = db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId }).from(employees);
+      const allEmployeesRaw = departmentId
+        ? await db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId }).from(employees).where(eq(employees.departmentId, departmentId))
+        : await employeeQuery;
+      const allEmployees = allEmployeesRaw;
+      const employeeIds = allEmployees.map(e => e.id);
       const totalEmployees = allEmployees.length;
       const activeEmployees = allEmployees.filter(e => e.isActive).length;
       const inactiveEmployees = totalEmployees - activeEmployees;
@@ -24,13 +33,18 @@ export const executiveReportRouter = router({
       const allCourses = await db.select({ id: courses.id }).from(courses);
       const totalCourses = allCourses.length;
 
+      // Asignaciones de capacitación (tabla no tiene employeeId directo, se usa sin filtro de departamento)
       const allAssignments = await db.select({ status: trainingAssignments.status }).from(trainingAssignments);
       const totalAssignments = allAssignments.length;
       const completedAssignments = allAssignments.filter(a => a.status === "completed").length;
       const trainingCompletionRate = totalAssignments > 0
         ? Math.round((completedAssignments / totalAssignments) * 100) : 0;
 
-      const allVacations = await db.select({ status: vacationRequests.status }).from(vacationRequests);
+      // Filtrar vacaciones por empleados del departamento
+      const vacationsQuery = departmentId && employeeIds.length > 0
+        ? await db.select({ status: vacationRequests.status }).from(vacationRequests).where(inArray(vacationRequests.employeeId, employeeIds))
+        : await db.select({ status: vacationRequests.status }).from(vacationRequests);
+      const allVacations = vacationsQuery;
       const pendingVacations = allVacations.filter(v => v.status === "pending").length;
       const approvedVacations = allVacations.filter(v => v.status === "approved").length;
 
@@ -45,6 +59,13 @@ export const executiveReportRouter = router({
       const allPsycho = await db.select({ riskLevel: psychometricAssessments.riskLevel }).from(psychometricAssessments);
       const highPsychoRisk = allPsycho.filter(p => p.riskLevel === "alto" || p.riskLevel === "muy_alto").length;
 
+      // Obtener nombre del departamento si se filtró
+      let departmentName: string | null = null;
+      if (departmentId) {
+        const dept = await db.select({ name: departments.name }).from(departments).where(eq(departments.id, departmentId));
+        departmentName = dept[0]?.name ?? null;
+      }
+
       return {
         employees: { total: totalEmployees, active: activeEmployees, inactive: inactiveEmployees, turnoverRate },
         training: { totalCourses, totalAssignments, completedAssignments, completionRate: trainingCompletionRate },
@@ -52,6 +73,7 @@ export const executiveReportRouter = router({
         cases: { total: totalCases, open: openCases, highRisk: highRiskCases },
         mailbox: { pending: pendingMessages, total: allMessages.length },
         psychometric: { total: allPsycho.length, highRisk: highPsychoRisk },
+        departmentFilter: departmentId ? { id: departmentId, name: departmentName } : null,
         generatedAt: new Date().toISOString(),
       };
     }),

@@ -107,6 +107,7 @@ const hierarchicalMenuItems = [
       { label: "Certificados e.firma SAT", path: "/efirma-sat", description: "Gestión de certificados digitales del SAT" },
       { label: "Certificados de Capacitación", path: "/training-certificates", description: "Genera certificados oficiales de capacitación con cumplimiento STPS y RED CONOCER" },
       { label: "Dashboard de Capacitación", path: "/training-dashboard", description: "Estadísticas y métricas de capacitación" },
+      { label: "📋 Programa Anual de Capacitación", path: "/training/annual-plan", description: "PAC: planificación anual de cursos con fechas, responsables, presupuesto y exportación PDF" },
       { label: "Notificaciones Automáticas", path: "/notifications-dashboard", description: "Gestión de plantillas y envío automático" },
       { label: "Competencias", path: "/competencies-dashboard", description: "Dashboard de competencias por trabajador" },
       { label: "Matriz de Habilidades", path: "/skills-matrix", description: "Matriz de habilidades del personal" },

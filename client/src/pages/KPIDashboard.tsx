@@ -4,6 +4,8 @@ import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Building2 } from "lucide-react";
 import {
   Users, BookOpen, Calendar, AlertTriangle, Mail, Brain,
   TrendingUp, TrendingDown, Minus, RefreshCw, BarChart3,
@@ -87,9 +89,18 @@ function CustomTooltip({ active, payload, label }: any) {
 // ─── Página principal ─────────────────────────────────────────────────────────
 export default function KPIDashboard() {
   const [trendMonths, setTrendMonths] = useState(6);
+  const [selectedDeptId, setSelectedDeptId] = useState<number | undefined>(undefined);
+
+  const { data: deptList } = trpc.departments.list.useQuery(
+    { page: 1, pageSize: 100, isActive: true },
+    { retry: false }
+  );
 
   const { data: kpis, isLoading: loadingKPIs, refetch: refetchKPIs } =
-    trpc.executiveReport.getKPIs.useQuery({}, { retry: false });
+    trpc.executiveReport.getKPIs.useQuery(
+      { departmentId: selectedDeptId },
+      { retry: false }
+    );
 
   const { data: trends, isLoading: loadingTrends } =
     trpc.executiveReport.getTrends.useQuery({ months: trendMonths }, { retry: false });
@@ -122,7 +133,31 @@ export default function KPIDashboard() {
               Métricas clave de talento, capacitación, bienestar y cumplimiento NOM-035.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Selector de departamento */}
+            <div className="flex items-center gap-1.5">
+              <Building2 className="w-4 h-4 text-slate-500" />
+              <Select
+                value={selectedDeptId !== undefined ? String(selectedDeptId) : "all"}
+                onValueChange={(val) => setSelectedDeptId(val === "all" ? undefined : Number(val))}
+              >
+                <SelectTrigger className="w-52 h-8 text-xs">
+                  <SelectValue placeholder="Todos los departamentos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los departamentos</SelectItem>
+                  {deptList?.data?.map((d: { id: number; name: string }) => (
+                    <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {kpis?.departmentFilter && (
+              <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-300">
+                <Building2 className="w-3 h-3 mr-1" />
+                {kpis.departmentFilter.name}
+              </Badge>
+            )}
             <Badge variant="outline" className="text-xs border-blue-300 text-blue-700 bg-blue-50">
               Tiempo real
             </Badge>

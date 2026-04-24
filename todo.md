@@ -359,3 +359,14 @@
 - [x] Autocompletado CURP verificado: decodifica fecha, sexo y estado de nacimiento localmente
 - [x] Corrección TypeScript: propiedades de getTrends (labels/cases/trainingCompletions/employeeExits)
 - [x] Pruebas unitarias Sprint 14: 18 tests (Excel, KPIs, CURP, tendencias)
+
+## Sprint 15: Filtro Departamento KPIs, PAC, Alerta Dictamen (2026-04-24)
+- [x] Selector de departamento en /kpi-dashboard: filtra todas las métricas (rotación, % capacitado, NOM-035) por área organizacional
+- [x] Módulo PAC: tablas annual_training_plans + annual_training_plan_items en schema + migración SQL aplicada
+- [x] Router annualTrainingPlan.ts con procedures: list, getById, create, update, delete, addItem, updateItem, deleteItem, updateProgress
+- [x] Página AnnualTrainingPlan.tsx con formulario, tabla de items, seguimiento de avance y exportación PDF (jsPDF)
+- [x] Ruta /training/annual-plan registrada en App.tsx + enlace en sidebar DashboardLayout
+- [x] Job dictamen-expiry-alert-job.ts: alerta 30 días antes de vencimiento de Dictamen NOM-035 (12 meses vigencia)
+- [x] Job registrado en _core/index.ts: corre diariamente a las 08:00
+- [x] Notificación interna + notifyOwner + email al responsable técnico cuando dictamen próximo a vencer
+- [x] Pruebas unitarias Sprint 15: 13/13 passed (job dictamen, módulo PAC, filtro departamento)

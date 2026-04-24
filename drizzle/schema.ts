@@ -5656,3 +5656,46 @@ export const featureRequests = mysqlTable("feature_requests", {
 });
 export type FeatureRequest = typeof featureRequests.$inferSelect;
 export type InsertFeatureRequest = typeof featureRequests.$inferInsert;
+
+// ─── Programa Anual de Capacitación (PAC) ─────────────────────────────────────
+export const annualTrainingPlans = mysqlTable("annual_training_plans", {
+  id: int("id").primaryKey().autoincrement(),
+  year: int("year").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  departmentId: int("department_id").references(() => departments.id),
+  responsibleId: int("responsible_id").references(() => employees.id),
+  status: mysqlEnum("status", ["borrador", "aprobado", "en_ejecucion", "cerrado"]).default("borrador").notNull(),
+  totalBudget: int("total_budget"),
+  approvedAt: timestamp("approved_at"),
+  approvedBy: int("approved_by").references(() => employees.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type AnnualTrainingPlan = typeof annualTrainingPlans.$inferSelect;
+export type InsertAnnualTrainingPlan = typeof annualTrainingPlans.$inferInsert;
+
+export const annualTrainingPlanItems = mysqlTable("annual_training_plan_items", {
+  id: int("id").primaryKey().autoincrement(),
+  planId: int("plan_id").notNull().references(() => annualTrainingPlans.id, { onDelete: "cascade" }),
+  courseName: varchar("course_name", { length: 255 }).notNull(),
+  courseId: int("course_id").references(() => courses.id),
+  objective: text("objective"),
+  targetAudience: varchar("target_audience", { length: 255 }),
+  modality: mysqlEnum("modality", ["presencial", "virtual", "mixta", "e_learning"]).default("presencial").notNull(),
+  durationHours: int("duration_hours"),
+  plannedDate: date("planned_date"),
+  completedDate: date("completed_date"),
+  instructor: varchar("instructor", { length: 255 }),
+  estimatedCost: int("estimated_cost"),
+  actualCost: int("actual_cost"),
+  participantsTarget: int("participants_target"),
+  participantsActual: int("participants_actual"),
+  normativeReference: varchar("normative_reference", { length: 100 }),
+  status: mysqlEnum("status", ["pendiente", "en_proceso", "completado", "cancelado"]).default("pendiente").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type AnnualTrainingPlanItem = typeof annualTrainingPlanItems.$inferSelect;
+export type InsertAnnualTrainingPlanItem = typeof annualTrainingPlanItems.$inferInsert;

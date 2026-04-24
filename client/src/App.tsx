@@ -241,6 +241,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const JobProfileManagement = lazy(() => import("./pages/JobProfileManagement"));
 const ExitInterviews = lazy(() => import("./pages/ExitInterviews"));
+const AnnualTrainingPlan = lazy(() => import("./pages/AnnualTrainingPlan"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1881,6 +1882,11 @@ function Router() {
               <NOM035Questionnaire />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path="/training/annual-plan">
+          <Suspense fallback={<PageLoader />}>
+            <AnnualTrainingPlan />
+          </Suspense>
         </Route>
         <Route path="/survey/:token">
           {(params) => (
