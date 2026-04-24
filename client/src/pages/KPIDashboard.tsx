@@ -89,7 +89,7 @@ export default function KPIDashboard() {
   const [trendMonths, setTrendMonths] = useState(6);
 
   const { data: kpis, isLoading: loadingKPIs, refetch: refetchKPIs } =
-    trpc.executiveReport.getKPIs.useQuery(undefined, { retry: false });
+    trpc.executiveReport.getKPIs.useQuery({}, { retry: false });
 
   const { data: trends, isLoading: loadingTrends } =
     trpc.executiveReport.getTrends.useQuery({ months: trendMonths }, { retry: false });
