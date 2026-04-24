@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Bug, Plus, CheckCircle, Clock, AlertTriangle, XCircle } from "lucide-react";
+import { Bug, Plus, CheckCircle, Clock, AlertTriangle, XCircle, Download, X, Search } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const SEV_COLOR: Record<string, string> = {
   critico: "bg-red-100 text-red-800",
@@ -26,9 +28,14 @@ const STATUS_LABEL: Record<string, string> = {
   descartado: "Descartado",
 };
 
+const PAGE_SIZE = 10;
 export default function BugReports() {
   const { toast } = useToast();
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterSeverity, setFilterSeverity] = useState<string>("all");
+  const [searchText, setSearchText] = useState("");
+  const debouncedSearch = useDebounce(searchText, 300);
+  const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [selected, setSelected] = useState<any>(null);
   const [form, setForm] = useState({ title: "", description: "", stepsToReproduce: "", severity: "medio", module: "" });
@@ -36,6 +43,37 @@ export default function BugReports() {
   const utils = trpc.useUtils();
   const { data: bugs, isLoading } = trpc.bugReports.list.useQuery({ status: filterStatus as any });
   const { data: stats } = trpc.bugReports.getStats.useQuery();
+  const filteredBugs = useMemo(() => {
+    let list = bugs ?? [];
+    if (filterSeverity !== "all") list = list.filter(b => b.severity === filterSeverity);
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase();
+      list = list.filter(b => b.title.toLowerCase().includes(q) || b.description.toLowerCase().includes(q) || (b.module ?? "").toLowerCase().includes(q));
+    }
+    return list;
+  }, [bugs, filterSeverity, debouncedSearch]);
+  const totalPages = Math.max(1, Math.ceil(filteredBugs.length / PAGE_SIZE));
+  const pagedBugs = filteredBugs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasFilters = filterStatus !== "all" || filterSeverity !== "all" || searchText !== "";
+  const clearFilters = () => { setFilterStatus("all"); setFilterSeverity("all"); setSearchText(""); setPage(1); };
+  const exportExcel = async () => {
+    try {
+      const { utils: xlsxUtils, writeFile } = await import("xlsx");
+      const rows = filteredBugs.map(b => ({
+        "Título": b.title,
+        "Descripción": b.description,
+        "Severidad": b.severity,
+        "Estado": STATUS_LABEL[b.status] ?? b.status,
+        "Módulo": b.module ?? "",
+        "Resolución": b.resolution ?? "",
+        "Fecha": new Date(b.createdAt).toLocaleDateString("es-MX"),
+      }));
+      const ws = xlsxUtils.json_to_sheet(rows);
+      const wb = xlsxUtils.book_new();
+      xlsxUtils.book_append_sheet(wb, ws, "Bug Reports");
+      writeFile(wb, `bug-reports-${new Date().toISOString().slice(0,10)}.xlsx`);
+    } catch { toast({ title: "Error al exportar", variant: "destructive" }); }
+  };
 
   const createMutation = trpc.bugReports.create.useMutation({
     onSuccess: () => {
@@ -90,29 +128,56 @@ export default function BugReports() {
         ))}
       </div>
 
-      <div className="flex items-center gap-3">
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="pendiente">Pendiente</SelectItem>
-            <SelectItem value="en_revision">En Revision</SelectItem>
-            <SelectItem value="corregido">Corregido</SelectItem>
-            <SelectItem value="descartado">Descartado</SelectItem>
-          </SelectContent>
-        </Select>
-        <span className="text-sm text-muted-foreground">{bugs?.length ?? 0} registros</span>
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input type="text" placeholder="Buscar por título, descripción o módulo..." className="border rounded pl-7 pr-3 py-1.5 text-sm w-64" value={searchText} onChange={e => { setSearchText(e.target.value); setPage(1); }} />
+          </div>
+          <Select value={filterStatus} onValueChange={v => { setFilterStatus(v); setPage(1); }}>
+            <SelectTrigger className="w-44"><SelectValue placeholder="Estado" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="pendiente">Pendiente ({stats?.pendiente ?? 0})</SelectItem>
+              <SelectItem value="en_revision">En Revisión ({stats?.en_revision ?? 0})</SelectItem>
+              <SelectItem value="corregido">Corregido ({stats?.corregido ?? 0})</SelectItem>
+              <SelectItem value="descartado">Descartado</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterSeverity} onValueChange={v => { setFilterSeverity(v); setPage(1); }}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Severidad" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las severidades</SelectItem>
+              <SelectItem value="critico">Crítico</SelectItem>
+              <SelectItem value="alto">Alto</SelectItem>
+              <SelectItem value="medio">Medio</SelectItem>
+              <SelectItem value="bajo">Bajo</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-muted-foreground ml-auto">{filteredBugs.length} registros</span>
+          <Button variant="outline" size="sm" onClick={exportExcel} className="text-green-700 border-green-600 hover:bg-green-50">
+            <Download className="h-3.5 w-3.5 mr-1" />Excel
+          </Button>
+        </div>
+        {hasFilters && (
+          <div className="flex flex-wrap gap-1">
+            {searchText && <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setSearchText("")}>Buscar: "{searchText.slice(0,15)}{searchText.length>15?'...':''}" <X className="h-3 w-3" /></Badge>}
+            {filterStatus !== "all" && <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterStatus("all")}>{STATUS_LABEL[filterStatus] ?? filterStatus} <X className="h-3 w-3" /></Badge>}
+            {filterSeverity !== "all" && <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterSeverity("all")}>{filterSeverity} <X className="h-3 w-3" /></Badge>}
+            <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-destructive underline ml-1">Limpiar todo</button>
+          </div>
+        )}
       </div>
 
       <Card>
         <CardContent className="pt-4">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Cargando...</p>
-          ) : bugs == null || bugs.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic text-center py-8">No hay reportes en esta categoria.</p>
+          ) : pagedBugs.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic text-center py-8">No hay reportes que coincidan con los filtros.</p>
           ) : (
             <div className="space-y-2">
-              {bugs.map(bug => (
+              {pagedBugs.map(bug => (
                 <div
                   key={bug.id}
                   className="border rounded-lg p-3 hover:bg-accent/30 cursor-pointer transition-colors"
@@ -134,6 +199,15 @@ export default function BugReports() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-3 border-t">
+              <span className="text-xs text-muted-foreground">Página {page} de {totalPages}</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1}>Anterior</Button>
+                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page === totalPages}>Siguiente</Button>
+              </div>
             </div>
           )}
         </CardContent>

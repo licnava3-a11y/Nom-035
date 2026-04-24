@@ -2,7 +2,8 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions } from "../../drizzle/schema";
+import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users } from "../../drizzle/schema";
+import { createHash } from "crypto";
 import { inArray } from "drizzle-orm";
 import { eq, desc, sql } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
@@ -229,6 +230,43 @@ export const dictamenDocsRouter = router({
       return { success: true, doc };
     }),
 
+  // Prellenado automático del formulario desde datos del sistema
+  getPrefilledData: protectedProcedure
+    .query(async () => {
+      const db = await requireDb();
+      const [company] = await db.select().from(companyGeneralData).limit(1);
+      const [legalRep] = await db.select().from(companyLegalRepresentative).limit(1);
+      const genderCounts = await db
+        .select({ sexo: users.sexo, count: sql<number>`COUNT(*)` })
+        .from(users)
+        .groupBy(users.sexo);
+      const [totalRow] = await db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(users)
+        .where(sql`role NOT IN ('super_admin')`);
+      let hombres = 0;
+      let mujeres = 0;
+      for (const g of genderCounts) {
+        if (g.sexo === 'Masculino') hombres = Number(g.count);
+        if (g.sexo === 'Femenino') mujeres = Number(g.count);
+      }
+      const total = Number(totalRow?.count ?? 0);
+      const now = new Date();
+      const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const periodoEvaluado = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+      return {
+        razonSocial: company?.razonSocial ?? '',
+        domicilio: company?.direccionFiscal ?? '',
+        totalTrabajadores: total || (company?.numeroTrabajadores ?? 0),
+        trabajadoresHombres: hombres,
+        trabajadoresMujeres: mujeres,
+        representanteLegal: (legalRep as any)?.nombre ?? company?.representanteLegal ?? '',
+        periodoEvaluado,
+        rfc: company?.rfc ?? '',
+        giro: company?.giro ?? '',
+      };
+    }),
+
   save: protectedProcedure
     .input(z.object({
       id: z.number(),
@@ -237,10 +275,14 @@ export const dictamenDocsRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await requireDb();
+      // Hash SHA-256 del contenido para trazabilidad NOM-151
+      const integrityHash = createHash('sha256')
+        .update(JSON.stringify(input.contenido))
+        .digest('hex');
       await db.update(dictamenDocs)
-        .set({ contenido: input.contenido as any, estado: input.estado })
+        .set({ contenido: input.contenido as any, estado: input.estado, qrCode: `SHA256:${integrityHash}` } as any)
         .where(eq(dictamenDocs.id, input.id));
-      return { success: true };
+      return { success: true, integrityHash };
     }),
 
   approve: protectedProcedure

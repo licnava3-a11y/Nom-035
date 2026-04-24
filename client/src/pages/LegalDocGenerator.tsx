@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -381,6 +381,25 @@ function DictamenTab() {
   const { data: investigaciones } = trpc.dictamenDocs.listInvestigaciones.useQuery();
   const { data: clinicalEmployees } = trpc.employees.getClinicalEmployees.useQuery();
   const [useManualResponsable, setUseManualResponsable] = useState(false);
+
+  // Prellenado automático desde datos del sistema
+  const { data: prefilledData } = trpc.dictamenDocs.getPrefilledData.useQuery();
+  const [prefilledApplied, setPrefilledApplied] = useState(false);
+  useEffect(() => {
+    if (prefilledData && !prefilledApplied) {
+      setForm(prev => ({
+        ...prev,
+        razonSocial: prefilledData.razonSocial || prev.razonSocial,
+        domicilio: prefilledData.domicilio || prev.domicilio,
+        totalTrabajadores: prefilledData.totalTrabajadores || prev.totalTrabajadores,
+        trabajadoresHombres: prefilledData.trabajadoresHombres || prev.trabajadoresHombres,
+        trabajadoresMujeres: prefilledData.trabajadoresMujeres || prev.trabajadoresMujeres,
+        representanteLegal: prefilledData.representanteLegal || prev.representanteLegal,
+        periodoEvaluado: prefilledData.periodoEvaluado || prev.periodoEvaluado,
+      }));
+      setPrefilledApplied(true);
+    }
+  }, [prefilledData, prefilledApplied]);
 
   const generateMut = trpc.dictamenDocs.generate.useMutation({
     onSuccess: (data) => {

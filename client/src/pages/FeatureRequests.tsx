@@ -1,19 +1,26 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Lightbulb, Plus, CheckCircle, Clock, TrendingUp, BarChart2 } from "lucide-react";
+import { Lightbulb, Plus, CheckCircle, Clock, TrendingUp, BarChart2, Download, X, Search } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const PRI_COLOR: Record<string, string> = { critica: "bg-red-100 text-red-800", alta: "bg-orange-100 text-orange-800", normal: "bg-blue-100 text-blue-800", baja: "bg-slate-100 text-slate-700" };
 const STATUS_COLOR: Record<string, string> = { pendiente: "bg-slate-100 text-slate-700", aprobada: "bg-blue-100 text-blue-700", en_desarrollo: "bg-yellow-100 text-yellow-800", implementada: "bg-green-100 text-green-700", descartada: "bg-red-100 text-red-700" };
 const STATUS_LABEL: Record<string, string> = { pendiente: "Pendiente", aprobada: "Aprobada", en_desarrollo: "En Desarrollo", implementada: "Implementada", descartada: "Descartada" };
 
+const PAGE_SIZE = 10;
 export default function FeatureRequests() {
   const { toast } = useToast();
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterPriority, setFilterPriority] = useState<string>("all");
+  const [searchText, setSearchText] = useState("");
+  const debouncedSearch = useDebounce(searchText, 300);
+  const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [selected, setSelected] = useState<any>(null);
   const [form, setForm] = useState({ title: "", description: "", justification: "", priority: "normal", module: "" });
@@ -21,6 +28,38 @@ export default function FeatureRequests() {
   const utils = trpc.useUtils();
   const { data: requests, isLoading } = trpc.featureRequests.list.useQuery({ status: filterStatus as any });
   const { data: stats } = trpc.featureRequests.getStats.useQuery();
+  const filteredReqs = useMemo(() => {
+    let list = requests ?? [];
+    if (filterPriority !== "all") list = list.filter(r => r.priority === filterPriority);
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase();
+      list = list.filter(r => r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q) || (r.justification ?? "").toLowerCase().includes(q));
+    }
+    return list;
+  }, [requests, filterPriority, debouncedSearch]);
+  const totalPages = Math.max(1, Math.ceil(filteredReqs.length / PAGE_SIZE));
+  const pagedReqs = filteredReqs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasFilters = filterStatus !== "all" || filterPriority !== "all" || searchText !== "";
+  const clearFilters = () => { setFilterStatus("all"); setFilterPriority("all"); setSearchText(""); setPage(1); };
+  const exportExcel = async () => {
+    try {
+      const { utils: xlsxUtils, writeFile } = await import("xlsx");
+      const rows = filteredReqs.map(r => ({
+        "Título": r.title,
+        "Descripción": r.description,
+        "Justificación": r.justification ?? "",
+        "Prioridad": r.priority,
+        "Estado": STATUS_LABEL[r.status] ?? r.status,
+        "Módulo": r.module ?? "",
+        "Notas de implementación": r.implementationNotes ?? "",
+        "Fecha": new Date(r.createdAt).toLocaleDateString("es-MX"),
+      }));
+      const ws = xlsxUtils.json_to_sheet(rows);
+      const wb = xlsxUtils.book_new();
+      xlsxUtils.book_append_sheet(wb, ws, "Feature Requests");
+      writeFile(wb, `feature-requests-${new Date().toISOString().slice(0,10)}.xlsx`);
+    } catch { toast({ title: "Error al exportar", variant: "destructive" }); }
+  };
   const createMutation = trpc.featureRequests.create.useMutation({
     onSuccess: () => { utils.featureRequests.list.invalidate(); utils.featureRequests.getStats.invalidate(); setShowCreate(false); setForm({ title: "", description: "", justification: "", priority: "normal", module: "" }); toast({ title: "Peticion creada" }); },
     onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
@@ -58,20 +97,47 @@ export default function FeatureRequests() {
         </CardContent></Card>
       </div>
 
-      {/* Filtro */}
-      <div className="flex items-center gap-3">
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas</SelectItem>
-            <SelectItem value="pendiente">Pendiente</SelectItem>
-            <SelectItem value="aprobada">Aprobada</SelectItem>
-            <SelectItem value="en_desarrollo">En Desarrollo</SelectItem>
-            <SelectItem value="implementada">Implementada</SelectItem>
-            <SelectItem value="descartada">Descartada</SelectItem>
-          </SelectContent>
-        </Select>
-        <span className="text-sm text-muted-foreground">{requests?.length ?? 0} registros</span>
+      {/* Filtros mejorados */}
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input type="text" placeholder="Buscar por título, descripción o justificación..." className="border rounded pl-7 pr-3 py-1.5 text-sm w-72" value={searchText} onChange={e => { setSearchText(e.target.value); setPage(1); }} />
+          </div>
+          <Select value={filterStatus} onValueChange={v => { setFilterStatus(v); setPage(1); }}>
+            <SelectTrigger className="w-48"><SelectValue placeholder="Estado" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              <SelectItem value="pendiente">Pendiente ({stats?.pendiente ?? 0})</SelectItem>
+              <SelectItem value="aprobada">Aprobada</SelectItem>
+              <SelectItem value="en_desarrollo">En Desarrollo ({stats?.en_desarrollo ?? 0})</SelectItem>
+              <SelectItem value="implementada">Implementada ({stats?.implementada ?? 0})</SelectItem>
+              <SelectItem value="descartada">Descartada</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterPriority} onValueChange={v => { setFilterPriority(v); setPage(1); }}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Prioridad" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las prioridades</SelectItem>
+              <SelectItem value="critica">Crítica</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="baja">Baja</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-muted-foreground ml-auto">{filteredReqs.length} registros</span>
+          <Button variant="outline" size="sm" onClick={exportExcel} className="text-green-700 border-green-600 hover:bg-green-50">
+            <Download className="h-3.5 w-3.5 mr-1" />Excel
+          </Button>
+        </div>
+        {hasFilters && (
+          <div className="flex flex-wrap gap-1">
+            {searchText && <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setSearchText("")}>Buscar: "{searchText.slice(0,15)}{searchText.length>15?'...':''}" <X className="h-3 w-3" /></Badge>}
+            {filterStatus !== "all" && <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterStatus("all")}>{STATUS_LABEL[filterStatus] ?? filterStatus} <X className="h-3 w-3" /></Badge>}
+            {filterPriority !== "all" && <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterPriority("all")}>{filterPriority} <X className="h-3 w-3" /></Badge>}
+            <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-destructive underline ml-1">Limpiar todo</button>
+          </div>
+        )}
       </div>
 
       {/* Lista */}
@@ -80,7 +146,7 @@ export default function FeatureRequests() {
           <p className="text-sm text-muted-foreground italic text-center py-8">No hay peticiones en esta categoria.</p>
         ) : (
           <div className="space-y-2">
-            {requests.map(req => (
+            {pagedReqs.map(req => (
               <div key={req.id} className="border rounded-lg p-3 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setSelected(req); setImplNotes(req.implementationNotes ?? ""); }}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -98,9 +164,18 @@ export default function FeatureRequests() {
                 </div>
               </div>
             ))}
-          </div>
-        )}
-      </CardContent></Card>
+            </div>
+          )}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-3 border-t">
+              <span className="text-xs text-muted-foreground">Página {page} de {totalPages}</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1}>Anterior</Button>
+                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page === totalPages}>Siguiente</Button>
+              </div>
+            </div>
+          )}
+        </CardContent></Card>
 
       {/* Modal Crear */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>

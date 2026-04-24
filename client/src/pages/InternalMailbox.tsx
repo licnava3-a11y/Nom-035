@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MessageSquare, Plus, Send, X, Users, BookOpen, ThumbsUp, AlertTriangle, HelpCircle, Paperclip, FileDown, Bell, FileText } from "lucide-react";
 
@@ -227,6 +229,7 @@ export default function InternalMailbox() {
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
   const [searchText, setSearchText] = useState("");
+  const debouncedSearch = useDebounce(searchText, 300);
   const [showStatusTimeline, setShowStatusTimeline] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [responseText, setResponseText] = useState("");
@@ -338,8 +341,8 @@ export default function InternalMailbox() {
       const to = new Date(filterDateTo + "T23:59:59");
       if (msgDate > to) return false;
     }
-    if (searchText.trim()) {
-      const q = searchText.trim().toLowerCase();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.trim().toLowerCase();
       const subject = (m.subject || "").toLowerCase();
       const body = (m.body || "").toLowerCase();
       if (!subject.includes(q) && !body.includes(q)) return false;
@@ -493,13 +496,34 @@ export default function InternalMailbox() {
                   <span className="text-xs text-muted-foreground">Hasta:</span>
                   <input type="date" className="text-xs border rounded px-2 py-1" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} />
                 </div>
-                {hasActiveFilters && (
-                  <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-foreground underline">Limpiar filtros</button>
-                )}
                 <Button variant="outline" size="sm" className="text-xs h-7 px-2 border-green-600 text-green-700 hover:bg-green-50" onClick={exportToExcel}>
                   <FileDown className="h-3.5 w-3.5 mr-1" />Excel ({filteredMessages.length})
                 </Button>
               </div>
+              {/* Chips de filtros activos */}
+              {hasActiveFilters && (
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {searchText && (
+                    <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setSearchText("")}>Buscar: "{searchText.length > 12 ? searchText.slice(0,12)+'...' : searchText}" <X className="h-3 w-3" /></Badge>
+                  )}
+                  {filterCategory !== "all" && (
+                    <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterCategory("all")}>{CATEGORY_CONFIG[filterCategory]?.label ?? filterCategory} <X className="h-3 w-3" /></Badge>
+                  )}
+                  {filterStatus !== "all" && (
+                    <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterStatus("all")}>{STATUS_CONFIG[filterStatus]?.label ?? filterStatus} <X className="h-3 w-3" /></Badge>
+                  )}
+                  {filterPriority !== "all" && (
+                    <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterPriority("all")}>{PRIORITY_CONFIG[filterPriority]?.label ?? filterPriority} <X className="h-3 w-3" /></Badge>
+                  )}
+                  {filterDateFrom && (
+                    <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterDateFrom("")}>Desde: {filterDateFrom} <X className="h-3 w-3" /></Badge>
+                  )}
+                  {filterDateTo && (
+                    <Badge variant="secondary" className="text-xs gap-1 cursor-pointer" onClick={() => setFilterDateTo("")}>Hasta: {filterDateTo} <X className="h-3 w-3" /></Badge>
+                  )}
+                  <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-destructive underline ml-1">Limpiar todo</button>
+                </div>
+              )}
             </div>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground text-sm">Cargando...</div>
