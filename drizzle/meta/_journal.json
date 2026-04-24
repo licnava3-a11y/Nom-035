@@ -1065,6 +1065,13 @@
       "when": 1777038082603,
       "tag": "0151_swift_yellowjacket",
       "breakpoints": true
+    },
+    {
+      "idx": 152,
+      "version": "5",
+      "when": 1777062981180,
+      "tag": "0152_small_gunslinger",
+      "breakpoints": true
     }
   ]
 }

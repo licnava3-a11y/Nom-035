@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { annualTrainingPlans, annualTrainingPlanItems, departments, employees } from "../../drizzle/schema";
+import { annualTrainingPlans, annualTrainingPlanItems, departments, employees, trainingNeeds } from "../../drizzle/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -191,6 +191,7 @@ export const annualTrainingPlanRouter = router({
       participantsTarget: z.number().optional(),
       normativeReference: z.string().optional(),
       notes: z.string().optional(),
+      dncId: z.number().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -210,6 +211,7 @@ export const annualTrainingPlanRouter = router({
         participantsTarget: input.participantsTarget,
         normativeReference: input.normativeReference,
         notes: input.notes,
+        dncId: input.dncId,
         status: "pendiente",
       });
 
@@ -235,6 +237,7 @@ export const annualTrainingPlanRouter = router({
       normativeReference: z.string().optional(),
       status: z.enum(["pendiente", "en_proceso", "completado", "cancelado"]).optional(),
       notes: z.string().optional(),
+      dncId: z.number().nullable().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -258,6 +261,38 @@ export const annualTrainingPlanRouter = router({
 
       await db.delete(annualTrainingPlanItems).where(eq(annualTrainingPlanItems.id, input.id));
       return { success: true };
+    }),
+
+  // ─── Listar necesidades DNC disponibles para vincular ──────────────────────────
+  listDncNeeds: protectedProcedure
+    .input(z.object({
+      employeeId: z.number().optional(),
+      priority: z.enum(["baja", "media", "alta", "critica"]).optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const conditions = [eq(trainingNeeds.status, "pendiente")];
+      if (input.employeeId) conditions.push(eq(trainingNeeds.employeeId, input.employeeId));
+      if (input.priority) conditions.push(eq(trainingNeeds.priority, input.priority));
+
+      const needs = await db
+        .select({
+          id: trainingNeeds.id,
+          competencyName: trainingNeeds.competencyName,
+          competencyType: trainingNeeds.competencyType,
+          priority: trainingNeeds.priority,
+          gap: trainingNeeds.gap,
+          employeeId: trainingNeeds.employeeId,
+          dueDate: trainingNeeds.dueDate,
+          notes: trainingNeeds.notes,
+        })
+        .from(trainingNeeds)
+        .where(and(...conditions))
+        .orderBy(desc(trainingNeeds.priority));
+
+      return needs;
     }),
 
   // ─── Estadísticas del plan ────────────────────────────────────────────────────

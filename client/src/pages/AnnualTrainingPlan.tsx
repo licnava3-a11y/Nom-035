@@ -231,8 +231,10 @@ function ItemForm({ planId, initial, onSave, onCancel }: {
     actualCost: initial?.actualCost ? String(initial.actualCost) : "",
     participantsActual: initial?.participantsActual ? String(initial.participantsActual) : "",
     completedDate: initial?.completedDate ? new Date(initial.completedDate).toISOString().split("T")[0] : "",
+    dncId: initial?.dncId ? String(initial.dncId) : "",
   });
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+  const { data: dncNeeds } = trpc.annualTrainingPlan.listDncNeeds.useQuery({}, { retry: false });
 
   return (
     <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
@@ -317,6 +319,25 @@ function ItemForm({ planId, initial, onSave, onCancel }: {
         <Input value={form.targetAudience} onChange={e => set("targetAudience", e.target.value)} />
       </div>
       <div>
+        <Label>Vincular a DNC (Detección de Necesidades) <span className="text-slate-400 font-normal text-xs">— opcional</span></Label>
+        <Select value={form.dncId || "__none__"} onValueChange={v => set("dncId", v === "__none__" ? "" : v)}>
+          <SelectTrigger><SelectValue placeholder="Sin vinculación DNC" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">Sin vinculación DNC</SelectItem>
+            {(dncNeeds ?? []).map(n => (
+              <SelectItem key={n.id} value={String(n.id)}>
+                [{n.priority.toUpperCase()}] {n.competencyName} — brecha: {n.gap}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {form.dncId && (
+          <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+            ✓ Vinculado a necesidad DNC #{form.dncId}
+          </p>
+        )}
+      </div>
+      <div>
         <Label>Notas</Label>
         <Textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={2} />
       </div>
@@ -339,6 +360,7 @@ function ItemForm({ planId, initial, onSave, onCancel }: {
           normativeReference: form.normativeReference || undefined,
           notes: form.notes || undefined,
           status: form.status as any,
+          dncId: form.dncId ? Number(form.dncId) : undefined,
         })} disabled={!form.courseName}>
           {initial ? "Guardar cambios" : "Agregar curso"}
         </Button>

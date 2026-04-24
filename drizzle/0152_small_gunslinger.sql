@@ -1,0 +1,2 @@
+ALTER TABLE `annual_training_plan_items` ADD `dnc_id` int;--> statement-breakpoint
+ALTER TABLE `annual_training_plan_items` ADD CONSTRAINT `annual_training_plan_items_dnc_id_trainingNeeds_id_fk` FOREIGN KEY (`dnc_id`) REFERENCES `trainingNeeds`(`id`) ON DELETE set null ON UPDATE no action;

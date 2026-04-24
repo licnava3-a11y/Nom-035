@@ -5694,6 +5694,8 @@ export const annualTrainingPlanItems = mysqlTable("annual_training_plan_items", 
   normativeReference: varchar("normative_reference", { length: 100 }),
   status: mysqlEnum("status", ["pendiente", "en_proceso", "completado", "cancelado"]).default("pendiente").notNull(),
   notes: text("notes"),
+  // Vinculación con DNC (Detección de Necesidades de Capacitación)
+  dncId: int("dnc_id").references(() => trainingNeeds.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });

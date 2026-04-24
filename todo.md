@@ -370,3 +370,21 @@
 - [x] Job registrado en _core/index.ts: corre diariamente a las 08:00
 - [x] Notificación interna + notifyOwner + email al responsable técnico cuando dictamen próximo a vencer
 - [x] Pruebas unitarias Sprint 15: 13/13 passed (job dictamen, módulo PAC, filtro departamento)
+
+## Sprint 16: PAC-DNC, Widget Dictamen, Comparativa Departamentos
+- [x] PAC-DNC: campo dncId en annual_training_plan_items (schema + migración SQL)
+- [x] PAC-DNC: procedure listDncNeeds en annualTrainingPlan router
+- [x] PAC-DNC: selector DNC en formulario de items del PAC
+- [x] Widget Dictamen: procedure getVigencia en dictamenDocs router
+- [x] Widget Dictamen: semaforo verde/amarillo/rojo en Home.tsx dashboard
+- [x] Comparativa Depts: procedure getComparativaDepts en executiveReport router
+- [x] Comparativa Depts: tabla comparativa en /kpi-dashboard con rotacion, % capacitado, NOM-035
+
+## Sprint 16: PAC-DNC, Widget Dictamen, Comparativa Departamentos (2026-04-24)
+- [x] PAC-DNC: campo dncId en annual_training_plan_items (schema + migración SQL)
+- [x] PAC-DNC: procedure listDncNeeds en annualTrainingPlan router
+- [x] PAC-DNC: selector DNC en formulario de items del PAC
+- [x] Widget Dictamen: procedure getVigencia en dictamenDocs router
+- [x] Widget Dictamen: semáforo verde/amarillo/rojo en Home.tsx dashboard
+- [x] Comparativa Depts: procedure getComparativaDepts en executiveReport router
+- [x] Comparativa Depts: tabla comparativa en /kpi-dashboard con rotación, % capacitado, NOM-035

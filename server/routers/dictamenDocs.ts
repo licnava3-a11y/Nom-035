@@ -381,4 +381,55 @@ export const dictamenDocsRouter = router({
       }
       return { success: true };
     }),
+  // --- Widget de vigencia del dictamen mas reciente aprobado ---
+  getVigencia: protectedProcedure
+    .query(async () => {
+      const db = await requireDb();
+      // Obtener el dictamen aprobado mas reciente
+      const [latest] = await db
+        .select({
+          id: dictamenDocs.id,
+          folio: dictamenDocs.folio,
+          titulo: dictamenDocs.titulo,
+          estado: dictamenDocs.estado,
+          nivelRiesgoGlobal: dictamenDocs.nivelRiesgoGlobal,
+          responsableTecnico: dictamenDocs.responsableTecnico,
+          fechaAprobacion: dictamenDocs.fechaAprobacion,
+          createdAt: dictamenDocs.createdAt,
+        })
+        .from(dictamenDocs)
+        .where(eq(dictamenDocs.estado, "aprobado"))
+        .orderBy(desc(dictamenDocs.fechaAprobacion))
+        .limit(1);
+
+      if (!latest) return null;
+
+      // La vigencia NOM-035 es de 12 meses desde la fecha de aprobacion
+      const baseDate = latest.fechaAprobacion ?? latest.createdAt;
+      const expiryDate = new Date(baseDate);
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+      const now = new Date();
+      const diffMs = expiryDate.getTime() - now.getTime();
+      const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      // Semaforo: verde >= 60 dias, amarillo 30-59, rojo < 30
+      const semaforo: "verde" | "amarillo" | "rojo" =
+        daysLeft >= 60 ? "verde" : daysLeft >= 30 ? "amarillo" : "rojo";
+
+      return {
+        id: latest.id,
+        folio: latest.folio,
+        titulo: latest.titulo,
+        estado: latest.estado,
+        nivelRiesgoGlobal: latest.nivelRiesgoGlobal,
+        responsableTecnico: latest.responsableTecnico,
+        fechaAprobacion: baseDate,
+        fechaVencimiento: expiryDate,
+        daysLeft,
+        semaforo,
+        vencido: daysLeft <= 0,
+      };
+    }),
+
 });

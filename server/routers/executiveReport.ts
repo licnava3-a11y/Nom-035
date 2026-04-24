@@ -156,4 +156,70 @@ export const executiveReportRouter = router({
         mailboxMessages: monthLabels.map(m => mailboxMap[m] || 0),
       };
     }),
+  // --- Vista comparativa de departamentos ---
+  getComparativaDepts: protectedProcedure
+    .query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      // Obtener todos los departamentos
+      const allDepts = await db.select({ id: departments.id, name: departments.name }).from(departments);
+
+      const results = await Promise.all(allDepts.map(async (dept) => {
+        // Empleados del departamento
+        const deptEmployees = await db
+          .select({ id: employees.id, isActive: employees.isActive })
+          .from(employees)
+          .where(eq(employees.departmentId, dept.id));
+
+        const total = deptEmployees.length;
+        const active = deptEmployees.filter(e => e.isActive).length;
+        const inactive = total - active;
+        const turnoverRate = total > 0 ? Math.round((inactive / total) * 100) : 0;
+
+        // Vacaciones pendientes
+        const empIds = deptEmployees.map(e => e.id);
+        const pendingVac = empIds.length > 0
+          ? await db.select({ id: vacationRequests.id }).from(vacationRequests)
+              .where(inArray(vacationRequests.employeeId, empIds))
+          : [];
+        const pendingVacCount = pendingVac.length;
+
+        // Evaluaciones psicometricas de alto riesgo
+        const psycho = await db
+          .select({ riskLevel: psychometricAssessments.riskLevel })
+          .from(psychometricAssessments);
+        const highRiskPsycho = psycho.filter(p => p.riskLevel === "alto" || p.riskLevel === "muy_alto").length;
+
+        // Asignaciones de capacitacion completadas (sin filtro por dept ya que no hay FK directa)
+        const assignments = await db
+          .select({ status: trainingAssignments.status })
+          .from(trainingAssignments);
+        const completedAssignments = assignments.filter(a => a.status === "completed").length;
+        const trainingRate = assignments.length > 0
+          ? Math.round((completedAssignments / assignments.length) * 100) : 0;
+
+        // Puntaje NOM-035: promedio de casos de alto riesgo (menor = mejor)
+        const deptCases = await db.select({ priority: cases.priority }).from(cases);
+        const highRiskCases = deptCases.filter(c => c.priority === "high" || c.priority === "critical").length;
+        const nom035Score = deptCases.length > 0
+          ? Math.max(0, 100 - Math.round((highRiskCases / deptCases.length) * 100))
+          : 100;
+
+        return {
+          deptId: dept.id,
+          deptName: dept.name,
+          totalEmployees: total,
+          activeEmployees: active,
+          turnoverRate,
+          trainingRate,
+          nom035Score,
+          pendingVacations: pendingVacCount,
+          highRiskPsycho,
+        };
+      }));
+
+      return results.filter(r => r.totalEmployees > 0);
+    }),
+
 });
