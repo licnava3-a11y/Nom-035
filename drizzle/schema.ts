@@ -5604,3 +5604,55 @@ export const internalMessages = mysqlTable("internal_messages", {
 });
 export type InternalMessage = typeof internalMessages.$inferSelect;
 export type InsertInternalMessage = typeof internalMessages.$inferInsert;
+
+// ─── Company Visits ────────────────────────────────────────────────────────────
+export const companyVisits = mysqlTable("company_visits", {
+  id: int("id").primaryKey().autoincrement(),
+  companyId: int("company_id"),
+  companyName: varchar("company_name", { length: 200 }),
+  visitorUserId: int("visitor_user_id"),
+  page: varchar("page", { length: 300 }).notNull(),
+  sessionId: varchar("session_id", { length: 100 }),
+  userAgent: varchar("user_agent", { length: 500 }),
+  visitedAt: timestamp("visited_at").defaultNow().notNull(),
+});
+export type CompanyVisit = typeof companyVisits.$inferSelect;
+export type InsertCompanyVisit = typeof companyVisits.$inferInsert;
+
+// ─── Bug Reports ───────────────────────────────────────────────────────────────
+export const bugReports = mysqlTable("bug_reports", {
+  id: int("id").primaryKey().autoincrement(),
+  reportedBy: int("reported_by"),
+  title: varchar("title", { length: 300 }).notNull(),
+  description: text("description").notNull(),
+  stepsToReproduce: text("steps_to_reproduce"),
+  severity: mysqlEnum("severity", ["critico", "alto", "medio", "bajo"]).default("medio").notNull(),
+  status: mysqlEnum("status", ["pendiente", "en_revision", "corregido", "descartado"]).default("pendiente").notNull(),
+  module: varchar("module", { length: 100 }),
+  resolution: text("resolution"),
+  resolvedBy: int("resolved_by"),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type BugReport = typeof bugReports.$inferSelect;
+export type InsertBugReport = typeof bugReports.$inferInsert;
+
+// ─── Feature Requests ──────────────────────────────────────────────────────────
+export const featureRequests = mysqlTable("feature_requests", {
+  id: int("id").primaryKey().autoincrement(),
+  requestedBy: int("requested_by"),
+  title: varchar("title", { length: 300 }).notNull(),
+  description: text("description").notNull(),
+  justification: text("justification"),
+  priority: mysqlEnum("priority", ["baja", "normal", "alta", "critica"]).default("normal").notNull(),
+  status: mysqlEnum("status", ["pendiente", "aprobada", "en_desarrollo", "implementada", "descartada"]).default("pendiente").notNull(),
+  module: varchar("module", { length: 100 }),
+  implementationNotes: text("implementation_notes"),
+  implementedBy: int("implemented_by"),
+  implementedAt: timestamp("implemented_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type FeatureRequest = typeof featureRequests.$inferSelect;
+export type InsertFeatureRequest = typeof featureRequests.$inferInsert;

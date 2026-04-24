@@ -183,6 +183,9 @@ const SuperAdminPanel = lazy(() => import("./pages/SuperAdminPanel"));
 const LegalPortada = lazy(() => import("./pages/LegalPortada"));
 const InternalMailbox = lazy(() => import("./pages/InternalMailbox"));
 const ExecutiveReport = lazy(() => import("./pages/ExecutiveReport"));
+const CompanyVisits = lazy(() => import("./pages/CompanyVisits"));
+const BugReports = lazy(() => import("./pages/BugReports"));
+const FeatureRequests = lazy(() => import("./pages/FeatureRequests"));
 const MyMailbox = lazy(() => import("./pages/MyMailbox"));
 const EarlyWarnings = lazy(() => import("./pages/EarlyWarnings"));
 const Investigations = lazy(() => import("./pages/cases/Investigations"));
@@ -1386,6 +1389,21 @@ function Router() {
         <Route path="/executive-report">
           <Suspense fallback={<PageLoader />}>
             <ExecutiveReport />
+          </Suspense>
+        </Route>
+        <Route path="/company-visits">
+          <Suspense fallback={<PageLoader />}>
+            <CompanyVisits />
+          </Suspense>
+        </Route>
+        <Route path="/bug-reports">
+          <Suspense fallback={<PageLoader />}>
+            <BugReports />
+          </Suspense>
+        </Route>
+        <Route path="/feature-requests">
+          <Suspense fallback={<PageLoader />}>
+            <FeatureRequests />
           </Suspense>
         </Route>
         <Route path="/my-mailbox">

@@ -226,6 +226,8 @@ export default function InternalMailbox() {
   const [filterPriority, setFilterPriority] = useState("all");
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [showStatusTimeline, setShowStatusTimeline] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [responseText, setResponseText] = useState("");
   const [showNotifyModal, setShowNotifyModal] = useState(false);
@@ -247,6 +249,9 @@ export default function InternalMailbox() {
   );
   const { data: lastNotifData } = trpc.internalMailbox.getLastNotification.useQuery(
     { messageId: selectedId! }, { enabled: selectedId !== null && showNotifyModal }
+  );
+  const { data: statusTimeline = [] } = trpc.internalMailbox.getStatusTimeline.useQuery(
+    { messageId: selectedId! }, { enabled: selectedId !== null && showStatusTimeline }
   );
 
   // Contador de tiempo restante del bloqueo 24h
@@ -333,6 +338,12 @@ export default function InternalMailbox() {
       const to = new Date(filterDateTo + "T23:59:59");
       if (msgDate > to) return false;
     }
+    if (searchText.trim()) {
+      const q = searchText.trim().toLowerCase();
+      const subject = (m.subject || "").toLowerCase();
+      const body = (m.body || "").toLowerCase();
+      if (!subject.includes(q) && !body.includes(q)) return false;
+    }
     return true;
   });
 
@@ -342,9 +353,10 @@ export default function InternalMailbox() {
     setFilterPriority("all");
     setFilterDateFrom("");
     setFilterDateTo("");
+    setSearchText("");
   };
 
-  const hasActiveFilters = filterCategory !== "all" || filterStatus !== "all" || filterPriority !== "all" || filterDateFrom !== "" || filterDateTo !== "";
+  const hasActiveFilters = filterCategory !== "all" || filterStatus !== "all" || filterPriority !== "all" || filterDateFrom !== "" || filterDateTo !== "" || searchText !== "";
 
   const exportToExcel = async () => {
     try {
@@ -446,6 +458,18 @@ export default function InternalMailbox() {
           {/* Message list */}
           <div className="lg:col-span-1 space-y-3">
             <div className="space-y-2">
+              <div className="flex gap-2 flex-wrap items-center">
+                <div className="relative flex-1 min-w-[180px]">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input
+                    type="text"
+                    placeholder="Buscar por asunto o contenido..."
+                    className="w-full text-xs border rounded pl-7 pr-2 py-1"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)}
+                  />
+                </div>
+              </div>
               <div className="flex gap-2 flex-wrap">
                 <select className="text-xs border rounded px-2 py-1" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                   <option value="all">Todas las categorías</option>
@@ -594,6 +618,41 @@ export default function InternalMailbox() {
                       )}
                     </div>
                   )}
+
+                  {/* Timeline de cambios de estado */}
+                  <div className="border rounded p-3 bg-slate-50">
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-2 text-xs font-semibold text-slate-700"
+                      onClick={() => setShowStatusTimeline(v => !v)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                      Historial de cambios de estado
+                      {statusTimeline.length > 0 && (
+                        <span className="bg-slate-200 text-slate-700 text-xs px-1.5 py-0.5 rounded-full font-semibold">{statusTimeline.length}</span>
+                      )}
+                      <span className="ml-auto">{showStatusTimeline ? "▲" : "▼"}</span>
+                    </button>
+                    {showStatusTimeline && (
+                      <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto">
+                        {statusTimeline.length === 0 ? (
+                          <p className="text-xs text-muted-foreground italic">No hay cambios de estado registrados.</p>
+                        ) : statusTimeline.map((entry: any, i: number) => (
+                          <div key={entry.id} className="flex items-start gap-2 p-2 bg-white border border-slate-200 rounded text-xs">
+                            <div className="flex flex-col items-center">
+                              <div className="h-2 w-2 rounded-full bg-slate-400 mt-1" />
+                              {i < statusTimeline.length - 1 && <div className="w-px h-full bg-slate-200 mt-1" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-slate-800">{entry.title}</p>
+                              {entry.message && <p className="text-muted-foreground mt-0.5">{entry.message}</p>}
+                              <p className="text-muted-foreground/70 mt-0.5">{new Date(entry.createdAt).toLocaleString("es-MX")}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   {selectedMsg.status !== "cerrado" && (
                     <div className="space-y-2">

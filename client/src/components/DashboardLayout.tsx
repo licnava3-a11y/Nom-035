@@ -287,6 +287,9 @@ const hierarchicalMenuItems = [
       { label: "Alertas de Seguridad", path: "/security-alerts", description: "Monitoreo de actividad sospechosa" },
       { label: "Monitoreo de Jobs", path: "/job-monitoring", description: "Historial y ejecución manual de jobs automáticos" },
       { label: "Configuración de Reportes", path: "/report-configuration", description: "Gestionar reportes ejecutivos automatizados" },
+      { label: "Visitas por Empresa", path: "/company-visits", description: "Contador de visitas y páginas más visitadas por empresa" },
+      { label: "Informes de Errores", path: "/bug-reports", description: "Reporte y seguimiento de errores del sistema" },
+      { label: "Peticiones de Mejora", path: "/feature-requests", description: "Solicitudes de nuevas funcionalidades con indicador de % implementadas" },
     ],
   },
   {

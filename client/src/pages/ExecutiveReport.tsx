@@ -139,8 +139,27 @@ function RiskComparisonChart({ data }: { data: any }) {
     return () => { if (chartRef.current) chartRef.current.destroy(); };
   }, [data]);
 
+  const exportAsPNG = () => {
+    if (!canvasRef.current) return;
+    const link = document.createElement("a");
+    link.download = `comparativa-psicometrica-${new Date().toISOString().slice(0, 10)}.png`;
+    link.href = canvasRef.current.toDataURL("image/png");
+    link.click();
+  };
   if (!data || data.comparison.length === 0) return null;
-  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+  return (
+    <div className="relative">
+      <button
+        onClick={exportAsPNG}
+        className="absolute top-0 right-0 z-10 text-xs bg-white border rounded px-2 py-1 shadow-sm hover:bg-slate-50 flex items-center gap-1"
+        title="Descargar gráfica como imagen PNG"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        PNG
+      </button>
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
+    </div>
+  );
 }
 
 export default function ExecutiveReport() {

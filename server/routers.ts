@@ -151,6 +151,9 @@ import { superAdminRouter } from "./routers/superAdmin";
 import { termsRouter } from "./routers/terms";
 import { psychometricRouter } from "./routers/psychometric";
 import { internalMailboxRouter } from "./routers/internalMailbox";
+import { companyVisitsRouter } from "./routers/companyVisits";
+import { bugReportsRouter } from "./routers/bugReports";
+import { featureRequestsRouter } from "./routers/featureRequests";
 import { executiveReportRouter } from "./routers/executiveReport";
 
 // Admin-only procedure
@@ -1491,6 +1494,9 @@ export const appRouter = router({
   psychometric: psychometricRouter,
   internalMailbox: internalMailboxRouter,
   executiveReport: executiveReportRouter,
+  companyVisits: companyVisitsRouter,
+  bugReports: bugReportsRouter,
+  featureRequests: featureRequestsRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -355,6 +355,34 @@ export const internalMailboxRouter = router({
       return { success: true, notifiedUserId: msg.senderId };
     }),
 
+  /** Timeline de cambios de estado de un mensaje (auditoría) */
+  getStatusTimeline: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [msg] = await db.select().from(internalMessages)
+        .where(eq(internalMessages.id, input.messageId)).limit(1);
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND", message: "Mensaje no encontrado" });
+      if (ctx.user.role !== "admin" && msg.senderId !== ctx.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Sin acceso" });
+      }
+      const timeline = await db.select().from(notifications)
+        .where(and(
+          eq(notifications.type, "mailbox_status_change"),
+          eq(notifications.relatedEntityId, input.messageId)
+        ))
+        .orderBy(desc(notifications.createdAt))
+        .limit(30);
+      return timeline.map(n => ({
+        id: n.id,
+        title: n.title,
+        message: n.message,
+        createdAt: n.createdAt,
+        isRead: n.isRead,
+      }));
+    }),
+
   /** Conteo de mensajes con respuesta no leída para el badge del sidebar */
   getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
