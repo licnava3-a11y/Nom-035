@@ -94,12 +94,14 @@ async function startServer() {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Necesario para Vite HMR en desarrollo
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"], // Permite CDN externos (Chart.js, analytics, etc.)
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https:"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "https:"],
         imgSrc: ["'self'", "data:", "blob:", "https:"],
-        connectSrc: ["'self'", "ws:", "wss:"],
-        frameSrc: ["'self'"],
+        connectSrc: ["'self'", "ws:", "wss:", "https:"], // Permite llamadas API a dominios externos
+        frameSrc: ["'self'", "https:"],
+        workerSrc: ["'self'", "blob:"],
+        childSrc: ["'self'", "blob:"],
       },
     },
     crossOriginEmbedderPolicy: false, // Necesario para algunos recursos externos
