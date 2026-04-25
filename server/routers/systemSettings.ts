@@ -5,6 +5,7 @@ import { systemSettings } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { restartAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
+import { sendEmail } from "../_core/email";
 
 export const systemSettingsRouter = router({
   /**
@@ -171,5 +172,36 @@ export const systemSettingsRouter = router({
       await restartAlertSummaryCronJob();
 
       return { success: true, message: `Frecuencia actualizada a: ${input.frequency}` };
+    }),
+
+  /**
+   * Probar conexión SMTP enviando un correo de prueba
+   */
+  testSMTP: protectedProcedure
+    .input(z.object({ toEmail: z.string().email() }))
+    .mutation(async ({ input, ctx }) => {
+      const sent = await sendEmail({
+        to: input.toEmail,
+        subject: "\u2705 Prueba de conexi\u00f3n SMTP \u2014 NOM-035 STPS",
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:8px">
+            <h2 style="color:#0f172a;margin-top:0">Prueba de conexi\u00f3n SMTP</h2>
+            <p style="color:#475569">Este correo confirma que la configuraci\u00f3n SMTP del sistema <strong>NOM-035 STPS</strong> est\u00e1 funcionando correctamente.</p>
+            <table style="width:100%;border-collapse:collapse;margin:16px 0">
+              <tr><td style="padding:8px;background:#f8fafc;border:1px solid #e2e8f0;font-weight:bold">Enviado por</td><td style="padding:8px;border:1px solid #e2e8f0">${ctx.user.name}</td></tr>
+              <tr><td style="padding:8px;background:#f8fafc;border:1px solid #e2e8f0;font-weight:bold">Destinatario</td><td style="padding:8px;border:1px solid #e2e8f0">${input.toEmail}</td></tr>
+              <tr><td style="padding:8px;background:#f8fafc;border:1px solid #e2e8f0;font-weight:bold">Fecha/Hora</td><td style="padding:8px;border:1px solid #e2e8f0">${new Date().toLocaleString("es-MX")}</td></tr>
+            </table>
+            <p style="color:#64748b;font-size:13px">Si recibi\u00f3 este correo, el sistema de notificaciones autom\u00e1ticas est\u00e1 listo para enviar alertas de contratos, PAC y dict\u00e1menes.</p>
+          </div>
+        `,
+      });
+      if (!sent) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "No se pudo enviar el correo. Verifica la configuraci\u00f3n SMTP en la base de datos o las variables de entorno SMTP_HOST, SMTP_USER y SMTP_PASS.",
+        });
+      }
+      return { success: true, message: `Correo de prueba enviado a ${input.toEmail}` };
     }),
 });

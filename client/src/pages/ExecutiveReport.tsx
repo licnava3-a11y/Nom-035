@@ -272,6 +272,75 @@ export default function ExecutiveReport() {
     XLSX.writeFile(wb, `Reporte_Ejecutivo_NOM035_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
+  const trendsContainerRef = useRef<HTMLDivElement>(null);
+
+  const exportToPDFWithCharts = async () => {
+    try {
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+      const html2canvas = (await import("html2canvas")).default;
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
+      let y = 15;
+      // Header
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, pageW, 22, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reporte Ejecutivo Consolidado NOM-035 STPS", pageW / 2, 10, { align: "center" });
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generado: ${new Date().toLocaleString("es-MX")}`, pageW / 2, 17, { align: "center" });
+      doc.setTextColor(0, 0, 0);
+      y = 30;
+      // KPIs table
+      if (kpis) {
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("KPIs Globales", 14, y);
+        y += 4;
+        autoTable(doc, {
+          startY: y,
+          head: [["Indicador", "Valor"]],
+          body: [
+            ["Total Empleados", String(kpis.employees.total)],
+            ["Empleados Activos", String(kpis.employees.active)],
+            ["Tasa de Rotaci\u00f3n", `${kpis.employees.turnoverRate}%`],
+            ["Cursos Totales", String(kpis.training.totalCourses)],
+            ["Tasa de Completaci\u00f3n", `${kpis.training.completionRate}%`],
+            ["Vacaciones Pendientes", String(kpis.vacations.pending)],
+            ["Casos NOM-035 Abiertos", String(kpis.cases.open)],
+            ["Casos Alto Riesgo", String(kpis.cases.highRisk)],
+          ],
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [15, 23, 42] },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          margin: { left: 14, right: 14 },
+        });
+        y = (doc as any).lastAutoTable.finalY + 10;
+      }
+      // Gr\u00e1ficas de tendencia
+      if (trendsContainerRef.current) {
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("Tendencias Mensuales", 14, y);
+        y += 4;
+        const canvas = await html2canvas(trendsContainerRef.current, { scale: 1.5, useCORS: true, backgroundColor: "#ffffff" });
+        const imgData = canvas.toDataURL("image/png");
+        const imgW = pageW - 28;
+        const imgH = (canvas.height * imgW) / canvas.width;
+        if (y + imgH > 280) { doc.addPage(); y = 15; }
+        doc.addImage(imgData, "PNG", 14, y, imgW, imgH);
+      }
+      doc.save(`reporte-ejecutivo-nom035-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success("PDF con gr\u00e1ficas generado correctamente");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al generar el PDF");
+    }
+  };
+
   const exportToWord = async () => {
     try {
       const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel } = await import("docx");
@@ -356,8 +425,11 @@ export default function ExecutiveReport() {
             <Button variant="outline" onClick={exportToWord} className="border-blue-600 text-blue-700 hover:bg-blue-50">
               <FileText className="h-4 w-4 mr-2" />Word
             </Button>
-            <Button onClick={() => window.print()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              <Printer className="h-4 w-4 mr-2" />Imprimir / PDF
+            <Button variant="outline" onClick={exportToPDFWithCharts} className="border-red-600 text-red-700 hover:bg-red-50">
+              <Printer className="h-4 w-4 mr-2" />Exportar PDF
+            </Button>
+            <Button variant="outline" onClick={() => window.print()}>
+              <Printer className="h-4 w-4 mr-2" />Imprimir
             </Button>
           </div>
         </div>
@@ -418,7 +490,7 @@ export default function ExecutiveReport() {
                   ))}
                 </div>
               ) : trends && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div ref={trendsContainerRef} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <TrendChart
                     id="chart-cases-training"
                     title="Casos NOM-035 vs Capacitaciones Completadas"

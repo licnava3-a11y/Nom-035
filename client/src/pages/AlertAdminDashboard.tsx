@@ -26,6 +26,9 @@ import {
   AlertTriangle,
   Clock,
   Shield,
+  Send,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 const ALERT_TYPE_LABELS: Record<string, string> = {
@@ -152,6 +155,22 @@ export default function AlertAdminDashboard() {
       description: "Lista de destinatarios de alertas por correo electrónico",
     });
   };
+
+  // ─── Prueba SMTP ─────────────────────────────────────────────────────────────
+  const [smtpTestEmail, setSmtpTestEmail] = useState("");
+  const [smtpTestResult, setSmtpTestResult] = useState<"idle" | "success" | "error">("idle");
+  const testSMTP = trpc.systemSettings.testSMTP.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      setSmtpTestResult("success");
+      setTimeout(() => setSmtpTestResult("idle"), 5000);
+    },
+    onError: (err) => {
+      toast.error(err.message);
+      setSmtpTestResult("error");
+      setTimeout(() => setSmtpTestResult("idle"), 8000);
+    },
+  });
 
   // ─── Intervalo de alertas en tiempo real ─────────────────────────────────────
   const { data: intervalSetting } = trpc.systemSettings.getSetting.useQuery({
@@ -399,6 +418,66 @@ export default function AlertAdminDashboard() {
               </p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* ─── Probar conexión SMTP ───────────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Send className="h-5 w-5 text-indigo-500" />
+            <CardTitle className="text-base">Probar Conexión SMTP</CardTitle>
+          </div>
+          <CardDescription>
+            Envía un correo de prueba para verificar que la configuración SMTP está funcionando
+            correctamente antes de que el sistema envíe alertas reales.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="correo@empresa.com"
+              value={smtpTestEmail}
+              onChange={(e) => setSmtpTestEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (smtpTestEmail.trim()) testSMTP.mutate({ toEmail: smtpTestEmail.trim() });
+                }
+              }}
+              className="h-9"
+            />
+            <Button
+              onClick={() => {
+                if (!smtpTestEmail.trim()) { toast.error("Ingresa un correo de destino"); return; }
+                testSMTP.mutate({ toEmail: smtpTestEmail.trim() });
+              }}
+              disabled={testSMTP.isPending}
+              size="sm"
+              className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              {testSMTP.isPending ? "Enviando..." : "Enviar prueba"}
+            </Button>
+          </div>
+          {smtpTestResult === "success" && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>Correo de prueba enviado exitosamente. Revisa la bandeja de entrada del destinatario.</span>
+            </div>
+          )}
+          {smtpTestResult === "error" && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
+              <XCircle className="h-4 w-4 shrink-0" />
+              <span>No se pudo enviar el correo. Verifica las variables SMTP_HOST, SMTP_USER y SMTP_PASS en la configuración del servidor.</span>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Si el correo no llega, configura las variables de entorno <code className="bg-muted px-1 rounded">SMTP_HOST</code>,{" "}
+            <code className="bg-muted px-1 rounded">SMTP_USER</code> y{" "}
+            <code className="bg-muted px-1 rounded">SMTP_PASS</code> en el panel de Secrets del proyecto.
+          </p>
         </CardContent>
       </Card>
 
