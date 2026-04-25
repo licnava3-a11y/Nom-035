@@ -187,6 +187,7 @@ const hierarchicalMenuItems = [
           { label: "Historial de Notificaciones", path: "/notification-history", description: "Registro de notificaciones push" },
           { label: "Configuración de Umbrales", path: "/alert-thresholds", description: "Configurar umbrales de alertas" },
           { label: "Configuración de Reportes", path: "/alert-reports-config", description: "Frecuencia de reportes automáticos" },
+          { label: "Admin. de Alertas", path: "/alert-admin-dashboard", description: "Umbrales, frecuencia, destinatarios y WebSocket" },
         ]
       },
     ],

@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertTriangle, CheckCircle2, BarChart3, Layers, Grid3X3, Lightbulb, ClipboardList, RefreshCw, FileDown } from "lucide-react";
+import { AlertTriangle, CheckCircle2, BarChart3, Layers, Grid3X3, Lightbulb, ClipboardList, RefreshCw, FileDown, FileText, Printer } from "lucide-react";
+import { toast } from "sonner";
 import * as XLSX from "xlsx";
 
 // ─── Exportación Excel ──────────────────────────────────────────────────────
@@ -314,14 +315,59 @@ export default function NOM035DetailedReport() {
               Generar Dictamen NOM-035
             </Button>
             {data && data.totalRespuestas > 0 && (
-              <Button
-                onClick={() => exportToExcel(data)}
-                variant="outline"
-                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-full px-6"
-              >
-                <FileDown className="w-4 h-4 mr-2" />
-                Descargar Excel
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => exportToExcel(data)}
+                  variant="outline"
+                  className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 rounded-full px-6"
+                >
+                  <FileDown className="w-4 h-4 mr-2" />Excel
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-blue-600 text-blue-700 hover:bg-blue-50 rounded-full px-6"
+                  onClick={async () => {
+                    try {
+                      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel } = await import("docx");
+                      const makeCell = (t: string, bold = false) =>
+                        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(t), bold })] })] });
+                      const catRows = [
+                        new TableRow({ children: [makeCell("Dominio", true), makeCell("Puntaje", true), makeCell("Nivel", true)] }),
+                        ...(data.dominios ?? []).map((d: any) => new TableRow({ children: [makeCell(d.nombre), makeCell(`${d.puntaje}%`), makeCell(d.nivel?.nivel ?? "")] })),
+                      ];
+                      const doc = new Document({
+                        sections: [{
+                          children: [
+                            new Paragraph({ text: "Dictamen NOM-035 \u2014 An\u00e1lisis Extendido", heading: HeadingLevel.HEADING_1 }),
+                            new Paragraph({ children: [new TextRun({ text: `Generado: ${new Date().toLocaleString("es-MX")}` })] }),
+                            new Paragraph({ children: [new TextRun({ text: `Total respuestas: ${data.totalRespuestas}` })] }),
+                            new Paragraph({ text: "" }),
+                            new Paragraph({ text: "Resultados por Categor\u00eda", heading: HeadingLevel.HEADING_2 }),
+                            new Table({ width: { size: 80, type: WidthType.PERCENTAGE }, rows: catRows }),
+                          ],
+                        }],
+                      });
+                      const blob = await Packer.toBlob(doc);
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `dictamen-nom035-${new Date().toISOString().slice(0, 10)}.docx`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success("Archivo Word generado");
+                    } catch { toast.error("Error al exportar a Word"); }
+                  }}
+                >
+                  <FileText className="w-4 h-4 mr-2" />Word
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-slate-600 text-slate-700 hover:bg-slate-50 rounded-full px-6"
+                  onClick={() => window.print()}
+                >
+                  <Printer className="w-4 h-4 mr-2" />PDF
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

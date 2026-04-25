@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, TrendingDown, Printer, BarChart2, FileSpreadsheet, ArrowUp, ArrowDown, Minus } from "lucide-react";
+import { Users, BookOpen, Calendar, AlertTriangle, MessageSquare, ClipboardCheck, TrendingUp, TrendingDown, Printer, BarChart2, FileSpreadsheet, ArrowUp, ArrowDown, Minus, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 // Chart.js loaded from CDN via useEffect
@@ -272,6 +272,46 @@ export default function ExecutiveReport() {
     XLSX.writeFile(wb, `Reporte_Ejecutivo_NOM035_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
+  const exportToWord = async () => {
+    try {
+      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel } = await import("docx");
+      const makeCell = (text: string, bold = false) =>
+        new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(text), bold })] })] });
+      const kpiTableRows = kpis ? [
+        new TableRow({ children: [makeCell("KPI", true), makeCell("Valor", true)] }),
+        new TableRow({ children: [makeCell("Total Empleados"), makeCell(String(kpis.employees.total))] }),
+        new TableRow({ children: [makeCell("Empleados Activos"), makeCell(String(kpis.employees.active))] }),
+        new TableRow({ children: [makeCell("Tasa de Rotaci\u00f3n"), makeCell(`${kpis.employees.turnoverRate}%`)] }),
+        new TableRow({ children: [makeCell("Cursos Totales"), makeCell(String(kpis.training.totalCourses))] }),
+        new TableRow({ children: [makeCell("Tasa de Completaci\u00f3n"), makeCell(`${kpis.training.completionRate}%`)] }),
+        new TableRow({ children: [makeCell("Vacaciones Pendientes"), makeCell(String(kpis.vacations.pending))] }),
+        new TableRow({ children: [makeCell("Casos NOM-035 Abiertos"), makeCell(String(kpis.cases.open))] }),
+        new TableRow({ children: [makeCell("Casos Alto Riesgo"), makeCell(String(kpis.cases.highRisk))] }),
+      ] : [];
+      const doc = new Document({
+        sections: [{
+          children: [
+            new Paragraph({ text: "Reporte Ejecutivo Consolidado NOM-035 STPS", heading: HeadingLevel.HEADING_1 }),
+            new Paragraph({ children: [new TextRun({ text: `Generado: ${new Date().toLocaleString("es-MX")}` })] }),
+            new Paragraph({ text: "" }),
+            new Paragraph({ text: "KPIs Globales", heading: HeadingLevel.HEADING_2 }),
+            ...(kpiTableRows.length > 0 ? [new Table({ width: { size: 60, type: WidthType.PERCENTAGE }, rows: kpiTableRows })] : []),
+          ],
+        }],
+      });
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reporte-ejecutivo-nom035-${new Date().toISOString().slice(0, 10)}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Archivo Word generado correctamente");
+    } catch {
+      toast.error("Error al exportar a Word");
+    }
+  };
+
   // Load Chart.js from CDN
   useEffect(() => {
     if (typeof Chart !== "undefined") { setChartJsLoaded(true); return; }
@@ -312,6 +352,9 @@ export default function ExecutiveReport() {
             <Button variant="outline" onClick={() => refetch()}>Actualizar</Button>
             <Button variant="outline" onClick={exportToExcel} className="border-green-600 text-green-700 hover:bg-green-50">
               <FileSpreadsheet className="h-4 w-4 mr-2" />Exportar Excel
+            </Button>
+            <Button variant="outline" onClick={exportToWord} className="border-blue-600 text-blue-700 hover:bg-blue-50">
+              <FileText className="h-4 w-4 mr-2" />Word
             </Button>
             <Button onClick={() => window.print()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
               <Printer className="h-4 w-4 mr-2" />Imprimir / PDF
