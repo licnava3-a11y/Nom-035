@@ -21,7 +21,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle, Info, Download, Calendar } from "lucide-react";
+import { AlertCircle, CheckCircle, Info, Download, Calendar, FileText, Printer } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -29,10 +30,49 @@ import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel, AlignmentType } from "docx";
+import { saveAs } from "file-saver";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 type AlertType = "critical_cases" | "low_coverage" | "excellent_compliance" | "all";
 type AlertStatus = "active" | "resolved" | "all";
 type AlertPriority = "critical" | "warning" | "info" | "all";
+
+function TrendChart() {
+  const { data: trendData, isLoading } = trpc.alerts.getMonthlyByPriority.useQuery({ months: 12 });
+
+  if (isLoading) return <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">Cargando tendencia...</div>;
+  if (!trendData || trendData.length === 0) {
+    return (
+      <div className="h-64 flex flex-col items-center justify-center text-muted-foreground">
+        <p className="text-sm">Sin datos de tendencia disponibles</p>
+        <p className="text-xs mt-1">Los datos aparecerán conforme se registren alertas en el sistema</p>
+      </div>
+    );
+  }
+
+  const formatted = trendData.map((d) => ({
+    mes: d.month,
+    Críticas: d.critical,
+    Advertencias: d.warning,
+    Informativas: d.info,
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={280}>
+      <LineChart data={formatted} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey="Críticas" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+        <Line type="monotone" dataKey="Advertencias" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+        <Line type="monotone" dataKey="Informativas" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
 
 export default function AlertHistory() {
   const [alertType, setAlertType] = useState<AlertType>("all");
@@ -77,6 +117,65 @@ export default function AlertHistory() {
         notes: notes || undefined,
       });
     }
+  };
+
+  const handleExportToWord = async () => {
+    if (!alerts || alerts.length === 0) return;
+    try {
+      const headerCells = ["Fecha", "Tipo", "Prioridad", "Descripción", "Estado"].map(
+        (h) => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: h, bold: true })] })] })
+      );
+      const dataRows = alerts.map((alert: any) =>
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph(new Date(alert.triggeredAt).toLocaleString("es-MX"))] }),
+            new TableCell({ children: [new Paragraph(getAlertTypeLabel(alert.alertType))] }),
+            new TableCell({ children: [new Paragraph(alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa")] }),
+            new TableCell({ children: [new Paragraph(alert.description ?? "")] }),
+            new TableCell({ children: [new Paragraph(alert.status === "active" ? "Activa" : "Resuelta")] }),
+          ],
+        })
+      );
+      const doc = new Document({
+        sections: [{
+          children: [
+            new Paragraph({ text: "Histórico de Alertas — NOM-035 STPS", heading: HeadingLevel.HEADING_1 }),
+            new Paragraph({ text: `Generado: ${new Date().toLocaleString("es-MX")}`, alignment: AlignmentType.LEFT }),
+            new Paragraph(""),
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [new TableRow({ children: headerCells, tableHeader: true }), ...dataRows],
+            }),
+          ],
+        }],
+      });
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, `historico_alertas_${new Date().toISOString().split("T")[0]}.docx`);
+      toast({ title: "Word exportado", description: "El archivo .docx fue descargado." });
+    } catch {
+      toast({ title: "Error", description: "No se pudo generar el archivo Word.", variant: "destructive" });
+    }
+  };
+
+  const handleExportToPDF = () => {
+    if (!alerts || alerts.length === 0) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const rows = alerts.map((alert: any) => `
+      <tr>
+        <td>${new Date(alert.triggeredAt).toLocaleString("es-MX")}</td>
+        <td>${getAlertTypeLabel(alert.alertType)}</td>
+        <td>${alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa"}</td>
+        <td>${alert.description ?? ""}</td>
+        <td>${alert.status === "active" ? "Activa" : "Resuelta"}</td>
+      </tr>`).join("");
+    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Histórico de Alertas</title>
+      <style>body{font-family:Arial,sans-serif;font-size:11px;margin:20px}h1{font-size:16px;margin-bottom:4px}p{margin:2px 0 12px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:5px 8px;text-align:left}th{background:#f0f0f0;font-weight:bold}tr:nth-child(even){background:#f9f9f9}</style>
+      </head><body><h1>Histórico de Alertas &mdash; NOM-035 STPS</h1><p>Generado: ${new Date().toLocaleString("es-MX")}</p>
+      <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Descripción</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 400);
   };
 
   const handleExportToExcel = () => {
@@ -386,6 +485,17 @@ export default function AlertHistory() {
           </button>
         </div>
       )}
+      {/* Gráfica de tendencia mensual por prioridad */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tendencia Mensual de Alertas por Prioridad</CardTitle>
+          <CardDescription>Evolución de alertas críticas, advertencias e informativas en los últimos 12 meses</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TrendChart />
+        </CardContent>
+      </Card>
+
       {/* Tabla de Alertas */}
       <Card>
         <CardHeader>
@@ -396,15 +506,38 @@ export default function AlertHistory() {
                 {alerts?.length || 0} alertas encontradas{priority !== "all" && ` — filtro: ${priority === "critical" ? "Crítica" : priority === "warning" ? "Advertencia" : "Informativa"}`}
               </CardDescription>
             </div>
-            <Button
-              onClick={handleExportToExcel}
-              disabled={!alerts || alerts.length === 0}
-              variant="outline"
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Exportar a Excel
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleExportToExcel}
+                disabled={!alerts || alerts.length === 0}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Excel
+              </Button>
+              <Button
+                onClick={handleExportToWord}
+                disabled={!alerts || alerts.length === 0}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <FileText className="h-4 w-4" />
+                Word
+              </Button>
+              <Button
+                onClick={handleExportToPDF}
+                disabled={!alerts || alerts.length === 0}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                <Printer className="h-4 w-4" />
+                PDF
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

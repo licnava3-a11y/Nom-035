@@ -249,4 +249,52 @@ export const alertsRouter = router({
       },
     };
   }),
+
+  // Marcar todas las alertas activas como resueltas ("leídas")
+  markAllRead: protectedProcedure.mutation(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    await db
+      .update(alertHistory)
+      .set({
+        status: "resolved",
+        resolvedAt: new Date(),
+        userId: ctx.user.id,
+        notes: "Marcadas como leídas desde el navbar",
+      } as any)
+      .where(eq(alertHistory.status, "active"));
+    return { success: true };
+  }),
+
+  // Tendencia mensual de alertas desglosada por prioridad (para gráfica)
+  getMonthlyByPriority: protectedProcedure
+    .input(z.object({ months: z.number().min(1).max(24).default(12) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - input.months);
+      const rows = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`,
+          priority: alertHistory.priority,
+          count: sql<number>`COUNT(*)`,
+        })
+        .from(alertHistory)
+        .where(gte(alertHistory.triggeredAt, startDate))
+        .groupBy(
+          sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`,
+          alertHistory.priority
+        )
+        .orderBy(sql`DATE_FORMAT(${alertHistory.triggeredAt}, '%Y-%m')`);
+      // Pivotar: { month, critical, warning, info }
+      const byMonth: Record<string, { month: string; critical: number; warning: number; info: number }> = {};
+      for (const row of rows) {
+        if (!byMonth[row.month]) byMonth[row.month] = { month: row.month, critical: 0, warning: 0, info: 0 };
+        if (row.priority === "critical") byMonth[row.month].critical += Number(row.count);
+        else if (row.priority === "warning") byMonth[row.month].warning += Number(row.count);
+        else if (row.priority === "info") byMonth[row.month].info += Number(row.count);
+      }
+      return Object.values(byMonth);
+    }),
 });
