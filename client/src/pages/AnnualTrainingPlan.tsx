@@ -177,14 +177,19 @@ async function exportPDF(plan: any, items: any[]) {
   doc.setTextColor(30, 41, 59);
   items.forEach((item, idx) => {
     if (y > 270) { doc.addPage(); y = 20; }
-    if (idx % 2 === 0) {
-      doc.setFillColor(248, 250, 252);
-      doc.rect(startX, y, pageW - 30, 7, "F");
-    }
-    cx = startX + 2;
     const staleDays = item.updatedAt
       ? Math.floor((Date.now() - new Date(item.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
       : null;
+    const isStale = staleDays !== null && staleDays > 30;
+    if (isStale) {
+      doc.setFillColor(254, 226, 226); // red-100
+      doc.rect(startX, y, pageW - 30, 7, "F");
+    } else if (idx % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(startX, y, pageW - 30, 7, "F");
+    }
+    doc.setTextColor(isStale ? 185 : 30, isStale ? 28 : 41, isStale ? 28 : 59);
+    cx = startX + 2;
     const rowData = [
       item.courseName.substring(0, 28),
       MODALITY_LABELS[item.modality] ?? item.modality,
@@ -615,6 +620,7 @@ export default function AnnualTrainingPlan() {
   const [search, setSearch] = useState("");
   const [filterYear, setFilterYear] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [onlyStalePlans, setOnlyStalePlans] = useState(false);
   const [page, setPage] = useState(1);
 
   const { data: availableYears } = trpc.annualTrainingPlan.getAvailableYears.useQuery(undefined, { retry: false });
@@ -724,6 +730,18 @@ export default function AnnualTrainingPlan() {
               <SelectItem value="cerrado">Cerrado</SelectItem>
             </SelectContent>
           </Select>
+          <button
+            type="button"
+            onClick={() => { setOnlyStalePlans(v => !v); setPage(1); }}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium border transition-colors ${
+              onlyStalePlans
+                ? "bg-red-600 text-white border-red-600 hover:bg-red-700"
+                : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5" />
+            Solo rezagados
+          </button>
         </div>
 
         {/* Tabla de planes */}
@@ -748,10 +766,16 @@ export default function AnnualTrainingPlan() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(!data?.plans || data.plans.length === 0) && (
-                    <TableRow><TableCell colSpan={8} className="text-center text-slate-400 py-10">No se encontraron planes. Crea el primero con "Nuevo PAC".</TableCell></TableRow>
-                  )}
-                  {data?.plans?.map((plan: any) => (
+                  {(() => {
+                    const filteredPlans = onlyStalePlans
+                      ? (data?.plans ?? []).filter((p: any) => Number(p.staleItemsCount) > 0)
+                      : (data?.plans ?? []);
+                    if (filteredPlans.length === 0) return (
+                      <TableRow><TableCell colSpan={8} className="text-center text-slate-400 py-10">
+                        {onlyStalePlans ? "No hay planes con cursos rezagados." : "No se encontraron planes. Crea el primero con \"Nuevo PAC\"."}
+                      </TableCell></TableRow>
+                    );
+                    return filteredPlans.map((plan: any) => (
                     <TableRow key={plan.id} className="hover:bg-slate-50">
                       <TableCell className="font-semibold text-blue-700">{plan.year}</TableCell>
                       <TableCell className="font-medium max-w-[220px] truncate" title={plan.title}>{plan.title}</TableCell>
@@ -771,7 +795,10 @@ export default function AnnualTrainingPlan() {
                         <div className="flex items-center gap-2">
                           <StatusBadge status={plan.status} />
                           {Number(plan.staleItemsCount) > 0 && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700 border border-red-200">
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700 border border-red-200 cursor-help"
+                              title={`Cursos rezagados (>30 d\u00edas sin actualizar): ${plan.staleItemsCount} curso${plan.staleItemsCount > 1 ? 's' : ''} en este plan requieren atenci\u00f3n.`}
+                            >
                               <AlertTriangle className="w-3 h-3" />
                               {plan.staleItemsCount}
                             </span>
@@ -792,7 +819,8 @@ export default function AnnualTrainingPlan() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ));
+                  })()}
                 </TableBody>
               </Table>
             )}
