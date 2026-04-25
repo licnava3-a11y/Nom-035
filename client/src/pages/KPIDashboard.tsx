@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, FileDown, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Building2, FileDown, ChevronUp, ChevronDown, ChevronsUpDown, FileText, Printer } from "lucide-react";
+import { toast } from "sonner";
 import {
   Users, BookOpen, Calendar, AlertTriangle, Mail, Brain,
   TrendingUp, TrendingDown, Minus, RefreshCw, BarChart3,
@@ -516,15 +517,46 @@ export default function KPIDashboard() {
                 ))}
               </select>
               {comparativaDepts && comparativaDepts.length > 0 && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={exportComparativaXLSX}
-                  className="gap-1.5 border-emerald-600 text-emerald-700 hover:bg-emerald-50"
-                >
-                  <FileDown className="w-3.5 h-3.5" />
-                  Exportar XLSX
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  <Button size="sm" variant="outline" onClick={exportComparativaXLSX} className="gap-1.5 border-emerald-600 text-emerald-700 hover:bg-emerald-50">
+                    <FileDown className="w-3.5 h-3.5" />XLSX
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 border-blue-600 text-blue-700 hover:bg-blue-50"
+                    onClick={async () => {
+                      try {
+                        const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel } = await import("docx");
+                        const mc = (t: string, bold = false) =>
+                          new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: String(t), bold })] })] });
+                        const hRow = new TableRow({ children: ["Departamento","Empleados","Rotaci\u00f3n %","% Capacitado","NOM-035","Vac. Pend.","Riesgo Alto"].map((h) => mc(h, true)) });
+                        const dRows = (comparativaDepts ?? []).map((d) =>
+                          new TableRow({ children: [d.deptName, String(d.totalEmployees), `${d.turnoverRate}%`, `${d.trainingRate}%`, String(d.nom035Score), String(d.pendingVacations), String(d.highRiskPsycho)].map((v) => mc(v)) })
+                        );
+                        const doc = new Document({ sections: [{ children: [
+                          new Paragraph({ text: "Comparativa de Departamentos NOM-035", heading: HeadingLevel.HEADING_1 }),
+                          new Paragraph({ children: [new TextRun({ text: `Generado: ${new Date().toLocaleString("es-MX")}` })] }),
+                          new Paragraph({ text: "" }),
+                          new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [hRow, ...dRows] }),
+                        ]}] });
+                        const blob = await Packer.toBlob(doc);
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `comparativa-departamentos-${new Date().toISOString().slice(0, 10)}.docx`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        toast.success("Archivo Word generado");
+                      } catch { toast.error("Error al exportar a Word"); }
+                    }}
+                  >
+                    <FileText className="w-3.5 h-3.5" />Word
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => window.print()} className="gap-1.5 border-slate-600 text-slate-700 hover:bg-slate-50">
+                    <Printer className="w-3.5 h-3.5" />PDF
+                  </Button>
+                </div>
               )}
             </div>
           </div>

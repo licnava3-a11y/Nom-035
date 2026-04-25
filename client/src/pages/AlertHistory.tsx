@@ -354,6 +354,38 @@ export default function AlertHistory() {
         </CardContent>
       </Card>
 
+      {/* Contadores rápidos por prioridad */}
+      {alerts && alerts.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <button
+            onClick={() => setPriority(priority === "critical" ? "all" : "critical")}
+            className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+              priority === "critical" ? "bg-red-50 border-red-400 ring-2 ring-red-300" : "bg-white border-slate-200 hover:border-red-300 hover:bg-red-50"
+            }`}
+          >
+            <span className="text-2xl font-bold text-red-600">{alerts.filter((a: any) => a.priority === "critical").length}</span>
+            <span className="text-sm font-medium text-red-700">Críticas</span>
+          </button>
+          <button
+            onClick={() => setPriority(priority === "warning" ? "all" : "warning")}
+            className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+              priority === "warning" ? "bg-amber-50 border-amber-400 ring-2 ring-amber-300" : "bg-white border-slate-200 hover:border-amber-300 hover:bg-amber-50"
+            }`}
+          >
+            <span className="text-2xl font-bold text-amber-600">{alerts.filter((a: any) => a.priority === "warning").length}</span>
+            <span className="text-sm font-medium text-amber-700">Advertencias</span>
+          </button>
+          <button
+            onClick={() => setPriority(priority === "info" ? "all" : "info")}
+            className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+              priority === "info" ? "bg-blue-50 border-blue-400 ring-2 ring-blue-300" : "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50"
+            }`}
+          >
+            <span className="text-2xl font-bold text-blue-600">{alerts.filter((a: any) => a.priority === "info").length}</span>
+            <span className="text-sm font-medium text-blue-700">Informativas</span>
+          </button>
+        </div>
+      )}
       {/* Tabla de Alertas */}
       <Card>
         <CardHeader>
@@ -361,7 +393,7 @@ export default function AlertHistory() {
             <div>
               <CardTitle>Registro de Alertas</CardTitle>
               <CardDescription>
-                {alerts?.length || 0} alertas encontradas
+                {alerts?.length || 0} alertas encontradas{priority !== "all" && ` — filtro: ${priority === "critical" ? "Crítica" : priority === "warning" ? "Advertencia" : "Informativa"}`}
               </CardDescription>
             </div>
             <Button
