@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   BookOpen, Plus, Pencil, Trash2, Eye, FileText, Search,
   CheckCircle2, Clock, XCircle, PlayCircle, Download, ChevronLeft,
-  Calendar, Users, DollarSign, BarChart3, FileDown,
+  Calendar, Users, DollarSign, BarChart3, FileDown, AlertTriangle,
 } from "lucide-react";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -59,6 +59,16 @@ function StaleBadge({ dias }: { dias: number | null }) {
   if (dias <= 7)  return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">{dias}d</span>;
   if (dias <= 30) return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700">{dias}d</span>;
   return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">{dias}d ⚠</span>;
+}
+
+
+// ─── Cuenta ítems con >30 días sin actualizar ─────────────────────────────────
+function staleItemsCount(items: any[]): number {
+  return items.filter(item => {
+    if (!item.updatedAt) return false;
+    const days = Math.floor((Date.now() - new Date(item.updatedAt).getTime()) / (1000 * 60 * 60 * 24));
+    return days > 30;
+  }).length;
 }
 
 // ─── Exportar PAC a XLSX ──────────────────────────────────────────────────────
@@ -148,8 +158,8 @@ async function exportPDF(plan: any, items: any[]) {
   doc.text("CURSOS / ACTIVIDADES DE CAPACITACIÓN", 15, y);
   y += 5;
 
-  const colWidths = [60, 22, 20, 22, 22, 30];
-  const headers = ["Curso", "Modalidad", "Horas", "Fecha Plan.", "Participantes", "Estatus"];
+  const colWidths = [50, 20, 12, 20, 18, 24, 18];
+  const headers = ["Curso", "Modalidad", "Horas", "Fecha Plan.", "Participantes", "Estatus", "D\u00edas s/act."];
   const startX = 15;
 
   // Cabecera de tabla
@@ -172,13 +182,17 @@ async function exportPDF(plan: any, items: any[]) {
       doc.rect(startX, y, pageW - 30, 7, "F");
     }
     cx = startX + 2;
+    const staleDays = item.updatedAt
+      ? Math.floor((Date.now() - new Date(item.updatedAt).getTime()) / (1000 * 60 * 60 * 24))
+      : null;
     const rowData = [
-      item.courseName.substring(0, 30),
+      item.courseName.substring(0, 28),
       MODALITY_LABELS[item.modality] ?? item.modality,
       item.durationHours ? String(item.durationHours) : "-",
       item.plannedDate ? new Date(item.plannedDate).toLocaleDateString("es-MX") : "-",
       item.participantsTarget ? String(item.participantsTarget) : "-",
       ITEM_STATUS_LABELS[item.status]?.label ?? item.status,
+      staleDays !== null ? `${staleDays}d` : "-",
     ];
     rowData.forEach((cell, i) => { doc.text(String(cell), cx, y + 5); cx += colWidths[i]; });
     y += 7;
@@ -753,7 +767,17 @@ export default function AnnualTrainingPlan() {
                       <TableCell className="text-sm">
                         {plan.totalBudget ? `$${Number(plan.totalBudget).toLocaleString("es-MX")}` : "-"}
                       </TableCell>
-                      <TableCell><StatusBadge status={plan.status} /></TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={plan.status} />
+                          {Number(plan.staleItemsCount) > 0 && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700 border border-red-200">
+                              <AlertTriangle className="w-3 h-3" />
+                              {plan.staleItemsCount}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button size="icon" variant="ghost" className="w-7 h-7" title="Ver detalle" onClick={() => setSelectedPlanId(plan.id)}>

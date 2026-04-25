@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, FileDown } from "lucide-react";
+import { Building2, FileDown, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import {
   Users, BookOpen, Calendar, AlertTriangle, Mail, Brain,
   TrendingUp, TrendingDown, Minus, RefreshCw, BarChart3,
@@ -92,6 +92,21 @@ export default function KPIDashboard() {
   const [trendMonths, setTrendMonths] = useState(6);
   const [selectedDeptId, setSelectedDeptId] = useState<number | undefined>(undefined);
   const [comparativaYear, setComparativaYear] = useState<number | undefined>(undefined);
+  const [sortKey, setSortKey] = useState<string>("deptName");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function handleSort(key: string) {
+    if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortDir("asc"); }
+  }
+
+  function SortIcon({ col }: { col: string }) {
+    if (sortKey !== col) return <ChevronsUpDown className="w-3 h-3 ml-1 opacity-50 inline" />;
+    return sortDir === "asc"
+      ? <ChevronUp className="w-3 h-3 ml-1 inline" />
+      : <ChevronDown className="w-3 h-3 ml-1 inline" />;
+  }
+
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
@@ -113,6 +128,15 @@ export default function KPIDashboard() {
     trpc.executiveReport.getComparativaDepts.useQuery({ year: comparativaYear }, { retry: false });
 
   const isLoading = loadingKPIs || loadingTrends;
+  const sortedDepts = comparativaDepts ? [...comparativaDepts].sort((a, b) => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    const av = (a as any)[sortKey];
+    const bv = (b as any)[sortKey];
+    if (typeof av === "string") return av.localeCompare(bv) * dir;
+    return ((av ?? 0) - (bv ?? 0)) * dir;
+  }) : [];
+
+
 
   // ── Exportar comparativa a Excel ─────────────────────────────────────────────
   function exportComparativaXLSX() {
@@ -513,17 +537,27 @@ export default function KPIDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-800 text-white">
-                    <th className="px-4 py-2.5 text-left font-medium">Departamento</th>
-                    <th className="px-4 py-2.5 text-center font-medium">Empleados</th>
-                    <th className="px-4 py-2.5 text-center font-medium">Rotacion %</th>
-                    <th className="px-4 py-2.5 text-center font-medium">% Capacitado</th>
-                    <th className="px-4 py-2.5 text-center font-medium">Puntaje NOM-035</th>
-                    <th className="px-4 py-2.5 text-center font-medium">Vac. Pendientes</th>
-                    <th className="px-4 py-2.5 text-center font-medium">Riesgo Psico.</th>
+                    {([
+                      { key: "deptName",       label: "Departamento",    align: "left"   },
+                      { key: "totalEmployees", label: "Empleados",       align: "center" },
+                      { key: "turnoverRate",   label: "Rotación %",      align: "center" },
+                      { key: "trainingRate",   label: "% Capacitado",    align: "center" },
+                      { key: "nom035Score",    label: "Puntaje NOM-035", align: "center" },
+                      { key: "pendingVacations", label: "Vac. Pendientes", align: "center" },
+                      { key: "highRiskPsycho", label: "Riesgo Psico.",   align: "center" },
+                    ] as { key: string; label: string; align: string }[]).map(({ key, label, align }) => (
+                      <th
+                        key={key}
+                        className={`px-4 py-2.5 font-medium cursor-pointer select-none hover:bg-slate-700 transition-colors text-${align}`}
+                        onClick={() => handleSort(key)}
+                      >
+                        {label}<SortIcon col={key} />
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {comparativaDepts.map((dept, idx) => {
+                  {sortedDepts.map((dept, idx) => {
                     const rotCls = dept.turnoverRate >= 20 ? "text-red-600 font-bold" : dept.turnoverRate >= 10 ? "text-amber-600 font-semibold" : "text-emerald-600";
                     const capCls = dept.trainingRate >= 80 ? "text-emerald-600 font-bold" : dept.trainingRate >= 50 ? "text-amber-600 font-semibold" : "text-red-600";
                     const nomCls = dept.nom035Score >= 80 ? "text-emerald-600 font-bold" : dept.nom035Score >= 60 ? "text-amber-600 font-semibold" : "text-red-600";

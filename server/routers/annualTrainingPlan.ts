@@ -45,6 +45,7 @@ export const annualTrainingPlanRouter = router({
           responsibleFirstName: employees.firstName,
           responsibleLastName: employees.lastName,
           itemCount: sql<number>`(SELECT COUNT(*) FROM annual_training_plan_items WHERE plan_id = ${annualTrainingPlans.id})`,
+          staleItemsCount: sql<number>`(SELECT COUNT(*) FROM annual_training_plan_items WHERE plan_id = ${annualTrainingPlans.id} AND status IN ('pendiente','en_proceso') AND updated_at < DATE_SUB(NOW(), INTERVAL 30 DAY))`,
         })
         .from(annualTrainingPlans)
         .leftJoin(departments, eq(annualTrainingPlans.departmentId, departments.id))
