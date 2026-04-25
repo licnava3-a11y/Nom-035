@@ -82,6 +82,7 @@ const JobPositions = lazy(() => import("./pages/JobPositions"));
 const Reports = lazy(() => import("./pages/Reports"));
 const AlertHistory = lazy(() => import("./pages/AlertHistory"));
 const AlertReportsConfig = lazy(() => import("./pages/AlertReportsConfig"));
+const AlertAdminDashboard = lazy(() => import("./pages/AlertAdminDashboard"));
 const AlertMetricsDashboard = lazy(() => import("./pages/AlertMetricsDashboard"));
 const AlertThresholdsConfig = lazy(() => import("./pages/AlertThresholdsConfig"));
 const PredictiveDashboard = lazy(() => import("./pages/alerts/PredictiveDashboard"));
@@ -588,6 +589,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <PredictiveDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alert-admin-dashboard"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertAdminDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

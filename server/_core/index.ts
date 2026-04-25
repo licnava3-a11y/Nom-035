@@ -48,6 +48,7 @@ import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-aler
 import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job";
 import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
 import { runPacStaleItemsJob } from "../jobs/pac-stale-items-job";
+import { runRealtimeAlertsJob } from "../jobs/realtime-alerts-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -315,6 +316,12 @@ async function startServer() {
       }
     }, 60000); // Check every minute
     console.log("[PAC Stale Items Job] Scheduled to run daily at 09:00");
+
+    // Realtime Alerts Job via WebSocket (every 15 minutes)
+    setInterval(() => {
+      runRealtimeAlertsJob().catch(console.error);
+    }, 15 * 60 * 1000); // Every 15 minutes
+    console.log("[Realtime Alerts Job] Scheduled to run every 15 minutes via WebSocket");
   });
 }
 

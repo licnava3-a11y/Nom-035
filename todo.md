@@ -402,3 +402,9 @@
 - [x] Historial de PAC por año: procedure getAvailableYears, selector de pills y filtro dinámico en AnnualTrainingPlan
 - [x] Job pac-stale-items-job: notificación diaria (09:00) al responsable del PAC cuando un curso lleva >30 días sin actualizar
 - [x] Tests del job pac-stale-items-job (2 casos: BD no disponible, sin items estancados)
+
+## Sprint 21: Notificaciones WebSocket, Dashboard Alertas y Exportación Multi-formato
+
+- [x] Job de notificaciones en tiempo real (realtime-alerts-job.ts): tareas vencidas y contratos próximos a vencer vía WebSocket cada 15 min
+- [x] Dashboard de Administración de Alertas (/alert-admin-dashboard): umbrales, frecuencia de resumen, destinatarios de email e intervalo WebSocket
+- [x] Exportación multi-formato (XLSX, PDF, Word) en ModelPerformanceAlerts con botones en encabezado y en tab Historial
