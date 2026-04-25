@@ -32,6 +32,7 @@ import * as XLSX from "xlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel, AlignmentType } from "docx";
 import { saveAs } from "file-saver";
+import { useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 type AlertType = "critical_cases" | "low_coverage" | "excellent_compliance" | "all";
@@ -39,7 +40,37 @@ type AlertStatus = "active" | "resolved" | "all";
 type AlertPriority = "critical" | "warning" | "info" | "all";
 
 function TrendChart() {
-  const { data: trendData, isLoading } = trpc.alerts.getMonthlyByPriority.useQuery({ months: 12 });
+  const [months, setMonths] = useState<3 | 6 | 12>(12);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const { data: trendData, isLoading } = trpc.alerts.getMonthlyByPriority.useQuery({ months });
+
+  const exportPNG = () => {
+    if (!chartRef.current) return;
+    const svg = chartRef.current.querySelector("svg");
+    if (!svg) return;
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+    img.onload = () => {
+      canvas.width = img.width * 2;
+      canvas.height = img.height * 2;
+      if (ctx) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.scale(2, 2);
+        ctx.drawImage(img, 0, 0);
+      }
+      URL.revokeObjectURL(url);
+      const link = document.createElement("a");
+      link.download = `tendencia-alertas-${months}meses.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+    img.src = url;
+  };
 
   if (isLoading) return <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">Cargando tendencia...</div>;
   if (!trendData || trendData.length === 0) {
@@ -59,18 +90,46 @@ function TrendChart() {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <LineChart data={formatted} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-        <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
-        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-        <Tooltip />
-        <Legend />
-        <Line type="monotone" dataKey="Críticas" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-        <Line type="monotone" dataKey="Advertencias" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-        <Line type="monotone" dataKey="Informativas" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-1">
+          {([3, 6, 12] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMonths(m)}
+              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                months === m
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-muted-foreground border-border hover:border-primary"
+              }`}
+            >
+              {m} meses
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={exportPNG}
+          className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-md border border-border bg-background hover:bg-muted transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          Exportar PNG
+        </button>
+      </div>
+      <div ref={chartRef}>
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={formatted} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="Críticas" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="Advertencias" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+            <Line type="monotone" dataKey="Informativas" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 }
 

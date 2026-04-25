@@ -254,6 +254,16 @@ export const alertsRouter = router({
   markAllRead: protectedProcedure.mutation(async ({ ctx }) => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
+    // Contar alertas activas antes de resolverlas
+    const activeAlerts = await db
+      .select({ id: alertHistory.id, priority: alertHistory.priority })
+      .from(alertHistory)
+      .where(eq(alertHistory.status, "active"));
+    const total = activeAlerts.length;
+    if (total === 0) return { success: true, resolved: 0 };
+    const critical = activeAlerts.filter(a => a.priority === "critical").length;
+    const warning = activeAlerts.filter(a => a.priority === "warning").length;
+    const info = activeAlerts.filter(a => a.priority === "info").length;
     await db
       .update(alertHistory)
       .set({
@@ -263,7 +273,48 @@ export const alertsRouter = router({
         notes: "Marcadas como leídas desde el navbar",
       } as any)
       .where(eq(alertHistory.status, "active"));
-    return { success: true };
+    // Enviar correo de confirmación al administrador
+    try {
+      const { sendEmail } = await import("../_core/email");
+      const adminEmail = (ctx.user as any).email as string | undefined;
+      const adminName = (ctx.user as any).name as string | undefined || "Administrador";
+      if (adminEmail) {
+        await sendEmail({
+          to: adminEmail,
+          subject: `[NOM-035] Confirmación: ${total} alerta${total !== 1 ? "s" : ""} marcada${total !== 1 ? "s" : ""} como leídas`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: #0f172a; color: #fff; padding: 16px 24px; border-radius: 8px 8px 0 0;">
+                <h2 style="margin: 0; font-size: 18px;">&#10003; Alertas marcadas como leídas</h2>
+                <p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8;">NOM-035 STPS 2018 &mdash; Sistema de Gestión de Cumplimiento</p>
+              </div>
+              <div style="background: #f8fafc; padding: 24px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px;">
+                <p style="color: #334155; margin: 0 0 16px;">Estimado/a <strong>${adminName}</strong>,</p>
+                <p style="color: #334155; margin: 0 0 16px;">
+                  Se han marcado como leídas <strong>${total} alerta${total !== 1 ? "s" : ""}</strong> en el Sistema NOM-035 STPS 2018.
+                </p>
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                  <p style="margin: 0 0 8px; font-weight: bold; color: #1e293b;">Resumen por prioridad:</p>
+                  ${critical > 0 ? `<p style="margin: 4px 0; color: #dc2626;">&#9679; Críticas: <strong>${critical}</strong></p>` : ""}
+                  ${warning > 0 ? `<p style="margin: 4px 0; color: #d97706;">&#9679; Advertencias: <strong>${warning}</strong></p>` : ""}
+                  ${info > 0 ? `<p style="margin: 4px 0; color: #2563eb;">&#9679; Informativas: <strong>${info}</strong></p>` : ""}
+                </div>
+                <p style="color: #334155; margin: 0 0 8px;">
+                  Acción realizada por: <strong>${adminName}</strong><br/>
+                  Fecha y hora: <strong>${new Date().toLocaleString("es-MX")}</strong>
+                </p>
+                <p style="color: #64748b; font-size: 12px; margin: 16px 0 0; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                  Este mensaje fue generado automáticamente por el Sistema de Gestión NOM-035 STPS 2018.
+                </p>
+              </div>
+            </div>
+          `,
+        });
+      }
+    } catch {
+      // Correo no crítico: si falla, la acción ya fue completada
+    }
+    return { success: true, resolved: total };
   }),
 
   // Tendencia mensual de alertas desglosada por prioridad (para gráfica)
