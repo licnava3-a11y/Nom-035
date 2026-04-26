@@ -159,9 +159,13 @@ export default function AlertAdminDashboard() {
   // ─── Configuración SMTP ──────────────────────────────────────────────────────
   const [smtpForm, setSmtpForm] = useState({ host: "", port: 587, user: "", pass: "", from: "", secure: false });
   const [smtpSaved, setSmtpSaved] = useState(false);
-  const smtpConfigQuery = trpc.systemSettings.getSMTPConfig.useQuery(undefined, {
-    onSuccess: (data: any) => setSmtpForm({ host: data.host, port: data.port, user: data.user, pass: data.pass, from: data.from, secure: data.secure }),
-  });
+  const smtpConfigQuery = trpc.systemSettings.getSMTPConfig.useQuery(undefined);
+  useEffect(() => {
+    if (smtpConfigQuery.data) {
+      const data = smtpConfigQuery.data as any;
+      setSmtpForm({ host: data.host, port: data.port, user: data.user, pass: data.pass, from: data.from, secure: data.secure });
+    }
+  }, [smtpConfigQuery.data]);
   const saveSMTPConfig = trpc.systemSettings.saveSMTPConfig.useMutation({
     onSuccess: () => { toast.success("Configuración SMTP guardada correctamente"); setSmtpSaved(true); setTimeout(() => setSmtpSaved(false), 3000); smtpConfigQuery.refetch(); },
     onError: (err) => toast.error(err.message),
