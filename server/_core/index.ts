@@ -5,6 +5,8 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { globalLimiter, authLimiter, contactFormLimiter, apiLimiter, exportLimiter } from "./rateLimiter";
 import net from "net";
+import fs from "fs";
+import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerLocalAuthRoutes } from "./localAuth";
@@ -136,7 +138,13 @@ async function startServer() {
     })
   );
   // development mode uses Vite, production mode uses static files
-  if (process.env.NODE_ENV === "development") {
+  // Fallback: if dist/public doesn't exist (build not completed), use Vite even in production
+  const distPublicPath = path.resolve(import.meta.dirname, "public");
+  const distPublicExists = fs.existsSync(distPublicPath) && fs.existsSync(path.join(distPublicPath, "index.html"));
+  if (process.env.NODE_ENV === "development" || !distPublicExists) {
+    if (process.env.NODE_ENV !== "development") {
+      console.warn(`[Server] dist/public not found at ${distPublicPath}, falling back to Vite dev server`);
+    }
     await setupVite(app, server);
   } else {
     serveStatic(app);
