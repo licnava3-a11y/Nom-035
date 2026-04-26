@@ -70,10 +70,12 @@ export const alertsRouter = router({
         priority: z.enum(["info", "warning", "critical"]).optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(20),
       })
     )
     .query(async ({ input }) => {
-      const { alertType, status, priority, startDate, endDate } = input;
+      const { alertType, status, priority, startDate, endDate, page, pageSize } = input;
 
       const conditions = [];
       if (alertType) conditions.push(eq(alertHistory.alertType, alertType));
@@ -84,19 +86,26 @@ export const alertsRouter = router({
 
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      // Total para paginación
+      const [{ total }] = await db
+        .select({ total: sql<number>`count(*)` })
+        .from(alertHistory)
+        .where(whereClause);
+
       const alerts = await db
         .select()
         .from(alertHistory)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .where(whereClause)
         .orderBy(
-          // Ordenar primero por prioridad (critical > warning > info), luego por fecha
           sql`CASE ${alertHistory.priority} WHEN 'critical' THEN 1 WHEN 'warning' THEN 2 WHEN 'info' THEN 3 END`,
           desc(alertHistory.triggeredAt)
         )
-        .limit(100);
+        .limit(pageSize)
+        .offset((page - 1) * pageSize);
 
-      return alerts;
+      return { alerts, total: Number(total), page, pageSize, totalPages: Math.ceil(Number(total) / pageSize) };
     }),
 
   // Resolver alerta

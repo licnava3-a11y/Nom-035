@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { VitePWA } from "vite-plugin-pwa";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -150,7 +151,63 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  VitePWA({
+    registerType: "autoUpdate",
+    injectRegister: "auto",
+    workbox: {
+      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,ttf,eot}"],
+      runtimeCaching: [
+        {
+          urlPattern: /\/assets\/.+\.(js|css|woff2?|ttf|eot|png|svg|ico)$/i,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "nom035-assets-v1",
+            expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+          handler: "CacheFirst",
+          options: {
+            cacheName: "nom035-google-fonts-v1",
+            expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          urlPattern: /\/api\/trpc\/.*/i,
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "nom035-api-v1",
+            networkTimeoutSeconds: 5,
+            expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+      ],
+    },
+    manifest: {
+      name: "Plataforma NOM-035 STPS 2018",
+      short_name: "NOM-035",
+      description: "Gesti\u00f3n Integral de Riesgos Psicosociales",
+      theme_color: "#1e40af",
+      background_color: "#f8fafc",
+      display: "standalone",
+      start_url: "/",
+      icons: [
+        { src: "/favicon.ico", sizes: "64x64", type: "image/x-icon" },
+      ],
+    },
+    devOptions: { enabled: false },
+  }),
+];
 
 export default defineConfig({
   plugins,

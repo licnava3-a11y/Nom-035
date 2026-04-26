@@ -116,6 +116,9 @@ if (!root) {
   (globalThis as any).__react_root = root;
 }
 
+// Inicializar métricas Core Web Vitals (carga lazy para no bloquear el render)
+import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() => {});
+
 root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
   <QueryClientProvider client={queryClient}>

@@ -408,3 +408,10 @@
 - [x] Job de notificaciones en tiempo real (realtime-alerts-job.ts): tareas vencidas y contratos próximos a vencer vía WebSocket cada 15 min
 - [x] Dashboard de Administración de Alertas (/alert-admin-dashboard): umbrales, frecuencia de resumen, destinatarios de email e intervalo WebSocket
 - [x] Exportación multi-formato (XLSX, PDF, Word) en ModelPerformanceAlerts con botones en encabezado y en tab Historial
+
+## Sprint 27: Service Worker, Core Web Vitals, SMTP UI, Paginación y Portada PDF
+- [ ] Service Worker para cacheo de assets estáticos (PWA)
+- [ ] Métricas Core Web Vitals en el cliente
+- [ ] Formulario de configuración SMTP en /alert-admin-dashboard
+- [ ] Paginación 20/página en /alert-history
+- [ ] Portada institucional en PDF del Reporte Ejecutivo

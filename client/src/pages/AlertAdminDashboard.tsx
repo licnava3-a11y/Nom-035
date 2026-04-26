@@ -156,6 +156,16 @@ export default function AlertAdminDashboard() {
     });
   };
 
+  // ─── Configuración SMTP ──────────────────────────────────────────────────────
+  const [smtpForm, setSmtpForm] = useState({ host: "", port: 587, user: "", pass: "", from: "", secure: false });
+  const [smtpSaved, setSmtpSaved] = useState(false);
+  const smtpConfigQuery = trpc.systemSettings.getSMTPConfig.useQuery(undefined, {
+    onSuccess: (data: any) => setSmtpForm({ host: data.host, port: data.port, user: data.user, pass: data.pass, from: data.from, secure: data.secure }),
+  });
+  const saveSMTPConfig = trpc.systemSettings.saveSMTPConfig.useMutation({
+    onSuccess: () => { toast.success("Configuración SMTP guardada correctamente"); setSmtpSaved(true); setTimeout(() => setSmtpSaved(false), 3000); smtpConfigQuery.refetch(); },
+    onError: (err) => toast.error(err.message),
+  });
   // ─── Prueba SMTP ─────────────────────────────────────────────────────────────
   const [smtpTestEmail, setSmtpTestEmail] = useState("");
   const [smtpTestResult, setSmtpTestResult] = useState<"idle" | "success" | "error">("idle");
@@ -422,6 +432,56 @@ export default function AlertAdminDashboard() {
       </Card>
 
       {/* ─── Probar conexión SMTP ───────────────────────────────────────────── */}
+      {/* ─── Formulario Configuración SMTP ───────────────────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-blue-500" />
+            <CardTitle className="text-base">Configuración SMTP</CardTitle>
+          </div>
+          <CardDescription>
+            Configura el servidor de correo para el envío de alertas automáticas. Los cambios se guardan en la base de datos.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label className="text-sm">Servidor SMTP (Host)</Label>
+              <Input placeholder="smtp.gmail.com" value={smtpForm.host} onChange={(e) => setSmtpForm((p) => ({ ...p, host: e.target.value }))} className="h-9" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm">Puerto</Label>
+              <Input type="number" placeholder="587" value={smtpForm.port} onChange={(e) => setSmtpForm((p) => ({ ...p, port: parseInt(e.target.value) || 587 }))} className="h-9" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm">Usuario / Email</Label>
+              <Input placeholder="alertas@empresa.com" value={smtpForm.user} onChange={(e) => setSmtpForm((p) => ({ ...p, user: e.target.value }))} className="h-9" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm">Contraseña</Label>
+              <Input type="password" placeholder="••••••••" value={smtpForm.pass} onChange={(e) => setSmtpForm((p) => ({ ...p, pass: e.target.value }))} className="h-9" />
+            </div>
+            <div className="space-y-1 md:col-span-2">
+              <Label className="text-sm">Dirección "De" (From)</Label>
+              <Input placeholder="NOM-035 STPS &lt;alertas@empresa.com&gt;" value={smtpForm.from} onChange={(e) => setSmtpForm((p) => ({ ...p, from: e.target.value }))} className="h-9" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="smtp-secure" checked={smtpForm.secure} onChange={(e) => setSmtpForm((p) => ({ ...p, secure: e.target.checked }))} className="h-4 w-4" />
+            <Label htmlFor="smtp-secure" className="text-sm cursor-pointer">Usar TLS/SSL (puerto 465)</Label>
+          </div>
+          <Button
+            onClick={() => saveSMTPConfig.mutate(smtpForm)}
+            disabled={saveSMTPConfig.isPending || !smtpForm.host}
+            size="sm"
+            className="w-full"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {saveSMTPConfig.isPending ? "Guardando..." : smtpSaved ? "✅ Guardado" : "Guardar configuración SMTP"}
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">

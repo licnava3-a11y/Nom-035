@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -21,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle, Info, Download, Calendar, FileText, Printer } from "lucide-react";
+import { AlertCircle, CheckCircle, Info, Download, Calendar, FileText, Printer, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -38,6 +37,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 type AlertType = "critical_cases" | "low_coverage" | "excellent_compliance" | "all";
 type AlertStatus = "active" | "resolved" | "all";
 type AlertPriority = "critical" | "warning" | "info" | "all";
+
+const PAGE_SIZE = 20;
 
 function TrendChart() {
   const [months, setMonths] = useState<3 | 6 | 12>(12);
@@ -142,17 +143,31 @@ export default function AlertHistory() {
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const utils = trpc.useUtils();
 
-  // Query para obtener histórico
-  const { data: alerts, isLoading } = trpc.alerts.getHistory.useQuery({
+  // Resetear página al cambiar filtros
+  const handleAlertTypeChange = (v: AlertType) => { setAlertType(v); setCurrentPage(1); };
+  const handleStatusChange = (v: AlertStatus) => { setStatus(v); setCurrentPage(1); };
+  const handlePriorityChange = (v: AlertPriority) => { setPriority(v); setCurrentPage(1); };
+  const handleStartDateChange = (d: Date | undefined) => { setStartDate(d); setCurrentPage(1); };
+  const handleEndDateChange = (d: Date | undefined) => { setEndDate(d); setCurrentPage(1); };
+
+  // Query para obtener histórico paginado
+  const { data: historyData, isLoading } = trpc.alerts.getHistory.useQuery({
     alertType: alertType === "all" ? undefined : alertType,
     status: status === "all" ? undefined : status,
     priority: priority === "all" ? undefined : priority,
     startDate: startDate ? startDate.toISOString() : undefined,
     endDate: endDate ? endDate.toISOString() : undefined,
+    page: currentPage,
+    pageSize: PAGE_SIZE,
   });
+
+  const alerts = historyData?.alerts ?? [];
+  const total = historyData?.total ?? 0;
+  const totalPages = historyData?.totalPages ?? 1;
 
   // Mutation para resolver alerta
   const resolveMutation = trpc.alerts.resolve.useMutation({
@@ -200,6 +215,7 @@ export default function AlertHistory() {
           children: [
             new Paragraph({ text: "Histórico de Alertas — NOM-035 STPS", heading: HeadingLevel.HEADING_1 }),
             new Paragraph({ text: `Generado: ${new Date().toLocaleString("es-MX")}`, alignment: AlignmentType.LEFT }),
+            new Paragraph({ text: `Total de registros: ${total}`, alignment: AlignmentType.LEFT }),
             new Paragraph(""),
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
@@ -230,11 +246,11 @@ export default function AlertHistory() {
       </tr>`).join("");
     printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Histórico de Alertas</title>
       <style>body{font-family:Arial,sans-serif;font-size:11px;margin:20px}h1{font-size:16px;margin-bottom:4px}p{margin:2px 0 12px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:5px 8px;text-align:left}th{background:#f0f0f0;font-weight:bold}tr:nth-child(even){background:#f9f9f9}</style>
-      </head><body><h1>Histórico de Alertas &mdash; NOM-035 STPS</h1><p>Generado: ${new Date().toLocaleString("es-MX")}</p>
+      </head><body><h1>Histórico de Alertas &mdash; NOM-035 STPS</h1><p>Generado: ${new Date().toLocaleString("es-MX")}</p><p>Total de registros: ${total}</p>
       <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Prioridad</th><th>Descripción</th><th>Estado</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
     printWindow.document.close();
     printWindow.focus();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 400);
+    setTimeout(() => { printWindow.print(); }, 400);
   };
 
   const handleExportToExcel = () => {
@@ -252,16 +268,17 @@ export default function AlertHistory() {
       ["  Estado:", status === "all" ? "Todos" : status === "active" ? "Activas" : "Resueltas"],
       ["  Prioridad:", priority === "all" ? "Todas" : priority === "critical" ? "Crítica" : priority === "warning" ? "Advertencia" : "Información"],
       [""],
-      ["Estadísticas:"],
-      ["  Total de Alertas:", alerts.length],
-      ["  Alertas Activas:", alerts.filter(a => a.status === "active").length],
-      ["  Alertas Resueltas:", alerts.filter(a => a.status === "resolved").length],
+      ["Estadísticas (página actual):"],
+      ["  Registros en esta página:", alerts.length],
+      ["  Total de registros:", total],
+      ["  Alertas Activas (página):", alerts.filter((a: any) => a.status === "active").length],
+      ["  Alertas Resueltas (página):", alerts.filter((a: any) => a.status === "resolved").length],
     ];
     const wsMetadata = XLSX.utils.aoa_to_sheet(metadata);
     XLSX.utils.book_append_sheet(wb, wsMetadata, "Metadatos");
 
     // Hoja de Datos
-    const data = alerts.map(alert => ({
+    const data = alerts.map((alert: any) => ({
       "Fecha": new Date(alert.triggeredAt).toLocaleString("es-MX"),
       "Tipo": getAlertTypeLabel(alert.alertType),
       "Prioridad": alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa",
@@ -274,22 +291,14 @@ export default function AlertHistory() {
     }));
     const wsData = XLSX.utils.json_to_sheet(data);
     
-    // Auto-ajustar columnas
     const colWidths = [
-      { wch: 20 }, // Fecha
-      { wch: 20 }, // Tipo
-      { wch: 50 }, // Descripción
-      { wch: 12 }, // Umbral
-      { wch: 15 }, // Valor Actual
-      { wch: 12 }, // Estado
-      { wch: 20 }, // Fecha Resolución
-      { wch: 40 }, // Notas
+      { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 50 },
+      { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 20 }, { wch: 40 },
     ];
     wsData["!cols"] = colWidths;
     
     XLSX.utils.book_append_sheet(wb, wsData, "Alertas");
 
-    // Exportar archivo
     const fileName = `historico_alertas_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
   };
@@ -321,6 +330,11 @@ export default function AlertHistory() {
     return variants[type] || "default";
   };
 
+  // Contadores globales por prioridad (del total de la página actual)
+  const criticalCount = alerts.filter((a: any) => a.priority === "critical").length;
+  const warningCount = alerts.filter((a: any) => a.priority === "warning").length;
+  const infoCount = alerts.filter((a: any) => a.priority === "info").length;
+
   return (
     <div className="container py-6 space-y-6">
       <Breadcrumb
@@ -347,7 +361,7 @@ export default function AlertHistory() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Tipo de Alerta</label>
-            <Select value={alertType} onValueChange={(v) => setAlertType(v as AlertType)}>
+            <Select value={alertType} onValueChange={(v) => handleAlertTypeChange(v as AlertType)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -362,7 +376,7 @@ export default function AlertHistory() {
 
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Estado</label>
-            <Select value={status} onValueChange={(v) => setStatus(v as AlertStatus)}>
+            <Select value={status} onValueChange={(v) => handleStatusChange(v as AlertStatus)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -376,7 +390,7 @@ export default function AlertHistory() {
 
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Prioridad</label>
-            <Select value={priority} onValueChange={(v) => setPriority(v as AlertPriority)}>
+            <Select value={priority} onValueChange={(v) => handlePriorityChange(v as AlertPriority)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -413,7 +427,7 @@ export default function AlertHistory() {
                     <CalendarComponent
                       mode="single"
                       selected={startDate}
-                      onSelect={setStartDate}
+                      onSelect={handleStartDateChange}
                       initialFocus
                     />
                   </PopoverContent>
@@ -439,7 +453,7 @@ export default function AlertHistory() {
                     <CalendarComponent
                       mode="single"
                       selected={endDate}
-                      onSelect={setEndDate}
+                      onSelect={handleEndDateChange}
                       initialFocus
                     />
                   </PopoverContent>
@@ -455,8 +469,8 @@ export default function AlertHistory() {
                 onClick={() => {
                   const now = new Date();
                   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                  setStartDate(weekAgo);
-                  setEndDate(now);
+                  handleStartDateChange(weekAgo);
+                  handleEndDateChange(now);
                 }}
               >
                 Última semana
@@ -467,8 +481,8 @@ export default function AlertHistory() {
                 onClick={() => {
                   const now = new Date();
                   const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                  setStartDate(monthAgo);
-                  setEndDate(now);
+                  handleStartDateChange(monthAgo);
+                  handleEndDateChange(now);
                 }}
               >
                 Último mes
@@ -479,8 +493,8 @@ export default function AlertHistory() {
                 onClick={() => {
                   const now = new Date();
                   const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-                  setStartDate(quarterAgo);
-                  setEndDate(now);
+                  handleStartDateChange(quarterAgo);
+                  handleEndDateChange(now);
                 }}
               >
                 Último trimestre
@@ -491,8 +505,8 @@ export default function AlertHistory() {
                 onClick={() => {
                   const now = new Date();
                   const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-                  setStartDate(yearAgo);
-                  setEndDate(now);
+                  handleStartDateChange(yearAgo);
+                  handleEndDateChange(now);
                 }}
               >
                 Último año
@@ -501,8 +515,8 @@ export default function AlertHistory() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setStartDate(undefined);
-                  setEndDate(undefined);
+                  handleStartDateChange(undefined);
+                  handleEndDateChange(undefined);
                 }}
               >
                 Limpiar fechas
@@ -513,37 +527,38 @@ export default function AlertHistory() {
       </Card>
 
       {/* Contadores rápidos por prioridad */}
-      {alerts && alerts.length > 0 && (
+      {total > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <button
-            onClick={() => setPriority(priority === "critical" ? "all" : "critical")}
+            onClick={() => handlePriorityChange(priority === "critical" ? "all" : "critical")}
             className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
               priority === "critical" ? "bg-red-50 border-red-400 ring-2 ring-red-300" : "bg-white border-slate-200 hover:border-red-300 hover:bg-red-50"
             }`}
           >
-            <span className="text-2xl font-bold text-red-600">{alerts.filter((a: any) => a.priority === "critical").length}</span>
+            <span className="text-2xl font-bold text-red-600">{criticalCount}</span>
             <span className="text-sm font-medium text-red-700">Críticas</span>
           </button>
           <button
-            onClick={() => setPriority(priority === "warning" ? "all" : "warning")}
+            onClick={() => handlePriorityChange(priority === "warning" ? "all" : "warning")}
             className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
               priority === "warning" ? "bg-amber-50 border-amber-400 ring-2 ring-amber-300" : "bg-white border-slate-200 hover:border-amber-300 hover:bg-amber-50"
             }`}
           >
-            <span className="text-2xl font-bold text-amber-600">{alerts.filter((a: any) => a.priority === "warning").length}</span>
+            <span className="text-2xl font-bold text-amber-600">{warningCount}</span>
             <span className="text-sm font-medium text-amber-700">Advertencias</span>
           </button>
           <button
-            onClick={() => setPriority(priority === "info" ? "all" : "info")}
+            onClick={() => handlePriorityChange(priority === "info" ? "all" : "info")}
             className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
               priority === "info" ? "bg-blue-50 border-blue-400 ring-2 ring-blue-300" : "bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50"
             }`}
           >
-            <span className="text-2xl font-bold text-blue-600">{alerts.filter((a: any) => a.priority === "info").length}</span>
+            <span className="text-2xl font-bold text-blue-600">{infoCount}</span>
             <span className="text-sm font-medium text-blue-700">Informativas</span>
           </button>
         </div>
       )}
+
       {/* Gráfica de tendencia mensual por prioridad */}
       <Card>
         <CardHeader>
@@ -562,7 +577,9 @@ export default function AlertHistory() {
             <div>
               <CardTitle>Registro de Alertas</CardTitle>
               <CardDescription>
-                {alerts?.length || 0} alertas encontradas{priority !== "all" && ` — filtro: ${priority === "critical" ? "Crítica" : priority === "warning" ? "Advertencia" : "Informativa"}`}
+                {total} alerta{total !== 1 ? "s" : ""} encontrada{total !== 1 ? "s" : ""}
+                {priority !== "all" && ` — filtro: ${priority === "critical" ? "Crítica" : priority === "warning" ? "Advertencia" : "Informativa"}`}
+                {totalPages > 1 && ` — Página ${currentPage} de ${totalPages}`}
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -607,84 +624,120 @@ export default function AlertHistory() {
               No se encontraron alertas con los filtros seleccionados
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-3 font-medium">Fecha</th>
-                    <th className="text-left p-3 font-medium">Tipo</th>
-                    <th className="text-center p-3 font-medium">Prioridad</th>
-                    <th className="text-left p-3 font-medium">Descripción</th>
-                    <th className="text-center p-3 font-medium">Umbral</th>
-                    <th className="text-center p-3 font-medium">Valor Actual</th>
-                    <th className="text-center p-3 font-medium">Estado</th>
-                    <th className="text-center p-3 font-medium">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alerts.map((alert: any) => (
-                    <tr key={alert.id} className="border-b hover:bg-muted/50">
-                      <td className="p-3 text-sm">
-                        {new Date(alert.triggeredAt).toLocaleString("es-MX", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
-                          {getAlertTypeIcon(alert.alertType)}
-                          <Badge variant={getAlertTypeBadge(alert.alertType)}>
-                            {getAlertTypeLabel(alert.alertType)}
-                          </Badge>
-                        </div>
-                      </td>
-                      <td className="p-3 text-center">
-                        <Badge 
-                          variant={alert.priority === "critical" ? "destructive" : alert.priority === "warning" ? "secondary" : "outline"}
-                          className={alert.priority === "info" ? "bg-blue-100 text-blue-800 hover:bg-blue-200" : ""}
-                        >
-                          {alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa"}
-                        </Badge>
-                      </td>
-                      <td className="p-3 text-sm max-w-md">
-                        {alert.description}
-                        {alert.notes && (
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            <strong>Notas:</strong> {alert.notes}
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-3 text-center text-sm">{alert.threshold}</td>
-                      <td className="p-3 text-center text-sm font-medium">{alert.currentValue}</td>
-                      <td className="p-3 text-center">
-                        <Badge variant={alert.status === "active" ? "destructive" : "secondary"}>
-                          {alert.status === "active" ? "Activa" : "Resuelta"}
-                        </Badge>
-                        {alert.status === "resolved" && alert.resolvedAt && (
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {new Date(alert.resolvedAt).toLocaleDateString("es-MX")}
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-3 text-center">
-                        {alert.status === "active" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleResolve(alert.id)}
-                          >
-                            Resolver
-                          </Button>
-                        )}
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3 font-medium">Fecha</th>
+                      <th className="text-left p-3 font-medium">Tipo</th>
+                      <th className="text-center p-3 font-medium">Prioridad</th>
+                      <th className="text-left p-3 font-medium">Descripción</th>
+                      <th className="text-center p-3 font-medium">Umbral</th>
+                      <th className="text-center p-3 font-medium">Valor Actual</th>
+                      <th className="text-center p-3 font-medium">Estado</th>
+                      <th className="text-center p-3 font-medium">Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {alerts.map((alert: any) => (
+                      <tr key={alert.id} className="border-b hover:bg-muted/50">
+                        <td className="p-3 text-sm">
+                          {new Date(alert.triggeredAt).toLocaleString("es-MX", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            {getAlertTypeIcon(alert.alertType)}
+                            <Badge variant={getAlertTypeBadge(alert.alertType)}>
+                              {getAlertTypeLabel(alert.alertType)}
+                            </Badge>
+                          </div>
+                        </td>
+                        <td className="p-3 text-center">
+                          <Badge 
+                            variant={alert.priority === "critical" ? "destructive" : alert.priority === "warning" ? "secondary" : "outline"}
+                            className={alert.priority === "info" ? "bg-blue-100 text-blue-800 hover:bg-blue-200" : ""}
+                          >
+                            {alert.priority === "critical" ? "Crítica" : alert.priority === "warning" ? "Advertencia" : "Informativa"}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-sm max-w-md">
+                          {alert.description}
+                          {alert.notes && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              <strong>Notas:</strong> {alert.notes}
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-3 text-center text-sm">{alert.threshold}</td>
+                        <td className="p-3 text-center text-sm font-medium">{alert.currentValue}</td>
+                        <td className="p-3 text-center">
+                          <Badge variant={alert.status === "active" ? "destructive" : "secondary"}>
+                            {alert.status === "active" ? "Activa" : "Resuelta"}
+                          </Badge>
+                          {alert.status === "resolved" && alert.resolvedAt && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {new Date(alert.resolvedAt).toLocaleDateString("es-MX")}
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-3 text-center">
+                          {alert.status === "active" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleResolve(alert.id)}
+                            >
+                              Resolver
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Controles de paginación */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, total)} de {total} registros
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="gap-1"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Anterior
+                    </Button>
+                    <span className="text-sm font-medium px-2">
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="gap-1"
+                    >
+                      Siguiente
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

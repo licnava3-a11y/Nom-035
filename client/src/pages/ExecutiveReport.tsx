@@ -281,8 +281,84 @@ export default function ExecutiveReport() {
       const html2canvas = (await import("html2canvas")).default;
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+
+      // ── PORTADA INSTITUCIONAL ──────────────────────────────────────────────
+      // Fondo oscuro superior (2/3 de la página)
+      doc.setFillColor(15, 23, 42); // slate-900
+      doc.rect(0, 0, pageW, pageH * 0.65, "F");
+      // Franja de acento azul
+      doc.setFillColor(37, 99, 235); // blue-600
+      doc.rect(0, pageH * 0.65, pageW, 3, "F");
+      // Fondo claro inferior
+      doc.setFillColor(248, 250, 252); // slate-50
+      doc.rect(0, pageH * 0.65 + 3, pageW, pageH * 0.35, "F");
+
+      // Logo / ícono NOM-035 (círculo con siglas)
+      doc.setFillColor(37, 99, 235);
+      doc.circle(pageW / 2, 45, 18, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text("NOM", pageW / 2, 42, { align: "center" });
+      doc.setFontSize(10);
+      doc.text("035", pageW / 2, 50, { align: "center" });
+
+      // Título principal
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reporte Ejecutivo", pageW / 2, 78, { align: "center" });
+      doc.text("Consolidado", pageW / 2, 90, { align: "center" });
+
+      // Subtítulo normativo
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(148, 163, 184); // slate-400
+      doc.text("NOM-035-STPS-2018", pageW / 2, 102, { align: "center" });
+      doc.setFontSize(9);
+      doc.text("Factores de Riesgo Psicosocial en el Trabajo", pageW / 2, 110, { align: "center" });
+
+      // Línea divisoria
+      doc.setDrawColor(37, 99, 235);
+      doc.setLineWidth(0.5);
+      doc.line(30, 118, pageW - 30, 118);
+
+      // Datos de la empresa (sección inferior clara)
+      const coverY = pageH * 0.65 + 14;
+      doc.setTextColor(30, 41, 59); // slate-800
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("Organización:", 20, coverY);
+      doc.setFont("helvetica", "normal");
+      doc.text("[Nombre de la Empresa]", 65, coverY);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("RFC:", 20, coverY + 10);
+      doc.setFont("helvetica", "normal");
+      doc.text("[RFC de la Empresa]", 65, coverY + 10);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Fecha de generación:", 20, coverY + 20);
+      doc.setFont("helvetica", "normal");
+      doc.text(new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" }), 65, coverY + 20);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Período analizado:", 20, coverY + 30);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Últimos ${trendMonths} meses`, 65, coverY + 30);
+
+      // Pie de portada
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139); // slate-500
+      doc.text("Documento generado automáticamente por la Plataforma de Cumplimiento NOM-035 STPS 2018", pageW / 2, pageH - 10, { align: "center" });
+
+      // Nueva página para el contenido
+      doc.addPage();
+      // ── FIN PORTADA ───────────────────────────────────────────────────────
+
       let y = 15;
-      // Header
+      // Header de contenido
       doc.setFillColor(15, 23, 42);
       doc.rect(0, 0, pageW, 22, "F");
       doc.setTextColor(255, 255, 255);

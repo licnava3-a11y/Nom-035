@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { systemSettings } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { restartAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 import { sendEmail } from "../_core/email";
@@ -177,6 +177,61 @@ export const systemSettingsRouter = router({
   /**
    * Probar conexión SMTP enviando un correo de prueba
    */
+  /**
+   * Obtener la configuración SMTP guardada en systemSettings
+   */
+  getSMTPConfig: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { host: "", port: 587, user: "", pass: "", from: "", secure: false };
+    const keys = ["smtp_host", "smtp_port", "smtp_user", "smtp_pass", "smtp_from", "smtp_secure"];
+    const rows = await db.select().from(systemSettings).where(inArray(systemSettings.settingKey, keys));
+    const map = Object.fromEntries(rows.map((r) => [r.settingKey, r.settingValue ?? ""]));
+    return {
+      host: map["smtp_host"] ?? "",
+      port: Number(map["smtp_port"] ?? 587),
+      user: map["smtp_user"] ?? "",
+      pass: map["smtp_pass"] ? "*".repeat(8) : "",
+      from: map["smtp_from"] ?? "",
+      secure: map["smtp_secure"] === "true",
+    };
+  }),
+  /**
+   * Guardar la configuración SMTP en systemSettings
+   */
+  saveSMTPConfig: adminProcedure
+    .input(
+      z.object({
+        host: z.string().min(1),
+        port: z.number().int().min(1).max(65535),
+        user: z.string(),
+        pass: z.string(),
+        from: z.string(),
+        secure: z.boolean(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
+      const entries: Array<{ key: string; value: string }> = [
+        { key: "smtp_host", value: input.host },
+        { key: "smtp_port", value: String(input.port) },
+        { key: "smtp_user", value: input.user },
+        { key: "smtp_from", value: input.from },
+        { key: "smtp_secure", value: String(input.secure) },
+      ];
+      if (input.pass && !input.pass.match(/^\*+$/)) {
+        entries.push({ key: "smtp_pass", value: input.pass });
+      }
+      for (const { key, value } of entries) {
+        const [existing] = await db.select().from(systemSettings).where(eq(systemSettings.settingKey, key)).limit(1);
+        if (existing) {
+          await db.update(systemSettings).set({ settingValue: value } as any).where(eq(systemSettings.settingKey, key));
+        } else {
+          await (db.insert(systemSettings) as any).values({ settingKey: key, settingValue: value, description: `SMTP config: ${key}` });
+        }
+      }
+      return { success: true };
+    }),
   testSMTP: protectedProcedure
     .input(z.object({ toEmail: z.string().email() }))
     .mutation(async ({ input, ctx }) => {
