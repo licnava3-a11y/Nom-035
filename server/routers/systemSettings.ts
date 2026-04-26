@@ -267,9 +267,9 @@ export const systemSettingsRouter = router({
     const db = await getDb();
     if (!db) return { company_name: "", company_rfc: "", company_address: "" };
     const rows = await db
-      .select({ key: systemSettings.key, value: systemSettings.value })
+      .select({ key: systemSettings.settingKey, value: systemSettings.settingValue })
       .from(systemSettings)
-      .where(inArray(systemSettings.key, ["company_name", "company_rfc", "company_address"]));
+      .where(inArray(systemSettings.settingKey, ["company_name", "company_rfc", "company_address"]));
     const map: Record<string, string> = {};
     rows.forEach((r) => { map[r.key] = r.value ?? ""; });
     return {
@@ -295,11 +295,11 @@ export const systemSettingsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
       const entries = Object.entries(input).filter(([, v]) => v !== undefined) as [string, string][];
       for (const [key, value] of entries) {
-        const existing = await db.select({ id: systemSettings.id }).from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
+        const existing = await db.select({ id: systemSettings.id }).from(systemSettings).where(eq(systemSettings.settingKey, key)).limit(1);
         if (existing.length > 0) {
-          await db.update(systemSettings).set({ value }).where(eq(systemSettings.key, key));
+          await db.update(systemSettings).set({ settingValue: value }).where(eq(systemSettings.settingKey, key));
         } else {
-          await (db.insert(systemSettings) as any).values({ key, value });
+          await (db.insert(systemSettings) as any).values({ settingKey: key, settingValue: value });
         }
       }
       return { success: true };
