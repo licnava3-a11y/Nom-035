@@ -161,14 +161,32 @@ const plugins = [
     registerType: "autoUpdate",
     injectRegister: "auto",
     workbox: {
-      globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,ttf,eot}"],
+      // Forzar activación inmediata del nuevo SW para evitar pantalla en blanco
+      skipWaiting: true,
+      clientsClaim: true,
+      // Solo cachear assets estáticos con hash (no HTML ni JS de entrada)
+      globPatterns: ["**/*.{css,ico,png,svg,woff,woff2,ttf,eot}"],
+      // Excluir el HTML principal del precaché para siempre obtener la última versión
+      navigateFallback: null,
       runtimeCaching: [
         {
-          urlPattern: /\/assets\/.+\.(js|css|woff2?|ttf|eot|png|svg|ico)$/i,
+          // Assets con hash de contenido: CacheFirst es seguro
+          urlPattern: /\/assets\/.+\.(css|woff2?|ttf|eot|png|svg|ico)$/i,
           handler: "CacheFirst",
           options: {
-            cacheName: "nom035-assets-v1",
+            cacheName: "nom035-assets-v2",
             expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
+        },
+        {
+          // Chunks JS: NetworkFirst para siempre obtener la última versión
+          urlPattern: /\/assets\/.+\.js$/i,
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "nom035-js-v2",
+            networkTimeoutSeconds: 3,
+            expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
             cacheableResponse: { statuses: [0, 200] },
           },
         },
@@ -176,7 +194,7 @@ const plugins = [
           urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
           handler: "CacheFirst",
           options: {
-            cacheName: "nom035-google-fonts-v1",
+            cacheName: "nom035-google-fonts-v2",
             expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
             cacheableResponse: { statuses: [0, 200] },
           },
@@ -185,7 +203,7 @@ const plugins = [
           urlPattern: /\/api\/trpc\/.*/i,
           handler: "NetworkFirst",
           options: {
-            cacheName: "nom035-api-v1",
+            cacheName: "nom035-api-v2",
             networkTimeoutSeconds: 5,
             expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
             cacheableResponse: { statuses: [0, 200] },

@@ -119,6 +119,18 @@ if (!root) {
 // Inicializar métricas Core Web Vitals (carga lazy para no bloquear el render)
 import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() => {});
 
+// Manejo de actualizaciones del Service Worker (PWA)
+// Cuando el SW nuevo toma control (skipWaiting + clientsClaim), recargar la página
+// para evitar que el usuario quede con assets en caché de la versión anterior (pantalla en blanco)
+if ("serviceWorker" in navigator) {
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (swRefreshing) return;
+    swRefreshing = true;
+    window.location.reload();
+  });
+}
+
 root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
   <QueryClientProvider client={queryClient}>
