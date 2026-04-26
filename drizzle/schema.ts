@@ -2095,7 +2095,7 @@ export type InsertNom035Result = typeof nom035Results.$inferInsert;
 // Alert History - Histórico de alertas del sistema para auditoría
 export const alertHistory = mysqlTable("alert_history", {
   id: int("id").autoincrement().primaryKey(),
-  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance"]).notNull(),
+  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance", "performance_lcp"]).notNull(),
   priority: mysqlEnum("priority", ["info", "warning", "critical"]).default("warning").notNull(),
   threshold: int("threshold").notNull(), // Umbral que activó la alerta
   currentValue: int("current_value").notNull(), // Valor actual que superó el umbral
@@ -2128,7 +2128,7 @@ export type InsertAlertThreshold = typeof alertThresholds.$inferInsert;
 export const notificationHistory = mysqlTable("notification_history", {
   id: int("id").autoincrement().primaryKey(),
   alertId: int("alert_id").references(() => alertHistory.id).notNull(), // Referencia a la alerta
-  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance"]).notNull(),
+  alertType: mysqlEnum("alert_type", ["critical_cases", "low_coverage", "excellent_compliance", "performance_lcp"]).notNull(),
   priority: mysqlEnum("priority", ["info", "warning", "critical"]).notNull(),
   description: text("description").notNull(),
   currentValue: int("current_value").notNull(),

@@ -265,17 +265,18 @@ export const systemSettingsRouter = router({
    */
   getCompanyInfo: protectedProcedure.query(async () => {
     const db = await getDb();
-    if (!db) return { company_name: "", company_rfc: "", company_address: "" };
+    if (!db) return { company_name: "", company_rfc: "", company_address: "", company_logo: "" };
     const rows = await db
       .select({ key: systemSettings.settingKey, value: systemSettings.settingValue })
       .from(systemSettings)
-      .where(inArray(systemSettings.settingKey, ["company_name", "company_rfc", "company_address"]));
+      .where(inArray(systemSettings.settingKey, ["company_name", "company_rfc", "company_address", "company_logo"]));
     const map: Record<string, string> = {};
     rows.forEach((r) => { map[r.key] = r.value ?? ""; });
     return {
       company_name: map["company_name"] ?? "",
       company_rfc: map["company_rfc"] ?? "",
       company_address: map["company_address"] ?? "",
+      company_logo: map["company_logo"] ?? "",
     };
   }),
 
@@ -288,6 +289,7 @@ export const systemSettingsRouter = router({
         company_name: z.string().max(255).optional(),
         company_rfc: z.string().max(20).optional(),
         company_address: z.string().max(500).optional(),
+        company_logo: z.string().max(2048).optional(),
       })
     )
     .mutation(async ({ input }) => {

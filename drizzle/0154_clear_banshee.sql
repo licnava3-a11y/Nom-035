@@ -1,0 +1,2 @@
+ALTER TABLE `alert_history` MODIFY COLUMN `alert_type` enum('critical_cases','low_coverage','excellent_compliance','performance_lcp') NOT NULL;--> statement-breakpoint
+ALTER TABLE `notification_history` MODIFY COLUMN `alert_type` enum('critical_cases','low_coverage','excellent_compliance','performance_lcp') NOT NULL;

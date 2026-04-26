@@ -295,15 +295,44 @@ export default function ExecutiveReport() {
       doc.setFillColor(248, 250, 252); // slate-50
       doc.rect(0, pageH * 0.65 + 3, pageW, pageH * 0.35, "F");
 
-      // Logo / ícono NOM-035 (círculo con siglas)
-      doc.setFillColor(37, 99, 235);
-      doc.circle(pageW / 2, 45, 18, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
-      doc.text("NOM", pageW / 2, 42, { align: "center" });
-      doc.setFontSize(10);
-      doc.text("035", pageW / 2, 50, { align: "center" });
+      // Logo de empresa o ícono NOM-035 (círculo con siglas)
+      if (companyInfo?.company_logo) {
+        try {
+          const logoRes = await fetch(companyInfo.company_logo);
+          const logoBlob = await logoRes.blob();
+          const logoBase64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(logoBlob);
+          });
+          // Detectar formato de imagen para jsPDF
+          const mimeType = logoBlob.type || "image/png";
+          const imgFormat = mimeType.includes("jpeg") || mimeType.includes("jpg") ? "JPEG" : "PNG";
+          // Dibujar el logo centrado (máx 36x36 mm, posición y=27)
+          const logoSize = 36;
+          doc.addImage(logoBase64, imgFormat, (pageW - logoSize) / 2, 27, logoSize, logoSize);
+        } catch {
+          // Si falla la carga del logo, usar el ícono por defecto
+          doc.setFillColor(37, 99, 235);
+          doc.circle(pageW / 2, 45, 18, "F");
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(13);
+          doc.setFont("helvetica", "bold");
+          doc.text("NOM", pageW / 2, 42, { align: "center" });
+          doc.setFontSize(10);
+          doc.text("035", pageW / 2, 50, { align: "center" });
+        }
+      } else {
+        doc.setFillColor(37, 99, 235);
+        doc.circle(pageW / 2, 45, 18, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(13);
+        doc.setFont("helvetica", "bold");
+        doc.text("NOM", pageW / 2, 42, { align: "center" });
+        doc.setFontSize(10);
+        doc.text("035", pageW / 2, 50, { align: "center" });
+      }
 
       // Título principal
       doc.setTextColor(255, 255, 255);

@@ -49,6 +49,7 @@ import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job"
 import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
 import { runPacStaleItemsJob } from "../jobs/pac-stale-items-job";
 import { runRealtimeAlertsJob } from "../jobs/realtime-alerts-job";
+import { startPerformanceLcpAlertsJob } from "../jobs/performance-lcp-alerts-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -324,6 +325,9 @@ async function startServer() {
       runRealtimeAlertsJob().catch(console.error);
     }, 15 * 60 * 1000); // Every 15 minutes
     console.log("[Realtime Alerts Job] Scheduled to run every 15 minutes via WebSocket");
+
+    // Performance LCP Alerts Job (daily at 06:00 AM)
+    startPerformanceLcpAlertsJob();
   });
 }
 

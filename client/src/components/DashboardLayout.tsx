@@ -295,6 +295,7 @@ const hierarchicalMenuItems = [
       { label: "Visitas por Empresa", path: "/company-visits", description: "Contador de visitas y páginas más visitadas por empresa" },
       { label: "Informes de Errores", path: "/bug-reports", description: "Reporte y seguimiento de errores del sistema" },
       { label: "Peticiones de Mejora", path: "/feature-requests", description: "Solicitudes de nuevas funcionalidades con indicador de % implementadas" },
+      { label: "⚡ Core Web Vitals", path: "/web-vitals", description: "Dashboard de métricas de rendimiento: LCP, CLS, INP, FCP, TTFB" },
     ],
   },
   {
