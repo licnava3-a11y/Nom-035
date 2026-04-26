@@ -1072,6 +1072,13 @@
       "when": 1777062981180,
       "tag": "0152_small_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 153,
+      "version": "5",
+      "when": 1777224274605,
+      "tag": "0153_gifted_toxin",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { systemSettings } from "../../drizzle/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, and, gte, lte, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { restartAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
 import { sendEmail } from "../_core/email";
@@ -258,5 +258,87 @@ export const systemSettingsRouter = router({
         });
       }
       return { success: true, message: `Correo de prueba enviado a ${input.toEmail}` };
+    }),
+
+  /**
+   * Obtener datos de empresa (company_name, company_rfc, company_address)
+   */
+  getCompanyInfo: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { company_name: "", company_rfc: "", company_address: "" };
+    const rows = await db
+      .select({ key: systemSettings.key, value: systemSettings.value })
+      .from(systemSettings)
+      .where(inArray(systemSettings.key, ["company_name", "company_rfc", "company_address"]));
+    const map: Record<string, string> = {};
+    rows.forEach((r) => { map[r.key] = r.value ?? ""; });
+    return {
+      company_name: map["company_name"] ?? "",
+      company_rfc: map["company_rfc"] ?? "",
+      company_address: map["company_address"] ?? "",
+    };
+  }),
+
+  /**
+   * Guardar datos de empresa
+   */
+  saveCompanyInfo: adminProcedure
+    .input(
+      z.object({
+        company_name: z.string().max(255).optional(),
+        company_rfc: z.string().max(20).optional(),
+        company_address: z.string().max(500).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB error" });
+      const entries = Object.entries(input).filter(([, v]) => v !== undefined) as [string, string][];
+      for (const [key, value] of entries) {
+        const existing = await db.select({ id: systemSettings.id }).from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
+        if (existing.length > 0) {
+          await db.update(systemSettings).set({ value }).where(eq(systemSettings.key, key));
+        } else {
+          await (db.insert(systemSettings) as any).values({ key, value });
+        }
+      }
+      return { success: true };
+    }),
+
+  /**
+   * Exportar TODOS los registros del historial de alertas sin paginación
+   */
+  getAllAlertsForExport: protectedProcedure
+    .input(
+      z.object({
+        status: z.string().optional().default("all"),
+        alertType: z.string().optional(),
+        priority: z.string().optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      const { alertHistory } = await import("../../drizzle/schema");
+      const conditions: any[] = [];
+      if (input.status && input.status !== "all") {
+        conditions.push(eq(alertHistory.status, input.status as any));
+      }
+      if (input.alertType) {
+        conditions.push(eq(alertHistory.alertType, input.alertType as any));
+      }
+      if (input.priority) {
+        conditions.push(eq(alertHistory.priority, input.priority as any));
+      }
+      if (input.dateFrom) conditions.push(gte(alertHistory.triggeredAt, new Date(input.dateFrom)));
+      if (input.dateTo) conditions.push(lte(alertHistory.triggeredAt, new Date(input.dateTo)));
+      const rows = await db
+        .select()
+        .from(alertHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(alertHistory.triggeredAt));
+      return rows;
     }),
 });

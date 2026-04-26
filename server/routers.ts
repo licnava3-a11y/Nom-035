@@ -156,6 +156,7 @@ import { bugReportsRouter } from "./routers/bugReports";
 import { featureRequestsRouter } from "./routers/featureRequests";
 import { executiveReportRouter } from "./routers/executiveReport";
 import { annualTrainingPlanRouter } from "./routers/annualTrainingPlan";
+import { webVitalsRouter } from "./routers/webVitals";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1499,6 +1500,7 @@ export const appRouter = router({
   bugReports: bugReportsRouter,
   featureRequests: featureRequestsRouter,
   annualTrainingPlan: annualTrainingPlanRouter,
+  webVitals: webVitalsRouter,
 });
 
 export type AppRouter = typeof appRouter;

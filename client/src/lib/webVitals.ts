@@ -54,6 +54,28 @@ function reportMetric(metric: Metric) {
     `color: ${color}; font-weight: bold;`,
   );
 
+  // Enviar al backend tRPC para almacenar en BD
+  const payload = {
+    name: report.name as "LCP" | "CLS" | "INP" | "FCP" | "TTFB" | "FID",
+    value: report.value,
+    rating: report.rating,
+    delta: report.delta,
+    id: report.id,
+    page: window.location.pathname,
+    userAgent: navigator.userAgent.slice(0, 500),
+  };
+  const trpcBody = JSON.stringify(payload);
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon("/api/trpc/webVitals.record", trpcBody);
+  } else {
+    fetch("/api/trpc/webVitals.record", {
+      method: "POST",
+      body: trpcBody,
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+    }).catch(() => {});
+  }
+
   // Enviar al endpoint de analytics si está disponible
   if (VITALS_ENDPOINT) {
     const body = JSON.stringify(report);

@@ -144,6 +144,7 @@ export default function AlertHistory() {
   const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isExportingAll, setIsExportingAll] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -301,6 +302,55 @@ export default function AlertHistory() {
 
     const fileName = `historico_alertas_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
+  };
+
+  const handleExportAllToExcel = async () => {
+    setIsExportingAll(true);
+    try {
+      const allAlerts = await utils.client.systemSettings.getAllAlertsForExport.query({
+        status: status === "all" ? "all" : status,
+        alertType: alertType === "all" ? undefined : alertType,
+        priority: priority === "all" ? undefined : priority,
+        dateFrom: startDate ? startDate.toISOString() : undefined,
+        dateTo: endDate ? endDate.toISOString() : undefined,
+      });
+      if (!allAlerts || allAlerts.length === 0) {
+        toast({ title: "Sin datos", description: "No hay alertas para exportar con los filtros actuales.", variant: "destructive" });
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const metadata = [
+        ["Histórico Completo de Alertas - Plataforma NOM-035"],
+        [""],
+        ["Fecha de Exportación:", new Date().toLocaleString("es-MX")],
+        ["Total de registros:", allAlerts.length],
+        ["Filtros aplicados:"],
+        ["  Tipo:", alertType === "all" ? "Todos" : getAlertTypeLabel(alertType)],
+        ["  Estado:", status === "all" ? "Todos" : status],
+        ["  Prioridad:", priority === "all" ? "Todas" : priority],
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(metadata), "Metadatos");
+      const rows = allAlerts.map((a: any) => ({
+        "Fecha": new Date(a.triggeredAt).toLocaleString("es-MX"),
+        "Tipo": getAlertTypeLabel(a.alertType),
+        "Prioridad": a.priority === "critical" ? "Crítica" : a.priority === "warning" ? "Advertencia" : "Informativa",
+        "Descripción": a.description,
+        "Umbral": a.threshold,
+        "Valor Actual": a.currentValue,
+        "Estado": a.status === "active" ? "Activa" : "Resuelta",
+        "Fecha Resolución": a.resolvedAt ? new Date(a.resolvedAt).toLocaleString("es-MX") : "N/A",
+        "Notas": a.notes || "N/A",
+      }));
+      const wsData = XLSX.utils.json_to_sheet(rows);
+      wsData["!cols"] = [{ wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 50 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 20 }, { wch: 40 }];
+      XLSX.utils.book_append_sheet(wb, wsData, "Todas las Alertas");
+      XLSX.writeFile(wb, `historico_completo_alertas_${new Date().toISOString().split("T")[0]}.xlsx`);
+      toast({ title: "Exportación completa", description: `${allAlerts.length} alertas exportadas a Excel.` });
+    } catch (err: any) {
+      toast({ title: "Error al exportar", description: err.message || "No se pudo exportar el historial completo.", variant: "destructive" });
+    } finally {
+      setIsExportingAll(false);
+    }
   };
 
   const getAlertTypeLabel = (type: string) => {
@@ -589,10 +639,24 @@ export default function AlertHistory() {
                 variant="outline"
                 size="sm"
                 className="gap-2"
+                title="Exportar página actual"
               >
                 <Download className="h-4 w-4" />
                 Excel
               </Button>
+              {totalPages > 1 && (
+                <Button
+                  onClick={handleExportAllToExcel}
+                  disabled={isExportingAll || total === 0}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-blue-500 text-blue-700 hover:bg-blue-50"
+                  title={`Exportar todos los ${total} registros a Excel`}
+                >
+                  <Download className="h-4 w-4" />
+                  {isExportingAll ? "Exportando..." : `Exportar todo (${total})`}
+                </Button>
+              )}
               <Button
                 onClick={handleExportToWord}
                 disabled={!alerts || alerts.length === 0}

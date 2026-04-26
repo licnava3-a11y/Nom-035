@@ -243,6 +243,7 @@ const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const JobProfileManagement = lazy(() => import("./pages/JobProfileManagement"));
 const ExitInterviews = lazy(() => import("./pages/ExitInterviews"));
 const AnnualTrainingPlan = lazy(() => import("./pages/AnnualTrainingPlan"));
+const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1895,6 +1896,13 @@ function Router() {
           <Suspense fallback={<PageLoader />}>
             <AnnualTrainingPlan />
           </Suspense>
+        </Route>
+        <Route path="/web-vitals">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <WebVitalsDashboard />
+            </Suspense>
+          </DashboardLayout>
         </Route>
         <Route path="/survey/:token">
           {(params) => (

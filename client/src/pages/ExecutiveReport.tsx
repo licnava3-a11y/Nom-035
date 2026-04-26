@@ -176,6 +176,7 @@ export default function ExecutiveReport() {
   const { data: riskComparison } = trpc.psychometric.getRiskComparison.useQuery(
     { companyId: selectedCompanyId, compareMonthsAgo }
   );
+  const { data: companyInfo } = trpc.systemSettings.getCompanyInfo.useQuery();
 
   const exportRiskComparisonToExcel = async () => {
     if (!riskComparison || riskComparison.comparison.length === 0) return;
@@ -331,12 +332,12 @@ export default function ExecutiveReport() {
       doc.setFont("helvetica", "bold");
       doc.text("Organización:", 20, coverY);
       doc.setFont("helvetica", "normal");
-      doc.text("[Nombre de la Empresa]", 65, coverY);
+      doc.text(companyInfo?.company_name || "[Nombre de la Empresa]", 65, coverY);
 
       doc.setFont("helvetica", "bold");
       doc.text("RFC:", 20, coverY + 10);
       doc.setFont("helvetica", "normal");
-      doc.text("[RFC de la Empresa]", 65, coverY + 10);
+      doc.text(companyInfo?.company_rfc || "[RFC de la Empresa]", 65, coverY + 10);
 
       doc.setFont("helvetica", "bold");
       doc.text("Fecha de generación:", 20, coverY + 20);

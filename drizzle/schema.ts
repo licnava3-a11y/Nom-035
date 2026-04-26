@@ -5701,3 +5701,19 @@ export const annualTrainingPlanItems = mysqlTable("annual_training_plan_items", 
 });
 export type AnnualTrainingPlanItem = typeof annualTrainingPlanItems.$inferSelect;
 export type InsertAnnualTrainingPlanItem = typeof annualTrainingPlanItems.$inferInsert;
+
+// ── Core Web Vitals ─────────────────────────────────────────────────────────
+export const webVitalsMetrics = mysqlTable("web_vitals_metrics", {
+  id: int("id").autoincrement().primaryKey(),
+  metricName: varchar("metric_name", { length: 20 }).notNull(),
+  value: decimal("value", { precision: 12, scale: 3 }).notNull(),
+  rating: mysqlEnum("rating", ["good", "needs-improvement", "poor"]).notNull(),
+  delta: decimal("delta", { precision: 12, scale: 3 }).notNull().default("0"),
+  metricId: varchar("metric_id", { length: 100 }).notNull(),
+  page: varchar("page", { length: 500 }).default("/"),
+  userAgent: varchar("user_agent", { length: 500 }),
+  sessionId: varchar("session_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type WebVitalsMetric = typeof webVitalsMetrics.$inferSelect;
+export type InsertWebVitalsMetric = typeof webVitalsMetrics.$inferInsert;
