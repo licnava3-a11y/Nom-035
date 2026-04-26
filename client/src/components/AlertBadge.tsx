@@ -44,7 +44,8 @@ export function AlertBadge() {
     }
   }, [lastAlert]);
 
-  const { data: activeAlerts } = trpc.alerts.getHistory.useQuery({ status: "active" });
+  const { data: activeAlertsData } = trpc.alerts.getHistory.useQuery({ status: "active", pageSize: 20 });
+  const activeAlerts = activeAlertsData?.alerts;
 
   const markAllReadMutation = trpc.alerts.markAllRead.useMutation({
     onSuccess: () => {
@@ -65,7 +66,7 @@ export function AlertBadge() {
     },
   });
 
-  const dbAlertCount = activeAlerts?.length ?? 0;
+  const dbAlertCount = activeAlertsData?.total ?? 0;
   const realtimeCount = realtimeAlerts.length;
   const totalCount = dbAlertCount + realtimeCount;
   const hasCriticalAlerts =
