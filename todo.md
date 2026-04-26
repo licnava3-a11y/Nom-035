@@ -409,9 +409,70 @@
 - [x] Dashboard de Administración de Alertas (/alert-admin-dashboard): umbrales, frecuencia de resumen, destinatarios de email e intervalo WebSocket
 - [x] Exportación multi-formato (XLSX, PDF, Word) en ModelPerformanceAlerts con botones en encabezado y en tab Historial
 
-## Sprint 27: Service Worker, Core Web Vitals, SMTP UI, Paginación y Portada PDF
-- [ ] Service Worker para cacheo de assets estáticos (PWA)
-- [ ] Métricas Core Web Vitals en el cliente
-- [ ] Formulario de configuración SMTP en /alert-admin-dashboard
-- [ ] Paginación 20/página en /alert-history
-- [ ] Portada institucional en PDF del Reporte Ejecutivo
+## Sprint 27: Service Worker, Core Web Vitals, SMTP UI, Paginación y Portada PDF ✅
+- [x] Service Worker PWA con estrategia NetworkFirst para JS (skipWaiting + clientsClaim)
+- [x] Métricas Core Web Vitals (LCP, CLS, INP, FCP, TTFB) recolectadas en cliente via web-vitals
+- [x] Formulario de configuración SMTP en /alert-admin-dashboard (SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM)
+- [x] Paginación 20/página en /alert-history con controles Anterior/Siguiente y contador total
+- [x] Portada institucional en PDF del Reporte Ejecutivo (fondo slate-900, logo, empresa, RFC, fecha)
+
+## Sprint 28: Datos Empresa en PDF, Exportación Completa Alertas, Dashboard Web Vitals ✅
+- [x] Formulario en /settings para capturar Razón Social, RFC y Domicilio Fiscal (system_settings)
+- [x] Logo de empresa: upload a S3 (PNG/JPG/SVG máx 2MB), preview, eliminar
+- [x] Portada PDF usa datos de empresa dinámicos (company_name, company_rfc, company_address, company_logo)
+- [x] Botón "Exportar todo" en /alert-history: descarga todos los registros sin límite de página
+- [x] Procedure getAllAlertsForExport en systemSettings router
+- [x] Dashboard Core Web Vitals (/web-vitals): gráficas de tendencia, distribución good/needs-improvement/poor
+- [x] Tabla web_vitals_metrics en BD con migración aplicada
+- [x] Router webVitals.ts con procedures saveMetric y getMetrics
+- [x] Enlace "Core Web Vitals" en sidebar (solo admins, ícono Zap)
+
+## Sprint 29: Sidebar Web Vitals, Alertas LCP, Logo Empresa en PDF ✅
+- [x] Enlace ⚡ Core Web Vitals en sidebar bajo sección Administración (solo admins)
+- [x] Job performance-lcp-alerts: detecta LCP P75 > 4000ms por 3 días consecutivos → alerta warning en /alert-history
+- [x] Enum alertType extendido con `performance_lcp`
+- [x] Logo de empresa renderizado en portada PDF (reemplaza círculo NOM-035)
+- [x] Tests Sprint 29: 11/11 pasados
+
+## Sprint 30: Corrección Pantalla Blanca, Spinner, Modal PDF ← EN PROGRESO
+- [x] Corrección definitiva pantalla en blanco: vite y plugins movidos de devDependencies a dependencies
+- [x] Fallback Vite dev server cuando dist/public no existe en producción
+- [x] Tests de integración del servidor: 10/10 pasados
+- [x] todo.md reorganizado: duplicados eliminados, sprints completados marcados, backlog priorizado
+- [ ] Spinner de carga inicial en client/index.html (antes de que React monte)
+- [ ] Modal de previsualización PDF en ExecutiveReport con <iframe> y jsPDF.output("datauristring")
+- [ ] Tests Sprint 30 y checkpoint final
+
+---
+
+## 📋 BACKLOG PRIORIZADO (pendientes reales)
+
+### P1 — Alta Prioridad
+- [ ] Seed de 15 preguntas predeterminadas para Entrevistas de Salida
+- [ ] Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen
+- [ ] Historial de PAC por año: selector de año fiscal + procedure listByYear
+- [ ] Exportar comparativa de departamentos a Excel desde /kpi-dashboard
+- [ ] Badge mensajes no leídos en sidebar junto a "Mis Mensajes"
+- [ ] Filtro de período personalizado (rango libre) en widget de calidad del dashboard
+
+### P2 — Media Prioridad
+- [ ] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo
+- [ ] Exportación PDF expediente psicométrico completo en PsychometricTab
+- [ ] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal
+- [ ] Job recordatorio anual evaluación psicométrica con notificación al admin RH
+- [ ] Límite 24h notificaciones duplicadas en notifyEmployee
+- [ ] Selector de período histórico en comparativa psicométrica de /executive-report
+- [ ] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables
+
+### P3 — Baja Prioridad
+- [ ] Multi-tenant SuperAdmin: rol super_admin, tabla companies, aislamiento por company_id
+- [ ] Modal aceptación de términos en primer login (tabla terms_acceptance)
+- [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4
+- [ ] Umbral de conflicto configurable en panel de configuración del sistema
+- [ ] Exportar código a Google Drive (ZIP) con tarea semanal programada
+- [ ] Alertas automáticas LCP con notificación por email al HR email configurado
+- [ ] Banner "Nueva versión disponible" toast no intrusivo al activarse el nuevo Service Worker
+
+### 🐛 Bugs conocidos (no críticos)
+- [ ] @builder.io/vite-plugin-jsx-loc peer warning con Vite 7 (funciona correctamente)
+- [ ] Módulos @shared/_core/errors y extensiones .ts en predictiveCorrelation.ts (pre-existentes)

@@ -167,6 +167,8 @@ export default function ExecutiveReport() {
   const [chartJsLoaded, setChartJsLoaded] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(undefined);
   const [compareMonthsAgo, setCompareMonthsAgo] = useState(1);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
   const { data: kpis, isLoading, refetch } = trpc.executiveReport.getKPIs.useQuery({});
   const { data: trends, isLoading: trendsLoading } = trpc.executiveReport.getTrends.useQuery({ months: trendMonths });
@@ -447,6 +449,143 @@ export default function ExecutiveReport() {
     }
   };
 
+  // Generar previsualización del PDF en un modal con iframe
+  const handlePreviewPDF = async () => {
+    setIsGeneratingPreview(true);
+    try {
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      // ── PORTADA ──────────────────────────────────────────────────────────────
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, pageW, pageH * 0.65, "F");
+      doc.setFillColor(241, 245, 249);
+      doc.rect(0, pageH * 0.65, pageW, pageH * 0.35, "F");
+      // Logo o ícono
+      if (companyInfo?.company_logo) {
+        try {
+          const logoBase64 = await new Promise<string>((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              const ctx = canvas.getContext("2d")!;
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL("image/png"));
+            };
+            img.onerror = reject;
+            img.src = companyInfo.company_logo!;
+          });
+          const logoSize = 36;
+          doc.addImage(logoBase64, "PNG", (pageW - logoSize) / 2, 27, logoSize, logoSize);
+        } catch {
+          doc.setFillColor(37, 99, 235);
+          doc.circle(pageW / 2, 45, 18, "F");
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(13);
+          doc.setFont("helvetica", "bold");
+          doc.text("NOM", pageW / 2, 42, { align: "center" });
+          doc.setFontSize(10);
+          doc.text("035", pageW / 2, 50, { align: "center" });
+        }
+      } else {
+        doc.setFillColor(37, 99, 235);
+        doc.circle(pageW / 2, 45, 18, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(13);
+        doc.setFont("helvetica", "bold");
+        doc.text("NOM", pageW / 2, 42, { align: "center" });
+        doc.setFontSize(10);
+        doc.text("035", pageW / 2, 50, { align: "center" });
+      }
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reporte Ejecutivo", pageW / 2, 78, { align: "center" });
+      doc.text("Consolidado", pageW / 2, 90, { align: "center" });
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(148, 163, 184);
+      doc.text("NOM-035-STPS-2018", pageW / 2, 102, { align: "center" });
+      doc.setFontSize(9);
+      doc.text("Factores de Riesgo Psicosocial en el Trabajo", pageW / 2, 110, { align: "center" });
+      doc.setDrawColor(37, 99, 235);
+      doc.setLineWidth(0.5);
+      doc.line(30, 118, pageW - 30, 118);
+      const coverY = pageH * 0.65 + 14;
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("Organización:", 20, coverY);
+      doc.setFont("helvetica", "normal");
+      doc.text(companyInfo?.company_name || "[Nombre de la Empresa]", 65, coverY);
+      doc.setFont("helvetica", "bold");
+      doc.text("RFC:", 20, coverY + 10);
+      doc.setFont("helvetica", "normal");
+      doc.text(companyInfo?.company_rfc || "[RFC de la Empresa]", 65, coverY + 10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Fecha de generación:", 20, coverY + 20);
+      doc.setFont("helvetica", "normal");
+      doc.text(new Date().toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" }), 65, coverY + 20);
+      doc.setFont("helvetica", "bold");
+      doc.text("Período analizado:", 20, coverY + 30);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Últimos ${trendMonths} meses`, 65, coverY + 30);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Documento generado automáticamente por la Plataforma de Cumplimiento NOM-035 STPS 2018", pageW / 2, pageH - 10, { align: "center" });
+      // Segunda página: KPIs
+      doc.addPage();
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, pageW, 22, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reporte Ejecutivo Consolidado NOM-035 STPS", pageW / 2, 10, { align: "center" });
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generado: ${new Date().toLocaleString("es-MX")}`, pageW / 2, 17, { align: "center" });
+      doc.setTextColor(0, 0, 0);
+      let y = 30;
+      if (kpis) {
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("KPIs Globales", 14, y);
+        y += 4;
+        autoTable(doc, {
+          startY: y,
+          head: [["Indicador", "Valor"]],
+          body: [
+            ["Total Empleados", String(kpis.employees.total)],
+            ["Empleados Activos", String(kpis.employees.active)],
+            ["Tasa de Rotación", `${kpis.employees.turnoverRate}%`],
+            ["Cursos Totales", String(kpis.training.totalCourses)],
+            ["Tasa de Completación", `${kpis.training.completionRate}%`],
+            ["Vacaciones Pendientes", String(kpis.vacations.pending)],
+            ["Casos NOM-035 Abiertos", String(kpis.cases.open)],
+            ["Casos Alto Riesgo", String(kpis.cases.highRisk)],
+          ],
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [15, 23, 42] },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          margin: { left: 14, right: 14 },
+        });
+      }
+      // Generar URL de datos para el iframe
+      const dataUri = doc.output("datauristring");
+      setPdfPreviewUrl(dataUri);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al generar la vista previa del PDF");
+    } finally {
+      setIsGeneratingPreview(false);
+    }
+  };
+
   const exportToWord = async () => {
     try {
       const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel } = await import("docx");
@@ -530,6 +669,9 @@ export default function ExecutiveReport() {
             </Button>
             <Button variant="outline" onClick={exportToWord} className="border-blue-600 text-blue-700 hover:bg-blue-50">
               <FileText className="h-4 w-4 mr-2" />Word
+            </Button>
+            <Button variant="outline" onClick={handlePreviewPDF} disabled={isGeneratingPreview} className="border-orange-500 text-orange-700 hover:bg-orange-50">
+              <FileText className="h-4 w-4 mr-2" />{isGeneratingPreview ? "Generando..." : "Vista Previa PDF"}
             </Button>
             <Button variant="outline" onClick={exportToPDFWithCharts} className="border-red-600 text-red-700 hover:bg-red-50">
               <Printer className="h-4 w-4 mr-2" />Exportar PDF
@@ -968,6 +1110,33 @@ export default function ExecutiveReport() {
           </>
         )}
       </div>
+      {/* Modal de previsualización PDF */}
+      {pdfPreviewUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setPdfPreviewUrl(null)}>
+          <div className="bg-white rounded-xl shadow-2xl flex flex-col" style={{ width: "min(90vw, 900px)", height: "min(90vh, 700px)" }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 border-b">
+              <div>
+                <h2 className="font-semibold text-slate-800 text-base">Vista Previa del Reporte Ejecutivo</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Revisa la portada y los datos antes de descargar</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={() => { exportToPDFWithCharts(); setPdfPreviewUrl(null); }} className="bg-red-600 hover:bg-red-700 text-white">
+                  <Printer className="h-4 w-4 mr-1" />Descargar PDF
+                </Button>
+                <button onClick={() => setPdfPreviewUrl(null)} className="ml-2 text-slate-400 hover:text-slate-700 text-xl font-bold leading-none" aria-label="Cerrar">&times;</button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden rounded-b-xl">
+              <iframe
+                src={pdfPreviewUrl}
+                title="Vista previa del PDF"
+                className="w-full h-full border-0 rounded-b-xl"
+                style={{ minHeight: 0 }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

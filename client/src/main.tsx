@@ -131,6 +131,14 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Ocultar el spinner de carga inicial cuando React monta
+function hideAppLoading() {
+  const loader = document.getElementById('app-loading');
+  if (!loader) return;
+  loader.classList.add('fade-out');
+  setTimeout(() => loader.remove(), 350);
+}
+
 root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
   <QueryClientProvider client={queryClient}>
@@ -143,3 +151,6 @@ root.render(
   </QueryClientProvider>
   </trpc.Provider>
 );
+
+// Ocultar spinner una vez que React haya pintado el primer frame
+requestAnimationFrame(() => requestAnimationFrame(hideAppLoading));
