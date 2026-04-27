@@ -119,16 +119,16 @@ if (!root) {
 // Inicializar métricas Core Web Vitals (carga lazy para no bloquear el render)
 import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() => {});
 
-// Manejo de actualizaciones del Service Worker (PWA)
-// Cuando el SW nuevo toma control (skipWaiting + clientsClaim), recargar la página
-// para evitar que el usuario quede con assets en caché de la versión anterior (pantalla en blanco)
+// Service Worker: se usa selfDestroying para limpiar SWs anteriores en producción
+// El reload automático en controllerchange causaba loops de recarga en iOS Safari
 if ("serviceWorker" in navigator) {
-  let swRefreshing = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (swRefreshing) return;
-    swRefreshing = true;
-    window.location.reload();
-  });
+  // Desregistrar cualquier SW antiguo al cargar para limpiar cachés obsoletas
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    // Solo limpiar si hay más de 1 SW registrado (indica versión obsoleta)
+    if (registrations.length > 1) {
+      registrations.forEach(r => r.unregister());
+    }
+  }).catch(() => {});
 }
 
 // Ocultar el spinner de carga inicial cuando React monta

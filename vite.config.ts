@@ -159,7 +159,8 @@ const plugins = [
   vitePluginManusDebugCollector(),
   VitePWA({
     registerType: "autoUpdate",
-    injectRegister: "auto",
+    injectRegister: null,
+    selfDestroying: true,
     workbox: {
       // Forzar activación inmediata del nuevo SW para evitar pantalla en blanco
       skipWaiting: true,
