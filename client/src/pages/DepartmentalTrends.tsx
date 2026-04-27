@@ -6,7 +6,7 @@
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputWithValidation } from "@/components/ui/input-with-validation";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, TrendingUp, AlertCircle, CheckCircle2, Building2 } from "lucide-react";
@@ -206,18 +206,18 @@ export default function DepartmentalTrends() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">Fecha inicio</Label>
-              <InputWithValidation
+              <Input
                 type="date"
                 value={dateRange.startDate || ""}
-                onChange={e => setDateRange(prev => ({ ...prev, startDate: e.target.value || undefined }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateRange(prev => ({ ...prev, startDate: e.target.value || undefined }))}
               />
             </div>
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">Fecha fin</Label>
-              <InputWithValidation
+              <Input
                 type="date"
                 value={dateRange.endDate || ""}
-                onChange={e => setDateRange(prev => ({ ...prev, endDate: e.target.value || undefined }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateRange(prev => ({ ...prev, endDate: e.target.value || undefined }))}
               />
             </div>
             <div className="space-y-1">

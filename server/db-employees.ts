@@ -165,6 +165,7 @@ export async function getEmployeeById(id: number): Promise<EmployeeWithRelations
       reentryCount: employees.reentryCount,
       previousHireDates: employees.previousHireDates,
       gender: employees.gender,
+      branchId: employees.branchId,
       department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
       position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
       positionMinimumEducation: positions.minimumEducation,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { branches } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -8,12 +9,14 @@ export const branchesRouter = router({
   // List all active branches
   list: protectedProcedure.query(async () => {
     const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
     return db.select().from(branches).where(eq(branches.isActive, true)).orderBy(branches.name);
   }),
 
   // Get all branches including inactive (admin)
   listAll: protectedProcedure.query(async () => {
     const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
     return db.select().from(branches).orderBy(branches.name);
   }),
 
@@ -28,6 +31,7 @@ export const branchesRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       const [result] = await db.insert(branches).values({
         name: input.name,
         address: input.address ?? null,
@@ -52,6 +56,7 @@ export const branchesRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       const { id, ...data } = input;
       const updateData: Record<string, unknown> = {};
       if (data.name !== undefined) updateData.name = data.name;
@@ -69,6 +74,7 @@ export const branchesRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await db.update(branches).set({ isActive: false }).where(eq(branches.id, input.id));
       return { success: true };
     }),
