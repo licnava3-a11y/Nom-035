@@ -7,7 +7,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
 import { cases, employees, departments, departmentThresholds } from "../../drizzle/schema";
-import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
+import { eq, and, gte, lte, sql, desc, inArray } from "drizzle-orm";
 
 export const departmentalTrendsRouter = router({
   /**
@@ -18,16 +18,17 @@ export const departmentalTrendsRouter = router({
       z.object({
         startDate: z.string().optional(),
         endDate: z.string().optional(),
+        branchId: z.number().optional(),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      const { startDate, endDate } = input;
+      const { startDate, endDate, branchId } = input;
 
       // Construir condiciones de fecha
-      const dateConditions = [];
+      const dateConditions: any[] = [];
       if (startDate) {
         dateConditions.push(gte(cases.createdAt, new Date(startDate)));
       }
@@ -35,8 +36,20 @@ export const departmentalTrendsRouter = router({
         dateConditions.push(lte(cases.createdAt, new Date(endDate)));
       }
 
-      // Obtener todos los departamentos
-      const allDepartments = await db.select().from(departments);
+      // Obtener departamentos (filtrados por sucursal si aplica)
+      let allDepartments: any[];
+      if (branchId) {
+        const empInBranch = await db
+          .select({ departmentId: employees.departmentId })
+          .from(employees)
+          .where(eq(employees.branchId, branchId));
+        const deptIds = Array.from(new Set(empInBranch.map(e => e.departmentId).filter(Boolean))) as number[];
+        allDepartments = deptIds.length > 0
+          ? await db.select().from(departments).where(inArray(departments.id, deptIds))
+          : [];
+      } else {
+        allDepartments = await db.select().from(departments);
+      }
 
       // Obtener casos agrupados por departamento usando departmentId real
       const allCases = await db

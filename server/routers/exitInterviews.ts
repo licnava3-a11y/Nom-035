@@ -573,4 +573,60 @@ export const exitInterviewsRouter = router({
       .leftJoin(users, eq(turnoverActionPlans.assignedTo, users.id))
       .orderBy(desc(turnoverActionPlans.createdAt));
   }),
+
+  // ── Importar preguntas desde Excel/XLSX ────────────────────────────────────
+  importQuestions: protectedProcedure
+    .input(
+      z.object({
+        questions: z.array(
+          z.object({
+            questionText: z.string().min(1),
+            category: z.string().optional(),
+            order: z.number().optional(),
+          })
+        ).min(1).max(500),
+        replaceAll: z.boolean().optional().default(false),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const VALID_CATEGORIES = [
+        "Clima Laboral", "Liderazgo", "Desarrollo Profesional",
+        "Compensación", "Condiciones de Trabajo", "Otro",
+        "ambiente", "liderazgo", "compensacion", "desarrollo",
+        "carga_trabajo", "reconocimiento", "comunicacion",
+        "herramientas", "equilibrio", "capacitacion",
+        "compañeros", "politicas", "seguridad", "motivo_salida", "recomendacion",
+      ];
+
+      if (input.replaceAll) {
+        await db.update(exitInterviewQuestions)
+          .set({ isActive: false })
+          .where(eq(exitInterviewQuestions.isActive, true));
+      }
+
+      let inserted = 0;
+      let skipped = 0;
+      for (let i = 0; i < input.questions.length; i++) {
+        const q = input.questions[i];
+        const text = q.questionText.trim();
+        if (!text) { skipped++; continue; }
+        const cat = VALID_CATEGORIES.includes(q.category ?? "") ? q.category! : "Otro";
+        const maxOrderResult = await db
+          .select({ m: sql<number>`COALESCE(MAX(\`order\`), 0)` })
+          .from(exitInterviewQuestions);
+        const nextOrder = (maxOrderResult[0]?.m ?? 0) + 1;
+        await (db.insert(exitInterviewQuestions) as any).values({
+          questionText: text,
+          category: cat,
+          order: q.order ?? nextOrder,
+          isActive: true,
+        });
+        inserted++;
+      }
+      return { success: true, inserted, skipped };
+    }),
 });

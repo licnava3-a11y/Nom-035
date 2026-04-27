@@ -595,6 +595,7 @@ export const employees = mysqlTable("employees", {
   // Employment Information
   employeeNumber: varchar("employeeNumber", { length: 50 }).unique(),
   departmentId: int("departmentId").references(() => departments.id),
+  branchId: int("branch_id").references(() => branches.id),
   positionId: int("positionId").references(() => positions.id),
   hireDate: date("hireDate"),
   contractType: mysqlEnum("contractType", ["permanent", "temporary", "contract"]).default("permanent"),
@@ -5717,3 +5718,18 @@ export const webVitalsMetrics = mysqlTable("web_vitals_metrics", {
 });
 export type WebVitalsMetric = typeof webVitalsMetrics.$inferSelect;
 export type InsertWebVitalsMetric = typeof webVitalsMetrics.$inferInsert;
+
+// ── Branches (Sucursales) ────────────────────────────────────────────────────
+export const branches = mysqlTable("branches", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 150 }).notNull(),
+  address: varchar("address", { length: 300 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  phone: varchar("phone", { length: 20 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Branch = typeof branches.$inferSelect;
+export type InsertBranch = typeof branches.$inferInsert;

@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X, Download } from "lucide-react";
+import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X, Download, Upload } from "lucide-react";
 
 const TERMINATION_REASON_LABELS: Record<string, string> = {
   resignation: "Renuncia voluntaria",
@@ -785,6 +785,46 @@ function QuestionsManager() {
     onSuccess: () => { toast.success('Pregunta agregada'); setShowAddForm(false); setNewText(''); utils.exitInterviews.getAllQuestions.invalidate(); },
     onError: (e) => toast.error(e.message),
   });
+  const importMutation = trpc.exitInterviews.importQuestions.useMutation({
+    onSuccess: (res) => {
+      toast.success(`${res.inserted} preguntas importadas${res.skipped > 0 ? ` (${res.skipped} omitidas)` : ''}`);
+      utils.exitInterviews.getAllQuestions.invalidate();
+    },
+    onError: (e) => toast.error(`Error al importar: ${e.message}`),
+  });
+  const handleImportXLSX = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const { read, utils: xlsxUtils } = await import('xlsx');
+        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const workbook = read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = xlsxUtils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
+        const qs = rows
+          .map((row) => ({
+            questionText: String(row['Pregunta'] ?? row['questionText'] ?? row['pregunta'] ?? '').trim(),
+            category: String(row['Categor\u00eda'] ?? row['Categoria'] ?? row['category'] ?? row['categoria'] ?? 'Otro').trim(),
+            order: row['N\u00famero'] ? Number(row['N\u00famero']) : undefined,
+          }))
+          .filter((q) => q.questionText.length > 0);
+        if (qs.length === 0) {
+          toast.error('No se encontraron preguntas. Verifica que la columna se llame "Pregunta".');
+          return;
+        }
+        const replaceAll = window.confirm(
+          `Se importar\u00e1n ${qs.length} preguntas.\n\n\u00bfDeseas REEMPLAZAR todas las preguntas existentes?\n(Cancelar = agregar sin borrar las actuales)`
+        );
+        importMutation.mutate({ questions: qs, replaceAll });
+      } catch {
+        toast.error('Error al leer el archivo. Aseg\u00farate de que sea un archivo Excel (.xlsx) v\u00e1lido.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    e.target.value = '';
+  };
 
   const startEdit = (q: { id: number; questionText: string; category: string; isActive: boolean; order: number }) => {
     setEditingId(q.id);
@@ -842,6 +882,21 @@ function QuestionsManager() {
           <Button size="sm" variant="outline" onClick={exportToExcel} title="Exportar catálogo a Excel/CSV">
             <Download className="w-4 h-4 mr-1" /> Exportar
           </Button>
+          <label title="Importar preguntas desde Excel (.xlsx)">
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={handleImportXLSX}
+              disabled={importMutation.isPending}
+            />
+            <Button size="sm" variant="outline" asChild disabled={importMutation.isPending}>
+              <span className="cursor-pointer">
+                <Upload className="w-4 h-4 mr-1" />
+                {importMutation.isPending ? 'Importando...' : 'Importar XLSX'}
+              </span>
+            </Button>
+          </label>
           <Button size="sm" onClick={() => setShowAddForm(v => !v)}>
             <Plus className="w-4 h-4 mr-1" /> Agregar Pregunta
           </Button>

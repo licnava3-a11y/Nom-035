@@ -9,7 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, TrendingUp, AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, TrendingUp, AlertCircle, CheckCircle2, Building2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Chart, registerables } from "chart.js";
 
 // Registrar componentes de Chart.js
@@ -17,13 +19,17 @@ Chart.register(...registerables);
 
 export default function DepartmentalTrends() {
   const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+  const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(undefined);
   
   const heatMapRef = useRef<HTMLCanvasElement>(null);
   const heatMapChartRef = useRef<Chart | null>(null);
 
+  // Query para obtener sucursales
+  const { data: branches } = trpc.branches.list.useQuery();
+
   // Query para obtener métricas departamentales
   const { data: metrics, isLoading } = trpc.departmentalTrends.getDepartmentalRiskMetrics.useQuery(
-    dateRange
+    { ...dateRange, branchId: selectedBranchId }
   );
 
   // Query para obtener alertas
@@ -190,6 +196,52 @@ export default function DepartmentalTrends() {
           Análisis de concentración de casos y niveles de riesgo por departamento
         </p>
       </div>
+
+      {/* Filtros */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Fecha inicio</Label>
+              <InputWithValidation
+                type="date"
+                value={dateRange.startDate || ""}
+                onChange={e => setDateRange(prev => ({ ...prev, startDate: e.target.value || undefined }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Fecha fin</Label>
+              <InputWithValidation
+                type="date"
+                value={dateRange.endDate || ""}
+                onChange={e => setDateRange(prev => ({ ...prev, endDate: e.target.value || undefined }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground flex items-center gap-1">
+                <Building2 className="h-3 w-3" /> Sucursal / Empresa
+              </Label>
+              <Select
+                value={selectedBranchId ? String(selectedBranchId) : "all"}
+                onValueChange={val => setSelectedBranchId(val === "all" ? undefined : Number(val))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Todas las sucursales" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas las sucursales</SelectItem>
+                  {branches?.map(b => (
+                    <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Resumen ejecutivo */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

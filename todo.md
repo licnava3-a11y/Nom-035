@@ -516,3 +516,14 @@
 - [x] Alertas LCP con notificación por email al HR email configurado (performance-lcp-alerts-job.ts actualizado con sendEmail + getHrEmail)
 - [x] Migrar Breadcrumbs legacy (no había usos de Breadcrumbs.tsx legacy en el proyecto)
 - [x] Consolidar Skeletons (directorio /skeletons/ ya consolidado con DashboardSkeleton, TableSkeleton, ChartSkeleton, CalendarSkeleton)
+
+## Sprint 40 — Branches, Excel Catálogos, Importar Preguntas XLSX (2026-04-27) ✅
+- [x] Tabla branches en schema + migración SQL (id, name, address, city, state, phone, isActive)
+- [x] Procedure branches.list, branches.listAll, branches.create, branches.update, branches.delete
+- [x] Campo branchId en employees + migración SQL aplicada
+- [x] Filtro empresa/sucursal en DepartmentalTrends.tsx (mapa de calor departamental)
+- [x] Botón "Exportar Excel" en Positions.tsx (ya implementado, verificado)
+- [x] Botón "Exportar Excel" en OrganizationalCompetenciesManager.tsx (ya implementado, verificado)
+- [x] Botón "Importar XLSX" en catálogo de preguntas de ExitInterviews.tsx con import dinámico
+- [x] Procedure exitInterviews.importQuestions en el router con replaceAll y conteo inserted/skipped
+- [x] Tests Sprint 40: 13/13 passed
