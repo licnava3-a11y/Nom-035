@@ -369,6 +369,22 @@ export const exitInterviewsRouter = router({
         .where(eq(exitInterviews.status, "completed"))
         .groupBy(departments.name)
         .orderBy(desc(count()));
+      // Monthly trend previous year (same 12 months, one year back) for interannual comparison
+      const monthlyTrendPrevYear = await db
+        .select({
+          month: sql<string>`DATE_FORMAT(${exitInterviews.completedAt}, '%Y-%m')`,
+          total: count(),
+        })
+        .from(exitInterviews)
+        .where(
+          and(
+            eq(exitInterviews.status, "completed"),
+            sql`${exitInterviews.completedAt} >= DATE_SUB(NOW(), INTERVAL 24 MONTH)`,
+            sql`${exitInterviews.completedAt} < DATE_SUB(NOW(), INTERVAL 12 MONTH)`
+          )
+        )
+        .groupBy(sql`DATE_FORMAT(${exitInterviews.completedAt}, '%Y-%m')`)
+        .orderBy(sql`DATE_FORMAT(${exitInterviews.completedAt}, '%Y-%m')`);
       // Quarterly trend (last 8 quarters)
       const quarterlyTrend = await db
         .select({
@@ -389,6 +405,7 @@ export const exitInterviewsRouter = router({
         terminationReasons,
         mainReasonDistribution,
         monthlyTrend,
+        monthlyTrendPrevYear,
         recommendationScore,
         departmentBreakdown,
         quarterlyTrend,

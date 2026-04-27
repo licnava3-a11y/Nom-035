@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X, Download } from "lucide-react";
 
 const TERMINATION_REASON_LABELS: Record<string, string> = {
@@ -223,6 +223,152 @@ function RegisterTerminationDialog({ onSuccess }: { onSuccess: () => void }) {
     </Dialog>
   );
 }
+// ── Botón Generar Plan de Acción con pre-llenado automático ─────────────────
+function GenerateActionPlanButton({ analytics, filterLabel }: { analytics: any; filterLabel: string }) {
+  const utils = trpc.useUtils();
+  const [open, setOpen] = useState(false);
+  const today = new Date().toISOString().slice(0, 10);
+  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  // Pre-fill: top 3 departments with most exits
+  const topDepts = (analytics.departmentBreakdown ?? [])
+    .slice(0, 3)
+    .map((d: any) => d.department ?? 'Sin departamento')
+    .filter(Boolean);
+  // Pre-fill: top 3 main reasons
+  const topReasons = analytics.mainReasonDistribution
+    .slice(0, 3)
+    .map((r: any) => r.response)
+    .filter(Boolean);
+  // Pre-fill: top termination reasons
+  const topTermReasons = analytics.terminationReasons
+    .slice(0, 2)
+    .map((r: any) => {
+      const labels: Record<string, string> = { resignation: 'Renuncia voluntaria', dismissal: 'Despido', retirement: 'Jubilación', contract_end: 'Fin de contrato', mutual_agreement: 'Mutuo acuerdo', other: 'Otro' };
+      return labels[r.reason ?? ''] ?? r.reason ?? 'Desconocido';
+    });
+  const allCauses = Array.from(new Set([...topReasons, ...topTermReasons])).slice(0, 4);
+  const suggestedActions = [
+    topDepts.length > 0 ? `Realizar sesiones de retroalimentación en: ${topDepts.join(', ')}` : null,
+    topReasons.length > 0 ? `Atender la causa principal: "${topReasons[0]}"` : null,
+    analytics.recommendationScore < 50 ? 'Implementar programa de mejora del clima laboral' : null,
+    'Revisar política de compensaciones y beneficios',
+    'Establecer programa de desarrollo y retención de talento',
+  ].filter(Boolean).slice(0, 4) as string[];
+  const [form, setForm] = useState({
+    title: `Plan de Acción — Rotación de Personal (${filterLabel})`,
+    description: `Plan derivado del análisis de ${analytics.totalCompleted} entrevistas de salida. Período: ${filterLabel}. Índice de recomendación: ${analytics.recommendationScore}%. Se identificaron ${analytics.terminationReasons.length} tipos de motivos de baja.`,
+    primaryCauses: allCauses,
+    proposedActions: suggestedActions,
+    analysisStartDate: oneMonthAgo,
+    analysisEndDate: today,
+  });
+  const createMutation = trpc.exitInterviews.createActionPlan.useMutation({
+    onSuccess: () => {
+      toast.success('Plan de acción creado exitosamente');
+      utils.exitInterviews.list.invalidate();
+      setOpen(false);
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const handleCauseChange = (idx: number, val: string) => {
+    setForm(f => ({ ...f, primaryCauses: f.primaryCauses.map((c, i) => i === idx ? val : c) }));
+  };
+  const handleActionChange = (idx: number, val: string) => {
+    setForm(f => ({ ...f, proposedActions: f.proposedActions.map((a, i) => i === idx ? val : a) }));
+  };
+  const handleSubmit = () => {
+    const causes = form.primaryCauses.filter(c => c.trim().length > 0);
+    const actions = form.proposedActions.filter(a => a.trim().length > 0);
+    if (causes.length === 0 || actions.length === 0) {
+      toast.error('Agrega al menos una causa y una acción propuesta');
+      return;
+    }
+    createMutation.mutate({
+      title: form.title,
+      description: form.description,
+      primaryCauses: causes,
+      proposedActions: actions,
+      analysisStartDate: form.analysisStartDate,
+      analysisEndDate: form.analysisEndDate,
+    });
+  };
+  return (
+    <>
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+        <div>
+          <p className="text-sm font-semibold text-blue-900">¿Listo para actuar?</p>
+          <p className="text-xs text-blue-700 mt-0.5">
+            Se detectaron <strong>{analytics.totalCompleted}</strong> entrevistas completadas.
+            {topDepts.length > 0 && <> Departamentos con más bajas: <strong>{topDepts.join(', ')}</strong>.</>}
+          </p>
+        </div>
+        <Button size="sm" className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setOpen(true)}>
+          <FileText className="w-4 h-4" /> Generar Plan de Acción
+        </Button>
+      </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Generar Plan de Acción</DialogTitle>
+            <DialogDescription>
+              Los campos están pre-llenados con los datos del análisis del período <strong>{filterLabel}</strong>. Puedes editarlos antes de guardar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div>
+              <Label className="text-xs font-semibold">Título del Plan</Label>
+              <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold">Descripción / Contexto</Label>
+              <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="mt-1 text-sm" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-semibold">Inicio del período analizado</Label>
+                <Input type="date" value={form.analysisStartDate} onChange={e => setForm(f => ({ ...f, analysisStartDate: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold">Fin del período analizado</Label>
+                <Input type="date" value={form.analysisEndDate} onChange={e => setForm(f => ({ ...f, analysisEndDate: e.target.value }))} className="mt-1" />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold">Causas principales identificadas</Label>
+              <div className="space-y-2 mt-1">
+                {form.primaryCauses.map((cause, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <Input value={cause} onChange={e => handleCauseChange(idx, e.target.value)} className="text-sm" placeholder={`Causa ${idx + 1}`} />
+                    <Button size="sm" variant="ghost" className="px-2 text-red-500" onClick={() => setForm(f => ({ ...f, primaryCauses: f.primaryCauses.filter((_, i) => i !== idx) }))}>✕</Button>
+                  </div>
+                ))}
+                <Button size="sm" variant="outline" className="text-xs" onClick={() => setForm(f => ({ ...f, primaryCauses: [...f.primaryCauses, ''] }))}>+ Agregar causa</Button>
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold">Acciones propuestas</Label>
+              <div className="space-y-2 mt-1">
+                {form.proposedActions.map((action, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <Input value={action} onChange={e => handleActionChange(idx, e.target.value)} className="text-sm" placeholder={`Acción ${idx + 1}`} />
+                    <Button size="sm" variant="ghost" className="px-2 text-red-500" onClick={() => setForm(f => ({ ...f, proposedActions: f.proposedActions.filter((_, i) => i !== idx) }))}>✕</Button>
+                  </div>
+                ))}
+                <Button size="sm" variant="outline" className="text-xs" onClick={() => setForm(f => ({ ...f, proposedActions: [...f.proposedActions, ''] }))}>+ Agregar acción</Button>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
+              <Button onClick={handleSubmit} disabled={createMutation.isPending} className="gap-1">
+                {createMutation.isPending ? 'Guardando...' : <><FileText className="w-4 h-4" /> Crear Plan de Acción</>}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 // ── Exportar reporte de entrevistas de salida a Excel ────────────────────────
 function exportExitInterviewsReport(analytics: any, filterLabel: string) {
   if (!analytics) return;
@@ -280,9 +426,24 @@ function AnalyticsDashboard() {
     fullName: r.response,
     total: r.total,
   }));
+  const [showPrevYear, setShowPrevYear] = useState(true);
+  // Build interannual comparison data: merge current year and prev year by month-index (MM)
+  const buildInterannualData = () => {
+    const currMap: Record<string, number> = {};
+    analytics.monthlyTrend.forEach(t => { currMap[t.month] = t.total; });
+    const prevMap: Record<string, number> = {};
+    (analytics.monthlyTrendPrevYear ?? []).forEach(t => { prevMap[t.month] = t.total; });
+    // Collect all unique month labels (YYYY-MM), sort
+    const allMonths = Array.from(new Set([...Object.keys(currMap), ...Object.keys(prevMap)])).sort();
+    return allMonths.map(m => ({
+      periodo: m,
+      'Año actual': currMap[m] ?? 0,
+      'Año anterior': prevMap[m] ?? 0,
+    }));
+  };
   const trendData = trendView === 'monthly'
-    ? analytics.monthlyTrend.map(t => ({ periodo: t.month, total: t.total }))
-    : (analytics.quarterlyTrend ?? []).map(t => ({ periodo: t.quarter, total: t.total }));
+    ? buildInterannualData()
+    : (analytics.quarterlyTrend ?? []).map(t => ({ periodo: t.quarter, 'Año actual': t.total }));
   const deptData = (analytics.departmentBreakdown ?? []).map(d => ({
     name: d.department ?? 'Sin depto.',
     total: d.total,
@@ -440,19 +601,36 @@ function AnalyticsDashboard() {
                 <Button size="sm" variant={trendView === 'quarterly' ? 'default' : 'outline'} className="h-6 text-xs px-2" onClick={() => setTrendView('quarterly')}>Trimestral</Button>
               </div>
             </div>
-            <CardDescription className="text-xs">{trendView === 'monthly' ? 'Últimos 12 meses' : 'Últimos 8 trimestres'}</CardDescription>
+            <CardDescription className="text-xs">{trendView === 'monthly' ? 'Últimos 12 meses vs año anterior' : 'Últimos 8 trimestres'}</CardDescription>
           </CardHeader>
           <CardContent>
             {trendData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="periodo" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <>
+                {trendView === 'monthly' && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <button
+                      onClick={() => setShowPrevYear(v => !v)}
+                      className={`text-xs px-2 py-0.5 rounded border transition-colors ${showPrevYear ? 'bg-orange-100 border-orange-300 text-orange-700' : 'bg-muted border-border text-muted-foreground'}`}
+                    >
+                      {showPrevYear ? '✓' : '○'} Año anterior
+                    </button>
+                    <span className="text-xs text-muted-foreground">Comparativa interanual</span>
+                  </div>
+                )}
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="periodo" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
+                    <Tooltip />
+                    {trendView === 'monthly' && <Legend wrapperStyle={{ fontSize: 11 }} />}
+                    <Line type="monotone" dataKey="Año actual" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                    {trendView === 'monthly' && showPrevYear && (
+                      <Line type="monotone" dataKey="Año anterior" stroke="#f97316" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3 }} />
+                    )}
+                  </LineChart>
+                </ResponsiveContainer>
+              </>
             ) : (
               <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Sin datos de tendencia</div>
             )}
@@ -481,6 +659,10 @@ function AnalyticsDashboard() {
           </CardContent>
         </Card>
       </div>
+      {/* Botón Generar Plan de Acción */}
+      {analytics.totalCompleted > 0 && (
+        <GenerateActionPlanButton analytics={analytics} filterLabel={filterLabel} />
+      )}
       {trendData.length === 0 && reasonData.length === 0 && deptData.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
