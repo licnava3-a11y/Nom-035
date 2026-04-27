@@ -382,6 +382,7 @@ function DictamenTab() {
   const { data: investigaciones } = trpc.dictamenDocs.listInvestigaciones.useQuery();
   const { data: clinicalEmployees } = trpc.employees.getClinicalEmployees.useQuery();
   const [useManualResponsable, setUseManualResponsable] = useState(false);
+  const [responsableSearch, setResponsableSearch] = useState("");
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   // Configuración de folio
@@ -681,44 +682,81 @@ function DictamenTab() {
                 <Label>Trabajadoras Mujeres</Label>
                 <Input type="number" min={0} value={form.trabajadoresMujeres || ""} onChange={e => setForm(p => ({ ...p, trabajadoresMujeres: Number(e.target.value) }))} />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <Label>Responsable Técnico *</Label>
                 {!useManualResponsable && clinicalEmployees && clinicalEmployees.length > 0 ? (
                   <div className="space-y-1">
+                    {/* Campo de búsqueda para filtrar empleados */}
+                    <Input
+                      placeholder="Buscar por nombre, puesto o cédula..."
+                      value={responsableSearch}
+                      onChange={e => setResponsableSearch(e.target.value)}
+                      className="mb-1"
+                    />
                     <Select
-                      value={form.responsableTecnico || ''}
+                      value={form.responsableTecnico ? String(clinicalEmployees.find(e => `${e.clinicalTitle ? e.clinicalTitle + ' ' : ''}${e.fullName}` === form.responsableTecnico || e.fullName === form.responsableTecnico)?.id ?? '') : ''}
                       onValueChange={(v) => {
                         if (v === '__manual__') {
                           setUseManualResponsable(true);
+                          setResponsableSearch("");
                           return;
                         }
-                        const emp = clinicalEmployees.find(e => `${e.clinicalTitle ? e.clinicalTitle + '. ' : ''}${e.fullName}` === v || e.fullName === v);
-                        const fullName = emp ? `${emp.clinicalTitle ? emp.clinicalTitle + '. ' : ''}${emp.fullName}` : v;
+                        const emp = clinicalEmployees.find(e => String(e.id) === v);
+                        const fullName = emp
+                          ? `${emp.clinicalTitle ? emp.clinicalTitle + ' ' : ''}${emp.fullName}`
+                          : v;
                         setForm(p => ({
                           ...p,
                           responsableTecnico: fullName,
                           cedulaProfesional: emp?.cedulaProfesional || p.cedulaProfesional,
                         }));
+                        setResponsableSearch("");
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar del catálogo de empleados..." />
+                        <SelectValue placeholder="Seleccionar responsable técnico del catálogo..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {clinicalEmployees.map(emp => {
-                          const fullName = `${emp.clinicalTitle ? emp.clinicalTitle + '. ' : ''}${emp.fullName}`;
-                          return (
-                            <SelectItem key={emp.id} value={fullName}>
-                              {fullName}
-                              {emp.cedulaProfesional && <span className="text-xs text-muted-foreground ml-2">(Céd: {emp.cedulaProfesional})</span>}
-                            </SelectItem>
-                          );
-                        })}
-                        <SelectItem value="__manual__" className="text-muted-foreground italic">Captura manual...</SelectItem>
+                        {clinicalEmployees
+                          .filter(emp => {
+                            if (!responsableSearch) return true;
+                            const q = responsableSearch.toLowerCase();
+                            return (
+                              emp.fullName.toLowerCase().includes(q) ||
+                              (emp.positionTitle || '').toLowerCase().includes(q) ||
+                              (emp.cedulaProfesional || '').toLowerCase().includes(q)
+                            );
+                          })
+                          .map(emp => {
+                            const displayName = `${emp.clinicalTitle ? emp.clinicalTitle + ' ' : ''}${emp.fullName}`;
+                            return (
+                              <SelectItem key={emp.id} value={String(emp.id)}>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{displayName}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {emp.positionTitle}
+                                    {emp.cedulaProfesional && ` · Céd: ${emp.cedulaProfesional}`}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        {clinicalEmployees.filter(emp => {
+                          if (!responsableSearch) return true;
+                          const q = responsableSearch.toLowerCase();
+                          return emp.fullName.toLowerCase().includes(q) || (emp.positionTitle || '').toLowerCase().includes(q) || (emp.cedulaProfesional || '').toLowerCase().includes(q);
+                        }).length === 0 && (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">No se encontraron resultados</div>
+                        )}
+                        <SelectItem value="__manual__" className="text-muted-foreground italic border-t mt-1">✏️ Captura manual...</SelectItem>
                       </SelectContent>
                     </Select>
                     {form.responsableTecnico && (
-                      <p className="text-xs text-green-600">Seleccionado del catálogo. <button type="button" className="underline" onClick={() => { setUseManualResponsable(true); }}>Editar manualmente</button></p>
+                      <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
+                        <span>✅ <strong>{form.responsableTecnico}</strong> seleccionado del catálogo</span>
+                        {form.cedulaProfesional && <span className="text-green-600">· Céd: {form.cedulaProfesional}</span>}
+                        <button type="button" className="ml-auto underline text-green-700" onClick={() => { setUseManualResponsable(true); }}>Editar</button>
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -729,7 +767,9 @@ function DictamenTab() {
                       onChange={e => setForm(p => ({ ...p, responsableTecnico: e.target.value }))}
                     />
                     {clinicalEmployees && clinicalEmployees.length > 0 && (
-                      <button type="button" className="text-xs text-primary underline" onClick={() => setUseManualResponsable(false)}>Seleccionar del catálogo</button>
+                      <button type="button" className="text-xs text-primary underline" onClick={() => { setUseManualResponsable(false); setResponsableSearch(""); }}>
+                        ← Seleccionar del catálogo ({clinicalEmployees.length} empleados disponibles)
+                      </button>
                     )}
                   </div>
                 )}

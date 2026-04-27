@@ -769,13 +769,11 @@ export const employeesRouter = router({
     .query(async () => {
       const dbInstance = await (await import('../db')).getDb();
       if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
-
       const { employees, positions } = await import('../../drizzle/schema');
-      const { eq, or, like, and, isNotNull } = await import('drizzle-orm');
-
-      // Buscar empleados cuyo puesto contenga términos clínicos
-      const clinicalKeywords = ['médico', 'medico', 'psicólogo', 'psicologo', 'psiquiatra', 'psicóloga', 'psicologa', 'terapeuta', 'enfermero', 'enfermera'];
-
+      const { eq, or, like, and, isNotNull, ne } = await import('drizzle-orm');
+      // Buscar empleados activos que sean responsables técnicos potenciales:
+      // (1) Tienen cédula profesional registrada, o
+      // (2) Su puesto tiene perfil técnico/clínico/directivo
       const results = await dbInstance
         .select({
           id: employees.id,
@@ -791,6 +789,9 @@ export const employeesRouter = router({
           and(
             eq(employees.isActive, true),
             or(
+              // Prioridad 1: empleados con cédula profesional (responsables técnicos NOM-035)
+              and(isNotNull(employees.cedulaProfesional), ne(employees.cedulaProfesional, '')),
+              // Prioridad 2: puestos clínicos
               like(positions.title, '%médico%'),
               like(positions.title, '%medico%'),
               like(positions.title, '%psicólogo%'),
@@ -801,11 +802,24 @@ export const employeesRouter = router({
               like(positions.title, '%terapeuta%'),
               like(positions.title, '%enfermero%'),
               like(positions.title, '%enfermera%'),
+              // Prioridad 3: puestos de responsabilidad técnica/directiva
+              like(positions.title, '%responsable%'),
+              like(positions.title, '%coordinador%'),
+              like(positions.title, '%supervisor%'),
+              like(positions.title, '%jefe%'),
+              like(positions.title, '%director%'),
+              like(positions.title, '%gerente%'),
             )
           )
         );
-
-      return results.map(emp => ({
+      // Deduplicar por id
+      const seen = new Set<number>();
+      const unique = results.filter(emp => {
+        if (seen.has(emp.id)) return false;
+        seen.add(emp.id);
+        return true;
+      });
+      return unique.map(emp => ({
         id: emp.id,
         fullName: `${emp.firstName} ${emp.lastName}`,
         email: emp.email,
@@ -814,15 +828,16 @@ export const employeesRouter = router({
         // Inferir el clinicalTitle desde el puesto
         clinicalTitle: emp.positionTitle
           ? emp.positionTitle.toLowerCase().includes('psiquiatra')
-            ? 'psiquiatra'
+            ? 'Psiq.'
             : emp.positionTitle.toLowerCase().includes('psicologo') || emp.positionTitle.toLowerCase().includes('psicólogo') || emp.positionTitle.toLowerCase().includes('psicologa') || emp.positionTitle.toLowerCase().includes('psicóloga')
-              ? 'psicologo'
-              : 'medico'
-          : 'medico',
+              ? 'Psic.'
+              : emp.positionTitle.toLowerCase().includes('medico') || emp.positionTitle.toLowerCase().includes('médico')
+                ? 'Dr.'
+                : null
+          : null,
       }));
     }),
-
-  /**
+    /**
    * Get completed courses history for an employee (for PDF export)
    */
   getCoursesHistory: protectedProcedure
