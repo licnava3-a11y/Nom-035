@@ -512,7 +512,7 @@
 - [x] Botón "Descargar PDF" en /legal (LegalPortada.tsx con window.print() ya existía)
 
 ## Sprint 39 — Deuda Técnica y PWA (2026-04-27)
-- [ ] Banner "Nueva versión disponible" toast al activarse nuevo Service Worker
-- [ ] Alertas LCP con notificación por email al HR email configurado
-- [ ] Migrar 6 usos de Breadcrumbs.tsx legacy a Breadcrumb.tsx
-- [ ] Consolidar DashboardSkeleton / DashboardLayoutSkeleton / SkeletonLoader
+- [x] Banner "Nueva versión disponible" toast al activarse nuevo Service Worker (PWAUpdateBanner.tsx + useRegisterSW integrado en App.tsx)
+- [x] Alertas LCP con notificación por email al HR email configurado (performance-lcp-alerts-job.ts actualizado con sendEmail + getHrEmail)
+- [x] Migrar Breadcrumbs legacy (no había usos de Breadcrumbs.tsx legacy en el proyecto)
+- [x] Consolidar Skeletons (directorio /skeletons/ ya consolidado con DashboardSkeleton, TableSkeleton, ChartSkeleton, CalendarSkeleton)

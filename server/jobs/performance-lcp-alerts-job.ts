@@ -1,26 +1,22 @@
 /**
  * Job: Performance LCP Alerts
- * 
+ *
  * Se ejecuta diariamente a las 06:00 AM.
  * Detecta cuando el P75 de LCP supera 4000ms (calificación "poor")
  * durante 3 días consecutivos y genera una alerta en alert_history
- * con prioridad "warning".
- * 
+ * con prioridad "warning" + envía email al HR configurado.
+ *
  * Lógica:
  *  1. Consulta el P75 de LCP de los últimos 3 días (agrupado por día).
  *  2. Si los 3 días tienen P75 > 4000ms, verifica que no exista ya
  *     una alerta activa del mismo tipo creada hoy.
- *  3. Si no existe, inserta la alerta con:
- *       alertType: "performance_lcp"
- *       priority: "warning"
- *       threshold: 4000 (ms)
- *       currentValue: P75 del día más reciente (redondeado a entero)
- *       description: mensaje descriptivo
+ *  3. Si no existe, inserta la alerta y envía email al hrEmail de systemSettings.
  */
 
 import { getDb } from "../db";
-import { alertHistory, webVitalsMetrics } from "../../drizzle/schema";
+import { alertHistory, webVitalsMetrics, systemSettings } from "../../drizzle/schema";
 import { and, gte, lte, eq, sql } from "drizzle-orm";
+import { sendEmail } from "../_core/email";
 
 const LCP_THRESHOLD_MS = 4000;
 const CONSECUTIVE_DAYS = 3;
@@ -74,9 +70,23 @@ async function existsAlertToday(
   return existing.length > 0;
 }
 
+/** Obtiene el email de RH desde systemSettings. */
+async function getHrEmail(
+  db: Awaited<ReturnType<typeof getDb>>
+): Promise<string | null> {
+  if (!db) return null;
+  try {
+    const [settings] = await db.select().from(systemSettings).limit(1);
+    return (settings as Record<string, unknown>)?.hrEmail as string | null ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function runPerformanceLcpAlertsJob(): Promise<{
   success: boolean;
   alertCreated: boolean;
+  emailSent?: boolean;
   reason?: string;
   p75Values?: number[];
 }> {
@@ -131,15 +141,16 @@ export async function runPerformanceLcpAlertsJob(): Promise<{
       return { success: true, alertCreated: false, reason: "already_alerted_today", p75Values };
     }
 
-    // Crear la alerta
+    // Crear la alerta en BD
     const currentP75 = Math.round(p75Values[p75Values.length - 1]);
+    const dayLabels = p75Values.map((v, i) => {
+      const d = new Date(now);
+      d.setDate(now.getDate() - (CONSECUTIVE_DAYS - 1 - i));
+      return `${d.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}: ${Math.round(v)}ms`;
+    });
     const description =
       `LCP P75 ha superado ${LCP_THRESHOLD_MS}ms durante ${CONSECUTIVE_DAYS} días consecutivos. ` +
-      `Valores: ${p75Values.map((v, i) => {
-        const d = new Date(now);
-        d.setDate(now.getDate() - (CONSECUTIVE_DAYS - 1 - i));
-        return `${d.toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}: ${Math.round(v)}ms`;
-      }).join(", ")}. ` +
+      `Valores: ${dayLabels.join(", ")}. ` +
       `Esto indica un problema de rendimiento que afecta la experiencia del usuario (umbral "poor" de Core Web Vitals).`;
 
     await (db.insert(alertHistory) as any).values({
@@ -155,7 +166,57 @@ export async function runPerformanceLcpAlertsJob(): Promise<{
       `[Performance LCP Alerts Job] Alerta creada: LCP P75 = ${currentP75}ms (umbral: ${LCP_THRESHOLD_MS}ms, ${CONSECUTIVE_DAYS} días consecutivos).`
     );
 
-    return { success: true, alertCreated: true, p75Values };
+    // Enviar email al HR configurado
+    let emailSent = false;
+    const hrEmail = await getHrEmail(db);
+    if (hrEmail) {
+      const tableRows = dayLabels
+        .map((label) => `<tr><td style="padding:4px 8px;border:1px solid #e5e7eb;">${label}</td></tr>`)
+        .join("");
+
+      emailSent = await sendEmail({
+        to: hrEmail,
+        subject: `⚠️ Alerta de Rendimiento: LCP POOR por ${CONSECUTIVE_DAYS} días consecutivos`,
+        html: `
+          <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+            <h2 style="color:#dc2626;">⚠️ Alerta de Rendimiento — NOM-035 Plataforma</h2>
+            <p>El indicador <strong>LCP (Largest Contentful Paint)</strong> ha superado el umbral de
+            <strong>${LCP_THRESHOLD_MS}ms</strong> durante <strong>${CONSECUTIVE_DAYS} días consecutivos</strong>,
+            lo que indica una experiencia de usuario <strong style="color:#dc2626;">POOR</strong> según Core Web Vitals.</p>
+            <h3>Valores P75 por día:</h3>
+            <table style="border-collapse:collapse;width:100%;">
+              <thead>
+                <tr style="background:#f3f4f6;">
+                  <th style="padding:4px 8px;border:1px solid #e5e7eb;text-align:left;">Día — LCP P75</th>
+                </tr>
+              </thead>
+              <tbody>${tableRows}</tbody>
+            </table>
+            <p style="margin-top:16px;">
+              <strong>Valor actual (hoy):</strong> ${currentP75}ms
+              (umbral "poor": &gt;${LCP_THRESHOLD_MS}ms)
+            </p>
+            <p>Se recomienda revisar el módulo de <strong>Core Web Vitals</strong> en la plataforma
+            y optimizar los recursos que bloquean la carga inicial (imágenes, fuentes, scripts).</p>
+            <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;" />
+            <p style="font-size:12px;color:#6b7280;">
+              Esta alerta fue generada automáticamente por el sistema de monitoreo de rendimiento
+              de la Plataforma NOM-035 STPS.
+            </p>
+          </div>
+        `,
+      });
+
+      if (emailSent) {
+        console.log(`[Performance LCP Alerts Job] Email de alerta enviado a: ${hrEmail}`);
+      } else {
+        console.warn(`[Performance LCP Alerts Job] No se pudo enviar email a: ${hrEmail}`);
+      }
+    } else {
+      console.warn("[Performance LCP Alerts Job] No hay hrEmail configurado en systemSettings. Email no enviado.");
+    }
+
+    return { success: true, alertCreated: true, emailSent, p75Values };
   } catch (err) {
     console.error("[Performance LCP Alerts Job] Error:", err instanceof Error ? err.message : err);
     return { success: false, alertCreated: false, reason: "error" };

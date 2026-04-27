@@ -11,6 +11,7 @@ import SkipLink from "./components/SkipLink";
 import { KeyboardShortcutsHelp, useGlobalShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { GlobalSearch, useGlobalSearch } from "./components/GlobalSearch";
 import { TermsAcceptanceModal } from "./components/TermsAcceptanceModal";
+import { PWAUpdateBanner } from "./components/PWAUpdateBanner";
 import { trpc } from "./lib/trpc";
 import { useAuth } from "./_core/hooks/useAuth";
 
@@ -1957,6 +1958,7 @@ export default function App() {
           <SkipLink />
           <Router />
           <TermsGuard />
+          <PWAUpdateBanner />
           <KeyboardShortcutsHelp open={showHelp} onOpenChange={setShowHelp} />
           <GlobalSearch open={showSearch} onOpenChange={setShowSearch} />
         </TooltipProvider>
