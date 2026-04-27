@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems } from "../../drizzle/schema";
+import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems, branches } from "../../drizzle/schema";
 import { eq, inArray, sql, and, gte, lt } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -11,18 +11,25 @@ export const executiveReportRouter = router({
       startDate: z.string().optional(),
       endDate: z.string().optional(),
       departmentId: z.number().optional(),
+      branchId: z.number().optional(),
     }))
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
-      const { departmentId } = input;
+      const { departmentId, branchId } = input;
 
-      // Filtrar empleados por departamento si se especifica
-      const employeeQuery = db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId }).from(employees);
-      const allEmployeesRaw = departmentId
-        ? await db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId }).from(employees).where(eq(employees.departmentId, departmentId))
-        : await employeeQuery;
+      // Filtrar empleados por departamento y/o sucursal si se especifica
+      const buildEmployeeWhere = () => {
+        if (departmentId && branchId) return and(eq(employees.departmentId, departmentId), eq(employees.branchId, branchId));
+        if (departmentId) return eq(employees.departmentId, departmentId);
+        if (branchId) return eq(employees.branchId, branchId);
+        return undefined;
+      };
+      const employeeWhere = buildEmployeeWhere();
+      const allEmployeesRaw = employeeWhere
+        ? await db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId, branchId: employees.branchId }).from(employees).where(employeeWhere)
+        : await db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId, branchId: employees.branchId }).from(employees);
       const allEmployees = allEmployeesRaw;
       const employeeIds = allEmployees.map(e => e.id);
       const totalEmployees = allEmployees.length;

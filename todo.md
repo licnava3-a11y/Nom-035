@@ -527,3 +527,12 @@
 - [x] Botón "Importar XLSX" en catálogo de preguntas de ExitInterviews.tsx con import dinámico
 - [x] Procedure exitInterviews.importQuestions en el router con replaceAll y conteo inserted/skipped
 - [x] Tests Sprint 40: 13/13 passed
+
+## Sprint 41 — Fix LandingPage + Branches CRUD + XLSX Template + KPI Branch Filter (2026-04-27) ✅
+- [x] Corregir spinner infinito: timeout de seguridad de 2s en main.tsx + selfDestroying SW en vite.config.ts
+- [x] Página /branches con tabla CRUD (alta, edición, activar/desactivar con AlertDialog de confirmación)
+- [x] Enlace a /branches en sidebar de DashboardLayout (sección Administración)
+- [x] Botón "Plantilla" en ExitInterviews.tsx — descarga CSV con 5 filas de ejemplo y BOM UTF-8
+- [x] Selector de sucursal en KPI Dashboard con badge verde y filtro en getKPIs
+- [x] Procedure getKPIs acepta branchId + filtro combinado departmentId+branchId
+- [x] Tests Sprint 41: 22/22 passed | TypeScript: 0 errores

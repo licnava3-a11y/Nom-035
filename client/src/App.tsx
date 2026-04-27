@@ -248,6 +248,7 @@ const JobProfileManagement = lazy(() => import("./pages/JobProfileManagement"));
 const ExitInterviews = lazy(() => import("./pages/ExitInterviews"));
 const AnnualTrainingPlan = lazy(() => import("./pages/AnnualTrainingPlan"));
 const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
+const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1234,6 +1235,13 @@ function Router() {
           <Suspense fallback={<PageLoader />}>
             <PublicSurveyResponse />
           </Suspense>
+        </Route>
+        <Route path={"/branches"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <BranchesManagement />
+            </Suspense>
+          </DashboardLayout>
         </Route>
         <Route path={"/settings"}>
           <DashboardLayout>

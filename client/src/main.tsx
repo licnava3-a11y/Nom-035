@@ -136,7 +136,9 @@ function hideAppLoading() {
   const loader = document.getElementById('app-loading');
   if (!loader) return;
   loader.classList.add('fade-out');
-  setTimeout(() => loader.remove(), 350);
+  setTimeout(() => {
+    if (loader.parentNode) loader.remove();
+  }, 350);
 }
 
 root.render(
@@ -152,5 +154,6 @@ root.render(
   </trpc.Provider>
 );
 
-// Ocultar spinner una vez que React haya pintado el primer frame
+// Ocultar spinner: (1) tras primer frame de React, (2) timeout de seguridad a los 2s
 requestAnimationFrame(() => requestAnimationFrame(hideAppLoading));
+setTimeout(hideAppLoading, 2000);

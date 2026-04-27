@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X, Download, Upload } from "lucide-react";
+import { UserX, ClipboardList, TrendingUp, AlertCircle, CheckCircle2, Clock, Plus, FileText, BarChart2, BookOpen, Pencil, Trash2, Save, X, Download, Upload, FileDown } from "lucide-react";
 
 const TERMINATION_REASON_LABELS: Record<string, string> = {
   resignation: "Renuncia voluntaria",
@@ -881,6 +881,33 @@ function QuestionsManager() {
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={exportToExcel} title="Exportar catálogo a Excel/CSV">
             <Download className="w-4 h-4 mr-1" /> Exportar
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            title="Descargar plantilla Excel para importar preguntas"
+            onClick={() => {
+              const bom = '\uFEFF';
+              const headers = ['Pregunta', 'Categor\u00eda', 'N\u00famero'];
+              const examples = [
+                ['\u00bfCu\u00e1l fue el motivo principal por el que decides dejar la empresa?', 'Clima Laboral', '1'],
+                ['\u00bfC\u00f3mo calificar\u00edas la relaci\u00f3n con tu jefe inmediato?', 'Relaci\u00f3n con Jefes', '2'],
+                ['\u00bfSentiste que tu trabajo era reconocido adecuadamente?', 'Reconocimiento', '3'],
+                ['\u00bfConsideras que tu carga de trabajo era equitativa?', 'Carga de Trabajo', '4'],
+                ['\u00bfRegresar\u00edas a trabajar con nosotros en el futuro?', 'Otro', '5'],
+              ];
+              const csvContent = bom + [headers.join(','), ...examples.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'Plantilla_Preguntas_EntrevistasSalida.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              toast.success('Plantilla descargada. Abre con Excel y llena las columnas.');
+            }}
+          >
+            <FileDown className="w-4 h-4 mr-1" /> Plantilla
           </Button>
           <label title="Importar preguntas desde Excel (.xlsx)">
             <input

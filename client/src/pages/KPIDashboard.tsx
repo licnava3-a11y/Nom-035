@@ -92,6 +92,7 @@ function CustomTooltip({ active, payload, label }: any) {
 export default function KPIDashboard() {
   const [trendMonths, setTrendMonths] = useState(6);
   const [selectedDeptId, setSelectedDeptId] = useState<number | undefined>(undefined);
+  const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(undefined);
   const [comparativaYear, setComparativaYear] = useState<number | undefined>(undefined);
   const [sortKey, setSortKey] = useState<string>("deptName");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
@@ -116,9 +117,11 @@ export default function KPIDashboard() {
     { retry: false }
   );
 
+  const { data: branchList } = trpc.branches.list.useQuery(undefined, { retry: false });
+
   const { data: kpis, isLoading: loadingKPIs, refetch: refetchKPIs } =
     trpc.executiveReport.getKPIs.useQuery(
-      { departmentId: selectedDeptId },
+      { departmentId: selectedDeptId, branchId: selectedBranchId },
       { retry: false }
     );
 
@@ -215,6 +218,24 @@ export default function KPIDashboard() {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Selector de sucursal */}
+            <div className="flex items-center gap-1.5">
+              <Building2 className="w-4 h-4 text-slate-500" />
+              <Select
+                value={selectedBranchId !== undefined ? String(selectedBranchId) : "all"}
+                onValueChange={(val) => setSelectedBranchId(val === "all" ? undefined : Number(val))}
+              >
+                <SelectTrigger className="w-44 h-8 text-xs">
+                  <SelectValue placeholder="Todas las sucursales" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas las sucursales</SelectItem>
+                  {branchList?.map((b: { id: number; name: string }) => (
+                    <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             {/* Selector de departamento */}
             <div className="flex items-center gap-1.5">
               <Building2 className="w-4 h-4 text-slate-500" />
@@ -233,6 +254,12 @@ export default function KPIDashboard() {
                 </SelectContent>
               </Select>
             </div>
+            {selectedBranchId !== undefined && branchList && (
+              <Badge className="text-xs bg-emerald-100 text-emerald-800 border-emerald-300">
+                <Building2 className="w-3 h-3 mr-1" />
+                {branchList.find((b: { id: number }) => b.id === selectedBranchId)?.name ?? 'Sucursal'}
+              </Badge>
+            )}
             {kpis?.departmentFilter && (
               <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-300">
                 <Building2 className="w-3 h-3 mr-1" />
