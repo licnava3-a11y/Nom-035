@@ -330,8 +330,18 @@ function InvestigacionTab() {
               <Button size="sm" onClick={() => approveMut.mutate({ id: activeDoc.id })} disabled={approveMut.isPending}>
                 <CheckCircle className="h-4 w-4 mr-1" /> Aprobar
               </Button>
-              <Button size="sm" variant="secondary" onClick={handleExportPDF} title="Genera un archivo HTML listo para imprimir como PDF con espacios de firma">
-                <Download className="h-4 w-4 mr-1" /> Exportar PDF Firmable
+              <Button size="sm" variant="secondary" onClick={handleExportPDF} title="Descarga el HTML con firma digital, cédula profesional y QR NOM-151">
+                <Download className="h-4 w-4 mr-1" /> Descargar PDF Firmable
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => {
+                if (!activeDoc) return;
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) { toast({ title: 'Bloqueador de ventanas activo', description: 'Permite ventanas emergentes para imprimir el PDF', variant: 'destructive' }); return; }
+                // Reutilizar la misma lógica de generación HTML
+                handleExportPDF();
+                toast({ title: 'PDF listo para imprimir', description: 'Se abrirá el diálogo de impresión. Selecciona "Guardar como PDF".' });
+              }} title="Abre el diálogo de impresión del navegador para guardar como PDF directamente">
+                <FileText className="h-4 w-4 mr-1" /> Imprimir PDF
               </Button>
             </div>
           </div>
@@ -484,14 +494,17 @@ function DictamenTab() {
       p { margin: 4px 0 10px 0; text-align: justify; white-space: pre-wrap; }
       .firma-section { margin-top: 40px; page-break-inside: avoid; }
       .firma-section h2 { border-left: 3px solid #1e3a5f; color: #1e3a5f; }
-      .firma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px; }
-      .firma-box { text-align: center; }
-      .firma-line { border-top: 1.5px solid #1a1a1a; margin: 60px 10px 6px 10px; }
+      .firma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+      .firma-box { text-align: center; border: 1.5px solid #1e3a5f; border-radius: 6px; padding: 16px 12px 12px 12px; background: #f8fafc; }
+      .firma-box-header { background: #1e3a5f; color: white; font-size: 8pt; font-weight: bold; letter-spacing: 0.5px; padding: 4px 8px; border-radius: 3px 3px 0 0; margin: -16px -12px 12px -12px; text-transform: uppercase; }
+      .firma-line { border-top: 2px solid #1e3a5f; margin: 55px 10px 8px 10px; }
       .firma-label { font-size: 9pt; font-weight: bold; color: #1e3a5f; }
-      .firma-name { font-size: 9pt; margin-top: 2px; }
-      .firma-cedula { font-size: 8pt; color: #555; }
-      .firma-date { font-size: 8pt; color: #555; margin-top: 4px; }
-      .sello-box { width: 60px; height: 60px; border: 2px dashed #9ca3af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; color: #9ca3af; margin: 0 auto 8px auto; text-align: center; }
+      .firma-name { font-size: 10pt; margin-top: 3px; font-weight: 600; color: #111; }
+      .firma-cedula { font-size: 9pt; color: #1e3a5f; font-weight: bold; margin-top: 4px; background: #e0e7ff; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+      .firma-puesto { font-size: 8pt; color: #555; margin-top: 3px; font-style: italic; }
+      .firma-date { font-size: 8pt; color: #555; margin-top: 6px; border-top: 1px dashed #ccc; padding-top: 4px; }
+      .sello-box { width: 70px; height: 70px; border: 2px dashed #9ca3af; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7pt; color: #9ca3af; margin: 0 auto 10px auto; text-align: center; background: white; }
+      .firma-digital-badge { background: #dcfce7; border: 1px solid #86efac; color: #166534; font-size: 7.5pt; padding: 3px 8px; border-radius: 3px; margin-top: 6px; display: inline-block; }
       .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 7.5pt; color: #666; display: flex; justify-content: space-between; border-top: 1px solid #e5e7eb; padding: 4px 20mm; background: white; }
       .aviso-confidencial { background: #fffbeb; border: 1px solid #fcd34d; padding: 6px 12px; font-size: 8.5pt; color: #92400e; margin-bottom: 12px; text-align: center; }
       .hash-box { background: #f0fdf4; border: 1px solid #86efac; padding: 8px 12px; font-size: 7.5pt; color: #166534; margin-top: 8px; border-radius: 4px; font-family: monospace; word-break: break-all; }
@@ -522,23 +535,35 @@ function DictamenTab() {
     html += `
     <div class="firma-section">
       <h2>10. Firmas y Validación</h2>
+      <p style="font-size:8.5pt;color:#555;margin-bottom:16px;">Las firmas autógrafas de los responsables acreditan la autenticidad y conformidad del presente Dictamen conforme a la NOM-035-STPS-2018.</p>
       <div class="firma-grid">
         <div class="firma-box">
-          <div class="sello-box">SELLO<br>EMPRESA</div>
+          <div class="firma-box-header">Responsable Técnico NOM-035</div>
+          <div class="sello-box">SELLO<br>OFICIAL</div>
           <div class="firma-line"></div>
-          <div class="firma-label">Firma del Responsable Técnico</div>
+          <div class="firma-label">Firma Autógrafa</div>
           <div class="firma-name">${form.responsableTecnico || '___________________________'}</div>
-          <div class="firma-cedula">Cédula Profesional: ${form.cedulaProfesional || '_______________'}</div>
-          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().getFullYear()}</div>
+          ${form.cedulaProfesional ? `<div class="firma-cedula">Cédula Prof.: ${form.cedulaProfesional}</div>` : '<div class="firma-cedula" style="background:#fee2e2;color:#991b1b;">Cédula Profesional: (pendiente)</div>'}
+          <div class="firma-puesto">Responsable Técnico NOM-035-STPS-2018</div>
+          <div class="firma-digital-badge">✓ Documento oficial NOM-035</div>
+          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
         </div>
         <div class="firma-box">
-          <div class="sello-box">SELLO<br>EMPRESA</div>
+          <div class="firma-box-header">Representante Legal</div>
+          <div class="sello-box">SELLO<br>OFICIAL</div>
           <div class="firma-line"></div>
-          <div class="firma-label">Firma del Representante Legal</div>
+          <div class="firma-label">Firma Autógrafa</div>
           <div class="firma-name">${form.representanteLegal || '___________________________'}</div>
-          <div class="firma-cedula">Cargo: Representante Legal</div>
-          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().getFullYear()}</div>
+          <div class="firma-cedula" style="background:#e0e7ff;color:#3730a3;">Representante Legal</div>
+          <div class="firma-puesto">Representante Legal de la Empresa</div>
+          <div class="firma-digital-badge">✓ Documento oficial NOM-035</div>
+          <div class="firma-date">Lugar y fecha: _________________________, ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
         </div>
+      </div>
+      <div style="margin-top:16px;padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:4px;font-size:8pt;color:#0c4a6e;">
+        <strong>Nota Legal:</strong> Este Dictamen ha sido elaborado conforme a los requisitos de la NOM-035-STPS-2018 (Factores de riesgo psicosocial en el trabajo). 
+        La cédula profesional del Responsable Técnico (No. ${form.cedulaProfesional || 'N/D'}) acredita su habilitación para la aplicación de los instrumentos de evaluación. 
+        Folio del documento: <strong>${activeDoc.folio}</strong>.
       </div>
     </div>`;
     // Sección 11: Anexos

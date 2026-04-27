@@ -356,12 +356,42 @@ export const exitInterviewsRouter = router({
         recommendationScore = total > 0 ? Math.round((positive / total) * 100) : 0;
       }
 
+      // Department breakdown
+      const departmentBreakdown = await db
+        .select({
+          department: departments.name,
+          total: count(),
+        })
+        .from(exitInterviews)
+        .leftJoin(employeeTerminations, eq(exitInterviews.terminationId, employeeTerminations.id))
+        .leftJoin(employees, eq(employeeTerminations.employeeId, employees.id))
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .where(eq(exitInterviews.status, "completed"))
+        .groupBy(departments.name)
+        .orderBy(desc(count()));
+      // Quarterly trend (last 8 quarters)
+      const quarterlyTrend = await db
+        .select({
+          quarter: sql<string>`CONCAT(YEAR(${exitInterviews.completedAt}), '-Q', QUARTER(${exitInterviews.completedAt}))`,
+          total: count(),
+        })
+        .from(exitInterviews)
+        .where(
+          and(
+            eq(exitInterviews.status, "completed"),
+            sql`${exitInterviews.completedAt} >= DATE_SUB(NOW(), INTERVAL 24 MONTH)`
+          )
+        )
+        .groupBy(sql`CONCAT(YEAR(${exitInterviews.completedAt}), '-Q', QUARTER(${exitInterviews.completedAt}))`)
+        .orderBy(sql`CONCAT(YEAR(${exitInterviews.completedAt}), '-Q', QUARTER(${exitInterviews.completedAt}))`);
       return {
         totalCompleted,
         terminationReasons,
         mainReasonDistribution,
         monthlyTrend,
         recommendationScore,
+        departmentBreakdown,
+        quarterlyTrend,
       };
     }),
 

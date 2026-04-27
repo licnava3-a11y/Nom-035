@@ -223,86 +223,172 @@ function RegisterTerminationDialog({ onSuccess }: { onSuccess: () => void }) {
     </Dialog>
   );
 }
-
+// ── Exportar reporte de entrevistas de salida a Excel ────────────────────────
+function exportExitInterviewsReport(analytics: any, filterLabel: string) {
+  if (!analytics) return;
+  const rows: string[][] = [];
+  rows.push([`Reporte de Entrevistas de Salida — ${filterLabel}`, '', '', '']);
+  rows.push(['Generado:', new Date().toLocaleString('es-MX'), '', '']);
+  rows.push(['', '', '', '']);
+  rows.push(['KPIs Generales', '', '', '']);
+  rows.push(['Entrevistas completadas', String(analytics.totalCompleted), '', '']);
+  rows.push(['Índice de recomendación', `${analytics.recommendationScore}%`, '', '']);
+  rows.push(['Tipos de motivos registrados', String(analytics.terminationReasons.length), '', '']);
+  rows.push(['', '', '', '']);
+  rows.push(['Motivos de Baja', 'Total', '', '']);
+  analytics.terminationReasons.forEach((r: any) => {
+    const label: Record<string, string> = { resignation: 'Renuncia voluntaria', dismissal: 'Despido', retirement: 'Jubilación', contract_end: 'Fin de contrato', mutual_agreement: 'Mutuo acuerdo', death: 'Fallecimiento', other: 'Otro' };
+    rows.push([label[r.reason ?? ''] ?? r.reason ?? 'Desconocido', String(r.total), '', '']);
+  });
+  rows.push(['', '', '', '']);
+  rows.push(['Razones Principales de Salida', 'Total', '', '']);
+  analytics.mainReasonDistribution.forEach((r: any) => rows.push([r.response, String(r.total), '', '']));
+  rows.push(['', '', '', '']);
+  rows.push(['Tendencia Mensual', 'Mes', 'Total', '']);
+  analytics.monthlyTrend.forEach((t: any) => rows.push(['', t.month, String(t.total), '']));
+  rows.push(['', '', '', '']);
+  rows.push(['Desglose por Departamento', 'Departamento', 'Total', '']);
+  (analytics.departmentBreakdown ?? []).forEach((d: any) => rows.push(['', d.department ?? 'Sin departamento', String(d.total), '']));
+  const csv = rows.map(r => r.map(c => `"${(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Reporte_EntrevistasSalida_${filterLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 // ── Dashboard de Análisis ────────────────────────────────────────────────────
 function AnalyticsDashboard() {
-  const { data: analytics, isLoading } = trpc.exitInterviews.getAnalytics.useQuery({});
-
+  const currentYear = new Date().getFullYear();
+  const [filterYear, setFilterYear] = useState<string>('all');
+  const [filterMonth, setFilterMonth] = useState<string>('all');
+  const [trendView, setTrendView] = useState<'monthly' | 'quarterly'>('monthly');
+  const yearInput = filterYear !== 'all' ? parseInt(filterYear) : undefined;
+  const monthInput = filterMonth !== 'all' ? parseInt(filterMonth) : undefined;
+  const { data: analytics, isLoading } = trpc.exitInterviews.getAnalytics.useQuery({ year: yearInput, month: monthInput });
+  const filterLabel = filterYear === 'all' ? 'Todo el período' : filterMonth === 'all' ? `Año ${filterYear}` : `${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(filterMonth)-1]} ${filterYear}`;
   if (isLoading) return <div className="text-center py-8 text-muted-foreground">Cargando análisis...</div>;
   if (!analytics) return null;
-
   const reasonData = analytics.terminationReasons.map(r => ({
     name: TERMINATION_REASON_LABELS[r.reason ?? ""] ?? r.reason ?? "Desconocido",
     value: r.total,
   }));
-
   const mainReasonData = analytics.mainReasonDistribution.slice(0, 6).map(r => ({
-    name: r.response.length > 20 ? r.response.substring(0, 20) + "..." : r.response,
+    name: r.response.length > 22 ? r.response.substring(0, 22) + "…" : r.response,
     fullName: r.response,
     total: r.total,
   }));
-
-  const trendData = analytics.monthlyTrend.map(t => ({
-    mes: t.month,
-    total: t.total,
+  const trendData = trendView === 'monthly'
+    ? analytics.monthlyTrend.map(t => ({ periodo: t.month, total: t.total }))
+    : (analytics.quarterlyTrend ?? []).map(t => ({ periodo: t.quarter, total: t.total }));
+  const deptData = (analytics.departmentBreakdown ?? []).map(d => ({
+    name: d.department ?? 'Sin depto.',
+    total: d.total,
   }));
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Barra de filtros + exportar */}
+      <div className="flex flex-wrap items-center gap-3 p-3 bg-muted/30 rounded-lg border">
+        <span className="text-sm font-medium text-muted-foreground">Filtrar por período:</span>
+        <Select value={filterYear} onValueChange={v => { setFilterYear(v); setFilterMonth('all'); }}>
+          <SelectTrigger className="w-32 h-8 text-sm">
+            <SelectValue placeholder="Año" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los años</SelectItem>
+            {[currentYear, currentYear - 1, currentYear - 2, currentYear - 3].map(y => (
+              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filterYear !== 'all' && (
+          <Select value={filterMonth} onValueChange={setFilterMonth}>
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue placeholder="Mes" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los meses</SelectItem>
+              {['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].map((m, i) => (
+                <SelectItem key={i+1} value={String(i+1)}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-xs text-muted-foreground bg-background border rounded px-2 py-1">{filterLabel}</span>
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => exportExitInterviewsReport(analytics, filterLabel)}>
+            <Download className="w-3.5 h-3.5" /> Exportar Excel
+          </Button>
+        </div>
+      </div>
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
                 <ClipboardList className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{analytics.totalCompleted}</p>
-                <p className="text-sm text-muted-foreground">Entrevistas completadas</p>
+                <p className="text-xs text-muted-foreground">Entrevistas completadas</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
                 <TrendingUp className="w-5 h-5 text-green-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{analytics.recommendationScore}%</p>
-                <p className="text-sm text-muted-foreground">Índice de recomendación</p>
+                <p className="text-xs text-muted-foreground">Índice de recomendación</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg">
                 <BarChart2 className="w-5 h-5 text-orange-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{analytics.terminationReasons.length}</p>
-                <p className="text-sm text-muted-foreground">Tipos de motivos registrados</p>
+                <p className="text-xs text-muted-foreground">Tipos de motivos</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <UserX className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{(analytics.departmentBreakdown ?? []).length}</p>
+                <p className="text-xs text-muted-foreground">Departamentos afectados</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Distribución de motivos de baja */}
-        {reasonData.length > 0 && (
+        {reasonData.length > 0 ? (
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Distribución de Motivos de Baja</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Distribución de Motivos de Baja</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie data={reasonData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
+                  <Pie data={reasonData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`} labelLine={false}>
                     {reasonData.map((_, idx) => (
                       <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
                     ))}
@@ -312,52 +398,90 @@ function AnalyticsDashboard() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        )}
-
-        {/* Razones principales de salida */}
-        {mainReasonData.length > 0 && (
+        ) : (
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Razones Principales de Salida</CardTitle>
-              <CardDescription>Respuestas a la pregunta de motivo principal</CardDescription>
+            <CardContent className="flex items-center justify-center h-40 text-muted-foreground text-sm">Sin datos de motivos</CardContent>
+          </Card>
+        )}
+        {/* Razones principales de salida */}
+        {mainReasonData.length > 0 ? (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Razones Principales de Salida</CardTitle>
+              <CardDescription className="text-xs">Respuestas a la pregunta de motivo principal</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={mainReasonData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(val, _, props) => [val, props.payload.fullName]} />
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={130} tick={{ fontSize: 10 }} />
+                  <Tooltip formatter={(val: any, _: any, props: any) => [val, props.payload.fullName]} />
                   <Bar dataKey="total" fill="#2563eb" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
+        ) : (
+          <Card>
+            <CardContent className="flex items-center justify-center h-40 text-muted-foreground text-sm">Sin datos de razones</CardContent>
+          </Card>
         )}
       </div>
-
-      {/* Tendencia mensual */}
-      {trendData.length > 0 && (
+      {/* Tendencia + Departamentos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Tendencia mensual/trimestral */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Tendencia Mensual de Entrevistas Completadas</CardTitle>
-            <CardDescription>Últimos 12 meses</CardDescription>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold">Tendencia de Entrevistas</CardTitle>
+              <div className="flex gap-1">
+                <Button size="sm" variant={trendView === 'monthly' ? 'default' : 'outline'} className="h-6 text-xs px-2" onClick={() => setTrendView('monthly')}>Mensual</Button>
+                <Button size="sm" variant={trendView === 'quarterly' ? 'default' : 'outline'} className="h-6 text-xs px-2" onClick={() => setTrendView('quarterly')}>Trimestral</Button>
+              </div>
+            </div>
+            <CardDescription className="text-xs">{trendView === 'monthly' ? 'Últimos 12 meses' : 'Últimos 8 trimestres'}</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
+            {trendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="periodo" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Sin datos de tendencia</div>
+            )}
           </CardContent>
         </Card>
-      )}
-
-      {trendData.length === 0 && reasonData.length === 0 && (
+        {/* Desglose por departamento */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Bajas por Departamento</CardTitle>
+            <CardDescription className="text-xs">Distribución de entrevistas completadas por área</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {deptData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={deptData.slice(0, 8)} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Bar dataKey="total" fill="#7c3aed" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Sin datos por departamento</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      {trendData.length === 0 && reasonData.length === 0 && deptData.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p>No hay suficientes datos para mostrar el análisis.</p>
@@ -367,7 +491,6 @@ function AnalyticsDashboard() {
     </div>
   );
 }
-
 // ── Gestor del Catálogo de Preguntas (admin) ──────────────────────────────────
 const CATEGORIES = ['Clima Laboral', 'Compensación', 'Liderazgo', 'Desarrollo', 'Motivo de Salida', 'Proceso de Salida', 'Otro'];
 
