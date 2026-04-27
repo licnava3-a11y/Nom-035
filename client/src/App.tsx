@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
@@ -10,6 +10,9 @@ import SkeletonLoader from "./components/SkeletonLoader";
 import SkipLink from "./components/SkipLink";
 import { KeyboardShortcutsHelp, useGlobalShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { GlobalSearch, useGlobalSearch } from "./components/GlobalSearch";
+import { TermsAcceptanceModal } from "./components/TermsAcceptanceModal";
+import { trpc } from "./lib/trpc";
+import { useAuth } from "./_core/hooks/useAuth";
 
 // Lazy load all page components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -1919,18 +1922,41 @@ function Router() {
   );
 }
 
+function TermsGuard() {
+  const { user } = useAuth();
+  const [showTerms, setShowTerms] = useState(false);
+  const { data: termsData, isLoading } = trpc.terms.hasAccepted.useQuery(undefined, {
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (!isLoading && user && termsData && !termsData.accepted) {
+      setShowTerms(true);
+    }
+  }, [isLoading, user, termsData]);
+
+  if (!user || isLoading) return null;
+
+  return (
+    <TermsAcceptanceModal
+      open={showTerms}
+      onAccepted={() => setShowTerms(false)}
+    />
+  );
+}
+
 export default function App() {
   // Hook para ayuda de atajos de teclado (Ctrl+/)
   const { showHelp, setShowHelp } = useGlobalShortcutsHelp();
   // Hook para búsqueda global (Ctrl+K)
   const { showSearch, setShowSearch } = useGlobalSearch();
-
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <SkipLink />
           <Router />
+          <TermsGuard />
           <KeyboardShortcutsHelp open={showHelp} onOpenChange={setShowHelp} />
           <GlobalSearch open={showSearch} onOpenChange={setShowSearch} />
         </TooltipProvider>

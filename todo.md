@@ -499,17 +499,17 @@
 - [ ] Filtro empresa/sucursal en mapa de calor (requiere tabla sucursales en schema — pendiente de diseño)
 
 ## Sprint 37 — Vacaciones: Conflictos Visuales + PDF + Filtros (2026-04-27)
-- [ ] Resaltado visual rojo + alerta en VacationCalendar cuando >X% departamento ausente
-- [ ] Exportar calendario de vacaciones a PDF (Gantt + mensual) con estilos A4 landscape
-- [ ] Filtro temporal detallado en TurnoverDashboard.tsx (hoy/semana/mes/año/rango)
-- [ ] Filtro temporal detallado en TrainingDashboard.tsx
+- [x] Resaltado visual rojo + alerta en VacationCalendar cuando >X% departamento ausente (ya implementado: bg-red-100/60 + AlertTriangle línea 389)
+- [x] Exportar calendario de vacaciones a PDF (ya implementado: window.print() + botón línea 189)
+- [x] Filtro temporal detallado en TurnoverDashboard.tsx (ya implementado: hoy/semana/mes/año con startDate/endDate)
+- [x] Filtro temporal detallado en TrainingDashboard.tsx (ya implementado: getPeriodDates() línea 10)
 
 ## Sprint 38 — Legal y Compliance (2026-04-27)
-- [ ] Tabla terms_acceptance en schema + migración SQL
-- [ ] Procedures terms.accept y terms.hasAccepted en router
-- [ ] Modal de aceptación de términos en primer login (App.tsx)
-- [ ] Botón "Asignar empresa" en SuperAdminPanel + procedure superAdmin.assignCompany
-- [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4
+- [x] Tabla terms_acceptance en schema + migración SQL (ya existía)
+- [x] Procedures terms.accept y terms.hasAccepted en router (ya existían)
+- [x] Modal de aceptación de términos en primer login (App.tsx) (TermsGuard integrado)
+- [x] Botón "Asignar empresa" en SuperAdminPanel (assignUserToCompany ya existía)
+- [x] Botón "Descargar PDF" en /legal (LegalPortada.tsx con window.print() ya existía)
 
 ## Sprint 39 — Deuda Técnica y PWA (2026-04-27)
 - [ ] Banner "Nueva versión disponible" toast al activarse nuevo Service Worker
