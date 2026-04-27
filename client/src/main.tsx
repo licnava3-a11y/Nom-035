@@ -119,17 +119,8 @@ if (!root) {
 // Inicializar métricas Core Web Vitals (carga lazy para no bloquear el render)
 import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() => {});
 
-// Service Worker: se usa selfDestroying para limpiar SWs anteriores en producción
-// El reload automático en controllerchange causaba loops de recarga en iOS Safari
-if ("serviceWorker" in navigator) {
-  // Desregistrar cualquier SW antiguo al cargar para limpiar cachés obsoletas
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    // Solo limpiar si hay más de 1 SW registrado (indica versión obsoleta)
-    if (registrations.length > 1) {
-      registrations.forEach(r => r.unregister());
-    }
-  }).catch(() => {});
-}
+// Service Worker: deshabilitado completamente
+// El desregistro se hace en index.html antes de que React cargue
 
 // Ocultar el spinner de carga inicial cuando React monta
 function hideAppLoading() {

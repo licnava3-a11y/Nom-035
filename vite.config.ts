@@ -5,7 +5,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-import { VitePWA } from "vite-plugin-pwa";
+// VitePWA deshabilitado — el SW causaba loops de recarga en iOS Safari
+// import { VitePWA } from "vite-plugin-pwa";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -157,75 +158,8 @@ const plugins = [
   jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
-  VitePWA({
-    registerType: "autoUpdate",
-    injectRegister: null,
-    selfDestroying: true,
-    workbox: {
-      // Forzar activación inmediata del nuevo SW para evitar pantalla en blanco
-      skipWaiting: true,
-      clientsClaim: true,
-      // Solo cachear assets estáticos con hash (no HTML ni JS de entrada)
-      globPatterns: ["**/*.{css,ico,png,svg,woff,woff2,ttf,eot}"],
-      // Excluir el HTML principal del precaché para siempre obtener la última versión
-      navigateFallback: null,
-      runtimeCaching: [
-        {
-          // Assets con hash de contenido: CacheFirst es seguro
-          urlPattern: /\/assets\/.+\.(css|woff2?|ttf|eot|png|svg|ico)$/i,
-          handler: "CacheFirst",
-          options: {
-            cacheName: "nom035-assets-v2",
-            expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            cacheableResponse: { statuses: [0, 200] },
-          },
-        },
-        {
-          // Chunks JS: NetworkFirst para siempre obtener la última versión
-          urlPattern: /\/assets\/.+\.js$/i,
-          handler: "NetworkFirst",
-          options: {
-            cacheName: "nom035-js-v2",
-            networkTimeoutSeconds: 3,
-            expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
-            cacheableResponse: { statuses: [0, 200] },
-          },
-        },
-        {
-          urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-          handler: "CacheFirst",
-          options: {
-            cacheName: "nom035-google-fonts-v2",
-            expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            cacheableResponse: { statuses: [0, 200] },
-          },
-        },
-        {
-          urlPattern: /\/api\/trpc\/.*/i,
-          handler: "NetworkFirst",
-          options: {
-            cacheName: "nom035-api-v2",
-            networkTimeoutSeconds: 5,
-            expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
-            cacheableResponse: { statuses: [0, 200] },
-          },
-        },
-      ],
-    },
-    manifest: {
-      name: "Plataforma NOM-035 STPS 2018",
-      short_name: "NOM-035",
-      description: "Gesti\u00f3n Integral de Riesgos Psicosociales",
-      theme_color: "#1e40af",
-      background_color: "#f8fafc",
-      display: "standalone",
-      start_url: "/",
-      icons: [
-        { src: "/favicon.ico", sizes: "64x64", type: "image/x-icon" },
-      ],
-    },
-    devOptions: { enabled: false },
-  }),
+  // VitePWA eliminado — el SW causaba loops de recarga en iOS Safari
+  // y el módulo virtual virtual:pwa-register/react rompe el bundle de producción
 ];
 
 export default defineConfig({

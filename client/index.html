@@ -74,6 +74,20 @@
         to { transform: rotate(360deg); }
       }
     </style>
+  <!-- Desregistrar Service Workers obsoletos antes de que React cargue -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        registrations.forEach(function(r) { r.unregister(); });
+      });
+      // Limpiar todos los caches del SW
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          names.forEach(function(name) { caches.delete(name); });
+        });
+      }
+    }
+  </script>
   </head>
 
   <body>

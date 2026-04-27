@@ -42,6 +42,7 @@ export default function EmployeeEdit() {
     contract1ExpirationDate: "",
     contract2ExpirationDate: "",
     contract3ExpirationDate: "",
+    branchId: null as number | null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,6 +56,9 @@ export default function EmployeeEdit() {
   // Fetch departments for dropdown
   const { data: departments } = trpc.employees.getDepartments.useQuery();
   
+  // Fetch branches for dropdown
+  const { data: branches } = trpc.branches.listAll.useQuery();
+
   // Fetch positions filtered by selected department
   const { data: positions } = trpc.employees.getPositionsByDepartment.useQuery(
     { department: typeof formData.department === 'number' ? formData.department : 0 },
@@ -82,6 +86,7 @@ export default function EmployeeEdit() {
         contract1ExpirationDate: (employee as any).contract1ExpirationDate ? new Date((employee as any).contract1ExpirationDate).toISOString().split("T")[0] : "",
         contract2ExpirationDate: (employee as any).contract2ExpirationDate ? new Date((employee as any).contract2ExpirationDate).toISOString().split("T")[0] : "",
         contract3ExpirationDate: (employee as any).contract3ExpirationDate ? new Date((employee as any).contract3ExpirationDate).toISOString().split("T")[0] : "",
+        branchId: (employee as any).branchId ?? null,
       });
     }
   }, [employee]);
@@ -138,6 +143,7 @@ export default function EmployeeEdit() {
       ...formData,
       department: typeof formData.department === 'number' ? formData.department : undefined,
       position: typeof formData.position === 'number' ? formData.position : undefined,
+      branchId: formData.branchId ?? undefined,
     };
     updateMutation.mutate(dataToSubmit as any);
   };
@@ -446,8 +452,36 @@ export default function EmployeeEdit() {
               </div>
             </div>
 
+            {/* Selector de Sucursal */}
             <div className="space-y-2">
-              <Label htmlFor="contractType">Tipo de Contrato</Label>
+              <Label htmlFor="branchId">Sucursal</Label>
+              <Select
+                value={formData.branchId !== null ? String(formData.branchId) : "none"}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, branchId: value === "none" ? null : parseInt(value) }))
+                }
+              >
+                <SelectTrigger id="branchId">
+                  <SelectValue placeholder="Sin sucursal asignada" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin sucursal asignada</SelectItem>
+                  {branches?.filter((b: any) => b.isActive).map((branch: any) => (
+                    <SelectItem key={branch.id} value={String(branch.id)}>
+                      {branch.name}{branch.city ? ` — ${branch.city}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {!branches?.length && (
+                <p className="text-xs text-muted-foreground">
+                  No hay sucursales activas. <a href="/branches" className="underline text-primary">Agregar sucursales</a>
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="contractType">Tipo de Contrato</Label>
               <select
                 id="contractType"
                 value={formData.contractType}

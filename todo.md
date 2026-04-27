@@ -536,3 +536,11 @@
 - [x] Selector de sucursal en KPI Dashboard con badge verde y filtro en getKPIs
 - [x] Procedure getKPIs acepta branchId + filtro combinado departmentId+branchId
 - [x] Tests Sprint 41: 22/22 passed | TypeScript: 0 errores
+
+## Sprint 42 — Fix Spinner Definitivo (PWA eliminado) + Selector Sucursal en EmployeeEdit (2026-04-27) ✅
+- [x] VitePWA eliminado completamente de vite.config.ts (import comentado + bloque eliminado del array de plugins)
+- [x] PWAUpdateBanner reemplazado por stub vacío sin import de virtual:pwa-register/react
+- [x] Script inline en index.html para desregistrar todos los SWs y limpiar cachés antes de que React cargue
+- [x] Selector de sucursal en EmployeeEdit.tsx con query branches.listAll y campo branchId en formData
+- [x] branchId incluido en dataToSubmit del handleSubmit
+- [x] Tests Sprint 41 actualizados: 24/24 passed | TypeScript: 0 errores

@@ -153,10 +153,26 @@ describe("executiveReport.ts – getKPIs con branchId", () => {
   });
 });
 
-// ── 8. vite.config.ts: selfDestroying para eliminar SW ───────────────────────
-describe("vite.config.ts – Service Worker selfDestroying", () => {
-  it("debe tener selfDestroying: true para eliminar el SW que causaba loops", () => {
+// ── 8. vite.config.ts: VitePWA eliminado para evitar loops ─────────────────────────────────────────────
+describe("vite.config.ts – Service Worker eliminado", () => {
+  it("VitePWA debe estar deshabilitado (comentado o eliminado) para evitar loops en iOS", () => {
     const content = readFileSync(path.join(ROOT, "vite.config.ts"), "utf-8");
-    expect(content).toContain("selfDestroying: true");
+    // VitePWA fue eliminado completamente del array de plugins
+    // El import está comentado y el bloque VitePWA() ya no está activo
+    const hasActiveVitePWA = content.match(/^\s*VitePWA\(/m);
+    expect(hasActiveVitePWA).toBeNull();
+  });
+
+  it("PWAUpdateBanner debe ser un stub vacío sin import de virtual:pwa-register", () => {
+    const content = readFileSync(path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx"), "utf-8");
+    expect(content).not.toContain("virtual:pwa-register");
+    expect(content).toContain("return null");
+  });
+
+  it("index.html debe desregistrar Service Workers antes de que React cargue", () => {
+    const content = readFileSync(path.join(ROOT, "client/index.html"), "utf-8");
+    expect(content).toContain("serviceWorker");
+    expect(content).toContain("getRegistrations");
+    expect(content).toContain("unregister");
   });
 });
