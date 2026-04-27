@@ -2,7 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems } from "../../drizzle/schema";
-import { eq, inArray, sql } from "drizzle-orm";
+import { eq, inArray, sql, and, gte, lt } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const executiveReportRouter = router({
@@ -29,6 +29,21 @@ export const executiveReportRouter = router({
       const activeEmployees = allEmployees.filter(e => e.isActive).length;
       const inactiveEmployees = totalEmployees - activeEmployees;
       const turnoverRate = totalEmployees > 0 ? Math.round((inactiveEmployees / totalEmployees) * 100) : 0;
+
+      // Calcular tasa de rotación del año anterior para comparativa interanual
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      const prevYearInactiveRaw = await db.select({ id: employees.id })
+        .from(employees)
+        .where(and(
+          eq(employees.isActive, false),
+          gte(employees.updatedAt, twoYearsAgo),
+          lt(employees.updatedAt, oneYearAgo)
+        ));
+      const prevYearTurnoverRate = totalEmployees > 0 ? Math.round((prevYearInactiveRaw.length / totalEmployees) * 100) : 0;
+      const turnoverChange = turnoverRate - prevYearTurnoverRate;
 
       const allCourses = await db.select({ id: courses.id }).from(courses);
       const totalCourses = allCourses.length;
@@ -67,7 +82,7 @@ export const executiveReportRouter = router({
       }
 
       return {
-        employees: { total: totalEmployees, active: activeEmployees, inactive: inactiveEmployees, turnoverRate },
+        employees: { total: totalEmployees, active: activeEmployees, inactive: inactiveEmployees, turnoverRate, prevYearTurnoverRate, turnoverChange },
         training: { totalCourses, totalAssignments, completedAssignments, completionRate: trainingCompletionRate },
         vacations: { pending: pendingVacations, approved: approvedVacations, total: allVacations.length },
         cases: { total: totalCases, open: openCases, highRisk: highRiskCases },

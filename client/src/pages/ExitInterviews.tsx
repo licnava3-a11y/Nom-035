@@ -663,6 +663,8 @@ function AnalyticsDashboard() {
       {analytics.totalCompleted > 0 && (
         <GenerateActionPlanButton analytics={analytics} filterLabel={filterLabel} />
       )}
+      {/* Seguimiento de Planes de Acción */}
+      <ActionPlansTracker />
       {trendData.length === 0 && reasonData.length === 0 && deptData.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           <BarChart2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -673,6 +675,88 @@ function AnalyticsDashboard() {
     </div>
   );
 }
+
+// ── Seguimiento de Planes de Acción ───────────────────────────────────────────────
+function ActionPlansTracker() {
+  const utils = trpc.useUtils();
+  const { data: plans, isLoading } = trpc.exitInterviews.listActionPlans.useQuery(undefined, { retry: false });
+  const updateStatus = trpc.exitInterviews.updateActionPlanStatus.useMutation({
+    onSuccess: () => { toast.success('Estado actualizado'); utils.exitInterviews.listActionPlans.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deletePlan = trpc.exitInterviews.deleteActionPlan.useMutation({
+    onSuccess: () => { toast.success('Plan eliminado'); utils.exitInterviews.listActionPlans.invalidate(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+    draft:       { label: 'Borrador',    color: 'text-slate-600',   bg: 'bg-slate-100' },
+    approved:    { label: 'Aprobado',    color: 'text-amber-700',   bg: 'bg-amber-100' },
+    in_progress: { label: 'En progreso', color: 'text-blue-700',    bg: 'bg-blue-100' },
+    completed:   { label: 'Completado',  color: 'text-emerald-700', bg: 'bg-emerald-100' },
+  };
+
+  if (isLoading) return null;
+  if (!plans || plans.length === 0) return null;
+
+  return (
+    <div className="mt-6">
+      <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+        <ClipboardList className="w-4 h-4 text-violet-600" />
+        Planes de Acción Activos
+        <span className="ml-1 text-xs font-normal text-slate-400">({plans.length} plan{plans.length !== 1 ? 'es' : ''})</span>
+      </h3>
+      <div className="space-y-3">
+        {plans.map((plan) => {
+          const sc = STATUS_CONFIG[plan.status ?? 'pendiente'] ?? STATUS_CONFIG['pendiente'];
+          return (
+            <div key={plan.id} className="border border-slate-200 rounded-lg p-4 bg-white">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-sm text-slate-800 truncate">{plan.title}</span>
+                    <span className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${sc.bg} ${sc.color}`}>{sc.label}</span>
+                  </div>
+                  {plan.description && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{plan.description}</p>}
+                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                    {plan.analysisStartDate && <span>Período: {String(plan.analysisStartDate)} – {plan.analysisEndDate ? String(plan.analysisEndDate) : 'hoy'}</span>}
+                    {plan.assignedToName && <span>Asignado a: {plan.assignedToName}</span>}
+                    <span>Creado: {new Date(plan.createdAt as any).toLocaleDateString('es-MX')}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <Select
+                    value={plan.status ?? 'pendiente'}
+                    onValueChange={(val) => updateStatus.mutate({ id: plan.id, status: val as any })}
+                  >
+                    <SelectTrigger className="h-7 text-xs w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Borrador</SelectItem>
+                      <SelectItem value="approved">Aprobado</SelectItem>
+                      <SelectItem value="in_progress">En progreso</SelectItem>
+                      <SelectItem value="completed">Completado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => { if (confirm('\u00bfEliminar este plan de acción?')) deletePlan.mutate({ id: plan.id }); }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Gestor del Catálogo de Preguntas (admin) ──────────────────────────────────
 const CATEGORIES = ['Clima Laboral', 'Compensación', 'Liderazgo', 'Desarrollo', 'Motivo de Salida', 'Proceso de Salida', 'Otro'];
 

@@ -35,7 +35,7 @@ function KPICard({
 }: {
   title: string;
   value: string | number;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
   icon: React.ElementType;
   color: string;
   trend?: "up" | "down" | "neutral";
@@ -303,7 +303,21 @@ export default function KPIDashboard() {
                 <KPICard
                   title="Índice de Rotación"
                   value={`${kpis.employees.turnoverRate ?? 0}%`}
-                  subtitle="Últimos 12 meses"
+                  subtitle={
+                    <span className="flex items-center gap-1.5 flex-wrap">
+                      <span>12 meses</span>
+                      {(kpis.employees as any).turnoverChange !== undefined && (
+                        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+                          (kpis.employees as any).turnoverChange > 0 ? 'bg-red-100 text-red-700' :
+                          (kpis.employees as any).turnoverChange < 0 ? 'bg-emerald-100 text-emerald-700' :
+                          'bg-slate-100 text-slate-500'
+                        }`}>
+                          {(kpis.employees as any).turnoverChange > 0 ? '▲' : (kpis.employees as any).turnoverChange < 0 ? '▼' : '—'}
+                          {Math.abs((kpis.employees as any).turnoverChange)}% vs año ant.
+                        </span>
+                      )}
+                    </span>
+                  }
                   icon={Activity}
                   color={kpis.employees.turnoverRate > 15 ? COLORS.danger : kpis.employees.turnoverRate > 8 ? COLORS.warning : COLORS.success}
                   trend={kpis.employees.turnoverRate > 15 ? "up" : kpis.employees.turnoverRate > 8 ? "neutral" : "down"}

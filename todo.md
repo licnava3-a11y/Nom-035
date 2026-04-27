@@ -476,3 +476,43 @@
 ### 🐛 Bugs conocidos (no críticos)
 - [ ] @builder.io/vite-plugin-jsx-loc peer warning con Vite 7 (funciona correctamente)
 - [ ] Módulos @shared/_core/errors y extensiones .ts en predictiveCorrelation.ts (pre-existentes)
+
+---
+
+## Sprint 34 — UX Crítica + Buzón (2026-04-27)
+- [x] Badge mensajes no leídos en sidebar junto a "Mis Mensajes" (ya implementado: MenuBadge en DashboardLayout línea 686)
+- [x] Spinner de carga inicial en client/index.html (ya implementado: #app-loading con animación CSS)
+- [x] Modal de previsualización PDF en ExecutiveReport con <iframe> y jsPDF (ya implementado: línea 452+)
+- [x] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal (ya implementado: exportToExcel línea 364)
+
+## Sprint 35 — Módulo Psicométrico Completo (2026-04-27)
+- [x] Gráfica Chart.js evolución puntaje psicométrico con umbrales de riesgo en PsychometricTab (ya implementado: PsychometricChart con thresholds línea 103)
+- [x] Selector de período histórico en comparativa psicométrica de /executive-report (ya implementado: compareMonthsAgo línea 169)
+- [x] Exportación PDF expediente psicométrico completo en PsychometricTab (ya implementado: exportPDF línea 184)
+- [x] Job recordatorio anual evaluación psicométrica con notificación al admin RH (ya implementado: psychometric-reminder-job.ts registrado en index.ts línea 309)
+- [x] Límite 24h de notificaciones duplicadas en notifyEmployee (ya implementado: validación cutoff línea 297)
+
+## Sprint 36 — KPI Dashboard + Planes de Acción (2026-04-27)
+- [x] Indicador variación % en KPI de rotación (▲/▼ vs año anterior) (badge rojo/verde/gris en KPIDashboard)
+- [x] Vista de seguimiento de Planes de Acción en AnalyticsDashboard de Entrevistas de Salida (ActionPlansTracker)
+- [x] Notificación automática al completar un Plan de Acción (notifyOwner en updateActionPlanStatus)
+- [ ] Filtro empresa/sucursal en mapa de calor (requiere tabla sucursales en schema — pendiente de diseño)
+
+## Sprint 37 — Vacaciones: Conflictos Visuales + PDF + Filtros (2026-04-27)
+- [ ] Resaltado visual rojo + alerta en VacationCalendar cuando >X% departamento ausente
+- [ ] Exportar calendario de vacaciones a PDF (Gantt + mensual) con estilos A4 landscape
+- [ ] Filtro temporal detallado en TurnoverDashboard.tsx (hoy/semana/mes/año/rango)
+- [ ] Filtro temporal detallado en TrainingDashboard.tsx
+
+## Sprint 38 — Legal y Compliance (2026-04-27)
+- [ ] Tabla terms_acceptance en schema + migración SQL
+- [ ] Procedures terms.accept y terms.hasAccepted en router
+- [ ] Modal de aceptación de términos en primer login (App.tsx)
+- [ ] Botón "Asignar empresa" en SuperAdminPanel + procedure superAdmin.assignCompany
+- [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4
+
+## Sprint 39 — Deuda Técnica y PWA (2026-04-27)
+- [ ] Banner "Nueva versión disponible" toast al activarse nuevo Service Worker
+- [ ] Alertas LCP con notificación por email al HR email configurado
+- [ ] Migrar 6 usos de Breadcrumbs.tsx legacy a Breadcrumb.tsx
+- [ ] Consolidar DashboardSkeleton / DashboardLayoutSkeleton / SkeletonLoader

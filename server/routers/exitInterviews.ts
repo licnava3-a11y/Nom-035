@@ -505,6 +505,49 @@ export const exitInterviewsRouter = router({
       return { success: true };
     }),
 
+  // ── Actualizar estado de plan de acción (con notificación al completar) ───────
+  updateActionPlanStatus: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      status: z.enum(["draft", "approved", "in_progress", "completed"]),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [existing] = await db
+        .select({ id: turnoverActionPlans.id, title: turnoverActionPlans.title, status: turnoverActionPlans.status })
+        .from(turnoverActionPlans)
+        .where(eq(turnoverActionPlans.id, input.id))
+        .limit(1);
+      if (!existing) throw new TRPCError({ code: "NOT_FOUND", message: "Plan no encontrado" });
+      await (db.update(turnoverActionPlans) as any)
+        .set({ status: input.status, updatedAt: new Date() })
+        .where(eq(turnoverActionPlans.id, input.id));
+      // Notificar al owner cuando el plan se marca como completado
+      if (input.status === "completed" && existing.status !== "completed") {
+        try {
+          const { notifyOwner } = await import("../_core/notification");
+          await notifyOwner({
+            title: `✅ Plan de Acción Completado: ${existing.title}`,
+            content: `El plan de acción "${existing.title}" (ID #${input.id}) ha sido marcado como completado por ${ctx.user.name ?? ctx.user.email ?? "un administrador"}. Revisa el módulo de Entrevistas de Salida para ver el resumen de acciones ejecutadas.`,
+          });
+        } catch { /* notificación no crítica */ }
+      }
+      return { success: true, newStatus: input.status };
+    }),
+
+  // ── Eliminar plan de acción ───────────────────────────────────────────────
+  deleteActionPlan: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      await db.delete(turnoverActionPlans).where(eq(turnoverActionPlans.id, input.id));
+      return { success: true };
+    }),
+
   // ── Listar planes de acción ───────────────────────────────────────────────
   listActionPlans: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") {
