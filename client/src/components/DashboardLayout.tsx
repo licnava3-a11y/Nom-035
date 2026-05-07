@@ -264,6 +264,7 @@ const hierarchicalMenuItems = [
       { label: "Reportes Ejecutivos", path: "/executive-reports", description: "Generación de reportes ejecutivos en PDF" },
       { label: "Reporte Ejecutivo Consolidado", path: "/executive-report", description: "KPIs globales NOM-035: empleados, capacitación, vacaciones, casos y buzón" },
       { label: "📊 Panel KPIs Ejecutivos", path: "/kpi-dashboard", description: "Métricas clave: rotación, % capacitado, bienestar y tendencias históricas" },
+      { label: "🏢 Comparativo por Sucursal", path: "/branch-comparative", description: "Comparativa de rotación, capacitación y riesgo NOM-035 entre sucursales exportable a Excel" },
     ],
   },
   {

@@ -544,3 +544,14 @@
 - [x] Selector de sucursal en EmployeeEdit.tsx con query branches.listAll y campo branchId en formData
 - [x] branchId incluido en dataToSubmit del handleSubmit
 - [x] Tests Sprint 41 actualizados: 24/24 passed | TypeScript: 0 errores
+
+## Sprint 43 — Reporte Comparativo por Sucursal exportable a Excel (2026-05-05) ✅
+- [x] Procedure executiveReport.getBranchComparative con dateFrom/dateTo opcionales
+- [x] Métricas por sucursal: rotationRate, trainingRate, nom035Score, highRiskCount, totalEmployees, activeEmployees
+- [x] Página BranchComparativeReport.tsx con tabla comparativa ordenable, KPI cards, gráficas recharts
+- [x] Filtros de fecha (dateFrom/dateTo) con inputs tipo date en el header
+- [x] Exportación a Excel con xlsx (sucursal, ciudad, estado, empleados, rotación, capacitación, NOM-035, riesgo)
+- [x] Ruta /branch-comparative registrada en App.tsx con lazy import
+- [x] Enlace en sidebar de DashboardLayout bajo sección Reportes y Análisis
+- [x] Fix spinner definitivo: VitePWA eliminado, useAuth timeout 8s, LandingPage auto-redirect
+- [x] Tests Sprint 43: 24/24 passed | TypeScript: 0 errores

@@ -1,7 +1,7 @@
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
@@ -13,10 +13,27 @@ export function useAuth(options?: UseAuthOptions) {
     options ?? {};
   const utils = trpc.useUtils();
 
+  // Timeout de seguridad: si auth.me no responde en 8s (cold start de Cloud Run),
+  // dejamos de mostrar el skeleton y tratamos al usuario como no autenticado.
+  const [authTimedOut, setAuthTimedOut] = useState(false);
+
   const meQuery = trpc.auth.me.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+  // Iniciar el timer solo mientras la query esté cargando
+  useEffect(() => {
+    if (!meQuery.isLoading) {
+      setAuthTimedOut(false); // resetear si la query termina
+      return;
+    }
+    const t = setTimeout(() => {
+      console.warn("[useAuth] auth.me timeout after 8s — treating as unauthenticated");
+      setAuthTimedOut(true);
+    }, 8000);
+    return () => clearTimeout(t);
+  }, [meQuery.isLoading]);
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -46,9 +63,11 @@ export function useAuth(options?: UseAuthOptions) {
       "manus-runtime-user-info",
       JSON.stringify(meQuery.data)
     );
+    // Si el timeout se disparó, ya no estamos "loading" — mostramos el estado de no autenticado
+    const isLoading = authTimedOut ? false : (meQuery.isLoading || logoutMutation.isPending);
     return {
       user: meQuery.data ?? null,
-      loading: meQuery.isLoading || logoutMutation.isPending,
+      loading: isLoading,
       error: meQuery.error ?? logoutMutation.error ?? null,
       isAuthenticated: Boolean(meQuery.data),
     };
@@ -58,11 +77,12 @@ export function useAuth(options?: UseAuthOptions) {
     meQuery.isLoading,
     logoutMutation.error,
     logoutMutation.isPending,
+    authTimedOut,
   ]);
 
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
-    if (meQuery.isLoading || logoutMutation.isPending) return;
+    if (state.loading) return;
     if (state.user) return;
     if (typeof window === "undefined") return;
     
@@ -89,12 +109,11 @@ export function useAuth(options?: UseAuthOptions) {
     }
 
     console.log("[useAuth] Redirecting to:", redirectPath);
-    window.location.href = redirectPath
+    window.location.href = redirectPath;
   }, [
     redirectOnUnauthenticated,
     redirectPath,
-    logoutMutation.isPending,
-    meQuery.isLoading,
+    state.loading,
     state.user,
   ]);
 

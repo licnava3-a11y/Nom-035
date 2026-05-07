@@ -249,6 +249,7 @@ const ExitInterviews = lazy(() => import("./pages/ExitInterviews"));
 const AnnualTrainingPlan = lazy(() => import("./pages/AnnualTrainingPlan"));
 const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
 const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
+const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeReport"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1240,6 +1241,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <BranchesManagement />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/branch-comparative"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <BranchComparativeReport />
             </Suspense>
           </DashboardLayout>
         </Route>

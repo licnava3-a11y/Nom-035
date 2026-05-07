@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, courses, trainingAssignments, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems, branches } from "../../drizzle/schema";
+import { employees, courses, trainingAssignments, trainingNeeds, vacationRequests, cases, internalMessages, psychometricAssessments, departments, annualTrainingPlans, annualTrainingPlanItems, branches } from "../../drizzle/schema";
 import { eq, inArray, sql, and, gte, lt } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -244,6 +244,77 @@ export const executiveReportRouter = router({
       }));
 
       return results.filter(r => r.totalEmployees > 0);
+    }),
+
+  getBranchComparative: protectedProcedure
+    .input(z.object({
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const { dateFrom, dateTo } = input;
+      const fromTs = dateFrom ? new Date(dateFrom).getTime() : undefined;
+      const toTs = dateTo ? new Date(dateTo).getTime() : undefined;
+
+      // Obtener todas las sucursales activas
+      const allBranches = await db.select().from(branches).where(eq(branches.isActive, true));
+
+      const results = await Promise.all(allBranches.map(async (branch) => {
+        // Empleados de la sucursal
+        const branchEmployees = await db.select({ id: employees.id, isActive: employees.isActive })
+          .from(employees)
+          .where(eq(employees.branchId, branch.id));
+
+        const total = branchEmployees.length;
+        if (total === 0) return null;
+
+        const active = branchEmployees.filter(e => e.isActive).length;
+        const inactive = total - active;
+        const turnoverRate = total > 0 ? Math.round((inactive / total) * 100) : 0;
+
+        const empIds = branchEmployees.map(e => e.id);
+
+        // Capacitación: trainingNeeds por empleados de la sucursal
+        let trainingCompleted = 0;
+        let trainingTotal = 0;
+        if (empIds.length > 0) {
+          const needs = await db.select({ status: trainingNeeds.status })
+            .from(trainingNeeds)
+            .where(inArray(trainingNeeds.employeeId, empIds));
+          trainingTotal = needs.length;
+          trainingCompleted = needs.filter(n => n.status === "completada").length;
+        }
+        const trainingRate = trainingTotal > 0 ? Math.round((trainingCompleted / trainingTotal) * 100) : 0;
+
+        // NOM-035: casos de alto riesgo
+        const branchCases = await db.select({ priority: cases.priority }).from(cases);
+        const highRiskCases = branchCases.filter(c => c.priority === "high" || c.priority === "critical").length;
+        const nom035Score = branchCases.length > 0
+          ? Math.max(0, 100 - Math.round((highRiskCases / branchCases.length) * 100))
+          : 100;
+        const highRiskCount = highRiskCases;
+
+        return {
+          branchId: branch.id,
+          branchName: branch.name,
+          city: branch.city ?? "",
+          state: branch.state ?? "",
+          totalEmployees: total,
+          activeEmployees: active,
+          turnoverRate,
+          trainingRate,
+          trainingCompleted,
+          trainingTotal,
+          nom035Score,
+          highRiskCount,
+          rotationRate: turnoverRate,
+        };
+      }));
+
+      return results.filter((r): r is NonNullable<typeof r> => r !== null);
     }),
 
 });
