@@ -1,6 +1,7 @@
 /**
  * Panel de Configuración de Reportes Ejecutivos
  * Permite configurar frecuencia, destinatarios y opciones de reportes automatizados
+ * Sprint 44: Agrega botón "Vista Previa" que muestra KPIs actuales antes de enviar
  */
 
 import { useState } from "react";
@@ -35,7 +36,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, Power, PowerOff, Calendar, Mail, Settings } from "lucide-react";
+import { Plus, Pencil, Trash2, Power, PowerOff, Calendar, Mail, Settings, Eye, Users, BookOpen, Briefcase, AlertTriangle, TrendingDown, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 
 type ReportConfig = {
@@ -64,6 +65,8 @@ export default function ReportConfigurationPanel() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedConfig, setSelectedConfig] = useState<ReportConfig | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewConfig, setPreviewConfig] = useState<ReportConfig | null>(null);
 
   // Form state
   const [reportType, setReportType] = useState("executive_weekly");
@@ -79,6 +82,12 @@ export default function ReportConfigurationPanel() {
 
   // Queries
   const { data: configs, isLoading, refetch } = trpc.reportConfigurations.getAll.useQuery();
+
+  // KPIs para preview — se cargan solo cuando se abre el modal
+  const { data: kpiData, isLoading: kpiLoading } = trpc.executiveReport.getKPIs.useQuery(
+    {},
+    { enabled: isPreviewOpen }
+  );
 
   // Mutations
   const createMutation = trpc.reportConfigurations.create.useMutation({
@@ -198,6 +207,11 @@ export default function ReportConfigurationPanel() {
   const openDeleteDialog = (config: ReportConfig) => {
     setSelectedConfig(config);
     setIsDeleteDialogOpen(true);
+  };
+
+  const openPreviewDialog = (config: ReportConfig) => {
+    setPreviewConfig(config);
+    setIsPreviewOpen(true);
   };
 
   const handleToggleEnabled = (config: ReportConfig) => {
@@ -346,6 +360,14 @@ export default function ReportConfigurationPanel() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => openPreviewDialog(config)}
+                          title="Vista previa del reporte"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleToggleEnabled(config)}
                         >
                           {config.enabled ? (
@@ -377,6 +399,186 @@ export default function ReportConfigurationPanel() {
           )}
         </CardContent>
       </Card>
+
+      {/* ===== PREVIEW DIALOG ===== */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-primary" />
+              Vista Previa — {previewConfig?.reportType}
+            </DialogTitle>
+            <DialogDescription>
+              Resumen de KPIs actuales que se incluirán en el próximo envío del reporte
+              <span className="block text-xs mt-1 text-muted-foreground">
+                Generado: {new Date().toLocaleString("es-MX")}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          {kpiLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-muted-foreground text-sm">Cargando datos del reporte...</div>
+            </div>
+          ) : kpiData ? (
+            <div className="space-y-4 py-2">
+              {/* Empleados */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-semibold text-base">Empleados</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="text-center p-2 bg-muted/40 rounded">
+                    <div className="text-2xl font-bold">{kpiData.employees.total}</div>
+                    <div className="text-xs text-muted-foreground">Total</div>
+                  </div>
+                  <div className="text-center p-2 bg-green-50 rounded">
+                    <div className="text-2xl font-bold text-green-700">{kpiData.employees.active}</div>
+                    <div className="text-xs text-muted-foreground">Activos</div>
+                  </div>
+                  <div className="text-center p-2 bg-red-50 rounded">
+                    <div className="text-2xl font-bold text-red-700">{kpiData.employees.inactive}</div>
+                    <div className="text-xs text-muted-foreground">Bajas</div>
+                  </div>
+                  <div className="text-center p-2 bg-orange-50 rounded">
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="text-2xl font-bold text-orange-700">{kpiData.employees.turnoverRate}%</span>
+                      {kpiData.employees.turnoverChange > 0
+                        ? <TrendingUp className="h-4 w-4 text-red-500" />
+                        : <TrendingDown className="h-4 w-4 text-green-500" />
+                      }
+                    </div>
+                    <div className="text-xs text-muted-foreground">Rotación</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Capacitación */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <BookOpen className="h-5 w-5 text-indigo-600" />
+                  <h3 className="font-semibold text-base">Capacitación</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="text-center p-2 bg-muted/40 rounded">
+                    <div className="text-2xl font-bold">{kpiData.training.totalCourses}</div>
+                    <div className="text-xs text-muted-foreground">Cursos</div>
+                  </div>
+                  <div className="text-center p-2 bg-muted/40 rounded">
+                    <div className="text-2xl font-bold">{kpiData.training.totalAssignments}</div>
+                    <div className="text-xs text-muted-foreground">Asignaciones</div>
+                  </div>
+                  <div className="text-center p-2 bg-green-50 rounded">
+                    <div className="text-2xl font-bold text-green-700">{kpiData.training.completedAssignments}</div>
+                    <div className="text-xs text-muted-foreground">Completadas</div>
+                  </div>
+                  <div className="text-center p-2 bg-blue-50 rounded">
+                    <div className="text-2xl font-bold text-blue-700">{kpiData.training.completionRate}%</div>
+                    <div className="text-xs text-muted-foreground">Tasa completitud</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Casos y Riesgos */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <h3 className="font-semibold text-base">Casos y Riesgos Psicosociales</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="text-center p-2 bg-muted/40 rounded">
+                    <div className="text-2xl font-bold">{kpiData.cases.total}</div>
+                    <div className="text-xs text-muted-foreground">Total casos</div>
+                  </div>
+                  <div className="text-center p-2 bg-amber-50 rounded">
+                    <div className="text-2xl font-bold text-amber-700">{kpiData.cases.open}</div>
+                    <div className="text-xs text-muted-foreground">Abiertos</div>
+                  </div>
+                  <div className="text-center p-2 bg-red-50 rounded">
+                    <div className="text-2xl font-bold text-red-700">{kpiData.cases.highRisk}</div>
+                    <div className="text-xs text-muted-foreground">Alto riesgo</div>
+                  </div>
+                  <div className="text-center p-2 bg-purple-50 rounded">
+                    <div className="text-2xl font-bold text-purple-700">{kpiData.psychometric.highRisk}</div>
+                    <div className="text-xs text-muted-foreground">Riesgo psicométrico</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vacaciones y Buzón */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Briefcase className="h-5 w-5 text-teal-600" />
+                  <h3 className="font-semibold text-base">Vacaciones y Comunicación</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="text-center p-2 bg-muted/40 rounded">
+                    <div className="text-2xl font-bold">{kpiData.vacations.total}</div>
+                    <div className="text-xs text-muted-foreground">Solicitudes vacaciones</div>
+                  </div>
+                  <div className="text-center p-2 bg-amber-50 rounded">
+                    <div className="text-2xl font-bold text-amber-700">{kpiData.vacations.pending}</div>
+                    <div className="text-xs text-muted-foreground">Pendientes aprobación</div>
+                  </div>
+                  <div className="text-center p-2 bg-green-50 rounded">
+                    <div className="text-2xl font-bold text-green-700">{kpiData.vacations.approved}</div>
+                    <div className="text-xs text-muted-foreground">Aprobadas</div>
+                  </div>
+                  <div className="text-center p-2 bg-blue-50 rounded">
+                    <div className="text-2xl font-bold text-blue-700">{kpiData.mailbox.pending}</div>
+                    <div className="text-xs text-muted-foreground">Mensajes pendientes</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Configuración del reporte */}
+              {previewConfig && (
+                <div className="border border-dashed rounded-lg p-4 bg-muted/20">
+                  <h3 className="font-semibold text-sm mb-2 text-muted-foreground">Configuración del Reporte</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="text-muted-foreground">Frecuencia:</span> <span className="font-medium">{previewConfig.frequency}</span></div>
+                    <div><span className="text-muted-foreground">Rango de fechas:</span> <span className="font-medium">{previewConfig.dateRangeType}</span></div>
+                    <div><span className="text-muted-foreground">Destinatarios:</span> <span className="font-medium">{JSON.parse(previewConfig.recipients).length}</span></div>
+                    <div>
+                      <span className="text-muted-foreground">Incluye: </span>
+                      <span className="font-medium">
+                        {[
+                          previewConfig.includeCharts && "Gráficos",
+                          previewConfig.includeTrends && "Tendencias",
+                          previewConfig.includeRecommendations && "Recomendaciones",
+                        ].filter(Boolean).join(", ") || "Solo datos"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              No se pudieron cargar los datos del reporte
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>
+              Cerrar
+            </Button>
+            {previewConfig && (
+              <Button
+                variant="default"
+                onClick={() => {
+                  openEditDialog(previewConfig);
+                  setIsPreviewOpen(false);
+                }}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar Configuración
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Create Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -497,7 +699,6 @@ export default function ReportConfigurationPanel() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Same form fields as Create Dialog */}
             <div className="grid gap-2">
               <Label htmlFor="edit-reportType">Tipo de Reporte</Label>
               <Input

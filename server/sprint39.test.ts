@@ -1,6 +1,10 @@
 /**
  * Sprint 39 Tests — Deuda Técnica y PWA
  * Cubre: PWAUpdateBanner, alertas LCP email, consolidación Skeletons
+ *
+ * Sprint 42: VitePWA fue comentado/deshabilitado para solucionar el spinner infinito.
+ * PWAUpdateBanner sigue en el código pero VitePWA está deshabilitado.
+ * Los tests han sido actualizados para reflejar el estado actual.
  */
 import { describe, it, expect } from "vitest";
 import fs from "fs";
@@ -15,25 +19,6 @@ describe("Sprint 39 — PWAUpdateBanner", () => {
     expect(fs.existsSync(filePath)).toBe(true);
   });
 
-  it("PWAUpdateBanner importa useRegisterSW de virtual:pwa-register/react", () => {
-    const content = fs.readFileSync(
-      path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx"),
-      "utf-8"
-    );
-    expect(content).toContain("virtual:pwa-register/react");
-    expect(content).toContain("useRegisterSW");
-  });
-
-  it("PWAUpdateBanner usa toast.info para notificar la actualización", () => {
-    const content = fs.readFileSync(
-      path.join(ROOT, "client/src/components/PWAUpdateBanner.tsx"),
-      "utf-8"
-    );
-    expect(content).toContain("toast.info");
-    expect(content).toContain("Nueva versión disponible");
-    expect(content).toContain("updateServiceWorker");
-  });
-
   it("PWAUpdateBanner está integrado en App.tsx", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "client/src/App.tsx"),
@@ -43,12 +28,34 @@ describe("Sprint 39 — PWAUpdateBanner", () => {
     expect(content).toContain("<PWAUpdateBanner />");
   });
 
-  it("tsconfig.json incluye el tipo vite-plugin-pwa/react", () => {
+  it("tsconfig.json es un JSON válido con compilerOptions", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "tsconfig.json"),
       "utf-8"
     );
-    expect(content).toContain("vite-plugin-pwa/react");
+    const parsed = JSON.parse(content);
+    expect(parsed.compilerOptions).toBeDefined();
+  });
+
+  it("package.json tiene vite-plugin-pwa como dependencia", () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(ROOT, "package.json"), "utf-8")
+    );
+    const allDeps = {
+      ...(pkg.dependencies ?? {}),
+      ...(pkg.devDependencies ?? {}),
+    };
+    expect(allDeps["vite-plugin-pwa"]).toBeDefined();
+  });
+
+  it("index.html tiene script de desregistro de Service Workers (Sprint 42)", () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, "client/index.html"),
+      "utf-8"
+    );
+    // Sprint 42: se agregó script para desregistrar SWs y evitar loops
+    expect(content).toContain("serviceWorker");
+    expect(content).toContain("unregister");
   });
 });
 
@@ -133,15 +140,16 @@ describe("Sprint 39 — Consolidación Skeletons", () => {
   });
 });
 
-// ── VitePWA configuración ──────────────────────────────────────────────────
-describe("Sprint 39 — VitePWA configuración", () => {
-  it("vite.config.ts tiene VitePWA configurado", () => {
+// ── VitePWA configuración (deshabilitado en Sprint 42) ────────────────────
+// Sprint 42: VitePWA fue comentado para solucionar el spinner infinito en iOS Safari.
+describe("Sprint 39 — VitePWA configuración (deshabilitado en Sprint 42)", () => {
+  it("vite.config.ts tiene el import de VitePWA comentado (deshabilitado)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "vite.config.ts"),
       "utf-8"
     );
-    expect(content).toContain("VitePWA");
-    expect(content).toContain("registerType");
+    // VitePWA fue comentado en Sprint 42 para solucionar el spinner infinito
+    expect(content).toContain("// import { VitePWA }");
   });
 
   it("vite-plugin-pwa está en las dependencias del proyecto", () => {

@@ -2,6 +2,9 @@
  * Tests de integración - Sprint 30
  * Verifica el comportamiento del servidor Express en producción
  * y la corrección de pantalla en blanco (fallback a Vite cuando dist/public no existe)
+ *
+ * Sprint 42: VitePWA fue comentado/deshabilitado para solucionar el spinner infinito.
+ * Los tests PWA han sido actualizados para reflejar el estado actual.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import fs from "fs";
@@ -10,7 +13,6 @@ import path from "path";
 // ─── Test 1: Servidor usa Vite cuando dist/public no existe ───────────────────
 describe("Server fallback: Vite cuando dist/public no existe", () => {
   it("debería detectar que dist/public no existe y usar Vite como fallback", () => {
-    // Simular que dist/public no existe
     const distPublicPath = "/nonexistent/dist/public";
     const indexHtmlPath = path.join(distPublicPath, "index.html");
 
@@ -18,13 +20,11 @@ describe("Server fallback: Vite cuando dist/public no existe", () => {
       fs.existsSync(distPublicPath) && fs.existsSync(indexHtmlPath);
 
     expect(distPublicExists).toBe(false);
-    // El servidor debería usar Vite como fallback
     const shouldUseVite = !distPublicExists;
     expect(shouldUseVite).toBe(true);
   });
 
   it("debería detectar que dist/public existe cuando el build está completo", () => {
-    // Crear un directorio temporal para simular dist/public
     const tmpDir = "/tmp/test-dist-public";
     const indexHtml = path.join(tmpDir, "index.html");
 
@@ -39,52 +39,45 @@ describe("Server fallback: Vite cuando dist/public no existe", () => {
       const shouldUseVite = !distPublicExists;
       expect(shouldUseVite).toBe(false);
     } finally {
-      // Limpiar
       if (fs.existsSync(indexHtml)) fs.unlinkSync(indexHtml);
       if (fs.existsSync(tmpDir)) fs.rmdirSync(tmpDir);
     }
   });
 });
 
-// ─── Test 2: Configuración del Service Worker ─────────────────────────────────
-describe("Service Worker PWA: configuración correcta", () => {
-  it("vite.config.ts debe tener skipWaiting y clientsClaim habilitados", async () => {
+// ─── Test 2: Configuración de VitePWA (deshabilitado en Sprint 42) ────────────
+// Sprint 42: VitePWA fue comentado para solucionar el spinner infinito en iOS Safari.
+// El import está comentado pero el plugin no está activo en el build.
+describe("Service Worker PWA: VitePWA deshabilitado (Sprint 42)", () => {
+  it("vite.config.ts tiene el import de VitePWA comentado (deshabilitado)", async () => {
     const configPath = path.resolve(
       import.meta.dirname,
       "../vite.config.ts"
     );
     const configContent = fs.readFileSync(configPath, "utf-8");
-
-    expect(configContent).toContain("skipWaiting: true");
-    expect(configContent).toContain("clientsClaim: true");
+    // El import está comentado — VitePWA está deshabilitado
+    expect(configContent).toContain("// import { VitePWA }");
+    expect(configContent).toContain("VitePWA deshabilitado");
   });
 
-  it("vite.config.ts debe tener navigateFallback: null para no cachear el HTML", async () => {
-    const configPath = path.resolve(
+  it("index.html tiene script inline para desregistrar Service Workers", async () => {
+    const htmlPath = path.resolve(
       import.meta.dirname,
-      "../vite.config.ts"
+      "../client/index.html"
     );
-    const configContent = fs.readFileSync(configPath, "utf-8");
-
-    expect(configContent).toContain("navigateFallback: null");
+    const htmlContent = fs.readFileSync(htmlPath, "utf-8");
+    expect(htmlContent).toContain("serviceWorker");
+    expect(htmlContent).toContain("unregister");
   });
 
-  it("vite.config.ts no debe usar CacheFirst para chunks JS", async () => {
+  it("vite.config.ts tiene configuración básica de React y Tailwind", async () => {
     const configPath = path.resolve(
       import.meta.dirname,
       "../vite.config.ts"
     );
     const configContent = fs.readFileSync(configPath, "utf-8");
-
-    // Verificar que los chunks JS usan NetworkFirst
-    expect(configContent).toContain('urlPattern: /\\/assets\\/.+\\.js$/i');
-    // Verificar que hay NetworkFirst para JS (no CacheFirst)
-    const jsSection = configContent.substring(
-      configContent.indexOf('urlPattern: /\\/assets\\/.+\\.js$/i'),
-      configContent.indexOf('urlPattern: /\\/assets\\/.+\\.js$/i') + 200
-    );
-    expect(jsSection).toContain("NetworkFirst");
-    expect(jsSection).not.toContain("CacheFirst");
+    expect(configContent).toContain("react");
+    expect(configContent).toContain("tailwindcss");
   });
 });
 
@@ -120,7 +113,6 @@ describe("Servidor Express: estructura y rutas críticas", () => {
     );
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    // Rutas críticas que deben estar registradas
     expect(indexContent).toContain("/api/trpc");
     expect(indexContent).toContain("uploadRouter");
     expect(indexContent).toContain("exportRouter");
@@ -128,18 +120,25 @@ describe("Servidor Express: estructura y rutas críticas", () => {
   });
 });
 
-// ─── Test 4: main.tsx tiene el listener de controllerchange ──────────────────
-describe("Frontend: manejo de actualizaciones del Service Worker", () => {
-  it("main.tsx debe tener el listener controllerchange para recargar al actualizar SW", () => {
+// ─── Test 4: main.tsx — providers básicos ────────────────────────────────────
+describe("Frontend: providers básicos de la aplicación", () => {
+  it("main.tsx tiene createRoot para montar la aplicación", () => {
     const mainPath = path.resolve(
       import.meta.dirname,
       "../client/src/main.tsx"
     );
     const mainContent = fs.readFileSync(mainPath, "utf-8");
+    expect(mainContent).toContain("createRoot");
+    expect(mainContent).toContain("App");
+  });
 
-    expect(mainContent).toContain("controllerchange");
-    expect(mainContent).toContain("window.location.reload()");
-    expect(mainContent).toContain("serviceWorker");
+  it("main.tsx tiene QueryClientProvider para react-query", () => {
+    const mainPath = path.resolve(
+      import.meta.dirname,
+      "../client/src/main.tsx"
+    );
+    const mainContent = fs.readFileSync(mainPath, "utf-8");
+    expect(mainContent).toContain("QueryClientProvider");
   });
 });
 

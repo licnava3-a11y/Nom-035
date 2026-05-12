@@ -109,47 +109,47 @@
 
 ## 🔴 PENDIENTES CRÍTICOS (genuinamente no implementados)
 
-### P1 — Seed de preguntas predeterminadas para Entrevistas de Salida
-- [ ] Agregar procedure `seedDefaultQuestions` en exitInterviews.ts con 15 preguntas estándar sobre causas de rotación
-- [ ] Botón "Cargar preguntas predeterminadas" en UI de ExitInterviews.tsx
-- [ ] Verificar que las preguntas se cargan correctamente en la BD
+### P1 — Seed de preguntas predeterminadas para Entrevistas de Salida ✅
+- [x] Procedure `initDefaultQuestions` en exitInterviews.ts con 15 preguntas estándar (ya existía)
+- [x] Botón "Cargar preguntas predeterminadas (15)" en UI de ExitInterviews.tsx (ya existía, línea 1123)
+- [x] Verificado: las preguntas se cargan correctamente en la BD
 
-### P2 — Selector de responsable técnico en formulario del Dictamen
-- [ ] Agregar selector de empleado (filtrado por `clinicalTitle`) en LegalDocGenerator.tsx
-- [ ] Auto-rellenar cédula profesional al seleccionar responsable desde catálogo
+### P2 — Selector de responsable técnico en formulario del Dictamen ✅
+- [x] Agregar selector de empleado (filtrado por `clinicalTitle`) en LegalDocGenerator.tsx
+- [x] Auto-rellenar cédula profesional al seleccionar responsable desde catálogo
 
-### P3 — Exportar Catálogo de Preguntas de Entrevistas de Salida a Excel
-- [ ] Botón "Exportar a Excel" en la UI de catálogo de preguntas (ExitInterviews.tsx)
-- [ ] Usar xlsx (ya instalado) para generar el archivo sin dependencias extra
+### P3 — Exportar Catálogo de Preguntas de Entrevistas de Salida a Excel ✅
+- [x] Botón "Exportar a Excel" en la UI de catálogo de preguntas (ExitInterviews.tsx)
+- [x] Usar xlsx (ya instalado) para generar el archivo sin dependencias extra
 
-### P4 — Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida
-- [ ] Campo `sortOrder` editable inline en la tabla de preguntas de ExitInterviews.tsx
+### P4 — Número de orden editable en Catálogo de Preguntas de Entrevistas de Salida ✅
+- [x] Campo `sortOrder` editable inline en la tabla de preguntas de ExitInterviews.tsx
 
-### P5 — Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida
-- [ ] Agregar campo `category` a la tabla de preguntas de entrevistas de salida
-- [ ] Dropdown de filtro por categoría en la UI
+### P5 — Filtro por categoría en Catálogo de Preguntas de Entrevistas de Salida ✅
+- [x] Agregar campo `category` a la tabla de preguntas de entrevistas de salida
+- [x] Dropdown de filtro por categoría en la UI
 
-### P6 — Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla
-- [ ] Renderizar el QR visualmente en la vista previa HTML del Dictamen (ya existe en PDF, falta en preview)
+### P6 — Mostrar QR de verificación NOM-151 en vista previa del Dictamen en pantalla ✅
+- [x] Renderizar el QR visualmente en la vista previa HTML del Dictamen (ya existe en PDF, falta en preview)
 
-### P7 — Validar cédula profesional automáticamente al seleccionar responsable clínico
-- [ ] Mostrar badge de validación cuando se selecciona un empleado con cédula registrada
+### P7 — Validar cédula profesional automáticamente al seleccionar responsable clínico ✅
+- [x] Mostrar badge de validación cuando se selecciona un empleado con cédula registrada (border-green-500 + texto "Auto-rellenada desde catálogo")
 
-### P8 — RFC y NSS como columnas visibles en tabla catálogo de empleados
-- [ ] Agregar columnas RFC y NSS como opcionales/toggle en la tabla de Employees.tsx
+### P8 — RFC y NSS como columnas visibles en tabla catálogo de empleados ✅
+- [x] Agregar columnas RFC y NSS como opcionales/toggle en la tabla de Employees.tsx (showRfcNss toggle en línea 48)
 
-### P9 — Búsqueda por RFC y NSS en el catálogo de empleados
-- [ ] Extender el campo de búsqueda de Employees.tsx para incluir RFC y NSS
+### P9 — Búsqueda por RFC y NSS en el catálogo de empleados ✅
+- [x] Extender el campo de búsqueda de Employees.tsx para incluir RFC y NSS (db-employees.ts líneas 42-43)
 
 ---
 
 ## 🟡 PENDIENTES MEDIOS (mejoras de UX y completitud)
 
 - [x] Accesos directos a módulos clave en el dashboard principal (Home.tsx)
-- [ ] Filtro temporal detallado en paneles de gestión (hoy / semana / mes / año / personalizado)
-- [ ] Exportar Catálogo de Competencias a Excel desde OrganizationalCompetenciesManager.tsx
-- [ ] Exportar Catálogo de Puestos a Excel desde Positions.tsx
-- [ ] Preview de reporte ejecutivo antes de envío en ReportConfigurationPanel.tsx
+- [x] Filtro temporal detallado en paneles de gestión (hoy / semana / mes / año / personalizado) — TurnoverDashboard + TrainingDashboard
+- [x] Exportar Catálogo de Competencias a Excel desde OrganizationalCompetenciesManager.tsx
+- [x] Exportar Catálogo de Puestos a Excel desde Positions.tsx
+- [x] Preview de reporte ejecutivo antes de envío en ReportConfigurationPanel.tsx — Sprint 44: modal Eye con KPIs actuales
 - [ ] Validación RFC contra SAT en tiempo real (requiere API externa)
 - [x] Historial de salarios por empleado (tabla salaryHistory, router salaryHistory, tab en EmployeeProfile)
 - [x] Gestión de vacaciones: solicitud, saldo LFT, flujo de aprobación, notificación a RH (VacationManagement.tsx)
