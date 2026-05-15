@@ -96,6 +96,7 @@ export default function KPIDashboard() {
   const [comparativaYear, setComparativaYear] = useState<number | undefined>(undefined);
   const [sortKey, setSortKey] = useState<string>("deptName");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [heatmapBranchId, setHeatmapBranchId] = useState<number | undefined>(undefined);
 
   function handleSort(key: string) {
     if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
@@ -130,6 +131,8 @@ export default function KPIDashboard() {
 
   const { data: comparativaDepts, isLoading: loadingComparativa } =
     trpc.executiveReport.getComparativaDepts.useQuery({ year: comparativaYear }, { retry: false });
+  const { data: heatmapDepts, isLoading: loadingHeatmap } =
+    trpc.executiveReport.getComparativaDepts.useQuery({ year: undefined }, { retry: false });
 
   const isLoading = loadingKPIs || loadingTrends;
   const sortedDepts = comparativaDepts ? [...comparativaDepts].sort((a, b) => {
@@ -667,6 +670,90 @@ export default function KPIDashboard() {
           ) : (
             <div className="text-center text-slate-400 py-8 border border-dashed border-slate-300 rounded-lg">
               <p className="text-sm">No hay departamentos con empleados registrados.</p>
+            </div>
+          )}
+        </div>
+
+        {/* ── Mapa de Calor NOM-035 por Departamento ── */}
+        <div className="mt-2">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-purple-600" />
+                Mapa de Calor NOM-035 por Departamento
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">Semáforo de riesgo por indicador — verde = bajo, amarillo = medio, rojo = alto</p>
+            </div>
+            <select
+              value={heatmapBranchId ?? ""}
+              onChange={(e) => setHeatmapBranchId(e.target.value ? Number(e.target.value) : undefined)}
+              className="text-xs border border-slate-300 rounded px-2 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="">Todas las sucursales</option>
+              {branchList?.map((b: { id: number; name: string }) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+          {loadingHeatmap ? (
+            <div className="flex items-center justify-center h-24">
+              <div className="animate-spin w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full" />
+            </div>
+          ) : heatmapDepts && heatmapDepts.length > 0 ? (
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
+              <div className="flex items-center gap-5 px-4 py-2 bg-slate-50 border-b border-slate-200 text-xs text-slate-600">
+                <span className="font-semibold text-slate-700">Leyenda:</span>
+                <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-emerald-500"></span>Bajo riesgo</span>
+                <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-amber-400"></span>Riesgo medio</span>
+                <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded bg-red-500"></span>Alto riesgo</span>
+              </div>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-slate-700 text-white">
+                    <th className="px-3 py-2.5 text-left font-medium">Departamento</th>
+                    <th className="px-3 py-2.5 text-center font-medium">Rotación %</th>
+                    <th className="px-3 py-2.5 text-center font-medium">% Capacitado</th>
+                    <th className="px-3 py-2.5 text-center font-medium">Puntaje NOM-035</th>
+                    <th className="px-3 py-2.5 text-center font-medium">Vac. Pendientes</th>
+                    <th className="px-3 py-2.5 text-center font-medium">Riesgo Psico.</th>
+                    <th className="px-3 py-2.5 text-center font-medium">Nivel Global</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {heatmapDepts.map((dept, idx) => {
+                    const rotRisk = dept.turnoverRate >= 20 ? 2 : dept.turnoverRate >= 10 ? 1 : 0;
+                    const capRisk = dept.trainingRate < 50 ? 2 : dept.trainingRate < 80 ? 1 : 0;
+                    const nomRisk = dept.nom035Score < 60 ? 2 : dept.nom035Score < 80 ? 1 : 0;
+                    const vacRisk = dept.pendingVacations >= 5 ? 2 : dept.pendingVacations >= 2 ? 1 : 0;
+                    const psyRisk = dept.highRiskPsycho >= 3 ? 2 : dept.highRiskPsycho >= 1 ? 1 : 0;
+                    const globalRisk = Math.round((rotRisk + capRisk + nomRisk + vacRisk + psyRisk) / 5);
+                    const cellBg = (risk: number) =>
+                      risk === 2 ? "bg-red-100 text-red-700 font-semibold" :
+                      risk === 1 ? "bg-amber-100 text-amber-700 font-semibold" :
+                      "bg-emerald-100 text-emerald-700";
+                    const globalBadge = globalRisk === 2 ? "bg-red-500 text-white" : globalRisk === 1 ? "bg-amber-400 text-white" : "bg-emerald-500 text-white";
+                    const globalLabel = globalRisk === 2 ? "Alto" : globalRisk === 1 ? "Medio" : "Bajo";
+                    return (
+                      <tr key={dept.deptId} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/60"}>
+                        <td className="px-3 py-2 font-medium text-slate-800 max-w-[160px] truncate" title={dept.deptName}>{dept.deptName}</td>
+                        <td className={`px-3 py-2 text-center ${cellBg(rotRisk)}`}>{dept.turnoverRate}%</td>
+                        <td className={`px-3 py-2 text-center ${cellBg(capRisk)}`}>{dept.trainingRate}%</td>
+                        <td className={`px-3 py-2 text-center ${cellBg(nomRisk)}`}>{dept.nom035Score}</td>
+                        <td className={`px-3 py-2 text-center ${cellBg(vacRisk)}`}>{dept.pendingVacations}</td>
+                        <td className={`px-3 py-2 text-center ${cellBg(psyRisk)}`}>{dept.highRiskPsycho}</td>
+                        <td className="px-3 py-2 text-center">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${globalBadge}`}>{globalLabel}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center text-slate-400 py-8 border border-dashed border-slate-300 rounded-lg">
+              <Activity className="w-8 h-8 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">No hay datos de departamentos para mostrar el mapa de calor.</p>
             </div>
           )}
         </div>

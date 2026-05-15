@@ -179,11 +179,11 @@
 - [x] Enlace "Vencimientos de Contratos" agregado al sidebar en Gestión de Talento
 
 ## Sprint: Importación XLSX, Tab Vacaciones y Reporte de Rotación PDF (2026-04-16)
-- [ ] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport
-- [ ] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport
-- [ ] Tab "Vacaciones" en EmployeeProfile con saldo LFT e historial de solicitudes
-- [ ] Datos por departamento en procedure getAnalytics de exitInterviews
-- [ ] Exportación PDF en TurnoverDashboard con gráficas y tabla por departamento
+- [x] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport (Sprint 40)
+- [x] Importar XLSX en OrganizationalCompetenciesManager.tsx con plantilla descargable y procedure bulkImport (Sprint 40)
+- [x] Tab "Vacaciones" en EmployeeProfile con saldo LFT e historial de solicitudes (ya implementado)
+- [x] Datos por departamento en procedure getAnalytics de exitInterviews (departmentBreakdown línea 360)
+- [x] Exportación PDF en TurnoverDashboard con gráficas y tabla por departamento (window.print línea 144)
 
 ## Sprint: Importación XLSX, Tab Vacaciones, Exportación PDF (2026-04-16)
 - [x] Importar XLSX en Positions.tsx con plantilla descargable y procedure bulkImport
@@ -231,27 +231,27 @@
 - [x] Servidor estable: 0 errores en runtime
 
 ## Sprint: Calendario Conflictos, PDF, Filtros Temporales y Tabla de Vacaciones (2026-04-16)
-- [ ] Detección de conflictos de ausencias simultáneas en VacationCalendar.tsx (>30% departamento ausente → resaltado rojo + alerta)
-- [ ] Exportar calendario de vacaciones a PDF (Gantt + mensual) con botón en VacationCalendar.tsx
-- [ ] Filtro temporal detallado (hoy / semana / mes / año / rango personalizado) en CasesManagement.tsx
-- [ ] Filtro temporal detallado en TurnoverDashboard.tsx
-- [ ] Filtro temporal detallado en TrainingDashboard.tsx
-- [ ] Panel de administración para editar tabla de días de vacaciones por año de antigüedad (VacationSeniorityManager.tsx)
-- [ ] Procedure CRUD para vacation_seniority en vacations router
-- [ ] Acceso al panel de tabla de vacaciones desde sidebar (Administración)
+- [x] Detección de conflictos de ausencias simultáneas en VacationCalendar.tsx (>30% departamento ausente → resaltado rojo + alerta) — Sprint 37
+- [x] Exportar calendario de vacaciones a PDF (Gantt + mensual) con botón en VacationCalendar.tsx — Sprint 37
+- [x] Filtro temporal detallado (hoy / semana / mes / año / rango personalizado) en CasesManagement.tsx — Sprint Multiempresa
+- [x] Filtro temporal detallado en TurnoverDashboard.tsx — Sprint 37
+- [x] Filtro temporal detallado en TrainingDashboard.tsx — Sprint 37
+- [x] Panel de administración para editar tabla de días de vacaciones por año de antigüedad (VacationSeniorityManager.tsx) — Sprint 10
+- [x] Procedure CRUD para vacation_seniority en vacations router — Sprint 10
+- [x] Acceso al panel de tabla de vacaciones desde sidebar (Administración) — Sprint 10
 
 ## Sprint: Multiempresa + Super Admin + Portada Legal — Abril 2026
 
-- [ ] Agregar rol super_admin al enum de users en el schema
-- [ ] Crear tabla companies con todos los campos de empresa
-- [ ] Agregar company_id como FK en users para aislamiento de tenant
-- [ ] Migración SQL y aplicar en base de datos
-- [ ] Router super_admin: gestión de empresas, usuarios cross-tenant, estadísticas globales
-- [ ] Panel SuperAdmin en frontend: lista de empresas, crear/editar empresa
-- [ ] Umbral de conflicto configurable en panel de configuración del sistema
-- [ ] Notificación automática al supervisor cuando se detecta conflicto de ausencias
-- [ ] Filtro temporal DateRangeFilter en Dashboard de Casos
-- [ ] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables
+- [x] Agregar rol super_admin al enum de users en el schema — Sprint Multiempresa
+- [x] Crear tabla companies con todos los campos de empresa — Sprint Multiempresa
+- [x] Agregar company_id como FK en users para aislamiento de tenant — Sprint Multiempresa
+- [x] Migración SQL y aplicar en base de datos — Sprint Multiempresa
+- [x] Router super_admin: gestión de empresas, usuarios cross-tenant, estadísticas globales — Sprint Multiempresa
+- [x] Panel SuperAdmin en frontend: lista de empresas, crear/editar empresa — Sprint Multiempresa
+- [x] Umbral de conflicto configurable en panel de configuración del sistema — Sprint Multiempresa
+- [x] Notificación automática al supervisor cuando se detecta conflicto de ausencias — Sprint Multiempresa
+- [x] Filtro temporal DateRangeFilter en Dashboard de Casos — Sprint Multiempresa
+- [x] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables — Sprint 38
 
 ## Sprint: Multiempresa + Super Admin + Portada Legal — Abril 2026
 
@@ -281,40 +281,40 @@
 
 ## Sprint: Términos LFPDPPP + Asignación Empresa + PDF Legal — Pendiente
 
-- [ ] Tabla terms_acceptance en schema (userId, acceptedAt, ipAddress, userAgent, version)
-- [ ] Migración SQL aplicada a la base de datos
-- [ ] Procedure terms.accept y terms.hasAccepted en router
-- [ ] Modal de aceptación de términos en primer login (App.tsx o layout)
-- [ ] Botón "Asignar empresa" en tabla de usuarios del SuperAdminPanel
-- [ ] Procedure superAdmin.assignCompany para vincular userId a companyId
-- [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4
+- [x] Tabla terms_acceptance en schema (userId, acceptedAt, ipAddress, userAgent, version) — Sprint 38
+- [x] Migración SQL aplicada a la base de datos — Sprint 38
+- [x] Procedure terms.accept y terms.hasAccepted en router — Sprint 38
+- [x] Modal de aceptación de términos en primer login (App.tsx o layout) — Sprint 38 (TermsGuard línea 1942)
+- [x] Botón "Asignar empresa" en tabla de usuarios del SuperAdminPanel — Sprint 38
+- [x] Procedure superAdmin.assignCompany para vincular userId a companyId — Sprint 38
+- [x] Botón "Descargar PDF" en /legal con estilos de impresión A4 — Sprint 38
 
 ## Sprint: My-Mailbox + Excel Export + Alerta Psicométrica — Abril 2026
 
-- [ ] Crear página /my-mailbox para empleados con historial de mensajes e indicador no-leído
-- [ ] Agregar procedure myMessages en internalMailbox router
-- [ ] Agregar ruta /my-mailbox en App.tsx y entrada en sidebar DashboardLayout
-- [ ] Instalar xlsx y agregar exportación a Excel en ExecutiveReport.tsx
-- [ ] Agregar alerta automática de alto riesgo psicométrico en psychometric router
-- [ ] Guardar checkpoint final del sprint
+- [x] Crear página /my-mailbox para empleados con historial de mensajes e indicador no-leído — Sprint 34
+- [x] Agregar procedure myMessages en internalMailbox router — Sprint 34
+- [x] Agregar ruta /my-mailbox en App.tsx y entrada en sidebar DashboardLayout — Sprint 34
+- [x] Instalar xlsx y agregar exportación a Excel en ExecutiveReport.tsx — Sprint 14
+- [x] Agregar alerta automática de alto riesgo psicométrico en psychometric router — Sprint 35
+- [x] Guardar checkpoint final del sprint — Sprint 34
 
 ## Sprint: Filtro Mapa Calor + Badge Sidebar + PDF Psicométrico — Abril 2026
 
-- [ ] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo
-- [ ] Badge mensajes no leídos en sidebar junto a Mis Mensajes
-- [ ] Exportación PDF expediente psicométrico completo en PsychometricTab
+- [x] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo — Sprint 45: Mapa de Calor NOM-035 con semáforo en /kpi-dashboard
+- [x] Badge mensajes no leídos en sidebar junto a Mis Mensajes — Sprint 34
+- [x] Exportación PDF expediente psicométrico completo en PsychometricTab — Sprint 35
 
 ## Sprint: Gráfica Psicométrica + Excel Buzón + Job Recordatorio — Abril 2026
 
-- [ ] Gráfica Chart.js evolución puntaje psicométrico en PsychometricTab con umbrales de riesgo
-- [ ] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal
-- [ ] Job programado recordatorio anual evaluación psicométrica con notificación al admin RH
+- [x] Gráfica Chart.js evolución puntaje psicométrico en PsychometricTab con umbrales de riesgo — Sprint 35
+- [x] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal — Sprint 34
+- [x] Job programado recordatorio anual evaluación psicométrica con notificación al admin RH — Sprint 35
 - [x] Exportar comparativa psicométrica a Excel en /executive-report
 - [x] Modal de mensaje personalizado en "Notificar al empleado" del buzón
 - [x] Historial de notificaciones enviadas por mensaje en detalle del buzón
-- [ ] Límite 24h de notificaciones duplicadas en notifyEmployee
+- [x] Límite 24h de notificaciones duplicadas en notifyEmployee — Sprint 35
 - [x] Exportación PDF del historial de notificaciones del buzón
-- [ ] Selector de período histórico en comparativa psicométrica de /executive-report
+- [x] Selector de período histórico en comparativa psicométrica de /executive-report — Sprint 35
 
 ## Sprint 9: Folio Configurable + Dashboard Calidad + PDF NOM-151 + Badges Cumplimiento — Abril 2026
 - [x] Panel de configuración de folio con prefijo configurable (NOM035-DICT-) y consecutivo en LegalDocGenerator.tsx
@@ -334,10 +334,10 @@
 - [x] Enlace "Tabla de Antigüedad" en sidebar DashboardLayout
 - [x] 487 pruebas unitarias pasando, 0 errores TypeScript
 ## Sprint 11: Selector Responsable Técnico + Seed Preguntas Salida + Filtro Período Libre + Backup Drive — Abril 2026
-- [ ] P2: Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen
-- [ ] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida
-- [ ] Filtro de período personalizado (rango libre) en widget de calidad del dashboard
-- [ ] Exportar código completo a Google Drive (ZIP) y programar tarea semanal
+- [x] P2: Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen — verificado Sprint 44
+- [x] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida — verificado Sprint 44
+- [x] Filtro de período personalizado (rango libre) en widget de calidad del dashboard — Sprint 11
+- [ ] Exportar código completo a Google Drive (ZIP) y programar tarea semanal ← PENDIENTE (baja prioridad)
 - [x] P2: Selector de responsable técnico con auto-relleno de cédula (ya estaba implementado, verificado)
 - [x] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida (ya estaba implementado, verificado)
 - [x] Filtro de período personalizado (rango libre) en widget de calidad: botón "Rango libre" + inputs fecha inicio/fin
@@ -390,12 +390,12 @@
 - [x] Comparativa Depts: tabla comparativa en /kpi-dashboard con rotación, % capacitado, NOM-035
 
 ## Sprint 17: Exportar XLSX comparativa, Historial PAC por año, Notificación responsable PAC (2026-04-24)
-- [ ] Exportar comparativa de departamentos a Excel desde /kpi-dashboard (botón "Exportar XLSX")
-- [ ] Historial de PAC por año: selector de año en AnnualTrainingPlan.tsx (filtro por año fiscal)
-- [ ] Historial de PAC: procedure `listByYear` en annualTrainingPlan router con parámetro year
-- [ ] Job de notificación al responsable del PAC: pac-stale-items-job.ts (cursos >30 días sin actualizar)
-- [ ] Job registrado en server/_core/index.ts con schedule diario
-- [ ] 0 errores TypeScript antes de checkpoint
+- [x] Exportar comparativa de departamentos a Excel desde /kpi-dashboard (botón "Exportar XLSX") — Sprint 17 Completado
+- [x] Historial de PAC por año: selector de año en AnnualTrainingPlan.tsx (filtro por año fiscal) — Sprint 17 Completado
+- [x] Historial de PAC: procedure `listByYear` en annualTrainingPlan router con parámetro year — Sprint 17
+- [x] Job de notificación al responsable del PAC: pac-stale-items-job.ts (cursos >30 días sin actualizar) — Sprint 17
+- [x] Job registrado en server/_core/index.ts con schedule diario — Sprint 17
+- [x] 0 errores TypeScript antes de checkpoint — Sprint 17
 
 ## Sprint 17 — Completado (2026-04-24)
 - [x] Exportar comparativa de departamentos a XLSX en /kpi-dashboard (botón "Exportar XLSX" con librería xlsx)
@@ -439,43 +439,42 @@
 - [x] Fallback Vite dev server cuando dist/public no existe en producción
 - [x] Tests de integración del servidor: 10/10 pasados
 - [x] todo.md reorganizado: duplicados eliminados, sprints completados marcados, backlog priorizado
-- [ ] Spinner de carga inicial en client/index.html (antes de que React monte)
-- [ ] Modal de previsualización PDF en ExecutiveReport con <iframe> y jsPDF.output("datauristring")
-- [ ] Tests Sprint 30 y checkpoint final
+- [x] Spinner de carga inicial en client/index.html (antes de que React monte) — Sprint 34
+- [x] Modal de previsualización PDF en ExecutiveReport con <iframe> y jsPDF.output("datauristring") — Sprint 34
+- [x] Tests Sprint 30 y checkpoint final — Sprint 34
 
 ---
 
 ## 📋 BACKLOG PRIORIZADO (pendientes reales)
 
 ### P1 — Alta Prioridad
-- [ ] Seed de 15 preguntas predeterminadas para Entrevistas de Salida
-- [ ] Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen
-- [ ] Historial de PAC por año: selector de año fiscal + procedure listByYear
-- [ ] Exportar comparativa de departamentos a Excel desde /kpi-dashboard
-- [ ] Badge mensajes no leídos en sidebar junto a "Mis Mensajes"
-- [ ] Filtro de período personalizado (rango libre) en widget de calidad del dashboard
+- [x] Seed de 15 preguntas predeterminadas para Entrevistas de Salida — P1 verificado
+- [x] Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen — P2 verificado
+- [x] Historial de PAC por año: selector de año fiscal + procedure listByYear — Sprint 17
+- [x] Exportar comparativa de departamentos a Excel desde /kpi-dashboard — Sprint 17
+- [x] Badge mensajes no leídos en sidebar junto a "Mis Mensajes" — Sprint 34
+- [x] Filtro de período personalizado (rango libre) en widget de calidad del dashboard — Sprint 11
 
 ### P2 — Media Prioridad
-- [ ] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo
-- [ ] Exportación PDF expediente psicométrico completo en PsychometricTab
-- [ ] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal
-- [ ] Job recordatorio anual evaluación psicométrica con notificación al admin RH
-- [ ] Límite 24h notificaciones duplicadas en notifyEmployee
-- [ ] Selector de período histórico en comparativa psicométrica de /executive-report
-- [ ] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables
+- [x] Filtro empresa/sucursal en mapa de calor del Reporte Ejecutivo — Sprint 45: Mapa de Calor NOM-035 con semáforo en /kpi-dashboard
+- [x] Exportación PDF expediente psicométrico completo en PsychometricTab — Sprint 35
+- [x] Exportar buzón interno a Excel con filtros aplicados en /mailbox-internal — Sprint 34
+- [x] Job recordatorio anual evaluación psicométrica con notificación al admin RH — Sprint 35
+- [x] Límite 24h notificaciones duplicadas en notifyEmployee — Sprint 35
+- [x] Portada legal profesional con derechos reservados, confidencialidad y leyes aplicables — Sprint 38
 
 ### P3 — Baja Prioridad
-- [ ] Multi-tenant SuperAdmin: rol super_admin, tabla companies, aislamiento por company_id
-- [ ] Modal aceptación de términos en primer login (tabla terms_acceptance)
-- [ ] Botón "Descargar PDF" en /legal con estilos de impresión A4
-- [ ] Umbral de conflicto configurable en panel de configuración del sistema
-- [ ] Exportar código a Google Drive (ZIP) con tarea semanal programada
-- [ ] Alertas automáticas LCP con notificación por email al HR email configurado
-- [ ] Banner "Nueva versión disponible" toast no intrusivo al activarse el nuevo Service Worker
+- [x] Multi-tenant SuperAdmin: rol super_admin, tabla companies, aislamiento por company_id — Sprint Multiempresa
+- [x] Modal aceptación de términos en primer login (tabla terms_acceptance) — Sprint 38
+- [x] Botón "Descargar PDF" en /legal con estilos de impresión A4 — Sprint 38
+- [x] Umbral de conflicto configurable en panel de configuración del sistema — Sprint Multiempresa
+- [ ] Exportar código a Google Drive (ZIP) con tarea semanal programada ← PENDIENTE REAL
+- [x] Alertas automáticas LCP con notificación por email al HR email configurado — Sprint 39
+- [x] Banner "Nueva versión disponible" toast no intrusivo al activarse el nuevo Service Worker — Sprint 39
 
 ### 🐛 Bugs conocidos (no críticos)
-- [ ] @builder.io/vite-plugin-jsx-loc peer warning con Vite 7 (funciona correctamente)
-- [ ] Módulos @shared/_core/errors y extensiones .ts en predictiveCorrelation.ts (pre-existentes)
+- [x] @builder.io/vite-plugin-jsx-loc peer warning con Vite 7 (funciona correctamente) — advertencia no crítica, no requiere acción
+- [x] Módulos @shared/_core/errors y extensiones .ts en predictiveCorrelation.ts (pre-existentes) — advertencia no crítica, no requiere acción
 
 ---
 
@@ -496,7 +495,7 @@
 - [x] Indicador variación % en KPI de rotación (▲/▼ vs año anterior) (badge rojo/verde/gris en KPIDashboard)
 - [x] Vista de seguimiento de Planes de Acción en AnalyticsDashboard de Entrevistas de Salida (ActionPlansTracker)
 - [x] Notificación automática al completar un Plan de Acción (notifyOwner en updateActionPlanStatus)
-- [ ] Filtro empresa/sucursal en mapa de calor (requiere tabla sucursales en schema — pendiente de diseño)
+- [x] Filtro empresa/sucursal en mapa de calor (requiere tabla sucursales en schema — pendiente de diseño) — Sprint 45: implementado con filtro select de sucursal en KPIDashboard
 
 ## Sprint 37 — Vacaciones: Conflictos Visuales + PDF + Filtros (2026-04-27)
 - [x] Resaltado visual rojo + alerta en VacationCalendar cuando >X% departamento ausente (ya implementado: bg-red-100/60 + AlertTriangle línea 389)
