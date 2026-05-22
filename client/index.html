@@ -10,6 +10,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet" />
+    <!-- Prefetch de módulos críticos para reducir tiempo de carga post-login -->
+    <!-- Nota: En producción Vite genera hashes; estos hints aplican en dev y son ignorados si no existen -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <style>
       /* Spinner de carga inicial — se elimina cuando React monta */
       #app-loading {
@@ -73,6 +78,18 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+      /* Mensaje de estado visible después de 4 segundos (CSS puro, sin JS) */
+      .app-loading-hint {
+        font-size: 11px;
+        color: #94a3b8;
+        text-align: center;
+        max-width: 220px;
+        opacity: 0;
+        animation: hint-appear 1s ease 4s forwards;
+      }
+      @keyframes hint-appear {
+        to { opacity: 1; }
+      }
     </style>
   <!-- Desregistrar Service Workers obsoletos antes de que React cargue -->
   <script>
@@ -103,6 +120,7 @@
       <div class="app-loading-title">Plataforma NOM-035 STPS 2018</div>
       <div class="app-loading-subtitle">Gestión Integral de Riesgos Psicosociales</div>
       <div class="app-loading-spinner"></div>
+      <div class="app-loading-hint">Iniciando servidor... por favor espera</div>
     </div>
 
     <div id="root"></div>
