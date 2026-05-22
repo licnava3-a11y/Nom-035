@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#0f172a"/>
+  <!-- Capa inferior -->
+  <polygon points="16,22 24,18 16,14 8,18" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Capa media -->
+  <polygon points="16,18 24,14 16,10 8,14" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Capa superior -->
+  <polygon points="16,14 24,10 16,6 8,10" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>
