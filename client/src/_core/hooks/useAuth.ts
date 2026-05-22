@@ -13,25 +13,28 @@ export function useAuth(options?: UseAuthOptions) {
     options ?? {};
   const utils = trpc.useUtils();
 
-  // Timeout de seguridad: si auth.me no responde en 8s (cold start de Cloud Run),
+  // Timeout de seguridad: si auth.me no responde en 4s (cold start de Cloud Run),
   // dejamos de mostrar el skeleton y tratamos al usuario como no autenticado.
   const [authTimedOut, setAuthTimedOut] = useState(false);
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: false,
+    retry: 1,                    // 1 reintento en caso de fallo de red
+    retryDelay: 1000,            // esperar 1s antes de reintentar
     refetchOnWindowFocus: false,
+    staleTime: 30_000,           // considerar fresco por 30s para evitar re-fetches
   });
 
   // Iniciar el timer solo mientras la query esté cargando
   useEffect(() => {
     if (!meQuery.isLoading) {
-      setAuthTimedOut(false); // resetear si la query termina
+      // NO resetear authTimedOut cuando la query termina — evita loops
       return;
     }
+    // Timeout reducido a 4s para mejorar UX en cold start
     const t = setTimeout(() => {
-      console.warn("[useAuth] auth.me timeout after 8s — treating as unauthenticated");
+      console.warn("[useAuth] auth.me timeout after 4s — treating as unauthenticated");
       setAuthTimedOut(true);
-    }, 8000);
+    }, 4000);
     return () => clearTimeout(t);
   }, [meQuery.isLoading]);
 
