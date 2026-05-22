@@ -554,3 +554,9 @@
 - [x] Enlace en sidebar de DashboardLayout bajo sección Reportes y Análisis
 - [x] Fix spinner definitivo: VitePWA eliminado, useAuth timeout 8s, LandingPage auto-redirect
 - [x] Tests Sprint 43: 24/24 passed | TypeScript: 0 errores
+
+## Sprint 48 — Página de Bienvenida Pública /welcome (2026-05-22)
+- [x] Welcome.tsx creada en client/src/pages/ — logo NOM-035 SVG, hero con título, descripción, 6 módulos, botón "Iniciar sesión" con getLoginUrl()
+- [x] Ruta /welcome registrada en App.tsx como ruta pública (sin DashboardLayout, lazy import)
+- [x] Tema oscuro #0f172a con acento verde #22c55e, sin dependencia de useAuth ni trpc
+- [x] Tests Sprint 48: 15/15 pasando (sprint48.test.ts)

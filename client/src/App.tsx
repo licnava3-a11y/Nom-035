@@ -252,6 +252,7 @@ const AnnualTrainingPlan = lazy(() => import("./pages/AnnualTrainingPlan"));
 const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
 const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
 const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeReport"));
+const Welcome = lazy(() => import("./pages/Welcome"));
 
 // Loading fallback component - usa SkeletonLoader para mejor UX
 const PageLoader = () => (
@@ -1925,6 +1926,11 @@ function Router() {
               <WebVitalsDashboard />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path="/welcome">
+          <Suspense fallback={<PageLoader />}>
+            <Welcome />
+          </Suspense>
         </Route>
         <Route path="/survey/:token">
           {(params) => (
