@@ -177,10 +177,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Optimizaciones críticas de velocidad de build para producción
+    minify: 'esbuild',         // esbuild es 10-20x más rápido que terser (default)
+    sourcemap: false,           // Sin sourcemaps → build ~40% más rápido
+    target: 'es2020',           // Target moderno → menos transpilación
+    cssMinify: 'esbuild',       // CSS minificado con esbuild también
     rollupOptions: {
       output: {
+        // manualChunks simplificado: solo las dependencias más pesadas
+        // Menos chunks = menos overhead de análisis en Rollup
         manualChunks(id) {
-          // React core
+          // React core (crítico: siempre en caché)
           if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/wouter/')) {
             return 'vendor-react';
           }
@@ -188,27 +195,29 @@ export default defineConfig({
           if (id.includes('node_modules/@trpc/') || id.includes('node_modules/@tanstack/')) {
             return 'vendor-trpc';
           }
-          // Radix UI components
+          // Radix UI (muy pesado, vale la pena separar)
           if (id.includes('node_modules/@radix-ui/')) {
             return 'vendor-radix';
           }
-          // Chart.js
-          if (id.includes('node_modules/chart.js/') || id.includes('node_modules/react-chartjs-2/') || id.includes('node_modules/chartjs-plugin-annotation/')) {
-            return 'vendor-chartjs';
+          // Librerías pesadas de visualización y datos (agrupadas juntas)
+          if (
+            id.includes('node_modules/chart.js/') ||
+            id.includes('node_modules/react-chartjs-2/') ||
+            id.includes('node_modules/chartjs-plugin-annotation/') ||
+            id.includes('node_modules/recharts/') ||
+            id.includes('node_modules/d3-')
+          ) {
+            return 'vendor-charts';
           }
-          // Recharts
-          if (id.includes('node_modules/recharts/') || id.includes('node_modules/d3-')) {
-            return 'vendor-recharts';
+          // Excel + PDF (solo se cargan en páginas de exportación)
+          if (
+            id.includes('node_modules/xlsx/') ||
+            id.includes('node_modules/jspdf/') ||
+            id.includes('node_modules/jspdf-autotable/')
+          ) {
+            return 'vendor-export';
           }
-          // Excel
-          if (id.includes('node_modules/xlsx/')) {
-            return 'vendor-excel';
-          }
-          // PDF
-          if (id.includes('node_modules/jspdf/') || id.includes('node_modules/jspdf-autotable/')) {
-            return 'vendor-pdf';
-          }
-          // i18n
+          // i18n (pesado, vale separar)
           if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next/')) {
             return 'vendor-i18n';
           }
@@ -216,21 +225,22 @@ export default defineConfig({
           if (id.includes('node_modules/framer-motion/')) {
             return 'vendor-motion';
           }
-          // Utilities: date-fns, clsx, tailwind-merge, zod, sonner, streamdown
-          if (
-            id.includes('node_modules/date-fns/') ||
-            id.includes('node_modules/clsx/') ||
-            id.includes('node_modules/tailwind-merge/') ||
-            id.includes('node_modules/zod/') ||
-            id.includes('node_modules/sonner/') ||
-            id.includes('node_modules/streamdown/')
-          ) {
-            return 'vendor-utils';
+          // Formularios y validación
+          if (id.includes('node_modules/react-hook-form/') || id.includes('node_modules/zod/') || id.includes('node_modules/@hookform/')) {
+            return 'vendor-forms';
+          }
+          // Utilidades de fecha
+          if (id.includes('node_modules/date-fns/') || id.includes('node_modules/react-day-picker/')) {
+            return 'vendor-dates';
+          }
+          // Resto de node_modules → vendor-misc
+          if (id.includes('node_modules/')) {
+            return 'vendor-misc';
           }
         },
       },
     },
-    chunkSizeWarningLimit: 1000, // Aumentar límite de advertencia a 1MB
+    chunkSizeWarningLimit: 2000, // 2MB para evitar warnings en chunks grandes
   },
   server: {
     host: true,
