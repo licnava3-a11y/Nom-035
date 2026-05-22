@@ -12,6 +12,7 @@ import { KeyboardShortcutsHelp, useGlobalShortcutsHelp } from "./components/Keyb
 import { GlobalSearch, useGlobalSearch } from "./components/GlobalSearch";
 import { TermsAcceptanceModal } from "./components/TermsAcceptanceModal";
 import { PWAUpdateBanner } from "./components/PWAUpdateBanner";
+import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { trpc } from "./lib/trpc";
 import { useAuth } from "./_core/hooks/useAuth";
 import { usePageTitle } from "./hooks/usePageTitle";
@@ -1978,6 +1979,7 @@ export default function App() {
           <Router />
           <TermsGuard />
           <PWAUpdateBanner />
+          <PWAInstallBanner />
           <KeyboardShortcutsHelp open={showHelp} onOpenChange={setShowHelp} />
           <GlobalSearch open={showSearch} onOpenChange={setShowSearch} />
         </TooltipProvider>
