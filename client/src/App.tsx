@@ -14,6 +14,7 @@ import { TermsAcceptanceModal } from "./components/TermsAcceptanceModal";
 import { PWAUpdateBanner } from "./components/PWAUpdateBanner";
 import { trpc } from "./lib/trpc";
 import { useAuth } from "./_core/hooks/useAuth";
+import { usePageTitle } from "./hooks/usePageTitle";
 
 // Lazy load all page components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -1967,6 +1968,8 @@ export default function App() {
   const { showHelp, setShowHelp } = useGlobalShortcutsHelp();
   // Hook para búsqueda global (Ctrl+K)
   const { showSearch, setShowSearch } = useGlobalSearch();
+  // Hook para título de pestaña dinámico por módulo
+  usePageTitle();
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">

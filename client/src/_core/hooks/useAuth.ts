@@ -1,42 +1,46 @@
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
   redirectPath?: string;
 };
 
+/**
+ * Hook de autenticación con manejo robusto de cold start en Cloud Run.
+ *
+ * Estrategia:
+ * 1. Intentar auth.me con retry=3 y retryDelay incremental.
+ * 2. Si el servidor tarda más de 10s, mostrar skeleton con botón "Reintentar" (no redirigir).
+ * 3. Solo redirigir al login cuando auth.me responde explícitamente con 401/UNAUTHORIZED.
+ * 4. Nunca redirigir por timeout — el usuario puede estar autenticado en un servidor lento.
+ */
 export function useAuth(options?: UseAuthOptions) {
   const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
     options ?? {};
   const utils = trpc.useUtils();
 
-  // Timeout de seguridad: si auth.me no responde en 4s (cold start de Cloud Run),
-  // dejamos de mostrar el skeleton y tratamos al usuario como no autenticado.
-  const [authTimedOut, setAuthTimedOut] = useState(false);
+  // Contador de reintentos manuales
+  const [retryCount, setRetryCount] = useState(0);
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
-    retry: 1,                    // 1 reintento en caso de fallo de red
-    retryDelay: 1000,            // esperar 1s antes de reintentar
+    retry: 3,                     // 3 reintentos automáticos en caso de fallo de red
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000), // backoff: 1s, 2s, 4s
     refetchOnWindowFocus: false,
-    staleTime: 30_000,           // considerar fresco por 30s para evitar re-fetches
+    staleTime: 60_000,            // fresco por 60s
+    // Forzar re-fetch cuando el usuario hace clic en "Reintentar"
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   });
 
-  // Iniciar el timer solo mientras la query esté cargando
+  // Refetch cuando el usuario hace clic en "Reintentar"
   useEffect(() => {
-    if (!meQuery.isLoading) {
-      // NO resetear authTimedOut cuando la query termina — evita loops
-      return;
+    if (retryCount > 0) {
+      meQuery.refetch();
     }
-    // Timeout reducido a 4s para mejorar UX en cold start
-    const t = setTimeout(() => {
-      console.warn("[useAuth] auth.me timeout after 4s — treating as unauthenticated");
-      setAuthTimedOut(true);
-    }, 4000);
-    return () => clearTimeout(t);
-  }, [meQuery.isLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [retryCount]);
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -66,13 +70,28 @@ export function useAuth(options?: UseAuthOptions) {
       "manus-runtime-user-info",
       JSON.stringify(meQuery.data)
     );
-    // Si el timeout se disparó, ya no estamos "loading" — mostramos el estado de no autenticado
-    const isLoading = authTimedOut ? false : (meQuery.isLoading || logoutMutation.isPending);
+
+    // Determinar si es un error de autenticación explícito (401) vs timeout/red
+    const isAuthError =
+      meQuery.error instanceof TRPCClientError &&
+      (meQuery.error.data?.code === "UNAUTHORIZED" ||
+        meQuery.error.data?.httpStatus === 401);
+
+    // Solo consideramos "no autenticado" si:
+    // a) La query terminó exitosamente y no hay usuario (meQuery.data === null)
+    // b) Hay un error explícito de autenticación (401)
+    // NO consideramos timeout como "no autenticado"
+    const isLoading = meQuery.isLoading || logoutMutation.isPending;
+    const isAuthenticated = Boolean(meQuery.data);
+    const isUnauthenticated = !isLoading && (isAuthError || meQuery.data === null);
+
     return {
       user: meQuery.data ?? null,
       loading: isLoading,
       error: meQuery.error ?? logoutMutation.error ?? null,
-      isAuthenticated: Boolean(meQuery.data),
+      isAuthenticated,
+      isUnauthenticated,
+      isNetworkError: meQuery.error && !isAuthError,
     };
   }, [
     meQuery.data,
@@ -80,49 +99,44 @@ export function useAuth(options?: UseAuthOptions) {
     meQuery.isLoading,
     logoutMutation.error,
     logoutMutation.isPending,
-    authTimedOut,
   ]);
 
+  // Solo redirigir cuando hay un error explícito de autenticación (401)
+  // NUNCA redirigir por timeout o error de red — el servidor puede estar iniciando
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
     if (state.loading) return;
     if (state.user) return;
+    if (!state.isUnauthenticated) return; // No redirigir si es error de red/timeout
     if (typeof window === "undefined") return;
-    
-    // Prevenir ciclos infinitos: verificar si ya estamos en una URL de login/callback
+
+    // Prevenir ciclos: verificar si ya estamos en una URL de login/callback
     const currentPath = window.location.pathname;
     if (currentPath.includes("/oauth/") || currentPath.includes("/login")) {
-      console.log("[useAuth] Already in auth flow, skipping redirect");
       return;
     }
-    
-    // Verificar si la URL de redirección es la misma que la actual
+
     try {
       const redirectUrl = new URL(redirectPath, window.location.origin);
-      if (window.location.pathname === redirectUrl.pathname) {
-        console.log("[useAuth] Already at redirect path, skipping redirect");
-        return;
-      }
-    } catch (e) {
-      // Si redirectPath no es una URL válida, comparar directamente
-      if (window.location.pathname === redirectPath) {
-        console.log("[useAuth] Already at redirect path, skipping redirect");
-        return;
-      }
+      if (window.location.pathname === redirectUrl.pathname) return;
+    } catch {
+      if (window.location.pathname === redirectPath) return;
     }
 
-    console.log("[useAuth] Redirecting to:", redirectPath);
     window.location.href = redirectPath;
   }, [
     redirectOnUnauthenticated,
     redirectPath,
     state.loading,
     state.user,
+    state.isUnauthenticated,
   ]);
 
   return {
     ...state,
-    refresh: () => meQuery.refetch(),
+    refresh: () => {
+      setRetryCount((c) => c + 1);
+    },
     logout,
   };
 }
