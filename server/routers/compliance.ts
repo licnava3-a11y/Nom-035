@@ -3,7 +3,11 @@ import { publicProcedure, protectedProcedure, router } from "../_core/trpc.js";
 import { getDb } from '../db.js';
 import { committeeMinuteAgendaItems, committeeMinuteAgreements, committeeMinuteAttendees, committeeMinutes, companyGeneralData, companyLegalRepresentative, companyLogo, complianceChecklist, complianceChecks, complianceEvidence, complianceReports, complianceRequirements, correctiveActions, departments, documentAuditLog, documentFormats, employees, nom035Policies, nom035Results, positions, reportTemplates, signatures, surveyResults } from "../../drizzle/schema";
 import { eq, sql, desc, and } from "drizzle-orm";
-import { generatePDFFromTemplate, generateQRCode } from '../utils/pdfGenerator.js';
+// Import dinámico — evita cargar html-pdf-node/puppeteer al arrancar el servidor
+// (import estático causaba segfault en Cloud Run)
+async function getPdfUtils() {
+  return import('../utils/pdfGenerator.js');
+}
 import { storagePut } from '../storage';
 
 export const complianceRouter = router({
@@ -631,7 +635,8 @@ export const complianceRouter = router({
 
       // Generar código QR para verificación
       const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+      const { generateQRCode: _genQR1, generatePDFFromTemplate: _genPDF1 } = await getPdfUtils();
+      const qrCodeDataUrl = await _genQR1(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
@@ -674,7 +679,7 @@ export const complianceRouter = router({
       };
 
       // Generar PDF desde plantilla
-      const pdfBuffer = await generatePDFFromTemplate(
+      const pdfBuffer = await _genPDF1(
         template[0].htmlTemplate,
         template[0].cssStyles || '',
         templateData
@@ -1011,7 +1016,8 @@ export const complianceRouter = router({
 
       // Generar código QR para verificación
       const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+      const { generateQRCode: _genQR2, generatePDFFromTemplate: _genPDF2 } = await getPdfUtils();
+      const qrCodeDataUrl = await _genQR2(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
@@ -1044,7 +1050,7 @@ export const complianceRouter = router({
       };
 
       // Generar PDF desde plantilla
-      const pdfBuffer = await generatePDFFromTemplate(
+      const pdfBuffer = await _genPDF2(
         template[0].htmlTemplate,
         template[0].cssStyles || '',
         templateData
@@ -1258,7 +1264,8 @@ export const complianceRouter = router({
 
       // Generar código QR para verificación
       const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${reportUuid}`;
-      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+      const { generateQRCode: _genQR3, generatePDFFromTemplate: _genPDF3 } = await getPdfUtils();
+      const qrCodeDataUrl = await _genQR3(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
@@ -1291,7 +1298,7 @@ export const complianceRouter = router({
       };
 
       // Generar PDF desde plantilla
-      const pdfBuffer = await generatePDFFromTemplate(
+      const pdfBuffer = await _genPDF3(
         template[0].htmlTemplate,
         template[0].cssStyles || '',
         templateData
@@ -1459,7 +1466,8 @@ export const complianceRouter = router({
 
       // Generar código QR para verificación
       const verificationUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL || 'http://localhost:3000'}/verify/${certificateUuid}`;
-      const qrCodeDataUrl = await generateQRCode(verificationUrl);
+      const { generateQRCode: _genQR4, generatePDFFromTemplate: _genPDF4 } = await getPdfUtils();
+      const qrCodeDataUrl = await _genQR4(verificationUrl);
 
       // Preparar datos para la plantilla
       const templateData = {
@@ -1478,7 +1486,7 @@ export const complianceRouter = router({
       };
 
       // Generar PDF desde plantilla
-      const pdfBuffer = await generatePDFFromTemplate(
+      const pdfBuffer = await _genPDF4(
         template[0].htmlTemplate,
         template[0].cssStyles || '',
         templateData

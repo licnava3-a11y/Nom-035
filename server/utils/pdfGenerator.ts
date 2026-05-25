@@ -1,5 +1,17 @@
 import Handlebars from 'handlebars';
-import htmlPdf from 'html-pdf-node';
+// Import dinámico — html-pdf-node usa puppeteer internamente
+// El import estático causaba segfault en Cloud Run al arrancar
+let _htmlPdf: any = null;
+async function getHtmlPdf() {
+  if (!_htmlPdf) {
+    try {
+      _htmlPdf = (await import('html-pdf-node')).default;
+    } catch {
+      throw new Error('html-pdf-node no disponible. Requiere Chromium instalado.');
+    }
+  }
+  return _htmlPdf;
+}
 import QRCode from 'qrcode';
 
 export interface PDFTemplateData {
@@ -67,6 +79,7 @@ export async function generatePDFFromTemplate(
   };
   
   const file = { content: fullHtml };
+  const htmlPdf = await getHtmlPdf();
   const pdfBuffer = await htmlPdf.generatePdf(file, options);
 
   return pdfBuffer;

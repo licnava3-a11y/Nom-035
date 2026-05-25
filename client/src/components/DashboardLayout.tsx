@@ -293,6 +293,7 @@ const hierarchicalMenuItems = [
       { label: "Auditoría de Documentos", path: "/document-audit", description: "Registro de accesos y descargas" },
       { label: "Alertas de Seguridad", path: "/security-alerts", description: "Monitoreo de actividad sospechosa" },
       { label: "Monitoreo de Jobs", path: "/job-monitoring", description: "Historial y ejecución manual de jobs automáticos" },
+      { label: "Estado de Jobs (Sprint 54)", path: "/admin/jobs", description: "Estado en tiempo real: notificaciones enviadas, omitidas y errores por job" },
       { label: "Configuración de Reportes", path: "/report-configuration", description: "Gestionar reportes ejecutivos automatizados" },
       { label: "Visitas por Empresa", path: "/company-visits", description: "Contador de visitas y páginas más visitadas por empresa" },
       { label: "Informes de Errores", path: "/bug-reports", description: "Reporte y seguimiento de errores del sistema" },

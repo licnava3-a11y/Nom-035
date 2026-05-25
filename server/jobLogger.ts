@@ -8,6 +8,7 @@
 
 import { getDb } from "./db";
 import { jobExecutionLog } from "../drizzle/schema";
+import { notifyOwner } from "./_core/notification";
 
 export interface JobResult {
   notificationsSent?: number;
@@ -36,6 +37,13 @@ export async function logJobExecution(
     status = "error";
     errorMessage = err instanceof Error ? err.message : String(err);
     console.error(`[JobLogger] ${jobName} failed:`, errorMessage);
+    // Notificar al owner cuando un job falla — alerta inmediata sin revisar logs
+    notifyOwner({
+      title: `⚠️ Job fallido: ${jobName}`,
+      content: `El job automático **${jobName}** falló a las ${new Date().toLocaleString("es-MX")}\n\nError: ${errorMessage}\n\nRevisa el panel de Estado de Jobs en /admin/jobs para más detalles.`,
+    }).catch(() => {
+      // No propagar errores de notificación
+    });
   }
 
   const durationMs = Date.now() - start;

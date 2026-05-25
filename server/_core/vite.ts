@@ -1,12 +1,24 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import { type Server } from "http";
-import { nanoid } from "nanoid";
 import path from "path";
-import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
 
+// CRITICAL: vite and vite.config MUST be imported dynamically so that esbuild
+// marks them as external and does NOT bundle them into dist/index.js.
+// Bundling vite.config pulls in @tailwindcss/oxide, @rollup, and other native
+// binaries (.node files) that crash Node.js with SIGSEGV on Cloud Run.
 export async function setupVite(app: Express, server: Server) {
+  const { nanoid } = await import("nanoid");
+  const { createServer: createViteServer } = await import("vite");
+
+  // Resolve vite.config.ts from the project root (two levels up from dist/)
+  // In dev: __dirname = /project/server/_core → root = /project
+  // In prod bundle: import.meta.dirname = /project/dist → root = /project
+  const projectRoot = path.resolve(import.meta.dirname, "../..");
+  const viteConfigPath = path.join(projectRoot, "vite.config.ts");
+  // Dynamic import of vite.config — keeps native vite plugins out of the prod bundle
+  const viteConfig = (await import(viteConfigPath)).default;
+
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },

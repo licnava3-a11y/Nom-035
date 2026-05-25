@@ -1,8 +1,10 @@
-import puppeteer from "puppeteer";
 import { storagePut } from "../storage";
 
 /**
- * Genera un PDF a partir de contenido HTML usando Puppeteer
+ * Genera un PDF a partir de contenido HTML usando Puppeteer (import dinámico)
+ * El import dinámico evita que el módulo se cargue al arrancar el servidor,
+ * previniendo el segfault en Cloud Run cuando Chromium no está disponible.
+ *
  * @param html - Contenido HTML completo para convertir a PDF
  * @param fileName - Nombre del archivo PDF (sin extensión)
  * @param options - Opciones adicionales de configuración
@@ -24,28 +26,41 @@ export async function generatePDFFromHTML(
 ): Promise<string> {
   let browser: any;
 
+  // Import dinámico — puppeteer solo se carga cuando se necesita, no al arrancar
+  let puppeteer: any;
   try {
-    // Lanzar navegador headless
+    puppeteer = (await import("puppeteer")).default;
+  } catch (importErr) {
+    throw new Error(
+      "Puppeteer no está disponible en este entorno. La generación de PDF requiere Chromium instalado."
+    );
+  }
+
+  try {
+    // Detectar el ejecutable de Chromium disponible
+    const executablePath =
+      process.env.CHROMIUM_PATH ||
+      (await findChromiumExecutable());
+
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/chromium-browser",
+      executablePath,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-accelerated-2d-canvas",
         "--disable-gpu",
+        "--single-process",
       ],
     });
 
     const page = await browser.newPage();
 
-    // Configurar contenido HTML
     await page.setContent(html, {
       waitUntil: ["networkidle0", "domcontentloaded"],
     });
 
-    // Generar PDF con opciones
     const pdfBuffer = await page.pdf({
       format: options?.format || "Letter",
       landscape: options?.orientation === "landscape",
@@ -59,30 +74,41 @@ export async function generatePDFFromHTML(
       preferCSSPageSize: false,
     });
 
-    // Cerrar navegador
     await browser.close();
 
-    // Subir PDF a S3
     const fileKey = `stps-reports/${fileName}-${Date.now()}.pdf`;
     const { url } = await storagePut(fileKey, Buffer.from(pdfBuffer), "application/pdf");
 
     return url;
   } catch (error) {
-    // Asegurar cierre del navegador en caso de error
     if (browser) {
-      await browser.close();
+      try { await browser.close(); } catch {}
     }
     throw new Error(`Error al generar PDF: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
 /**
+ * Detecta el ejecutable de Chromium disponible en el sistema
+ */
+async function findChromiumExecutable(): Promise<string> {
+  const { existsSync } = await import("fs");
+  const candidates = [
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium",
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/snap/bin/chromium",
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  // Fallback: dejar que puppeteer use su propio Chromium descargado
+  return "";
+}
+
+/**
  * Genera un PDF con plantilla Handlebars compilada
- * @param template - Función de plantilla Handlebars compilada
- * @param data - Datos para la plantilla
- * @param fileName - Nombre del archivo PDF
- * @param options - Opciones de PDF
- * @returns URL pública del PDF generado
  */
 export async function generatePDFFromTemplate(
   template: (data: any) => string,
