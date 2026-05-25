@@ -9,6 +9,7 @@ import { getDb } from "../db";
 import { departments, users } from "../../drizzle/schema";
 import { eq, isNull, and, sql } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
+import { logJobExecution } from "../jobLogger";
 
 /**
  * Ejecutar verificación de departamentos sin manager
@@ -131,12 +132,12 @@ export function startDepartmentsWithoutManagerJob() {
   console.log('[Departments Without Manager Job] Initializing automated job (weekly)...');
   
   // Ejecutar inmediatamente al iniciar
-  runDepartmentsWithoutManagerCheck();
+  logJobExecution('departments-without-manager', runDepartmentsWithoutManagerCheck);
   
   // Programar ejecución semanal (7 * 24 * 60 * 60 * 1000 ms)
   const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
   setInterval(() => {
-    runDepartmentsWithoutManagerCheck();
+    logJobExecution('departments-without-manager', runDepartmentsWithoutManagerCheck);
   }, ONE_WEEK);
   
   console.log('[Departments Without Manager Job] Automated job started successfully');

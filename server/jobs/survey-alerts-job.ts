@@ -9,6 +9,7 @@ import { getDb } from "../db";
 import { surveys, alertThresholds } from "../../drizzle/schema";
 import { surveyAlertsRouter } from "../routers/surveyAlerts";
 import { eq } from "drizzle-orm";
+import { logJobExecution } from "../jobLogger";
 
 /**
  * Ejecutar verificación de alertas
@@ -79,12 +80,12 @@ export function startSurveyAlertsJob() {
   console.log('[Survey Alerts Job] Initializing automated alerts job (every 6 hours)...');
   
   // Ejecutar inmediatamente al iniciar
-  runSurveyAlertsCheck();
+  logJobExecution('survey-alerts', runSurveyAlertsCheck);
   
   // Programar ejecución cada 6 horas (6 * 60 * 60 * 1000 ms)
   const SIX_HOURS = 6 * 60 * 60 * 1000;
   setInterval(() => {
-    runSurveyAlertsCheck();
+    logJobExecution('survey-alerts', runSurveyAlertsCheck);
   }, SIX_HOURS);
   
   console.log('[Survey Alerts Job] Automated alerts job started successfully');

@@ -5733,3 +5733,19 @@ export const branches = mysqlTable("branches", {
 });
 export type Branch = typeof branches.$inferSelect;
 export type InsertBranch = typeof branches.$inferInsert;
+
+// ── Job Execution Log (Historial de ejecución de jobs automáticos) ───────────
+export const jobExecutionLog = mysqlTable("job_execution_log", {
+  id: int("id").autoincrement().primaryKey(),
+  jobName: varchar("job_name", { length: 100 }).notNull(),
+  status: mysqlEnum("status", ["success", "error", "skipped"]).notNull().default("success"),
+  notificationsSent: int("notifications_sent").default(0).notNull(),
+  notificationsSkipped: int("notifications_skipped").default(0).notNull(),
+  itemsProcessed: int("items_processed").default(0).notNull(),
+  durationMs: int("duration_ms").default(0).notNull(),
+  errorMessage: text("error_message"),
+  metadata: json("metadata"),
+  executedAt: timestamp("executed_at").defaultNow().notNull(),
+});
+export type JobExecutionLog = typeof jobExecutionLog.$inferSelect;
+export type InsertJobExecutionLog = typeof jobExecutionLog.$inferInsert;

@@ -5,7 +5,7 @@
 
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { jobExecutions, surveys } from "../../drizzle/schema";
+import { jobExecutions, jobExecutionLog, surveys } from "../../drizzle/schema";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -14,6 +14,11 @@ import { z } from "zod";
 import { runPostCaseSurveysJobs } from "../jobs/post-case-surveys-job";
 import { runDepartmentalAlertsJob } from "../jobs/departmental-alerts-job";
 import { runSurveyRemindersJob } from "../jobs/survey-reminders-job";
+import { runStaleCasesCheck } from "../jobs/stale-cases-alerts-job";
+import { runSurveyAlertsCheck } from "../jobs/survey-alerts-job";
+import { runDepartmentsWithoutManagerCheck } from "../jobs/departments-without-manager-job";
+import { runSecurityAlertsCheck } from "../jobs/security-alerts-job";
+import { logJobExecution } from "../jobLogger";
 
 export const jobMonitoringRouter = router({
   /**
@@ -238,5 +243,91 @@ export const jobMonitoringRouter = router({
 
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: error.message });
     }
+  }),
+
+  /**
+   * Obtener historial de la tabla job_execution_log (jobs con deduplicación)
+   */
+  getJobExecutionLog: protectedProcedure
+    .input(
+      z.object({
+        jobName: z.string().optional(),
+        limit: z.number().min(1).max(200).default(100),
+        offset: z.number().min(0).default(0),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const conditions = [];
+      if (input.jobName) conditions.push(eq(jobExecutionLog.jobName, input.jobName));
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const logs = await db
+        .select()
+        .from(jobExecutionLog)
+        .where(whereClause)
+        .orderBy(desc(jobExecutionLog.executedAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return logs;
+    }),
+
+  /**
+   * Resumen del último estado de cada job (para el panel de estado)
+   */
+  getJobStatusSummary: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+    const summary = await db
+      .select({
+        jobName: jobExecutionLog.jobName,
+        lastExecutedAt: sql<Date>`MAX(${jobExecutionLog.executedAt})`,
+        totalRuns: sql<number>`COUNT(*)`,
+        totalSent: sql<number>`SUM(${jobExecutionLog.notificationsSent})`,
+        totalSkipped: sql<number>`SUM(${jobExecutionLog.notificationsSkipped})`,
+        avgDurationMs: sql<number>`AVG(${jobExecutionLog.durationMs})`,
+        errorCount: sql<number>`SUM(CASE WHEN ${jobExecutionLog.status} = 'error' THEN 1 ELSE 0 END)`,
+      })
+      .from(jobExecutionLog)
+      .groupBy(jobExecutionLog.jobName)
+      .orderBy(desc(sql`MAX(${jobExecutionLog.executedAt})`));
+
+    return summary.map((s: any) => ({
+      jobName: s.jobName,
+      lastExecutedAt: s.lastExecutedAt,
+      totalRuns: Number(s.totalRuns) || 0,
+      totalSent: Number(s.totalSent) || 0,
+      totalSkipped: Number(s.totalSkipped) || 0,
+      avgDurationMs: Math.round(Number(s.avgDurationMs) || 0),
+      errorCount: Number(s.errorCount) || 0,
+    }));
+  }),
+
+  /** Ejecutar manualmente el Stale Cases Job */
+  runStaleCasesJob: protectedProcedure.mutation(async () => {
+    const result = await logJobExecution('stale-cases', runStaleCasesCheck);
+    return { success: true, result };
+  }),
+
+  /** Ejecutar manualmente el Survey Alerts Job */
+  runSurveyAlertsJob: protectedProcedure.mutation(async () => {
+    const result = await logJobExecution('survey-alerts', runSurveyAlertsCheck);
+    return { success: true, result };
+  }),
+
+  /** Ejecutar manualmente el Departments Without Manager Job */
+  runDepartmentsJob: protectedProcedure.mutation(async () => {
+    const result = await logJobExecution('departments-without-manager', runDepartmentsWithoutManagerCheck);
+    return { success: true, result };
+  }),
+
+  /** Ejecutar manualmente el Security Alerts Job */
+  runSecurityJob: protectedProcedure.mutation(async () => {
+    const result = await logJobExecution('security-alerts', runSecurityAlertsCheck);
+    return { success: true, result };
   }),
 });

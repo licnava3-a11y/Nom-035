@@ -68,6 +68,7 @@ const ClimateAnalysisDashboard = lazy(() => import("./pages/ClimateAnalysisDashb
 const CareerPlanningDashboard = lazy(() => import("./pages/CareerPlanningDashboard"));
 const TurnoverManagementPanel = lazy(() => import("./pages/TurnoverManagementPanel"));
 const JobMonitoringDashboard = lazy(() => import("./pages/JobMonitoringDashboard"));
+const AdminJobs = lazy(() => import("./pages/AdminJobs"));
 const AlertsDashboard = lazy(() => import("./pages/AlertsDashboard"));
 const ConsolidatedDashboard = lazy(() => import("./pages/ConsolidatedDashboard"));
 const Resources = lazy(() => import("./pages/Resources"));
@@ -419,6 +420,11 @@ function Router() {
               <PostCaseSurveysDashboard />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path={"/admin/jobs"}>
+          <Suspense fallback={<PageLoader />}>
+            <AdminJobs />
+          </Suspense>
         </Route>
         <Route path={"/job-monitoring"}>
           <DashboardLayout>

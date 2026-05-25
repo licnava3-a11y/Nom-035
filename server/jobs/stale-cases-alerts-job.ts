@@ -10,6 +10,7 @@
  */
 
 import { getDb, createNotification, getAllCommitteeMembers } from "../db";
+import { logJobExecution } from "../jobLogger";
 import { cases, notifications } from "../../drizzle/schema";
 import { and, eq, lt, gt, sql } from "drizzle-orm";
 
@@ -185,12 +186,12 @@ export function startStaleCasesJob() {
   console.log('[Stale Cases Job] Initializing automated stale cases check job (every 24 hours)...');
   
   // Ejecutar inmediatamente al iniciar (dentro del setTimeout de 30s en index.ts)
-  runStaleCasesCheck();
+  logJobExecution('stale-cases', runStaleCasesCheck);
   
   // Programar ejecución cada 24 horas (24 * 60 * 60 * 1000 ms)
   const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
   setInterval(() => {
-    runStaleCasesCheck();
+    logJobExecution('stale-cases', runStaleCasesCheck);
   }, TWENTY_FOUR_HOURS);
   
   console.log('[Stale Cases Job] Automated stale cases check job started successfully');

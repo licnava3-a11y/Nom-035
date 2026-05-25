@@ -13,6 +13,7 @@ import { getDb } from "../db";
 import { documentAuditLog, users } from "../../drizzle/schema";
 import { securityAlertsRouter } from "../routers/securityAlerts";
 import { gte, eq, and } from "drizzle-orm";
+import { logJobExecution } from "../jobLogger";
 
 // ─── Backoff exponencial ─────────────────────────────────────────────────────
 
@@ -207,7 +208,7 @@ export async function runSecurityAlertsCheck() {
 
 export function startSecurityAlertsJob() {
   console.log("[Security Alerts Job] Initializing (every 15 min, with exponential backoff)...");
-  runSecurityAlertsCheck();
-  setInterval(() => runSecurityAlertsCheck(), 15 * 60 * 1000);
+  logJobExecution('security-alerts', runSecurityAlertsCheck);
+  setInterval(() => logJobExecution('security-alerts', runSecurityAlertsCheck), 15 * 60 * 1000);
   console.log("[Security Alerts Job] Started successfully");
 }
