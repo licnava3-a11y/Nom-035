@@ -568,3 +568,18 @@
 - [x] Build de producción verificado: /api/health responde {"ok":true,"ts":...} sin autenticación
 - [x] Tests healthcheck.test.ts: 7/7 pasando
 - [x] Tests sprint48.test.ts: 15/15 pasando (sin regresiones)
+
+## Sprint 57 — Corrección OAuth Login (appId vacío en producción) (2026-05-25) ✅
+- [x] serveStatic() en server/_core/vite.ts reemplaza dinámicamente %VITE_*% en index.html con process.env en runtime
+- [x] Corregido error "Permiso denegado — El ID de la aplicación no está configurado" en producción
+
+## Sprint 58 — Corrección Servidor de Desarrollo (SIGSEGV) (2026-05-25) ✅
+- [x] index.ts siempre usa serveStatic() — eliminada llamada a setupVite() que causaba SIGSEGV
+- [x] dist/public/index.html copiado desde client/index.html para que serveStatic tenga HTML válido
+- [x] Servidor arranca correctamente en puerto 3000
+
+## Sprint 59 — Persistencia dist/public/index.html + Corrección Vista Previa Dev (2026-05-25) ✅
+- [x] serveStatic() copia automáticamente client/index.html → dist/public/index.html en modo dev al arrancar
+- [x] En producción (Cloud Run) NO sobreescribe el index.html compilado por vite build
+- [x] Fallback del script inline corregido: usa comparación con placeholder literal concatenado para no borrar el appId real
+- [x] Vista previa del servidor de desarrollo muestra appId=32dY4kSxNgo2w8qLnKHR6H correctamente

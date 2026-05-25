@@ -176,9 +176,12 @@
           var appId = '%VITE_APP_ID%';
           var oauthPortal = '%VITE_OAUTH_PORTAL_URL%';
 
-          // Fallbacks para dev (Vite no reemplaza en dev si no están en .env)
-          if (!appId || appId === '%VITE_APP_ID%') appId = '';
-          if (!oauthPortal || oauthPortal === '%VITE_OAUTH_PORTAL_URL%') {
+          // El servidor reemplaza %VITE_*% en runtime (serveStatic en vite.ts).
+          // Solo usar fallback si el placeholder NO fue reemplazado (string literal intacto).
+          var APP_ID_PLACEHOLDER = '%VITE' + '_APP_ID%';
+          var PORTAL_PLACEHOLDER = '%VITE' + '_OAUTH_PORTAL_URL%';
+          if (!appId || appId === APP_ID_PLACEHOLDER) appId = '';
+          if (!oauthPortal || oauthPortal === PORTAL_PLACEHOLDER) {
             oauthPortal = 'https://manus.im';
           }
 
