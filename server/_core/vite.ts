@@ -73,7 +73,26 @@ export function serveStatic(app: Express) {
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
+  // IMPORTANT: Replace %VITE_*% placeholders at runtime.
+  // Vite replaces these during `vite build`, but in Cloud Run the env vars
+  // (VITE_APP_ID, VITE_OAUTH_PORTAL_URL, etc.) are only available at runtime,
+  // NOT at Docker build time. Without this, the login button sends appId=''
+  // to the OAuth portal, which returns "El ID de la aplicación no está configurado".
+  const indexPath = path.resolve(distPath, "index.html");
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    try {
+      let html = fs.readFileSync(indexPath, "utf-8");
+      // Replace Vite-style %PLACEHOLDER% with actual runtime env values
+      html = html
+        .replace(/%VITE_APP_ID%/g, process.env.VITE_APP_ID ?? "")
+        .replace(/%VITE_OAUTH_PORTAL_URL%/g, process.env.VITE_OAUTH_PORTAL_URL ?? "https://manus.im")
+        .replace(/%VITE_ANALYTICS_ENDPOINT%/g, process.env.VITE_ANALYTICS_ENDPOINT ?? "")
+        .replace(/%VITE_ANALYTICS_WEBSITE_ID%/g, process.env.VITE_ANALYTICS_WEBSITE_ID ?? "");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(html);
+    } catch {
+      // Fallback: serve the file as-is if reading fails
+      res.sendFile(indexPath);
+    }
   });
 }
