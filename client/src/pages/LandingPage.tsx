@@ -7,9 +7,11 @@ import { getLoginUrl } from "@/const";
  * LandingPage — Página de inicio pública.
  *
  * Estrategia anti-spinner definitiva:
- * - Si auth.me responde antes de 3s y el usuario está autenticado → redirigir al dashboard.
- * - Si auth.me responde antes de 3s y no hay sesión → mostrar botón de login.
- * - Si auth.me NO responde en 3s (cold start Cloud Run) → mostrar botón de login igualmente.
+ * 1. Si hay sesión cacheada en localStorage → redirigir al dashboard SIN esperar auth.me.
+ *    (El dashboard verificará la sesión real; si expiró, lo redirige al login.)
+ * 2. Si auth.me responde antes de 3s y el usuario está autenticado → redirigir al dashboard.
+ * 3. Si auth.me responde antes de 3s y no hay sesión → mostrar botón de login.
+ * 4. Si auth.me NO responde en 3s (cold start Cloud Run) → mostrar botón de login igualmente.
  *
  * NUNCA mostrar un spinner indefinido. El usuario siempre tiene una acción disponible.
  */
@@ -19,12 +21,36 @@ export default function LandingPage() {
   // Después de 3s, mostrar el botón de login aunque loading siga en true
   const [timedOut, setTimedOut] = useState(false);
 
+  // Redirección instantánea para usuarios recurrentes:
+  // Si hay datos de sesión en localStorage (escritos por useAuth), redirigir de inmediato
+  // sin esperar a que auth.me responda. El dashboard verificará la sesión real.
+  const [redirecting, setRedirecting] = useState(() => {
+    try {
+      const cached = localStorage.getItem("manus-runtime-user-info");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // Solo redirigir si hay un objeto de usuario válido (no null/undefined)
+        return parsed !== null && parsed !== undefined && typeof parsed === "object" && parsed.id;
+      }
+    } catch {
+      // localStorage no disponible o JSON inválido — ignorar
+    }
+    return false;
+  });
+
   useEffect(() => {
     const timer = setTimeout(() => setTimedOut(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Si el usuario ya está autenticado, redirigir al dashboard inmediatamente
+  // Redirección instantánea si hay sesión cacheada
+  useEffect(() => {
+    if (redirecting) {
+      navigate("/dashboard");
+    }
+  }, [redirecting, navigate]);
+
+  // Si el usuario ya está autenticado (confirmado por auth.me), redirigir al dashboard
   useEffect(() => {
     if (!loading && user) {
       navigate("/dashboard");
@@ -32,7 +58,8 @@ export default function LandingPage() {
   }, [user, loading, navigate]);
 
   // Mostrar spinner SOLO durante los primeros 3s y mientras loading=true
-  const showSpinner = loading && !timedOut;
+  // (o mientras se está redirigiendo a usuarios autenticados)
+  const showSpinner = (loading && !timedOut) || redirecting;
 
   if (showSpinner) {
     return (

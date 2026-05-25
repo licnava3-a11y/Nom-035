@@ -1,4 +1,5 @@
 import "dotenv/config";
+import compression from "compression";
 import express from "express";
 import { createServer } from "http";
 import helmet from "helmet";
@@ -76,7 +77,19 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  
+
+  // Compresión gzip/deflate — reducir payload ~70% en assets JS/CSS/JSON
+  // Se aplica ANTES de todos los middlewares para comprimir todas las respuestas
+  app.use(compression({
+    level: 6,          // Nivel de compresión (1-9). 6 = balance óptimo velocidad/tamaño
+    threshold: 1024,   // Solo comprimir respuestas > 1KB
+    filter: (req, res) => {
+      // No comprimir si el cliente no acepta gzip
+      if (req.headers['x-no-compression']) return false;
+      return compression.filter(req, res);
+    },
+  }));
+
   // Aplicar rate limiting global a todas las rutas
   app.use(globalLimiter);
   
@@ -135,6 +148,21 @@ async function startServer() {
   app.use("/api", uploadRouter);
   // Export API
   app.use("/api", exportRouter);
+
+  // Heartbeat anti-cold-start — recibe el ping cada 10 minutos del cron de plataforma
+  // Mantiene el contenedor Cloud Run "caliente" para eliminar cold starts
+  app.post("/api/scheduled/warmup", (req, res) => {
+    try {
+      // Aceptar tanto cron autenticado como ping simple (x-manus-cron-task-uid header)
+      const taskUid = req.headers["x-manus-cron-task-uid"] ?? "manual";
+      console.log(`[Warmup] Ping recibido. taskUid=${taskUid} ts=${Date.now()}`);
+      res.json({ ok: true, ts: Date.now(), taskUid });
+    } catch (err) {
+      console.error("[Warmup] Error:", err);
+      res.status(500).json({ error: String(err), ts: Date.now() });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",
