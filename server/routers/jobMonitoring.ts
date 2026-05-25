@@ -315,7 +315,11 @@ export const jobMonitoringRouter = router({
 
   /** Ejecutar manualmente el Survey Alerts Job */
   runSurveyAlertsJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('survey-alerts', runSurveyAlertsCheck);
+    const result = await logJobExecution('survey-alerts', async () => {
+      const r = await runSurveyAlertsCheck();
+      const sent = (r?.coverage?.alertsSent ?? 0) + (r?.pending?.alertsSent ?? 0);
+      return { notificationsSent: sent, itemsProcessed: r?.coverage?.checked ?? 0 };
+    });
     return { success: true, result };
   }),
 
