@@ -321,7 +321,10 @@ export const jobMonitoringRouter = router({
 
   /** Ejecutar manualmente el Departments Without Manager Job */
   runDepartmentsJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('departments-without-manager', runDepartmentsWithoutManagerCheck);
+    const result = await logJobExecution('departments-without-manager', async () => {
+      const r = await runDepartmentsWithoutManagerCheck();
+      return { notificationsSent: r?.alertsSent ?? 0, itemsProcessed: r?.departmentsFound ?? 0 };
+    });
     return { success: true, result };
   }),
 
