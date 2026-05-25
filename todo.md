@@ -560,3 +560,11 @@
 - [x] Ruta /welcome registrada en App.tsx como ruta pública (sin DashboardLayout, lazy import)
 - [x] Tema oscuro #0f172a con acento verde #22c55e, sin dependencia de useAuth ni trpc
 - [x] Tests Sprint 48: 15/15 pasando (sprint48.test.ts)
+
+## Sprint 49 — Corrección Health Check / Spinner Infinito en Producción (2026-05-25)
+- [x] Endpoint GET /api/health universal agregado en server/_core/index.ts (antes de OAuth/LocalAuth)
+- [x] Dockerfile actualizado: HEALTHCHECK usa /api/health (no /api/auth/mode), start-period=60s, retries=5
+- [x] vite.config.ts: manualChunks ampliado (vendor-icons, vendor-dnd, vendor-flow, vendor-socket, vendor-monaco, vendor-markdown, vendor-ui-extra)
+- [x] Build de producción verificado: /api/health responde {"ok":true,"ts":...} sin autenticación
+- [x] Tests healthcheck.test.ts: 7/7 pasando
+- [x] Tests sprint48.test.ts: 15/15 pasando (sin regresiones)

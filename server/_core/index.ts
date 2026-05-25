@@ -116,6 +116,12 @@ async function startServer() {
   
 
   
+  // Health check universal — disponible siempre, sin autenticación
+  // Usado por Cloud Run startup probe y Dockerfile HEALTHCHECK
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ ok: true, ts: Date.now() });
+  });
+
   // Autenticación: local (usuario/contraseña) o Manus OAuth
   const useLocalAuth = process.env.LOCAL_AUTH === 'true';
   if (useLocalAuth) {

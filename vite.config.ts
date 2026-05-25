@@ -233,6 +233,34 @@ export default defineConfig({
           if (id.includes('node_modules/date-fns/') || id.includes('node_modules/react-day-picker/')) {
             return 'vendor-dates';
           }
+          // Monaco Editor (muy pesado, lazy-load)
+          if (id.includes('node_modules/@monaco-editor/') || id.includes('node_modules/monaco-editor/')) {
+            return 'vendor-monaco';
+          }
+          // DnD Kit (arrastrar y soltar)
+          if (id.includes('node_modules/@dnd-kit/')) {
+            return 'vendor-dnd';
+          }
+          // ReactFlow / XyFlow (diagramas)
+          if (id.includes('node_modules/reactflow/') || id.includes('node_modules/@xyflow/')) {
+            return 'vendor-flow';
+          }
+          // Socket.io cliente
+          if (id.includes('node_modules/socket.io-client/') || id.includes('node_modules/engine.io-client/')) {
+            return 'vendor-socket';
+          }
+          // Streamdown (markdown streaming)
+          if (id.includes('node_modules/streamdown/')) {
+            return 'vendor-markdown';
+          }
+          // Lucide React (iconos — muy pesado por la cantidad de SVGs)
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'vendor-icons';
+          }
+          // Sonner (toasts)
+          if (id.includes('node_modules/sonner/') || id.includes('node_modules/vaul/') || id.includes('node_modules/cmdk/')) {
+            return 'vendor-ui-extra';
+          }
           // Resto de node_modules → vendor-misc
           if (id.includes('node_modules/')) {
             return 'vendor-misc';

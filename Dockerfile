@@ -42,8 +42,8 @@ ENV LOCAL_AUTH=true
 
 EXPOSE 3000
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget -qO- http://localhost:3000/api/auth/mode || exit 1
+# Healthcheck universal — funciona en modo OAuth y LOCAL_AUTH
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
+  CMD wget -qO- http://localhost:3000/api/health || exit 1
 
 CMD ["node", "dist/index.js"]
