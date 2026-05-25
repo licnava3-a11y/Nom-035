@@ -583,3 +583,10 @@
 - [x] En producción (Cloud Run) NO sobreescribe el index.html compilado por vite build
 - [x] Fallback del script inline corregido: usa comparación con placeholder literal concatenado para no borrar el appId real
 - [x] Vista previa del servidor de desarrollo muestra appId=32dY4kSxNgo2w8qLnKHR6H correctamente
+
+## Sprint 60 — Limpieza de backlog (2026-05-25)
+- [x] Eliminadas actividades obsoletas del backlog:
+  - ~~Corregir módulo Documentos Legales (0 de 4 firmados)~~ — descartada por el usuario
+  - ~~Activar heartbeat anti-cold-start~~ — descartada por el usuario
+  - ~~Optimizar chunks de JavaScript (manualChunks)~~ — descartada por el usuario
+- [x] Corregir vista previa del servidor de desarrollo (conexión rechazada) — servidor reiniciado, responde HTTP 200 en puerto 3000
