@@ -3,11 +3,44 @@
  * Se ejecuta cada 24 horas para detectar:
  * - Casos abiertos por más de 7 días sin cambio de estado
  * - Casos críticos abiertos por más de 3 días
+ *
+ * DEDUPLICACIÓN: Antes de crear una notificación, verifica si ya se envió
+ * una notificación del mismo tipo para el mismo caso al mismo usuario
+ * en las últimas 24 horas. Si existe, la omite para evitar spam masivo.
  */
 
 import { getDb, createNotification, getAllCommitteeMembers } from "../db";
-import { cases, committeeMembers, notifications } from "../../drizzle/schema";
-import { and, eq, lt, sql } from "drizzle-orm";
+import { cases, notifications } from "../../drizzle/schema";
+import { and, eq, lt, gt, sql } from "drizzle-orm";
+
+const DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 horas
+
+/**
+ * Verifica si ya existe una notificación para el mismo caso+usuario en las últimas 24h.
+ * Evita enviar 655 notificaciones repetidas en cada ejecución del job.
+ */
+async function wasAlreadyNotified(
+  db: Awaited<ReturnType<typeof getDb>>,
+  userId: number,
+  caseId: number,
+  type: string
+): Promise<boolean> {
+  if (!db) return false;
+  const since = new Date(Date.now() - DEDUP_WINDOW_MS);
+  const existing = await db
+    .select({ id: notifications.id })
+    .from(notifications)
+    .where(
+      and(
+        eq(notifications.userId, userId),
+        eq(notifications.relatedEntityId, caseId),
+        sql`${notifications.type} = ${type}`,
+        gt(notifications.createdAt, since)
+      )
+    )
+    .limit(1);
+  return existing.length > 0;
+}
 
 /**
  * Ejecutar verificación de casos estancados
@@ -54,26 +87,35 @@ export async function runStaleCasesCheck() {
     console.log(`[Stale Cases Job] Found ${criticalStaleCases.length} critical cases open for more than 3 days`);
 
     // Obtener miembros del comité
-    const committeeMembers = await getAllCommitteeMembers();
+    const members = await getAllCommitteeMembers();
     
-    if (committeeMembers.length === 0) {
+    if (members.length === 0) {
       console.warn('[Stale Cases Job] No committee members found');
       return {
         success: true,
         staleCasesFound: staleCases.length,
         criticalStaleCasesFound: criticalStaleCases.length,
         notificationsSent: 0,
+        notificationsSkipped: 0,
       };
     }
 
     let notificationsSent = 0;
+    let notificationsSkipped = 0;
 
-    // Notificar casos estancados regulares (>7 días)
+    // Notificar casos estancados regulares (>7 días) — con deduplicación 24h
     for (const caseData of staleCases) {
       const daysOpen = Math.floor((now.getTime() - new Date(caseData.createdAt).getTime()) / (24 * 60 * 60 * 1000));
       
-      for (const member of committeeMembers) {
+      for (const member of members) {
         try {
+          // DEDUPLICACIÓN: omitir si ya se notificó en las últimas 24h
+          const alreadyNotified = await wasAlreadyNotified(db, member.id, caseData.id, 'deadline_approaching');
+          if (alreadyNotified) {
+            notificationsSkipped++;
+            continue;
+          }
+
           await createNotification({
             userId: member.id,
             type: 'deadline_approaching',
@@ -89,12 +131,19 @@ export async function runStaleCasesCheck() {
       }
     }
 
-    // Notificar casos críticos estancados (>3 días) - prioridad alta
+    // Notificar casos críticos estancados (>3 días) — con deduplicación 24h
     for (const caseData of criticalStaleCases) {
       const daysOpen = Math.floor((now.getTime() - new Date(caseData.createdAt).getTime()) / (24 * 60 * 60 * 1000));
       
-      for (const member of committeeMembers) {
+      for (const member of members) {
         try {
+          // DEDUPLICACIÓN: omitir si ya se notificó en las últimas 24h
+          const alreadyNotified = await wasAlreadyNotified(db, member.id, caseData.id, 'deadline_approaching');
+          if (alreadyNotified) {
+            notificationsSkipped++;
+            continue;
+          }
+
           await createNotification({
             userId: member.id,
             type: 'deadline_approaching',
@@ -110,13 +159,14 @@ export async function runStaleCasesCheck() {
       }
     }
 
-    console.log(`[Stale Cases Job] Check completed. Sent ${notificationsSent} notifications`);
+    console.log(`[Stale Cases Job] Check completed. Sent ${notificationsSent} notifications (${notificationsSkipped} skipped — already notified in last 24h)`);
     
     return {
       success: true,
       staleCasesFound: staleCases.length,
       criticalStaleCasesFound: criticalStaleCases.length,
       notificationsSent,
+      notificationsSkipped,
     };
   } catch (error) {
     console.error('[Stale Cases Job] Error during stale cases check:', error);
@@ -134,7 +184,7 @@ export async function runStaleCasesCheck() {
 export function startStaleCasesJob() {
   console.log('[Stale Cases Job] Initializing automated stale cases check job (every 24 hours)...');
   
-  // Ejecutar inmediatamente al iniciar
+  // Ejecutar inmediatamente al iniciar (dentro del setTimeout de 30s en index.ts)
   runStaleCasesCheck();
   
   // Programar ejecución cada 24 horas (24 * 60 * 60 * 1000 ms)
