@@ -327,7 +327,10 @@ export const jobMonitoringRouter = router({
 
   /** Ejecutar manualmente el Security Alerts Job */
   runSecurityJob: protectedProcedure.mutation(async () => {
-    const result = await logJobExecution('security-alerts', runSecurityAlertsCheck);
+    const result = await logJobExecution('security-alerts', async () => {
+      const r = await runSecurityAlertsCheck();
+      return { itemsProcessed: r?.alertsCreated ?? 0 };
+    });
     return { success: true, result };
   }),
 });
