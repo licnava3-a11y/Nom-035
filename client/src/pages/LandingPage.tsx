@@ -1,11 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 
+/**
+ * LandingPage — Página de inicio pública.
+ *
+ * Estrategia anti-spinner definitiva:
+ * - Si auth.me responde antes de 3s y el usuario está autenticado → redirigir al dashboard.
+ * - Si auth.me responde antes de 3s y no hay sesión → mostrar botón de login.
+ * - Si auth.me NO responde en 3s (cold start Cloud Run) → mostrar botón de login igualmente.
+ *
+ * NUNCA mostrar un spinner indefinido. El usuario siempre tiene una acción disponible.
+ */
 export default function LandingPage() {
   const { user, loading } = useAuth();
   const [, navigate] = useLocation();
+  // Después de 3s, mostrar el botón de login aunque loading siga en true
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Si el usuario ya está autenticado, redirigir al dashboard inmediatamente
   useEffect(() => {
@@ -14,8 +31,10 @@ export default function LandingPage() {
     }
   }, [user, loading, navigate]);
 
-  // Mientras carga, mostrar pantalla de bienvenida con spinner mínimo
-  if (loading) {
+  // Mostrar spinner SOLO durante los primeros 3s y mientras loading=true
+  const showSpinner = loading && !timedOut;
+
+  if (showSpinner) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center space-y-4">

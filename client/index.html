@@ -88,14 +88,14 @@
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
-      /* Mensaje de estado visible después de 4 segundos (CSS puro, sin JS) */
+      /* Mensaje de estado visible después de 1.5 segundos (CSS puro, sin JS) */
       .app-loading-hint {
         font-size: 11px;
         color: #94a3b8;
         text-align: center;
         max-width: 220px;
         opacity: 0;
-        animation: hint-appear 1s ease 4s forwards;
+        animation: hint-appear 0.5s ease 1.5s forwards;
       }
       @keyframes hint-appear {
         to { opacity: 1; }
@@ -130,7 +130,7 @@
       <div class="app-loading-title">Plataforma NOM-035 STPS 2018</div>
       <div class="app-loading-subtitle">Gestión Integral de Riesgos Psicosociales</div>
       <div class="app-loading-spinner"></div>
-      <div class="app-loading-hint">Iniciando servidor... por favor espera</div>
+      <div class="app-loading-hint">Si tarda más de 3 segundos, recarga la página</div>
     </div>
 
     <div id="root"></div>

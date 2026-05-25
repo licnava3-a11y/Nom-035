@@ -145,6 +145,7 @@ root.render(
   </trpc.Provider>
 );
 
-// Ocultar spinner: (1) tras primer frame de React, (2) timeout de seguridad a los 2s
+// Ocultar spinner: (1) tras primer frame de React, (2) timeout de seguridad a los 500ms
+// El spinner del HTML debe desaparecer en cuanto React monta, sin importar si auth.me tarda
 requestAnimationFrame(() => requestAnimationFrame(hideAppLoading));
-setTimeout(hideAppLoading, 2000);
+setTimeout(hideAppLoading, 500);
