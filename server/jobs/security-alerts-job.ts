@@ -208,7 +208,11 @@ export async function runSecurityAlertsCheck() {
 
 export function startSecurityAlertsJob() {
   console.log("[Security Alerts Job] Initializing (every 15 min, with exponential backoff)...");
-  logJobExecution('security-alerts', runSecurityAlertsCheck);
-  setInterval(() => logJobExecution('security-alerts', runSecurityAlertsCheck), 15 * 60 * 1000);
+  const securityWrapper = async () => {
+    const r = await runSecurityAlertsCheck();
+    return { itemsProcessed: r?.alertsCreated ?? 0 };
+  };
+  logJobExecution('security-alerts', securityWrapper);
+  setInterval(() => logJobExecution('security-alerts', securityWrapper), 15 * 60 * 1000);
   console.log("[Security Alerts Job] Started successfully");
 }
