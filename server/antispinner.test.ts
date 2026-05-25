@@ -4,7 +4,7 @@
  * Verifica que:
  * 1. LandingPage.tsx tiene un timeout de máximo 3s antes de mostrar el botón de login.
  * 2. El spinner del HTML se oculta en máximo 500ms (no 2s).
- * 3. El hint del HTML aparece en 1.5s (no 4s).
+ * 3. index.html tiene una página de bienvenida estática con botón de login funcional.
  * 4. LandingPage NUNCA muestra un spinner indefinido.
  */
 
@@ -50,26 +50,30 @@ describe("Anti-Spinner — LandingPage timeout de 3s", () => {
     expect(loginUrlCount).toBeGreaterThanOrEqual(1);
   });
 
-  it("main.tsx oculta el spinner del HTML en máximo 500ms", () => {
+  it("main.tsx oculta la página de bienvenida en máximo 500ms", () => {
     const content = readFileSync(mainPath, "utf-8");
-    // Verificar que el timeout de hideAppLoading es <= 500ms
-    const match = content.match(/setTimeout\s*\(\s*hideAppLoading\s*,\s*(\d+)\s*\)/);
+    // Verificar que el timeout de hideAppWelcome es <= 500ms
+    const match = content.match(/setTimeout\s*\(\s*hideAppWelcome\s*,\s*(\d+)\s*\)/);
     expect(match).not.toBeNull();
     const timeoutMs = parseInt(match![1]);
     expect(timeoutMs).toBeLessThanOrEqual(500);
   });
 
-  it("index.html: el hint aparece en máximo 2s (no 4s)", () => {
+  it("index.html: tiene página de bienvenida estática con id app-welcome", () => {
     const content = readFileSync(indexHtmlPath, "utf-8");
-    // Buscar el delay de la animación hint-appear
-    const match = content.match(/animation:\s*hint-appear[^;]+(\d+(?:\.\d+)?)s\s+forwards/);
-    expect(match).not.toBeNull();
-    // El delay debe ser <= 2s
-    const delayStr = content.match(/hint-appear\s+[\d.]+s\s+ease\s+([\d.]+)s/);
-    if (delayStr) {
-      const delay = parseFloat(delayStr[1]);
-      expect(delay).toBeLessThanOrEqual(2);
-    }
+    expect(content).toContain('id="app-welcome"');
+  });
+
+  it("index.html: tiene botón de login con id aw-login-btn", () => {
+    const content = readFileSync(indexHtmlPath, "utf-8");
+    expect(content).toContain('id="aw-login-btn"');
+  });
+
+  it("index.html: tiene script inline que construye la URL de OAuth sin React", () => {
+    const content = readFileSync(indexHtmlPath, "utf-8");
+    expect(content).toContain("VITE_APP_ID");
+    expect(content).toContain("VITE_OAUTH_PORTAL_URL");
+    expect(content).toContain("/api/oauth/callback");
   });
 
   it("LandingPage.tsx NO tiene 'if (loading)' sin timeout (el patrón que causaba el spinner infinito)", () => {

@@ -122,13 +122,18 @@ import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() 
 // Service Worker: deshabilitado completamente
 // El desregistro se hace en index.html antes de que React cargue
 
-// Ocultar el spinner de carga inicial cuando React monta
-function hideAppLoading() {
-  const loader = document.getElementById('app-loading');
-  if (!loader) return;
-  loader.classList.add('fade-out');
+// Ocultar la página de bienvenida estática cuando React monta
+function hideAppWelcome() {
+  // Ocultar el indicador de carga (spinner pequeño)
+  const loadingIndicator = document.getElementById('aw-loading-indicator');
+  if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+  // Ocultar toda la página de bienvenida con fade-out
+  const welcome = document.getElementById('app-welcome');
+  if (!welcome) return;
+  welcome.classList.add('hidden');
   setTimeout(() => {
-    if (loader.parentNode) loader.remove();
+    if (welcome.parentNode) welcome.remove();
   }, 350);
 }
 
@@ -145,7 +150,7 @@ root.render(
   </trpc.Provider>
 );
 
-// Ocultar spinner: (1) tras primer frame de React, (2) timeout de seguridad a los 500ms
-// El spinner del HTML debe desaparecer en cuanto React monta, sin importar si auth.me tarda
-requestAnimationFrame(() => requestAnimationFrame(hideAppLoading));
-setTimeout(hideAppLoading, 500);
+// Ocultar bienvenida: (1) tras primer frame de React, (2) timeout de seguridad a los 500ms
+// La página de bienvenida debe desaparecer en cuanto React monta
+requestAnimationFrame(() => requestAnimationFrame(hideAppWelcome));
+setTimeout(hideAppWelcome, 500);

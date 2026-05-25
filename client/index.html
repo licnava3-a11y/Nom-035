@@ -20,14 +20,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet" />
-    <!-- Prefetch de módulos críticos para reducir tiempo de carga post-login -->
-    <!-- Nota: En producción Vite genera hashes; estos hints aplican en dev y son ignorados si no existen -->
-    <link rel="modulepreload" href="/src/main.tsx" />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <style>
-      /* Spinner de carga inicial — se elimina cuando React monta */
-      #app-loading {
+      /* ── Página de bienvenida estática (visible sin JS/React) ── */
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; }
+
+      #app-welcome {
         position: fixed;
         inset: 0;
         display: flex;
@@ -36,78 +34,102 @@
         justify-content: center;
         background: #f8fafc;
         z-index: 9999;
-        font-family: 'Inter', system-ui, sans-serif;
-        gap: 20px;
+        gap: 16px;
+        padding: 24px;
         transition: opacity 0.3s ease;
       }
-      #app-loading.fade-out {
+      #app-welcome.hidden {
         opacity: 0;
         pointer-events: none;
       }
-      .app-loading-logo {
-        width: 64px;
-        height: 64px;
+      .aw-logo {
+        width: 72px;
+        height: 72px;
         background: #0f172a;
-        border-radius: 16px;
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 24px rgba(15,23,42,0.15);
+        box-shadow: 0 4px 24px rgba(15,23,42,0.18);
+        margin-bottom: 4px;
       }
-      .app-loading-logo svg {
-        width: 36px;
-        height: 36px;
+      .aw-logo svg {
+        width: 40px;
+        height: 40px;
         fill: none;
         stroke: #22c55e;
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
-      .app-loading-title {
-        font-size: 15px;
-        font-weight: 600;
+      .aw-title {
+        font-size: 20px;
+        font-weight: 700;
         color: #0f172a;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.02em;
         text-align: center;
-        max-width: 260px;
-        line-height: 1.4;
+        max-width: 280px;
+        line-height: 1.3;
       }
-      .app-loading-subtitle {
-        font-size: 12px;
+      .aw-subtitle {
+        font-size: 13px;
         color: #64748b;
         text-align: center;
+        max-width: 240px;
+        line-height: 1.5;
       }
-      .app-loading-spinner {
-        width: 32px;
-        height: 32px;
-        border: 3px solid #e2e8f0;
+      .aw-btn {
+        margin-top: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #22c55e;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 13px 32px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 2px 12px rgba(34,197,94,0.3);
+        transition: background 0.15s;
+        min-width: 200px;
+        text-align: center;
+      }
+      .aw-btn:hover { background: #16a34a; }
+      .aw-loading {
+        font-size: 12px;
+        color: #94a3b8;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .aw-spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid #e2e8f0;
         border-top-color: #22c55e;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
+        flex-shrink: 0;
       }
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      /* Mensaje de estado visible después de 1.5 segundos (CSS puro, sin JS) */
-      .app-loading-hint {
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .aw-badge {
         font-size: 11px;
         color: #94a3b8;
         text-align: center;
-        max-width: 220px;
-        opacity: 0;
-        animation: hint-appear 0.5s ease 1.5s forwards;
-      }
-      @keyframes hint-appear {
-        to { opacity: 1; }
+        margin-top: 4px;
       }
     </style>
-  <!-- Desregistrar Service Workers obsoletos antes de que React cargue -->
+  <!-- Desregistrar Service Workers obsoletos -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        registrations.forEach(function(r) { r.unregister(); });
+      navigator.serviceWorker.getRegistrations().then(function(r) {
+        r.forEach(function(sw) { sw.unregister(); });
       });
-      // Limpiar todos los caches del SW
       if ('caches' in window) {
         caches.keys().then(function(names) {
           names.forEach(function(name) { caches.delete(name); });
@@ -118,20 +140,67 @@
   </head>
 
   <body>
-    <!-- Spinner institucional visible antes de que React monte -->
-    <div id="app-loading" aria-label="Cargando plataforma" role="status">
-      <div class="app-loading-logo">
+    <!-- ── Página de bienvenida estática ── -->
+    <!-- Visible INMEDIATAMENTE sin necesidad de React ni JS de módulos -->
+    <!-- Se oculta cuando React monta (ver main.tsx) -->
+    <div id="app-welcome" role="main" aria-label="Bienvenida a la plataforma NOM-035">
+      <div class="aw-logo">
         <svg viewBox="0 0 24 24">
           <path d="M12 2L2 7l10 5 10-5-10-5z"/>
           <path d="M2 17l10 5 10-5"/>
           <path d="M2 12l10 5 10-5"/>
         </svg>
       </div>
-      <div class="app-loading-title">Plataforma NOM-035 STPS 2018</div>
-      <div class="app-loading-subtitle">Gestión Integral de Riesgos Psicosociales</div>
-      <div class="app-loading-spinner"></div>
-      <div class="app-loading-hint">Si tarda más de 3 segundos, recarga la página</div>
+      <div class="aw-title">Plataforma NOM-035 STPS 2018</div>
+      <div class="aw-subtitle">Gestión Integral de Riesgos Psicosociales</div>
+
+      <!-- Botón de login: se construye con script inline sin dependencias -->
+      <a id="aw-login-btn" class="aw-btn" href="#" onclick="return false;">
+        Iniciar sesión
+      </a>
+
+      <!-- Indicador de carga de la app React (se oculta cuando React monta) -->
+      <div id="aw-loading-indicator" class="aw-loading">
+        <div class="aw-spinner"></div>
+        <span>Cargando aplicación…</span>
+      </div>
+
+      <div class="aw-badge">NOM-035-STPS-2018 · Factores de Riesgo Psicosocial</div>
     </div>
+
+    <!-- Script inline: construye la URL de OAuth sin React ni módulos -->
+    <!-- Ejecuta en <1ms, funciona incluso si React nunca carga -->
+    <script>
+      (function() {
+        try {
+          var appId = '%VITE_APP_ID%';
+          var oauthPortal = '%VITE_OAUTH_PORTAL_URL%';
+
+          // Fallbacks para dev (Vite no reemplaza en dev si no están en .env)
+          if (!appId || appId === '%VITE_APP_ID%') appId = '';
+          if (!oauthPortal || oauthPortal === '%VITE_OAUTH_PORTAL_URL%') {
+            oauthPortal = 'https://manus.im';
+          }
+
+          var redirectUri = window.location.origin + '/api/oauth/callback';
+          var state = btoa(redirectUri);
+          var loginUrl = oauthPortal + '/app-auth'
+            + '?appId=' + encodeURIComponent(appId)
+            + '&redirectUri=' + encodeURIComponent(redirectUri)
+            + '&state=' + encodeURIComponent(state)
+            + '&type=signIn';
+
+          var btn = document.getElementById('aw-login-btn');
+          if (btn) {
+            btn.href = loginUrl;
+            btn.onclick = null;
+          }
+        } catch(e) {
+          // Si falla, el botón sigue visible pero sin href funcional
+          console.warn('[NOM-035] No se pudo construir la URL de login:', e);
+        }
+      })();
+    </script>
 
     <div id="root"></div>
     <div id="portal-root"></div>
