@@ -130,14 +130,17 @@ Panel de Administración > Gestión de Departamentos
  */
 export function startDepartmentsWithoutManagerJob() {
   console.log('[Departments Without Manager Job] Initializing automated job (weekly)...');
-  
+  const deptWrapper = async () => {
+    const r = await runDepartmentsWithoutManagerCheck();
+    return { notificationsSent: r?.alertsSent ?? 0, itemsProcessed: r?.departmentsFound ?? 0 };
+  };
   // Ejecutar inmediatamente al iniciar
-  logJobExecution('departments-without-manager', runDepartmentsWithoutManagerCheck);
+  logJobExecution('departments-without-manager', deptWrapper);
   
   // Programar ejecución semanal (7 * 24 * 60 * 60 * 1000 ms)
   const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
   setInterval(() => {
-    logJobExecution('departments-without-manager', runDepartmentsWithoutManagerCheck);
+    logJobExecution('departments-without-manager', deptWrapper);
   }, ONE_WEEK);
   
   console.log('[Departments Without Manager Job] Automated job started successfully');
