@@ -80,12 +80,17 @@ export function startSurveyAlertsJob() {
   console.log('[Survey Alerts Job] Initializing automated alerts job (every 6 hours)...');
   
   // Ejecutar inmediatamente al iniciar
-  logJobExecution('survey-alerts', runSurveyAlertsCheck);
+  const surveyWrapper = async () => {
+    const r = await runSurveyAlertsCheck();
+    const sent = (r?.coverage?.alertsSent ?? 0) + (r?.pending?.alertsSent ?? 0);
+    return { notificationsSent: sent, itemsProcessed: r?.coverage?.checked ?? 0 };
+  };
+  logJobExecution('survey-alerts', surveyWrapper);
   
   // Programar ejecución cada 6 horas (6 * 60 * 60 * 1000 ms)
   const SIX_HOURS = 6 * 60 * 60 * 1000;
   setInterval(() => {
-    logJobExecution('survey-alerts', runSurveyAlertsCheck);
+    logJobExecution('survey-alerts', surveyWrapper);
   }, SIX_HOURS);
   
   console.log('[Survey Alerts Job] Automated alerts job started successfully');
