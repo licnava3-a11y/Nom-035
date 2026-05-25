@@ -196,7 +196,17 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
-    
+
+    // IMPORTANTE: Todos los jobs se inician con un delay de 30s para que Cloud Run
+    // pase el health check (/api/health) ANTES de que los jobs saturen CPU/memoria.
+    // Sin este delay, los jobs ejecutan consultas masivas a la BD en el arranque
+    // (ej. Stale Cases Job envía 655 notificaciones), causando que el contenedor
+    // falle el health check y se reinicie en bucle (“espere el servidor”).
+    const JOB_STARTUP_DELAY_MS = 30_000; // 30 segundos
+    console.log(`[Jobs] Todos los jobs iniciarán en ${JOB_STARTUP_DELAY_MS / 1000}s para permitir el health check de Cloud Run`);
+
+    setTimeout(() => {
+    console.log('[Jobs] Iniciando todos los jobs de alertas automáticas...');
     // Iniciar jobs de alertas automáticas
     startSurveyAlertsJob();
     startCoverageAlertsJob();
@@ -370,6 +380,9 @@ async function startServer() {
 
     // Performance LCP Alerts Job (daily at 06:00 AM)
     startPerformanceLcpAlertsJob();
+
+    console.log('[Jobs] Todos los jobs de alertas automáticas iniciados correctamente.');
+    }, JOB_STARTUP_DELAY_MS); // Fin del delay de 30s
   });
 }
 
