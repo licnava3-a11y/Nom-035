@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, FileText, Calendar, Users, CheckCircle, Clock, Edit } from "lucide-react";
+import { Plus, FileText, Calendar, Users, CheckCircle, Clock, Edit, BookUser } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -67,10 +67,16 @@ export default function MeetingMinutes() {
             Gestión de minutas con foliado automático y firma digital (NOM-151)
           </p>
         </div>
-        <Button onClick={() => setLocation("/meeting-minutes/new")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Minuta
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setLocation("/committee/minute-recipients")} className="gap-2">
+            <BookUser className="h-4 w-4" />
+            Destinatarios
+          </Button>
+          <Button onClick={() => setLocation("/meeting-minutes/new")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Minuta
+          </Button>
+        </div>
       </div>
 
       {/* Filtros */}

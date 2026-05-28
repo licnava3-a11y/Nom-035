@@ -604,3 +604,12 @@
 - [x] DashboardLayoutSkeleton.tsx movido a @/components/skeletons/ y eliminado el legacy de components/
 - [x] Endpoint system.backupCompleted agregado al systemRouter para notificar al admin al completar el respaldo
 - [x] skipLibCheck: true ya estaba en tsconfig.json — los 4 errores de html2canvas son solo del watcher tsx, no afectan producción
+
+## Sprint 64 — Catálogo de Destinatarios para Minutas (2026-05-28) ✅
+- [x] Tabla `minute_recipients` en drizzle/schema.ts (id, name, email, position, department, isActive, createdAt, updatedAt)
+- [x] Migración SQL aplicada via webdev_execute_sql
+- [x] Helpers de consulta en server/db.ts (getRecipients, getRecipientById)
+- [x] Router tRPC `minuteRecipients` con procedimientos: list, getById, create, update, delete, toggleActive
+- [x] Página `/committee/minute-recipients` con tabla CRUD, búsqueda, filtros y formulario modal
+- [x] Integración del selector de destinatarios en el módulo de Minutas (MeetingMinutes.tsx)
+- [x] Tests unitarios para el router de destinatarios (10/10 pasando)

@@ -1094,3 +1094,32 @@ export async function getSentimentTrends(departmentId?: number, startDate?: Date
 
   return results;
 }
+
+// ── Minute Recipients (Catálogo de Destinatarios de Minutas) ─────────────────
+
+/**
+ * Obtener todos los destinatarios de minutas
+ */
+export async function getRecipients(onlyActive?: boolean) {
+  const db = await getDb();
+  if (!db) return [];
+  const { minuteRecipients } = await import("../drizzle/schema");
+  const { eq, asc } = await import("drizzle-orm");
+  const query = db.select().from(minuteRecipients).orderBy(asc(minuteRecipients.name));
+  if (onlyActive) {
+    return query.where(eq(minuteRecipients.isActive, true));
+  }
+  return query;
+}
+
+/**
+ * Obtener un destinatario de minuta por ID
+ */
+export async function getRecipientById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const { minuteRecipients } = await import("../drizzle/schema");
+  const { eq } = await import("drizzle-orm");
+  const results = await db.select().from(minuteRecipients).where(eq(minuteRecipients.id, id)).limit(1);
+  return results[0] ?? null;
+}

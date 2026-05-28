@@ -5749,3 +5749,17 @@ export const jobExecutionLog = mysqlTable("job_execution_log", {
 });
 export type JobExecutionLog = typeof jobExecutionLog.$inferSelect;
 export type InsertJobExecutionLog = typeof jobExecutionLog.$inferInsert;
+
+// ── Minute Recipients (Catálogo de Destinatarios de Minutas) ─────────────────
+export const minuteRecipients = mysqlTable("minute_recipients", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  position: varchar("position", { length: 255 }).notNull(),
+  department: varchar("department", { length: 255 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type MinuteRecipient = typeof minuteRecipients.$inferSelect;
+export type InsertMinuteRecipient = typeof minuteRecipients.$inferInsert;
