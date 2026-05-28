@@ -1,4 +1,4 @@
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useEffect, useState } from 'react';
 import { getLoginUrl } from '@/const';
 
