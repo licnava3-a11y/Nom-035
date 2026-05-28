@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { employees, meetingAttachments, meetingMinutes, meetingParticipants, users } from "../../drizzle/schema";
-import { eq, desc, and, like, gte, lte } from "drizzle-orm";
+import { employees, meetingAttachments, meetingMinutes, meetingParticipants, users, minuteDispatches, minuteRecipients } from "../../drizzle/schema";
+import { eq, desc, and, like, gte, lte, inArray } from "drizzle-orm";
 import { storagePut } from "../storage";
 import QRCode from "qrcode";
 import { logMinuteEvidence } from "../helpers/evidenceLogger";
@@ -438,5 +438,83 @@ export const meetingMinutesRouter = router({
       );
 
       return { pdfUrl };
+    }),
+
+  // ── Vincular destinatarios a una minuta ─────────────────────────────────────
+  addRecipients: protectedProcedure
+    .input(
+      z.object({
+        minuteId: z.number(),
+        recipientIds: z.array(z.number()).min(1).max(200),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+
+      const [minute] = await db
+        .select({ id: meetingMinutes.id })
+        .from(meetingMinutes)
+        .where(eq(meetingMinutes.id, input.minuteId))
+        .limit(1);
+      if (!minute) throw new Error("Minuta no encontrada");
+
+      const activeRecipients = await db
+        .select({ id: minuteRecipients.id })
+        .from(minuteRecipients)
+        .where(and(inArray(minuteRecipients.id, input.recipientIds), eq(minuteRecipients.isActive, true)));
+
+      if (activeRecipients.length === 0) throw new Error("No se encontraron destinatarios activos");
+
+      const existingDispatches = await db
+        .select({ recipientId: minuteDispatches.recipientId })
+        .from(minuteDispatches)
+        .where(eq(minuteDispatches.minuteId, input.minuteId));
+
+      const existingIds = new Set(existingDispatches.map((d) => d.recipientId));
+      const newRecipients = activeRecipients.filter((r) => !existingIds.has(r.id));
+
+      if (newRecipients.length > 0) {
+        await db.insert(minuteDispatches).values(
+          newRecipients.map((r) => ({
+            minuteId: input.minuteId,
+            recipientId: r.id,
+            status: "sent" as const,
+          }))
+        );
+      }
+
+      return {
+        success: true,
+        added: newRecipients.length,
+        skipped: activeRecipients.length - newRecipients.length,
+      };
+    }),
+
+  // ── Obtener destinatarios vinculados a una minuta ──────────────────────────
+  getMinuteRecipients: protectedProcedure
+    .input(z.object({ minuteId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+
+      const results = await db
+        .select({
+          dispatchId: minuteDispatches.id,
+          recipientId: minuteRecipients.id,
+          name: minuteRecipients.name,
+          email: minuteRecipients.email,
+          position: minuteRecipients.position,
+          department: minuteRecipients.department,
+          sentAt: minuteDispatches.sentAt,
+          readAt: minuteDispatches.readAt,
+          status: minuteDispatches.status,
+        })
+        .from(minuteDispatches)
+        .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+        .where(eq(minuteDispatches.minuteId, input.minuteId))
+        .orderBy(minuteRecipients.name);
+
+      return results;
     }),
 });

@@ -5763,3 +5763,18 @@ export const minuteRecipients = mysqlTable("minute_recipients", {
 });
 export type MinuteRecipient = typeof minuteRecipients.$inferSelect;
 export type InsertMinuteRecipient = typeof minuteRecipients.$inferInsert;
+
+// ── Minute Dispatches (Historial de envíos de minutas a destinatarios) ────────
+export const minuteDispatches = mysqlTable("minute_dispatches", {
+  id: int("id").autoincrement().primaryKey(),
+  minuteId: int("minute_id").notNull(),
+  recipientId: int("recipient_id").notNull(),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  readAt: timestamp("read_at"),
+  status: mysqlEnum("status", ["sent", "read", "bounced"]).default("sent").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type MinuteDispatch = typeof minuteDispatches.$inferSelect;
+export type InsertMinuteDispatch = typeof minuteDispatches.$inferInsert;

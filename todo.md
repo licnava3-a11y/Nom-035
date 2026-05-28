@@ -613,3 +613,15 @@
 - [x] Página `/committee/minute-recipients` con tabla CRUD, búsqueda, filtros y formulario modal
 - [x] Integración del selector de destinatarios en el módulo de Minutas (MeetingMinutes.tsx)
 - [x] Tests unitarios para el router de destinatarios (10/10 pasando)
+
+## Sprint 65 — Mejoras Módulo Destinatarios de Minutas (2026-05-28) ✅
+- [x] Tabla `minute_dispatches` en drizzle/schema.ts (id, minuteId, recipientId, sentAt, readAt, status, notes)
+- [x] Migración SQL aplicada (tabla minute_dispatches creada en BD)
+- [x] Router minuteRecipients ampliado: bulkImport (importación masiva XLSX), getDispatches (historial paginado), markAsRead
+- [x] Router meetingMinutes ampliado: addRecipients (vincular destinatarios), getMinuteRecipients (listar vinculados con join)
+- [x] MeetingMinuteForm.tsx: multi-select de destinatarios activos con búsqueda, seleccionar todos/ninguno, vinculación automática al crear
+- [x] MinuteRecipients.tsx: importación masiva XLSX con plantilla descargable, validación de filas, vista previa antes de importar
+- [x] MinuteRecipientHistory.tsx: vista de historial por destinatario con stats (total/leídas/sin leer/tasa), tabla de despachos, marcar como leído, navegar a minuta
+- [x] Ruta /committee/minute-recipients/:id/history registrada en App.tsx
+- [x] Dependencia xlsx instalada (^0.18.5)
+- [x] Tests unitarios Sprint 65: 19/19 pasando (bulkImport, getDispatches, markAsRead, addRecipients, getMinuteRecipients)
