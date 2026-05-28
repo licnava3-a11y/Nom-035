@@ -28,7 +28,7 @@ import { NotificationsDropdown } from "./NotificationsDropdown";
 import { AlertBadge } from "./AlertBadge";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { DashboardLayoutSkeleton } from './skeletons/DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { MenuBadge } from "./MenuBadge";

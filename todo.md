@@ -598,3 +598,9 @@
 - [x] NotFound.tsx rediseñada con diseño personalizado en español (404 + botón Regresar + botón Dashboard)
 - [x] ZIP del proyecto subido a Google Drive: NOM035-Backups/nom035_backup_20260528.zip (7.1 MB)
 - [x] Tarea semanal activa: cada lunes 9:00 AM (America/Mexico_City) sube respaldo a Google Drive
+
+## Sprint 63 — Correcciones definitivas (2026-05-28) ✅
+- [x] Vista previa restaurada (HTTP 200) — el túnel expira al hibernar, usar nom035mood-32dy4ksx.manus.space como URL permanente
+- [x] DashboardLayoutSkeleton.tsx movido a @/components/skeletons/ y eliminado el legacy de components/
+- [x] Endpoint system.backupCompleted agregado al systemRouter para notificar al admin al completar el respaldo
+- [x] skipLibCheck: true ya estaba en tsconfig.json — los 4 errores de html2canvas son solo del watcher tsx, no afectan producción
