@@ -590,3 +590,11 @@
   - ~~Activar heartbeat anti-cold-start~~ — descartada por el usuario
   - ~~Optimizar chunks de JavaScript (manualChunks)~~ — descartada por el usuario
 - [x] Corregir vista previa del servidor de desarrollo (conexión rechazada) — servidor reiniciado, responde HTTP 200 en puerto 3000
+
+## Sprint 61 — Correcciones críticas + Mejoras (2026-05-28) ✅
+- [x] Corregir vista previa del servidor de desarrollo (conexión rechazada) — re-exponer puerto 3000
+- [x] Corregir ciclo infinito de autenticación — agregado app.set('trust proxy', 1) en Express para que cookies Secure funcionen detrás del proxy HTTPS
+- [x] Consolidar SkeletonLoader.tsx legacy → App.tsx ahora usa DashboardSkeleton de @/components/skeletons
+- [x] NotFound.tsx rediseñada con diseño personalizado en español (404 + botón Regresar + botón Dashboard)
+- [x] ZIP del proyecto subido a Google Drive: NOM035-Backups/nom035_backup_20260528.zip (7.1 MB)
+- [x] Tarea semanal activa: cada lunes 9:00 AM (America/Mexico_City) sube respaldo a Google Drive

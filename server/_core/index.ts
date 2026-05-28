@@ -78,6 +78,12 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  // Trust the first proxy (Cloud Run / Manus tunnel) so that:
+  // - req.protocol reflects HTTPS from x-forwarded-proto
+  // - cookies with sameSite='none' + secure=true are set correctly
+  // - req.hostname reflects the real host from x-forwarded-host
+  app.set('trust proxy', 1);
+
   // Compresión gzip/deflate — reducir payload ~70% en assets JS/CSS/JSON
   // Se aplica ANTES de todos los middlewares para comprimir todas las respuestas
   app.use(compression({

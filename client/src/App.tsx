@@ -6,7 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import SkeletonLoader from "./components/SkeletonLoader";
+import { DashboardSkeleton } from "./components/skeletons";
 import SkipLink from "./components/SkipLink";
 import { KeyboardShortcutsHelp, useGlobalShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { GlobalSearch, useGlobalSearch } from "./components/GlobalSearch";
@@ -255,10 +255,10 @@ const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
 const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeReport"));
 const Welcome = lazy(() => import("./pages/Welcome"));
 
-// Loading fallback component - usa SkeletonLoader para mejor UX
+// Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
   <div className="container py-6">
-    <SkeletonLoader variant="dashboard" rows={3} />
+    <DashboardSkeleton />
   </div>
 );
 
