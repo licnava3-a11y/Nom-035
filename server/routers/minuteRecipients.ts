@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { minuteRecipients, minuteDispatches, meetingMinutes } from "../../drizzle/schema";
-import { eq, asc, like, or, and, desc } from "drizzle-orm";
+import { eq, asc, like, or, and, desc, gte, lte, inArray, sql } from "drizzle-orm";
 
 const recipientInput = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(255),
@@ -256,5 +256,137 @@ export const minuteRecipientsRouter = router({
         .set({ readAt: new Date(), status: "read" })
         .where(eq(minuteDispatches.id, input.dispatchId));
       return { success: true };
+    }),
+
+  // ── Panel global de despachos (todos, con filtros avanzados) ───────────────
+  getAllDispatches: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().optional().default(1),
+        pageSize: z.number().optional().default(50),
+        recipientId: z.number().nullable().optional(),
+        status: z.enum(["sent", "read", "bounced", "all"]).optional().default("all"),
+        dateFrom: z.string().nullable().optional(), // ISO date string YYYY-MM-DD
+        dateTo: z.string().nullable().optional(),   // ISO date string YYYY-MM-DD
+        minuteId: z.number().nullable().optional(),
+        search: z.string().optional(), // busca en nombre del destinatario o título de minuta
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+
+      const conditions: any[] = [];
+
+      // Filtro por destinatario
+      if (input.recipientId) {
+        conditions.push(eq(minuteDispatches.recipientId, input.recipientId));
+      }
+
+      // Filtro por estado
+      if (input.status && input.status !== "all") {
+        conditions.push(eq(minuteDispatches.status, input.status));
+      }
+
+      // Filtro por rango de fechas (sentAt)
+      if (input.dateFrom) {
+        conditions.push(gte(minuteDispatches.sentAt, new Date(input.dateFrom)));
+      }
+      if (input.dateTo) {
+        const endDate = new Date(input.dateTo);
+        endDate.setHours(23, 59, 59, 999);
+        conditions.push(lte(minuteDispatches.sentAt, endDate));
+      }
+
+      // Filtro por minuta específica
+      if (input.minuteId) {
+        conditions.push(eq(minuteDispatches.minuteId, input.minuteId));
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const offset = (input.page - 1) * input.pageSize;
+
+      // Obtener despachos con joins
+      const dispatches = await db
+        .select({
+          id: minuteDispatches.id,
+          minuteId: minuteDispatches.minuteId,
+          recipientId: minuteDispatches.recipientId,
+          sentAt: minuteDispatches.sentAt,
+          readAt: minuteDispatches.readAt,
+          status: minuteDispatches.status,
+          notes: minuteDispatches.notes,
+          // Datos de la minuta
+          minuteFolio: meetingMinutes.folio,
+          minuteTitle: meetingMinutes.title,
+          minuteDate: meetingMinutes.meetingDate,
+          minuteType: meetingMinutes.meetingType,
+          // Datos del destinatario
+          recipientName: minuteRecipients.name,
+          recipientEmail: minuteRecipients.email,
+          recipientPosition: minuteRecipients.position,
+          recipientDepartment: minuteRecipients.department,
+        })
+        .from(minuteDispatches)
+        .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
+        .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+        .where(whereClause)
+        .orderBy(desc(minuteDispatches.sentAt))
+        .limit(input.pageSize)
+        .offset(offset);
+
+      // Aplicar filtro de búsqueda en memoria (nombre del destinatario o título de minuta)
+      let filtered = dispatches;
+      if (input.search && input.search.trim() !== "") {
+        const term = input.search.toLowerCase().trim();
+        filtered = dispatches.filter(
+          (d) =>
+            (d.recipientName ?? "").toLowerCase().includes(term) ||
+            (d.minuteTitle ?? "").toLowerCase().includes(term) ||
+            (d.minuteFolio ?? "").toLowerCase().includes(term) ||
+            (d.recipientEmail ?? "").toLowerCase().includes(term)
+        );
+      }
+
+      // Contar totales para paginación (sin límite)
+      const allForCount = await db
+        .select({
+          id: minuteDispatches.id,
+          status: minuteDispatches.status,
+          readAt: minuteDispatches.readAt,
+        })
+        .from(minuteDispatches)
+        .where(whereClause);
+
+      const totalCount = allForCount.length;
+      const readCount = allForCount.filter((d) => d.readAt !== null).length;
+      const sentCount = allForCount.filter((d) => d.status === "sent").length;
+      const bouncedCount = allForCount.filter((d) => d.status === "bounced").length;
+
+      // Obtener lista de destinatarios únicos para el filtro del panel
+      const allRecipients = await db
+        .select({ id: minuteRecipients.id, name: minuteRecipients.name, email: minuteRecipients.email })
+        .from(minuteRecipients)
+        .where(eq(minuteRecipients.isActive, true))
+        .orderBy(asc(minuteRecipients.name));
+
+      return {
+        dispatches: filtered,
+        pagination: {
+          total: totalCount,
+          page: input.page,
+          pageSize: input.pageSize,
+          totalPages: Math.ceil(totalCount / input.pageSize),
+        },
+        stats: {
+          total: totalCount,
+          read: readCount,
+          unread: totalCount - readCount - bouncedCount,
+          bounced: bouncedCount,
+          sent: sentCount,
+          readRate: totalCount > 0 ? Math.round((readCount / totalCount) * 100) : 0,
+        },
+        recipients: allRecipients,
+      };
     }),
 });

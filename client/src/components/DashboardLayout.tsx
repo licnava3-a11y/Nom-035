@@ -222,6 +222,7 @@ const hierarchicalMenuItems = [
           { label: "Aceptación de Cargo", path: "/committee/position-acceptance", description: "Documento de aceptación de cargo" },
           { label: "Actas de Reunión", path: "/committee-minutes", description: "Gestión de actas de reuniones del comité" },
           { label: "Catálogo de Destinatarios", path: "/committee/minute-recipients", description: "Gestión de destinatarios para el envío de minutas" },
+          { label: "Panel de Despachos", path: "/committee/dispatches", description: "Trazabilidad global de envíos de minutas" },
           { label: "Reportes Anuales", path: "/committee-annual-reports", description: "Reportes anuales del comité NOM-035" },
           { label: "Seguimiento de Acuerdos", path: "/agreements-dashboard", description: "Dashboard de seguimiento de acuerdos" },
         ]

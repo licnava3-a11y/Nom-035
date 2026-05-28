@@ -625,3 +625,10 @@
 - [x] Ruta /committee/minute-recipients/:id/history registrada en App.tsx
 - [x] Dependencia xlsx instalada (^0.18.5)
 - [x] Tests unitarios Sprint 65: 19/19 pasando (bulkImport, getDispatches, markAsRead, addRecipients, getMinuteRecipients)
+
+## Sprint 66 — Panel de Despachos Globales (2026-05-28) ✅
+- [x] Procedimiento `getAllDispatches` en router minuteRecipients con filtros: recipientId, status, dateFrom, dateTo, minuteId, paginación
+- [x] Página `/committee/dispatches` con tabla global, filtros avanzados, tarjetas de estadísticas y exportación XLSX
+- [x] Entrada en sidebar bajo "Comité de Seguridad"
+- [x] Ruta /committee/dispatches registrada en App.tsx
+- [x] Tests unitarios para getAllDispatches (25/25 pasando)

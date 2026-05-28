@@ -213,6 +213,7 @@ const CommitteeMinutesManagement = lazy(() => import("./pages/CommitteeMinutesMa
 const CommitteeAnnualReports = lazy(() => import("./pages/CommitteeAnnualReports"));
 const MinuteRecipients = lazy(() => import("./pages/MinuteRecipients"));
 const MinuteRecipientHistory = lazy(() => import("./pages/MinuteRecipientHistory"));
+const DispatchesPanel = lazy(() => import("./pages/DispatchesPanel"));
 const CommitteeOperatingRules = lazy(() => import("./pages/CommitteeOperatingRules"));
 const VerifyOperatingRules = lazy(() => import("./pages/VerifyOperatingRules"));
 const SignatureAudit = lazy(() => import("./pages/SignatureAudit"));
@@ -1557,6 +1558,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <MinuteRecipientHistory />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/committee/dispatches"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DispatchesPanel />
             </Suspense>
           </DashboardLayout>
         </Route>
