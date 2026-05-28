@@ -2,7 +2,7 @@ import { trpc } from '@/lib/trpc';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Users, Target, CheckCircle2, TrendingUp, AlertCircle, Info } from 'lucide-react';
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 /**
@@ -19,21 +19,10 @@ export default function SampleSize() {
   if (isLoading) {
     return (
       <div className="container py-8">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/surveys">Encuestas NOM-035</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Tamaño de Muestra</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb items={[
+        { label: "Encuestas NOM-035", href: "/surveys" },
+        { label: "Tamaño de Muestra" }
+      ]} />
 
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">

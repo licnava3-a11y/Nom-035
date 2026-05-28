@@ -159,7 +159,7 @@
 ## 🟢 OPCIONALES / BAJA PRIORIDAD
 
 - [ ] Módulo de leads/ventas (LeadsPipeline, SalesComparativeDashboard) — evaluar si es relevante para NOM-035
-- [ ] Migrar 6 usos de Breadcrumbs.tsx legacy a Breadcrumb.tsx (componente principal)
+- [x] Migrar 13 usos del breadcrumb legacy a Breadcrumb.tsx centralizado (Sprint 62)
 - [ ] Consolidar DashboardSkeleton.tsx / DashboardLayoutSkeleton.tsx / SkeletonLoader.tsx
 - [ ] Script de migración de datos: asignar género aleatorio a empleados existentes
 - [ ] Eventos de calendario de aprobaciones (approvalCalendarEvents)

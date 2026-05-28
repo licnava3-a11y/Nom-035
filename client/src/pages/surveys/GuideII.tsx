@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import SurveyForm from "@/components/SurveyForm";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function GuideII() {
   const [anonymousToken, setAnonymousToken] = useState<string | undefined>();
@@ -13,21 +13,10 @@ export default function GuideII() {
   }, []);
   return (
     <div>
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/surveys">Encuestas NOM-035</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Guía II - Factores de Riesgo</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb items={[
+        { label: "Encuestas NOM-035", href: "/surveys" },
+        { label: "Guía II - Factores de Riesgo" }
+      ]} />
       <SurveyForm
         surveyId={2}
         title="Guía de Referencia II"

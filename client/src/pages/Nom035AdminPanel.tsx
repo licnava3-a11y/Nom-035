@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { trpc } from "../lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -254,21 +254,10 @@ export default function Nom035AdminPanel() {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/prevention">Prevención de Riesgos</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Panel Administrativo</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb items={[
+        { label: "Prevención de Riesgos", href: "/prevention" },
+        { label: "Panel Administrativo" }
+      ]} />
 
       {/* Header */}
       <div className="flex flex-col gap-4">

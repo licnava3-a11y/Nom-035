@@ -16,7 +16,7 @@ import {
   Loader2,
   Download,
 } from "lucide-react";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function NumeralsVerification() {
@@ -369,21 +369,10 @@ export default function NumeralsVerification() {
 
   return (
     <div className="container py-8 space-y-6">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/compliance">Cumplimiento</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Verificación Numerales 7 y 8</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb items={[
+        { label: "Cumplimiento", href: "/compliance" },
+        { label: "Verificación Numerales 7 y 8" }
+      ]} />
 
       {/* Header */}
       <div className="flex items-start justify-between">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -46,21 +46,10 @@ export default function MeetingMinutes() {
   if (isLoading) {
     return (
       <div className="container py-8">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/prevention">Prevención de Riesgos</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Minutas de Reunión</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb items={[
+        { label: "Prevención de Riesgos", href: "/prevention" },
+        { label: "Minutas de Reunión" }
+      ]} />
 
         <div className="flex items-center justify-center min-h-[400px]">
           <Clock className="h-8 w-8 animate-spin text-muted-foreground" />

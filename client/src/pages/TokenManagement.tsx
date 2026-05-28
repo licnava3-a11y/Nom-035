@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -119,19 +119,10 @@ export default function TokenManagement() {
 
   return (
     <div className="container mx-auto py-6">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/surveys">Encuestas NOM-035</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbPage>Gestión de Tokens</BreadcrumbPage>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb items={[
+        { label: "Encuestas NOM-035", href: "/surveys" },
+        { label: "Gestión de Tokens" }
+      ]} />
 
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Gestión de Tokens de Acceso</h1>
