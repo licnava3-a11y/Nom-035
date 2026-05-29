@@ -693,3 +693,15 @@
 - [x] Ruta `/nom035-matrix` registrada en App.tsx
 - [x] Registro de auditoría en tabla `nom035_evidence_audit` para subida, reemplazo, eliminación, descarga y vista previa
 - [x] Tests unitarios Sprint 71: 45/45 pasando (sprint71.test.ts)
+
+## Sprint 72 — Dashboard de Cumplimiento NOM-035 con Semáforos (2026-05-29) ✅
+- [x] Procedimiento `getComplianceDashboard` en router `nom035Matrix`: KPIs globales, semáforo por plan, tendencia mensual, acciones próximas a vencer (14 días) y vencidas
+- [x] Página `Nom035ComplianceDashboard.tsx`: semáforo circular animado SVG, 6 tarjetas KPI, 3 gráficos Chart.js (Doughnut, Bar por tipo, Bar por prioridad), gráfico de línea de tendencia mensual
+- [x] Tabla de planes con barra de progreso de color dinámico y badge de semáforo (verde/amarillo/rojo)
+- [x] Filtro por tipo de plan (intervencion, violencia_laboral, no_discriminacion, consolidado)
+- [x] Paneles de alertas: acciones próximas a vencer (14 días) y acciones vencidas con scroll interno
+- [x] Sección de cumplimiento por nivel de aplicación (organizacional, grupal, individual) con semáforos individuales
+- [x] Selector de período (3/6/12/24 meses) y botón de actualización con spinner
+- [x] Ruta `/nom035-compliance` registrada en App.tsx
+- [x] Ítem de menú "Dashboard de Cumplimiento" agregado en submenú NOM-035 del DashboardLayout
+- [x] Tests unitarios Sprint 72: 45/45 pasando (sprint72.test.ts)

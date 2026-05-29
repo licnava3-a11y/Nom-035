@@ -830,6 +830,235 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
       const xlsxBuffer = await workbook.xlsx.writeBuffer();
       return { xlsxBase64: Buffer.from(xlsxBuffer).toString("base64") };
     }),
+
+  // ── Dashboard de Cumplimiento ─────────────────────────────────────────────
+  /** Retorna estadísticas detalladas por plan para el dashboard de cumplimiento */
+  getComplianceDashboard: protectedProcedure
+    .input(z.object({
+      tipoPlan: z.enum(["intervencion", "violencia_laboral", "no_discriminacion", "consolidado"]).optional(),
+      nivelAplicacion: z.enum(["organizacional", "grupal", "individual"]).optional(),
+      periodoMeses: z.number().int().min(1).max(24).optional().default(12),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+
+      // 1. KPIs globales
+      const [globalActions] = await db.select({
+        total: sql<number>`count(*)`,
+        noIniciadas: sql<number>`sum(case when estado = 'no_iniciada' then 1 else 0 end)`,
+        enProceso: sql<number>`sum(case when estado = 'en_proceso' then 1 else 0 end)`,
+        cumplidas: sql<number>`sum(case when estado = 'cumplida' then 1 else 0 end)`,
+        vencidas: sql<number>`sum(case when estado = 'vencida' then 1 else 0 end)`,
+        canceladas: sql<number>`sum(case when estado = 'cancelada' then 1 else 0 end)`,
+        conEvidencia: sql<number>`sum(case when (select count(*) from nom035_evidences e where e.action_id = nom035_actions.id and e.is_active = 1) > 0 then 1 else 0 end)`,
+        altaPrioridad: sql<number>`sum(case when prioridad = 'alta' then 1 else 0 end)`,
+        altaVencida: sql<number>`sum(case when prioridad = 'alta' and estado = 'vencida' then 1 else 0 end)`,
+      }).from(nom035Actions).where(eq(nom035Actions.isActive, true));
+
+      // 2. Estadísticas por tipo de plan
+      const byTipoPlan = await db.select({
+        tipoPlan: nom035Actions.tipoPlan,
+        total: sql<number>`count(*)`,
+        cumplidas: sql<number>`sum(case when estado = 'cumplida' then 1 else 0 end)`,
+        vencidas: sql<number>`sum(case when estado = 'vencida' then 1 else 0 end)`,
+        enProceso: sql<number>`sum(case when estado = 'en_proceso' then 1 else 0 end)`,
+        noIniciadas: sql<number>`sum(case when estado = 'no_iniciada' then 1 else 0 end)`,
+      }).from(nom035Actions)
+        .where(eq(nom035Actions.isActive, true))
+        .groupBy(nom035Actions.tipoPlan);
+
+      // 3. Estadísticas por nivel de aplicación
+      const byNivel = await db.select({
+        nivelAplicacion: nom035Actions.nivelAplicacion,
+        total: sql<number>`count(*)`,
+        cumplidas: sql<number>`sum(case when estado = 'cumplida' then 1 else 0 end)`,
+        vencidas: sql<number>`sum(case when estado = 'vencida' then 1 else 0 end)`,
+      }).from(nom035Actions)
+        .where(eq(nom035Actions.isActive, true))
+        .groupBy(nom035Actions.nivelAplicacion);
+
+      // 4. Estadísticas por prioridad
+      const byPrioridad = await db.select({
+        prioridad: nom035Actions.prioridad,
+        total: sql<number>`count(*)`,
+        cumplidas: sql<number>`sum(case when estado = 'cumplida' then 1 else 0 end)`,
+        vencidas: sql<number>`sum(case when estado = 'vencida' then 1 else 0 end)`,
+      }).from(nom035Actions)
+        .where(eq(nom035Actions.isActive, true))
+        .groupBy(nom035Actions.prioridad);
+
+      // 5. Planes con su % de cumplimiento (top 10 más recientes)
+      const planes = await db.select({
+        id: nom035Plans.id,
+        identificadorNivel: nom035Plans.identificadorNivel,
+        tipoPlan: nom035Plans.tipoPlan,
+        nivelAplicacion: nom035Plans.nivelAplicacion,
+        status: nom035Plans.status,
+        centroTrabajo: nom035Plans.centroTrabajo,
+        createdAt: nom035Plans.createdAt,
+      }).from(nom035Plans)
+        .orderBy(desc(nom035Plans.createdAt))
+        .limit(20);
+
+      // Para cada plan, obtener sus stats
+      const planesConStats = await Promise.all(planes.map(async (plan) => {
+        const [stats] = await db.select({
+          total: sql<number>`count(*)`,
+          cumplidas: sql<number>`sum(case when estado = 'cumplida' then 1 else 0 end)`,
+          vencidas: sql<number>`sum(case when estado = 'vencida' then 1 else 0 end)`,
+          enProceso: sql<number>`sum(case when estado = 'en_proceso' then 1 else 0 end)`,
+          noIniciadas: sql<number>`sum(case when estado = 'no_iniciada' then 1 else 0 end)`,
+          conEvidencia: sql<number>`sum(case when (select count(*) from nom035_evidences e where e.action_id = nom035_actions.id and e.is_active = 1) > 0 then 1 else 0 end)`,
+        }).from(nom035Actions)
+          .where(and(eq(nom035Actions.planId, plan.id), eq(nom035Actions.isActive, true)));
+
+        const total = Number(stats?.total ?? 0);
+        const cumplidas = Number(stats?.cumplidas ?? 0);
+        const vencidas = Number(stats?.vencidas ?? 0);
+        const porcentajeCumplimiento = total > 0 ? Math.round((cumplidas / total) * 100) : 0;
+        // Semáforo: verde >= 80%, amarillo >= 50%, rojo < 50%
+        const semaforo: "verde" | "amarillo" | "rojo" =
+          porcentajeCumplimiento >= 80 ? "verde" :
+          porcentajeCumplimiento >= 50 ? "amarillo" : "rojo";
+
+        return {
+          ...plan,
+          totalAcciones: total,
+          cumplidas,
+          vencidas,
+          enProceso: Number(stats?.enProceso ?? 0),
+          noIniciadas: Number(stats?.noIniciadas ?? 0),
+          conEvidencia: Number(stats?.conEvidencia ?? 0),
+          porcentajeCumplimiento,
+          semaforo,
+        };
+      }));
+
+      // 6. Acciones próximas a vencer (próximos 14 días)
+      const hoy = new Date();
+      const en14Dias = new Date(hoy);
+      en14Dias.setDate(en14Dias.getDate() + 14);
+      const hoyStr = hoy.toISOString().split("T")[0];
+      const en14DiasStr = en14Dias.toISOString().split("T")[0];
+
+      const proximasAVencer = await db.select({
+        id: nom035Actions.id,
+        accionId: nom035Actions.accionId,
+        objetivo: nom035Actions.objetivo,
+        responsable: nom035Actions.responsable,
+        plazo: nom035Actions.plazo,
+        prioridad: nom035Actions.prioridad,
+        tipoPlan: nom035Actions.tipoPlan,
+        planId: nom035Actions.planId,
+      }).from(nom035Actions)
+        .where(and(
+          eq(nom035Actions.isActive, true),
+          inArray(nom035Actions.estado, ["no_iniciada", "en_proceso"]),
+          gte(nom035Actions.plazo, hoyStr as any),
+          lte(nom035Actions.plazo, en14DiasStr as any),
+        ))
+        .orderBy(asc(nom035Actions.plazo))
+        .limit(10);
+
+      // 7. Acciones vencidas recientes (últimas 10)
+      const accionesVencidas = await db.select({
+        id: nom035Actions.id,
+        accionId: nom035Actions.accionId,
+        objetivo: nom035Actions.objetivo,
+        responsable: nom035Actions.responsable,
+        plazo: nom035Actions.plazo,
+        prioridad: nom035Actions.prioridad,
+        tipoPlan: nom035Actions.tipoPlan,
+        planId: nom035Actions.planId,
+      }).from(nom035Actions)
+        .where(and(
+          eq(nom035Actions.isActive, true),
+          eq(nom035Actions.estado, "vencida"),
+        ))
+        .orderBy(desc(nom035Actions.plazo))
+        .limit(10);
+
+      // 8. Tendencia mensual de cumplimiento (últimos N meses)
+      const tendenciaMeses: Array<{ mes: string; cumplidas: number; vencidas: number; total: number }> = [];
+      for (let i = (input.periodoMeses ?? 6) - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const mesLabel = d.toLocaleDateString("es-MX", { month: "short", year: "2-digit" });
+        const primerDia = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split("T")[0];
+        const ultimoDia = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split("T")[0];
+
+        const [mesStats] = await db.select({
+          cumplidas: sql<number>`sum(case when estado = 'cumplida' then 1 else 0 end)`,
+          vencidas: sql<number>`sum(case when estado = 'vencida' then 1 else 0 end)`,
+          total: sql<number>`count(*)`,
+        }).from(nom035Actions)
+          .where(and(
+            eq(nom035Actions.isActive, true),
+            gte(nom035Actions.createdAt, new Date(primerDia)),
+            lte(nom035Actions.createdAt, new Date(ultimoDia + "T23:59:59")),
+          ));
+
+        tendenciaMeses.push({
+          mes: mesLabel,
+          cumplidas: Number(mesStats?.cumplidas ?? 0),
+          vencidas: Number(mesStats?.vencidas ?? 0),
+          total: Number(mesStats?.total ?? 0),
+        });
+      }
+
+      // Calcular KPIs globales derivados
+      const totalGlobal = Number(globalActions?.total ?? 0);
+      const cumplidasGlobal = Number(globalActions?.cumplidas ?? 0);
+      const vencidasGlobal = Number(globalActions?.vencidas ?? 0);
+      const porcentajeCumplimientoGlobal = totalGlobal > 0 ? Math.round((cumplidasGlobal / totalGlobal) * 100) : 0;
+      const semaforoGlobal: "verde" | "amarillo" | "rojo" =
+        porcentajeCumplimientoGlobal >= 80 ? "verde" :
+        porcentajeCumplimientoGlobal >= 50 ? "amarillo" : "rojo";
+
+      return {
+        kpis: {
+          ...globalActions,
+          total: totalGlobal,
+          cumplidas: cumplidasGlobal,
+          vencidas: vencidasGlobal,
+          noIniciadas: Number(globalActions?.noIniciadas ?? 0),
+          enProceso: Number(globalActions?.enProceso ?? 0),
+          canceladas: Number(globalActions?.canceladas ?? 0),
+          conEvidencia: Number(globalActions?.conEvidencia ?? 0),
+          altaPrioridad: Number(globalActions?.altaPrioridad ?? 0),
+          altaVencida: Number(globalActions?.altaVencida ?? 0),
+          porcentajeCumplimiento: porcentajeCumplimientoGlobal,
+          semaforoGlobal,
+        },
+        byTipoPlan: byTipoPlan.map(r => ({
+          ...r,
+          total: Number(r.total),
+          cumplidas: Number(r.cumplidas),
+          vencidas: Number(r.vencidas),
+          enProceso: Number(r.enProceso),
+          noIniciadas: Number(r.noIniciadas),
+          porcentaje: Number(r.total) > 0 ? Math.round((Number(r.cumplidas) / Number(r.total)) * 100) : 0,
+        })),
+        byNivel: byNivel.map(r => ({
+          ...r,
+          total: Number(r.total),
+          cumplidas: Number(r.cumplidas),
+          vencidas: Number(r.vencidas),
+          porcentaje: Number(r.total) > 0 ? Math.round((Number(r.cumplidas) / Number(r.total)) * 100) : 0,
+        })),
+        byPrioridad: byPrioridad.map(r => ({
+          ...r,
+          total: Number(r.total),
+          cumplidas: Number(r.cumplidas),
+          vencidas: Number(r.vencidas),
+          porcentaje: Number(r.total) > 0 ? Math.round((Number(r.cumplidas) / Number(r.total)) * 100) : 0,
+        })),
+        planes: planesConStats,
+        proximasAVencer,
+        accionesVencidas,
+        tendenciaMeses,
+      };
+    }),
 });
 
 // ── Acciones por defecto si la IA falla ──────────────────────────────────────

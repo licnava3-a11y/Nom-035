@@ -232,6 +232,7 @@ const hierarchicalMenuItems = [
       { label: "Historial de Reportes", path: "/compliance/reports-history", description: "Consulta y re-descarga de reportes" },
       { label: "Políticas", path: "/nom035/policies", description: "Políticas de prevención de riesgos" },
       { label: "Matriz de Acciones y Evidencias", path: "/nom035-matrix", description: "Planes de intervención, seguimiento de acciones y evidencias de cumplimiento" },
+      { label: "Dashboard de Cumplimiento", path: "/nom035-compliance", description: "Semáforos, KPIs, gráficos de avance y alertas de acciones vencidas" },
       { label: "Carpeta de Evidencias STPS", path: "/evidences-folder", description: "Carpeta de evidencias NOM-035 organizada por numerales" },
       { label: "Carpeta de Evidencias NMX-025", path: "/nmx025-evidences-folder", description: "Carpeta de evidencias de Igualdad Laboral y No Discriminación" },
       { label: "Tendencias Departamentales", path: "/departmental-trends", description: "Heat map de concentración de casos y niveles de riesgo por departamento" },
