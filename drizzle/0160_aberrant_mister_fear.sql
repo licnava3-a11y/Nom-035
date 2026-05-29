@@ -1,0 +1,1 @@
+ALTER TABLE `minute_dispatches` ADD `signer_name` varchar(255);

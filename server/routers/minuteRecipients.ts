@@ -4,6 +4,8 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { minuteRecipients, minuteDispatches, meetingMinutes } from "../../drizzle/schema";
 import { eq, asc, like, or, and, desc, gte, lte, inArray, sql } from "drizzle-orm";
+import { sendDispatchEmail } from "../dispatchEmail";
+import crypto from "crypto";
 
 const recipientInput = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(255),
@@ -388,5 +390,75 @@ export const minuteRecipientsRouter = router({
         },
         recipients: allRecipients,
       };
+    }),
+
+  // ── Reenviar correo de notificación a un destinatario ─────────────────────
+  resendDispatch: protectedProcedure
+    .input(z.object({ dispatchId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
+
+      // Obtener el despacho con datos de la minuta y el destinatario
+      const [dispatch] = await db
+        .select({
+          id: minuteDispatches.id,
+          minuteId: minuteDispatches.minuteId,
+          recipientId: minuteDispatches.recipientId,
+          status: minuteDispatches.status,
+          minuteFolio: meetingMinutes.folio,
+          minuteTitle: meetingMinutes.title,
+          minuteDate: meetingMinutes.meetingDate,
+          recipientName: minuteRecipients.name,
+          recipientEmail: minuteRecipients.email,
+        })
+        .from(minuteDispatches)
+        .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
+        .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+        .where(eq(minuteDispatches.id, input.dispatchId))
+        .limit(1);
+
+      if (!dispatch) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Despacho no encontrado" });
+      }
+
+      if (!dispatch.recipientEmail) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "El destinatario no tiene correo registrado" });
+      }
+
+      // Generar nuevo token único
+      const newToken = crypto.randomBytes(32).toString("hex");
+
+      // Actualizar token y fecha de envío
+      await db
+        .update(minuteDispatches)
+        .set({
+          readToken: newToken,
+          emailSentAt: new Date(),
+          status: "sent",
+        })
+        .where(eq(minuteDispatches.id, input.dispatchId));
+
+      // Enviar correo con el nuevo token
+      try {
+        await sendDispatchEmail({
+          to: dispatch.recipientEmail,
+          recipientName: dispatch.recipientName ?? "Destinatario",
+          minuteTitle: dispatch.minuteTitle ?? "Minuta",
+          minuteFolio: dispatch.minuteFolio ?? "",
+          minuteDate: dispatch.minuteDate ?? new Date(),
+          dispatchId: dispatch.id,
+          token: newToken,
+        });
+      } catch (e: any) {
+        // Si falla el correo, marcar como rebotado
+        await db
+          .update(minuteDispatches)
+          .set({ status: "bounced" })
+          .where(eq(minuteDispatches.id, input.dispatchId));
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Error al reenviar correo: ${e.message}` });
+      }
+
+      return { success: true, message: "Correo reenviado exitosamente" };
     }),
 });

@@ -54,6 +54,7 @@ import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
 import { runPacStaleItemsJob } from "../jobs/pac-stale-items-job";
 import { runRealtimeAlertsJob } from "../jobs/realtime-alerts-job";
 import { startPerformanceLcpAlertsJob } from "../jobs/performance-lcp-alerts-job";
+import { startDispatchUnreadAlertsJob } from "../jobs/dispatch-unread-alerts-job";
 
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -227,6 +228,7 @@ async function startServer() {
     startDepartmentsWithoutManagerJob();
     startPredictiveTurnoverJob();
     startApprovalRemindersJob();
+    startDispatchUnreadAlertsJob();
 
     // Deadline Alerts Job (daily at 9:00 AM)
     import("../jobs/deadlineAlertsJob").then(({ startDeadlineAlertsJob }) => {

@@ -1,15 +1,24 @@
 /**
  * dispatchEmail.ts
  * Helper para enviar correos de notificación a destinatarios de minutas.
- * Genera un token único de confirmación de lectura por despacho.
+ *
+ * Soporta dos modos de uso:
+ *  1. Modo "bulk" (sendDispatchEmails): usado al crear despachos en meetingMinutes.ts
+ *     - Genera y guarda el readToken automáticamente
+ *     - Requiere: recipientEmail, baseUrl, minuteId, meetingType
+ *
+ *  2. Modo "single" (sendDispatchEmail): usado en reenvíos y recordatorios
+ *     - Recibe el token ya generado externamente
+ *     - Requiere: to, token, dispatchId
  */
 
-import crypto from "crypto";
 import { sendEmail } from "./_core/email";
 import { getDb } from "./db";
 import { minuteDispatches } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import crypto from "crypto";
 
+// ── Interfaz para modo "bulk" ─────────────────────────────────────────────────
 export interface DispatchEmailData {
   dispatchId: number;
   recipientName: string;
@@ -21,6 +30,21 @@ export interface DispatchEmailData {
   meetingType: string;
   /** URL base del sitio, ej: https://xxx.manus.space */
   baseUrl: string;
+}
+
+// ── Interfaz para modo "single" (reenvío / recordatorio) ─────────────────────
+export interface SingleDispatchEmailData {
+  dispatchId: number;
+  to: string;
+  recipientName: string;
+  minuteFolio: string;
+  minuteTitle: string;
+  minuteDate: Date | string;
+  token: string;
+  /** Si es true, el correo se presenta como recordatorio */
+  isReminder?: boolean;
+  /** Días transcurridos desde el envío original (para recordatorios) */
+  daysSinceSent?: number;
 }
 
 /** Genera un token hexadecimal único de 32 bytes (64 chars) */
@@ -53,11 +77,80 @@ function formatDate(date: Date | string): string {
   });
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ── Modo "single": reenvío o recordatorio ────────────────────────────────────
+
+/**
+ * Envía un correo de notificación o recordatorio a un destinatario.
+ * El token ya debe estar guardado en la BD antes de llamar a esta función.
+ */
+export async function sendDispatchEmail(data: SingleDispatchEmailData): Promise<boolean> {
+  const baseUrl = process.env.VITE_APP_URL || process.env.PUBLIC_URL || "https://app.example.com";
+  const confirmUrl = `${baseUrl}/api/confirm-read/${data.token}`;
+  const meetingDateStr = formatDate(data.minuteDate);
+
+  const isReminder = data.isReminder ?? false;
+  const daysSinceSent = data.daysSinceSent ?? 0;
+
+  const subjectPrefix = isReminder
+    ? `[RECORDATORIO] [NOM-035] Minuta ${data.minuteFolio}`
+    : `[NOM-035] Minuta ${data.minuteFolio}`;
+
+  const html = buildEmailHtml({
+    recipientName: data.recipientName,
+    minuteFolio: data.minuteFolio,
+    minuteTitle: data.minuteTitle,
+    meetingDate: meetingDateStr,
+    meetingType: "",
+    confirmUrl,
+    isReminder,
+    daysSinceSent,
+  });
+
+  const reminderNote = isReminder
+    ? `\n\nNOTA: Este es un recordatorio. Han pasado ${daysSinceSent} días desde que se le envió esta minuta sin que hayamos recibido confirmación de lectura.`
+    : "";
+
+  const text = `
+Estimado/a ${data.recipientName},
+${isReminder ? "\nEste es un recordatorio de que tiene pendiente confirmar la recepción de la siguiente minuta:" : "\nSe le hace llegar la siguiente minuta para su conocimiento y seguimiento:"}
+
+Folio: ${data.minuteFolio}
+Título: ${data.minuteTitle}
+Fecha de reunión: ${meetingDateStr}
+${reminderNote}
+
+Para confirmar la recepción y lectura de este documento, haga clic en el siguiente enlace:
+${confirmUrl}
+
+Plataforma NOM-035 STPS 2018
+Sistema de Gestión de Riesgos Psicosociales
+`.trim();
+
+  return sendEmail({
+    to: data.to,
+    subject: `${subjectPrefix} — ${data.minuteTitle}`,
+    html,
+    text,
+    sourceModule: "minute-dispatches",
+  });
+}
+
+// ── Modo "bulk": envío inicial al crear despachos ────────────────────────────
+
 /**
  * Envía el correo de notificación de minuta al destinatario.
  * Genera y guarda el readToken en el despacho antes de enviar.
  */
-export async function sendDispatchEmail(data: DispatchEmailData): Promise<boolean> {
+export async function sendDispatchEmailBulk(data: DispatchEmailData): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
 
@@ -81,6 +174,8 @@ export async function sendDispatchEmail(data: DispatchEmailData): Promise<boolea
     meetingDate: meetingDateStr,
     meetingType: meetingTypeStr,
     confirmUrl,
+    isReminder: false,
+    daysSinceSent: 0,
   });
 
   const text = `
@@ -121,7 +216,7 @@ export async function sendDispatchEmails(
 
   for (const dispatch of dispatches) {
     try {
-      const ok = await sendDispatchEmail(dispatch);
+      const ok = await sendDispatchEmailBulk(dispatch);
       if (ok) sent++;
       else failed++;
     } catch (err) {
@@ -142,15 +237,38 @@ interface EmailTemplateData {
   meetingDate: string;
   meetingType: string;
   confirmUrl: string;
+  isReminder: boolean;
+  daysSinceSent: number;
 }
 
 function buildEmailHtml(data: EmailTemplateData): string {
+  const headerBg = data.isReminder
+    ? "linear-gradient(135deg,#92400e 0%,#d97706 100%)"
+    : "linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%)";
+
+  const headerTitle = data.isReminder
+    ? "⚠️ Recordatorio: Confirmación Pendiente"
+    : "Notificación de Minuta";
+
+  const reminderBanner = data.isReminder
+    ? `<tr>
+        <td style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:16px;margin-bottom:24px;display:block;">
+          <p style="font-size:14px;color:#92400e;margin:0;font-weight:600;">
+            ⚠️ Han transcurrido ${data.daysSinceSent} días desde que se le envió esta minuta y aún no hemos recibido confirmación de lectura.
+          </p>
+        </td>
+      </tr>`
+    : "";
+
+  const ctaColor = data.isReminder ? "#d97706" : "#16a34a";
+  const ctaText = data.isReminder ? "⚠️ Confirmar lectura ahora" : "✓ Confirmar lectura";
+
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minuta ${data.minuteFolio}</title>
+  <title>Minuta ${escapeHtml(data.minuteFolio)}</title>
 </head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 16px;">
@@ -160,20 +278,23 @@ function buildEmailHtml(data: EmailTemplateData): string {
           
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);padding:32px 40px;text-align:center;">
-              <div style="font-size:13px;font-weight:600;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Plataforma NOM-035 STPS 2018</div>
-              <div style="font-size:24px;font-weight:700;color:white;">Notificación de Minuta</div>
+            <td style="background:${headerBg};padding:32px 40px;text-align:center;">
+              <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Plataforma NOM-035 STPS 2018</div>
+              <div style="font-size:24px;font-weight:700;color:white;">${headerTitle}</div>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
             <td style="padding:40px;">
+              ${reminderBanner}
               <p style="font-size:16px;color:#334155;margin:0 0 24px;">
                 Estimado/a <strong style="color:#0f172a;">${escapeHtml(data.recipientName)}</strong>,
               </p>
               <p style="font-size:15px;color:#475569;line-height:1.6;margin:0 0 32px;">
-                Se le hace llegar la siguiente minuta para su conocimiento y seguimiento de los acuerdos establecidos.
+                ${data.isReminder
+                  ? "Le recordamos que tiene pendiente confirmar la recepción de la siguiente minuta:"
+                  : "Se le hace llegar la siguiente minuta para su conocimiento y seguimiento de los acuerdos establecidos."}
               </p>
 
               <!-- Minuta Card -->
@@ -188,10 +309,10 @@ function buildEmailHtml(data: EmailTemplateData): string {
                     
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td width="50%" style="vertical-align:top;">
+                        ${data.meetingType ? `<td width="50%" style="vertical-align:top;">
                           <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Tipo de Reunión</div>
                           <div style="font-size:14px;color:#334155;">${escapeHtml(data.meetingType)}</div>
-                        </td>
+                        </td>` : ""}
                         <td width="50%" style="vertical-align:top;">
                           <div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Fecha de Reunión</div>
                           <div style="font-size:14px;color:#334155;">${escapeHtml(data.meetingDate)}</div>
@@ -207,8 +328,8 @@ function buildEmailHtml(data: EmailTemplateData): string {
                 <tr>
                   <td align="center">
                     <a href="${data.confirmUrl}" 
-                       style="display:inline-block;background:#16a34a;color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;letter-spacing:0.3px;">
-                      ✓ Confirmar lectura
+                       style="display:inline-block;background:${ctaColor};color:white;font-size:15px;font-weight:600;padding:14px 32px;border-radius:8px;text-decoration:none;letter-spacing:0.3px;">
+                      ${ctaText}
                     </a>
                   </td>
                 </tr>
@@ -237,13 +358,4 @@ function buildEmailHtml(data: EmailTemplateData): string {
   </table>
 </body>
 </html>`;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }

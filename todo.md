@@ -644,3 +644,17 @@
 - [x] Endpoint GET /api/export/dispatches/pdf con filtros (status, recipientId, dateFrom, dateTo, search)
 - [x] Botón "Reporte PDF" en DispatchesPanel que descarga el PDF con los filtros activos (verificado HTTP 200, 42 KB)
 - [x] Tests unitarios Sprint 67 (17/17 pasando)
+
+## Sprint 68 — Reenvío Manual, Alertas Automáticas y Firma de Recibido (2026-05-29) ✅
+- [x] Columna `signer_name` en tabla minute_dispatches (migración SQL aplicada)
+- [x] Procedimiento tRPC `resendDispatch` en minuteRecipients: regenera token, reenvía correo, actualiza emailSentAt
+- [x] Botón "Reenviar correo" en DispatchesPanel para registros con status "sent" o "bounced"
+- [x] Endpoint GET /api/confirm-read/:token muestra HTML con datos de la minuta (folio, título, fecha, tipo)
+- [x] Formulario de firma: campo nombre completo (mín. 2 chars), botón de confirmación, validación JS
+- [x] Endpoint POST /api/confirm-read/:token guarda signerName, readAt y cambia status a "read"
+- [x] Página de éxito con nombre del firmante, fecha/hora de confirmación y datos de la minuta
+- [x] Helper sendDispatchEmail unificado (SingleDispatchEmailData) con soporte isReminder y daysSinceSent
+- [x] Job `dispatch-unread-alerts-job.ts`: detecta despachos >7 días sin leer, regenera token, envía recordatorio (banner naranja) y notifica al admin
+- [x] Job registrado en server/_core/index.ts con delay de 30s para Cloud Run health check
+- [x] TypeScript: 0 errores (verificado en watch mode 12:11:11 PM)
+- [x] Tests unitarios Sprint 68 (15/15 pasando)

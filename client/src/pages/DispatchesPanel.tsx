@@ -44,6 +44,7 @@ import {
   X,
   TrendingUp,
   FileDown,
+  Send,
 } from "lucide-react";
 
 // ── Componente de gráfica de tendencias mensuales ───────────────────────────────────────
@@ -252,6 +253,16 @@ export default function DispatchesPanel() {
     dateTo: dateTo ?? undefined,
     search: search.trim() || undefined,
   }, { placeholderData: (prev: any) => prev });
+
+  const resendDispatchMutation = trpc.minuteRecipients.resendDispatch.useMutation({
+    onSuccess: () => {
+      utils.minuteRecipients.getAllDispatches.invalidate();
+      toast({ title: "Correo reenviado", description: "El destinatario recibió un nuevo enlace de confirmación." });
+    },
+    onError: (e) => {
+      toast({ title: "Error al reenviar", description: e.message, variant: "destructive" });
+    },
+  });
 
   const markAsReadMutation = trpc.minuteRecipients.markAsRead.useMutation({
     onSuccess: () => {
@@ -588,6 +599,22 @@ export default function DispatchesPanel() {
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Historial del destinatario</TooltipContent>
+                            </Tooltip>
+                          )}
+                          {(dispatch.status === "sent" || dispatch.status === "bounced") && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                  onClick={() => resendDispatchMutation.mutate({ dispatchId: dispatch.id })}
+                                  disabled={resendDispatchMutation.isPending}
+                                >
+                                  <Send className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Reenviar correo</TooltipContent>
                             </Tooltip>
                           )}
                           {dispatch.status !== "read" && (
