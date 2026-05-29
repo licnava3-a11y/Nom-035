@@ -229,6 +229,7 @@ export default function DispatchesPanel() {
 
   // Filtros
   const [search, setSearch] = useState("");
+  const [signerSearch, setSignerSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [recipientFilter, setRecipientFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState("all");
@@ -252,6 +253,7 @@ export default function DispatchesPanel() {
     dateFrom: dateFrom ?? undefined,
     dateTo: dateTo ?? undefined,
     search: search.trim() || undefined,
+    signerSearch: signerSearch.trim() || undefined,
   }, { placeholderData: (prev: any) => prev });
 
   const resendDispatchMutation = trpc.minuteRecipients.resendDispatch.useMutation({
@@ -277,10 +279,11 @@ export default function DispatchesPanel() {
   const pagination = data?.pagination ?? { total: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 };
   const recipients = data?.recipients ?? [];
 
-  const hasActiveFilters = statusFilter !== "all" || recipientFilter !== "all" || periodFilter !== "all" || search.trim() !== "";
+  const hasActiveFilters = statusFilter !== "all" || recipientFilter !== "all" || periodFilter !== "all" || search.trim() !== "" || signerSearch.trim() !== "";
 
   const clearFilters = () => {
     setSearch("");
+    setSignerSearch("");
     setStatusFilter("all");
     setRecipientFilter("all");
     setPeriodFilter("all");
@@ -413,7 +416,7 @@ export default function DispatchesPanel() {
           )}
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Búsqueda */}
+          {/* Búsqueda general */}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
@@ -463,6 +466,24 @@ export default function DispatchesPanel() {
           </Select>
         </div>
 
+        {/* Fila 2: Búsqueda por firmante */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre del firmante..."
+              value={signerSearch}
+              onChange={(e) => { setSignerSearch(e.target.value); setPage(1); }}
+              className="pl-8 h-9 text-sm"
+            />
+          </div>
+          {signerSearch.trim() !== "" && (
+            <p className="text-xs text-muted-foreground self-center">
+              Filtrando por firmante: <span className="font-medium text-foreground">{signerSearch}</span>
+            </p>
+          )}
+        </div>
+
         {/* Rango de fechas personalizado */}
         {periodFilter === "custom" && (
           <div className="flex items-center gap-2 pt-1">
@@ -496,6 +517,7 @@ export default function DispatchesPanel() {
                 <TableHead className="font-semibold text-xs">Cargo / Área</TableHead>
                 <TableHead className="font-semibold text-xs">Fecha Envío</TableHead>
                 <TableHead className="font-semibold text-xs">Fecha Lectura</TableHead>
+                <TableHead className="font-semibold text-xs">Firmante</TableHead>
                 <TableHead className="font-semibold text-xs text-center">Estado</TableHead>
                 <TableHead className="font-semibold text-xs text-right">Acciones</TableHead>
               </TableRow>
@@ -562,6 +584,15 @@ export default function DispatchesPanel() {
                           <span className="text-green-700">{formatDateTime(dispatch.readAt)}</span>
                         ) : (
                           <span className="text-muted-foreground italic">Sin confirmar</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {dispatch.signerName ? (
+                          <span className="text-foreground font-medium">{dispatch.signerName}</span>
+                        ) : dispatch.status === "read" ? (
+                          <span className="text-muted-foreground italic">Sin firma</span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
                       <TableCell className="text-center">

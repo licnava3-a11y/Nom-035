@@ -8,7 +8,20 @@ function isIpAddress(host: string) {
   return host.includes(":");
 }
 
+function isLocalHost(hostname: string): boolean {
+  return LOCAL_HOSTS.has(hostname) || isIpAddress(hostname);
+}
+
 function isSecureRequest(req: Request) {
+  const hostname = req.hostname;
+
+  // In production (non-localhost), ALWAYS treat as secure.
+  // Cloud Run / Manus proxy always terminates TLS before reaching the app.
+  // Returning false here would set secure=false on a SameSite=None cookie,
+  // which browsers silently drop — causing an infinite login redirect loop.
+  if (!isLocalHost(hostname)) return true;
+
+  // For local development, detect HTTPS normally.
   if (req.protocol === "https") return true;
 
   const forwardedProto = req.headers["x-forwarded-proto"];

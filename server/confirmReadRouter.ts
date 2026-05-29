@@ -10,6 +10,7 @@ import { Router } from "express";
 import { getDb } from "./db";
 import { minuteDispatches, minuteRecipients, meetingMinutes } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { emitCriticalAlertToAdmins } from "./_core/websocket";
 
 const confirmReadRouter = Router();
 
@@ -154,6 +155,19 @@ confirmReadRouter.post("/confirm-read/:token", async (req, res) => {
       timeStyle: "short",
       timeZone: "America/Mexico_City",
     });
+
+    // Emitir notificación WebSocket al admin
+    try {
+      emitCriticalAlertToAdmins({
+        id: dispatch.id,
+        category: "dispatch_signed",
+        priority: "info",
+        title: `Firma registrada: ${dispatch.minuteFolio || "Minuta"}`,
+        message: `${signerName} confirmó la recepción de "${dispatch.minuteTitle || "minuta"}" el ${nowStr}.`,
+      });
+    } catch (wsErr) {
+      console.warn("[ConfirmRead] No se pudo emitir notificación WebSocket:", wsErr);
+    }
 
     return res.send(
       buildResultHtml(

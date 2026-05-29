@@ -272,6 +272,7 @@ export const minuteRecipientsRouter = router({
         dateTo: z.string().nullable().optional(),   // ISO date string YYYY-MM-DD
         minuteId: z.number().nullable().optional(),
         search: z.string().optional(), // busca en nombre del destinatario o título de minuta
+        signerSearch: z.string().optional(), // busca específicamente por nombre del firmante
       })
     )
     .query(async ({ input }) => {
@@ -328,6 +329,8 @@ export const minuteRecipientsRouter = router({
           recipientEmail: minuteRecipients.email,
           recipientPosition: minuteRecipients.position,
           recipientDepartment: minuteRecipients.department,
+          // Firma de recibido
+          signerName: minuteDispatches.signerName,
         })
         .from(minuteDispatches)
         .leftJoin(meetingMinutes, eq(minuteDispatches.minuteId, meetingMinutes.id))
@@ -347,6 +350,13 @@ export const minuteRecipientsRouter = router({
             (d.minuteTitle ?? "").toLowerCase().includes(term) ||
             (d.minuteFolio ?? "").toLowerCase().includes(term) ||
             (d.recipientEmail ?? "").toLowerCase().includes(term)
+        );
+      }
+      // Filtro por nombre del firmante (solo registros leídos con firma registrada)
+      if (input.signerSearch && input.signerSearch.trim() !== "") {
+        const signerTerm = input.signerSearch.toLowerCase().trim();
+        filtered = filtered.filter(
+          (d) => (d.signerName ?? "").toLowerCase().includes(signerTerm)
         );
       }
 

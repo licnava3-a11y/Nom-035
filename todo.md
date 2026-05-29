@@ -658,3 +658,24 @@
 - [x] Job registrado en server/_core/index.ts con delay de 30s para Cloud Run health check
 - [x] TypeScript: 0 errores (verificado en watch mode 12:11:11 PM)
 - [x] Tests unitarios Sprint 68 (15/15 pasando)
+
+## Sprint 69 — Exportación XLSX, signerName y Umbral Configurable (2026-05-29) ✅
+- [x] Botón "Exportar XLSX" en MinuteRecipientHistory.tsx con 8 columnas de evidencia (folio, título, tipo, fecha reunión, destinatario, correo, cargo, fecha envío, fecha lectura, firmante, estado)
+- [x] Campo `signerName` en schema TypeScript de minuteDispatches y en SELECT de getAllDispatches/getDispatches
+- [x] Columna "Firmante" en tabla del DispatchesPanel
+- [x] Procedimientos `getDispatchThreshold` y `saveDispatchThreshold` en router systemSettings
+- [x] Sección "Alertas de Despachos sin Leer" en Settings.tsx con input numérico (1-90 días) y guardado con toast
+- [x] Job `dispatch-unread-alerts-job.ts` lee umbral dinámicamente desde BD (fallback: 7 días) y deduplicación 24h
+- [x] Tests unitarios Sprint 69: 21/21 pasando
+
+## Sprint 70 — Correcciones Auth + WebSocket + Filtro Firmante (2026-05-29) ✅
+- [x] Corregir ciclo infinito de login en producción: `app.set('trust proxy', true)` en server/_core/index.ts
+- [x] Corrección cookies.ts: `isSecureRequest()` retorna `true` para cualquier hostname no-localhost (garantiza secure=true en Cloud Run)
+- [x] Notificación push WebSocket al admin al registrar firma: `emitCriticalAlertToAdmins` en confirmReadRouter.ts POST handler
+- [x] Parámetro `signerSearch` en procedimiento `getAllDispatches` (filtro en memoria por nombre del firmante)
+- [x] Campo `signerName` incluido en SELECT de `getAllDispatches` (retornado en cada despacho)
+- [x] Estado `signerSearch` en DispatchesPanel.tsx con input "Buscar por nombre del firmante..."
+- [x] Columna "Firmante" en tabla del DispatchesPanel (muestra signerName o "Sin firma" si leído sin firma)
+- [x] `signerSearch` incluido en `hasActiveFilters` y en `clearFilters()`
+- [x] Tests unitarios Sprint 70: 29/29 pasando (sprint70.test.ts)
+- [x] TypeScript: 0 errores (verificado en watch mode)

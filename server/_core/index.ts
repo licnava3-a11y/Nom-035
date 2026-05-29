@@ -80,11 +80,13 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // Trust the first proxy (Cloud Run / Manus tunnel) so that:
+  // Trust ALL proxies in the chain (Cloud Run / Manus tunnel / CDN) so that:
   // - req.protocol reflects HTTPS from x-forwarded-proto
   // - cookies with sameSite='none' + secure=true are set correctly
   // - req.hostname reflects the real host from x-forwarded-host
-  app.set('trust proxy', 1);
+  // NOTE: 'true' trusts all proxies — required for Manus multi-proxy production setup
+  // to prevent infinite login loops caused by secure=false cookie detection.
+  app.set('trust proxy', true);
 
   // Compresión gzip/deflate — reducir payload ~70% en assets JS/CSS/JSON
   // Se aplica ANTES de todos los middlewares para comprimir todas las respuestas
