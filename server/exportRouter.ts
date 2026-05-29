@@ -7,8 +7,32 @@ import {
   generateCasesReportExcel,
   generateComplianceReportExcel,
 } from "./reports";
+import { generateDispatchesReportPDF } from "./dispatchesReport";
 
 const router = express.Router();
+
+// ── Reporte ejecutivo PDF de despachos de minutas ─────────────────────────────────────────────────────
+router.get("/export/dispatches/pdf", async (req, res) => {
+  try {
+    const { status, recipientId, dateFrom, dateTo, search } = req.query as Record<string, string>;
+    const pdfBuffer = await generateDispatchesReportPDF({
+      status: (status as any) || "all",
+      recipientId: recipientId ? parseInt(recipientId, 10) : undefined,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+      search: search || undefined,
+    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="reporte-despachos-minutas-${new Date().toISOString().split("T")[0]}.pdf"`
+    );
+    res.send(pdfBuffer);
+  } catch (error: any) {
+    console.error("Error generating dispatches PDF:", error);
+    res.status(500).json({ error: "Error al generar el reporte PDF", detail: error.message });
+  }
+});
 
 // Ruta para exportar reporte de capacitación a PDF
 router.get("/export/training/pdf", async (req, res) => {

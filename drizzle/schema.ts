@@ -5773,6 +5773,8 @@ export const minuteDispatches = mysqlTable("minute_dispatches", {
   readAt: timestamp("read_at"),
   status: mysqlEnum("status", ["sent", "read", "bounced"]).default("sent").notNull(),
   notes: text("notes"),
+  readToken: varchar("read_token", { length: 64 }).unique(),
+  emailSentAt: timestamp("email_sent_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });

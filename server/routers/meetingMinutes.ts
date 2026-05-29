@@ -2,7 +2,8 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { employees, meetingAttachments, meetingMinutes, meetingParticipants, users, minuteDispatches, minuteRecipients } from "../../drizzle/schema";
-import { eq, desc, and, like, gte, lte, inArray } from "drizzle-orm";
+import { eq, desc, and, like, gte, lte, inArray, sql } from "drizzle-orm";
+import { sendDispatchEmails } from "../dispatchEmail";
 import { storagePut } from "../storage";
 import QRCode from "qrcode";
 import { logMinuteEvidence } from "../helpers/evidenceLogger";
@@ -484,10 +485,71 @@ export const meetingMinutesRouter = router({
         );
       }
 
+      // Enviar correos de notificación a los nuevos destinatarios
+      let emailsSent = 0;
+      let emailsFailed = 0;
+      if (newRecipients.length > 0) {
+        try {
+          // Obtener datos completos de la minuta
+          const [minuteData] = await db
+            .select({
+              id: meetingMinutes.id,
+              folio: meetingMinutes.folio,
+              title: meetingMinutes.title,
+              meetingDate: meetingMinutes.meetingDate,
+              meetingType: meetingMinutes.meetingType,
+            })
+            .from(meetingMinutes)
+            .where(eq(meetingMinutes.id, input.minuteId))
+            .limit(1);
+
+          // Obtener datos de los nuevos destinatarios con sus IDs de despacho
+          const dispatchesCreated = await db
+            .select({
+              dispatchId: minuteDispatches.id,
+              recipientId: minuteRecipients.id,
+              name: minuteRecipients.name,
+              email: minuteRecipients.email,
+            })
+            .from(minuteDispatches)
+            .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
+            .where(
+              and(
+                eq(minuteDispatches.minuteId, input.minuteId),
+                inArray(minuteDispatches.recipientId, newRecipients.map((r) => r.id))
+              )
+            );
+
+          const baseUrl = process.env.VITE_APP_URL || process.env.PUBLIC_URL || "https://app.example.com";
+
+          const emailData = dispatchesCreated
+            .filter((d) => d.email)
+            .map((d) => ({
+              dispatchId: d.dispatchId,
+              recipientName: d.name || "",
+              recipientEmail: d.email!,
+              minuteId: minuteData.id,
+              minuteFolio: minuteData.folio,
+              minuteTitle: minuteData.title,
+              meetingDate: minuteData.meetingDate,
+              meetingType: minuteData.meetingType,
+              baseUrl,
+            }));
+
+          const result = await sendDispatchEmails(emailData);
+          emailsSent = result.sent;
+          emailsFailed = result.failed;
+        } catch (emailErr) {
+          console.error("[addRecipients] Error enviando correos:", emailErr);
+        }
+      }
+
       return {
         success: true,
         added: newRecipients.length,
         skipped: activeRecipients.length - newRecipients.length,
+        emailsSent,
+        emailsFailed,
       };
     }),
 
@@ -513,8 +575,68 @@ export const meetingMinutesRouter = router({
         .from(minuteDispatches)
         .leftJoin(minuteRecipients, eq(minuteDispatches.recipientId, minuteRecipients.id))
         .where(eq(minuteDispatches.minuteId, input.minuteId))
-        .orderBy(minuteRecipients.name);
-
+                .orderBy(minuteRecipients.name);
       return results;
+    }),
+
+  // ── Tendencias mensuales de despachos (para gráfica Chart.js) ──────────────────────
+  getMonthlyTrends: protectedProcedure
+    .input(
+      z.object({
+        months: z.number().min(3).max(24).optional().default(12),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Base de datos no disponible");
+
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - input.months + 1);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
+
+      const allDispatches = await db
+        .select({
+          sentAt: minuteDispatches.sentAt,
+          readAt: minuteDispatches.readAt,
+          status: minuteDispatches.status,
+        })
+        .from(minuteDispatches)
+        .where(gte(minuteDispatches.sentAt, startDate));
+
+      const monthMap = new Map<string, { sent: number; read: number; bounced: number }>();
+
+      for (let i = 0; i < input.months; i++) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - (input.months - 1) + i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        monthMap.set(key, { sent: 0, read: 0, bounced: 0 });
+      }
+
+      for (const dispatch of allDispatches) {
+        if (!dispatch.sentAt) continue;
+        const d = new Date(dispatch.sentAt);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        if (!monthMap.has(key)) continue;
+        const entry = monthMap.get(key)!;
+        entry.sent++;
+        if (dispatch.status === "read" || dispatch.readAt) entry.read++;
+        if (dispatch.status === "bounced") entry.bounced++;
+      }
+
+      const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const trends = Array.from(monthMap.entries()).map(([key, data]) => {
+        const [year, month] = key.split("-");
+        return {
+          key,
+          label: `${monthNames[parseInt(month) - 1]} ${year}`,
+          sent: data.sent,
+          read: data.read,
+          bounced: data.bounced,
+          readRate: data.sent > 0 ? Math.round((data.read / data.sent) * 100) : 0,
+        };
+      });
+
+      return trends;
     }),
 });

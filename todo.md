@@ -632,3 +632,15 @@
 - [x] Entrada en sidebar bajo "Comité de Seguridad"
 - [x] Ruta /committee/dispatches registrada en App.tsx
 - [x] Tests unitarios para getAllDispatches (25/25 pasando)
+
+## Sprint 67 — Notificaciones, Gráfica de Tendencias y PDF de Trazabilidad (2026-05-28) ✅
+- [x] Tabla minute_dispatches: columnas read_token y email_sent_at agregadas (migración aplicada)
+- [x] Helper sendDispatchEmail con token único de 64 chars hex y enlace de confirmación de lectura
+- [x] Endpoint público GET /api/confirm-read/:token que marca el despacho como leído con fecha/hora
+- [x] Procedimiento addRecipients actualizado para enviar correos al vincular destinatarios a minutas
+- [x] Procedimiento getMonthlyTrends en router meetingMinutes con agrupación por mes y tasa de lectura
+- [x] Componente MonthlyTrendsChart con Chart.js (barras enviados vs leídos), selector 6/12/24 meses
+- [x] Módulo dispatchesReport.ts que genera PDF ejecutivo con estadísticas, tabla por destinatario y detalle
+- [x] Endpoint GET /api/export/dispatches/pdf con filtros (status, recipientId, dateFrom, dateTo, search)
+- [x] Botón "Reporte PDF" en DispatchesPanel que descarga el PDF con los filtros activos (verificado HTTP 200, 42 KB)
+- [x] Tests unitarios Sprint 67 (17/17 pasando)

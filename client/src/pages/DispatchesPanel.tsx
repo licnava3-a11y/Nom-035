@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,129 @@ import {
   ChevronRight,
   History,
   X,
+  TrendingUp,
+  FileDown,
 } from "lucide-react";
+
+// ── Componente de gráfica de tendencias mensuales ───────────────────────────────────────
+function MonthlyTrendsChart() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<any>(null);
+  const [months, setMonths] = useState(12);
+
+  const { data: trends, isLoading } = trpc.meetingMinutes.getMonthlyTrends.useQuery({ months });
+
+  useEffect(() => {
+    if (!trends || !canvasRef.current) return;
+
+    const loadChart = async () => {
+      const { Chart, registerables } = await import("chart.js");
+      Chart.register(...registerables);
+
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
+
+      const ctx = canvasRef.current!.getContext("2d");
+      if (!ctx) return;
+
+      chartRef.current = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: trends.map((t) => t.label),
+          datasets: [
+            {
+              label: "Enviados",
+              data: trends.map((t) => t.sent),
+              backgroundColor: "rgba(59, 130, 246, 0.7)",
+              borderColor: "rgba(59, 130, 246, 1)",
+              borderWidth: 1,
+              borderRadius: 4,
+              borderSkipped: false,
+            },
+            {
+              label: "Leídos",
+              data: trends.map((t) => t.read),
+              backgroundColor: "rgba(22, 163, 74, 0.7)",
+              borderColor: "rgba(22, 163, 74, 1)",
+              borderWidth: 1,
+              borderRadius: 4,
+              borderSkipped: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top", labels: { boxWidth: 12, font: { size: 12 } } },
+            tooltip: {
+              callbacks: {
+                afterBody: (items: any[]) => {
+                  const idx = items[0]?.dataIndex;
+                  if (idx === undefined) return [];
+                  const t = trends[idx];
+                  return [`Tasa de lectura: ${t.readRate}%`];
+                },
+              },
+            },
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, font: { size: 11 } },
+              grid: { color: "rgba(0,0,0,0.06)" },
+            },
+          },
+        },
+      });
+    };
+
+    loadChart();
+
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
+    };
+  }, [trends]);
+
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold">Tendencias Mensuales de Despachos</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {[6, 12, 24].map((m) => (
+            <Button
+              key={m}
+              variant={months === m ? "default" : "outline"}
+              size="sm"
+              className="h-7 text-xs px-2.5"
+              onClick={() => setMonths(m)}
+            >
+              {m}m
+            </Button>
+          ))}
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="h-48 flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      ) : (
+        <div style={{ height: "220px" }}>
+          <canvas ref={canvasRef} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 type StatusFilter = "all" | "sent" | "read" | "bounced";
@@ -129,7 +251,7 @@ export default function DispatchesPanel() {
     dateFrom: dateFrom ?? undefined,
     dateTo: dateTo ?? undefined,
     search: search.trim() || undefined,
-  }, { keepPreviousData: true });
+  }, { placeholderData: (prev: any) => prev });
 
   const markAsReadMutation = trpc.minuteRecipients.markAsRead.useMutation({
     onSuccess: () => {
@@ -154,6 +276,38 @@ export default function DispatchesPanel() {
     setCustomDateFrom("");
     setCustomDateTo("");
     setPage(1);
+  };
+
+  // Exportar a PDF ejecutivo
+  const handleExportPDF = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (recipientFilter !== "all") params.set("recipientId", recipientFilter);
+      if (dateFrom) params.set("dateFrom", dateFrom);
+      if (dateTo) params.set("dateTo", dateTo);
+      if (search.trim()) params.set("search", search.trim());
+
+      toast({ title: "Generando PDF...", description: "Esto puede tomar unos segundos." });
+
+      const response = await fetch(`/api/export/dispatches/pdf?${params.toString()}`);
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "Error desconocido" }));
+        throw new Error(err.error ?? "Error al generar el PDF");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reporte-despachos-minutas-${new Date().toISOString().split("T")[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: "PDF descargado correctamente" });
+    } catch (e: any) {
+      toast({ title: "Error al generar PDF", description: e.message, variant: "destructive" });
+    }
   };
 
   // Exportar a XLSX
@@ -204,11 +358,17 @@ export default function DispatchesPanel() {
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5">
             <Download className="h-3.5 w-3.5" />Exportar XLSX
           </Button>
+          <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-1.5">
+            <FileDown className="h-3.5 w-3.5" />Reporte PDF
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setLocation("/committee/minute-recipients")} className="gap-1.5">
             <Users className="h-3.5 w-3.5" />Catálogo
           </Button>
         </div>
       </div>
+
+      {/* Gráfica de tendencias mensuales */}
+      <MonthlyTrendsChart />
 
       {/* Tarjetas de estadísticas */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

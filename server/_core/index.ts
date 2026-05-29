@@ -16,6 +16,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import uploadRouter from "../upload";
 import exportRouter from "../exportRouter";
+import confirmReadRouter from "../confirmReadRouter";
 import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
@@ -154,6 +155,8 @@ async function startServer() {
   app.use("/api", uploadRouter);
   // Export API
   app.use("/api", exportRouter);
+  // Confirm Read — endpoint público para confirmar lectura de minutas por correo
+  app.use("/api", confirmReadRouter);
 
   // Heartbeat anti-cold-start — recibe el ping cada 10 minutos del cron de plataforma
   // Mantiene el contenedor Cloud Run "caliente" para eliminar cold starts

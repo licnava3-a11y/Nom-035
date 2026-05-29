@@ -1114,6 +1114,13 @@
       "when": 1780001697474,
       "tag": "0158_perpetual_tomas",
       "breakpoints": true
+    },
+    {
+      "idx": 159,
+      "version": "5",
+      "when": 1780012027338,
+      "tag": "0159_faithful_living_lightning",
+      "breakpoints": true
     }
   ]
 }
