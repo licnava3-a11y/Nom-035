@@ -16,10 +16,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { EvidenceUploader } from "@/components/EvidenceUploader";
+import ActionHistoryTimeline from "@/components/ActionHistoryTimeline";
 import {
   Plus, Search, Filter, FileText, CheckCircle2, Clock, AlertTriangle,
   XCircle, ChevronDown, ChevronRight, Paperclip, Download, Trash2,
-  RefreshCw, BarChart3, Eye, Edit2, Loader2, Building2, Users, User
+  RefreshCw, BarChart3, Eye, Edit2, Loader2, Building2, Users, User, History
 } from "lucide-react";
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -58,11 +59,13 @@ function ActionRow({
   onUpdateStatus,
   onViewEvidences,
   onUploadEvidence,
+  onViewHistory,
 }: {
   action: any;
   onUpdateStatus: (id: number, estado: string) => void;
   onViewEvidences: (action: any) => void;
   onUploadEvidence: (action: any) => void;
+  onViewHistory: (action: any) => void;
 }) {
   const estadoConf = ESTADO_CONFIG[action.estado] || ESTADO_CONFIG.no_iniciada;
   const prioridadConf = PRIORIDAD_CONFIG[action.prioridad] || PRIORIDAD_CONFIG.media;
@@ -128,6 +131,19 @@ function ActionRow({
               <TooltipContent>Agregar evidencia</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => onViewHistory(action)}
+                  className="p-1 rounded text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/30 transition-colors"
+                >
+                  <History className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Ver bitácora de cambios</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </TableCell>
       <TableCell>
@@ -191,6 +207,7 @@ export function Nom035Matrix() {
   });
   const [uploadAction, setUploadAction] = useState<any | null>(null);
   const [viewEvidencesAction, setViewEvidencesAction] = useState<any | null>(null);
+  const [historyAction, setHistoryAction] = useState<any | null>(null);
   const [showNewPlanDialog, setShowNewPlanDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -438,6 +455,7 @@ export function Nom035Matrix() {
                   onUpdateStatus={handleUpdateStatus}
                   onViewEvidences={setViewEvidencesAction}
                   onUploadEvidence={setUploadAction}
+                  onViewHistory={setHistoryAction}
                 />
               ))
             )}
@@ -494,6 +512,27 @@ export function Nom035Matrix() {
           </DialogHeader>
           {viewEvidencesAction && (
             <EvidenceList actionId={viewEvidencesAction.id} />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Bitácora de historial de cambios */}
+      <Dialog open={!!historyAction} onOpenChange={open => !open && setHistoryAction(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5 text-violet-600" />
+              Bitácora — {historyAction?.accionId}
+            </DialogTitle>
+            <DialogDescription>
+              {historyAction?.objetivo?.substring(0, 100)}
+            </DialogDescription>
+          </DialogHeader>
+          {historyAction && (
+            <ActionHistoryTimeline
+              actionId={historyAction.id}
+              accionId={historyAction.accionId}
+            />
           )}
         </DialogContent>
       </Dialog>

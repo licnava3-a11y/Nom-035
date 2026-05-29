@@ -736,3 +736,15 @@
 - [x] Procedimiento `generateCompliancePdf` en router nom035Matrix
 - [x] Botón "Exportar PDF" en Nom035ComplianceDashboard.tsx con descarga automática
 - [x] Tests unitarios Sprints 73-75: 39/39 pasando (sprint73_75.test.ts)
+
+## Sprint 76 — Bitácora Visual de Historial de Acciones NOM-035 (2026-05-29) ✅
+- [x] Tabla `nom035_action_history` en BD: actionId, planId, campo (enum 9 valores), valorAnterior, valorNuevo, changedBy, nota, createdAt
+- [x] Migración SQL aplicada (0163_nasty_nuke.sql)
+- [x] Procedure `getActionHistory` en router nom035Matrix (query por actionId, orden desc)
+- [x] Procedure `addHistoryNote` en router nom035Matrix (nota manual)
+- [x] Registro automático en `updateAction`: detecta cambios de estado, responsable, plazo, prioridad y observaciones; registra cada campo modificado en la bitácora con el usuario que hizo el cambio
+- [x] Helper `logActionHistory()` antes del router para insertar entradas en nom035_action_history
+- [x] Componente `ActionHistoryTimeline.tsx` con línea de tiempo vertical, íonos por tipo de campo, valores anterior/nuevo con colores (rojo/verde), formulario de nota manual
+- [x] Botón de bitácora (icono History) en cada fila de la tabla de acciones
+- [x] Diálogo de bitácora integrado en Nom035Matrix.tsx con estado `historyAction`
+- [x] Tests unitarios Sprint 76: 28/28 pasando (sprint76.test.ts)

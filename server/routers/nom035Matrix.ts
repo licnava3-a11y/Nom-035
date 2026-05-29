@@ -12,6 +12,7 @@ import {
   nom035Actions,
   nom035Evidences,
   nom035EvidenceAudit,
+  nom035ActionHistory,
 } from "../../drizzle/schema";
 import { eq, and, or, like, gte, lte, desc, asc, inArray, sql } from "drizzle-orm";
 import { storageGet } from "../storage";
@@ -47,6 +48,31 @@ async function logAudit(params: {
     userEmail: params.userEmail ?? null,
     detalles: params.detalles ?? null,
     ipAddress: params.ipAddress ?? null,
+  });
+}
+
+async function logActionHistory(params: {
+  actionId: number;
+  planId?: number | null;
+  campo: "estado" | "responsable" | "plazo" | "prioridad" | "objetivo" | "observaciones" | "evidencia_agregada" | "evidencia_eliminada" | "creacion";
+  valorAnterior?: string | null;
+  valorNuevo?: string | null;
+  changedByUserId?: number | null;
+  changedByName?: string | null;
+  changedByEmail?: string | null;
+  nota?: string | null;
+}) {
+  const db = await getDb();
+  await db.insert(nom035ActionHistory).values({
+    actionId: params.actionId,
+    planId: params.planId ?? null,
+    campo: params.campo,
+    valorAnterior: params.valorAnterior ?? null,
+    valorNuevo: params.valorNuevo ?? null,
+    changedByUserId: params.changedByUserId ?? null,
+    changedByName: params.changedByName ?? null,
+    changedByEmail: params.changedByEmail ?? null,
+    nota: params.nota ?? null,
   });
 }
 
@@ -383,10 +409,15 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
 
   /** Actualizar estado/datos de una acción */
   updateAction: protectedProcedure
-    .input(updateActionSchema)
-    .mutation(async ({ input }) => {
+    .input(updateActionSchema.extend({ nota: z.string().max(500).optional() }))
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
-      const { id, ...updates } = input;
+      const { id, nota, ...updates } = input;
+
+      // Leer valores actuales para registrar en bitácora
+      const [current] = await db.select().from(nom035Actions).where(eq(nom035Actions.id, id)).limit(1);
+      if (!current) throw new TRPCError({ code: "NOT_FOUND", message: "Acción no encontrada" });
+
       await db.update(nom035Actions).set({
         ...(updates.estado !== undefined && { estado: updates.estado }),
         ...(updates.responsable !== undefined && { responsable: updates.responsable }),
@@ -395,6 +426,36 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
         ...(updates.observaciones !== undefined && { observaciones: updates.observaciones }),
         ...(updates.prioridad !== undefined && { prioridad: updates.prioridad }),
       }).where(eq(nom035Actions.id, id));
+
+      // Registrar cada campo modificado en la bitácora
+      const historyPromises: Promise<void>[] = [];
+      const user = { id: ctx.user.id, name: ctx.user.name ?? ctx.user.email, email: ctx.user.email };
+      const baseParams = { actionId: id, planId: current.planId, changedByUserId: user.id, changedByName: user.name, changedByEmail: user.email, nota: nota ?? null };
+
+      if (updates.estado !== undefined && updates.estado !== current.estado) {
+        historyPromises.push(logActionHistory({ ...baseParams, campo: "estado", valorAnterior: current.estado, valorNuevo: updates.estado }));
+      }
+      if (updates.responsable !== undefined && updates.responsable !== current.responsable) {
+        historyPromises.push(logActionHistory({ ...baseParams, campo: "responsable", valorAnterior: current.responsable, valorNuevo: updates.responsable }));
+      }
+      if (updates.plazo !== undefined) {
+        const prevPlazo = current.plazo ? (current.plazo instanceof Date ? current.plazo.toISOString().split("T")[0] : String(current.plazo)) : null;
+        if (prevPlazo !== updates.plazo) {
+          historyPromises.push(logActionHistory({ ...baseParams, campo: "plazo", valorAnterior: prevPlazo, valorNuevo: updates.plazo }));
+        }
+      }
+      if (updates.prioridad !== undefined && updates.prioridad !== current.prioridad) {
+        historyPromises.push(logActionHistory({ ...baseParams, campo: "prioridad", valorAnterior: current.prioridad, valorNuevo: updates.prioridad }));
+      }
+      if (updates.observaciones !== undefined && updates.observaciones !== current.observaciones) {
+        historyPromises.push(logActionHistory({ ...baseParams, campo: "observaciones", valorAnterior: current.observaciones, valorNuevo: updates.observaciones }));
+      }
+      // Si hay nota pero no hubo cambios de campo, registrar la nota como entrada independiente
+      if (nota && historyPromises.length === 0) {
+        historyPromises.push(logActionHistory({ ...baseParams, campo: "observaciones", valorAnterior: null, valorNuevo: nota }));
+      }
+
+      await Promise.all(historyPromises);
       return { ok: true };
     }),
 
@@ -1202,6 +1263,52 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
         accionesVencidas,
         tendenciaMeses,
       };
+    }),
+
+  // ── Bitácora de historial de cambios ──────────────────────────────────────────
+
+  /** Retorna el historial completo de cambios de una acción */
+  getActionHistory: protectedProcedure
+    .input(z.object({
+      actionId: z.number().int().positive(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      const history = await db
+        .select()
+        .from(nom035ActionHistory)
+        .where(eq(nom035ActionHistory.actionId, input.actionId))
+        .orderBy(desc(nom035ActionHistory.createdAt));
+      return history;
+    }),
+
+  /** Agrega una nota manual a la bitácora de una acción */
+  addHistoryNote: protectedProcedure
+    .input(z.object({
+      actionId: z.number().int().positive(),
+      nota: z.string().min(1).max(1000),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      // Verificar que la acción existe
+      const [action] = await db.select({ id: nom035Actions.id, planId: nom035Actions.planId })
+        .from(nom035Actions)
+        .where(eq(nom035Actions.id, input.actionId))
+        .limit(1);
+      if (!action) throw new TRPCError({ code: "NOT_FOUND", message: "Acción no encontrada" });
+
+      await logActionHistory({
+        actionId: input.actionId,
+        planId: action.planId,
+        campo: "observaciones",
+        valorAnterior: null,
+        valorNuevo: input.nota,
+        changedByUserId: ctx.user.id,
+        changedByName: ctx.user.name ?? ctx.user.email,
+        changedByEmail: ctx.user.email,
+        nota: input.nota,
+      });
+      return { ok: true };
     }),
 });
 

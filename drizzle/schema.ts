@@ -5919,3 +5919,36 @@ export const nom035EvidenceAudit = mysqlTable("nom035_evidence_audit", {
 });
 export type Nom035EvidenceAudit = typeof nom035EvidenceAudit.$inferSelect;
 export type InsertNom035EvidenceAudit = typeof nom035EvidenceAudit.$inferInsert;
+
+/**
+ * Bitácora de historial de cambios por acción NOM-035.
+ * Registra cada modificación: estado, responsable, plazo, prioridad, observaciones.
+ */
+export const nom035ActionHistory = mysqlTable("nom035_action_history", {
+  id: int("id").autoincrement().primaryKey(),
+  actionId: int("action_id").notNull(),
+  planId: int("plan_id"),
+  // Campo modificado
+  campo: mysqlEnum("campo", [
+    "estado",
+    "responsable",
+    "plazo",
+    "prioridad",
+    "objetivo",
+    "observaciones",
+    "evidencia_agregada",
+    "evidencia_eliminada",
+    "creacion",
+  ]).notNull(),
+  valorAnterior: text("valor_anterior"),
+  valorNuevo: text("valor_nuevo"),
+  // Quién hizo el cambio
+  changedByUserId: int("changed_by_user_id"),
+  changedByName: varchar("changed_by_name", { length: 255 }),
+  changedByEmail: varchar("changed_by_email", { length: 320 }),
+  // Nota opcional del usuario al hacer el cambio
+  nota: text("nota"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type Nom035ActionHistory = typeof nom035ActionHistory.$inferSelect;
+export type InsertNom035ActionHistory = typeof nom035ActionHistory.$inferInsert;
