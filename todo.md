@@ -679,3 +679,17 @@
 - [x] `signerSearch` incluido en `hasActiveFilters` y en `clearFilters()`
 - [x] Tests unitarios Sprint 70: 29/29 pasando (sprint70.test.ts)
 - [x] TypeScript: 0 errores (verificado en watch mode)
+
+## Sprint 71 — Módulo Matriz de Acciones con Evidencias NOM-035 (2026-05-29) ✅
+- [x] Tablas BD: `nom035_plans`, `nom035_actions`, `nom035_evidences`, `nom035_evidence_audit` creadas y migradas
+- [x] Router tRPC `nom035Matrix` con procedimientos: listPlans, generatePlan (IA + fallback), listActions, updateAction, getEvidences, registerEvidence, deleteEvidence, getDownloadUrl, getPlanStats, getGlobalStats, generatePdf, exportXlsx
+- [x] Endpoint `/api/upload` reutilizado con carpeta `nom035-evidences` y límite 16 MB
+- [x] Componente `EvidenceUploader.tsx` con drag-and-drop, previsualización, tipos de evidencia y descripción
+- [x] Página `Nom035Matrix.tsx` con matriz interactiva, filtros (tipoPlan, estado, prioridad, búsqueda texto), paginación, columna de evidencias y diálogo de edición
+- [x] Generador de PDF `nom035MatrixPdfGenerator.ts` con miniaturas, campos de firma, semáforo de cumplimiento y folio único
+- [x] Exportación XLSX con 2 hojas: Matriz de Acciones (14 columnas) + Evidencias (8 columnas)
+- [x] Botones "Exportar XLSX" y "Generar PDF" en el header de la página
+- [x] Ítem de menú "Matriz de Acciones" en el submenú NOM-035 del DashboardLayout
+- [x] Ruta `/nom035-matrix` registrada en App.tsx
+- [x] Registro de auditoría en tabla `nom035_evidence_audit` para subida, reemplazo, eliminación, descarga y vista previa
+- [x] Tests unitarios Sprint 71: 45/45 pasando (sprint71.test.ts)

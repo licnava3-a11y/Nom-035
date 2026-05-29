@@ -257,6 +257,7 @@ const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
 const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
 const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeReport"));
 const Welcome = lazy(() => import("./pages/Welcome"));
+const Nom035Matrix = lazy(() => import("./pages/Nom035Matrix").then(m => ({ default: m.Nom035Matrix })));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -1954,6 +1955,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <WebVitalsDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/nom035-matrix">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <Nom035Matrix />
             </Suspense>
           </DashboardLayout>
         </Route>

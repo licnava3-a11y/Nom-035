@@ -1,0 +1,83 @@
+CREATE TABLE `nom035_actions` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`plan_id` int NOT NULL,
+	`accion_id` varchar(20) NOT NULL,
+	`tipo_plan` enum('intervencion','violencia_laboral','no_discriminacion') NOT NULL,
+	`nivel_aplicacion` enum('organizacional','grupal','individual') NOT NULL,
+	`filtro_aplicado` varchar(512),
+	`objetivo` text NOT NULL,
+	`accion` text NOT NULL,
+	`descripcion_completa` text,
+	`indicador` text,
+	`responsable` varchar(255),
+	`responsable_email` varchar(320),
+	`plazo` date,
+	`estado` enum('no_iniciada','en_proceso','cumplida','vencida','cancelada') NOT NULL DEFAULT 'no_iniciada',
+	`observaciones` text,
+	`prioridad` enum('alta','media','baja') NOT NULL DEFAULT 'media',
+	`notificacion_7dias_enviada` boolean NOT NULL DEFAULT false,
+	`notificacion_vencimiento_enviada` boolean NOT NULL DEFAULT false,
+	`created_by_user_id` int,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `nom035_actions_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `nom035_evidence_audit` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`evidence_id` int,
+	`action_id` int NOT NULL,
+	`plan_id` int,
+	`operacion` enum('subida','reemplazo','eliminacion','descarga','vista_previa') NOT NULL,
+	`nombre_archivo` varchar(512),
+	`user_id` int,
+	`user_name` varchar(255),
+	`user_email` varchar(320),
+	`detalles` text,
+	`ip_address` varchar(45),
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `nom035_evidence_audit_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `nom035_evidences` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`action_id` int NOT NULL,
+	`nombre_archivo` varchar(512) NOT NULL,
+	`tipo_archivo` varchar(50) NOT NULL,
+	`tamano_bytes` int,
+	`file_key` varchar(512) NOT NULL,
+	`file_url` varchar(1024) NOT NULL,
+	`thumbnail_key` varchar(512),
+	`thumbnail_url` varchar(1024),
+	`descripcion` text,
+	`tipo_evidencia` enum('acta_capacitacion','registro_fotografico','correo_electronico','lista_asistencia','comunicado_interno','captura_pantalla','acta_reunion','contrato_servicio','politica_firmada','otro') NOT NULL DEFAULT 'otro',
+	`subido_por_user_id` int,
+	`subido_por_nombre` varchar(255),
+	`fecha_subida` timestamp NOT NULL DEFAULT (now()),
+	`is_active` boolean NOT NULL DEFAULT true,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `nom035_evidences_id` PRIMARY KEY(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `nom035_plans` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`nivel_aplicacion` enum('organizacional','grupal','individual') NOT NULL,
+	`filtro_aplicado` varchar(512),
+	`identificador_nivel` varchar(255) NOT NULL,
+	`tipo_plan` enum('intervencion','violencia_laboral','no_discriminacion','consolidado') NOT NULL,
+	`centro_trabajo` varchar(255),
+	`giro_empresa` varchar(255),
+	`total_trabajadores` int,
+	`contenido_json` json,
+	`status` enum('borrador','activo','cerrado','archivado') NOT NULL DEFAULT 'activo',
+	`firma_nombre_responsable` varchar(255),
+	`firma_cargo_responsable` varchar(255),
+	`firma_nombre_rep_legal` varchar(255),
+	`firma_cargo_rep_legal` varchar(255),
+	`firma_fecha` date,
+	`created_by_user_id` int,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	`updated_at` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `nom035_plans_id` PRIMARY KEY(`id`)
+);

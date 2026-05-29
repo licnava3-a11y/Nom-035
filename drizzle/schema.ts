@@ -1843,8 +1843,8 @@ export const nom035EvidenceFolder = mysqlTable("nom035_evidence_folder", {
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
-export type Nom035Evidence = typeof nom035EvidenceFolder.$inferSelect;
-export type InsertNom035Evidence = typeof nom035EvidenceFolder.$inferInsert;
+export type Nom035EvidenceFolder = typeof nom035EvidenceFolder.$inferSelect;
+export type InsertNom035EvidenceFolder = typeof nom035EvidenceFolder.$inferInsert;
 
 /**
  * Committee Position Acceptances table
@@ -5781,3 +5781,141 @@ export const minuteDispatches = mysqlTable("minute_dispatches", {
 });
 export type MinuteDispatch = typeof minuteDispatches.$inferSelect;
 export type InsertMinuteDispatch = typeof minuteDispatches.$inferInsert;
+
+
+// ── Módulo de Matriz de Acciones con Evidencias NOM-035 (Sprint 71) ───────────
+
+/**
+ * Tabla de planes de intervención / programas generados por IA.
+ * Un plan puede ser de tipo: intervencion, violencia, no_discriminacion.
+ * Puede estar asociado a nivel organizacional, grupal o individual.
+ */
+export const nom035Plans = mysqlTable("nom035_plans", {
+  id: int("id").autoincrement().primaryKey(),
+  // Nivel de aplicación
+  nivelAplicacion: mysqlEnum("nivel_aplicacion", ["organizacional", "grupal", "individual"]).notNull(),
+  filtroAplicado: varchar("filtro_aplicado", { length: 512 }),
+  identificadorNivel: varchar("identificador_nivel", { length: 255 }).notNull(),
+  // Tipo de plan
+  tipoPlan: mysqlEnum("tipo_plan", ["intervencion", "violencia_laboral", "no_discriminacion", "consolidado"]).notNull(),
+  // Datos del contexto
+  centroTrabajo: varchar("centro_trabajo", { length: 255 }),
+  giroEmpresa: varchar("giro_empresa", { length: 255 }),
+  totalTrabajadores: int("total_trabajadores"),
+  // Contenido generado por IA
+  contenidoJson: json("contenido_json"),
+  // Estado
+  status: mysqlEnum("status", ["borrador", "activo", "cerrado", "archivado"]).default("activo").notNull(),
+  // Firmas
+  firmaNombreResponsable: varchar("firma_nombre_responsable", { length: 255 }),
+  firmaCargoResponsable: varchar("firma_cargo_responsable", { length: 255 }),
+  firmaNombreRepLegal: varchar("firma_nombre_rep_legal", { length: 255 }),
+  firmaCargoRepLegal: varchar("firma_cargo_rep_legal", { length: 255 }),
+  firmaFecha: date("firma_fecha"),
+  // Auditoría
+  createdByUserId: int("created_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Nom035Plan = typeof nom035Plans.$inferSelect;
+export type InsertNom035Plan = typeof nom035Plans.$inferInsert;
+
+/**
+ * Tabla de acciones individuales dentro de un plan de intervención NOM-035.
+ */
+export const nom035Actions = mysqlTable("nom035_actions", {
+  id: int("id").autoincrement().primaryKey(),
+  planId: int("plan_id").notNull(),
+  // Identificador único de la acción (ej. INT-01)
+  accionId: varchar("accion_id", { length: 20 }).notNull(),
+  // Tipo de programa
+  tipoPlan: mysqlEnum("tipo_plan", ["intervencion", "violencia_laboral", "no_discriminacion"]).notNull(),
+  // Nivel
+  nivelAplicacion: mysqlEnum("nivel_aplicacion", ["organizacional", "grupal", "individual"]).notNull(),
+  filtroAplicado: varchar("filtro_aplicado", { length: 512 }),
+  // Contenido
+  objetivo: text("objetivo").notNull(),
+  accion: text("accion").notNull(),
+  descripcionCompleta: text("descripcion_completa"),
+  indicador: text("indicador"),
+  // Responsable y plazo
+  responsable: varchar("responsable", { length: 255 }),
+  responsableEmail: varchar("responsable_email", { length: 320 }),
+  plazo: date("plazo"),
+  // Estado
+  estado: mysqlEnum("estado", ["no_iniciada", "en_proceso", "cumplida", "vencida", "cancelada"]).default("no_iniciada").notNull(),
+  observaciones: text("observaciones"),
+  prioridad: mysqlEnum("prioridad", ["alta", "media", "baja"]).default("media").notNull(),
+  // Notificaciones
+  notificacion7DiasEnviada: boolean("notificacion_7dias_enviada").default(false).notNull(),
+  notificacionVencimientoEnviada: boolean("notificacion_vencimiento_enviada").default(false).notNull(),
+  // Soft delete
+  isActive: boolean("is_active").default(true).notNull(),
+  // Auditoría
+  createdByUserId: int("created_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Nom035Action = typeof nom035Actions.$inferSelect;
+export type InsertNom035Action = typeof nom035Actions.$inferInsert;
+
+/**
+ * Tabla de evidencias asociadas a cada acción NOM-035.
+ */
+export const nom035Evidences = mysqlTable("nom035_evidences", {
+  id: int("id").autoincrement().primaryKey(),
+  actionId: int("action_id").notNull(),
+  // Datos del archivo
+  nombreArchivo: varchar("nombre_archivo", { length: 512 }).notNull(),
+  tipoArchivo: varchar("tipo_archivo", { length: 50 }).notNull(),
+  tamanoBytes: int("tamano_bytes"),
+  // S3
+  fileKey: varchar("file_key", { length: 512 }).notNull(),
+  fileUrl: varchar("file_url", { length: 1024 }).notNull(),
+  // Miniatura
+  thumbnailKey: varchar("thumbnail_key", { length: 512 }),
+  thumbnailUrl: varchar("thumbnail_url", { length: 1024 }),
+  // Metadatos
+  descripcion: text("descripcion"),
+  tipoEvidencia: mysqlEnum("tipo_evidencia", [
+    "acta_capacitacion",
+    "registro_fotografico",
+    "correo_electronico",
+    "lista_asistencia",
+    "comunicado_interno",
+    "captura_pantalla",
+    "acta_reunion",
+    "contrato_servicio",
+    "politica_firmada",
+    "otro"
+  ]).default("otro").notNull(),
+  // Auditoría
+  subidoPorUserId: int("subido_por_user_id"),
+  subidoPorNombre: varchar("subido_por_nombre", { length: 255 }),
+  fechaSubida: timestamp("fecha_subida").defaultNow().notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Nom035Evidence = typeof nom035Evidences.$inferSelect;
+export type InsertNom035Evidence = typeof nom035Evidences.$inferInsert;
+
+/**
+ * Log de auditoría para operaciones sobre evidencias NOM-035.
+ */
+export const nom035EvidenceAudit = mysqlTable("nom035_evidence_audit", {
+  id: int("id").autoincrement().primaryKey(),
+  evidenceId: int("evidence_id"),
+  actionId: int("action_id").notNull(),
+  planId: int("plan_id"),
+  operacion: mysqlEnum("operacion", ["subida", "reemplazo", "eliminacion", "descarga", "vista_previa"]).notNull(),
+  nombreArchivo: varchar("nombre_archivo", { length: 512 }),
+  userId: int("user_id"),
+  userName: varchar("user_name", { length: 255 }),
+  userEmail: varchar("user_email", { length: 320 }),
+  detalles: text("detalles"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type Nom035EvidenceAudit = typeof nom035EvidenceAudit.$inferSelect;
+export type InsertNom035EvidenceAudit = typeof nom035EvidenceAudit.$inferInsert;

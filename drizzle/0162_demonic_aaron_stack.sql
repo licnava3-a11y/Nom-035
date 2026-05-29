@@ -1,0 +1,1 @@
+ALTER TABLE `nom035_actions` ADD `is_active` boolean DEFAULT true NOT NULL;

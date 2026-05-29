@@ -159,6 +159,7 @@ import { executiveReportRouter } from "./routers/executiveReport";
 import { annualTrainingPlanRouter } from "./routers/annualTrainingPlan";
 import { webVitalsRouter } from "./routers/webVitals";
 import { branchesRouter } from "./routers/branches";
+import { nom035MatrixRouter } from "./routers/nom035Matrix";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -266,6 +267,7 @@ export const appRouter = router({
   correctiveActionPlans: correctiveActionPlansRouter,
   interventionImpact: interventionImpactRouter,
   sharedReports: sharedReportsRouter,
+  nom035Matrix: nom035MatrixRouter,
 
   performanceEvaluation360: performanceEvaluation360Router,
   riskAlerts: riskAlertsRouter,
