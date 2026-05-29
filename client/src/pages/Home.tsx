@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun, Shield, Bug, Lightbulb, ShieldCheck, Activity, Award, BookOpen, ChevronRight, Lock, Zap } from "lucide-react";
+import { AlertCircle, TrendingUp, Users, FileText, BarChart3, CalendarClock, UserMinus, Target, Briefcase, DollarSign, Palmtree, ArrowRight, Clock, CheckCircle2, XCircle, Sun, Shield, Bug, Lightbulb, ShieldCheck, Activity, Award, BookOpen, ChevronRight, Lock, Zap, ClipboardList, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getLoginUrl } from "@/const";
@@ -55,6 +55,8 @@ export default function Home() {
 
   // Queries
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
+  // Widget NOM-035 Matriz
+  const { data: matrizStats, isLoading: matrizLoading } = trpc.nom035Matrix.getGlobalStats.useQuery(undefined, { retry: false });
   // Widget de calidad
   const [qualityPeriod, setQualityPeriod] = useState<number | undefined>(undefined);
   const [qualityDateFrom, setQualityDateFrom] = useState<string>("");
@@ -1160,6 +1162,84 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Widget NOM-035 Matriz de Acciones ──────────────────────────── */}
+      {(matrizLoading || matrizStats) && (
+        <Card className="border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <ClipboardList className="h-4 w-4 text-blue-600" />
+                Matriz de Acciones NOM-035
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setLocation("/nom035-matrix")} className="text-xs text-blue-600 hover:text-blue-700">
+                  Ver Matriz <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setLocation("/nom035-compliance")} className="text-xs text-indigo-600 hover:text-indigo-700">
+                  Dashboard <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {matrizLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-16 bg-muted animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : matrizStats ? (() => {
+              const total = Number(matrizStats.totalAcciones ?? 0);
+              const cumplidas = Number(matrizStats.cumplidas ?? 0);
+              const vencidas = Number(matrizStats.vencidas ?? 0);
+              const pct = total > 0 ? Math.round((cumplidas / total) * 100) : 0;
+              const semaforoColor = pct >= 80 ? "text-green-600" : pct >= 50 ? "text-yellow-600" : "text-red-600";
+              const semaforoBg = pct >= 80 ? "bg-green-50 border-green-200" : pct >= 50 ? "bg-yellow-50 border-yellow-200" : "bg-red-50 border-red-200";
+              return (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {/* Semáforo de cumplimiento */}
+                    <div className={`rounded-lg border p-3 text-center ${semaforoBg}`}>
+                      <div className={`text-2xl font-bold ${semaforoColor}`}>{pct}%</div>
+                      <div className="text-xs text-muted-foreground mt-1">Cumplimiento</div>
+                      <div className={`text-xs font-medium mt-1 ${semaforoColor}`}>
+                        {pct >= 80 ? "● Óptimo" : pct >= 50 ? "● En riesgo" : "● Crítico"}
+                      </div>
+                    </div>
+                    {/* Total acciones */}
+                    <div className="rounded-lg border p-3 text-center bg-slate-50 dark:bg-slate-900">
+                      <div className="text-2xl font-bold text-slate-700 dark:text-slate-300">{total}</div>
+                      <div className="text-xs text-muted-foreground mt-1">Total acciones</div>
+                    </div>
+                    {/* Vencidas */}
+                    <div className={`rounded-lg border p-3 text-center ${vencidas > 0 ? "bg-red-50 border-red-200" : "bg-slate-50"}`}>
+                      <div className={`text-2xl font-bold ${vencidas > 0 ? "text-red-600" : "text-slate-400"} flex items-center justify-center gap-1`}>
+                        {vencidas > 0 && <AlertTriangle className="h-4 w-4" />}
+                        {vencidas}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">Vencidas</div>
+                    </div>
+                    {/* Con evidencia */}
+                    <div className="rounded-lg border p-3 text-center bg-emerald-50 dark:bg-emerald-950 border-emerald-200">
+                      <div className="text-2xl font-bold text-emerald-600">{Number(matrizStats.conEvidencia ?? 0)}</div>
+                      <div className="text-xs text-muted-foreground mt-1">Con evidencia</div>
+                    </div>
+                  </div>
+                  {/* Barra de progreso */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{cumplidas} cumplidas de {total} acciones</span>
+                      <span className={semaforoColor}>{pct}%</span>
+                    </div>
+                    <Progress value={pct} className="h-2" />
+                  </div>
+                </div>
+              );
+            })() : null}
           </CardContent>
         </Card>
       )}

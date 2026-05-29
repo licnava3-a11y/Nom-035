@@ -705,3 +705,34 @@
 - [x] Ruta `/nom035-compliance` registrada en App.tsx
 - [x] Ítem de menú "Dashboard de Cumplimiento" agregado en submenú NOM-035 del DashboardLayout
 - [x] Tests unitarios Sprint 72: 45/45 pasando (sprint72.test.ts)
+
+## Sprint 73 — Notificaciones Automáticas de Vencimiento NOM-035 (2026-05-29) ✅
+- [x] Job `nom035-action-alerts-job.ts` con setInterval cada 6 horas
+- [x] Detección de acciones próximas a vencer (umbral 7 días) con campo `notificacion7DiasEnviada`
+- [x] Detección de acciones vencidas con campo `notificacionVencimientoEnviada`
+- [x] Correo HTML al responsable con enlace directo a `/nom035-matrix`
+- [x] Notificación al owner cuando se envían alertas
+- [x] Deduplicación: no reenvía si ya se notificó (flags en BD)
+- [x] Registrado en `server/_core/index.ts` con `startNom035ActionAlertsJob()`
+- [x] TypeScript: 0 errores en el job
+
+## Sprint 74 — Widget KPI de Matriz NOM-035 en Home (2026-05-29) ✅
+- [x] Query `trpc.nom035Matrix.getGlobalStats` en Home.tsx
+- [x] Tarjeta con 4 KPIs: % Cumplimiento (semáforo), Total, Vencidas, Con evidencia
+- [x] Semáforo dinámico: verde ≥80%, amarillo 50-79%, rojo <50%
+- [x] Barra de progreso de color dinámico
+- [x] Botones "Ver Matriz" y "Dashboard" con accesos directos
+- [x] Skeleton de carga mientras se obtienen los datos
+
+## Sprint 75 — Exportación PDF del Dashboard de Cumplimiento (2026-05-29) ✅
+- [x] Generador `nom035CompliancePdfGenerator.ts` con HTML → Puppeteer
+- [x] Portada con membrete institucional, folio `NOM035-DASH-{timestamp}` y período
+- [x] Sección de KPIs globales con semáforo circular y 5 métricas
+- [x] Tabla de planes con barra de progreso y semáforo por plan
+- [x] Alertas: próximas a vencer (14 días) y vencidas con badges de prioridad
+- [x] Distribución por tipo de plan y nivel de aplicación (grid 2 columnas)
+- [x] Tendencia mensual con mini-barras de color dinámico
+- [x] Campos de firma para Responsable NOM-035 y Representante de Dirección
+- [x] Procedimiento `generateCompliancePdf` en router nom035Matrix
+- [x] Botón "Exportar PDF" en Nom035ComplianceDashboard.tsx con descarga automática
+- [x] Tests unitarios Sprints 73-75: 39/39 pasando (sprint73_75.test.ts)

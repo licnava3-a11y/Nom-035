@@ -13,8 +13,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   CheckCircle2, AlertTriangle, XCircle, Clock, FileText,
   TrendingUp, BarChart3, RefreshCw, ExternalLink, AlertCircle,
-  ShieldCheck, Activity, Target, Layers
+  ShieldCheck, Activity, Target, Layers, Download
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -144,6 +145,22 @@ function KpiCard({ icon: Icon, label, value, sub, color, bgColor }: {
 export default function Nom035ComplianceDashboard() {
   const [periodoMeses, setPeriodoMeses] = useState(6);
   const [tipoPlanFilter, setTipoPlanFilter] = useState<string>("all");
+
+  const generatePdfMutation = trpc.nom035Matrix.generateCompliancePdf.useMutation({
+    onSuccess: (result) => {
+      const byteChars = atob(result.pdfBase64);
+      const byteNums = new Array(byteChars.length).fill(0).map((_, i) => byteChars.charCodeAt(i));
+      const blob = new Blob([new Uint8Array(byteNums)], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `NOM035-Cumplimiento-${new Date().toISOString().split("T")[0]}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("PDF generado y descargado correctamente");
+    },
+    onError: (err) => toast.error("Error al generar el PDF: " + err.message),
+  });
 
   const { data, isLoading, refetch, isFetching } = trpc.nom035Matrix.getComplianceDashboard.useQuery(
     { periodoMeses },
@@ -305,6 +322,18 @@ export default function Nom035ComplianceDashboard() {
           <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching} className="gap-1.5">
             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             Actualizar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => generatePdfMutation.mutate({ periodoMeses })}
+            disabled={generatePdfMutation.isPending}
+          >
+            {generatePdfMutation.isPending
+              ? <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              : <Download className="w-3.5 h-3.5" />}
+            {generatePdfMutation.isPending ? "Generando..." : "Exportar PDF"}
           </Button>
           <Button asChild size="sm" className="gap-1.5">
             <Link href="/nom035-matrix">
