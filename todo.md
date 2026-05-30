@@ -887,4 +887,5 @@
 - [x] Indicador de progreso visual para descarga en ZIP (barra + porcentaje + detalles)
 - [x] Eliminación segura de archivos seleccionados con confirmación
 - [x] Mejoras al checkbox "Seleccionar todo" (estado indeterminate + contador)
+- [x] Mejoras al diálogo de confirmación (lista de archivos + checkbox de confirmación)
 - [x] Checkpoint final de auditoría

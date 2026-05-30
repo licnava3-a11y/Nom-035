@@ -42,6 +42,7 @@ export default function DC1Generator() {
   const [zipProgressText, setZipProgressText] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
+  const [confirmDeleteCheckbox, setConfirmDeleteCheckbox] = useState(false);
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -428,6 +429,7 @@ export default function DC1Generator() {
       // Limpiar selección y recargar historial
       setSelectedIds(new Set());
       setShowDeleteConfirm(false);
+      setConfirmDeleteCheckbox(false);
       historyQuery.refetch();
     } catch (err) {
       toast.error("Error al eliminar archivos");
@@ -1130,10 +1132,45 @@ export default function DC1Generator() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Lista de archivos a eliminar */}
+            <div className="bg-muted p-3 rounded-lg max-h-40 overflow-y-auto">
+              <p className="text-xs font-medium mb-2">Archivos a eliminar:</p>
+              <ul className="space-y-1">
+                {(historyQuery.data || [])
+                  .filter((r: any) => selectedIds.has(r.id))
+                  .slice(0, 5)
+                  .map((record: any) => (
+                    <li key={record.id} className="text-xs text-muted-foreground truncate">
+                      • {record.filename}
+                    </li>
+                  ))}
+                {selectedIds.size > 5 && (
+                  <li className="text-xs text-muted-foreground font-medium">
+                    + {selectedIds.size - 5} más...
+                  </li>
+                )}
+              </ul>
+            </div>
+            
+            {/* Advertencia */}
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
               <p className="text-sm text-destructive font-medium">
                 ⚠️ Advertencia: Los archivos se eliminarán permanentemente del historial.
               </p>
+            </div>
+            
+            {/* Checkbox de confirmación */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="confirm-delete"
+                checked={confirmDeleteCheckbox}
+                onChange={(e) => setConfirmDeleteCheckbox(e.target.checked)}
+                className="cursor-pointer"
+              />
+              <label htmlFor="confirm-delete" className="text-sm cursor-pointer">
+                Entiendo que esta acción no se puede deshacer
+              </label>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t">
@@ -1147,7 +1184,7 @@ export default function DC1Generator() {
             <Button
               variant="destructive"
               onClick={handleDeleteSelected}
-              disabled={loadingDelete}
+              disabled={loadingDelete || !confirmDeleteCheckbox}
               className="gap-2"
             >
               {loadingDelete ? (
