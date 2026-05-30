@@ -36,6 +36,8 @@ export default function DC1Generator() {
   const [previewHistoryType, setPreviewHistoryType] = useState<"dc1" | "sirce" | null>(null);
   const [showHistoryPreview, setShowHistoryPreview] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [loadingZip, setLoadingZip] = useState(false);
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -299,6 +301,63 @@ export default function DC1Generator() {
     const sizes = ["B", "KB", "MB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === paginatedHistory.length) {
+      setSelectedIds(new Set());
+    } else {
+      const allIds = new Set(paginatedHistory.map((r: any) => r.id));
+      setSelectedIds(allIds);
+    }
+  };
+
+  const handleSelectOne = (id: number) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleDownloadZip = async () => {
+    if (selectedIds.size === 0) {
+      toast.error("Selecciona al menos un archivo");
+      return;
+    }
+
+    setLoadingZip(true);
+    try {
+      const selectedRecords = (historyQuery.data || []).filter((r: any) => selectedIds.has(r.id));
+      
+      // Importar JSZip dinámicamente
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+
+      // Agregar archivos al ZIP
+      for (const record of selectedRecords) {
+        const result = await getHistoryFileMutation.mutateAsync({ historyId: record.id });
+        zip.file(record.filename, result.fileContent);
+      }
+
+      // Generar ZIP
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `dc1-sirce-${new Date().toISOString().split('T')[0]}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      toast.success(`${selectedIds.size} archivo(s) descargado(s) en ZIP`);
+      setSelectedIds(new Set());
+    } catch (err) {
+      toast.error("Error al crear ZIP");
+    } finally {
+      setLoadingZip(false);
+    }
   };
 
   return (
@@ -668,6 +727,15 @@ export default function DC1Generator() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
+                      <th className="text-left py-2 px-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === paginatedHistory.length && paginatedHistory.length > 0}
+                          onChange={handleSelectAll}
+                          className="cursor-pointer"
+                          title="Seleccionar todos"
+                        />
+                      </th>
                       <th className="text-left py-2 px-2">Tipo</th>
                       <th className="text-left py-2 px-2">Archivo</th>
                       <th className="text-left py-2 px-2">Tamaño</th>
@@ -679,6 +747,14 @@ export default function DC1Generator() {
                   <tbody>
                     {paginatedHistory.map((record: any) => (
                       <tr key={record.id} className="border-b hover:bg-muted/50">
+                        <td className="py-2 px-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(record.id)}
+                            onChange={() => handleSelectOne(record.id)}
+                            className="cursor-pointer"
+                          />
+                        </td>
                         <td className="py-2 px-2">
                           <Badge variant={record.fileType === "dc1" ? "default" : "secondary"}>
                             {record.fileType.toUpperCase()}
@@ -729,8 +805,28 @@ export default function DC1Generator() {
                 
                 {/* Controles de paginación */}
                 <div className="flex justify-between items-center pt-4 border-t">
-                  <div className="text-sm text-muted-foreground">
-                    Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm text-muted-foreground">
+                      Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                    </div>
+                    {selectedIds.size > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{selectedIds.size} seleccionado(s)</Badge>
+                        <Button
+                          size="sm"
+                          onClick={handleDownloadZip}
+                          disabled={loadingZip}
+                          className="gap-2"
+                        >
+                          {loadingZip ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4" />
+                          )}
+                          Descargar ZIP
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button
