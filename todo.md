@@ -881,4 +881,5 @@
 - [x] Corregir 136 errores TS en stpsFormats.ts (null guards en getDb() líneas 229, 333, 424)
 - [x] Ejecutar suite completa de tests (Sprints 80-85) — 57+ tests (todos pasando)
 - [x] Búsqueda y filtros en panel de historial (nombre, fechas, descargas)
+- [x] Paginación en panel de historial (5, 10, 25, 50 items por página)
 - [x] Checkpoint final de auditoría

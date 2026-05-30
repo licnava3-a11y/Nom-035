@@ -29,6 +29,8 @@ export default function DC1Generator() {
   const [filterToDate, setFilterToDate] = useState<string>("");
   const [filterMinDownloads, setFilterMinDownloads] = useState<string>("");
   const [filterMaxDownloads, setFilterMaxDownloads] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -236,9 +238,30 @@ export default function DC1Generator() {
     setFilterToDate("");
     setFilterMinDownloads("");
     setFilterMaxDownloads("");
+    setCurrentPage(1);
   };
 
   const hasActiveFilters = searchQuery || filterFromDate || filterToDate || filterMinDownloads || filterMaxDownloads;
+
+  // Lógica de paginación
+  const totalRecords = filteredHistory.length;
+  const totalPages = Math.ceil(totalRecords / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedHistory = filteredHistory.slice(startIndex, endIndex);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleString("es-MX", {
@@ -601,9 +624,25 @@ export default function DC1Generator() {
                 <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
               </div>
             ) : filteredHistory.length > 0 ? (
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">
-                  Mostrando <strong>{filteredHistory.length}</strong> de <strong>{historyQuery.data?.length || 0}</strong> archivos
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">
+                    Mostrando <strong>{startIndex + 1}-{Math.min(endIndex, totalRecords)}</strong> de <strong>{totalRecords}</strong> archivos
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium">Por página:</label>
+                    <Select value={pageSize.toString()} onValueChange={(v) => handlePageSizeChange(parseInt(v))}>
+                      <SelectTrigger className="w-[80px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -618,7 +657,7 @@ export default function DC1Generator() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredHistory.map((record: any) => (
+                    {paginatedHistory.map((record: any) => (
                       <tr key={record.id} className="border-b hover:bg-muted/50">
                         <td className="py-2 px-2">
                           <Badge variant={record.fileType === "dc1" ? "default" : "secondary"}>
@@ -655,6 +694,31 @@ export default function DC1Generator() {
                     ))}
                   </tbody>
                 </table>
+                </div>
+                
+                {/* Controles de paginación */}
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <div className="text-sm text-muted-foreground">
+                    Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      Siguiente
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (
