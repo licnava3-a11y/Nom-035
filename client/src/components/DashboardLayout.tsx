@@ -115,6 +115,7 @@ const hierarchicalMenuItems = [
       { label: "Evaluación de Competencias", path: "/competency-evaluation", description: "Evaluación de competencias y desempeño" },
       { label: "DNC Consolidada", path: "/dnc-dashboard", description: "Detección de Necesidades de Capacitación" },
       { label: "Catálogo de Competencias", path: "/competencies-manager", description: "Administración del catálogo de competencias" },
+      { label: "Generador DC-1 y SIRCE", path: "/dc1-generator", description: "Genera Constancias de Habilidades Laborales (DC-1) y registros SIRCE para STPS" },
     ],
   },
   {

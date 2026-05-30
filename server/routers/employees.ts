@@ -6,6 +6,9 @@ import { TRPCError } from "@trpc/server";
 import { requirePermission, requireDelete, requireAnyPermission } from "../permissions";
 import { validateCURP, validateRFC, validateNSS, validateEmail, validateHireDate, validateAge } from "../../shared/validators";
 import { getAddressByPostalCode } from "../lib/postal-code-api";
+import { getDb } from "../db";
+import { employees, employeePortalTokens } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export const employeesRouter = router({
   /**
@@ -884,6 +887,85 @@ export const employeesRouter = router({
           : 'Sin fecha',
         progressPercentage: c.progressPercentage,
       }));
+    }),
+
+  /**
+   * Generar enlace de portal público para empleado
+   */
+  generatePortalLink: protectedProcedure
+    .input(z.object({ employeeId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Verificar que el empleado existe
+      const employee = await db
+        .select({ id: employees.id, email: employees.email, firstName: employees.firstName, lastName: employees.lastName })
+        .from(employees)
+        .where(eq(employees.id, input.employeeId))
+        .limit(1);
+
+      if (!employee.length) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Empleado no encontrado",
+        });
+      }
+
+      // Generar token único
+      const token = crypto.randomUUID();
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 días
+
+      // Guardar token en BD
+      await db.insert(employeePortalTokens).values({
+        token,
+        employeeId: input.employeeId,
+        expiresAt,
+        lastUsedAt: null,
+      });
+
+      // Generar URL del portal
+      const portalUrl = `${process.env.VITE_FRONTEND_URL || "https://nom035.manus.space"}/employee-portal/${token}`;
+
+      // Enviar correo al empleado
+      try {
+        const { sendEmail: sendEmailFn } = await import("../_core/email");
+        await sendEmailFn({
+          to: employee[0].email,
+          subject: "Acceso a tu Portal de Empleado — NOM-035 STPS",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #2563eb;">Acceso a tu Portal de Empleado</h2>
+              <p>Hola <strong>${employee[0].firstName} ${employee[0].lastName}</strong>,</p>
+              <p>Se ha generado un enlace de acceso a tu portal personal donde puedes:</p>
+              <ul>
+                <li>Consultar encuestas pendientes</li>
+                <li>Ver cursos asignados</li>
+                <li>Gestionar solicitudes de vacaciones</li>
+                <li>Revisar y firmar documentos</li>
+              </ul>
+              <p style="margin-top: 20px;">
+                <a href="${portalUrl}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  Acceder a mi Portal
+                </a>
+              </p>
+              <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                Este enlace expira en 30 días. Si no puedes acceder, contacta a Recursos Humanos.
+              </p>
+            </div>
+          `,
+        });
+      } catch (err) {
+        console.error("Error enviando correo de portal:", err);
+        // No fallar si el correo no se envía
+      }
+
+      return {
+        ok: true,
+        token,
+        portalUrl,
+        expiresAt: expiresAt.toISOString(),
+      };
     }),
 });
 

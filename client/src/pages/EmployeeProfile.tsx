@@ -753,11 +753,36 @@ export default function EmployeeProfile() {
 
         {/* ── TAB: INFORMACIÓN (placeholder) ── */}
         {activeTab === "info" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Historial de Capacitación</CardTitle>
-              <CardDescription>Cursos completados en la plataforma NOM-035</CardDescription>
-            </CardHeader>
+          <div className="space-y-4">
+            {/* Botón de envío de enlace de portal */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Portal del Empleado</CardTitle>
+                <CardDescription>Enviar enlace de acceso al portal personal</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const result = await trpc.employees.generatePortalLink.mutate({ employeeId });
+                      toast.success(`Enlace enviado a ${employee?.email}`);
+                    } catch (err) {
+                      toast.error("Error al generar enlace de portal");
+                    }
+                  }}
+                  className="w-full"
+                >
+                  Enviar Enlace de Portal
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Historial de Capacitación */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Historial de Capacitación</CardTitle>
+                <CardDescription>Cursos completados en la plataforma NOM-035</CardDescription>
+              </CardHeader>
             <CardContent>
               {(coursesHistory || []).length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">Sin cursos completados registrados.</p>
@@ -775,7 +800,8 @@ export default function EmployeeProfile() {
                 </div>
               )}
             </CardContent>
-          </Card>
+            </Card>
+          </div>
         )}
 
         {/* ── TAB: CONTRATOS ── */}

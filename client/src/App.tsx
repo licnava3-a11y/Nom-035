@@ -266,6 +266,7 @@ const StpsFormats = lazy(() => import("./pages/StpsFormats"));
 const StpsInspections = lazy(() => import("./pages/StpsInspections"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
+const DC1Generator = lazy(() => import("./pages/DC1Generator"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -2017,6 +2018,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <InternalComms />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/dc1-generator">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DC1Generator />
             </Suspense>
           </DashboardLayout>
         </Route>

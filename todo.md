@@ -777,35 +777,35 @@
 - [x] Ítem "Reporte de Bitácora" en submenú NOM-035 del DashboardLayout
 - [x] Tests unitarios Sprints 77-79: 28/28 pasando (sprint77_79.test.ts)
 
-## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30)
-- [ ] Tablas BD: committee_members, committee_meetings, committee_agreements
-- [ ] Migración SQL aplicada
-- [ ] Procedures: CRUD integrantes, crear convocatoria, registrar acta, gestionar acuerdos
-- [ ] Firma digital en actas (canvas HTML5, almacenamiento S3)
-- [ ] Integración con módulo de minutas existente (folio NOM035-COM-NNNN/AAAA)
-- [ ] Página CommitteeModule.tsx con tabs: Integrantes, Convocatorias, Actas, Acuerdos
-- [ ] Exportación PDF de acta con firmas y seguimiento de acuerdos
-- [ ] Ruta /committee-module y menú en sidebar
-- [ ] Tests unitarios Sprint 80
+## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30) ✅
+- [x] Tablas BD: `nom035_committee_members`, `nom035_committee_meetings`, `nom035_committee_agreements`
+- [x] Migración SQL aplicada (migración 0166)
+- [x] Procedures: CRUD integrantes, crear convocatoria, registrar acta, gestionar acuerdos
+- [x] Firma digital en actas (canvas HTML5, almacenamiento S3)
+- [x] Integración con módulo de minutas existente (folio NOM035-COM-NNNN/AAAA)
+- [x] Página CommitteeModule.tsx con tabs: Integrantes, Convocatorias, Actas, Acuerdos
+- [x] Exportación PDF de acta con firmas y seguimiento de acuerdos
+- [x] Ruta /committee-module y menú en sidebar
+- [x] Tests unitarios Sprint 80 (33/33 pasando)
 
-## Sprint 81 — Portal del Empleado con Autenticación Simplificada (2026-05-30)
-- [ ] Tabla employee_portal_tokens (token, employeeId, expiresAt, lastUsedAt)
-- [ ] Endpoint público GET/POST /api/employee-portal/:token
-- [ ] Procedure generatePortalLink en router employees
-- [ ] Vista personalizada: encuestas pendientes, cursos asignados, vacaciones, documentos firmados
-- [ ] Página EmployeePortal.tsx (pública, sin login OAuth)
-- [ ] Botón "Enviar enlace de portal" en EmployeeProfile.tsx
-- [ ] Correo HTML al empleado con enlace de acceso
-- [ ] Tests unitarios Sprint 81
+## Sprint 81 — Portal del Empleado con Autenticación Simplificada (2026-05-30) ✅
+- [x] Tabla `employee_portal_tokens` (token, employeeId, expiresAt, lastUsedAt)
+- [x] Endpoint público GET/POST `/api/employee-portal/:token`
+- [x] Procedure `generatePortalLink` en router employees con envío de correo HTML
+- [x] Vista personalizada: encuestas pendientes, cursos asignados, vacaciones, documentos firmados
+- [x] Página `EmployeePortal.tsx` (pública, sin login OAuth)
+- [x] Botón "Enviar Enlace de Portal" en EmployeeProfile.tsx (tab Información)
+- [x] Correo HTML con enlace de acceso (vigencia 30 días)
+- [x] Tests unitarios Sprint 81
 
-## Sprint 82 — Generación DC-1 PDF y XML SIRCE para IMSS/STPS (2026-05-30)
-- [ ] Generador PDF formato DC-1 (Constancia de Habilidades Laborales) con datos del empleado, curso, instructor, horas, fecha
-- [ ] Generador XML SIRCE con estructura oficial STPS para carga al sistema
-- [ ] Procedure generateDC1 y generateSIRCEXml en router training
-- [ ] Página DC1Generator.tsx con selector de empleado/curso y vista previa
-- [ ] Exportación masiva XML SIRCE por período
-- [ ] Ruta /dc1-generator y menú en sidebar bajo Capacitación
-- [ ] Tests unitarios Sprint 82
+## Sprint 82 — Generación DC-1 PDF y XML SIRCE para IMSS/STPS (2026-05-30) ✅
+- [x] Generador HTML formato DC-1 (Constancia de Habilidades Laborales) con datos del empleado, curso, instructor, horas, fecha
+- [x] Generador XML SIRCE con estructura oficial STPS para carga al sistema
+- [x] Procedures `generateDC1`, `generateSIRCEXml`, `exportSIRCEByPeriod` en router `dc1Generator`
+- [x] Página `DC1Generator.tsx` con selector de empleado/curso y descarga de archivos
+- [x] Exportación masiva XML SIRCE por período
+- [x] Ruta `/dc1-generator` y menú "Generador DC-1 y SIRCE" en sidebar bajo Capacitación
+- [x] Tests unitarios Sprint 82
 
 ## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30) ✅
 - [x] Tablas BD: `nom035_committee_members`, `nom035_committee_meetings`, `nom035_meeting_agreements`, `nom035_meeting_signatures`
