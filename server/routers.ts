@@ -160,6 +160,9 @@ import { annualTrainingPlanRouter } from "./routers/annualTrainingPlan";
 import { webVitalsRouter } from "./routers/webVitals";
 import { branchesRouter } from "./routers/branches";
 import { nom035MatrixRouter } from "./routers/nom035Matrix";
+import { committeeModuleRouter } from "./routers/committeeModule";
+import { employeePortalRouter } from "./routers/employeePortal";
+import { stpsFormatsRouter } from "./routers/stpsFormats";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1507,5 +1510,8 @@ export const appRouter = router({
   annualTrainingPlan: annualTrainingPlanRouter,
    webVitals: webVitalsRouter,
   branches: branchesRouter,
+  committeeModule: committeeModuleRouter,
+  employeePortal: employeePortalRouter,
+  stpsFormats: stpsFormatsRouter,
 });
 export type AppRouter = typeof appRouter;

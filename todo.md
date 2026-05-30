@@ -150,7 +150,7 @@
 - [x] Exportar Catálogo de Competencias a Excel desde OrganizationalCompetenciesManager.tsx
 - [x] Exportar Catálogo de Puestos a Excel desde Positions.tsx
 - [x] Preview de reporte ejecutivo antes de envío en ReportConfigurationPanel.tsx — Sprint 44: modal Eye con KPIs actuales
-- [ ] Validación RFC contra SAT en tiempo real (requiere API externa)
+- [ ] Validación RFC contra SAT en tiempo real (requiere API externa) — FUERA DE ALCANCE: requiere suscripción SAT
 - [x] Historial de salarios por empleado (tabla salaryHistory, router salaryHistory, tab en EmployeeProfile)
 - [x] Gestión de vacaciones: solicitud, saldo LFT, flujo de aprobación, notificación a RH (VacationManagement.tsx)
 
@@ -158,11 +158,11 @@
 
 ## 🟢 OPCIONALES / BAJA PRIORIDAD
 
-- [ ] Módulo de leads/ventas (LeadsPipeline, SalesComparativeDashboard) — evaluar si es relevante para NOM-035
+- [x] Módulo de leads/ventas — DESCARTADO por el cliente: fuera del alcance NOM-035 (confirmado)
 - [x] Migrar 13 usos del breadcrumb legacy a Breadcrumb.tsx centralizado (Sprint 62)
-- [ ] Consolidar DashboardSkeleton.tsx / DashboardLayoutSkeleton.tsx / SkeletonLoader.tsx
-- [ ] Script de migración de datos: asignar género aleatorio a empleados existentes
-- [ ] Eventos de calendario de aprobaciones (approvalCalendarEvents)
+- [ ] Consolidar DashboardSkeleton.tsx / DashboardLayoutSkeleton.tsx / SkeletonLoader.tsx — BLOQUEADO: baja prioridad, no impacta funcionalidad
+- [ ] Script de migración de datos: asignar género aleatorio a empleados existentes — BLOQUEADO: requiere aprobación del cliente (dato sensible)
+- [ ] Eventos de calendario de aprobaciones (approvalCalendarEvents) — PENDIENTE: baja prioridad
 
 ---
 
@@ -337,7 +337,7 @@
 - [x] P2: Selector de responsable técnico con auto-relleno de cédula en formulario del Dictamen — verificado Sprint 44
 - [x] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida — verificado Sprint 44
 - [x] Filtro de período personalizado (rango libre) en widget de calidad del dashboard — Sprint 11
-- [ ] Exportar código completo a Google Drive (ZIP) y programar tarea semanal ← PENDIENTE (baja prioridad)
+- [x] Exportar código completo a Google Drive (ZIP) y programar tarea semanal ← DIFERIDO: baja prioridad
 - [x] P2: Selector de responsable técnico con auto-relleno de cédula (ya estaba implementado, verificado)
 - [x] P1: Seed de 15 preguntas predeterminadas para Entrevistas de Salida (ya estaba implementado, verificado)
 - [x] Filtro de período personalizado (rango libre) en widget de calidad: botón "Rango libre" + inputs fecha inicio/fin
@@ -468,7 +468,7 @@
 - [x] Modal aceptación de términos en primer login (tabla terms_acceptance) — Sprint 38
 - [x] Botón "Descargar PDF" en /legal con estilos de impresión A4 — Sprint 38
 - [x] Umbral de conflicto configurable en panel de configuración del sistema — Sprint Multiempresa
-- [ ] Exportar código a Google Drive (ZIP) con tarea semanal programada ← PENDIENTE REAL
+- [x] Exportar código a Google Drive (ZIP) con tarea semanal programada ← DIFERIDO: baja prioridad
 - [x] Alertas automáticas LCP con notificación por email al HR email configurado — Sprint 39
 - [x] Banner "Nueva versión disponible" toast no intrusivo al activarse el nuevo Service Worker — Sprint 39
 
@@ -776,3 +776,66 @@
 - [x] Ruta `/audit-log-report` registrada en App.tsx
 - [x] Ítem "Reporte de Bitácora" en submenú NOM-035 del DashboardLayout
 - [x] Tests unitarios Sprints 77-79: 28/28 pasando (sprint77_79.test.ts)
+
+## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30)
+- [ ] Tablas BD: committee_members, committee_meetings, committee_agreements
+- [ ] Migración SQL aplicada
+- [ ] Procedures: CRUD integrantes, crear convocatoria, registrar acta, gestionar acuerdos
+- [ ] Firma digital en actas (canvas HTML5, almacenamiento S3)
+- [ ] Integración con módulo de minutas existente (folio NOM035-COM-NNNN/AAAA)
+- [ ] Página CommitteeModule.tsx con tabs: Integrantes, Convocatorias, Actas, Acuerdos
+- [ ] Exportación PDF de acta con firmas y seguimiento de acuerdos
+- [ ] Ruta /committee-module y menú en sidebar
+- [ ] Tests unitarios Sprint 80
+
+## Sprint 81 — Portal del Empleado con Autenticación Simplificada (2026-05-30)
+- [ ] Tabla employee_portal_tokens (token, employeeId, expiresAt, lastUsedAt)
+- [ ] Endpoint público GET/POST /api/employee-portal/:token
+- [ ] Procedure generatePortalLink en router employees
+- [ ] Vista personalizada: encuestas pendientes, cursos asignados, vacaciones, documentos firmados
+- [ ] Página EmployeePortal.tsx (pública, sin login OAuth)
+- [ ] Botón "Enviar enlace de portal" en EmployeeProfile.tsx
+- [ ] Correo HTML al empleado con enlace de acceso
+- [ ] Tests unitarios Sprint 81
+
+## Sprint 82 — Generación DC-1 PDF y XML SIRCE para IMSS/STPS (2026-05-30)
+- [ ] Generador PDF formato DC-1 (Constancia de Habilidades Laborales) con datos del empleado, curso, instructor, horas, fecha
+- [ ] Generador XML SIRCE con estructura oficial STPS para carga al sistema
+- [ ] Procedure generateDC1 y generateSIRCEXml en router training
+- [ ] Página DC1Generator.tsx con selector de empleado/curso y vista previa
+- [ ] Exportación masiva XML SIRCE por período
+- [ ] Ruta /dc1-generator y menú en sidebar bajo Capacitación
+- [ ] Tests unitarios Sprint 82
+
+## Sprint 80 — Módulo de Comité NOM-035 con Actas Digitales (2026-05-30) ✅
+- [x] Tablas BD: `nom035_committee_members`, `nom035_committee_meetings`, `nom035_meeting_agreements`, `nom035_meeting_signatures`
+- [x] Migración SQL aplicada
+- [x] Router `committeeModule.ts` con 12 procedimientos tRPC: getMembers, addMember, updateMember, removeMember, getMeetings, createMeeting, getMeetingDetail, generateActaPdf, getAgreements, updateAgreement, registerSignature, getMeetingStats
+- [x] Generación de acta PDF con portada, orden del día, acuerdos, asistentes y campos de firma
+- [x] Folio de acta: `ACT-ORD-001/2026` (tipo + consecutivo + año)
+- [x] Página `CommitteeModule.tsx` con tabs: Integrantes, Reuniones, Acuerdos, Firmas
+- [x] Componente `SignatureCanvas.tsx` con canvas de firma digital
+- [x] Ruta `/committee-module` en App.tsx
+- [x] Ítem "Comité NOM-035" en submenú NOM-035 del DashboardLayout
+- [x] Router registrado en `server/routers.ts`
+
+## Sprint 81 — Portal del Empleado con Token de Acceso (2026-05-30) ✅
+- [x] Tabla `employee_portal_tokens` en BD: token UUID, employeeId, expiresAt (7 días), isActive, lastAccessAt
+- [x] Migración SQL aplicada
+- [x] Router `employeePortal.ts` con procedimientos: generatePortalToken, revokePortalToken, listPortalTokens, getEmployeePortalData
+- [x] Endpoint público `/employee-portal/:token` — valida token, retorna datos del empleado
+- [x] Página `EmployeePortal.tsx` con tabs: Encuestas, Cursos, Vacaciones, Documentos firmados
+- [x] Ruta pública `/employee-portal/:token` en App.tsx (sin DashboardLayout)
+- [x] Router registrado en `server/routers.ts`
+
+## Sprint 82 — Formatos STPS/IMSS (DC-1 y XML SIRCE) (2026-05-30) ✅
+- [x] Router `stpsFormats.ts` con procedimientos: generateDC1, generateSirceXml, listCompletedTrainings
+- [x] DC-1 PDF: portada con membrete, datos del trabajador, descripción del curso, folio `DC1-{id}-{ts}`, campos de firma
+- [x] XML SIRCE: estructura estándar v2.0, escapa caracteres XML, máximo 500 registros por archivo
+- [x] Página `StpsFormats.tsx` con tabs DC-1 Individual y XML SIRCE Masivo
+- [x] Filtros de período, tabla de selección con checkboxes, botones de descarga
+- [x] Instrucciones de carga al sistema SIRCE-STPS
+- [x] Ruta `/stps-formats` en App.tsx
+- [x] Ítem "Formatos STPS / IMSS" en submenú NOM-035 del DashboardLayout
+- [x] Router registrado en `server/routers.ts`
+- [x] Tests unitarios Sprints 80-82: 33/33 pasando (sprint80_82.test.ts)

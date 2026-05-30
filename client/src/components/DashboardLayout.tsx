@@ -234,6 +234,8 @@ const hierarchicalMenuItems = [
       { label: "Matriz de Acciones y Evidencias", path: "/nom035-matrix", description: "Planes de intervención, seguimiento de acciones y evidencias de cumplimiento" },
       { label: "Dashboard de Cumplimiento", path: "/nom035-compliance", description: "Semáforos, KPIs, gráficos de avance y alertas de acciones vencidas" },
       { label: "Reporte de Bitácora", path: "/audit-log-report", description: "Historial completo de cambios de estado y responsables — auditoría interna" },
+      { label: "Comité NOM-035", path: "/committee-module", description: "Integrantes, convocatorias, actas digitales con firma y seguimiento de acuerdos" },
+      { label: "Formatos STPS / IMSS", path: "/stps-formats", description: "Genera el DC-1 (Constancia de Habilidades) en PDF y el XML SIRCE para carga al sistema STPS" },
       { label: "Carpeta de Evidencias STPS", path: "/evidences-folder", description: "Carpeta de evidencias NOM-035 organizada por numerales" },
       { label: "Carpeta de Evidencias NMX-025", path: "/nmx025-evidences-folder", description: "Carpeta de evidencias de Igualdad Laboral y No Discriminación" },
       { label: "Tendencias Departamentales", path: "/departmental-trends", description: "Heat map de concentración de casos y niveles de riesgo por departamento" },

@@ -5980,3 +5980,123 @@ export const nom035EvidenceTokens = mysqlTable("nom035_evidence_tokens", {
 });
 export type Nom035EvidenceToken = typeof nom035EvidenceTokens.$inferSelect;
 export type InsertNom035EvidenceToken = typeof nom035EvidenceTokens.$inferInsert;
+
+
+// ============================================================
+// SPRINT 80 — MÓDULO DE COMITÉ NOM-035
+// ============================================================
+
+/**
+ * Integrantes del Comité de Seguridad y Salud en el Trabajo NOM-035.
+ */
+export const nom035CommitteeMembers = mysqlTable("nom035_committee_members", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("company_id"),
+  employeeId: int("employee_id"),
+  employeeName: varchar("employee_name", { length: 255 }).notNull(),
+  employeeEmail: varchar("employee_email", { length: 320 }),
+  position: varchar("position", { length: 255 }),
+  department: varchar("department", { length: 255 }),
+  role: mysqlEnum("role", ["presidente", "secretario", "vocal", "suplente", "asesor_externo"]).notNull().default("vocal"),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
+  isActive: boolean("is_active").default(true).notNull(),
+  notes: text("notes"),
+  createdBy: int("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Nom035CommitteeMember = typeof nom035CommitteeMembers.$inferSelect;
+export type InsertNom035CommitteeMember = typeof nom035CommitteeMembers.$inferInsert;
+
+/**
+ * Reuniones/sesiones del Comité NOM-035 (convocatorias y actas).
+ */
+export const nom035CommitteeMeetings = mysqlTable("nom035_committee_meetings", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("company_id"),
+  folio: varchar("folio", { length: 50 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  meetingType: mysqlEnum("meeting_type", ["ordinaria", "extraordinaria", "urgente"]).notNull().default("ordinaria"),
+  status: mysqlEnum("status", ["convocada", "en_curso", "celebrada", "cancelada", "reprogramada"]).notNull().default("convocada"),
+  scheduledAt: timestamp("scheduled_at").notNull(),
+  location: varchar("location", { length: 500 }),
+  agenda: text("agenda"),
+  // Acta
+  minutesContent: text("minutes_content"),
+  minutesApprovedAt: timestamp("minutes_approved_at"),
+  // Asistencia
+  attendeesJson: text("attendees_json"),
+  quorumReached: boolean("quorum_reached").default(false),
+  // Documentos
+  convocatoriaPdfUrl: varchar("convocatoria_pdf_url", { length: 1024 }),
+  actaPdfUrl: varchar("acta_pdf_url", { length: 1024 }),
+  // Folio de minuta vinculada
+  linkedMinuteId: int("linked_minute_id"),
+  createdBy: int("created_by"),
+  createdByName: varchar("created_by_name", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Nom035CommitteeMeeting = typeof nom035CommitteeMeetings.$inferSelect;
+export type InsertNom035CommitteeMeeting = typeof nom035CommitteeMeetings.$inferInsert;
+
+/**
+ * Acuerdos derivados de las reuniones del Comité NOM-035.
+ */
+export const nom035CommitteeAgreements = mysqlTable("nom035_committee_agreements", {
+  id: int("id").autoincrement().primaryKey(),
+  meetingId: int("meeting_id").notNull(),
+  companyId: int("company_id"),
+  folio: varchar("folio", { length: 50 }),
+  description: text("description").notNull(),
+  responsible: varchar("responsible", { length: 255 }),
+  responsibleEmployeeId: int("responsible_employee_id"),
+  dueDate: date("due_date"),
+  status: mysqlEnum("status", ["pendiente", "en_proceso", "cumplido", "cancelado", "vencido"]).notNull().default("pendiente"),
+  priority: mysqlEnum("priority", ["alta", "media", "baja"]).notNull().default("media"),
+  completedAt: timestamp("completed_at"),
+  completionNotes: text("completion_notes"),
+  evidenceUrl: varchar("evidence_url", { length: 1024 }),
+  createdBy: int("created_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Nom035CommitteeAgreement = typeof nom035CommitteeAgreements.$inferSelect;
+export type InsertNom035CommitteeAgreement = typeof nom035CommitteeAgreements.$inferInsert;
+
+/**
+ * Firmas digitales de actas del Comité NOM-035.
+ */
+export const nom035MeetingSignatures = mysqlTable("nom035_meeting_signatures", {
+  id: int("id").autoincrement().primaryKey(),
+  meetingId: int("meeting_id").notNull(),
+  signerName: varchar("signer_name", { length: 255 }).notNull(),
+  signerRole: varchar("signer_role", { length: 255 }),
+  signerEmail: varchar("signer_email", { length: 320 }),
+  employeeId: int("employee_id"),
+  signatureImageUrl: varchar("signature_image_url", { length: 1024 }),
+  signatureHash: varchar("signature_hash", { length: 64 }),
+  signedAt: timestamp("signed_at").defaultNow().notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }),
+});
+export type Nom035MeetingSignature = typeof nom035MeetingSignatures.$inferSelect;
+export type InsertNom035MeetingSignature = typeof nom035MeetingSignatures.$inferInsert;
+
+// ─── SPRINT 81: Portal del Empleado ───────────────────────────────────────────
+/**
+ * Tokens de acceso simplificado para el portal del empleado.
+ * Cada token permite acceder al portal sin cuenta Manus (autenticación por correo/CURP).
+ */
+export const employeePortalTokens = mysqlTable("employee_portal_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  token: varchar("token", { length: 128 }).notNull().unique(),
+  employeeId: int("employee_id").notNull(),
+  employeeEmail: varchar("employee_email", { length: 320 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type EmployeePortalToken = typeof employeePortalTokens.$inferSelect;
+export type InsertEmployeePortalToken = typeof employeePortalTokens.$inferInsert;

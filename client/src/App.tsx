@@ -260,6 +260,9 @@ const Welcome = lazy(() => import("./pages/Welcome"));
 const Nom035Matrix = lazy(() => import("./pages/Nom035Matrix").then(m => ({ default: m.Nom035Matrix })));
 const Nom035ComplianceDashboard = lazy(() => import("./pages/Nom035ComplianceDashboard"));
 const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
+const CommitteeModule = lazy(() => import("./pages/CommitteeModule"));
+const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
+const StpsFormats = lazy(() => import("./pages/StpsFormats"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -1971,6 +1974,25 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <Nom035ComplianceDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/committee-module">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <CommitteeModule />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/employee-portal/:token">
+          <Suspense fallback={<PageLoader />}>
+            <EmployeePortal />
+          </Suspense>
+        </Route>
+        <Route path="/stps-formats">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <StpsFormats />
             </Suspense>
           </DashboardLayout>
         </Route>
