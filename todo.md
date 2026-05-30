@@ -880,4 +880,5 @@
 - [x] UI de historial con filtros, descarga y eliminación de archivos
 - [x] Corregir 136 errores TS en stpsFormats.ts (null guards en getDb() líneas 229, 333, 424)
 - [x] Ejecutar suite completa de tests (Sprints 80-85) — 57+ tests (todos pasando)
+- [x] Búsqueda y filtros en panel de historial (nombre, fechas, descargas)
 - [x] Checkpoint final de auditoría

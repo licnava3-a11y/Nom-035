@@ -24,6 +24,11 @@ export default function DC1Generator() {
   const [lastGeneratedSIRCE, setLastGeneratedSIRCE] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<"dc1" | "sirce" | "all">("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filterFromDate, setFilterFromDate] = useState<string>("");
+  const [filterToDate, setFilterToDate] = useState<string>("");
+  const [filterMinDownloads, setFilterMinDownloads] = useState<string>("");
+  const [filterMaxDownloads, setFilterMaxDownloads] = useState<string>("");
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -36,6 +41,42 @@ export default function DC1Generator() {
   const historyQuery = trpc.dc1Generator.listHistory.useQuery({
     fileType: historyFilter === "all" ? undefined : historyFilter,
     limit: 50,
+  });
+
+  // Filtrar resultados en cliente
+  const filteredHistory = (historyQuery.data || []).filter((record: any) => {
+    // Filtro por búsqueda
+    if (searchQuery && !record.filename.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+
+    // Filtro por fecha desde
+    if (filterFromDate) {
+      const recordDate = new Date(record.createdAt).getTime();
+      const filterDate = new Date(filterFromDate).getTime();
+      if (recordDate < filterDate) return false;
+    }
+
+    // Filtro por fecha hasta
+    if (filterToDate) {
+      const recordDate = new Date(record.createdAt).getTime();
+      const filterDate = new Date(filterToDate).getTime();
+      if (recordDate > filterDate) return false;
+    }
+
+    // Filtro por descargas mínimas
+    if (filterMinDownloads) {
+      const minDownloads = parseInt(filterMinDownloads);
+      if ((record.downloadCount || 0) < minDownloads) return false;
+    }
+
+    // Filtro por descargas máximas
+    if (filterMaxDownloads) {
+      const maxDownloads = parseInt(filterMaxDownloads);
+      if ((record.downloadCount || 0) > maxDownloads) return false;
+    }
+
+    return true;
   });
   const deleteHistoryMutation = trpc.dc1Generator.deleteHistory.useMutation();
   const getHistoryFileMutation = trpc.dc1Generator.getHistoryFile.useMutation();
@@ -188,6 +229,16 @@ export default function DC1Generator() {
       toast.error("Error al eliminar archivo");
     }
   };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setFilterFromDate("");
+    setFilterToDate("");
+    setFilterMinDownloads("");
+    setFilterMaxDownloads("");
+  };
+
+  const hasActiveFilters = searchQuery || filterFromDate || filterToDate || filterMinDownloads || filterMaxDownloads;
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleString("es-MX", {
@@ -472,13 +523,89 @@ export default function DC1Generator() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Barra de búsqueda y filtros */}
+            <div className="space-y-3 p-3 bg-muted/30 rounded-lg border">
+              <div>
+                <label className="block text-sm font-medium mb-2">Buscar por nombre de archivo</label>
+                <input
+                  type="text"
+                  placeholder="Ej: DC1_CURP_2026-05-30"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Desde</label>
+                  <input
+                    type="date"
+                    value={filterFromDate}
+                    onChange={(e) => setFilterFromDate(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Hasta</label>
+                  <input
+                    type="date"
+                    value={filterToDate}
+                    onChange={(e) => setFilterToDate(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Descargas mín.</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={filterMinDownloads}
+                    onChange={(e) => setFilterMinDownloads(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Descargas máx.</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Sin límite"
+                    value={filterMaxDownloads}
+                    onChange={(e) => setFilterMaxDownloads(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
+              </div>
+
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearFilters}
+                  className="w-full"
+                >
+                  Limpiar filtros
+                </Button>
+              )}
+            </div>
+
+            {/* Resultados */}
             {historyQuery.isLoading ? (
               <div className="text-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
               </div>
-            ) : historyQuery.data && historyQuery.data.length > 0 ? (
-              <div className="overflow-x-auto">
+            ) : filteredHistory.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground">
+                  Mostrando <strong>{filteredHistory.length}</strong> de <strong>{historyQuery.data?.length || 0}</strong> archivos
+                </div>
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
@@ -491,7 +618,7 @@ export default function DC1Generator() {
                     </tr>
                   </thead>
                   <tbody>
-                    {historyQuery.data.map((record: any) => (
+                    {filteredHistory.map((record: any) => (
                       <tr key={record.id} className="border-b hover:bg-muted/50">
                         <td className="py-2 px-2">
                           <Badge variant={record.fileType === "dc1" ? "default" : "secondary"}>
@@ -528,6 +655,7 @@ export default function DC1Generator() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
