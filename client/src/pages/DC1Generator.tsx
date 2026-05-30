@@ -804,13 +804,23 @@ export default function DC1Generator() {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-2 px-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.size === paginatedHistory.length && paginatedHistory.length > 0}
-                          onChange={handleSelectAll}
-                          className="cursor-pointer"
-                          title="Seleccionar todos"
-                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            ref={(el) => {
+                              if (el) {
+                                el.indeterminate = selectedIds.size > 0 && selectedIds.size < paginatedHistory.length;
+                              }
+                            }}
+                            checked={selectedIds.size === paginatedHistory.length && paginatedHistory.length > 0}
+                            onChange={handleSelectAll}
+                            className="cursor-pointer"
+                            title={selectedIds.size === paginatedHistory.length && paginatedHistory.length > 0 ? "Deseleccionar todos" : "Seleccionar todos"}
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {selectedIds.size > 0 ? `${selectedIds.size}/${paginatedHistory.length}` : paginatedHistory.length}
+                          </span>
+                        </div>
                       </th>
                       <th className="text-left py-2 px-2">Tipo</th>
                       <th className="text-left py-2 px-2">Archivo</th>

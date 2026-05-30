@@ -886,4 +886,5 @@
 - [x] Descarga masiva de archivos en ZIP (selección múltiple + compresión)
 - [x] Indicador de progreso visual para descarga en ZIP (barra + porcentaje + detalles)
 - [x] Eliminación segura de archivos seleccionados con confirmación
+- [x] Mejoras al checkbox "Seleccionar todo" (estado indeterminate + contador)
 - [x] Checkpoint final de auditoría
