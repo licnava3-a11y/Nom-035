@@ -31,6 +31,11 @@ export default function DC1Generator() {
   const [filterMaxDownloads, setFilterMaxDownloads] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [previewHistoryId, setPreviewHistoryId] = useState<number | null>(null);
+  const [previewHistoryContent, setPreviewHistoryContent] = useState<string | null>(null);
+  const [previewHistoryType, setPreviewHistoryType] = useState<"dc1" | "sirce" | null>(null);
+  const [showHistoryPreview, setShowHistoryPreview] = useState(false);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -261,6 +266,21 @@ export default function DC1Generator() {
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
     setCurrentPage(1);
+  };
+
+  const handlePreviewHistory = async (historyId: number, fileType: "dc1" | "sirce") => {
+    setLoadingPreview(true);
+    try {
+      const result = await getHistoryFileMutation.mutateAsync({ historyId });
+      setPreviewHistoryId(historyId);
+      setPreviewHistoryContent(result.fileContent);
+      setPreviewHistoryType(fileType);
+      setShowHistoryPreview(true);
+    } catch (err) {
+      toast.error("Error al cargar vista previa");
+    } finally {
+      setLoadingPreview(false);
+    }
   };
 
   const formatDate = (date: Date | string) => {
@@ -675,8 +695,18 @@ export default function DC1Generator() {
                             <Button
                               variant="ghost"
                               size="sm"
+                              onClick={() => handlePreviewHistory(record.id, record.fileType)}
+                              className="h-8 w-8 p-0"
+                              title="Vista previa"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => handleDownloadFromHistory(record.id)}
                               className="h-8 w-8 p-0"
+                              title="Descargar"
                             >
                               <Download className="h-4 w-4" />
                             </Button>
@@ -685,6 +715,7 @@ export default function DC1Generator() {
                               size="sm"
                               onClick={() => handleDeleteHistory(record.id)}
                               className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              title="Eliminar"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -796,6 +827,62 @@ export default function DC1Generator() {
               <pre className="text-xs whitespace-pre-wrap break-words font-mono">
                 {previewSIRCE}
               </pre>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de vista previa del historial */}
+      <Dialog open={showHistoryPreview} onOpenChange={setShowHistoryPreview}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Vista Previa {previewHistoryType === "dc1" ? "DC-1" : "SIRCE XML"}
+            </DialogTitle>
+            <DialogDescription>
+              {previewHistoryType === "dc1" ? "Constancia de Habilidades Laborales" : "Registro de Capacitación SIRCE"}
+            </DialogDescription>
+          </DialogHeader>
+          {loadingPreview ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : previewHistoryContent ? (
+            <div className="space-y-3">
+              {previewHistoryType === "dc1" ? (
+                <div className="border rounded-lg overflow-auto bg-white p-4">
+                  <iframe
+                    srcDoc={previewHistoryContent}
+                    className="w-full h-[600px] border rounded"
+                    title="Vista previa DC-1"
+                  />
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-auto bg-gray-50 p-4">
+                  <pre className="text-xs whitespace-pre-wrap break-words font-mono">
+                    {previewHistoryContent}
+                  </pre>
+                </div>
+              )}
+              <div className="flex gap-2 justify-end pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => downloadFile(
+                    previewHistoryContent,
+                    `preview-${previewHistoryType}.${previewHistoryType === "dc1" ? "html" : "xml"}`,
+                    previewHistoryType === "dc1" ? "text/html" : "application/xml"
+                  )}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No se pudo cargar la vista previa</p>
             </div>
           )}
         </DialogContent>
