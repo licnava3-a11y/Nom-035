@@ -163,6 +163,9 @@ import { nom035MatrixRouter } from "./routers/nom035Matrix";
 import { committeeModuleRouter } from "./routers/committeeModule";
 import { employeePortalRouter } from "./routers/employeePortal";
 import { stpsFormatsRouter } from "./routers/stpsFormats";
+import { stpsInspectionsRouter } from "./routers/stpsInspections";
+import { internalCommsRouter } from "./routers/internalComms";
+import { googleCalendarSyncRouter } from "./routers/googleCalendarSync";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1513,5 +1516,8 @@ export const appRouter = router({
   committeeModule: committeeModuleRouter,
   employeePortal: employeePortalRouter,
   stpsFormats: stpsFormatsRouter,
+  stpsInspections: stpsInspectionsRouter,
+  internalComms: internalCommsRouter,
+  googleCalendarSync: googleCalendarSyncRouter,
 });
 export type AppRouter = typeof appRouter;

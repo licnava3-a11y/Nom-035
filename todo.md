@@ -839,3 +839,29 @@
 - [x] Ítem "Formatos STPS / IMSS" en submenú NOM-035 del DashboardLayout
 - [x] Router registrado en `server/routers.ts`
 - [x] Tests unitarios Sprints 80-82: 33/33 pasando (sprint80_82.test.ts)
+
+## Sprint 83 — Módulo de Visitas de Verificación STPS (2026-05-30)
+- [x] Tablas BD: `stps_inspections`, `stps_inspection_checklist_items` (migración 0167)
+- [x] Router `stpsInspections.ts` con procedimientos CRUD de visitas, checklist NOM-035 y generación de expediente PDF
+- [x] Checklist de 35 numerales NOM-035 con estado (cumple/no cumple/parcial/N/A) y observaciones
+- [x] Generación de expediente de respuesta PDF con folio, portada, checklist y documentos adjuntos
+- [x] Página `StpsInspections.tsx` con lista de visitas, diálogo de checklist y botón de expediente
+- [x] Ruta `/stps-inspections` en App.tsx y ítem en DashboardLayout
+
+## Sprint 84 — Integración con Google Calendar (2026-05-30)
+- [x] Router `googleCalendarSync.ts` con getUpcomingEvents, generateEventIcal, exportAllEventsIcal y getCalendarStats
+- [x] Página `GoogleCalendarSync.tsx` con KPIs, lista de eventos, filtros y exportación iCal
+- [x] Generación de URL directa a Google Calendar y descarga de archivo .ics individual o masivo
+- [x] Ruta `/google-calendar-sync` en App.tsx y ítem en DashboardLayout
+
+## Sprint 85 — Módulo de Comunicación Interna (2026-05-30)
+- [x] Tablas BD: `internal_notices`, `notice_acknowledgments`, `anonymous_suggestions` (migración 0167)
+- [x] Router `internalComms.ts` con procedimientos de avisos, acuses y sugerencias anónimas
+- [x] Página `InternalComms.tsx` con tabs: Tablero de Avisos y Sugerencias Anónimas
+- [x] Canal público de sugerencias anónimas (publicProcedure) sin registro de identidad
+- [x] Acuse de recibo digital con registro de empleado, nombre y timestamp
+- [x] Notificación automática al owner para comunicados urgentes y sugerencias nuevas
+- [x] Ruta `/internal-comms` en App.tsx y ítem en DashboardLayout
+
+## Sprint 83-85 — Tests unitarios (2026-05-30)
+- [x] 57 tests unitarios en `server/sprint83_85.test.ts` — todos pasando

@@ -6100,3 +6100,85 @@ export const employeePortalTokens = mysqlTable("employee_portal_tokens", {
 });
 export type EmployeePortalToken = typeof employeePortalTokens.$inferSelect;
 export type InsertEmployeePortalToken = typeof employeePortalTokens.$inferInsert;
+
+// ─── SPRINT 83: Módulo de Visitas de Verificación STPS ────────────────────────
+export const stpsInspections = mysqlTable("stps_inspections", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 30 }).notNull().unique(),
+  inspectionDate: date("inspection_date").notNull(),
+  inspectorName: varchar("inspector_name", { length: 200 }).notNull(),
+  inspectorId: varchar("inspector_id", { length: 50 }),
+  inspectionType: mysqlEnum("inspection_type", ["ordinaria", "extraordinaria", "seguimiento"]).default("ordinaria").notNull(),
+  status: mysqlEnum("status", ["programada", "en_proceso", "concluida", "con_observaciones"]).default("programada").notNull(),
+  observations: text("observations"),
+  responsibleUserId: int("responsible_user_id"),
+  responsibleName: varchar("responsible_name", { length: 200 }),
+  expedientUrl: varchar("expedient_url", { length: 1000 }),
+  expedientKey: varchar("expedient_key", { length: 500 }),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type StpsInspection = typeof stpsInspections.$inferSelect;
+export type InsertStpsInspection = typeof stpsInspections.$inferInsert;
+
+export const stpsInspectionItems = mysqlTable("stps_inspection_items", {
+  id: int("id").autoincrement().primaryKey(),
+  inspectionId: int("inspection_id").notNull(),
+  numeral: varchar("numeral", { length: 20 }).notNull(),
+  requirement: varchar("requirement", { length: 500 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  status: mysqlEnum("status", ["cumple", "no_cumple", "parcial", "na"]).default("na").notNull(),
+  observations: text("observations"),
+  evidenceUrl: varchar("evidence_url", { length: 1000 }),
+  evidenceKey: varchar("evidence_key", { length: 500 }),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type StpsInspectionItem = typeof stpsInspectionItems.$inferSelect;
+export type InsertStpsInspectionItem = typeof stpsInspectionItems.$inferInsert;
+
+// ─── SPRINT 85: Módulo de Comunicación Interna ────────────────────────────────
+export const internalNotices = mysqlTable("internal_notices", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 30 }).notNull().unique(),
+  title: varchar("title", { length: 300 }).notNull(),
+  content: text("content").notNull(),
+  noticeType: mysqlEnum("notice_type", ["aviso", "comunicado", "circular", "urgente"]).default("aviso").notNull(),
+  priority: mysqlEnum("priority", ["alta", "media", "baja"]).default("media").notNull(),
+  requiresAck: boolean("requires_ack").default(false).notNull(),
+  publishedAt: timestamp("published_at"),
+  expiresAt: timestamp("expires_at"),
+  targetAudience: mysqlEnum("target_audience", ["todos", "directivos", "supervisores", "operativos"]).default("todos").notNull(),
+  attachmentUrl: varchar("attachment_url", { length: 1000 }),
+  attachmentKey: varchar("attachment_key", { length: 500 }),
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type InternalNotice = typeof internalNotices.$inferSelect;
+export type InsertInternalNotice = typeof internalNotices.$inferInsert;
+
+export const noticeAcknowledgments = mysqlTable("notice_acknowledgments", {
+  id: int("id").autoincrement().primaryKey(),
+  noticeId: int("notice_id").notNull(),
+  employeeId: int("employee_id").notNull(),
+  employeeName: varchar("employee_name", { length: 200 }).notNull(),
+  acknowledgedAt: timestamp("acknowledged_at").defaultNow().notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }),
+});
+export type NoticeAcknowledgment = typeof noticeAcknowledgments.$inferSelect;
+export type InsertNoticeAcknowledgment = typeof noticeAcknowledgments.$inferInsert;
+
+export const anonymousSuggestions = mysqlTable("anonymous_suggestions", {
+  id: int("id").autoincrement().primaryKey(),
+  folio: varchar("folio", { length: 30 }).notNull().unique(),
+  category: mysqlEnum("category", ["mejora_proceso", "clima_laboral", "seguridad", "capacitacion", "comunicacion", "otro"]).default("otro").notNull(),
+  content: text("content").notNull(),
+  status: mysqlEnum("status", ["nueva", "en_revision", "atendida", "archivada"]).default("nueva").notNull(),
+  adminResponse: text("admin_response"),
+  respondedAt: timestamp("responded_at"),
+  respondedBy: int("responded_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type AnonymousSuggestion = typeof anonymousSuggestions.$inferSelect;
+export type InsertAnonymousSuggestion = typeof anonymousSuggestions.$inferInsert;

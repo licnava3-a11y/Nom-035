@@ -263,6 +263,9 @@ const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
 const CommitteeModule = lazy(() => import("./pages/CommitteeModule"));
 const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
 const StpsFormats = lazy(() => import("./pages/StpsFormats"));
+const StpsInspections = lazy(() => import("./pages/StpsInspections"));
+const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
+const InternalComms = lazy(() => import("./pages/InternalComms"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -1993,6 +1996,27 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <StpsFormats />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/stps-inspections">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <StpsInspections />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/google-calendar">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <GoogleCalendarSync />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/internal-comms">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <InternalComms />
             </Suspense>
           </DashboardLayout>
         </Route>
