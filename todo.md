@@ -865,3 +865,16 @@
 
 ## Sprint 83-85 — Tests unitarios (2026-05-30)
 - [x] 57 tests unitarios en `server/sprint83_85.test.ts` — todos pasando
+
+
+## Auditoría de Pendientes — Sprints 80-85 (2026-05-30)
+- [x] Sprint 80 — Módulo del Comité NOM-035 (33/33 tests pasando)
+- [x] Sprint 81 — Portal Público del Empleado (generatePortalLink + correo HTML)
+- [x] Sprint 82 — Generadores DC-1 y SIRCE XML (11/11 tests pasando)
+- [x] Sprint 83 — Módulo de Visitas de Verificación STPS (23/23 tests pasando)
+- [x] Sprint 84 — Integración con Google Calendar (20/20 tests pasando)
+- [x] Sprint 85 — Módulo de Comunicación Interna (14/14 tests pasando)
+- [x] Botones de descarga directa para DC-1 y SIRCE XML en DC1Generator.tsx
+- [ ] Corregir 135 errores TS en stpsFormats.ts (null guards en getDb())
+- [ ] Ejecutar suite completa de tests (Sprints 80-85) — 57+ tests
+- [ ] Checkpoint final de auditoría
