@@ -878,6 +878,6 @@
 - [x] Panel de historial con tabla dc1_sirce_history (30 días retención)
 - [x] Procedures: saveToHistory, listHistory, getHistoryFile, deleteHistory
 - [x] UI de historial con filtros, descarga y eliminación de archivos
-- [ ] Corregir 135 errores TS en stpsFormats.ts (null guards en getDb())
-- [ ] Ejecutar suite completa de tests (Sprints 80-85) — 57+ tests
-- [ ] Checkpoint final de auditoría
+- [x] Corregir 136 errores TS en stpsFormats.ts (null guards en getDb() líneas 229, 333, 424)
+- [x] Ejecutar suite completa de tests (Sprints 80-85) — 57+ tests (todos pasando)
+- [x] Checkpoint final de auditoría

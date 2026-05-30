@@ -226,6 +226,7 @@ export const stpsFormatsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       let certRow: typeof trainingCertificates.$inferSelect | undefined;
       let assignRow: typeof trainingAssignments.$inferSelect | undefined;
@@ -329,6 +330,7 @@ export const stpsFormatsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
 
       // Construir condiciones de filtro
       const conditions: any[] = [isNotNull(trainingAssignments.completionDate)];
@@ -419,6 +421,7 @@ export const stpsFormatsRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database not available");
       const conditions: any[] = [isNotNull(trainingAssignments.completionDate)];
       if (input.fromDate) conditions.push(gte(trainingAssignments.completionDate, new Date(input.fromDate)));
       if (input.toDate) conditions.push(lte(trainingAssignments.completionDate, new Date(input.toDate)));
