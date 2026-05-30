@@ -885,4 +885,5 @@
 - [x] Vista previa de archivos DC-1 y SIRCE XML desde historial
 - [x] Descarga masiva de archivos en ZIP (selección múltiple + compresión)
 - [x] Indicador de progreso visual para descarga en ZIP (barra + porcentaje + detalles)
+- [x] Eliminación segura de archivos seleccionados con confirmación
 - [x] Checkpoint final de auditoría

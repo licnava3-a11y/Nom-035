@@ -40,6 +40,8 @@ export default function DC1Generator() {
   const [loadingZip, setLoadingZip] = useState(false);
   const [zipProgress, setZipProgress] = useState(0);
   const [zipProgressText, setZipProgressText] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -390,6 +392,47 @@ export default function DC1Generator() {
       setZipProgressText("");
     } finally {
       setLoadingZip(false);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) {
+      toast.error("Selecciona al menos un archivo");
+      return;
+    }
+
+    setLoadingDelete(true);
+    try {
+      const selectedRecords = (historyQuery.data || []).filter((r: any) => selectedIds.has(r.id));
+      let deletedCount = 0;
+      let errorCount = 0;
+
+      // Eliminar archivos uno a uno
+      for (const record of selectedRecords) {
+        try {
+          await deleteHistoryMutation.mutateAsync({ historyId: record.id });
+          deletedCount++;
+        } catch (err) {
+          errorCount++;
+        }
+      }
+
+      // Mostrar resultado
+      if (deletedCount > 0) {
+        toast.success(`${deletedCount} archivo(s) eliminado(s)`);
+      }
+      if (errorCount > 0) {
+        toast.error(`${errorCount} archivo(s) no se pudieron eliminar`);
+      }
+
+      // Limpiar selección y recargar historial
+      setSelectedIds(new Set());
+      setShowDeleteConfirm(false);
+      historyQuery.refetch();
+    } catch (err) {
+      toast.error("Error al eliminar archivos");
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
@@ -858,6 +901,20 @@ export default function DC1Generator() {
                           )}
                           Descargar ZIP
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setShowDeleteConfirm(true)}
+                          disabled={loadingDelete}
+                          className="gap-2"
+                        >
+                          {loadingDelete ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          Eliminar
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -1049,6 +1106,47 @@ export default function DC1Generator() {
                 {zipProgressText}
               </p>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de confirmación de eliminación */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar archivos</DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro de que deseas eliminar {selectedIds.size} archivo(s) del historial? Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+              <p className="text-sm text-destructive font-medium">
+                ⚠️ Advertencia: Los archivos se eliminarán permanentemente del historial.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={loadingDelete}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSelected}
+              disabled={loadingDelete}
+              className="gap-2"
+            >
+              {loadingDelete ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Eliminar {selectedIds.size} archivo(s)
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
