@@ -13,12 +13,73 @@ import {
   nom035Evidences,
   nom035EvidenceAudit,
   nom035ActionHistory,
+  nom035EvidenceTokens,
+  surveyPeriods,
+  surveyResults,
+  surveyResponses,
 } from "../../drizzle/schema";
 import { eq, and, or, like, gte, lte, desc, asc, inArray, sql } from "drizzle-orm";
 import { storageGet } from "../storage";
 import { invokeLLM } from "../_core/llm";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Sprint 77: Construye el contexto de encuesta para el prompt de la IA.
+ * Agrega distribución de niveles de riesgo, puntaje promedio y dimensiones críticas.
+ */
+function buildSurveyContext(
+  results: Array<{ riskLevel: string; totalScore: number; categoryScores: string | null; domainScores: string | null }>,
+  periodName: string,
+  surveyType: string,
+): string {
+  const total = results.length;
+  const riskDist: Record<string, number> = { low: 0, medium: 0, high: 0, very_high: 0 };
+  let totalScore = 0;
+  const domainAgg: Record<string, { sum: number; count: number }> = {};
+
+  for (const r of results) {
+    riskDist[r.riskLevel] = (riskDist[r.riskLevel] ?? 0) + 1;
+    totalScore += r.totalScore;
+
+    if (r.domainScores) {
+      try {
+        const ds = typeof r.domainScores === "string" ? JSON.parse(r.domainScores) : r.domainScores;
+        for (const [domain, score] of Object.entries(ds)) {
+          if (!domainAgg[domain]) domainAgg[domain] = { sum: 0, count: 0 };
+          domainAgg[domain].sum += Number(score);
+          domainAgg[domain].count += 1;
+        }
+      } catch { /* ignorar */ }
+    }
+  }
+
+  const avgScore = total > 0 ? Math.round(totalScore / total) : 0;
+  const riskPct = (level: string) => total > 0 ? Math.round((riskDist[level] ?? 0) / total * 100) : 0;
+
+  // Ordenar dominios por puntaje promedio descendente (mayor riesgo primero)
+  const topDomains = Object.entries(domainAgg)
+    .map(([domain, { sum, count }]) => ({ domain, avg: Math.round(sum / count) }))
+    .sort((a, b) => b.avg - a.avg)
+    .slice(0, 5);
+
+  const guiaLabel = { guia_i: "Guía I (≤50 trabajadores)", guia_ii: "Guía II (>50 trabajadores)", guia_iii: "Guía III (Seguimiento)" }[surveyType] ?? surveyType;
+
+  let ctx = `\n\nRESULTADOS REALES DE ENCUESTA NOM-035 — ${periodName} (${guiaLabel}):\n`;
+  ctx += `- Total de respuestas completadas: ${total}\n`;
+  ctx += `- Puntaje promedio: ${avgScore}\n`;
+  ctx += `- Distribución de riesgo: Muy alto ${riskPct("very_high")}% | Alto ${riskPct("high")}% | Medio ${riskPct("medium")}% | Bajo ${riskPct("low")}%\n`;
+
+  if (topDomains.length > 0) {
+    ctx += `- Dominios con mayor puntaje de riesgo (requieren atención prioritaria):\n`;
+    for (const { domain, avg } of topDomains) {
+      ctx += `  • ${domain}: puntaje promedio ${avg}\n`;
+    }
+  }
+
+  ctx += `\nBasa las acciones del plan principalmente en los dominios con mayor riesgo identificados arriba.`;
+  return ctx;
+}
 
 function randomSuffix() {
   return Math.random().toString(36).substring(2, 10);
@@ -197,6 +258,100 @@ export const nom035MatrixRouter = router({
         consolidado: "Plan Consolidado (Intervención + Violencia + No Discriminación)",
       }[input.tipoPlan];
 
+      // ── Sprint 77: Consultar encuesta activa y resultados reales ──────────
+      let surveyContext = "";
+      let surveyWarning = "";
+      try {
+        // Buscar el período de encuesta activo más reciente
+        const [activePeriod] = await db
+          .select()
+          .from(surveyPeriods)
+          .where(eq(surveyPeriods.status, "active"))
+          .orderBy(desc(surveyPeriods.createdAt))
+          .limit(1);
+
+        if (!activePeriod) {
+          // Buscar el último período cerrado
+          const [lastClosed] = await db
+            .select()
+            .from(surveyPeriods)
+            .where(eq(surveyPeriods.status, "closed"))
+            .orderBy(desc(surveyPeriods.createdAt))
+            .limit(1);
+
+          if (lastClosed) {
+            surveyWarning = `\n\n⚠️ NOTA: No hay período de encuesta activo. Se usa el período cerrado más reciente: "${lastClosed.name}" (${lastClosed.startDate} – ${lastClosed.endDate}).`;
+            // Obtener resultados del período cerrado
+            const results = await db
+              .select({
+                riskLevel: surveyResults.riskLevel,
+                totalScore: surveyResults.totalScore,
+                categoryScores: surveyResults.categoryScores,
+                domainScores: surveyResults.domainScores,
+              })
+              .from(surveyResults)
+              .innerJoin(surveyResponses, eq(surveyResults.responseId, surveyResponses.id))
+              .where(eq(surveyResponses.periodId, lastClosed.id))
+              .limit(200);
+
+            if (results.length > 0) {
+              surveyContext = buildSurveyContext(results, lastClosed.name, lastClosed.surveyType);
+            }
+          } else {
+            surveyWarning = "\n\n⚠️ NOTA: No hay encuestas NOM-035 aplicadas aún. El plan se genera con base en las mejores prácticas de la norma.";
+          }
+        } else {
+          // Obtener resultados del período activo
+          const results = await db
+            .select({
+              riskLevel: surveyResults.riskLevel,
+              totalScore: surveyResults.totalScore,
+              categoryScores: surveyResults.categoryScores,
+              domainScores: surveyResults.domainScores,
+            })
+            .from(surveyResults)
+            .innerJoin(surveyResponses, eq(surveyResults.responseId, surveyResponses.id))
+            .where(eq(surveyResponses.periodId, activePeriod.id))
+            .limit(200);
+
+          if (results.length > 0) {
+            surveyContext = buildSurveyContext(results, activePeriod.name, activePeriod.surveyType);
+          } else {
+            surveyWarning = `\n\n⚠️ NOTA: El período activo "${activePeriod.name}" aún no tiene respuestas completadas.`;
+          }
+        }
+      } catch (_err) {
+        // Si falla la consulta de encuesta, continuar sin contexto
+        surveyWarning = "\n\n⚠️ NOTA: No se pudo obtener datos de la encuesta. El plan se genera con base en las mejores prácticas.";
+      }
+
+      // Consultar estadísticas de planes anteriores del mismo tipo
+      let historialContext = "";
+      try {
+        const prevActions = await db
+          .select({
+            estado: nom035Actions.estado,
+            prioridad: nom035Actions.prioridad,
+          })
+          .from(nom035Actions)
+          .innerJoin(nom035Plans, eq(nom035Actions.planId, nom035Plans.id))
+          .where(and(
+            eq(nom035Plans.tipoPlan, input.tipoPlan as any),
+            eq(nom035Plans.nivelAplicacion, input.nivelAplicacion as any),
+          ))
+          .limit(100);
+
+        if (prevActions.length > 0) {
+          const total = prevActions.length;
+          const cumplidas = prevActions.filter(a => a.estado === "cumplida").length;
+          const vencidas = prevActions.filter(a => a.estado === "vencida").length;
+          const altas = prevActions.filter(a => a.prioridad === "alta").length;
+          historialContext = `\n\nHISTORIAL DE PLANES ANTERIORES (${tipoLabel}, nivel ${input.nivelAplicacion}):\n- Total acciones previas: ${total}\n- Cumplidas: ${cumplidas} (${Math.round(cumplidas/total*100)}%)\n- Vencidas: ${vencidas} (${Math.round(vencidas/total*100)}%)\n- Alta prioridad: ${altas}\n\nConsiderando este historial, prioriza acciones que aborden las áreas con mayor tasa de incumplimiento.`;
+        }
+      } catch (_err) {
+        // Ignorar si falla la consulta de historial
+      }
+
       const prompt = `Eres un experto en cumplimiento de la NOM-035-STPS-2018. Genera un ${tipoLabel} para el siguiente contexto:
 
 Nivel de aplicación: ${input.nivelAplicacion}
@@ -205,11 +360,14 @@ ${input.filtroAplicado ? `Filtro aplicado: ${input.filtroAplicado}` : ""}
 ${input.centroTrabajo ? `Centro de trabajo: ${input.centroTrabajo}` : ""}
 ${input.giroEmpresa ? `Giro de empresa: ${input.giroEmpresa}` : ""}
 ${input.totalTrabajadores ? `Total de trabajadores: ${input.totalTrabajadores}` : ""}
-${input.riesgosEvaluacion ? `Resultados de evaluación: ${JSON.stringify(input.riesgosEvaluacion)}` : ""}
+${input.riesgosEvaluacion ? `Resultados de evaluación (manual): ${JSON.stringify(input.riesgosEvaluacion)}` : ""}
 ${input.indicadoresViolencia ? `Indicadores de violencia: ${JSON.stringify(input.indicadoresViolencia)}` : ""}
 ${input.indicadoresDiscriminacion ? `Indicadores de discriminación: ${JSON.stringify(input.indicadoresDiscriminacion)}` : ""}
+${surveyContext}
+${historialContext}
+${surveyWarning}
 
-Genera entre 6 y 12 acciones específicas, con ID único (prefijo INT- para intervención, VL- para violencia, ND- para no discriminación), objetivo claro, acción concreta, indicador de cumplimiento, responsable sugerido y plazo en días.
+Genera entre 6 y 12 acciones específicas, con ID único (prefijo INT- para intervención, VL- para violencia, ND- para no discriminación), objetivo claro, acción concreta, indicador de cumplimiento, responsable sugerido y plazo en días. Las acciones deben ser directamente proporcionales a los factores de riesgo identificados en la encuesta.
 
 Responde ÚNICAMENTE con JSON válido con esta estructura:
 {
@@ -1270,15 +1428,21 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
   /** Retorna el historial completo de cambios de una acción */
   getActionHistory: protectedProcedure
     .input(z.object({
-      actionId: z.number().int().positive(),
+      actionId: z.number().int().positive().optional(),
+      planId: z.number().int().positive().optional(),
+      limit: z.number().int().min(1).max(500).optional(),
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      const conditions: any[] = [];
+      if (input.actionId) conditions.push(eq(nom035ActionHistory.actionId, input.actionId));
+      if (input.planId) conditions.push(eq(nom035ActionHistory.planId, input.planId));
       const history = await db
         .select()
         .from(nom035ActionHistory)
-        .where(eq(nom035ActionHistory.actionId, input.actionId))
-        .orderBy(desc(nom035ActionHistory.createdAt));
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(nom035ActionHistory.createdAt))
+        .limit(input.limit ?? 200);
       return history;
     }),
 
@@ -1309,6 +1473,258 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
         nota: input.nota,
       });
       return { ok: true };
+    }),
+
+  /** Sprint 78: Crear token público de 72h para subida de evidencias sin cuenta */
+  createEvidenceToken: protectedProcedure
+    .input(z.object({
+      actionId: z.number().int().positive(),
+      descripcionEsperada: z.string().max(500).optional(),
+      maxUses: z.number().min(1).max(10).default(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      const [action] = await db
+        .select({ planId: nom035Actions.planId, accion: nom035Actions.accion })
+        .from(nom035Actions)
+        .where(eq(nom035Actions.id, input.actionId))
+        .limit(1);
+      if (!action) throw new TRPCError({ code: "NOT_FOUND", message: "Acción no encontrada" });
+
+      const crypto = await import("crypto");
+      const token = crypto.randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
+      await db.insert(nom035EvidenceTokens).values({
+        token,
+        actionId: input.actionId,
+        planId: action.planId,
+        descripcionEsperada: input.descripcionEsperada ?? null,
+        createdByUserId: ctx.user.id,
+        createdByName: ctx.user.name ?? ctx.user.email,
+        expiresAt,
+        maxUses: input.maxUses,
+        useCount: 0,
+      });
+
+      // Construir la URL pública del formulario de subida
+      const appUrl = process.env.VITE_FRONTEND_FORGE_API_URL
+        ? process.env.VITE_FRONTEND_FORGE_API_URL.replace(/\/api.*$/, "")
+        : "";
+      const uploadUrl = `${appUrl}/api/nom035/evidence-upload/${token}`;
+
+      return { token, uploadUrl, expiresAt };
+    }),
+
+  /** Sprint 78: Listar tokens de evidencia de una acción */
+  listEvidenceTokens: protectedProcedure
+    .input(z.object({ actionId: z.number().int().positive() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      return db
+        .select()
+        .from(nom035EvidenceTokens)
+        .where(eq(nom035EvidenceTokens.actionId, input.actionId))
+        .orderBy(desc(nom035EvidenceTokens.createdAt));
+    }),
+
+  /** Sprint 79: Exportar historial de bitácora en XLSX */
+  exportHistoryXlsx: protectedProcedure
+    .input(z.object({
+      planId: z.number().int().positive().optional(),
+      actionId: z.number().int().positive().optional(),
+      campo: z.string().optional(),
+      changedByName: z.string().optional(),
+      fromDate: z.string().optional(),
+      toDate: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      const ExcelJS = (await import("exceljs")).default;
+
+      // Construir condiciones de filtro
+      const conditions: any[] = [];
+      if (input.planId) conditions.push(eq(nom035ActionHistory.planId, input.planId));
+      if (input.actionId) conditions.push(eq(nom035ActionHistory.actionId, input.actionId));
+      if (input.campo) conditions.push(eq(nom035ActionHistory.campo as any, input.campo));
+      if (input.changedByName) conditions.push(like(nom035ActionHistory.changedByName, `%${input.changedByName}%`));
+
+      const rows = await db
+        .select({
+          id: nom035ActionHistory.id,
+          actionId: nom035ActionHistory.actionId,
+          planId: nom035ActionHistory.planId,
+          campo: nom035ActionHistory.campo,
+          valorAnterior: nom035ActionHistory.valorAnterior,
+          valorNuevo: nom035ActionHistory.valorNuevo,
+          changedByName: nom035ActionHistory.changedByName,
+          changedByEmail: nom035ActionHistory.changedByEmail,
+          nota: nom035ActionHistory.nota,
+          createdAt: nom035ActionHistory.createdAt,
+        })
+        .from(nom035ActionHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(nom035ActionHistory.createdAt))
+        .limit(5000);
+
+      const wb = new ExcelJS.Workbook();
+      wb.creator = "Plataforma NOM-035";
+      wb.created = new Date();
+
+      const ws = wb.addWorksheet("Bitácora de Cambios");
+      ws.columns = [
+        { header: "ID", key: "id", width: 8 },
+        { header: "ID Acción", key: "actionId", width: 12 },
+        { header: "ID Plan", key: "planId", width: 10 },
+        { header: "Campo Modificado", key: "campo", width: 22 },
+        { header: "Valor Anterior", key: "valorAnterior", width: 30 },
+        { header: "Valor Nuevo", key: "valorNuevo", width: 30 },
+        { header: "Usuario", key: "changedByName", width: 28 },
+        { header: "Correo", key: "changedByEmail", width: 32 },
+        { header: "Nota", key: "nota", width: 40 },
+        { header: "Fecha y Hora", key: "createdAt", width: 22 },
+      ];
+
+      // Estilo de encabezado
+      const headerRow = ws.getRow(1);
+      headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1E40AF" } };
+      headerRow.alignment = { vertical: "middle", horizontal: "center" };
+      headerRow.height = 20;
+
+      const CAMPO_LABELS: Record<string, string> = {
+        estado: "Estado", responsable: "Responsable", plazo: "Plazo",
+        prioridad: "Prioridad", observaciones: "Observaciones",
+        objetivo: "Objetivo", accion: "Acción", recursos: "Recursos", creacion: "Creación",
+      };
+
+      rows.forEach((row, i) => {
+        const wsRow = ws.addRow({
+          id: row.id,
+          actionId: row.actionId,
+          planId: row.planId,
+          campo: CAMPO_LABELS[row.campo] ?? row.campo,
+          valorAnterior: row.valorAnterior ?? "",
+          valorNuevo: row.valorNuevo ?? "",
+          changedByName: row.changedByName ?? "",
+          changedByEmail: row.changedByEmail ?? "",
+          nota: row.nota ?? "",
+          createdAt: row.createdAt ? new Date(row.createdAt).toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) : "",
+        });
+        if (i % 2 === 0) {
+          wsRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF8FAFC" } };
+        }
+      });
+
+      const buf = await wb.xlsx.writeBuffer();
+      return { xlsxBase64: Buffer.from(buf).toString("base64"), total: rows.length };
+    }),
+
+  /** Sprint 79: Exportar historial de bitácora en PDF */
+  exportHistoryPdf: protectedProcedure
+    .input(z.object({
+      planId: z.number().int().positive().optional(),
+      actionId: z.number().int().positive().optional(),
+      campo: z.string().optional(),
+      changedByName: z.string().optional(),
+      fromDate: z.string().optional(),
+      toDate: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      const PDFDocument = (await import("pdfkit")).default;
+
+      const conditions: any[] = [];
+      if (input.planId) conditions.push(eq(nom035ActionHistory.planId, input.planId));
+      if (input.actionId) conditions.push(eq(nom035ActionHistory.actionId, input.actionId));
+      if (input.campo) conditions.push(eq(nom035ActionHistory.campo as any, input.campo));
+      if (input.changedByName) conditions.push(like(nom035ActionHistory.changedByName, `%${input.changedByName}%`));
+
+      const rows = await db
+        .select()
+        .from(nom035ActionHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(nom035ActionHistory.createdAt))
+        .limit(1000);
+
+      const CAMPO_LABELS: Record<string, string> = {
+        estado: "Estado", responsable: "Responsable", plazo: "Plazo",
+        prioridad: "Prioridad", observaciones: "Observaciones",
+        objetivo: "Objetivo", accion: "Acción", recursos: "Recursos", creacion: "Creación",
+      };
+
+      const doc = new PDFDocument({ margin: 40, size: "A4", layout: "landscape" });
+      const chunks: Buffer[] = [];
+      doc.on("data", (c: Buffer) => chunks.push(c));
+      await new Promise<void>(resolve => doc.on("end", resolve));
+
+      // Encabezado
+      doc.rect(0, 0, doc.page.width, 60).fill("#1e40af");
+      doc.fillColor("white").fontSize(16).font("Helvetica-Bold")
+        .text("Reporte de Bitácora de Cambios — NOM-035 STPS 2018", 40, 15);
+      doc.fontSize(10).font("Helvetica")
+        .text(`Generado: ${new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" })} | Total registros: ${rows.length}`, 40, 38);
+
+      // Filtros aplicados
+      const filtros: string[] = [];
+      if (input.planId) filtros.push(`Plan ID: ${input.planId}`);
+      if (input.actionId) filtros.push(`Acción ID: ${input.actionId}`);
+      if (input.campo) filtros.push(`Campo: ${CAMPO_LABELS[input.campo] ?? input.campo}`);
+      if (input.changedByName) filtros.push(`Usuario: ${input.changedByName}`);
+      if (filtros.length > 0) {
+        doc.fillColor("white").fontSize(9).text(`Filtros: ${filtros.join(" | ")}`, 40, 50);
+      }
+
+      doc.moveDown(3);
+
+      // Tabla
+      const colWidths = [40, 40, 100, 110, 110, 110, 60];
+      const headers = ["ID", "Acción", "Campo", "Valor Anterior", "Valor Nuevo", "Usuario", "Fecha"];
+      const startX = 40;
+      let y = doc.y;
+
+      // Encabezados de tabla
+      doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), 20).fill("#1e40af");
+      let x = startX;
+      headers.forEach((h, i) => {
+        doc.fillColor("white").fontSize(9).font("Helvetica-Bold")
+          .text(h, x + 3, y + 5, { width: colWidths[i] - 6, ellipsis: true });
+        x += colWidths[i];
+      });
+      y += 20;
+
+      rows.forEach((row, idx) => {
+        if (y > doc.page.height - 60) {
+          doc.addPage({ layout: "landscape" });
+          y = 40;
+        }
+        const rowH = 18;
+        const bg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
+        doc.rect(startX, y, colWidths.reduce((a, b) => a + b, 0), rowH).fill(bg);
+
+        const cells = [
+          String(row.id),
+          String(row.actionId),
+          CAMPO_LABELS[row.campo] ?? row.campo,
+          row.valorAnterior ?? "",
+          row.valorNuevo ?? "",
+          row.changedByName ?? "",
+          row.createdAt ? new Date(row.createdAt).toLocaleDateString("es-MX") : "",
+        ];
+        x = startX;
+        cells.forEach((cell, i) => {
+          doc.fillColor("#0f172a").fontSize(8).font("Helvetica")
+            .text(cell, x + 3, y + 4, { width: colWidths[i] - 6, ellipsis: true, lineBreak: false });
+          x += colWidths[i];
+        });
+        y += rowH;
+      });
+
+      // Pie de página
+      doc.end();
+      const buf = Buffer.concat(chunks);
+      const folio = `NOM035-HIST-${Date.now()}`;
+      return { pdfBase64: buf.toString("base64"), folio, total: rows.length };
     }),
 });
 

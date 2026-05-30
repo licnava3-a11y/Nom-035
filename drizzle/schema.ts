@@ -5952,3 +5952,31 @@ export const nom035ActionHistory = mysqlTable("nom035_action_history", {
 });
 export type Nom035ActionHistory = typeof nom035ActionHistory.$inferSelect;
 export type InsertNom035ActionHistory = typeof nom035ActionHistory.$inferInsert;
+
+/**
+ * Tokens públicos de 72h para subida de evidencias sin cuenta (Sprint 78).
+ * Permite a responsables externos subir evidencias mediante un enlace firmado.
+ */
+export const nom035EvidenceTokens = mysqlTable("nom035_evidence_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  token: varchar("token", { length: 64 }).notNull().unique(),
+  actionId: int("action_id").notNull(),
+  planId: int("plan_id").notNull(),
+  // Descripción de la evidencia esperada (para mostrar en el formulario)
+  descripcionEsperada: text("descripcion_esperada"),
+  // Quién generó el token
+  createdByUserId: int("created_by_user_id").notNull(),
+  createdByName: varchar("created_by_name", { length: 255 }),
+  // Expiración (72h por defecto)
+  expiresAt: timestamp("expires_at").notNull(),
+  // Control de uso
+  usedAt: timestamp("used_at"),
+  maxUses: int("max_uses").default(1).notNull(),
+  useCount: int("use_count").default(0).notNull(),
+  // Metadatos del firmante externo
+  signerName: varchar("signer_name", { length: 255 }),
+  signerEmail: varchar("signer_email", { length: 320 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type Nom035EvidenceToken = typeof nom035EvidenceTokens.$inferSelect;
+export type InsertNom035EvidenceToken = typeof nom035EvidenceTokens.$inferInsert;

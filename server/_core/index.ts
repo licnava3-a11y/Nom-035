@@ -17,6 +17,7 @@ import { serveStatic, setupVite } from "./vite";
 import uploadRouter from "../upload";
 import exportRouter from "../exportRouter";
 import confirmReadRouter from "../confirmReadRouter";
+import evidenceTokenRouter from "../nom035EvidenceTokenRouter";
 import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
 import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
 import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
@@ -161,6 +162,8 @@ async function startServer() {
   app.use("/api", exportRouter);
   // Confirm Read — endpoint público para confirmar lectura de minutas por correo
   app.use("/api", confirmReadRouter);
+  // Evidence Token — endpoint público para subida de evidencias NOM-035 con token de 72h
+  app.use("/api", evidenceTokenRouter);
 
   // Heartbeat anti-cold-start — recibe el ping cada 10 minutos del cron de plataforma
   // Mantiene el contenedor Cloud Run "caliente" para eliminar cold starts

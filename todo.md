@@ -748,3 +748,31 @@
 - [x] Botón de bitácora (icono History) en cada fila de la tabla de acciones
 - [x] Diálogo de bitácora integrado en Nom035Matrix.tsx con estado `historyAction`
 - [x] Tests unitarios Sprint 76: 28/28 pasando (sprint76.test.ts)
+
+## Sprint 77 — IA Mejorada para Generación de Planes NOM-035 (2026-05-30) ✅
+- [x] Helper `buildSurveyContext()` que consulta el período activo de encuesta y sus resultados
+- [x] Consulta de `surveyPeriods` (activo) y `surveyResults` en `generatePlan`
+- [x] Prompt enriquecido con: período, total respondentes, puntaje promedio, dominios de alto riesgo y áreas prioritarias
+- [x] Fallback: si no hay encuesta activa, el plan se genera sin contexto adicional
+- [x] Importaciones de `surveyPeriods` y `surveyResults` en nom035Matrix.ts
+
+## Sprint 78 — Acceso Público con Token para Subida de Evidencias (2026-05-30) ✅
+- [x] Tabla `nom035_evidence_tokens` en BD: token, actionId, planId, createdBy, expiresAt, useCount, maxUses, isActive, signerEmail, signerName
+- [x] Migración SQL aplicada
+- [x] Router público `nom035EvidenceTokenRouter.ts` con GET /api/evidence-upload/:token (formulario HTML) y POST /api/evidence-upload/:token (subida a S3)
+- [x] Validación de token: activo, no expirado, useCount < maxUses
+- [x] Formulario HTML con drag-and-drop, campo nombre/email del firmante y barra de progreso
+- [x] Procedimientos `createEvidenceToken` y `listEvidenceTokens` en router nom035Matrix
+- [x] Botón "Compartir enlace" (icono Link2) en cada fila de la Matriz de Acciones
+- [x] Diálogo de compartir con URL copiable, fecha de expiración y usos restantes
+- [x] Router registrado en `server/_core/index.ts`
+
+## Sprint 79 — Reporte Ejecutivo de Bitácora XLSX/PDF (2026-05-30) ✅
+- [x] Procedimiento `exportHistoryXlsx` en router nom035Matrix con filtros: planId, actionId, campo, changedByName, fromDate, toDate
+- [x] Procedimiento `exportHistoryPdf` en router nom035Matrix con los mismos filtros
+- [x] XLSX con 10 columnas: ID, ID Acción, ID Plan, Campo Modificado, Valor Anterior, Valor Nuevo, Usuario, Correo, Nota, Fecha y Hora
+- [x] PDF con portada institucional, folio `NOM035-HIST-{timestamp}`, tabla de 7 columnas en orientación horizontal
+- [x] Página `AuditLogReport.tsx` con 6 filtros, tabla paginada (30/página), botones Exportar XLSX y PDF
+- [x] Ruta `/audit-log-report` registrada en App.tsx
+- [x] Ítem "Reporte de Bitácora" en submenú NOM-035 del DashboardLayout
+- [x] Tests unitarios Sprints 77-79: 28/28 pasando (sprint77_79.test.ts)

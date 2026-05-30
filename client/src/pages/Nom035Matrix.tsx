@@ -20,7 +20,7 @@ import ActionHistoryTimeline from "@/components/ActionHistoryTimeline";
 import {
   Plus, Search, Filter, FileText, CheckCircle2, Clock, AlertTriangle,
   XCircle, ChevronDown, ChevronRight, Paperclip, Download, Trash2,
-  RefreshCw, BarChart3, Eye, Edit2, Loader2, Building2, Users, User, History
+  RefreshCw, BarChart3, Eye, Edit2, Loader2, Building2, Users, User, History, Link2, Copy, Check
 } from "lucide-react";
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -60,12 +60,14 @@ function ActionRow({
   onViewEvidences,
   onUploadEvidence,
   onViewHistory,
+  onShareLink,
 }: {
   action: any;
   onUpdateStatus: (id: number, estado: string) => void;
   onViewEvidences: (action: any) => void;
   onUploadEvidence: (action: any) => void;
   onViewHistory: (action: any) => void;
+  onShareLink: (action: any) => void;
 }) {
   const estadoConf = ESTADO_CONFIG[action.estado] || ESTADO_CONFIG.no_iniciada;
   const prioridadConf = PRIORIDAD_CONFIG[action.prioridad] || PRIORIDAD_CONFIG.media;
@@ -144,6 +146,19 @@ function ActionRow({
               <TooltipContent>Ver bitácora de cambios</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => onShareLink(action)}
+                  className="p-1 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                >
+                  <Link2 className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Compartir enlace de subida (72h)</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </TableCell>
       <TableCell>
@@ -208,6 +223,9 @@ export function Nom035Matrix() {
   const [uploadAction, setUploadAction] = useState<any | null>(null);
   const [viewEvidencesAction, setViewEvidencesAction] = useState<any | null>(null);
   const [historyAction, setHistoryAction] = useState<any | null>(null);
+  const [shareAction, setShareAction] = useState<any | null>(null);
+  const [shareResult, setShareResult] = useState<{ uploadUrl: string; expiresAt: Date } | null>(null);
+  const [copied, setCopied] = useState(false);
   const [showNewPlanDialog, setShowNewPlanDialog] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -232,6 +250,31 @@ export function Nom035Matrix() {
   // Mutations de exportación
   const generatePdf = trpc.nom035Matrix.generatePdf.useMutation();
   const exportXlsx = trpc.nom035Matrix.exportXlsx.useMutation();
+  const createEvidenceToken = trpc.nom035Matrix.createEvidenceToken.useMutation();
+
+  const handleShareLink = async (action: any) => {
+    setShareAction(action);
+    setShareResult(null);
+    setCopied(false);
+    try {
+      const result = await createEvidenceToken.mutateAsync({
+        actionId: action.id,
+        descripcionEsperada: action.objetivo ?? undefined,
+        maxUses: 3,
+      });
+      setShareResult({ uploadUrl: result.uploadUrl, expiresAt: new Date(result.expiresAt) });
+    } catch (err: any) {
+      toast({ title: "Error al generar enlace", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!shareResult) return;
+    navigator.clipboard.writeText(shareResult.uploadUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
 
   const handleExportPdf = async () => {
     if (!selectedPlanId) {
@@ -456,6 +499,7 @@ export function Nom035Matrix() {
                   onViewEvidences={setViewEvidencesAction}
                   onUploadEvidence={setUploadAction}
                   onViewHistory={setHistoryAction}
+                  onShareLink={handleShareLink}
                 />
               ))
             )}
@@ -533,6 +577,63 @@ export function Nom035Matrix() {
               actionId={historyAction.id}
               accionId={historyAction.accionId}
             />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Compartir enlace de subida de evidencia (Sprint 78) */}
+      <Dialog open={!!shareAction} onOpenChange={open => { if (!open) { setShareAction(null); setShareResult(null); } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Link2 className="h-5 w-5 text-emerald-600" />
+              Compartir enlace de subida
+            </DialogTitle>
+            <DialogDescription>
+              Genera un enlace temporal (72 horas, máx. 3 usos) para que un responsable externo suba evidencias sin necesitar cuenta.
+            </DialogDescription>
+          </DialogHeader>
+          {shareAction && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Acción</p>
+                <p className="text-sm font-medium">{shareAction.objetivo}</p>
+                <p className="text-xs text-gray-400 mt-1">{shareAction.accionId}</p>
+              </div>
+              {createEvidenceToken.isPending && (
+                <div className="flex items-center justify-center py-6 gap-2 text-gray-500">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm">Generando enlace seguro...</span>
+                </div>
+              )}
+              {shareResult && (
+                <div className="space-y-3">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2">Enlace generado</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        readOnly
+                        value={shareResult.uploadUrl}
+                        className="flex-1 text-xs bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-700 rounded px-2 py-1.5 font-mono overflow-hidden text-ellipsis"
+                      />
+                      <button
+                        onClick={handleCopyLink}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700 transition-colors shrink-0"
+                      >
+                        {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        {copied ? "Copiado" : "Copiar"}
+                      </button>
+                    </div>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2">
+                      ⏱ Válido hasta: {shareResult.expiresAt.toLocaleString("es-MX", { dateStyle: "long", timeStyle: "short" })}
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Comparte este enlace por correo o WhatsApp. El destinatario podrá subir hasta 3 archivos sin necesitar cuenta en la plataforma.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>

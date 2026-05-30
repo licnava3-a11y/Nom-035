@@ -259,6 +259,7 @@ const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeRepo
 const Welcome = lazy(() => import("./pages/Welcome"));
 const Nom035Matrix = lazy(() => import("./pages/Nom035Matrix").then(m => ({ default: m.Nom035Matrix })));
 const Nom035ComplianceDashboard = lazy(() => import("./pages/Nom035ComplianceDashboard"));
+const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -1970,6 +1971,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <Nom035ComplianceDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/audit-log-report">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AuditLogReport />
             </Suspense>
           </DashboardLayout>
         </Route>
