@@ -38,6 +38,8 @@ export default function DC1Generator() {
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [loadingZip, setLoadingZip] = useState(false);
+  const [zipProgress, setZipProgress] = useState(0);
+  const [zipProgressText, setZipProgressText] = useState("");
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -329,21 +331,42 @@ export default function DC1Generator() {
     }
 
     setLoadingZip(true);
+    setZipProgress(0);
+    setZipProgressText("Iniciando compresión...");
     try {
       const selectedRecords = (historyQuery.data || []).filter((r: any) => selectedIds.has(r.id));
+      const totalFiles = selectedRecords.length;
       
       // Importar JSZip dinámicamente
       const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
 
-      // Agregar archivos al ZIP
-      for (const record of selectedRecords) {
+      // Agregar archivos al ZIP con progreso
+      for (let i = 0; i < selectedRecords.length; i++) {
+        const record = selectedRecords[i];
+        setZipProgressText(`Procesando archivo ${i + 1} de ${totalFiles}: ${record.filename}`);
         const result = await getHistoryFileMutation.mutateAsync({ historyId: record.id });
         zip.file(record.filename, result.fileContent);
+        
+        // Actualizar barra de progreso (50% en esta fase)
+        const progress = Math.round(((i + 1) / totalFiles) * 50);
+        setZipProgress(progress);
       }
 
       // Generar ZIP
-      const blob = await zip.generateAsync({ type: "blob" });
+      setZipProgressText("Comprimiendo archivos...");
+      setZipProgress(50);
+      const blob = await zip.generateAsync({ 
+        type: "blob",
+        onUpdate: (current: number, total: number) => {
+          // Progreso de compresión (50-100%)
+          const compressionProgress = Math.round((current / total) * 50) + 50;
+          setZipProgress(compressionProgress);
+        }
+      });
+
+      setZipProgressText("Descargando archivo...");
+      setZipProgress(95);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -351,10 +374,20 @@ export default function DC1Generator() {
       a.click();
       URL.revokeObjectURL(url);
 
+      setZipProgress(100);
+      setZipProgressText("¡Descarga completada!");
       toast.success(`${selectedIds.size} archivo(s) descargado(s) en ZIP`);
       setSelectedIds(new Set());
+      
+      // Limpiar progreso después de 2 segundos
+      setTimeout(() => {
+        setZipProgress(0);
+        setZipProgressText("");
+      }, 2000);
     } catch (err) {
       toast.error("Error al crear ZIP");
+      setZipProgress(0);
+      setZipProgressText("");
     } finally {
       setLoadingZip(false);
     }
@@ -981,6 +1014,42 @@ export default function DC1Generator() {
               <p>No se pudo cargar la vista previa</p>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo de progreso ZIP */}
+      <Dialog open={loadingZip} onOpenChange={() => {}}>
+        <DialogContent className="max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Descargando ZIP</DialogTitle>
+            <DialogDescription>
+              {zipProgressText}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Barra de progreso */}
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-green-500 h-full transition-all duration-300"
+                style={{ width: `${zipProgress}%` }}
+              />
+            </div>
+            
+            {/* Porcentaje */}
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">{zipProgress}%</span>
+              <span className="text-xs text-muted-foreground">
+                {zipProgress === 100 ? "Completado" : "En progreso..."}
+              </span>
+            </div>
+            
+            {/* Información detallada */}
+            <div className="bg-muted p-3 rounded-lg">
+              <p className="text-xs text-muted-foreground break-words">
+                {zipProgressText}
+              </p>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
