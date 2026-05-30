@@ -1177,6 +1177,13 @@
       "when": 1780151579582,
       "tag": "0167_rich_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 168,
+      "version": "5",
+      "when": 1780156318525,
+      "tag": "0168_flat_amazoness",
+      "breakpoints": true
     }
   ]
 }

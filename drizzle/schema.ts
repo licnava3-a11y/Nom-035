@@ -6182,3 +6182,28 @@ export const anonymousSuggestions = mysqlTable("anonymous_suggestions", {
 });
 export type AnonymousSuggestion = typeof anonymousSuggestions.$inferSelect;
 export type InsertAnonymousSuggestion = typeof anonymousSuggestions.$inferInsert;
+
+
+/**
+ * Tabla de historial de generación de DC-1 y SIRCE XML
+ * Guarda registro de todos los archivos generados para descarga posterior
+ */
+export const dc1SirceHistory = mysqlTable("dc1_sirce_history", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id").notNull(),
+  courseId: int("course_id").notNull(),
+  fileType: mysqlEnum("file_type", ["dc1", "sirce"]).notNull(),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  fileContent: text("file_content").notNull(),
+  fileSize: int("file_size"),
+  mimeType: varchar("mime_type", { length: 100 }).default("text/html").notNull(),
+  generatedBy: int("generated_by").notNull(),
+  downloadCount: int("download_count").default(0),
+  lastDownloadedAt: timestamp("last_downloaded_at"),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DC1SirceHistory = typeof dc1SirceHistory.$inferSelect;
+export type InsertDC1SirceHistory = typeof dc1SirceHistory.$inferInsert;

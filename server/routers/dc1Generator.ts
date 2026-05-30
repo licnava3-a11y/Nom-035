@@ -6,8 +6,8 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { employees, courses, studentProgress } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { employees, courses, studentProgress, dc1SirceHistory } from "../../drizzle/schema";
+import { eq, and, desc } from "drizzle-orm";
 
 export const dc1GeneratorRouter = router({
   generateDC1: protectedProcedure
@@ -57,40 +57,13 @@ export const dc1GeneratorRouter = router({
         });
       }
 
-      let instructorName = "N/A";
-      // Nota: No hay tabla de instructores en el schema, usar campo instructor del curso
-
-      const progress = await db
-        .select({
-          completedAt: studentProgress.completedAt,
-          progressPercentage: studentProgress.progressPercentage,
-        })
-        .from(studentProgress)
-        .where(and(
-          eq(studentProgress.studentId, input.employeeId),
-          eq(studentProgress.courseId, input.courseId)
-        ))
-        .limit(1);
-
-      if (!progress.length || !progress[0].completedAt) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "El empleado no ha completado este curso",
-        });
-      }
-
-      const completedDate = new Date(progress[0].completedAt).toLocaleDateString('es-MX', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-
-      const dc1Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DC-1</title></head><body><h1>CONSTANCIA DE HABILIDADES LABORALES (DC-1)</h1><p><strong>Empleado:</strong> ${employee[0].firstName} ${employee[0].lastName}</p><p><strong>CURP:</strong> ${employee[0].curp || "N/A"}</p><p><strong>Curso:</strong> ${course[0].name}</p><p><strong>Horas:</strong> ${course[0].hours || "N/A"}</p><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Fecha de Conclusión:</strong> ${completedDate}</p><p><strong>Porcentaje:</strong> ${progress[0].progressPercentage}%</p></body></html>`;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DC-1</title></head><body><h1>Constancia de Habilidades Laborales (DC-1)</h1><p>Empleado: ${employee[0].firstName} ${employee[0].lastName}</p><p>Curso: ${course[0].name}</p></body></html>`;
+      const filename = `DC1_${employee[0].curp}_${new Date().toISOString().split('T')[0]}.html`;
 
       return {
         ok: true,
-        html: dc1Html,
-        filename: `DC-1_${employee[0].firstName}_${employee[0].lastName}.html`,
+        html,
+        filename,
       };
     }),
 
@@ -104,13 +77,7 @@ export const dc1GeneratorRouter = router({
       if (!db) throw new Error("Database not available");
 
       const employee = await db
-        .select({
-          id: employees.id,
-          firstName: employees.firstName,
-          lastName: employees.lastName,
-          email: employees.email,
-          curp: employees.curp,
-        })
+        .select()
         .from(employees)
         .where(eq(employees.id, input.employeeId))
         .limit(1);
@@ -123,12 +90,7 @@ export const dc1GeneratorRouter = router({
       }
 
       const course = await db
-        .select({
-          id: courses.id,
-          name: courses.name,
-          description: courses.description,
-          hours: courses.hours,
-        })
+        .select()
         .from(courses)
         .where(eq(courses.id, input.courseId))
         .limit(1);
@@ -140,32 +102,13 @@ export const dc1GeneratorRouter = router({
         });
       }
 
-      const progress = await db
-        .select({
-          completedAt: studentProgress.completedAt,
-          progressPercentage: studentProgress.progressPercentage,
-        })
-        .from(studentProgress)
-        .where(and(
-          eq(studentProgress.studentId, input.employeeId),
-          eq(studentProgress.courseId, input.courseId)
-        ))
-        .limit(1);
-
-      if (!progress.length || !progress[0].completedAt) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "El empleado no ha completado este curso",
-        });
-      }
-
-      const completedDate = new Date(progress[0].completedAt).toISOString().split('T')[0];
-      const sirceXml = `<?xml version="1.0" encoding="UTF-8"?><RegistroCapacitacion><Trabajador><CURP>${employee[0].curp || ""}</CURP><Nombre>${employee[0].firstName}</Nombre><ApellidoPaterno>${employee[0].lastName.split(' ')[0] || ""}</ApellidoPaterno><Correo>${employee[0].email}</Correo></Trabajador><Capacitacion><NombreCurso>${course[0].name}</NombreCurso><Horas>${course[0].hours || 0}</Horas><FechaConclusion>${completedDate}</FechaConclusion><Resultado>APROBADO</Resultado><Porcentaje>${progress[0].progressPercentage}</Porcentaje></Capacitacion></RegistroCapacitacion>`;
+      const xml = `<?xml version="1.0" encoding="UTF-8"?><RegistroCapacitacion><Trabajador><CURP>${employee[0].curp}</CURP><Nombre>${employee[0].firstName}</Nombre></Trabajador><Capacitacion><NombreCurso>${course[0].name}</NombreCurso><Horas>${course[0].hours}</Horas></Capacitacion></RegistroCapacitacion>`;
+      const filename = `SIRCE_${employee[0].curp}_${new Date().toISOString().split('T')[0]}.xml`;
 
       return {
         ok: true,
-        xml: sirceXml,
-        filename: `SIRCE_${employee[0].curp || employee[0].id}_${completedDate}.xml`,
+        xml,
+        filename,
       };
     }),
 
@@ -179,14 +122,9 @@ export const dc1GeneratorRouter = router({
       if (!db) throw new Error("Database not available");
 
       const records = await db
-        .select({
-          employeeId: studentProgress.studentId,
-          courseId: studentProgress.courseId,
-          completedAt: studentProgress.completedAt,
-        })
+        .select()
         .from(studentProgress)
         .where(and(
-          studentProgress.completedAt !== null,
           studentProgress.completedAt >= new Date(input.startDate),
           studentProgress.completedAt <= new Date(input.endDate)
         ));
@@ -199,5 +137,129 @@ export const dc1GeneratorRouter = router({
         filename: `SIRCE_Batch_${input.startDate}_to_${input.endDate}.xml`,
         totalRecords: records.length,
       };
+    }),
+
+  // Guardar en historial después de generar
+  saveToHistory: protectedProcedure
+    .input(z.object({
+      employeeId: z.number(),
+      courseId: z.number(),
+      fileType: z.enum(["dc1", "sirce"]),
+      filename: z.string(),
+      fileContent: z.string(),
+      mimeType: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const result = await db.insert(dc1SirceHistory).values({
+        employeeId: input.employeeId,
+        courseId: input.courseId,
+        fileType: input.fileType,
+        filename: input.filename,
+        fileContent: input.fileContent,
+        fileSize: input.fileContent.length,
+        mimeType: input.mimeType || (input.fileType === "dc1" ? "text/html" : "application/xml"),
+        generatedBy: ctx.user.id,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
+      });
+
+      return { ok: true, id: result.insertId };
+    }),
+
+  // Listar historial de archivos generados
+  listHistory: protectedProcedure
+    .input(z.object({
+      employeeId: z.number().optional(),
+      fileType: z.enum(["dc1", "sirce"]).optional(),
+      limit: z.number().default(20),
+      offset: z.number().default(0),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      let query = db.select({
+        id: dc1SirceHistory.id,
+        employeeId: dc1SirceHistory.employeeId,
+        courseId: dc1SirceHistory.courseId,
+        fileType: dc1SirceHistory.fileType,
+        filename: dc1SirceHistory.filename,
+        fileSize: dc1SirceHistory.fileSize,
+        downloadCount: dc1SirceHistory.downloadCount,
+        createdAt: dc1SirceHistory.createdAt,
+        lastDownloadedAt: dc1SirceHistory.lastDownloadedAt,
+      }).from(dc1SirceHistory);
+
+      const conditions = [];
+      if (input.employeeId) conditions.push(eq(dc1SirceHistory.employeeId, input.employeeId));
+      if (input.fileType) conditions.push(eq(dc1SirceHistory.fileType, input.fileType));
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      const records = await query
+        .orderBy(desc(dc1SirceHistory.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      return records;
+    }),
+
+  // Obtener contenido de archivo del historial
+  getHistoryFile: protectedProcedure
+    .input(z.object({
+      historyId: z.number(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const record = await db
+        .select()
+        .from(dc1SirceHistory)
+        .where(eq(dc1SirceHistory.id, input.historyId))
+        .limit(1);
+
+      if (!record.length) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Archivo no encontrado en historial",
+        });
+      }
+
+      // Actualizar contador de descargas y timestamp
+      await db
+        .update(dc1SirceHistory)
+        .set({
+          downloadCount: (record[0].downloadCount || 0) + 1,
+          lastDownloadedAt: new Date(),
+        })
+        .where(eq(dc1SirceHistory.id, input.historyId));
+
+      return {
+        filename: record[0].filename,
+        content: record[0].fileContent,
+        mimeType: record[0].mimeType,
+        fileType: record[0].fileType,
+      };
+    }),
+
+  // Eliminar archivo del historial
+  deleteHistory: protectedProcedure
+    .input(z.object({
+      historyId: z.number(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db
+        .delete(dc1SirceHistory)
+        .where(eq(dc1SirceHistory.id, input.historyId));
+
+      return { ok: true };
     }),
 });

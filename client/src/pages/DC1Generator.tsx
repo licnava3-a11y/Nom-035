@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Download, FileText, Code, Calendar, Eye, CheckCircle, AlertCircle, Loader2, Copy } from "lucide-react";
+import { Download, FileText, Code, Calendar, Eye, CheckCircle, AlertCircle, Loader2, Copy, History, Trash2, Clock } from "lucide-react";
 
 export default function DC1Generator() {
   const [selectedEmployee, setSelectedEmployee] = useState<string>("");
@@ -22,6 +22,8 @@ export default function DC1Generator() {
   const [showPreviewSIRCE, setShowPreviewSIRCE] = useState(false);
   const [lastGeneratedDC1, setLastGeneratedDC1] = useState<any>(null);
   const [lastGeneratedSIRCE, setLastGeneratedSIRCE] = useState<any>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState<"dc1" | "sirce" | "all">("all");
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -31,6 +33,13 @@ export default function DC1Generator() {
     { startDate, endDate },
     { enabled: !!startDate && !!endDate }
   );
+  const historyQuery = trpc.dc1Generator.listHistory.useQuery({
+    fileType: historyFilter === "all" ? undefined : historyFilter,
+    limit: 50,
+  });
+  const deleteHistoryMutation = trpc.dc1Generator.deleteHistory.useMutation();
+  const getHistoryFileMutation = trpc.dc1Generator.getHistoryFile.useMutation();
+  const saveToHistoryMutation = trpc.dc1Generator.saveToHistory.useMutation();
 
   const handleGenerateDC1 = async () => {
     if (!selectedEmployee || !selectedCourse) {
@@ -48,6 +57,16 @@ export default function DC1Generator() {
       setLastGeneratedDC1(result);
       setPreviewDC1(result.html);
 
+      // Guardar en historial
+      await saveToHistoryMutation.mutateAsync({
+        employeeId: parseInt(selectedEmployee),
+        courseId: parseInt(selectedCourse),
+        fileType: "dc1",
+        filename: result.filename,
+        fileContent: result.html,
+        mimeType: "text/html",
+      });
+
       const blob = new Blob([result.html], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -57,6 +76,7 @@ export default function DC1Generator() {
       URL.revokeObjectURL(url);
 
       toast.success("DC-1 generado y descargado exitosamente");
+      historyQuery.refetch();
     } catch (err) {
       toast.error("Error al generar DC-1");
     } finally {
@@ -80,6 +100,16 @@ export default function DC1Generator() {
       setLastGeneratedSIRCE(result);
       setPreviewSIRCE(result.xml);
 
+      // Guardar en historial
+      await saveToHistoryMutation.mutateAsync({
+        employeeId: parseInt(selectedEmployee),
+        courseId: parseInt(selectedCourse),
+        fileType: "sirce",
+        filename: result.filename,
+        fileContent: result.xml,
+        mimeType: "application/xml",
+      });
+
       const blob = new Blob([result.xml], { type: "application/xml" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -89,6 +119,7 @@ export default function DC1Generator() {
       URL.revokeObjectURL(url);
 
       toast.success("SIRCE XML generado y descargado exitosamente");
+      historyQuery.refetch();
     } catch (err) {
       toast.error("Error al generar SIRCE XML");
     } finally {
@@ -139,13 +170,60 @@ export default function DC1Generator() {
     toast.success("Copiado al portapapeles");
   };
 
+  const handleDownloadFromHistory = async (historyId: number) => {
+    try {
+      const file = await getHistoryFileMutation.mutateAsync({ historyId });
+      downloadFile(file.content, file.filename, file.mimeType);
+    } catch (err) {
+      toast.error("Error al descargar archivo");
+    }
+  };
+
+  const handleDeleteHistory = async (historyId: number) => {
+    try {
+      await deleteHistoryMutation.mutateAsync({ historyId });
+      toast.success("Archivo eliminado del historial");
+      historyQuery.refetch();
+    } catch (err) {
+      toast.error("Error al eliminar archivo");
+    }
+  };
+
+  const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleString("es-MX", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Generador DC-1 y SIRCE XML</h1>
-        <p className="text-muted-foreground mt-2">
-          Genera Constancias de Habilidades Laborales (DC-1) y registros SIRCE para carga al sistema STPS
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Generador DC-1 y SIRCE XML</h1>
+          <p className="text-muted-foreground mt-2">
+            Genera Constancias de Habilidades Laborales (DC-1) y registros SIRCE para carga al sistema STPS
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => setShowHistory(!showHistory)}
+          className="gap-2"
+        >
+          <History className="h-4 w-4" />
+          Historial ({historyQuery.data?.length || 0})
+        </Button>
       </div>
 
       {/* Generador Individual */}
@@ -367,6 +445,99 @@ export default function DC1Generator() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Panel de Historial */}
+      {showHistory && (
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Historial de Archivos Generados
+                </CardTitle>
+                <CardDescription>Últimos archivos DC-1 y SIRCE XML generados</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Select value={historyFilter} onValueChange={(v: any) => setHistoryFilter(v)}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="dc1">Solo DC-1</SelectItem>
+                    <SelectItem value="sirce">Solo SIRCE</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {historyQuery.isLoading ? (
+              <div className="text-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+              </div>
+            ) : historyQuery.data && historyQuery.data.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 px-2">Tipo</th>
+                      <th className="text-left py-2 px-2">Archivo</th>
+                      <th className="text-left py-2 px-2">Tamaño</th>
+                      <th className="text-left py-2 px-2">Descargas</th>
+                      <th className="text-left py-2 px-2">Generado</th>
+                      <th className="text-left py-2 px-2">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historyQuery.data.map((record: any) => (
+                      <tr key={record.id} className="border-b hover:bg-muted/50">
+                        <td className="py-2 px-2">
+                          <Badge variant={record.fileType === "dc1" ? "default" : "secondary"}>
+                            {record.fileType.toUpperCase()}
+                          </Badge>
+                        </td>
+                        <td className="py-2 px-2 font-mono text-xs">{record.filename}</td>
+                        <td className="py-2 px-2">{formatFileSize(record.fileSize || 0)}</td>
+                        <td className="py-2 px-2">{record.downloadCount || 0}</td>
+                        <td className="py-2 px-2 text-xs text-muted-foreground">
+                          {formatDate(record.createdAt)}
+                        </td>
+                        <td className="py-2 px-2">
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDownloadFromHistory(record.id)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteHistory(record.id)}
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No hay archivos en el historial</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Información */}
       <Card>

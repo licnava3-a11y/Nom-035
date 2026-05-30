@@ -875,6 +875,9 @@
 - [x] Sprint 84 — Integración con Google Calendar (20/20 tests pasando)
 - [x] Sprint 85 — Módulo de Comunicación Interna (14/14 tests pasando)
 - [x] Botones de descarga directa para DC-1 y SIRCE XML en DC1Generator.tsx
+- [x] Panel de historial con tabla dc1_sirce_history (30 días retención)
+- [x] Procedures: saveToHistory, listHistory, getHistoryFile, deleteHistory
+- [x] UI de historial con filtros, descarga y eliminación de archivos
 - [ ] Corregir 135 errores TS en stpsFormats.ts (null guards en getDb())
 - [ ] Ejecutar suite completa de tests (Sprints 80-85) — 57+ tests
 - [ ] Checkpoint final de auditoría
