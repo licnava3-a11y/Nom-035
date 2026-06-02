@@ -888,4 +888,6 @@
 - [x] Eliminación segura de archivos seleccionados con confirmación
 - [x] Mejoras al checkbox "Seleccionar todo" (estado indeterminate + contador)
 - [x] Mejoras al diálogo de confirmación (lista de archivos + checkbox de confirmación)
+- [x] Ordenamiento de columnas en historial (Tipo, Archivo, Tamaño, Descargas, Fecha)
+- [x] Corrección de build: useAuth en CommitteeModule.tsx
 - [x] Checkpoint final de auditoría

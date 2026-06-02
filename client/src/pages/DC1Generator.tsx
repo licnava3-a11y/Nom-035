@@ -43,6 +43,8 @@ export default function DC1Generator() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [confirmDeleteCheckbox, setConfirmDeleteCheckbox] = useState(false);
+  const [sortColumn, setSortColumn] = useState<'type' | 'filename' | 'fileSize' | 'downloadCount' | 'createdAt'>('createdAt');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -92,6 +94,40 @@ export default function DC1Generator() {
 
     return true;
   });
+
+  // Lógica de ordenamiento
+  const sortedHistory = [...filteredHistory].sort((a: any, b: any) => {
+    let valA: any;
+    let valB: any;
+    switch (sortColumn) {
+      case 'type':
+        valA = a.fileType ?? '';
+        valB = b.fileType ?? '';
+        break;
+      case 'filename':
+        valA = a.filename ?? '';
+        valB = b.filename ?? '';
+        break;
+      case 'fileSize':
+        valA = a.fileSize ?? 0;
+        valB = b.fileSize ?? 0;
+        break;
+      case 'downloadCount':
+        valA = a.downloadCount ?? 0;
+        valB = b.downloadCount ?? 0;
+        break;
+      case 'createdAt':
+      default:
+        valA = new Date(a.createdAt).getTime();
+        valB = new Date(b.createdAt).getTime();
+        break;
+    }
+    if (typeof valA === 'string') {
+      return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    }
+    return sortDirection === 'asc' ? valA - valB : valB - valA;
+  });
+
   const deleteHistoryMutation = trpc.dc1Generator.deleteHistory.useMutation();
   const getHistoryFileMutation = trpc.dc1Generator.getHistoryFile.useMutation();
   const saveToHistoryMutation = trpc.dc1Generator.saveToHistory.useMutation();
@@ -255,12 +291,12 @@ export default function DC1Generator() {
 
   const hasActiveFilters = searchQuery || filterFromDate || filterToDate || filterMinDownloads || filterMaxDownloads;
 
-  // Lógica de paginación
-  const totalRecords = filteredHistory.length;
+  // Lógica de paginación (sobre sortedHistory)
+  const totalRecords = sortedHistory.length;
   const totalPages = Math.ceil(totalRecords / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
-  const paginatedHistory = filteredHistory.slice(startIndex, endIndex);
+  const paginatedHistory = sortedHistory.slice(startIndex, endIndex);
 
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -824,11 +860,39 @@ export default function DC1Generator() {
                           </span>
                         </div>
                       </th>
-                      <th className="text-left py-2 px-2">Tipo</th>
-                      <th className="text-left py-2 px-2">Archivo</th>
-                      <th className="text-left py-2 px-2">Tamaño</th>
-                      <th className="text-left py-2 px-2">Descargas</th>
-                      <th className="text-left py-2 px-2">Generado</th>
+                      {([
+                        { key: 'type', label: 'Tipo' },
+                        { key: 'filename', label: 'Archivo' },
+                        { key: 'fileSize', label: 'Tamaño' },
+                        { key: 'downloadCount', label: 'Descargas' },
+                        { key: 'createdAt', label: 'Generado' },
+                      ] as const).map(({ key, label }) => (
+                        <th key={key} className="text-left py-2 px-2">
+                          <button
+                            className="flex items-center gap-1 font-semibold hover:text-foreground text-muted-foreground transition-colors"
+                            onClick={() => {
+                              if (sortColumn === key) {
+                                setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                              } else {
+                                setSortColumn(key);
+                                setSortDirection('asc');
+                              }
+                              setCurrentPage(1);
+                            }}
+                          >
+                            {label}
+                            {sortColumn === key ? (
+                              sortDirection === 'asc' ? (
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                              ) : (
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                              )
+                            ) : (
+                              <svg className="w-3 h-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" /></svg>
+                            )}
+                          </button>
+                        </th>
+                      ))}
                       <th className="text-left py-2 px-2">Acciones</th>
                     </tr>
                   </thead>
