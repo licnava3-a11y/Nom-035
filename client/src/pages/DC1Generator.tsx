@@ -45,6 +45,7 @@ export default function DC1Generator() {
   const [confirmDeleteCheckbox, setConfirmDeleteCheckbox] = useState(false);
   const [sortColumn, setSortColumn] = useState<'type' | 'filename' | 'fileSize' | 'downloadCount' | 'createdAt'>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [filterType, setFilterType] = useState<'all' | 'dc1' | 'sirce'>('all');
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
   const coursesQuery = trpc.training.listCourses.useQuery();
@@ -61,9 +62,17 @@ export default function DC1Generator() {
 
   // Filtrar resultados en cliente
   const filteredHistory = (historyQuery.data || []).filter((record: any) => {
-    // Filtro por búsqueda
-    if (searchQuery && !record.filename.toLowerCase().includes(searchQuery.toLowerCase())) {
+    // Filtro por tipo (selector)
+    if (filterType !== 'all' && record.fileType !== filterType) {
       return false;
+    }
+
+    // Filtro por búsqueda (nombre de archivo O tipo)
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchesName = record.filename.toLowerCase().includes(q);
+      const matchesType = record.fileType.toLowerCase().includes(q);
+      if (!matchesName && !matchesType) return false;
     }
 
     // Filtro por fecha desde
@@ -286,10 +295,11 @@ export default function DC1Generator() {
     setFilterToDate("");
     setFilterMinDownloads("");
     setFilterMaxDownloads("");
+    setFilterType('all');
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = searchQuery || filterFromDate || filterToDate || filterMinDownloads || filterMaxDownloads;
+  const hasActiveFilters = searchQuery || filterFromDate || filterToDate || filterMinDownloads || filterMaxDownloads || filterType !== 'all';
 
   // Lógica de paginación (sobre sortedHistory)
   const totalRecords = sortedHistory.length;
@@ -742,15 +752,43 @@ export default function DC1Generator() {
           <CardContent className="space-y-4">
             {/* Barra de búsqueda y filtros */}
             <div className="space-y-3 p-3 bg-muted/30 rounded-lg border">
-              <div>
-                <label className="block text-sm font-medium mb-2">Buscar por nombre de archivo</label>
-                <input
-                  type="text"
-                  placeholder="Ej: DC1_CURP_2026-05-30"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md text-sm"
-                />
+              {/* Fila principal: búsqueda + tipo */}
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre o tipo (dc1, sirce)..."
+                    value={searchQuery}
+                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                    className="w-full pl-9 pr-3 py-2 border rounded-md text-sm"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => { setSearchQuery(""); setCurrentPage(1); }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <Select
+                  value={filterType}
+                  onValueChange={(v) => { setFilterType(v as any); setCurrentPage(1); }}
+                >
+                  <SelectTrigger className="w-[130px]">
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">📂 Todos</SelectItem>
+                    <SelectItem value="dc1">📄 DC-1</SelectItem>
+                    <SelectItem value="sirce">📎 SIRCE</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
