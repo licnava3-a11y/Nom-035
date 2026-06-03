@@ -980,7 +980,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
       ];
 
       // Estilo de encabezado
-      ws.getRow(1).eachCell(cell => {
+      ws.getRow(1).eachCell((cell: import('exceljs').Cell) => {
         cell.fill = headerFill;
         cell.font = headerFont;
         cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
@@ -1042,7 +1042,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
         { header: "Fecha Subida", key: "fechaSubida", width: 16 },
         { header: "URL", key: "fileUrl", width: 50 },
       ];
-      wsEv.getRow(1).eachCell(cell => {
+      wsEv.getRow(1).eachCell((cell: import('exceljs').Cell) => {
         cell.fill = headerFill;
         cell.font = headerFont;
         cell.alignment = { vertical: "middle", horizontal: "center" };

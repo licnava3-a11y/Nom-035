@@ -173,18 +173,15 @@ evidenceTokenRouter.post(
       // Registrar evidencia en BD
       await db.insert(nom035Evidences).values({
         actionId: tokenRow.actionId,
-        planId: tokenRow.planId,
         nombreArchivo: req.file.originalname,
         tipoArchivo: req.file.mimetype,
         tamanoBytes: req.file.size,
-        urlS3: url,
+        fileUrl: url,
         fileKey,
         tipoEvidencia: tipoEvidencia as any,
         descripcion: descripcion || null,
         subidoPorNombre: signerName,
-        subidoPorEmail: signerEmail || null,
         subidoPorUserId: null,
-        esPublica: false,
       });
 
       // Actualizar contador de usos y registrar datos del firmante

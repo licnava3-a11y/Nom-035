@@ -21,7 +21,7 @@ export default function SignatureCanvas({ meetingId, onClose, onSaved }: Props) 
   const [hasSignature, setHasSignature] = useState(false);
   const { toast } = useToast();
 
-  const registerSignatureMut = trpc.committeeModule.registerSignature.useMutation({
+  const registerSignatureMut = trpc.committeeModule.saveSignature.useMutation({
     onSuccess: () => onSaved(),
     onError: (e) => toast({ title: "Error al registrar firma", description: e.message, variant: "destructive" }),
   });
@@ -102,7 +102,7 @@ export default function SignatureCanvas({ meetingId, onClose, onSaved }: Props) 
       meetingId,
       signerName: signerName.trim(),
       signerRole: signerRole.trim() || undefined,
-      signatureImageBase64: hasSignature ? dataUrl : undefined,
+      signatureDataUrl: hasSignature ? dataUrl : `data:image/png;base64,${btoa('')}`,
     });
   };
 

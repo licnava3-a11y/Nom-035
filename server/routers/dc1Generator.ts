@@ -7,7 +7,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { employees, courses, studentProgress, dc1SirceHistory } from "../../drizzle/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 
 export const dc1GeneratorRouter = router({
   generateDC1: protectedProcedure
@@ -41,10 +41,9 @@ export const dc1GeneratorRouter = router({
       const course = await db
         .select({
           id: courses.id,
-          name: courses.name,
+          title: courses.title,
           description: courses.description,
-          hours: courses.hours,
-          instructorId: courses.instructorId,
+          duration: courses.duration,
         })
         .from(courses)
         .where(eq(courses.id, input.courseId))
@@ -57,7 +56,7 @@ export const dc1GeneratorRouter = router({
         });
       }
 
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DC-1</title></head><body><h1>Constancia de Habilidades Laborales (DC-1)</h1><p>Empleado: ${employee[0].firstName} ${employee[0].lastName}</p><p>Curso: ${course[0].name}</p></body></html>`;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>DC-1</title></head><body><h1>Constancia de Habilidades Laborales (DC-1)</h1><p>Empleado: ${employee[0].firstName} ${employee[0].lastName}</p><p>Curso: ${course[0].title}</p></body></html>`;
       const filename = `DC1_${employee[0].curp}_${new Date().toISOString().split('T')[0]}.html`;
 
       return {
@@ -102,7 +101,7 @@ export const dc1GeneratorRouter = router({
         });
       }
 
-      const xml = `<?xml version="1.0" encoding="UTF-8"?><RegistroCapacitacion><Trabajador><CURP>${employee[0].curp}</CURP><Nombre>${employee[0].firstName}</Nombre></Trabajador><Capacitacion><NombreCurso>${course[0].name}</NombreCurso><Horas>${course[0].hours}</Horas></Capacitacion></RegistroCapacitacion>`;
+      const xml = `<?xml version="1.0" encoding="UTF-8"?><RegistroCapacitacion><Trabajador><CURP>${employee[0].curp}</CURP><Nombre>${employee[0].firstName}</Nombre></Trabajador><Capacitacion><NombreCurso>${course[0].title}</NombreCurso><Horas>${course[0].duration ?? 0}</Horas></Capacitacion></RegistroCapacitacion>`;
       const filename = `SIRCE_${employee[0].curp}_${new Date().toISOString().split('T')[0]}.xml`;
 
       return {
@@ -125,8 +124,8 @@ export const dc1GeneratorRouter = router({
         .select()
         .from(studentProgress)
         .where(and(
-          studentProgress.completedAt >= new Date(input.startDate),
-          studentProgress.completedAt <= new Date(input.endDate)
+          gte(studentProgress.completedAt, new Date(input.startDate)),
+          lte(studentProgress.completedAt, new Date(input.endDate))
         ));
 
       const sirceXmlBatch = `<?xml version="1.0" encoding="UTF-8"?><RegistrosCapacitacion><Periodo><FechaInicio>${input.startDate}</FechaInicio><FechaFin>${input.endDate}</FechaFin><TotalRegistros>${records.length}</TotalRegistros></Periodo></RegistrosCapacitacion>`;
@@ -165,7 +164,7 @@ export const dc1GeneratorRouter = router({
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
       });
 
-      return { ok: true, id: result.insertId };
+      return { ok: true, id: (result as any)[0]?.insertId ?? 0 };
     }),
 
   // Listar historial de archivos generados
@@ -180,7 +179,11 @@ export const dc1GeneratorRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
 
-      let query = db.select({
+      const conditions = [];
+      if (input.employeeId) conditions.push(eq(dc1SirceHistory.employeeId, input.employeeId));
+      if (input.fileType) conditions.push(eq(dc1SirceHistory.fileType, input.fileType));
+
+      const records = await db.select({
         id: dc1SirceHistory.id,
         employeeId: dc1SirceHistory.employeeId,
         courseId: dc1SirceHistory.courseId,
@@ -190,17 +193,9 @@ export const dc1GeneratorRouter = router({
         downloadCount: dc1SirceHistory.downloadCount,
         createdAt: dc1SirceHistory.createdAt,
         lastDownloadedAt: dc1SirceHistory.lastDownloadedAt,
-      }).from(dc1SirceHistory);
-
-      const conditions = [];
-      if (input.employeeId) conditions.push(eq(dc1SirceHistory.employeeId, input.employeeId));
-      if (input.fileType) conditions.push(eq(dc1SirceHistory.fileType, input.fileType));
-
-      if (conditions.length > 0) {
-        query = query.where(and(...conditions));
-      }
-
-      const records = await query
+      })
+        .from(dc1SirceHistory)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(dc1SirceHistory.createdAt))
         .limit(input.limit)
         .offset(input.offset);

@@ -920,8 +920,9 @@ export const employeesRouter = router({
       await db.insert(employeePortalTokens).values({
         token,
         employeeId: input.employeeId,
+        employeeEmail: employee[0].email,
         expiresAt,
-        lastUsedAt: null,
+        isActive: true,
       });
 
       // Generar URL del portal

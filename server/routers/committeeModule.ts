@@ -43,6 +43,7 @@ export const committeeModuleRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       let query = db.select().from(nom035CommitteeMembers).$dynamic();
       const conditions = [];
       if (input.activeOnly) conditions.push(eq(nom035CommitteeMembers.isActive, true));
@@ -73,6 +74,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [result] = await db.insert(nom035CommitteeMembers).values({
         employeeName: input.employeeName,
         employeeEmail: input.employeeEmail,
@@ -105,6 +107,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const { id, startDate, endDate, ...rest } = input;
       const updateData: Record<string, unknown> = { ...rest };
       if (startDate) updateData.startDate = new Date(startDate);
@@ -117,6 +120,7 @@ export const committeeModuleRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       await db.update(nom035CommitteeMembers)
         .set({ isActive: false })
         .where(eq(nom035CommitteeMembers.id, input.id));
@@ -135,6 +139,7 @@ export const committeeModuleRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       let query = db.select().from(nom035CommitteeMeetings).$dynamic();
       const conditions = [];
       if (input.companyId) conditions.push(eq(nom035CommitteeMeetings.companyId, input.companyId));
@@ -154,6 +159,7 @@ export const committeeModuleRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [meeting] = await db.select().from(nom035CommitteeMeetings)
         .where(eq(nom035CommitteeMeetings.id, input.id));
       if (!meeting) throw new TRPCError({ code: "NOT_FOUND", message: "Reunión no encontrada" });
@@ -177,6 +183,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       // Generar folio temporal
       const tempFolio = `NOM035-COM-DRAFT-${Date.now()}`;
       const [result] = await db.insert(nom035CommitteeMeetings).values({
@@ -210,6 +217,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const { id, scheduledAt, ...rest } = input;
       const data: Record<string, unknown> = { ...rest };
       if (scheduledAt) data.scheduledAt = new Date(scheduledAt);
@@ -234,6 +242,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       // Contar acuerdos existentes para el folio
       const [countRow] = await db.select({ count: sql<number>`COUNT(*)` })
         .from(nom035CommitteeAgreements)
@@ -267,6 +276,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const { id, dueDate, ...data } = input;
       const updateData: Record<string, unknown> = { ...data };
       if (dueDate) updateData.dueDate = new Date(dueDate);
@@ -283,6 +293,7 @@ export const committeeModuleRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       let query = db.select().from(nom035CommitteeAgreements).$dynamic();
       const conditions = [];
       if (input.meetingId) conditions.push(eq(nom035CommitteeAgreements.meetingId, input.meetingId));
@@ -305,6 +316,7 @@ export const committeeModuleRouter = router({
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       // Subir firma a S3
       const base64Data = input.signatureDataUrl.replace(/^data:image\/png;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
@@ -328,6 +340,7 @@ export const committeeModuleRouter = router({
     .input(z.object({ meetingId: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       return db.select().from(nom035MeetingSignatures)
         .where(eq(nom035MeetingSignatures.meetingId, input.meetingId))
         .orderBy(asc(nom035MeetingSignatures.signedAt));
@@ -339,6 +352,7 @@ export const committeeModuleRouter = router({
     .input(z.object({ companyId: z.number().optional() }))
     .query(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const conditions = input.companyId
         ? [eq(nom035CommitteeMembers.companyId, input.companyId)]
         : [];
@@ -378,6 +392,7 @@ export const committeeModuleRouter = router({
     .input(z.object({ meetingId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [meeting] = await db.select().from(nom035CommitteeMeetings)
         .where(eq(nom035CommitteeMeetings.id, input.meetingId));
       if (!meeting) throw new TRPCError({ code: "NOT_FOUND", message: "Reunión no encontrada" });

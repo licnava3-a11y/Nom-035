@@ -897,3 +897,17 @@
 - [x] Refactorizar handleOAuthCallback como función compartida (evita duplicación)
 - [x] Ambas rutas (/api/oauth/callback y /manus-oauth/callback) usan el mismo handler
 - [x] Redirección post-login extrae pathname del state para preservar ruta destino
+
+## Correcciones TypeScript — Auditoría Profunda (2026-06-03)
+- [x] DC1Generator.tsx: trpc.training.listCourses → trpc.courses.list (procedure correcto)
+- [x] DC1Generator.tsx: getHistoryFile.useMutation → trpc.useUtils().dc1Generator.getHistoryFile.fetch (es query, no mutation)
+- [x] DC1Generator.tsx: result.fileContent → result.content (campo correcto del servidor)
+- [x] DC1Generator.tsx: employeesQuery.data?.data → employeesQuery.data?.employees (estructura real del retorno)
+- [x] DC1Generator.tsx: zip.generateAsync onUpdate → callback de progreso con metadata.percent (API JSZip v3 correcta)
+- [x] SignatureCanvas.tsx: committeeModule.registerSignature → committeeModule.saveSignature (nombre correcto del procedure)
+- [x] SignatureCanvas.tsx: signatureImageBase64 → signatureDataUrl (campo correcto del schema)
+- [x] EmployeeProfile.tsx: trpc.employees.generatePortalLink.mutate (llamada directa) → componente PortalLinkButton con useMutation hook
+- [x] nom035EvidenceTokenRouter.ts: planId (no existe en schema) → eliminado
+- [x] nom035EvidenceTokenRouter.ts: urlS3 (no existe en schema) → fileUrl
+- [x] nom035EvidenceTokenRouter.ts: subidoPorEmail, esPublica (no existen en schema) → eliminados
+- [x] 0 errores TypeScript verificados (tsc watch: Found 0 errors)

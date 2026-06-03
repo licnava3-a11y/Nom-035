@@ -48,7 +48,7 @@ export default function DC1Generator() {
   const [filterType, setFilterType] = useState<'all' | 'dc1' | 'sirce'>('all');
 
   const employeesQuery = trpc.employees.list.useQuery({ pageSize: 100 });
-  const coursesQuery = trpc.training.listCourses.useQuery();
+  const coursesQuery = trpc.courses.list.useQuery();
   const generateDC1Mutation = trpc.dc1Generator.generateDC1.useMutation();
   const generateSIRCEMutation = trpc.dc1Generator.generateSIRCEXml.useMutation();
   const exportBatchMutation = trpc.dc1Generator.exportSIRCEByPeriod.useQuery(
@@ -138,7 +138,8 @@ export default function DC1Generator() {
   });
 
   const deleteHistoryMutation = trpc.dc1Generator.deleteHistory.useMutation();
-  const getHistoryFileMutation = trpc.dc1Generator.getHistoryFile.useMutation();
+  const getHistoryFileMutation = trpc.dc1Generator.getHistoryFile.useQuery;
+  const getHistoryFileUtils = trpc.useUtils();
   const saveToHistoryMutation = trpc.dc1Generator.saveToHistory.useMutation();
 
   const handleGenerateDC1 = async () => {
@@ -272,7 +273,7 @@ export default function DC1Generator() {
 
   const handleDownloadFromHistory = async (historyId: number) => {
     try {
-      const file = await getHistoryFileMutation.mutateAsync({ historyId });
+      const file = await getHistoryFileUtils.dc1Generator.getHistoryFile.fetch({ historyId });
       downloadFile(file.content, file.filename, file.mimeType);
     } catch (err) {
       toast.error("Error al descargar archivo");
@@ -324,9 +325,9 @@ export default function DC1Generator() {
   const handlePreviewHistory = async (historyId: number, fileType: "dc1" | "sirce") => {
     setLoadingPreview(true);
     try {
-      const result = await getHistoryFileMutation.mutateAsync({ historyId });
+      const result = await getHistoryFileUtils.dc1Generator.getHistoryFile.fetch({ historyId });
       setPreviewHistoryId(historyId);
-      setPreviewHistoryContent(result.fileContent);
+      setPreviewHistoryContent(result.content);
       setPreviewHistoryType(fileType);
       setShowHistoryPreview(true);
     } catch (err) {
@@ -394,8 +395,8 @@ export default function DC1Generator() {
       for (let i = 0; i < selectedRecords.length; i++) {
         const record = selectedRecords[i];
         setZipProgressText(`Procesando archivo ${i + 1} de ${totalFiles}: ${record.filename}`);
-        const result = await getHistoryFileMutation.mutateAsync({ historyId: record.id });
-        zip.file(record.filename, result.fileContent);
+        const result = await getHistoryFileUtils.dc1Generator.getHistoryFile.fetch({ historyId: record.id });
+        zip.file(record.filename, result.content);
         
         // Actualizar barra de progreso (50% en esta fase)
         const progress = Math.round(((i + 1) / totalFiles) * 50);
@@ -407,11 +408,11 @@ export default function DC1Generator() {
       setZipProgress(50);
       const blob = await zip.generateAsync({ 
         type: "blob",
-        onUpdate: (current: number, total: number) => {
-          // Progreso de compresión (50-100%)
-          const compressionProgress = Math.round((current / total) * 50) + 50;
-          setZipProgress(compressionProgress);
-        }
+        streamFiles: true,
+      }, (metadata: { percent: number }) => {
+        // Progreso de compresión (50-100%)
+        const compressionProgress = Math.round((metadata.percent / 100) * 50) + 50;
+        setZipProgress(compressionProgress);
       });
 
       setZipProgressText("Descargando archivo...");
@@ -521,7 +522,7 @@ export default function DC1Generator() {
                   <SelectValue placeholder="Selecciona empleado" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(employeesQuery.data?.data || []).map((emp: any) => (
+                  {(employeesQuery.data?.employees || []).map((emp: any) => (
                     <SelectItem key={emp.id} value={emp.id.toString()}>
                       {emp.firstName} {emp.lastName}
                     </SelectItem>

@@ -81,6 +81,26 @@ const DOC_LABELS: Record<string, string> = {
 
 const REQUIRED_DOCS = ["ine", "curp_document", "rfc_document", "nss_document", "birth_certificate", "contract"];
 
+function PortalLinkButton({ employeeId, employeeEmail }: { employeeId: number; employeeEmail?: string }) {
+  const generatePortalLinkMutation = trpc.employees.generatePortalLink.useMutation({
+    onSuccess: () => {
+      toast.success(`Enlace enviado a ${employeeEmail || 'empleado'}`);
+    },
+    onError: (err: any) => {
+      toast.error(`Error al generar enlace de portal: ${err.message}`);
+    },
+  });
+  return (
+    <Button
+      onClick={() => generatePortalLinkMutation.mutate({ employeeId })}
+      disabled={generatePortalLinkMutation.isPending}
+      className="w-full"
+    >
+      {generatePortalLinkMutation.isPending ? 'Enviando...' : 'Enviar Enlace de Portal'}
+    </Button>
+  );
+}
+
 export default function EmployeeProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
@@ -761,19 +781,7 @@ export default function EmployeeProfile() {
                 <CardDescription>Enviar enlace de acceso al portal personal</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button
-                  onClick={async () => {
-                    try {
-                      const result = await trpc.employees.generatePortalLink.mutate({ employeeId });
-                      toast.success(`Enlace enviado a ${employee?.email}`);
-                    } catch (err) {
-                      toast.error("Error al generar enlace de portal");
-                    }
-                  }}
-                  className="w-full"
-                >
-                  Enviar Enlace de Portal
-                </Button>
+<PortalLinkButton employeeId={employeeId} employeeEmail={employee?.email} />
               </CardContent>
             </Card>
 

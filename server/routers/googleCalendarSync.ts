@@ -187,7 +187,7 @@ export const googleCalendarSyncRouter = router({
               endDate: toISODate(addHours(dueDate, 1)),
               type: "agreement_deadline",
               priority: ag.priority === "alta" ? "high" : ag.priority === "media" ? "medium" : "low",
-              folio: ag.folio,
+              folio: ag.folio ?? undefined,
             });
           }
         } catch {
@@ -298,7 +298,7 @@ export const googleCalendarSyncRouter = router({
             endDate: toISODate(addHours(dueDate, 1)),
             type: "agreement_deadline",
             priority: "medium",
-            folio: ag.folio,
+            folio: ag.folio ?? undefined,
           });
         }
       } catch { /* tabla no existe */ }

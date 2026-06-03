@@ -127,9 +127,9 @@ export const investigationsRouter = router({
     )
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new Error("Database connection failed");
 
       // Verificar que el cuestionario existe y no ha expirado
-      if (!db) throw new Error("Database connection failed");
       
       const [questionnaire] = await db
         .select()
