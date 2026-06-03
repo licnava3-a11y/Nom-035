@@ -98,6 +98,7 @@ async function logAudit(params: {
   ipAddress?: string;
 }) {
   const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
   await db.insert(nom035EvidenceAudit).values({
     evidenceId: params.evidenceId ?? null,
     actionId: params.actionId,
@@ -124,6 +125,7 @@ async function logActionHistory(params: {
   nota?: string | null;
 }) {
   const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
   await db.insert(nom035ActionHistory).values({
     actionId: params.actionId,
     planId: params.planId ?? null,
@@ -192,6 +194,7 @@ export const nom035MatrixRouter = router({
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const offset = (input.page - 1) * input.pageSize;
       const conditions = [];
       if (input.status) conditions.push(eq(nom035Plans.status, input.status));
@@ -215,6 +218,7 @@ export const nom035MatrixRouter = router({
     .input(z.object({ id: z.number().int().positive() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [plan] = await db.select().from(nom035Plans).where(eq(nom035Plans.id, input.id));
       if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "Plan no encontrado" });
 
@@ -249,6 +253,7 @@ export const nom035MatrixRouter = router({
     .input(createPlanSchema)
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
       // Construir el prompt para la IA
       const tipoLabel = {
@@ -496,6 +501,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const { id, ...updates } = input;
       await db.update(nom035Plans).set({
         ...(updates.firmaNombreResponsable !== undefined && { firmaNombreResponsable: updates.firmaNombreResponsable }),
@@ -515,6 +521,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(filterActionsSchema)
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const offset = (input.page - 1) * input.pageSize;
       const conditions = [];
 
@@ -570,6 +577,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(updateActionSchema.extend({ nota: z.string().max(500).optional() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const { id, nota, ...updates } = input;
 
       // Leer valores actuales para registrar en bitácora
@@ -636,6 +644,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [result] = await db.insert(nom035Actions).values({
         planId: input.planId,
         accionId: input.accionId,
@@ -662,6 +671,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(z.object({ actionId: z.number().int().positive() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const evidences = await db.select().from(nom035Evidences)
         .where(and(eq(nom035Evidences.actionId, input.actionId), eq(nom035Evidences.isActive, true)))
         .orderBy(desc(nom035Evidences.fechaSubida));
@@ -688,6 +698,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
       // Verificar que la acción existe
       const [action] = await db.select().from(nom035Actions).where(eq(nom035Actions.id, input.actionId));
@@ -735,6 +746,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [evidence] = await db.select().from(nom035Evidences).where(eq(nom035Evidences.id, input.id));
       if (!evidence) throw new TRPCError({ code: "NOT_FOUND", message: "Evidencia no encontrada" });
 
@@ -761,6 +773,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(z.object({ id: z.number().int().positive() }))
     .query(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [evidence] = await db.select().from(nom035Evidences).where(eq(nom035Evidences.id, input.id));
       if (!evidence || !evidence.isActive) throw new TRPCError({ code: "NOT_FOUND" });
 
@@ -793,6 +806,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const offset = (input.page - 1) * input.pageSize;
       const conditions = [];
       if (input.actionId) conditions.push(eq(nom035EvidenceAudit.actionId, input.actionId));
@@ -818,6 +832,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(z.object({ planId: z.number().int().positive() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [stats] = await db.select({
         total: sql<number>`count(*)`,
         noIniciadas: sql<number>`sum(case when estado = 'no_iniciada' then 1 else 0 end)`,
@@ -834,6 +849,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
   getGlobalStats: protectedProcedure
     .query(async () => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [planStats] = await db.select({
         totalPlanes: sql<number>`count(*)`,
         activos: sql<number>`sum(case when status = 'activo' then 1 else 0 end)`,
@@ -857,6 +873,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
       // Obtener el plan
       const [plan] = await db.select().from(nom035Plans).where(eq(nom035Plans.id, input.planId));
@@ -907,6 +924,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
       const conditions: any[] = [eq(nom035Actions.isActive, true)];
       if (input.planId) conditions.push(eq(nom035Actions.planId, input.planId));
@@ -1059,6 +1077,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .mutation(async ({ input }) => {
       // Reutilizar la misma lógica de getComplianceDashboard para obtener los datos
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
       const [globalActions] = await db.select({
         total: sql<number>`count(*)`,
@@ -1204,6 +1223,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
       // 1. KPIs globales
       const [globalActions] = await db.select({
@@ -1434,6 +1454,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const conditions: any[] = [];
       if (input.actionId) conditions.push(eq(nom035ActionHistory.actionId, input.actionId));
       if (input.planId) conditions.push(eq(nom035ActionHistory.planId, input.planId));
@@ -1454,6 +1475,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       // Verificar que la acción existe
       const [action] = await db.select({ id: nom035Actions.id, planId: nom035Actions.planId })
         .from(nom035Actions)
@@ -1484,6 +1506,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const [action] = await db
         .select({ planId: nom035Actions.planId, accion: nom035Actions.accion })
         .from(nom035Actions)
@@ -1521,6 +1544,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     .input(z.object({ actionId: z.number().int().positive() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       return db
         .select()
         .from(nom035EvidenceTokens)
@@ -1540,6 +1564,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const ExcelJS = (await import("exceljs")).default;
 
       // Construir condiciones de filtro
@@ -1632,6 +1657,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
       const PDFDocument = (await import("pdfkit")).default;
 
       const conditions: any[] = [];

@@ -891,3 +891,9 @@
 - [x] Ordenamiento de columnas en historial (Tipo, Archivo, Tamaño, Descargas, Fecha)
 - [x] Corrección de build: useAuth en CommitteeModule.tsx
 - [x] Checkpoint final de auditoría
+
+## Correcciones de Producción (2026-06-03)
+- [x] Ciclo infinito en login: agregar ruta /manus-oauth/callback en oauth.ts
+- [x] Refactorizar handleOAuthCallback como función compartida (evita duplicación)
+- [x] Ambas rutas (/api/oauth/callback y /manus-oauth/callback) usan el mismo handler
+- [x] Redirección post-login extrae pathname del state para preservar ruta destino
