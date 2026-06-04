@@ -6,31 +6,24 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
  * Two distinct concepts:
  *
  * 1. `redirectUri` — The callback URL registered with the OAuth portal.
- *    The OAuth server will redirect the browser here with ?code=&state= after
- *    authentication. The token exchange on the server side MUST use this exact URL.
- *    We use /api/oauth/callback for both dev and production (the server also handles
- *    /manus-oauth/callback for the Manus platform flow).
+ *    The portal redirects the browser here with ?code=&state= after auth.
+ *    MUST always be `origin + /api/oauth/callback` — the server always uses
+ *    this path in the token exchange regardless of which callback route fires.
  *
  * 2. `state` — Encodes where to send the user AFTER the session is created.
- *    The server decodes this to redirect the user to the right page post-login.
- *    We encode only the returnTo path (not the full origin) to keep it simple and safe.
- *
- * FIX: Previously state encoded the full origin URL (btoa(origin + returnTo)).
- * The server was then using atob(state) as the redirectUri in the token exchange,
- * causing a mismatch with the actual redirectUri registered in the authorization.
- * Now state encodes only the returnTo path, and the server derives the redirectUri
- * from the actual incoming request URL.
+ *    Format: btoa(returnTo) where returnTo is a path like "/" or "/dashboard".
+ *    The server decodes this to redirect the user post-login.
+ *    Must NOT encode the redirectUri (different purpose).
  */
 export const getLoginUrl = (returnTo = "/") => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
 
-  // redirectUri: the callback URL the OAuth portal will redirect to after auth.
-  // Must match what the server uses in the token exchange (derived from req.path).
+  // The callback URL registered with the OAuth portal.
+  // The server uses this exact path in the token exchange (buildRegisteredRedirectUri).
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
 
-  // state: encodes only the post-login destination path.
-  // Server decodes this to redirect the user after setting the session cookie.
+  // state encodes only the post-login destination path (NOT the redirectUri).
   const state = btoa(returnTo);
 
   const url = new URL(`${oauthPortalUrl}/app-auth`);

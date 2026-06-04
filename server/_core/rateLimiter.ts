@@ -49,7 +49,7 @@ export const globalLimiter = rateLimit({
 export const authLimiter = rateLimit({
   skip: () => process.env.NODE_ENV === 'development',
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Límite de 5 intentos por ventana
+  max: 30, // 30 intentos por ventana — suficiente para OAuth callbacks legítimos (era 5, demasiado restrictivo)
   message: {
     error: "Demasiados intentos de autenticación desde esta IP, por favor intenta nuevamente en 15 minutos.",
     retryAfter: 900,

@@ -185,13 +185,19 @@
             oauthPortal = 'https://manus.im';
           }
 
+          // redirectUri: the callback URL registered with the OAuth portal.
+          // The server uses this EXACT path in the token exchange.
           var redirectUri = window.location.origin + '/api/oauth/callback';
-          var state = btoa(redirectUri);
+
+          // state: encodes where to send the user AFTER login (NOT the redirectUri).
+          // Using btoa('/') sends the user to the home page after successful login.
+          var state = btoa('/');
+
           var loginUrl = oauthPortal + '/app-auth'
             + '?appId=' + encodeURIComponent(appId)
             + '&redirectUri=' + encodeURIComponent(redirectUri)
             + '&state=' + encodeURIComponent(state)
-            + '&type=signIn';
+            + '&responseType=code';
 
           var btn = document.getElementById('aw-login-btn');
           if (btn) {

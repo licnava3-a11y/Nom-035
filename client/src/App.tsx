@@ -257,6 +257,7 @@ const WebVitalsDashboard = lazy(() => import("./pages/WebVitalsDashboard"));
 const BranchesManagement = lazy(() => import("./pages/BranchesManagement"));
 const BranchComparativeReport = lazy(() => import("./pages/BranchComparativeReport"));
 const Welcome = lazy(() => import("./pages/Welcome"));
+const LoginError = lazy(() => import("./pages/LoginError"));
 const Nom035Matrix = lazy(() => import("./pages/Nom035Matrix").then(m => ({ default: m.Nom035Matrix })));
 const Nom035ComplianceDashboard = lazy(() => import("./pages/Nom035ComplianceDashboard"));
 const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
@@ -2046,6 +2047,11 @@ function Router() {
               <SurveyPublicResponse />
             </Suspense>
           )}
+        </Route>
+        <Route path="/login-error">
+          <Suspense fallback={<PageLoader />}>
+            <LoginError />
+          </Suspense>
         </Route>
         <Route>
           <NotFound />
