@@ -933,3 +933,11 @@
 - [x] CAUSA RAÍZ 3 — ProtectedRoute.tsx redirigía a <Redirect to="/login"> (ruta interna inexistente). Corregido: usa window.location.href = getLoginUrl(currentPath) para ir al portal OAuth real.
 - [x] CAUSA RAÍZ 4 — main.tsx y useAuth.ts no tenían throttle anti-ciclo. Si auth.me devolvía 401 repetidamente, se producía un bucle de redirecciones. Corregido: sessionStorage._last_login_redirect con ventana de 3s + guards de ruta (isInAuthFlow).
 - [x] Verificado: 0 errores TypeScript, servidor activo, cookies sin domain attribute, redirects a OAuth portal correcto.
+
+## Diagnóstico Definitivo — Error "You don't have permission" (2026-06-04)
+- [x] DIAGNÓSTICO: La pantalla "You don't have permission to view this page. To continue, please switch to an account with access." con botón "Switch account" es generada EXCLUSIVAMENTE por Manus Platform — NO por el código del proyecto.
+- [x] EVIDENCIA: curl a nom035mood-32dy4ksx.manus.space devuelve HTML de Next.js de Manus Platform (chunks de manus.im). El código del proyecto no contiene el texto "You don't have permission" ni "Switch account".
+- [x] CAUSA: El sitio está en modo PRIVADO en Manus Platform. Solo el owner puede acceder. Usuarios externos ven esta pantalla antes de que el código del proyecto se ejecute.
+- [x] SOLUCIÓN: Cambiar visibilidad en Panel de Administración → Settings → General → Visibility → Public → Save.
+- [x] CÓDIGO VERIFICADO: oauth.ts, sdk.ts, cookies.ts, ProtectedRoute.tsx, useAuth.ts, main.tsx — todos correctos. 0 errores TypeScript. Servidor activo.
+- [x] PROBLEMA SECUNDARIO EN LOGS: "token exchange failed: invalid or expired authorization code" — ocurre cuando el código OAuth expira durante cold start de Cloud Run. Mitigado con retry=3 y backoff exponencial en useAuth.ts.
