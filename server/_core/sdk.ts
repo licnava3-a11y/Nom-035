@@ -38,21 +38,24 @@ class OAuthService {
     }
   }
 
-  private decodeState(state: string): string {
-    const redirectUri = atob(state);
-    return redirectUri;
-  }
-
+  /**
+   * Exchange authorization code for access token.
+   * @param code - The authorization code from the OAuth callback
+   * @param redirectUri - The EXACT redirect URI that was registered in the authorization request.
+   *                      Must match what was sent to the OAuth portal (NOT the state param).
+   */
   async getTokenByCode(
     code: string,
-    state: string
+    redirectUri: string
   ): Promise<ExchangeTokenResponse> {
     const payload: ExchangeTokenRequest = {
       clientId: ENV.appId,
       grantType: "authorization_code",
       code,
-      redirectUri: this.decodeState(state),
+      redirectUri,
     };
+
+    console.log("[OAuth] Exchanging code with redirectUri:", redirectUri);
 
     const { data } = await this.client.post<ExchangeTokenResponse>(
       EXCHANGE_TOKEN_PATH,
@@ -114,15 +117,22 @@ class SDKServer {
   }
 
   /**
-   * Exchange OAuth authorization code for access token
+   * Exchange OAuth authorization code for access token.
+   *
+   * IMPORTANT: redirectUri must be the EXACT URL that was passed as redirectUri
+   * in the original authorization request to the OAuth portal. This is NOT the
+   * state parameter — state encodes where to send the user after login.
+   *
+   * @param code - Authorization code from OAuth callback query params
+   * @param redirectUri - The callback URL registered in the authorization request
    * @example
-   * const tokenResponse = await sdk.exchangeCodeForToken(code, state);
+   * const tokenResponse = await sdk.exchangeCodeForToken(code, redirectUri);
    */
   async exchangeCodeForToken(
     code: string,
-    state: string
+    redirectUri: string
   ): Promise<ExchangeTokenResponse> {
-    return this.oauthService.getTokenByCode(code, state);
+    return this.oauthService.getTokenByCode(code, redirectUri);
   }
 
   /**

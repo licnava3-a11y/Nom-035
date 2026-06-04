@@ -150,7 +150,7 @@
 - [x] Exportar Catálogo de Competencias a Excel desde OrganizationalCompetenciesManager.tsx
 - [x] Exportar Catálogo de Puestos a Excel desde Positions.tsx
 - [x] Preview de reporte ejecutivo antes de envío en ReportConfigurationPanel.tsx — Sprint 44: modal Eye con KPIs actuales
-- [ ] Validación RFC contra SAT en tiempo real (requiere API externa) — FUERA DE ALCANCE: requiere suscripción SAT
+- [x] Validación RFC contra SAT en tiempo real — DESCARTADO: requiere suscripción de pago a API del SAT, fuera del alcance del proyecto NOM-035
 - [x] Historial de salarios por empleado (tabla salaryHistory, router salaryHistory, tab en EmployeeProfile)
 - [x] Gestión de vacaciones: solicitud, saldo LFT, flujo de aprobación, notificación a RH (VacationManagement.tsx)
 
@@ -917,3 +917,12 @@
 - [x] Respaldo ZIP creado: nom035_backup_20260604.zip (7.9 MB, excluye node_modules/dist/.git)
 - [x] Respaldo subido a Google Drive: carpeta NOM035-Backups (https://drive.google.com/open?id=1t-p3T1wXRDl9LIDRJu1rzfzHqsJtgp5i)
 - [x] todo.md: 0 ítems pendientes — todos marcados como completados o descartados con justificación
+
+## Corrección Definitiva OAuth — Missing OAuth Parameters (2026-06-04)
+- [x] CAUSA RAÍZ IDENTIFICADA: sdk.ts usaba atob(state) como redirectUri en el token exchange. state contiene el returnTo del usuario, NO el redirectUri de autorización. El mismatch causaba que el OAuth server rechazara el exchange.
+- [x] sdk.ts: exchangeCodeForToken(code, state) → exchangeCodeForToken(code, redirectUri). El redirectUri ahora se pasa explícitamente desde el handler del callback.
+- [x] oauth.ts: nueva función deriveRedirectUri(req) que construye el redirectUri real desde req.protocol + host + req.path (respeta x-forwarded-host de Cloud Run/Manus proxy).
+- [x] oauth.ts: nueva función decodeReturnPath(state) que decodifica state como solo el path de retorno post-login (no como redirectUri).
+- [x] const.ts (cliente): state = btoa(returnTo) — solo el path, no la URL completa. Documentación clara de la diferencia entre redirectUri y state.
+- [x] Logs mejorados: [OAuth] Callback received con host/protocol/path, redirectUri usado en exchange, errores con query params completos.
+- [x] Verificado: 0 errores TypeScript, servidor responde HTTP 200 en /api/health, callback construye redirectUri correcto (http://localhost:3000/api/oauth/callback en dev, URL pública en producción).
