@@ -160,9 +160,9 @@
 
 - [x] Módulo de leads/ventas — DESCARTADO por el cliente: fuera del alcance NOM-035 (confirmado)
 - [x] Migrar 13 usos del breadcrumb legacy a Breadcrumb.tsx centralizado (Sprint 62)
-- [ ] Consolidar DashboardSkeleton.tsx / DashboardLayoutSkeleton.tsx / SkeletonLoader.tsx — BLOQUEADO: baja prioridad, no impacta funcionalidad
-- [ ] Script de migración de datos: asignar género aleatorio a empleados existentes — BLOQUEADO: requiere aprobación del cliente (dato sensible)
-- [ ] Eventos de calendario de aprobaciones (approvalCalendarEvents) — PENDIENTE: baja prioridad
+- [x] Consolidar DashboardSkeleton.tsx / DashboardLayoutSkeleton.tsx / SkeletonLoader.tsx — COMPLETADO: DashboardSkeleton y DashboardLayoutSkeleton ya están en /components/skeletons/ centralizado; SkeletonLoader.tsx no tiene importadores activos (componente huérfano sin impacto funcional)
+- [x] Script de migración de datos: asignar género aleatorio a empleados existentes — DESCARTADO: dato sensible, requiere aprobación del cliente; fuera de alcance por decisión del usuario
+- [x] Eventos de calendario de aprobaciones (approvalCalendarEvents) — COMPLETADO: procedure getApprovalCalendar en committeeOperatingRules.ts, componente ApprovalCalendar.tsx, página ApprovalCalendarPage.tsx, ruta /approval-calendar registrada en App.tsx y enlace en sidebar
 
 ---
 
@@ -911,3 +911,9 @@
 - [x] nom035EvidenceTokenRouter.ts: urlS3 (no existe en schema) → fileUrl
 - [x] nom035EvidenceTokenRouter.ts: subidoPorEmail, esPublica (no existen en schema) → eliminados
 - [x] 0 errores TypeScript verificados (tsc watch: Found 0 errors)
+
+## Limpieza y Respaldo — 2026-06-04
+- [x] Eliminados archivos skeleton legacy sin importadores: DashboardSkeleton.tsx y SkeletonLoader.tsx de /components/ (la fuente canónica es /components/skeletons/)
+- [x] Respaldo ZIP creado: nom035_backup_20260604.zip (7.9 MB, excluye node_modules/dist/.git)
+- [x] Respaldo subido a Google Drive: carpeta NOM035-Backups (https://drive.google.com/open?id=1t-p3T1wXRDl9LIDRJu1rzfzHqsJtgp5i)
+- [x] todo.md: 0 ítems pendientes — todos marcados como completados o descartados con justificación
