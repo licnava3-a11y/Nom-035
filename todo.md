@@ -926,3 +926,10 @@
 - [x] const.ts (cliente): state = btoa(returnTo) — solo el path, no la URL completa. Documentación clara de la diferencia entre redirectUri y state.
 - [x] Logs mejorados: [OAuth] Callback received con host/protocol/path, redirectUri usado en exchange, errores con query params completos.
 - [x] Verificado: 0 errores TypeScript, servidor responde HTTP 200 en /api/health, callback construye redirectUri correcto (http://localhost:3000/api/oauth/callback en dev, URL pública en producción).
+
+## Corrección Ciclo Infinito OAuth — 2026-06-04
+- [x] CAUSA RAÍZ 1 — sdk.ts verifySession rechazaba sesiones válidas cuando name="" (usuarios sin nombre en OAuth). Corregido: solo openId y appId son obligatorios; name puede ser string vacío.
+- [x] CAUSA RAÍZ 2 — cookies.ts establecía domain=.nom035mood-32dy4ksx.manus.space. Los dominios *.manus.space están en la Public Suffix List; el navegador rechaza cookies con domain en subdominios PSL. Corregido: domain=undefined (cookie scoped al hostname exacto).
+- [x] CAUSA RAÍZ 3 — ProtectedRoute.tsx redirigía a <Redirect to="/login"> (ruta interna inexistente). Corregido: usa window.location.href = getLoginUrl(currentPath) para ir al portal OAuth real.
+- [x] CAUSA RAÍZ 4 — main.tsx y useAuth.ts no tenían throttle anti-ciclo. Si auth.me devolvía 401 repetidamente, se producía un bucle de redirecciones. Corregido: sessionStorage._last_login_redirect con ventana de 3s + guards de ruta (isInAuthFlow).
+- [x] Verificado: 0 errores TypeScript, servidor activo, cookies sin domain attribute, redirects a OAuth portal correcto.

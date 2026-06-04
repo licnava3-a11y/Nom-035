@@ -106,22 +106,31 @@ export function useAuth(options?: UseAuthOptions) {
   useEffect(() => {
     if (!redirectOnUnauthenticated) return;
     if (state.loading) return;
-    if (state.user) return;
+    if (state.user) {
+      // User is authenticated — clear the redirect throttle so future logouts work
+      sessionStorage.removeItem("_last_login_redirect");
+      return;
+    }
     if (!state.isUnauthenticated) return; // No redirigir si es error de red/timeout
     if (typeof window === "undefined") return;
 
-    // Prevenir ciclos: verificar si ya estamos en una URL de login/callback
+    // Anti-loop guard: never redirect if already in an auth flow
     const currentPath = window.location.pathname;
-    if (currentPath.includes("/oauth/") || currentPath.includes("/login")) {
+    const isInAuthFlow =
+      currentPath.includes("/oauth/callback") ||
+      currentPath.includes("/manus-oauth/") ||
+      currentPath === "/login-error" ||
+      currentPath === "/login";
+    if (isInAuthFlow) return;
+
+    // Anti-loop guard: throttle consecutive redirects
+    const lastRedirect = sessionStorage.getItem("_last_login_redirect");
+    const now = Date.now();
+    if (lastRedirect && now - parseInt(lastRedirect, 10) < 3000) {
+      console.warn("[useAuth] Redirect throttled — too soon after last redirect");
       return;
     }
-
-    try {
-      const redirectUrl = new URL(redirectPath, window.location.origin);
-      if (window.location.pathname === redirectUrl.pathname) return;
-    } catch {
-      if (window.location.pathname === redirectPath) return;
-    }
+    sessionStorage.setItem("_last_login_redirect", String(now));
 
     window.location.href = redirectPath;
   }, [

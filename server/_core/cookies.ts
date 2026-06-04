@@ -45,12 +45,13 @@ export function getSessionCookieOptions(
     hostname !== "127.0.0.1" &&
     hostname !== "::1";
 
-  const domain =
-    shouldSetDomain && !hostname.startsWith(".")
-      ? `.${hostname}`
-      : shouldSetDomain
-        ? hostname
-        : undefined;
+  // IMPORTANT: Do NOT set a domain with a leading dot for Manus-hosted apps.
+  // Manus production domains (*.manus.space) are on a public suffix list;
+  // setting domain=.nom035mood-32dy4ksx.manus.space causes browsers to reject
+  // the cookie entirely (same-site / public-suffix restriction).
+  // Omitting the domain attribute makes the browser scope the cookie to the
+  // exact hostname, which is what we want for single-domain apps.
+  const domain = undefined;
 
   return {
     domain,

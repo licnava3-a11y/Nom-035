@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Redirect, useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -49,9 +50,14 @@ export default function ProtectedRoute({
     );
   }
 
-  // Si requiere autenticación y no hay usuario, redirigir a login
+  // Si requiere autenticación y no hay usuario, redirigir al portal OAuth
   if (requireAuth && !user) {
-    return <Redirect to="/login" />;
+    // Use window.location.href to navigate to the external OAuth portal
+    // (Redirect component only handles internal wouter routes)
+    if (typeof window !== "undefined") {
+      window.location.href = getLoginUrl(window.location.pathname);
+    }
+    return null;
   }
 
   // Si se especificaron roles permitidos, verificar que el usuario tenga uno de ellos

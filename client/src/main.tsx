@@ -28,10 +28,27 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (typeof window === "undefined") return;
 
   const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
-
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  // Anti-loop guard: never redirect if we are already in an OAuth/auth flow
+  const currentPath = window.location.pathname;
+  const isInAuthFlow =
+    currentPath.includes("/oauth/callback") ||
+    currentPath.includes("/manus-oauth/") ||
+    currentPath === "/login-error" ||
+    currentPath === "/login";
+  if (isInAuthFlow) return;
+
+  // Anti-loop guard: avoid redirect storm — check if we just redirected
+  const lastRedirect = sessionStorage.getItem("_last_login_redirect");
+  const now = Date.now();
+  if (lastRedirect && now - parseInt(lastRedirect, 10) < 3000) {
+    console.warn("[Auth] Redirect throttled — too soon after last redirect");
+    return;
+  }
+  sessionStorage.setItem("_last_login_redirect", String(now));
+
+  window.location.href = getLoginUrl(currentPath);
 };
 
 queryClient.getQueryCache().subscribe(event => {
