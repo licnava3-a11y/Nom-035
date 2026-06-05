@@ -196,7 +196,9 @@ async function startServer() {
   // Fallback logic: if dist/public does not exist (cold start or first deploy),
   // fall back to Vite dev server. setupVite is only used in development.
   // In production NEVER call setupVite — it imports native binaries that crash Cloud Run.
-  const distPublicPath = path.join(__dirname, "../../dist/public");
+  // Use import.meta.dirname (ESM-compatible) instead of __dirname (CJS-only)
+  // import.meta.dirname = /project/server/_core in dev, /project/dist in prod bundle
+  const distPublicPath = path.join(import.meta.dirname, "../../dist/public");
   const distPublicExists = fs.existsSync(distPublicPath) && fs.existsSync(path.join(distPublicPath, "index.html"));
   if (process.env.NODE_ENV === "production") {
     // Production: always use serveStatic
