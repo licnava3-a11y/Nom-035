@@ -339,7 +339,7 @@ export default function DashboardLayout({
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
   // Un solo useAuth() para todo el componente — evitar llamadas duplicadas al hook
-  const { loading, user, isUnauthenticated } = useAuth();
+  const { loading, user, isUnauthenticated, logout } = useAuth();
   const { isConnected, lastAlert, requestNotificationPermission } = useWebSocket();
   const [location] = useLocation();
   const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
@@ -426,7 +426,7 @@ export default function DashboardLayout({
           } as CSSProperties
         }
       >
-        <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
+        <DashboardLayoutContent setSidebarWidth={setSidebarWidth} user={user} logout={logout}>
           {children}
         </DashboardLayoutContent>
       </SidebarProvider>
@@ -437,13 +437,19 @@ export default function DashboardLayout({
 type DashboardLayoutContentProps = {
   children: React.ReactNode;
   setSidebarWidth: (width: number) => void;
+  // Recibir user/logout del padre para evitar un segundo useAuth() que compita
+  user: ReturnType<typeof useAuth>['user'];
+  logout: ReturnType<typeof useAuth>['logout'];
 };
 
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
+  user,
+  logout,
 }: DashboardLayoutContentProps) {
-  const { user, logout } = useAuth();
+  // user y logout vienen del componente padre (DashboardLayout) para evitar
+  // un segundo suscriptor de auth.me que compita y cause ciclo infinito de login
   const [location, setLocation] = useLocation();
   
   // Obtener contadores dinámicos para badges

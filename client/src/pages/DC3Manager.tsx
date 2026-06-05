@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Download, Upload, Plus, Search, FileSpreadsheet,
-  Pencil, Trash2, Eye, AlertCircle, CheckCircle2, FileText
+  Pencil, Trash2, Eye, AlertCircle, CheckCircle2, FileText,
+  Loader2, UserCheck, Info
 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -75,8 +76,56 @@ function DC3Form({
   setForm: (f: DC3FormData) => void;
   catalogs: { cnoAreas: { key: string; label: string }[]; thematicAreas: { key: string; label: string }[] } | undefined;
 }) {
+  const { toast } = useToast();
   const set = (field: keyof DC3FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [field]: e.target.value });
+
+  const lookupCurpMutation = trpc.dc3.lookupCurp.useMutation({
+    onSuccess: (data) => {
+      if (!data.found) {
+        toast({ title: "CURP inválida", description: data.error ?? "Formato de CURP incorrecto", variant: "destructive" });
+        return;
+      }
+      // Prioridad: API externa > empleado local > datos de la CURP
+      const updates: Partial<DC3FormData> = {};
+      if (data.apiData?.workerName) {
+        updates.workerName = data.apiData.workerName;
+      } else if (data.employeeData?.workerName) {
+        updates.workerName = data.employeeData.workerName;
+      }
+      if (data.employeeData?.workerPosition) {
+        updates.workerPosition = data.employeeData.workerPosition;
+      }
+      setForm({ ...form, ...updates });
+      const source = data.source === "api" ? "API RENAPO" : data.employeeData ? "empleado registrado" : "validación local";
+      const genero = data.localData?.genero ?? "";
+      const fecha = data.localData?.fechaNacimiento ?? "";
+      const estado = data.localData?.estado ?? "";
+      toast({
+        title: (
+          <span className="flex items-center gap-1.5">
+            <UserCheck className="h-4 w-4 text-green-600" />
+            CURP válida
+          </span>
+        ) as any,
+        description: [
+          updates.workerName ? `Nombre: ${updates.workerName}` : null,
+          genero ? `Género: ${genero}` : null,
+          fecha ? `Nacimiento: ${fecha}` : null,
+          estado ? `Estado: ${estado}` : null,
+          `Fuente: ${source}`,
+        ].filter(Boolean).join(" · "),
+      });
+    },
+    onError: (e) => toast({ title: "Error al consultar CURP", description: e.message, variant: "destructive" }),
+  });
+
+  const handleCurpBlur = useCallback(() => {
+    const curp = form.workerCurp.trim().toUpperCase();
+    if (curp.length === 18) {
+      lookupCurpMutation.mutate({ curp });
+    }
+  }, [form.workerCurp]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto pr-2">
@@ -91,8 +140,33 @@ function DC3Form({
         <Input placeholder="APELLIDO PATERNO APELLIDO MATERNO NOMBRE(S)" value={form.workerName} onChange={set("workerName")} />
       </div>
       <div>
-        <Label>CURP</Label>
-        <Input placeholder="18 caracteres" maxLength={18} value={form.workerCurp} onChange={set("workerCurp")} />
+        <Label className="flex items-center gap-1.5">
+          CURP
+          {lookupCurpMutation.isPending && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+          {lookupCurpMutation.isSuccess && lookupCurpMutation.data?.found && (
+            <UserCheck className="h-3 w-3 text-green-600" />
+          )}
+        </Label>
+        <div className="relative">
+          <Input
+            placeholder="18 caracteres — al salir del campo se valida automáticamente"
+            maxLength={18}
+            value={form.workerCurp}
+            onChange={(e) => setForm({ ...form, workerCurp: e.target.value.toUpperCase() })}
+            onBlur={handleCurpBlur}
+            className="uppercase"
+          />
+          {lookupCurpMutation.isSuccess && lookupCurpMutation.data?.found && lookupCurpMutation.data.localData && (
+            <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+              <Info className="h-3 w-3" />
+              {[
+                lookupCurpMutation.data.localData.genero,
+                lookupCurpMutation.data.localData.fechaNacimiento,
+                lookupCurpMutation.data.localData.estado,
+              ].filter(Boolean).join(" · ")}
+            </p>
+          )}
+        </div>
       </div>
       <div>
         <Label>Clave CNO (Ocupación)</Label>

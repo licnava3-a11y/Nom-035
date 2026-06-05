@@ -4,6 +4,8 @@ import { getDb } from "../db";
 import { dc3Records } from "../../drizzle/schema";
 import { eq, desc, and, like, or, sql } from "drizzle-orm";
 import * as XLSX from "xlsx";
+import { extractCURPData } from "../lib/curp-validator";
+import * as employeesDb from "../db-employees";
 
 // ─── Catálogos oficiales STPS ──────────────────────────────────────────────────
 
@@ -467,6 +469,44 @@ function buildDC3Export(records: typeof dc3Records.$inferSelect[]): Buffer {
 
 // ─── Router ───────────────────────────────────────────────────────────────────
 
+// ─── Helper: lookup CURP en API externa ─────────────────────────────────────
+
+async function lookupCurpExternal(curp: string): Promise<{
+  nombres?: string;
+  apellidoPaterno?: string;
+  apellidoMaterno?: string;
+  sexo?: string;
+  fechaNacimiento?: string;
+  entidadNacimiento?: string;
+  source: "api" | "local";
+}> {
+  const token = process.env.CURP_API_TOKEN;
+  if (token) {
+    try {
+      const url = `https://api.valida-curp.com.mx/curp/obtener_datos/?token=${encodeURIComponent(token)}&curp=${encodeURIComponent(curp)}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        const json = await res.json() as any;
+        if (!json.error && json.response?.Solicitante) {
+          const s = json.response.Solicitante;
+          return {
+            nombres: s.Nombres ?? undefined,
+            apellidoPaterno: s.ApellidoPaterno ?? undefined,
+            apellidoMaterno: s.ApellidoMaterno ?? undefined,
+            sexo: s.ClaveSexo === "H" ? "Masculino" : s.ClaveSexo === "M" ? "Femenino" : undefined,
+            fechaNacimiento: s.FechaNacimiento ?? undefined,
+            entidadNacimiento: s.EntidadNacimiento ?? undefined,
+            source: "api",
+          };
+        }
+      }
+    } catch {
+      // Fallback silencioso a validación local
+    }
+  }
+  return { source: "local" };
+}
+
 export const dc3Router = router({
   // Catálogos
   getCatalogs: protectedProcedure.query(() => ({
@@ -725,5 +765,87 @@ export const dc3Router = router({
       }
 
       return results;
+    }),
+
+  // ─── Lookup CURP: valida formato + busca en empleados + llama API externa si hay token ───
+  lookupCurp: protectedProcedure
+    .input(z.object({ curp: z.string().min(18).max(18) }))
+    .mutation(async ({ input }) => {
+      const curp = input.curp.trim().toUpperCase();
+
+      // 1. Validar formato localmente
+      const localData = extractCURPData(curp);
+      if (!localData.valid) {
+        return {
+          found: false as const,
+          source: "local" as const,
+          error: localData.errors?.[0] ?? "CURP inválida",
+          localData: null,
+          employeeData: null,
+        };
+      }
+
+      // 2. Buscar en empleados existentes (coincidencia exacta por CURP)
+      let employeeData: {
+        workerName: string;
+        workerPosition: string;
+        workerOccupationCnoKey: string;
+        workerOccupationCnoDesc: string;
+      } | null = null;
+
+      try {
+        const employee = await employeesDb.getEmployeeByCURP(curp);
+        if (employee) {
+          // employees table: firstName (nombre), lastName (apellidos juntos)
+          const fullName = [
+            employee.lastName ?? "",
+            employee.firstName ?? "",
+          ].filter(Boolean).join(" ").toUpperCase();
+          employeeData = {
+            workerName: fullName,
+            workerPosition: "", // positionId requiere join; se omite por simplicidad
+            workerOccupationCnoKey: "",
+            workerOccupationCnoDesc: "",
+          };
+        }
+      } catch {
+        // Ignorar errores de lookup en empleados
+      }
+
+      // 3. Intentar API externa (solo si hay token configurado)
+      const apiData = await lookupCurpExternal(curp);
+
+      // Construir nombre completo desde API si no hay empleado local
+      let workerNameFromApi: string | undefined;
+      if (apiData.source === "api" && apiData.apellidoPaterno) {
+        workerNameFromApi = [
+          apiData.apellidoPaterno,
+          apiData.apellidoMaterno,
+          apiData.nombres,
+        ].filter(Boolean).join(" ").toUpperCase();
+      }
+
+      return {
+        found: true as const,
+        source: apiData.source,
+        error: null,
+        localData: {
+          sexo: localData.sexo,
+          genero: localData.genero,
+          fechaNacimiento: localData.fechaNacimiento,
+          estado: localData.estado,
+          edad: localData.edad,
+        },
+        employeeData,
+        apiData: apiData.source === "api" ? {
+          nombres: apiData.nombres,
+          apellidoPaterno: apiData.apellidoPaterno,
+          apellidoMaterno: apiData.apellidoMaterno,
+          sexo: apiData.sexo,
+          fechaNacimiento: apiData.fechaNacimiento,
+          entidadNacimiento: apiData.entidadNacimiento,
+          workerName: workerNameFromApi,
+        } : null,
+      };
     }),
 });
