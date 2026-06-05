@@ -1184,6 +1184,13 @@
       "when": 1780156318525,
       "tag": "0168_flat_amazoness",
       "breakpoints": true
+    },
+    {
+      "idx": 169,
+      "version": "5",
+      "when": 1780668538140,
+      "tag": "0169_stiff_the_renegades",
+      "breakpoints": true
     }
   ]
 }

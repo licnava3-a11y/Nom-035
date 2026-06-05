@@ -974,7 +974,7 @@
 
 ### BAJO — Mejoras de calidad (pendientes)
 - [ ] Tests faltantes para módulos: stpsReports (eliminado), committeeModule, nom035EvidenceToken
-- [ ] DC-3 Excel exportable — pendiente: requiere formato del cliente (en espera)
+- [x] DC-3 Excel exportable — COMPLETADO: módulo DC3Manager.tsx con importar/exportar Excel, plantilla oficial, catálogos CNO y áreas temáticas
 - [ ] Bundle size: algunos chunks > 500KB — pendiente: code splitting adicional
 
 ### Estado del sistema post-auditoría
@@ -982,3 +982,10 @@
 - Runtime: 0 errores en logs del servidor
 - Cron jobs activos: Realtime Alerts (15min), Sentiment Analysis (1h), Survey Alerts (diario)
 - Servidor: http://localhost:3000 respondiendo correctamente
+
+## Módulo DC-3 — Constancia de Competencias o Habilidades Laborales (2026-06-05)
+- [x] Tabla dc3_records en BD con todos los campos del formato oficial
+- [x] Router dc3.ts con procedures: list, create, update, delete, importFromExcel, exportToExcel, downloadTemplate
+- [x] Página DC3Manager.tsx en panel admin: tabla de registros, importar Excel, exportar Excel, descargar plantilla
+- [x] Ruta /dc3-manager en App.tsx
+- [x] Enlace "Constancias DC-3 STPS" en sidebar DashboardLayout.tsx

@@ -1,0 +1,616 @@
+import { useState, useRef, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Download, Upload, Plus, Search, FileSpreadsheet,
+  Pencil, Trash2, Eye, AlertCircle, CheckCircle2, FileText
+} from "lucide-react";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function downloadBase64(data: string, filename: string, contentType: string) {
+  const blob = new Blob([Uint8Array.from(atob(data), (c) => c.charCodeAt(0))], { type: contentType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function statusBadge(status: string) {
+  if (status === "issued") return <Badge className="bg-green-100 text-green-800 border-green-200">Emitida</Badge>;
+  if (status === "cancelled") return <Badge className="bg-red-100 text-red-800 border-red-200">Cancelada</Badge>;
+  return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Borrador</Badge>;
+}
+
+// ─── Formulario DC-3 ──────────────────────────────────────────────────────────
+
+interface DC3FormData {
+  workerName: string;
+  workerCurp: string;
+  workerOccupationCnoKey: string;
+  workerOccupationCnoDesc: string;
+  workerPosition: string;
+  companyName: string;
+  companyRfc: string;
+  courseName: string;
+  courseDurationHours: string;
+  periodStartDate: string;
+  periodEndDate: string;
+  thematicAreaKey: string;
+  thematicAreaDesc: string;
+  trainingAgentName: string;
+  instructorName: string;
+  employerRepName: string;
+  workerRepName: string;
+  status: "draft" | "issued" | "cancelled";
+  folioNumber: string;
+  notes: string;
+}
+
+const emptyForm: DC3FormData = {
+  workerName: "", workerCurp: "", workerOccupationCnoKey: "", workerOccupationCnoDesc: "",
+  workerPosition: "", companyName: "", companyRfc: "", courseName: "",
+  courseDurationHours: "", periodStartDate: "", periodEndDate: "",
+  thematicAreaKey: "", thematicAreaDesc: "", trainingAgentName: "",
+  instructorName: "", employerRepName: "", workerRepName: "",
+  status: "draft", folioNumber: "", notes: "",
+};
+
+function DC3Form({
+  form, setForm, catalogs,
+}: {
+  form: DC3FormData;
+  setForm: (f: DC3FormData) => void;
+  catalogs: { cnoAreas: { key: string; label: string }[]; thematicAreas: { key: string; label: string }[] } | undefined;
+}) {
+  const set = (field: keyof DC3FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm({ ...form, [field]: e.target.value });
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto pr-2">
+      {/* Sección Trabajador */}
+      <div className="md:col-span-2">
+        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1">
+          Datos del Trabajador
+        </h3>
+      </div>
+      <div>
+        <Label>Nombre del Trabajador *</Label>
+        <Input placeholder="APELLIDO PATERNO APELLIDO MATERNO NOMBRE(S)" value={form.workerName} onChange={set("workerName")} />
+      </div>
+      <div>
+        <Label>CURP</Label>
+        <Input placeholder="18 caracteres" maxLength={18} value={form.workerCurp} onChange={set("workerCurp")} />
+      </div>
+      <div>
+        <Label>Clave CNO (Ocupación)</Label>
+        <Select value={form.workerOccupationCnoKey} onValueChange={(v) => {
+          const area = catalogs?.cnoAreas.find((a) => a.key === v);
+          setForm({ ...form, workerOccupationCnoKey: v, workerOccupationCnoDesc: area?.label ?? "" });
+        }}>
+          <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+          <SelectContent>
+            {catalogs?.cnoAreas.map((a) => (
+              <SelectItem key={a.key} value={a.key}>{a.key} — {a.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>Descripción Ocupación CNO</Label>
+        <Input value={form.workerOccupationCnoDesc} onChange={set("workerOccupationCnoDesc")} />
+      </div>
+      <div>
+        <Label>Puesto</Label>
+        <Input placeholder="Puesto del trabajador" value={form.workerPosition} onChange={set("workerPosition")} />
+      </div>
+
+      {/* Sección Empresa */}
+      <div className="md:col-span-2">
+        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1 mt-2">
+          Datos de la Empresa
+        </h3>
+      </div>
+      <div>
+        <Label>Nombre o Razón Social *</Label>
+        <Input placeholder="EMPRESA EJEMPLO S.A. DE C.V." value={form.companyName} onChange={set("companyName")} />
+      </div>
+      <div>
+        <Label>RFC de la Empresa</Label>
+        <Input placeholder="Con homoclave" maxLength={15} value={form.companyRfc} onChange={set("companyRfc")} />
+      </div>
+
+      {/* Sección Curso */}
+      <div className="md:col-span-2">
+        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1 mt-2">
+          Datos del Programa de Capacitación
+        </h3>
+      </div>
+      <div className="md:col-span-2">
+        <Label>Nombre del Curso *</Label>
+        <Input placeholder="Nombre completo del curso o programa" value={form.courseName} onChange={set("courseName")} />
+      </div>
+      <div>
+        <Label>Duración (horas)</Label>
+        <Input type="number" min={1} placeholder="Ej. 16" value={form.courseDurationHours} onChange={set("courseDurationHours")} />
+      </div>
+      <div>
+        <Label>Agente Capacitador / STPS</Label>
+        <Input placeholder="Nombre del agente o empresa capacitadora" value={form.trainingAgentName} onChange={set("trainingAgentName")} />
+      </div>
+      <div>
+        <Label>Fecha de Inicio</Label>
+        <Input type="date" value={form.periodStartDate} onChange={set("periodStartDate")} />
+      </div>
+      <div>
+        <Label>Fecha de Término</Label>
+        <Input type="date" value={form.periodEndDate} onChange={set("periodEndDate")} />
+      </div>
+      <div>
+        <Label>Área Temática</Label>
+        <Select value={form.thematicAreaKey} onValueChange={(v) => {
+          const area = catalogs?.thematicAreas.find((a) => a.key === v);
+          setForm({ ...form, thematicAreaKey: v, thematicAreaDesc: area?.label ?? "" });
+        }}>
+          <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+          <SelectContent>
+            {catalogs?.thematicAreas.map((a) => (
+              <SelectItem key={a.key} value={a.key}>{a.key} — {a.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>Descripción Área Temática</Label>
+        <Input value={form.thematicAreaDesc} onChange={set("thematicAreaDesc")} />
+      </div>
+
+      {/* Firmantes */}
+      <div className="md:col-span-2">
+        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1 mt-2">
+          Firmantes
+        </h3>
+      </div>
+      <div>
+        <Label>Instructor o Tutor</Label>
+        <Input placeholder="Nombre completo" value={form.instructorName} onChange={set("instructorName")} />
+      </div>
+      <div>
+        <Label>Patrón o Representante Legal</Label>
+        <Input placeholder="Nombre completo" value={form.employerRepName} onChange={set("employerRepName")} />
+      </div>
+      <div>
+        <Label>Representante de los Trabajadores</Label>
+        <Input placeholder="Solo para empresas &gt;50 trabajadores" value={form.workerRepName} onChange={set("workerRepName")} />
+      </div>
+
+      {/* Estado y folio */}
+      <div className="md:col-span-2">
+        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1 mt-2">
+          Estado y Folio
+        </h3>
+      </div>
+      <div>
+        <Label>Estado</Label>
+        <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v as DC3FormData["status"] })}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="draft">Borrador</SelectItem>
+            <SelectItem value="issued">Emitida</SelectItem>
+            <SelectItem value="cancelled">Cancelada</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>Folio (auto-generado al emitir)</Label>
+        <Input placeholder="DC3-0001/2025" value={form.folioNumber} onChange={set("folioNumber")} />
+      </div>
+      <div className="md:col-span-2">
+        <Label>Notas</Label>
+        <Textarea rows={2} value={form.notes} onChange={set("notes")} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Página principal ─────────────────────────────────────────────────────────
+
+export function DC3Manager() {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "issued" | "cancelled">("all");
+  const [page, setPage] = useState(1);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState<DC3FormData>(emptyForm);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [showImportResult, setShowImportResult] = useState(false);
+
+  const catalogsQuery = trpc.dc3.getCatalogs.useQuery();
+  const listQuery = trpc.dc3.list.useQuery(
+    { page, pageSize: 20, search: search || undefined, status: statusFilter },
+    { staleTime: 5000 }
+  );
+
+  const utils = trpc.useUtils();
+
+  const createMutation = trpc.dc3.create.useMutation({
+    onSuccess: () => {
+      toast({ title: "Registro DC-3 creado", description: "La constancia fue guardada correctamente." });
+      utils.dc3.list.invalidate();
+      setShowForm(false);
+      setForm(emptyForm);
+    },
+    onError: (e) => toast({ title: "Error al crear", description: e.message, variant: "destructive" }),
+  });
+
+  const updateMutation = trpc.dc3.update.useMutation({
+    onSuccess: () => {
+      toast({ title: "Registro actualizado" });
+      utils.dc3.list.invalidate();
+      setShowForm(false);
+      setEditId(null);
+      setForm(emptyForm);
+    },
+    onError: (e) => toast({ title: "Error al actualizar", description: e.message, variant: "destructive" }),
+  });
+
+  const deleteMutation = trpc.dc3.delete.useMutation({
+    onSuccess: () => {
+      toast({ title: "Registro eliminado" });
+      utils.dc3.list.invalidate();
+    },
+    onError: (e) => toast({ title: "Error al eliminar", description: e.message, variant: "destructive" }),
+  });
+
+  const templateMutation = trpc.dc3.downloadTemplate.useMutation({
+    onSuccess: (data) => {
+      downloadBase64(data.data, data.filename, data.contentType);
+      toast({ title: "Plantilla descargada", description: "Abra el archivo en Excel para llenar los datos." });
+    },
+    onError: (e) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const exportMutation = trpc.dc3.exportToExcel.useMutation({
+    onSuccess: (data) => {
+      downloadBase64(data.data, data.filename, data.contentType);
+      toast({ title: `${data.count} registros exportados`, description: data.filename });
+    },
+    onError: (e) => toast({ title: "Error al exportar", description: e.message, variant: "destructive" }),
+  });
+
+  const importMutation = trpc.dc3.importFromExcel.useMutation({
+    onSuccess: (data) => {
+      setImportErrors(data.errors);
+      setShowImportResult(true);
+      utils.dc3.list.invalidate();
+      toast({
+        title: `Importación completada`,
+        description: `${data.imported} registros importados${data.errors.length > 0 ? `, ${data.errors.length} errores` : ""}`,
+        variant: data.errors.length > 0 ? "destructive" : "default",
+      });
+    },
+    onError: (e) => toast({ title: "Error al importar", description: e.message, variant: "destructive" }),
+  });
+
+  const handleFileImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = (ev.target?.result as string).split(",")[1];
+      importMutation.mutate({ fileBase64: base64, fileName: file.name });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }, [importMutation]);
+
+  const handleEdit = (record: NonNullable<typeof listQuery.data>["records"][number]) => {
+    setEditId(record.id);
+    setForm({
+      workerName: record.workerName,
+      workerCurp: record.workerCurp ?? "",
+      workerOccupationCnoKey: record.workerOccupationCnoKey ?? "",
+      workerOccupationCnoDesc: record.workerOccupationCnoDesc ?? "",
+      workerPosition: record.workerPosition ?? "",
+      companyName: record.companyName,
+      companyRfc: record.companyRfc ?? "",
+      courseName: record.courseName,
+      courseDurationHours: record.courseDurationHours ? String(record.courseDurationHours) : "",
+      periodStartDate: record.periodStartDate ? String(record.periodStartDate).slice(0, 10) : "",
+      periodEndDate: record.periodEndDate ? String(record.periodEndDate).slice(0, 10) : "",
+      thematicAreaKey: record.thematicAreaKey ?? "",
+      thematicAreaDesc: record.thematicAreaDesc ?? "",
+      trainingAgentName: record.trainingAgentName ?? "",
+      instructorName: record.instructorName ?? "",
+      employerRepName: record.employerRepName ?? "",
+      workerRepName: record.workerRepName ?? "",
+      status: record.status,
+      folioNumber: record.folioNumber ?? "",
+      notes: record.notes ?? "",
+    });
+    setShowForm(true);
+  };
+
+  const handleSave = () => {
+    const payload = {
+      ...form,
+      courseDurationHours: form.courseDurationHours ? parseInt(form.courseDurationHours) : null,
+      workerCurp: form.workerCurp || null,
+      workerOccupationCnoKey: form.workerOccupationCnoKey || null,
+      workerOccupationCnoDesc: form.workerOccupationCnoDesc || null,
+      workerPosition: form.workerPosition || null,
+      companyRfc: form.companyRfc || null,
+      periodStartDate: form.periodStartDate || null,
+      periodEndDate: form.periodEndDate || null,
+      thematicAreaKey: form.thematicAreaKey || null,
+      thematicAreaDesc: form.thematicAreaDesc || null,
+      trainingAgentName: form.trainingAgentName || null,
+      instructorName: form.instructorName || null,
+      employerRepName: form.employerRepName || null,
+      workerRepName: form.workerRepName || null,
+      folioNumber: form.folioNumber || null,
+      notes: form.notes || null,
+    };
+    if (editId) {
+      updateMutation.mutate({ id: editId, data: payload });
+    } else {
+      createMutation.mutate(payload);
+    }
+  };
+
+  const records = listQuery.data?.records ?? [];
+  const total = listQuery.data?.total ?? 0;
+  const totalPages = Math.ceil(total / 20);
+
+  return (
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      {/* Encabezado */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Gestión DC-3</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Constancia de Competencias o Habilidades Laborales — Formato oficial STPS
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => templateMutation.mutate()} disabled={templateMutation.isPending}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Descargar Plantilla
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={importMutation.isPending}>
+            <Upload className="w-4 h-4 mr-2" />
+            {importMutation.isPending ? "Importando..." : "Importar Excel"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => exportMutation.mutate({ status: statusFilter })} disabled={exportMutation.isPending}>
+            <Download className="w-4 h-4 mr-2" />
+            Exportar Excel
+          </Button>
+          <Button size="sm" onClick={() => { setEditId(null); setForm(emptyForm); setShowForm(true); }}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nuevo Registro
+          </Button>
+        </div>
+      </div>
+
+      <input ref={fileInputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={handleFileImport} />
+
+      {/* Resultado de importación */}
+      {showImportResult && importErrors.length > 0 && (
+        <Card className="border-destructive/50 bg-destructive/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-4 h-4" />
+              Errores en la importación ({importErrors.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-xs space-y-1 max-h-32 overflow-y-auto">
+              {importErrors.map((e, i) => <li key={i} className="text-destructive">• {e}</li>)}
+            </ul>
+            <Button variant="ghost" size="sm" className="mt-2" onClick={() => setShowImportResult(false)}>Cerrar</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Filtros */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por trabajador, curso, empresa o folio..."
+            className="pl-9"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as typeof statusFilter); setPage(1); }}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="draft">Borrador</SelectItem>
+            <SelectItem value="issued">Emitidas</SelectItem>
+            <SelectItem value="cancelled">Canceladas</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Tabla */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Registros DC-3
+            {total > 0 && <Badge variant="secondary">{total}</Badge>}
+          </CardTitle>
+          <CardDescription>
+            Constancias de capacitación para exportar al sistema SIRCE-STPS
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {listQuery.isLoading ? (
+            <div className="p-8 text-center text-muted-foreground">Cargando registros...</div>
+          ) : records.length === 0 ? (
+            <div className="p-12 text-center">
+              <FileSpreadsheet className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-muted-foreground font-medium">No hay registros DC-3</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Descargue la plantilla Excel, llene los datos y use "Importar Excel", o agregue un registro manualmente.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Folio</TableHead>
+                    <TableHead>Trabajador</TableHead>
+                    <TableHead>Empresa</TableHead>
+                    <TableHead>Curso</TableHead>
+                    <TableHead>Hrs</TableHead>
+                    <TableHead>Período</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {records.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell className="font-mono text-xs">{r.folioNumber ?? `#${r.id}`}</TableCell>
+                      <TableCell className="font-medium max-w-[180px] truncate">{r.workerName}</TableCell>
+                      <TableCell className="max-w-[160px] truncate text-sm">{r.companyName}</TableCell>
+                      <TableCell className="max-w-[200px] truncate text-sm">{r.courseName}</TableCell>
+                      <TableCell className="text-center">{r.courseDurationHours ?? "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        {r.periodStartDate ? String(r.periodStartDate).slice(0, 10) : "—"}
+                        {r.periodEndDate ? ` → ${String(r.periodEndDate).slice(0, 10)}` : ""}
+                      </TableCell>
+                      <TableCell>{statusBadge(r.status)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(r)}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={() => { if (confirm("¿Eliminar este registro DC-3?")) deleteMutation.mutate({ id: r.id }); }}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>Página {page} de {totalPages} — {total} registros</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Anterior</Button>
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>Siguiente</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Instrucciones */}
+      <Tabs defaultValue="flujo">
+        <TabsList>
+          <TabsTrigger value="flujo">Flujo de trabajo</TabsTrigger>
+          <TabsTrigger value="campos">Campos del formato</TabsTrigger>
+          <TabsTrigger value="legal">Notas legales</TabsTrigger>
+        </TabsList>
+        <TabsContent value="flujo">
+          <Card>
+            <CardContent className="pt-4 text-sm space-y-2">
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">1.</span> Descargue la <strong>Plantilla Excel</strong> — contiene 4 hojas: datos, catálogo CNO, áreas temáticas e instrucciones.</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">2.</span> Llene los datos en la hoja <strong>"DC-3 Datos"</strong> usando los catálogos de las hojas de referencia.</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">3.</span> Use <strong>"Importar Excel"</strong> para cargar el archivo. Los errores por fila se mostrarán en pantalla.</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">4.</span> Cambie el estado a <strong>"Emitida"</strong> para generar el folio automático DC3-XXXX/AAAA.</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">5.</span> Use <strong>"Exportar Excel"</strong> para descargar todos los registros y subirlos al sistema externo (SIRCE-STPS).</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="campos">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                {[
+                  ["Nombre del Trabajador *", "Apellido paterno, apellido materno y nombre(s)"],
+                  ["CURP", "18 caracteres — Clave Única de Registro de Población"],
+                  ["Clave CNO", "Catálogo Nacional de Ocupaciones STPS — ver catálogo"],
+                  ["Puesto", "Cargo que desempeña el trabajador en la empresa"],
+                  ["Nombre o Razón Social *", "Persona física: apellidos y nombre(s)"],
+                  ["RFC", "Con homoclave — Servicio de Administración Tributaria"],
+                  ["Nombre del Curso *", "Nombre completo del programa de capacitación"],
+                  ["Duración", "Total de horas del curso (número entero)"],
+                  ["Período", "Fecha de inicio y término del curso (YYYY-MM-DD)"],
+                  ["Área Temática", "Clave del catálogo STPS de áreas temáticas"],
+                  ["Agente Capacitador", "Nombre del agente o empresa que impartió el curso"],
+                  ["Instructor", "Nombre del instructor o tutor del curso"],
+                  ["Patrón / Rep. Legal", "Nombre del patrón o representante legal de la empresa"],
+                  ["Rep. Trabajadores", "Solo para empresas con más de 50 trabajadores"],
+                ].map(([campo, desc]) => (
+                  <div key={campo} className="border rounded p-2">
+                    <p className="font-medium text-xs">{campo}</p>
+                    <p className="text-muted-foreground text-xs mt-0.5">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="legal">
+          <Card>
+            <CardContent className="pt-4 text-sm space-y-2 text-muted-foreground">
+              <p>• La constancia debe entregarse al trabajador dentro de los <strong>20 días hábiles</strong> siguientes al término del curso.</p>
+              <p>• Los datos se asientan bajo <strong>protesta de decir verdad</strong>.</p>
+              <p>• Para empresas con más de 50 trabajadores, firma el representante de los trabajadores ante la <strong>Comisión Mixta de Capacitación</strong>.</p>
+              <p>• El formato DC-3 es el documento oficial para acreditar la capacitación ante la <strong>STPS</strong> y el <strong>IMSS</strong>.</p>
+              <p>• Los registros deben conservarse por un mínimo de <strong>2 años</strong> conforme a la NOM-035-STPS-2018.</p>
+              <p className="text-xs">Fuente: Formato DC-3 oficial STPS — <a href="https://www.stps.gob.mx" target="_blank" rel="noopener noreferrer" className="text-primary underline">www.stps.gob.mx</a></p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialog: Formulario */}
+      <Dialog open={showForm} onOpenChange={(o) => { if (!o) { setShowForm(false); setEditId(null); setForm(emptyForm); } }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editId ? "Editar Registro DC-3" : "Nuevo Registro DC-3"}</DialogTitle>
+          </DialogHeader>
+          <DC3Form form={form} setForm={setForm} catalogs={catalogsQuery.data} />
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => { setShowForm(false); setEditId(null); setForm(emptyForm); }}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+              {createMutation.isPending || updateMutation.isPending ? "Guardando..." : editId ? "Actualizar" : "Guardar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+export default DC3Manager;

@@ -263,6 +263,7 @@ const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
 const CommitteeModule = lazy(() => import("./pages/CommitteeModule"));
 const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
 const StpsInspections = lazy(() => import("./pages/StpsInspections"));
+const DC3Manager = lazy(() => import("./pages/DC3Manager"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
 
@@ -1988,6 +1989,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <StpsInspections />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/dc3-manager">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <DC3Manager />
             </Suspense>
           </DashboardLayout>
         </Route>

@@ -6207,3 +6207,47 @@ export const dc1SirceHistory = mysqlTable("dc1_sirce_history", {
 
 export type DC1SirceHistory = typeof dc1SirceHistory.$inferSelect;
 export type InsertDC1SirceHistory = typeof dc1SirceHistory.$inferInsert;
+
+/**
+ * Tabla de registros DC-3 — Constancia de Competencias o Habilidades Laborales (STPS)
+ * Basada en el Formato DC-3 oficial STPS (Reforma 2025)
+ */
+export const dc3Records = mysqlTable("dc3_records", {
+  id: int("id").autoincrement().primaryKey(),
+
+  // ── Datos del Trabajador ──────────────────────────────────────────────────
+  workerName: varchar("worker_name", { length: 255 }).notNull(),
+  workerCurp: varchar("worker_curp", { length: 18 }),
+  workerOccupationCnoKey: varchar("worker_occupation_cno_key", { length: 10 }),
+  workerOccupationCnoDesc: varchar("worker_occupation_cno_desc", { length: 255 }),
+  workerPosition: varchar("worker_position", { length: 255 }),
+
+  // ── Datos de la Empresa ───────────────────────────────────────────────────
+  companyName: varchar("company_name", { length: 255 }).notNull(),
+  companyRfc: varchar("company_rfc", { length: 15 }),
+
+  // ── Datos del Programa de Capacitación ───────────────────────────────────
+  courseName: varchar("course_name", { length: 500 }).notNull(),
+  courseDurationHours: int("course_duration_hours"),
+  periodStartDate: date("period_start_date"),
+  periodEndDate: date("period_end_date"),
+  thematicAreaKey: varchar("thematic_area_key", { length: 10 }),
+  thematicAreaDesc: varchar("thematic_area_desc", { length: 255 }),
+  trainingAgentName: varchar("training_agent_name", { length: 255 }),
+
+  // ── Firmantes ─────────────────────────────────────────────────────────────
+  instructorName: varchar("instructor_name", { length: 255 }),
+  employerRepName: varchar("employer_rep_name", { length: 255 }),
+  workerRepName: varchar("worker_rep_name", { length: 255 }),
+
+  // ── Metadatos ─────────────────────────────────────────────────────────────
+  status: mysqlEnum("status", ["draft", "issued", "cancelled"]).default("draft").notNull(),
+  folioNumber: varchar("folio_number", { length: 50 }),
+  notes: text("notes"),
+  createdBy: int("created_by").notNull(),
+  updatedBy: int("updated_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type DC3Record = typeof dc3Records.$inferSelect;
+export type InsertDC3Record = typeof dc3Records.$inferInsert;

@@ -236,6 +236,7 @@ const hierarchicalMenuItems = [
       { label: "Reporte de Bitácora", path: "/audit-log-report", description: "Historial completo de cambios de estado y responsables — auditoría interna" },
       { label: "Comité NOM-035", path: "/committee-module", description: "Integrantes, convocatorias, actas digitales con firma y seguimiento de acuerdos" },
       { label: "Visitas de Verificación STPS", path: "/stps-inspections", description: "Registro de visitas de inspección STPS con checklist NOM-035 y expediente de respuesta" },
+      { label: "Constancias DC-3 STPS", path: "/dc3-manager", description: "Gestión de constancias de capacitación DC-3: importar desde Excel, exportar para SIRCE-STPS" },
       { label: "Sincronización Google Calendar", path: "/google-calendar", description: "Exporta reuniones del comité, vencimientos de contratos y fechas límite a Google Calendar" },
       { label: "Comunicación Interna", path: "/internal-comms", description: "Tablero de avisos, comunicados con acuse de recibo digital y canal de sugerencias anónimas" },
       { label: "Carpeta de Evidencias STPS", path: "/evidences-folder", description: "Carpeta de evidencias NOM-035 organizada por numerales" },
