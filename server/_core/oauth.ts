@@ -76,6 +76,28 @@ function decodeReturnPath(state: string): string {
 }
 
 /**
+ * Classify the OAuth error to provide a meaningful reason code for the
+ * /login-error page.
+ */
+function classifyOAuthError(error: any): string {
+  const status = error?.response?.status;
+  const message = (error?.response?.data?.message ?? error?.message ?? "").toLowerCase();
+
+  if (status === 401 || message.includes("invalid") || message.includes("expired")) {
+    // Authorization code expired (codes are single-use and expire in ~60s)
+    // User should simply restart the login flow
+    return "code_expired";
+  }
+  if (status === 400) {
+    return "bad_request";
+  }
+  if (status >= 500) {
+    return "server_error";
+  }
+  return "exchange_failed";
+}
+
+/**
  * Shared OAuth callback handler.
  * Handles both /api/oauth/callback and /manus-oauth/callback.
  *
@@ -148,9 +170,52 @@ async function handleOAuthCallback(req: Request, res: Response) {
     console.log("[OAuth] Login successful, redirecting to:", returnPath);
     res.redirect(302, returnPath);
   } catch (error: any) {
-    console.error("[OAuth] Callback failed:", error?.response?.status, error?.response?.data ?? error?.message ?? error);
-    res.redirect(302, "/login-error?reason=exchange_failed");
+    const reason = classifyOAuthError(error);
+    console.error("[OAuth] Callback failed:", reason, error?.response?.status, error?.response?.data ?? error?.message ?? error);
+
+    // For expired codes, redirect back to login automatically so the user
+    // can restart the flow without seeing a confusing error page.
+    if (reason === "code_expired") {
+      const returnPath = state ? decodeReturnPath(state) : "/";
+      const loginUrl = `/api/oauth/login?returnTo=${encodeURIComponent(returnPath)}`;
+      console.log("[OAuth] Code expired — auto-restarting login flow:", loginUrl);
+      res.redirect(302, loginUrl);
+      return;
+    }
+
+    res.redirect(302, `/login-error?reason=${reason}`);
   }
+}
+
+/**
+ * Initiate the OAuth login flow.
+ * Redirects to the Manus OAuth portal with the correct parameters.
+ * Accepts an optional `returnTo` query param to redirect after login.
+ * This endpoint is called server-side when an expired authorization code
+ * needs to restart the OAuth flow automatically.
+ */
+function handleOAuthLogin(req: Request, res: Response) {
+  const returnTo = getQueryParam(req, "returnTo") || "/";
+  const proto = req.protocol;
+  const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
+  const origin = `${proto}://${host}`;
+
+  // Read OAuth env vars from process.env (same values as VITE_ vars, injected at build)
+  const oauthPortalUrl = process.env.VITE_OAUTH_PORTAL_URL || process.env.OAUTH_SERVER_URL || "";
+  const appId = process.env.VITE_APP_ID || "";
+  const redirectUri = `${origin}/api/oauth/callback`;
+  const state = Buffer.from(returnTo).toString("base64");
+
+  if (!oauthPortalUrl || !appId) {
+    // Fallback: redirect to root and let the frontend handle it
+    console.warn("[OAuth] handleOAuthLogin: missing VITE_OAUTH_PORTAL_URL or VITE_APP_ID");
+    res.redirect(302, "/");
+    return;
+  }
+
+  const loginUrl = `${oauthPortalUrl}/oauth/authorize?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${encodeURIComponent(state)}`;
+  console.log("[OAuth] Restarting login flow:", loginUrl);
+  res.redirect(302, loginUrl);
 }
 
 export function registerOAuthRoutes(app: Express) {
@@ -160,4 +225,8 @@ export function registerOAuthRoutes(app: Express) {
   // Secondary callback — used by Manus production platform
   // The platform may redirect here after authentication
   app.get("/manus-oauth/callback", handleOAuthCallback);
+
+  // Login initiator — used when ProtectedRoute or server-side code needs to
+  // restart the OAuth flow (e.g., after an expired authorization code)
+  app.get("/api/oauth/login", handleOAuthLogin);
 }

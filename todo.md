@@ -954,3 +954,31 @@
 - [x] Eliminar tarjeta "Reportes STPS" del Dashboard.tsx
 - [x] Renombrar clave S3 stps-reports → compliance-reports en pdfGenerator.ts
 - [x] Servidor arranca sin ERR_MODULE_NOT_FOUND — 0 errores en runtime
+
+## Auditoría Profunda — 2026-06-05 (Reporte por Criticidad)
+
+### CRÍTICO — Bloqueante para producción
+- [x] Error de conexión rechazada en servidor de desarrollo — causa: proceso anterior colgado; solución: reinicio del servidor con webdev_restart_server
+- [x] oauth.ts sin manejo de código de autorización expirado — causa: código OAuth expira en ~60s durante cold start de Cloud Run; solución: auto-restart del flujo con /api/oauth/login + classifyOAuthError()
+- [x] App.tsx import de Nom035Matrix con .default inexistente — causa: módulo usa named export (export const Nom035Matrix); solución: m.Nom035Matrix directo sin .default
+
+### ALTO — Afecta funcionalidad
+- [x] OAuth ciclo infinito post-login — corregido en sprints anteriores: throttle anti-ciclo en useAuth.ts y main.tsx
+- [x] Cookie de sesión rechazada por PSL — corregido: domain=undefined en cookies.ts
+- [x] ProtectedRoute.tsx redirigía a /login (ruta inexistente) — corregido: getLoginUrl()
+
+### MEDIO — Degradación de experiencia
+- [x] Página de error OAuth mostraba texto plano — corregido: página /login-error con UI amigable y botón de reintentar
+- [x] Rate limiter OAuth max:5 bloqueaba usuarios legítimos — corregido: max:30 con skipSuccessfulRequests
+- [x] Archivos DC1-DC5 huérfanos aumentaban el bundle — corregido: 14 archivos eliminados
+
+### BAJO — Mejoras de calidad (pendientes)
+- [ ] Tests faltantes para módulos: stpsReports (eliminado), committeeModule, nom035EvidenceToken
+- [ ] DC-3 Excel exportable — pendiente: requiere formato del cliente (en espera)
+- [ ] Bundle size: algunos chunks > 500KB — pendiente: code splitting adicional
+
+### Estado del sistema post-auditoría
+- TypeScript: Found 0 errors
+- Runtime: 0 errores en logs del servidor
+- Cron jobs activos: Realtime Alerts (15min), Sentiment Analysis (1h), Survey Alerts (diario)
+- Servidor: http://localhost:3000 respondiendo correctamente
