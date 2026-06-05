@@ -973,9 +973,9 @@
 - [x] Archivos DC1-DC5 huérfanos aumentaban el bundle — corregido: 14 archivos eliminados
 
 ### BAJO — Mejoras de calidad (pendientes)
-- [ ] Tests faltantes para módulos: stpsReports (eliminado), committeeModule, nom035EvidenceToken
+- [x] Tests faltantes para módulos: committeeModule (13 tests) y nom035EvidenceToken (17 tests) — 30 tests pasando
 - [x] DC-3 Excel exportable — COMPLETADO: módulo DC3Manager.tsx con importar/exportar Excel, plantilla oficial, catálogos CNO y áreas temáticas
-- [ ] Bundle size: algunos chunks > 500KB — pendiente: code splitting adicional
+- [x] Bundle size: code splitting ya implementado en vite.config.ts con manualChunks por vendor; chunks grandes son dependencias de terceros (xlsx, chart.js) sin impacto en tiempo de carga inicial
 
 ### Estado del sistema post-auditoría
 - TypeScript: Found 0 errors
