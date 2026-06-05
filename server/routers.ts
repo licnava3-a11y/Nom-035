@@ -76,7 +76,6 @@ import { committeeAnnualReportsRouter } from "./routers/committeeAnnualReports";
 import { digitalCertificatesRouter } from './routers/digitalCertificates';
 import { assessmentsRouter } from './routers/assessments';
 import { trainingDashboardRouter } from "./routers/trainingDashboard";
-import { stpsReportsRouter } from "./routers/stpsReports";
 import { trainingRouter } from "./routers/training";
 import { dashboardRouter } from "./routers/dashboard";
 import { administrativeRouter } from "./routers/administrative";
@@ -162,11 +161,9 @@ import { branchesRouter } from "./routers/branches";
 import { nom035MatrixRouter } from "./routers/nom035Matrix";
 import { committeeModuleRouter } from "./routers/committeeModule";
 import { employeePortalRouter } from "./routers/employeePortal";
-import { stpsFormatsRouter } from "./routers/stpsFormats";
 import { stpsInspectionsRouter } from "./routers/stpsInspections";
 import { internalCommsRouter } from "./routers/internalComms";
 import { googleCalendarSyncRouter } from "./routers/googleCalendarSync";
-import { dc1GeneratorRouter } from "./routers/dc1Generator";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -254,7 +251,6 @@ export const appRouter = router({
   digitalCertificates: digitalCertificatesRouter,
   assessments: assessmentsRouter,
   trainingDashboard: trainingDashboardRouter,
-  stpsReports: stpsReportsRouter,
   training: trainingRouter,
   dashboard: dashboardRouter,
   administrative: administrativeRouter,
@@ -1516,10 +1512,8 @@ export const appRouter = router({
   branches: branchesRouter,
   committeeModule: committeeModuleRouter,
   employeePortal: employeePortalRouter,
-  stpsFormats: stpsFormatsRouter,
   stpsInspections: stpsInspectionsRouter,
   internalComms: internalCommsRouter,
   googleCalendarSync: googleCalendarSyncRouter,
-  dc1Generator: dc1GeneratorRouter,
 });
 export type AppRouter = typeof appRouter;

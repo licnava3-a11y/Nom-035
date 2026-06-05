@@ -28,7 +28,6 @@ const ROUTE_TITLES: Record<string, string> = {
   "/internal-mailbox": "Buzón Interno",
   "/my-mailbox": "Mis Mensajes",
   "/committee": "Comité NOM-035",
-  "/stps-reports": "Reportes STPS",
   "/legal": "Aviso de Privacidad",
   "/settings": "Configuración",
   "/admin": "Administración",

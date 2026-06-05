@@ -9,7 +9,6 @@ import {
   CheckCircle,
   BarChart3,
   Shield,
-  FileText,
   Target,
   ArrowRight
 } from 'lucide-react';
@@ -249,12 +248,6 @@ export default function DashboardGerente() {
               <Button variant="outline" className="w-full justify-start">
                 <Shield className="h-4 w-4 mr-2" />
                 Casos Psicosociales
-              </Button>
-            </Link>
-            <Link href="/stps-reports">
-              <Button variant="outline" className="w-full justify-start">
-                <FileText className="h-4 w-4 mr-2" />
-                Reportes STPS
               </Button>
             </Link>
           </div>

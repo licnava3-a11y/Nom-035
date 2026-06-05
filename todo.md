@@ -941,3 +941,16 @@
 - [x] SOLUCIÓN: Cambiar visibilidad en Panel de Administración → Settings → General → Visibility → Public → Save.
 - [x] CÓDIGO VERIFICADO: oauth.ts, sdk.ts, cookies.ts, ProtectedRoute.tsx, useAuth.ts, main.tsx — todos correctos. 0 errores TypeScript. Servidor activo.
 - [x] PROBLEMA SECUNDARIO EN LOGS: "token exchange failed: invalid or expired authorization code" — ocurre cuando el código OAuth expira durante cold start de Cloud Run. Mitigado con retry=3 y backoff exponencial en useAuth.ts.
+
+## Limpieza DC1-DC5 — 2026-06-05
+
+- [x] Eliminar 14 archivos exclusivos DC1-DC5: dc1Generator.ts, dc1Generator.test.ts, dc1Generator.demo.ts, stpsFormats.ts, stpsReports.ts, dc2Template.ts, dc3Template.ts, dc4Template.ts, DC1Generator.tsx, StpsFormats.tsx, STPSReports.tsx, DC2Form.tsx, DC3Form.tsx, DC4Form.tsx
+- [x] Eliminar imports y registros de DC1-DC5 en server/routers.ts
+- [x] Eliminar 3 entradas DC1-DC5 del sidebar en DashboardLayout.tsx
+- [x] Eliminar rutas /dc1-generator, /stps-formats, /stps-reports en App.tsx
+- [x] Eliminar lazy imports de DC1Generator, StpsFormats, STPSReports en App.tsx
+- [x] Eliminar botón "Reportes STPS" en DashboardGerente.tsx
+- [x] Eliminar entrada /stps-reports en usePageTitle.ts
+- [x] Eliminar tarjeta "Reportes STPS" del Dashboard.tsx
+- [x] Renombrar clave S3 stps-reports → compliance-reports en pdfGenerator.ts
+- [x] Servidor arranca sin ERR_MODULE_NOT_FOUND — 0 errores en runtime

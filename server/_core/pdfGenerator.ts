@@ -76,7 +76,7 @@ export async function generatePDFFromHTML(
 
     await browser.close();
 
-    const fileKey = `stps-reports/${fileName}-${Date.now()}.pdf`;
+    const fileKey = `compliance-reports/${fileName}-${Date.now()}.pdf`;
     const { url } = await storagePut(fileKey, Buffer.from(pdfBuffer), "application/pdf");
 
     return url;

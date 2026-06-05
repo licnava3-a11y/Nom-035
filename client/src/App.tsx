@@ -232,7 +232,6 @@ const NotificationsDashboard = lazy(() => import("./pages/NotificationsDashboard
 const Surveys = lazy(() => import("./pages/Surveys"));
 const Prevention = lazy(() => import("./pages/Prevention"));
 const Compliance = lazy(() => import("./pages/Compliance"));
-const STPSReports = lazy(() => import("./pages/STPSReports"));
 const Payments = lazy(() => import("./pages/Payments"));
 const PurchaseOrders = lazy(() => import("./pages/PurchaseOrders"));
 const ExpenseRequests = lazy(() => import("./pages/ExpenseRequests"));
@@ -263,11 +262,9 @@ const Nom035ComplianceDashboard = lazy(() => import("./pages/Nom035ComplianceDas
 const AuditLogReport = lazy(() => import("./pages/AuditLogReport"));
 const CommitteeModule = lazy(() => import("./pages/CommitteeModule"));
 const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
-const StpsFormats = lazy(() => import("./pages/StpsFormats"));
 const StpsInspections = lazy(() => import("./pages/StpsInspections"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
-const DC1Generator = lazy(() => import("./pages/DC1Generator"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -1710,13 +1707,6 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/stps-reports"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <STPSReports />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
         <Route path={"/administrative/payments"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -1994,13 +1984,6 @@ function Router() {
             <EmployeePortal />
           </Suspense>
         </Route>
-        <Route path="/stps-formats">
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <StpsFormats />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
         <Route path="/stps-inspections">
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -2019,13 +2002,6 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <InternalComms />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path="/dc1-generator">
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <DC1Generator />
             </Suspense>
           </DashboardLayout>
         </Route>

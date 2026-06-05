@@ -115,7 +115,6 @@ const hierarchicalMenuItems = [
       { label: "Evaluación de Competencias", path: "/competency-evaluation", description: "Evaluación de competencias y desempeño" },
       { label: "DNC Consolidada", path: "/dnc-dashboard", description: "Detección de Necesidades de Capacitación" },
       { label: "Catálogo de Competencias", path: "/competencies-manager", description: "Administración del catálogo de competencias" },
-      { label: "Generador DC-1 y SIRCE", path: "/dc1-generator", description: "Genera Constancias de Habilidades Laborales (DC-1) y registros SIRCE para STPS" },
     ],
   },
   {
@@ -236,7 +235,6 @@ const hierarchicalMenuItems = [
       { label: "Dashboard de Cumplimiento", path: "/nom035-compliance", description: "Semáforos, KPIs, gráficos de avance y alertas de acciones vencidas" },
       { label: "Reporte de Bitácora", path: "/audit-log-report", description: "Historial completo de cambios de estado y responsables — auditoría interna" },
       { label: "Comité NOM-035", path: "/committee-module", description: "Integrantes, convocatorias, actas digitales con firma y seguimiento de acuerdos" },
-      { label: "Formatos STPS / IMSS", path: "/stps-formats", description: "Genera el DC-1 (Constancia de Habilidades) en PDF y el XML SIRCE para carga al sistema STPS" },
       { label: "Visitas de Verificación STPS", path: "/stps-inspections", description: "Registro de visitas de inspección STPS con checklist NOM-035 y expediente de respuesta" },
       { label: "Sincronización Google Calendar", path: "/google-calendar", description: "Exporta reuniones del comité, vencimientos de contratos y fechas límite a Google Calendar" },
       { label: "Comunicación Interna", path: "/internal-comms", description: "Tablero de avisos, comunicados con acuse de recibo digital y canal de sugerencias anónimas" },
@@ -267,7 +265,6 @@ const hierarchicalMenuItems = [
     description: "Dashboards, reportes normativos y exportaciones",
     roles: ["admin", "instructor"],
     submenu: [
-      { label: "Reportes STPS", path: "/stps-reports", description: "Generación de formatos oficiales DC-2, DC-3 y DC-4" },
       { label: "Gráficas de Tendencias", path: "/trends", description: "Evolución temporal de casos y cumplimiento" },
       { label: "Reportes Normativos", path: "/reports/regulatory", description: "Reportes para cumplimiento NOM-035 y NMX-025" },
       { label: "Histórico de Alertas", path: "/alert-history", description: "Registro de alertas para auditoría" },

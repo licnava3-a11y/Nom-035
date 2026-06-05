@@ -1086,22 +1086,6 @@ export default function DashboardConsolidated() {
                 </Card>
               </Link>
 
-              {/* Tarjetas de Acceso Rápido a Reportes STPS */}
-              <Link href="/stps-reports">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 dark:border-blue-800">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                        <ICONS.status.success className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-blue-900 dark:text-blue-100">Reportes STPS</CardTitle>
-                        <CardDescription>Generar DC-2, DC-3 y DC-4</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
             </>
           )}
 
