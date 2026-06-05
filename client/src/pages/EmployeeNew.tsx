@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, XCircle, HelpCircle, Loader2, UserCheck } from "lucide-react";
 import { useValidation } from "@/hooks/useValidation";
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { validateRFC, validateNSS } from "../../../shared/validators";
@@ -163,43 +163,77 @@ export default function EmployeeNew() {
 
   const utils = trpc.useUtils();
 
+  // Mutación lookupCurp: valida + busca en empleados + llama API externa si hay token
+  const lookupCurpMutation = trpc.dc3.lookupCurp.useMutation({
+    onSuccess: (data) => {
+      if (!data.found) {
+        setCurpValidation({ valid: false, message: "✗ CURP inválida: " + (data.error ?? "Formato incorrecto") });
+        return;
+      }
+      const local = data.localData;
+      const api = data.apiData;
+      const emp = data.employeeData;
+
+      // Autocompletar: nombre desde API > empleado > vacío
+      const autoName = api?.workerName || emp?.workerName || "";
+      // Nombre separado: si viene de API, separar apellidos y nombre
+      let autoFirstName = "";
+      let autoLastName = "";
+      if (api?.nombres) {
+        autoFirstName = api.nombres;
+        autoLastName = [api.apellidoPaterno, api.apellidoMaterno].filter(Boolean).join(" ");
+      } else if (emp?.workerName) {
+        // workerName = "APELLIDOS NOMBRE" — intentar separar
+        const parts = emp.workerName.split(" ");
+        autoFirstName = parts.slice(-1)[0] ?? "";
+        autoLastName = parts.slice(0, -1).join(" ");
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        firstName: autoFirstName || prev.firstName,
+        lastName: autoLastName || prev.lastName,
+        sexo: local?.genero || prev.sexo,
+        birthState: local?.estado || prev.birthState,
+      }));
+
+      setCurpValidation({
+        valid: true,
+        message: "✓ CURP válida",
+        data: {
+          fechaNacimiento: local?.fechaNacimiento,
+          genero: local?.genero,
+          estado: local?.estado,
+          edad: local?.edad,
+          autocompletado: autoName ? `Nombre autocompletado: ${autoName}` : null,
+          source: data.source,
+        }
+      });
+
+      const source = data.source === "api" ? "API RENAPO" : emp ? "empleado registrado" : "validación local";
+      toast.success("CURP válida", {
+        description: [
+          autoName ? `Nombre: ${autoName}` : null,
+          local?.genero ? `Género: ${local.genero}` : null,
+          local?.fechaNacimiento ? `Nacimiento: ${local.fechaNacimiento}` : null,
+          local?.estado ? `Estado: ${local.estado}` : null,
+          `Fuente: ${source}`,
+        ].filter(Boolean).join(" · "),
+      });
+    },
+    onError: () => {
+      setCurpValidation({ valid: false, message: "Error al validar CURP" });
+    },
+  });
+
   // Validar CURP cuando el usuario termina de escribir
-  const handleCURPBlur = async () => {
+  const handleCURPBlur = useCallback(() => {
     if (!formData.curp || formData.curp.length !== 18) {
       setCurpValidation(null);
       return;
     }
-
-    try {
-      const result = await utils.employees.validateCURP.fetch({ curp: formData.curp });
-      
-      if (result.valid) {
-        setCurpValidation({
-          valid: true,
-          message: "✓ CURP válida",
-          data: result
-        });
-        
-        // Autocompletar campos
-        setFormData(prev => ({
-          ...prev,
-          hireDate: prev.hireDate || result.fechaNacimiento || "",
-          sexo: result.genero || "",
-          birthState: result.estado || ""
-        }));
-      } else {
-        setCurpValidation({
-          valid: false,
-          message: "✗ CURP inválida: " + (result.errors?.join(", ") || "Formato incorrecto")
-        });
-      }
-    } catch (error) {
-      setCurpValidation({
-        valid: false,
-        message: "Error al validar CURP"
-      });
-    }
-  };
+    lookupCurpMutation.mutate({ curp: formData.curp.trim().toUpperCase() });
+  }, [formData.curp]);
 
   return (
     <div className="container mx-auto py-8 max-w-3xl">
@@ -325,26 +359,47 @@ export default function EmployeeNew() {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <InputWithValidation
-                  id="curp"
-                  label="CURP"
-                  value={formData.curp}
-                  onValueChange={(value: any) => {
-                    handleChange("curp", value.toUpperCase());
-                    if (value.length === 18) handleCURPBlur();
-                  }}
-                  placeholder="PEGG850101HCHRRN09"
-                  validationRules={{ curp: true }}
-                  showValidationIcon={true}
-                  maxLength={18}
-                />
+                <div className="relative">
+                  <InputWithValidation
+                    id="curp"
+                    label="CURP"
+                    value={formData.curp}
+                    onValueChange={(value: any) => {
+                      handleChange("curp", value.toUpperCase());
+                    }}
+                    onBlur={handleCURPBlur}
+                    placeholder="PEGG850101HCHRRN09 — al salir del campo se valida"
+                    validationRules={{ curp: true }}
+                    showValidationIcon={true}
+                    maxLength={18}
+                  />
+                  {lookupCurpMutation.isPending && (
+                    <span className="absolute right-3 top-2.5 flex items-center gap-1 text-xs text-muted-foreground">
+                      <Loader2 className="h-3 w-3 animate-spin" /> Validando...
+                    </span>
+                  )}
+                </div>
                 {curpValidation?.valid && curpValidation.data && (
-                  <div className="text-xs text-muted-foreground space-y-1 mt-2">
+                  <div className="text-xs text-muted-foreground space-y-1 mt-2 p-2 bg-muted/40 rounded-md">
+                    {curpValidation.data.autocompletado && (
+                      <p className="flex items-center gap-1 text-green-700 dark:text-green-400 font-medium">
+                        <UserCheck className="h-3 w-3" />
+                        {curpValidation.data.autocompletado}
+                        {curpValidation.data.source === "api" && " (RENAPO)"}
+                        {curpValidation.data.source === "local" && " (empleado registrado)"}
+                      </p>
+                    )}
                     <p>• Fecha de nacimiento: {curpValidation.data.fechaNacimiento}</p>
                     <p>• Género: {curpValidation.data.genero}</p>
                     <p>• Estado: {curpValidation.data.estado}</p>
                     <p>• Edad: {curpValidation.data.edad} años</p>
                   </div>
+                )}
+                {curpValidation && !curpValidation.valid && (
+                  <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <XCircle className="h-3 w-3" />
+                    {curpValidation.message}
+                  </p>
                 )}
               </div>
 

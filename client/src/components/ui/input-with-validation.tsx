@@ -50,12 +50,14 @@ const InputWithValidation = React.forwardRef<HTMLInputElement, InputWithValidati
       }
     };
 
-    const handleBlur = () => {
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
       setTouched(true);
       if (validationRules) {
         const result = validateField(fieldName, value, validationRules);
         onValueChange?.(value, result.isValid);
       }
+      // Llamar al onBlur externo si se pasó como prop
+      (props as any).onBlur?.(e);
     };
 
     return (
