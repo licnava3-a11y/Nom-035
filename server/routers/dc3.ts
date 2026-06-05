@@ -91,23 +91,32 @@ export const THEMATIC_AREAS = [
 // ─── Zod schema ───────────────────────────────────────────────────────────────
 
 const dc3RecordSchema = z.object({
+  // BLOQUE 1: DATOS DEL TRABAJADOR
   workerName: z.string().min(1, "El nombre del trabajador es obligatorio"),
   workerCurp: z.string().max(18).optional().nullable(),
   workerOccupationCnoKey: z.string().max(10).optional().nullable(),
   workerOccupationCnoDesc: z.string().max(255).optional().nullable(),
-  workerPosition: z.string().max(255).optional().nullable(),
+  workerPosition: z.string().max(255).optional().nullable(), // Dato no obligatorio según DC-3
+
+  // BLOQUE 2: DATOS DE LA EMPRESA
   companyName: z.string().min(1, "El nombre de la empresa es obligatorio"),
   companyRfc: z.string().max(15).optional().nullable(),
+
+  // BLOQUE 3: DATOS DEL PROGRAMA DE CAPACITACIÓN, ADIESTRAMIENTO Y PRODUCTIVIDAD
   courseName: z.string().min(1, "El nombre del curso es obligatorio"),
   courseDurationHours: z.number().int().positive().optional().nullable(),
   periodStartDate: z.string().optional().nullable(),
   periodEndDate: z.string().optional().nullable(),
   thematicAreaKey: z.string().max(10).optional().nullable(),
   thematicAreaDesc: z.string().max(255).optional().nullable(),
-  trainingAgentName: z.string().max(255).optional().nullable(),
-  instructorName: z.string().max(255).optional().nullable(),
-  employerRepName: z.string().max(255).optional().nullable(),
-  workerRepName: z.string().max(255).optional().nullable(),
+  trainingAgentName: z.string().max(255).optional().nullable(), // Agente capacitador o STPS
+
+  // FIRMANTES (bajo protesta de decir verdad)
+  instructorName: z.string().max(255).optional().nullable(),      // Instructor o tutor
+  employerRepName: z.string().max(255).optional().nullable(),     // Patrón o representante legal
+  workerRepName: z.string().max(255).optional().nullable(),       // Representante de los trabajadores (>50 trabajadores)
+
+  // Control interno
   status: z.enum(["draft", "issued", "cancelled"]).default("draft"),
   folioNumber: z.string().max(50).optional().nullable(),
   notes: z.string().optional().nullable(),
@@ -120,66 +129,120 @@ function generateDC3Folio(id: number): string {
   return `DC3-${String(id).padStart(4, "0")}/${year}`;
 }
 
-// ─── Helper: generar plantilla Excel ─────────────────────────────────────────
+// ─── Helper: generar plantilla Excel oficial DC-3 ─────────────────────────────
+//
+// Estructura basada en el FORMATO DC-3 oficial STPS:
+// CONSTANCIA DE COMPETENCIAS O DE HABILIDADES LABORALES
+//
+// ANVERSO:
+//   BLOQUE 1 — DATOS DEL TRABAJADOR
+//   BLOQUE 2 — DATOS DE LA EMPRESA
+//   BLOQUE 3 — DATOS DEL PROGRAMA DE CAPACITACIÓN, ADIESTRAMIENTO Y PRODUCTIVIDAD
+//   FIRMANTES — Instructor/tutor | Patrón o rep. legal | Rep. trabajadores
+//
+// REVERSO:
+//   Catálogo CNO (Áreas y subáreas del Catálogo Nacional de Ocupaciones)
+//   Catálogo de Áreas Temáticas de los Cursos
 
 function buildDC3Template(): Buffer {
   const wb = XLSX.utils.book_new();
 
-  // Hoja 1: Datos DC-3
+  // ── Hoja 1: Plantilla de captura (estructura del ANVERSO del DC-3) ──────────
+  //
+  // Columnas en el MISMO orden que aparecen en el formato oficial STPS:
+  //
+  // COL A  — Nombre del Trabajador* (Apellido paterno, apellido materno y nombre(s))
+  // COL B  — CURP (Clave Única de Registro de Población — 18 caracteres)
+  // COL C  — Clave CNO (Ocupación específica — Catálogo Nacional de Ocupaciones)
+  // COL D  — Descripción Ocupación CNO
+  // COL E  — Puesto* (dato no obligatorio según formato oficial)
+  // COL F  — Nombre o Razón Social Empresa* (persona física: apellidos y nombre)
+  // COL G  — RFC Empresa (con homoclave SHCP — formato: XXXX-XXXXXX-XXX)
+  // COL H  — Nombre del Curso*
+  // COL I  — Duración en horas
+  // COL J  — Fecha Inicio Periodo (YYYY-MM-DD)
+  // COL K  — Fecha Fin Periodo (YYYY-MM-DD)
+  // COL L  — Clave Área Temática del Curso (ver hoja Áreas Temáticas)
+  // COL M  — Descripción Área Temática
+  // COL N  — Nombre del Agente Capacitador o STPS
+  // COL O  — Instructor o Tutor (Nombre y firma)
+  // COL P  — Patrón o Representante Legal (Nombre y firma)
+  // COL Q  — Representante de los Trabajadores (solo empresas >50 trabajadores)
+  // COL R  — Estado (draft=Borrador | issued=Emitida | cancelled=Cancelada)
+  // COL S  — Folio (auto-generado al emitir: DC3-XXXX/YYYY)
+  // COL T  — Notas internas
+
   const headers = [
-    "Nombre del Trabajador*",
-    "CURP",
-    "Clave CNO (Ocupación)",
+    // BLOQUE 1: DATOS DEL TRABAJADOR
+    "Nombre del Trabajador *\n(Apellido paterno, apellido materno y nombre(s))",
+    "CURP\n(Clave Única de Registro de Población)",
+    "Clave CNO\n(Catálogo Nacional de Ocupaciones)",
     "Descripción Ocupación CNO",
-    "Puesto",
-    "Nombre o Razón Social Empresa*",
-    "RFC Empresa",
-    "Nombre del Curso*",
-    "Duración (horas)",
-    "Fecha Inicio (YYYY-MM-DD)",
-    "Fecha Fin (YYYY-MM-DD)",
-    "Clave Área Temática",
+    "Puesto\n(Dato no obligatorio)",
+
+    // BLOQUE 2: DATOS DE LA EMPRESA
+    "Nombre o Razón Social Empresa *\n(Persona física: apellidos y nombre(s))",
+    "RFC Empresa\n(Con homoclave SHCP)",
+
+    // BLOQUE 3: DATOS DEL PROGRAMA DE CAPACITACIÓN
+    "Nombre del Curso *",
+    "Duración\n(horas)",
+    "Fecha Inicio\n(YYYY-MM-DD)",
+    "Fecha Fin\n(YYYY-MM-DD)",
+    "Clave Área Temática\n(Ver hoja Áreas Temáticas)",
     "Descripción Área Temática",
-    "Agente Capacitador / STPS",
-    "Instructor o Tutor",
-    "Patrón o Representante Legal",
-    "Representante de los Trabajadores",
-    "Estado (draft/issued/cancelled)",
-    "Folio",
-    "Notas",
+    "Nombre del Agente Capacitador o STPS",
+
+    // FIRMANTES (bajo protesta de decir verdad)
+    "Instructor o Tutor\n(Nombre)",
+    "Patrón o Representante Legal *\n(Nombre — empresas ≤50 trabajadores: patrón;\nempresa >50: rep. ante Comisión Mixta)",
+    "Representante de los Trabajadores\n(Solo para empresas con más de 50 trabajadores)",
+
+    // Control interno
+    "Estado\n(draft / issued / cancelled)",
+    "Folio\n(Auto-generado al emitir)",
+    "Notas internas",
   ];
 
   const exampleRows = [
     [
+      // BLOQUE 1
       "GARCÍA LÓPEZ JUAN CARLOS",
       "GALJ850101HDFXXX00",
       "08.2",
       "Administración",
       "Analista Administrativo",
+      // BLOQUE 2
       "EMPRESA EJEMPLO S.A. DE C.V.",
       "EEJ850101XXX",
-      "Curso de Prevención de Riesgos Psicosociales NOM-035",
+      // BLOQUE 3
+      "Prevención de Factores de Riesgo Psicosocial NOM-035-STPS-2018",
       "16",
       "2025-01-15",
       "2025-01-16",
       "6000",
       "Seguridad",
       "Consultoría NOM-035 S.C.",
+      // Firmantes
       "LIC. PEDRO MARTÍNEZ SÁNCHEZ",
       "ING. ROBERTO FLORES HERNÁNDEZ",
-      "MARÍA ELENA TORRES VEGA",
+      "",
+      // Control
       "issued",
       "DC3-0001/2025",
       "",
     ],
     [
+      // BLOQUE 1
       "RODRÍGUEZ PÉREZ ANA LAURA",
       "ROPA900215MDFXXX01",
       "09.1",
       "Servicios médicos",
       "Enfermera",
+      // BLOQUE 2
       "EMPRESA EJEMPLO S.A. DE C.V.",
       "EEJ850101XXX",
+      // BLOQUE 3
       "Primeros Auxilios y Manejo de Emergencias",
       "8",
       "2025-02-10",
@@ -187,74 +250,142 @@ function buildDC3Template(): Buffer {
       "6000",
       "Seguridad",
       "Cruz Roja Mexicana",
+      // Firmantes
       "DR. CARLOS MENDOZA RUIZ",
       "ING. ROBERTO FLORES HERNÁNDEZ",
-      "",
+      "MARÍA ELENA TORRES VEGA",
+      // Control
       "issued",
       "DC3-0002/2025",
       "",
+    ],
+    [
+      // BLOQUE 1
+      "HERNÁNDEZ MORALES LUIS ALBERTO",
+      "HEML920730HDFXXX02",
+      "04.4",
+      "Informática",
+      "Técnico en Sistemas",
+      // BLOQUE 2
+      "EMPRESA EJEMPLO S.A. DE C.V.",
+      "EEJ850101XXX",
+      // BLOQUE 3
+      "Uso de Tecnologías de la Información para la Productividad",
+      "24",
+      "2025-03-01",
+      "2025-03-03",
+      "8000",
+      "Uso de tecnologías de la información y comunicación",
+      "Instituto de Capacitación Tecnológica",
+      // Firmantes
+      "ING. SOFÍA RAMÍREZ LUNA",
+      "ING. ROBERTO FLORES HERNÁNDEZ",
+      "",
+      // Control
+      "draft",
+      "",
+      "Pendiente de firma del instructor",
     ],
   ];
 
   const wsData = XLSX.utils.aoa_to_sheet([headers, ...exampleRows]);
 
-  // Ancho de columnas
+  // Anchos de columna ajustados al contenido oficial
   wsData["!cols"] = [
-    { wch: 35 }, { wch: 20 }, { wch: 15 }, { wch: 35 }, { wch: 30 },
-    { wch: 40 }, { wch: 15 }, { wch: 50 }, { wch: 12 }, { wch: 18 },
-    { wch: 18 }, { wch: 18 }, { wch: 35 }, { wch: 35 }, { wch: 35 },
-    { wch: 35 }, { wch: 35 }, { wch: 20 }, { wch: 18 }, { wch: 30 },
+    { wch: 40 }, // A: Nombre trabajador
+    { wch: 22 }, // B: CURP
+    { wch: 12 }, // C: Clave CNO
+    { wch: 38 }, // D: Descripción CNO
+    { wch: 28 }, // E: Puesto
+    { wch: 42 }, // F: Empresa
+    { wch: 16 }, // G: RFC
+    { wch: 52 }, // H: Nombre del curso
+    { wch: 10 }, // I: Duración horas
+    { wch: 16 }, // J: Fecha inicio
+    { wch: 16 }, // K: Fecha fin
+    { wch: 14 }, // L: Clave área temática
+    { wch: 38 }, // M: Descripción área temática
+    { wch: 38 }, // N: Agente capacitador
+    { wch: 35 }, // O: Instructor
+    { wch: 40 }, // P: Patrón/rep. legal
+    { wch: 38 }, // Q: Rep. trabajadores
+    { wch: 12 }, // R: Estado
+    { wch: 16 }, // S: Folio
+    { wch: 30 }, // T: Notas
   ];
 
-  XLSX.utils.book_append_sheet(wb, wsData, "DC-3 Datos");
+  // Altura de la fila de encabezados para que quepan los textos multilínea
+  wsData["!rows"] = [{ hpt: 60 }];
 
-  // Hoja 2: Catálogo CNO
+  XLSX.utils.book_append_sheet(wb, wsData, "DC-3 Plantilla");
+
+  // ── Hoja 2: Catálogo CNO (REVERSO del DC-3) ──────────────────────────────────
   const cnoCatalog = [
-    ["CLAVE", "DESCRIPCIÓN OCUPACIÓN (CNO)"],
+    ["CLAVES Y DENOMINACIONES DE ÁREAS Y SUBÁREAS DEL CATÁLOGO NACIONAL DE OCUPACIONES"],
+    [""],
+    ["CLAVE DEL ÁREA/SUBÁREA", "DENOMINACIÓN"],
     ...CNO_AREAS.map((a) => [a.key, a.label]),
   ];
   const wsCno = XLSX.utils.aoa_to_sheet(cnoCatalog);
-  wsCno["!cols"] = [{ wch: 10 }, { wch: 55 }];
+  wsCno["!cols"] = [{ wch: 22 }, { wch: 55 }];
+  wsCno["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
   XLSX.utils.book_append_sheet(wb, wsCno, "Catálogo CNO");
 
-  // Hoja 3: Catálogo Áreas Temáticas
+  // ── Hoja 3: Catálogo Áreas Temáticas (REVERSO del DC-3) ──────────────────────
   const thematicCatalog = [
-    ["CLAVE", "ÁREA TEMÁTICA"],
+    ["CLAVES Y DENOMINACIONES DEL CATÁLOGO DE ÁREAS TEMÁTICAS DE LOS CURSOS"],
+    [""],
+    ["CLAVE DEL ÁREA", "DENOMINACIÓN"],
     ...THEMATIC_AREAS.map((a) => [a.key, a.label]),
   ];
   const wsThematic = XLSX.utils.aoa_to_sheet(thematicCatalog);
-  wsThematic["!cols"] = [{ wch: 10 }, { wch: 55 }];
+  wsThematic["!cols"] = [{ wch: 16 }, { wch: 55 }];
+  wsThematic["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
   XLSX.utils.book_append_sheet(wb, wsThematic, "Áreas Temáticas");
 
-  // Hoja 4: Instrucciones
+  // ── Hoja 4: Instrucciones oficiales ──────────────────────────────────────────
   const instructions = [
     ["INSTRUCCIONES DE LLENADO — FORMATO DC-3 STPS"],
+    ["CONSTANCIA DE COMPETENCIAS O DE HABILIDADES LABORALES"],
+    [""],
+    ["INSTRUCCIONES OFICIALES (según el reverso del formato DC-3):"],
+    ["  • Llenar a máquina o con letra de molde."],
+    ["  • Deberá entregarse al trabajador dentro de los veinte días hábiles siguientes al término del curso de capacitación aprobado."],
     [""],
     ["CAMPOS OBLIGATORIOS (marcados con *)"],
-    ["  • Nombre del Trabajador: Apellido paterno, apellido materno y nombre(s)"],
+    ["  • Nombre del Trabajador: Anotar apellido paterno, apellido materno y nombre(s)"],
     ["  • Nombre o Razón Social Empresa: En caso de persona física, anotar apellidos y nombre(s)"],
     ["  • Nombre del Curso"],
     [""],
     ["CAMPOS OPCIONALES"],
+    ["  • Puesto: Dato no obligatorio según el formato oficial DC-3"],
     ["  • CURP: 18 caracteres"],
-    ["  • RFC Empresa: Con homoclave (SHCP)"],
-    ["  • Clave CNO: Consultar hoja 'Catálogo CNO' — Catálogo Nacional de Ocupaciones (STPS)"],
-    ["  • Clave Área Temática: Consultar hoja 'Áreas Temáticas'"],
+    ["  • RFC Empresa: Con homoclave (SHCP) — formato: XXXX-XXXXXX-XXX"],
+    ["  • Clave CNO: Consultar hoja 'Catálogo CNO' — Catálogo Nacional de Ocupaciones (www.stps.gob.mx)"],
+    ["  • Clave Área Temática: Consultar hoja 'Áreas Temáticas' (www.stps.gob.mx)"],
     ["  • Duración: Número entero de horas"],
     ["  • Fechas: Formato YYYY-MM-DD (ej. 2025-01-15)"],
     ["  • Estado: draft (borrador) | issued (emitida) | cancelled (cancelada)"],
     [""],
-    ["NOTAS LEGALES"],
-    ["  • La constancia debe entregarse al trabajador dentro de los 20 días hábiles siguientes al término del curso."],
-    ["  • Los datos se asientan bajo protesta de decir verdad."],
-    ["  • Para empresas con más de 50 trabajadores firma el representante del patrón ante la Comisión Mixta."],
-    ["  • El campo 'Representante de los Trabajadores' solo aplica para empresas con más de 50 trabajadores."],
+    ["NOTAS LEGALES (según el formato oficial DC-3):"],
+    ["  1. Las áreas y subáreas ocupacionales del CNO están disponibles en el reverso del formato y en www.stps.gob.mx"],
+    ["  2. Las áreas temáticas de los cursos están disponibles en el reverso del formato y en www.stps.gob.mx"],
+    ["  3. Cursos impartidos por el área competente de la Secretaría del Trabajo y Previsión Social."],
+    ["  4. Para empresas con menos de 51 trabajadores firma el patrón o representante legal."],
+    ["     Para empresas con más de 50 trabajadores firma el representante del patrón ante la Comisión Mixta"],
+    ["     de capacitación, adiestramiento y productividad."],
+    ["  5. El campo 'Representante de los Trabajadores' solo aplica para empresas con más de 50 trabajadores."],
+    ["  *  El campo 'Puesto' es dato no obligatorio."],
+    [""],
+    ["Los datos se asientan bajo protesta de decir verdad, apercibidos de la responsabilidad en que incurre"],
+    ["todo aquel que no se conduce con verdad."],
     [""],
     ["FUENTE: Formato DC-3 oficial STPS — www.stps.gob.mx"],
+    ["Referencia: DC-3reforma-3 — Constancia de Competencias o de Habilidades Laborales"],
   ];
   const wsInst = XLSX.utils.aoa_to_sheet(instructions);
-  wsInst["!cols"] = [{ wch: 90 }];
-  XLSX.utils.book_append_sheet(wb, wsInst, "Instrucciones");
+  wsInst["!cols"] = [{ wch: 100 }];
+  XLSX.utils.book_append_sheet(wb, wsInst, "Instrucciones Oficiales");
 
   return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 }
@@ -264,37 +395,48 @@ function buildDC3Template(): Buffer {
 function buildDC3Export(records: typeof dc3Records.$inferSelect[]): Buffer {
   const wb = XLSX.utils.book_new();
 
+  // Encabezados en el mismo orden que la plantilla oficial
   const headers = [
     "ID", "Folio", "Estado",
+    // BLOQUE 1: DATOS DEL TRABAJADOR
     "Nombre del Trabajador", "CURP", "Clave CNO", "Descripción CNO", "Puesto",
-    "Empresa", "RFC Empresa",
-    "Nombre del Curso", "Duración (hrs)", "Fecha Inicio", "Fecha Fin",
-    "Clave Área Temática", "Descripción Área Temática", "Agente Capacitador",
-    "Instructor", "Patrón/Rep. Legal", "Rep. Trabajadores",
+    // BLOQUE 2: DATOS DE LA EMPRESA
+    "Nombre o Razón Social Empresa", "RFC Empresa",
+    // BLOQUE 3: DATOS DEL PROGRAMA DE CAPACITACIÓN
+    "Nombre del Curso", "Duración (horas)", "Fecha Inicio", "Fecha Fin",
+    "Clave Área Temática", "Descripción Área Temática", "Agente Capacitador o STPS",
+    // FIRMANTES
+    "Instructor o Tutor", "Patrón o Representante Legal", "Representante de los Trabajadores",
+    // Control
     "Notas", "Fecha Creación",
   ];
 
   const rows = records.map((r) => [
     r.id,
     r.folioNumber ?? "",
-    r.status,
+    r.status === "issued" ? "Emitida" : r.status === "cancelled" ? "Cancelada" : "Borrador",
+    // BLOQUE 1
     r.workerName,
     r.workerCurp ?? "",
     r.workerOccupationCnoKey ?? "",
     r.workerOccupationCnoDesc ?? "",
     r.workerPosition ?? "",
+    // BLOQUE 2
     r.companyName,
     r.companyRfc ?? "",
+    // BLOQUE 3
     r.courseName,
     r.courseDurationHours ?? "",
-    r.periodStartDate ? String(r.periodStartDate) : "",
-    r.periodEndDate ? String(r.periodEndDate) : "",
+    r.periodStartDate ? String(r.periodStartDate).slice(0, 10) : "",
+    r.periodEndDate ? String(r.periodEndDate).slice(0, 10) : "",
     r.thematicAreaKey ?? "",
     r.thematicAreaDesc ?? "",
     r.trainingAgentName ?? "",
+    // Firmantes
     r.instructorName ?? "",
     r.employerRepName ?? "",
     r.workerRepName ?? "",
+    // Control
     r.notes ?? "",
     r.createdAt ? new Date(r.createdAt).toLocaleDateString("es-MX") : "",
   ]);
@@ -302,6 +444,23 @@ function buildDC3Export(records: typeof dc3Records.$inferSelect[]): Buffer {
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
   ws["!cols"] = headers.map((h) => ({ wch: Math.max(h.length + 2, 18) }));
   XLSX.utils.book_append_sheet(wb, ws, "DC-3 Registros");
+
+  // Incluir catálogos de referencia en el export también
+  const cnoCatalog = [
+    ["CLAVE", "DESCRIPCIÓN OCUPACIÓN (CNO)"],
+    ...CNO_AREAS.map((a) => [a.key, a.label]),
+  ];
+  const wsCno = XLSX.utils.aoa_to_sheet(cnoCatalog);
+  wsCno["!cols"] = [{ wch: 12 }, { wch: 55 }];
+  XLSX.utils.book_append_sheet(wb, wsCno, "Catálogo CNO");
+
+  const thematicCatalog = [
+    ["CLAVE", "ÁREA TEMÁTICA"],
+    ...THEMATIC_AREAS.map((a) => [a.key, a.label]),
+  ];
+  const wsThematic = XLSX.utils.aoa_to_sheet(thematicCatalog);
+  wsThematic["!cols"] = [{ wch: 12 }, { wch: 55 }];
+  XLSX.utils.book_append_sheet(wb, wsThematic, "Áreas Temáticas");
 
   return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 }
@@ -369,7 +528,7 @@ export const dc3Router = router({
       const db = await getDb();
       if (!db) throw new Error("DB no disponible");
       const [record] = await db.select().from(dc3Records).where(eq(dc3Records.id, input.id));
-      if (!record) throw new Error("Registro DC-3 no encontrado");
+      if (!record) throw new Error("Registro no encontrado");
       return record;
     }),
 
@@ -431,11 +590,11 @@ export const dc3Router = router({
       return { success: true };
     }),
 
-  // Descargar plantilla Excel
+  // Descargar plantilla Excel oficial DC-3
   downloadTemplate: protectedProcedure.mutation(() => {
     const buffer = buildDC3Template();
     return {
-      filename: "plantilla_dc3_stps.xlsx",
+      filename: "plantilla_dc3_oficial_stps.xlsx",
       contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       data: buffer.toString("base64"),
     };
@@ -463,7 +622,7 @@ export const dc3Router = router({
       };
     }),
 
-  // Importar desde Excel
+  // Importar desde Excel (compatible con la plantilla oficial)
   importFromExcel: protectedProcedure
     .input(z.object({
       fileBase64: z.string(),
@@ -475,15 +634,17 @@ export const dc3Router = router({
       const buffer = Buffer.from(input.fileBase64, "base64");
       const wb = XLSX.read(buffer, { type: "buffer" });
 
+      // Leer la primera hoja (DC-3 Plantilla o DC-3 Datos)
       const sheetName = wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1 }) as unknown[][];
 
       if (rows.length < 2) {
-        throw new Error("El archivo no contiene datos. Asegúrese de usar la plantilla oficial.");
+        throw new Error("El archivo no contiene datos. Asegúrese de usar la plantilla oficial DC-3.");
       }
 
-      const dataRows = rows.slice(1).filter((row) => (row as unknown[])[0]); // Saltar encabezado, ignorar vacíos
+      // Saltar encabezado (fila 0), ignorar filas vacías
+      const dataRows = rows.slice(1).filter((row) => (row as unknown[])[0]);
 
       const results = { imported: 0, errors: [] as string[] };
 
@@ -492,12 +653,20 @@ export const dc3Router = router({
         const rowNum = i + 2;
 
         try {
+          // Columnas en el orden de la plantilla oficial:
+          // A(0)=Nombre trabajador, B(1)=CURP, C(2)=Clave CNO, D(3)=Desc CNO, E(4)=Puesto
+          // F(5)=Empresa, G(6)=RFC
+          // H(7)=Curso, I(8)=Duración, J(9)=Fecha inicio, K(10)=Fecha fin
+          // L(11)=Clave área, M(12)=Desc área, N(13)=Agente capacitador
+          // O(14)=Instructor, P(15)=Patrón/rep legal, Q(16)=Rep trabajadores
+          // R(17)=Estado, S(18)=Folio, T(19)=Notas
+
           const workerName = String(row[0] ?? "").trim();
           const companyName = String(row[5] ?? "").trim();
           const courseName = String(row[7] ?? "").trim();
 
           if (!workerName || !companyName || !courseName) {
-            results.errors.push(`Fila ${rowNum}: Nombre del trabajador, empresa y curso son obligatorios.`);
+            results.errors.push(`Fila ${rowNum}: Nombre del trabajador (col A), empresa (col F) y curso (col H) son obligatorios.`);
             continue;
           }
 
@@ -513,13 +682,16 @@ export const dc3Router = router({
           const endDateRaw = String(row[10] ?? "").trim();
 
           const [insertResult] = await (db.insert(dc3Records) as any).values({
+            // BLOQUE 1: DATOS DEL TRABAJADOR
             workerName,
             workerCurp: String(row[1] ?? "").trim() || null,
             workerOccupationCnoKey: String(row[2] ?? "").trim() || null,
             workerOccupationCnoDesc: String(row[3] ?? "").trim() || null,
             workerPosition: String(row[4] ?? "").trim() || null,
+            // BLOQUE 2: DATOS DE LA EMPRESA
             companyName,
             companyRfc: String(row[6] ?? "").trim() || null,
+            // BLOQUE 3: DATOS DEL PROGRAMA
             courseName,
             courseDurationHours: duration,
             periodStartDate: startDateRaw || null,
@@ -527,9 +699,11 @@ export const dc3Router = router({
             thematicAreaKey: String(row[11] ?? "").trim() || null,
             thematicAreaDesc: String(row[12] ?? "").trim() || null,
             trainingAgentName: String(row[13] ?? "").trim() || null,
+            // FIRMANTES
             instructorName: String(row[14] ?? "").trim() || null,
             employerRepName: String(row[15] ?? "").trim() || null,
             workerRepName: String(row[16] ?? "").trim() || null,
+            // Control
             status,
             folioNumber: String(row[18] ?? "").trim() || null,
             notes: String(row[19] ?? "").trim() || null,

@@ -38,7 +38,11 @@ export function DashboardLayoutSkeleton({ onRetry }: DashboardLayoutSkeletonProp
 
           {/* Botón principal: Login OAuth */}
           <button
-            onClick={() => { window.location.href = getLoginUrl(); }}
+            onClick={() => {
+              // Incluir el path actual como returnTo para que el login regrese a la página correcta
+              const currentPath = window.location.pathname;
+              window.location.href = getLoginUrl(currentPath);
+            }}
             className="w-full py-3 px-4 bg-primary text-primary-foreground rounded-xl text-sm font-semibold shadow hover:bg-primary/90 transition-colors"
           >
             Iniciar sesión

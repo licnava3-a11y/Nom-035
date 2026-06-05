@@ -338,7 +338,8 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const { loading, user } = useAuth();
+  // Un solo useAuth() para todo el componente — evitar llamadas duplicadas al hook
+  const { loading, user, isUnauthenticated } = useAuth();
   const { isConnected, lastAlert, requestNotificationPermission } = useWebSocket();
   const [location] = useLocation();
   const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null);
@@ -370,32 +371,42 @@ export default function DashboardLayout({
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
 
+  // CORRECCIÓN CICLO INFINITO: redirect con throttle anti-ciclo en useEffect,
+  // nunca en render. Solo redirigir si hay un 401 explícito (isUnauthenticated),
+  // no por timeout o error de red (cold start Cloud Run).
+  const dashRedirectedRef = useRef(false);
+  useEffect(() => {
+    if (loading || user) {
+      if (user) dashRedirectedRef.current = false;
+      return;
+    }
+    if (!isUnauthenticated) return; // error de red/timeout — NO redirigir
+    if (typeof window === "undefined") return;
+    const currentPath = window.location.pathname;
+    const isInAuthFlow =
+      currentPath.includes("/oauth/callback") ||
+      currentPath.includes("/manus-oauth/") ||
+      currentPath === "/login-error" ||
+      currentPath === "/login";
+    if (isInAuthFlow) return;
+    const lastRedirect = sessionStorage.getItem("_last_login_redirect");
+    const now = Date.now();
+    if (lastRedirect && now - parseInt(lastRedirect, 10) < 3000) return;
+    if (dashRedirectedRef.current) return;
+    dashRedirectedRef.current = true;
+    sessionStorage.setItem("_last_login_redirect", String(now));
+    window.location.href = getLoginUrl(currentPath);
+  }, [loading, user, isUnauthenticated]);
+
   if (loading) {
     return <DashboardLayoutSkeleton />
   }
 
   if (!user) {
+    // Mostrar spinner mientras se ejecuta el redirect en el useEffect
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            Sign in
-          </Button>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
