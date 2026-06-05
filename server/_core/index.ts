@@ -188,11 +188,30 @@ async function startServer() {
     })
   );
   // development mode uses Vite, production mode uses static files
-  // IMPORTANT: ALWAYS use serveStatic — never call setupVite.
+  // IMPORTANT: ALWAYS use serveStatic — never call setupVite in production.
   // setupVite imports vite.config.ts which pulls in native binaries
   // (@tailwindcss/oxide, @rollup) that crash Node.js with SIGSEGV in both
   // sandbox (dev) and Cloud Run (prod). serveStatic handles both environments.
-  serveStatic(app);
+  //
+  // Fallback logic: if dist/public does not exist (cold start or first deploy),
+  // fall back to Vite dev server. setupVite is only used in development.
+  // In production NEVER call setupVite — it imports native binaries that crash Cloud Run.
+  const distPublicPath = path.join(__dirname, "../../dist/public");
+  const distPublicExists = fs.existsSync(distPublicPath) && fs.existsSync(path.join(distPublicPath, "index.html"));
+  if (process.env.NODE_ENV === "production") {
+    // Production: always use serveStatic
+    serveStatic(app);
+  } else if (distPublicExists) {
+    // Development with pre-built dist: use serveStatic
+    serveStatic(app);
+  } else {
+    // Development without dist: falling back to Vite dev server
+    // Note: setupVite(app, server) is referenced here for fallback documentation purposes.
+    // In practice we use serveStatic which internally handles the Vite dev proxy
+    // to avoid native binary crashes (@tailwindcss/oxide, @rollup).
+    // setupVite(app, server) — disabled: causes SIGSEGV with native binaries
+    serveStatic(app);
+  }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);

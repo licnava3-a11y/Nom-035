@@ -139,20 +139,25 @@ import("./lib/webVitals").then(({ initWebVitals }) => initWebVitals()).catch(() 
 // Service Worker: deshabilitado completamente
 // El desregistro se hace en index.html antes de que React cargue
 
-// Ocultar la página de bienvenida estática cuando React monta
-function hideAppWelcome() {
+// Ocultar la pantalla de carga estática cuando React monta
+// Nombre canónico: hideAppLoading (sprint41)
+// Alias compatible: hideAppWelcome (antispinner, sprint30)
+function hideAppLoading() {
   // Ocultar el indicador de carga (spinner pequeño)
   const loadingIndicator = document.getElementById('aw-loading-indicator');
   if (loadingIndicator) loadingIndicator.style.display = 'none';
 
-  // Ocultar toda la página de bienvenida con fade-out
-  const welcome = document.getElementById('app-welcome');
+  // Ocultar toda la pantalla de bienvenida/carga con fade-out
+  const welcome = document.getElementById('app-welcome') ||
+                  document.getElementById('app-loading');
   if (!welcome) return;
   welcome.classList.add('hidden');
   setTimeout(() => {
     if (welcome.parentNode) welcome.remove();
   }, 350);
 }
+// Alias para compatibilidad con tests antispinner (hideAppWelcome)
+const hideAppWelcome = hideAppLoading;
 
 root.render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
@@ -167,7 +172,10 @@ root.render(
   </trpc.Provider>
 );
 
-// Ocultar bienvenida: (1) tras primer frame de React, (2) timeout de seguridad a los 500ms
-// La página de bienvenida debe desaparecer en cuanto React monta
-requestAnimationFrame(() => requestAnimationFrame(hideAppWelcome));
+// Ocultar pantalla de carga:
+// (1) requestAnimationFrame: primer intento tras el primer frame de React
+// (2) setTimeout(hideAppWelcome, 500): fallback rápido (antispinner, ≤500ms)
+// (3) setTimeout(hideAppLoading, 2000): fallback de seguridad final (sprint41)
+requestAnimationFrame(() => requestAnimationFrame(hideAppLoading));
 setTimeout(hideAppWelcome, 500);
+setTimeout(hideAppLoading, 2000);

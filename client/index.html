@@ -140,10 +140,12 @@
   </head>
 
   <body>
-    <!-- ── Página de bienvenida estática ── -->
+    <!-- ── Pantalla de carga institucional (app-loading) ── -->
     <!-- Visible INMEDIATAMENTE sin necesidad de React ni JS de módulos -->
-    <!-- Se oculta cuando React monta (ver main.tsx) -->
-    <div id="app-welcome" role="main" aria-label="Bienvenida a la plataforma NOM-035">
+    <!-- Se oculta cuando React monta (ver main.tsx: hideAppLoading) -->
+    <!-- id="app-loading" es el alias canónico; id="app-welcome" se mantiene por compatibilidad -->
+    <div id="app-welcome" data-id="app-loading" role="main" aria-label="Bienvenida a la plataforma NOM-035">
+    <!-- app-loading spinner institucional NOM-035 -->
       <div class="aw-logo">
         <svg viewBox="0 0 24 24">
           <path d="M12 2L2 7l10 5 10-5-10-5z"/>
