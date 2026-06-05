@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import { promisify } from "util";
-import { writeFile, unlink } from "fs/promises";
+import { writeFile, unlink, readFile } from "fs/promises";
 import { randomBytes } from "crypto";
 import path from "path";
 
@@ -437,7 +437,7 @@ export async function generateOperatingRulesPDF(data: OperatingRuleData): Promis
     await execAsync(`weasyprint ${htmlPath} ${pdfPath}`);
 
     // Leer PDF generado
-    const pdfBuffer = await require("fs").promises.readFile(pdfPath);
+    const pdfBuffer = await readFile(pdfPath);
 
     // Limpiar archivos temporales
     await unlink(htmlPath);

@@ -949,7 +949,7 @@ Responde ÚNICAMENTE con JSON válido con esta estructura:
         }
       }
 
-      const ExcelJS = require("exceljs");
+      const ExcelJS = (await import("exceljs")).default;
       const workbook = new ExcelJS.Workbook();
       workbook.creator = "Sistema NOM-035";
       workbook.created = new Date();

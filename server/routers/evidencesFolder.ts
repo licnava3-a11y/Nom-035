@@ -347,7 +347,7 @@ export const evidencesFolderRouter = router({
       })
     )
     .mutation(async ({ input }: { input: { companySize: 'small' | 'medium' | 'large' } }) => {
-      const PDFDocument = require('pdfkit');
+      const { default: PDFDocument } = await import('pdfkit');
       const { companySize } = input;
       
       // Obtener evidencias

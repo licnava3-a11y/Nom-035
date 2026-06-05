@@ -370,7 +370,7 @@ Genera 3-5 recomendaciones específicas y accionables para cerrar las brechas id
       const performanceScore = parseFloat(((betterCount / totalMetrics) * 100).toFixed(2));
 
       // Generar PDF con PDFKit
-      const PDFDocument = require("pdfkit");
+      const { default: PDFDocument } = await import("pdfkit");
       const doc = new PDFDocument({ margin: 50 });
       const chunks: Buffer[] = [];
       doc.on("data", (chunk: Buffer) => chunks.push(chunk));

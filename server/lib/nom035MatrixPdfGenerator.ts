@@ -119,7 +119,7 @@ export async function generateNom035MatrixPdf(
     folio?: string;
   } = {}
 ): Promise<Buffer> {
-  const PDFDocument = require("pdfkit");
+  const { default: PDFDocument } = await import("pdfkit");
 
   const folio = options.folio || `NOM035-MATRIX-${Date.now()}`;
   const now = new Date();
