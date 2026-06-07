@@ -2,6 +2,7 @@ import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
+import { ENV } from "./env";
 import { sdk } from "./sdk";
 
 function getQueryParam(req: Request, key: string): string | undefined {
@@ -24,13 +25,26 @@ function getQueryParam(req: Request, key: string): string | undefined {
  * to reconstruct the correct public-facing origin.
  */
 function buildRegisteredRedirectUri(req: Request): string {
-  // In production behind Cloud Run / Manus proxy, trust proxy headers.
-  // app.set('trust proxy', true) ensures req.protocol and req.hostname are correct.
-  const proto = req.protocol; // "https" in production (from x-forwarded-proto)
+  // PRIORITY ORDER for building the canonical redirectUri:
+  // 1. APP_PUBLIC_URL env var — set explicitly in production (most reliable)
+  // 2. x-forwarded-host + x-forwarded-proto — set by Cloud Run / Manus proxy
+  // 3. host header + req.protocol — fallback for local development
+  //
+  // CRITICAL: The OAuth server validates that the redirectUri in the token exchange
+  // EXACTLY matches the one sent in the authorization request. Using localhost:3000
+  // when the frontend registered nom035mood-32dy4ksx.manus.space causes 401 errors
+  // and an infinite login redirect loop.
+  if (ENV.appPublicUrl) {
+    // Use the explicitly configured public URL (most reliable in production)
+    const publicOrigin = ENV.appPublicUrl.replace(/\/$/, ""); // strip trailing slash
+    console.log("[OAuth] Using APP_PUBLIC_URL for redirectUri:", publicOrigin);
+    return `${publicOrigin}/api/oauth/callback`;
+  }
+  // Fallback: reconstruct from proxy headers (works in production when APP_PUBLIC_URL is not set)
+  const proto = req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
   const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
+  console.log("[OAuth] Building redirectUri from headers — proto:", proto, "host:", host);
   // ALWAYS use /api/oauth/callback — this is what the frontend sends to the OAuth portal.
-  // Even when Manus platform redirects to /manus-oauth/callback, the registered
-  // redirectUri in the authorization was /api/oauth/callback.
   return `${proto}://${host}/api/oauth/callback`;
 }
 

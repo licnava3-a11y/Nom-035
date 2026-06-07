@@ -7,4 +7,8 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  // URL pública del sitio desplegado — usado como fallback cuando x-forwarded-host
+  // no está disponible (e.g., sandbox de desarrollo con proxy deshabilitado).
+  // Garantiza que el redirectUri del token exchange siempre sea el dominio correcto.
+  appPublicUrl: process.env.APP_PUBLIC_URL ?? "",
 };
