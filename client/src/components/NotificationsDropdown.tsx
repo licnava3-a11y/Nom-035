@@ -13,20 +13,24 @@ import { trpc } from "@/lib/trpc";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export function NotificationsDropdown() {
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
+  const { isAuthenticated } = useAuth();
   
   // Integrar websockets para notificaciones en tiempo real
   const { unreadCount: wsUnreadCount } = useNotifications();
   
   const { data: notifications = [] } = trpc.notifications.getAll.useQuery({}, {
     refetchInterval: 30000, // Refetch every 30 seconds
+    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   
   const { data: unreadCount = 0 } = trpc.notifications.getUnreadCount.useQuery(undefined, {
     refetchInterval: 30000,
+    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   
   // Usar contador de websocket si está disponible, sino usar de tRPC
@@ -85,6 +89,7 @@ export function NotificationsDropdown() {
   // Mensajes no leídos del buzón interno del usuario
   const { data: myMessages = [] } = trpc.internalMailbox.myMessages.useQuery({ limit: 50 }, {
     refetchInterval: 30000,
+    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   const unreadMailboxCount = (myMessages as any[]).filter((m: any) => m.responseBody && !m.responseReadAt).length;
 

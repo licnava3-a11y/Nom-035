@@ -457,6 +457,7 @@ function DashboardLayoutContent({
     refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
     staleTime: 1 * 60 * 1000, // 1 minuto - contadores cambian frecuentemente
     gcTime: 5 * 60 * 1000, // 5 minutos en cache
+    enabled: !!user, // ANTI-CICLO: no ejecutar sin sesión activa (evita UNAUTHORIZED que dispara redirect)
   });
   
   // Obtener contador de encuestas urgentes (enviadas >5 días sin respuesta)
@@ -464,6 +465,7 @@ function DashboardLayoutContent({
     refetchInterval: 5 * 60 * 1000, // Actualizar cada 5 minutos
     staleTime: 3 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    enabled: !!user, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   const urgentSurveysCount = urgentSurveys?.count ?? 0;
 
@@ -498,11 +500,13 @@ function DashboardLayoutContent({
     refetchInterval: 2 * 60 * 1000, // Actualizar cada 2 minutos (reducido de 1 min)
     staleTime: 1 * 60 * 1000, // 1 minuto - reconocimientos cambian frecuentemente
     gcTime: 5 * 60 * 1000, // 5 minutos en cache
+    enabled: !!user, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   const { data: mailboxUnread } = trpc.internalMailbox.getUnreadCount.useQuery(undefined, {
     refetchInterval: 2 * 60 * 1000,
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
+    enabled: !!user, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";

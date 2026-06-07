@@ -48,6 +48,7 @@ export function NotificationBell() {
   // Queries (sin polling, se actualizará vía WebSocket)
   const { data: unreadData, refetch: refetchUnread } = trpc.notifications.getUnreadCount.useQuery(undefined, {
     refetchInterval: false, // Deshabilitado: usamos WebSocket
+    enabled: isAuthenticated, // ANTI-CICLO: no ejecutar sin sesión activa
   });
   
   const { data: notifications, refetch: refetchNotifications } = trpc.notifications.getAll.useQuery(
