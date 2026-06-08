@@ -13,8 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Download, Upload, Plus, Search, FileSpreadsheet,
-  Pencil, Trash2, Eye, AlertCircle, CheckCircle2, FileText,
-  Loader2, UserCheck, Info
+  Pencil, Trash2, FileText, AlertCircle, CheckCircle2,
+  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X
 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -80,13 +80,13 @@ function DC3Form({
   const set = (field: keyof DC3FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [field]: e.target.value });
 
+  // ── CURP lookup ──
   const lookupCurpMutation = trpc.dc3.lookupCurp.useMutation({
     onSuccess: (data) => {
       if (!data.found) {
         toast({ title: "CURP inválida", description: data.error ?? "Formato de CURP incorrecto", variant: "destructive" });
         return;
       }
-      // Prioridad: API externa > empleado local > datos de la CURP
       const updates: Partial<DC3FormData> = {};
       if (data.apiData?.workerName) {
         updates.workerName = data.apiData.workerName;
@@ -126,6 +126,38 @@ function DC3Form({
       lookupCurpMutation.mutate({ curp });
     }
   }, [form.workerCurp]);
+
+  // ── RFC validation ──
+  const validateRFCMutation = trpc.dc3.validateRFC.useMutation({
+    onSuccess: (data) => {
+      if (!data.valid) {
+        toast({ title: "RFC inválido", description: data.error ?? "El RFC no es válido", variant: "destructive" });
+      } else {
+        const tipo = data.type === "moral" ? "Persona Moral (12 chars)" : "Persona Física (13 chars)";
+        toast({
+          title: (
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-green-600" />
+              RFC válido
+            </span>
+          ) as any,
+          description: `${data.rfcFormatted ?? data.rfc} · ${tipo}`,
+        });
+      }
+    },
+    onError: (e) => toast({ title: "Error al validar RFC", description: e.message, variant: "destructive" }),
+  });
+
+  const handleRfcBlur = useCallback(() => {
+    const rfc = form.companyRfc.trim().toUpperCase();
+    if (rfc.length >= 12) {
+      validateRFCMutation.mutate({ rfc });
+    }
+  }, [form.companyRfc]);
+
+  // Estado de validación RFC para mostrar indicador
+  const rfcValid = validateRFCMutation.isSuccess && validateRFCMutation.data?.valid;
+  const rfcInvalid = validateRFCMutation.isSuccess && !validateRFCMutation.data?.valid;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[65vh] overflow-y-auto pr-2">
@@ -202,8 +234,40 @@ function DC3Form({
         <Input placeholder="EMPRESA EJEMPLO S.A. DE C.V." value={form.companyName} onChange={set("companyName")} />
       </div>
       <div>
-        <Label>RFC de la Empresa</Label>
-        <Input placeholder="Con homoclave" maxLength={15} value={form.companyRfc} onChange={set("companyRfc")} />
+        <Label className="flex items-center gap-1.5">
+          RFC de la Empresa
+          {validateRFCMutation.isPending && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+          {rfcValid && <ShieldCheck className="h-3 w-3 text-green-600" />}
+          {rfcInvalid && <ShieldX className="h-3 w-3 text-destructive" />}
+        </Label>
+        <div>
+          <Input
+            placeholder="Con homoclave — al salir del campo se valida"
+            maxLength={15}
+            value={form.companyRfc}
+            onChange={(e) => {
+              setForm({ ...form, companyRfc: e.target.value.toUpperCase() });
+              // Resetear estado de validación al editar
+              if (validateRFCMutation.isSuccess || validateRFCMutation.isError) {
+                validateRFCMutation.reset();
+              }
+            }}
+            onBlur={handleRfcBlur}
+            className={`uppercase ${rfcValid ? "border-green-500 focus-visible:ring-green-500" : rfcInvalid ? "border-destructive focus-visible:ring-destructive" : ""}`}
+          />
+          {rfcValid && validateRFCMutation.data?.rfcFormatted && (
+            <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              {validateRFCMutation.data.rfcFormatted} · {validateRFCMutation.data.type === "moral" ? "Persona Moral" : "Persona Física"}
+            </p>
+          )}
+          {rfcInvalid && (
+            <p className="text-xs text-destructive mt-1 flex items-center gap-1">
+              <ShieldX className="h-3 w-3" />
+              {validateRFCMutation.data?.error ?? "RFC inválido"}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Sección Curso */}
@@ -305,9 +369,19 @@ export function DC3Manager() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Filtros básicos
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "issued" | "cancelled">("all");
   const [page, setPage] = useState(1);
+
+  // Filtros avanzados
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [courseFilter, setCourseFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [thematicAreaFilter, setThematicAreaFilter] = useState("all");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<DC3FormData>(emptyForm);
@@ -315,8 +389,19 @@ export function DC3Manager() {
   const [showImportResult, setShowImportResult] = useState(false);
 
   const catalogsQuery = trpc.dc3.getCatalogs.useQuery();
+
   const listQuery = trpc.dc3.list.useQuery(
-    { page, pageSize: 20, search: search || undefined, status: statusFilter },
+    {
+      page,
+      pageSize: 20,
+      search: search || undefined,
+      status: statusFilter,
+      companyFilter: companyFilter || undefined,
+      courseFilter: courseFilter || undefined,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+      thematicAreaFilter: thematicAreaFilter !== "all" ? thematicAreaFilter : undefined,
+    },
     { staleTime: 5000 }
   );
 
@@ -379,6 +464,20 @@ export function DC3Manager() {
       });
     },
     onError: (e) => toast({ title: "Error al importar", description: e.message, variant: "destructive" }),
+  });
+
+  // ── Exportar PDF individual ──
+  const [exportingPdfId, setExportingPdfId] = useState<number | null>(null);
+  const exportPdfMutation = trpc.dc3.exportToPdf.useMutation({
+    onSuccess: (data) => {
+      downloadBase64(data.pdfBase64, `DC3-${data.folioNumber}.pdf`, "application/pdf");
+      toast({ title: "PDF generado", description: `Constancia ${data.folioNumber} descargada.` });
+      setExportingPdfId(null);
+    },
+    onError: (e) => {
+      toast({ title: "Error al generar PDF", description: e.message, variant: "destructive" });
+      setExportingPdfId(null);
+    },
   });
 
   const handleFileImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -447,6 +546,17 @@ export function DC3Manager() {
     }
   };
 
+  const resetAdvancedFilters = () => {
+    setCompanyFilter("");
+    setCourseFilter("");
+    setDateFrom("");
+    setDateTo("");
+    setThematicAreaFilter("all");
+    setPage(1);
+  };
+
+  const hasAdvancedFilters = companyFilter || courseFilter || dateFrom || dateTo || thematicAreaFilter !== "all";
+
   const records = listQuery.data?.records ?? [];
   const total = listQuery.data?.total ?? 0;
   const totalPages = Math.ceil(total / 20);
@@ -502,25 +612,106 @@ export function DC3Manager() {
       )}
 
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por trabajador, curso, empresa o folio..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
+      <div className="space-y-3">
+        {/* Fila de filtros básicos */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por trabajador, curso, empresa o folio..."
+              className="pl-9"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as typeof statusFilter); setPage(1); }}>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="draft">Borrador</SelectItem>
+              <SelectItem value="issued">Emitidas</SelectItem>
+              <SelectItem value="cancelled">Canceladas</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            variant={showAdvancedFilters ? "secondary" : "outline"}
+            size="sm"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="whitespace-nowrap"
+          >
+            <Search className="w-3.5 h-3.5 mr-1.5" />
+            Filtros avanzados
+            {hasAdvancedFilters && (
+              <Badge className="ml-1.5 h-4 px-1 text-[10px] bg-primary text-primary-foreground">
+                {[companyFilter, courseFilter, dateFrom, dateTo, thematicAreaFilter !== "all" ? thematicAreaFilter : ""].filter(Boolean).length}
+              </Badge>
+            )}
+          </Button>
         </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as typeof statusFilter); setPage(1); }}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="draft">Borrador</SelectItem>
-            <SelectItem value="issued">Emitidas</SelectItem>
-            <SelectItem value="cancelled">Canceladas</SelectItem>
-          </SelectContent>
-        </Select>
+
+        {/* Fila de filtros avanzados */}
+        {showAdvancedFilters && (
+          <Card className="border-dashed">
+            <CardContent className="pt-4 pb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Empresa</Label>
+                  <Input
+                    placeholder="Filtrar por empresa..."
+                    value={companyFilter}
+                    onChange={(e) => { setCompanyFilter(e.target.value); setPage(1); }}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Curso</Label>
+                  <Input
+                    placeholder="Filtrar por curso..."
+                    value={courseFilter}
+                    onChange={(e) => { setCourseFilter(e.target.value); setPage(1); }}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Fecha desde</Label>
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Fecha hasta</Label>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Área Temática</Label>
+                  <Select value={thematicAreaFilter} onValueChange={(v) => { setThematicAreaFilter(v); setPage(1); }}>
+                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {catalogsQuery.data?.thematicAreas.map((a) => (
+                        <SelectItem key={a.key} value={a.key}>{a.key} — {a.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {hasAdvancedFilters && (
+                <Button variant="ghost" size="sm" className="mt-2 h-7 text-xs text-muted-foreground" onClick={resetAdvancedFilters}>
+                  <X className="w-3 h-3 mr-1" />
+                  Limpiar filtros avanzados
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Tabla */}
@@ -576,9 +767,28 @@ export function DC3Manager() {
                       <TableCell>{statusBadge(r.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
+                          {/* Botón PDF */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            title="Descargar PDF"
+                            disabled={exportingPdfId === r.id}
+                            onClick={() => {
+                              setExportingPdfId(r.id);
+                              exportPdfMutation.mutate({ id: r.id });
+                            }}
+                          >
+                            {exportingPdfId === r.id
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              : <FileText className="w-3.5 h-3.5" />
+                            }
+                          </Button>
+                          {/* Botón Editar */}
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(r)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
+                          {/* Botón Eliminar */}
                           <Button
                             variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive"
                             onClick={() => { if (confirm("¿Eliminar este registro DC-3?")) deleteMutation.mutate({ id: r.id }); }}
@@ -621,7 +831,8 @@ export function DC3Manager() {
               <p className="flex items-start gap-2"><span className="font-bold text-primary">2.</span> Llene los datos en la hoja <strong>"DC-3 Datos"</strong> usando los catálogos de las hojas de referencia.</p>
               <p className="flex items-start gap-2"><span className="font-bold text-primary">3.</span> Use <strong>"Importar Excel"</strong> para cargar el archivo. Los errores por fila se mostrarán en pantalla.</p>
               <p className="flex items-start gap-2"><span className="font-bold text-primary">4.</span> Cambie el estado a <strong>"Emitida"</strong> para generar el folio automático DC3-XXXX/AAAA.</p>
-              <p className="flex items-start gap-2"><span className="font-bold text-primary">5.</span> Use <strong>"Exportar Excel"</strong> para descargar todos los registros y subirlos al sistema externo (SIRCE-STPS).</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">5.</span> Use el botón <strong>PDF</strong> (ícono azul) en cada fila para descargar la constancia individual en PDF.</p>
+              <p className="flex items-start gap-2"><span className="font-bold text-primary">6.</span> Use <strong>"Exportar Excel"</strong> para descargar todos los registros y subirlos al sistema externo (SIRCE-STPS).</p>
             </CardContent>
           </Card>
         </TabsContent>

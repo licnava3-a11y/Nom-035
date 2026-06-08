@@ -2,10 +2,12 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { dc3Records } from "../../drizzle/schema";
-import { eq, desc, and, like, or, sql } from "drizzle-orm";
+import { eq, desc, and, like, or, sql, gte, lte } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { extractCURPData } from "../lib/curp-validator";
+import { validateRFC, formatRFC } from "../lib/rfc-validator";
 import * as employeesDb from "../db-employees";
+import { TRPCError } from "@trpc/server";
 
 // ─── Catálogos oficiales STPS ──────────────────────────────────────────────────
 
@@ -521,6 +523,12 @@ export const dc3Router = router({
       pageSize: z.number().int().min(1).max(100).default(20),
       search: z.string().optional(),
       status: z.enum(["draft", "issued", "cancelled", "all"]).default("all"),
+      // Filtros avanzados
+      companyFilter: z.string().optional(),
+      courseFilter: z.string().optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+      thematicAreaFilter: z.string().optional(),
     }))
     .query(async ({ input }) => {
       const db = await getDb();
@@ -540,6 +548,22 @@ export const dc3Router = router({
       }
       if (input.status !== "all") {
         conditions.push(eq(dc3Records.status, input.status));
+      }
+      // Filtros avanzados
+      if (input.companyFilter) {
+        conditions.push(like(dc3Records.companyName, `%${input.companyFilter}%`));
+      }
+      if (input.courseFilter) {
+        conditions.push(like(dc3Records.courseName, `%${input.courseFilter}%`));
+      }
+      if (input.dateFrom) {
+        conditions.push(gte(dc3Records.periodStartDate, new Date(input.dateFrom)));
+      }
+      if (input.dateTo) {
+        conditions.push(lte(dc3Records.periodEndDate, new Date(input.dateTo)));
+      }
+      if (input.thematicAreaFilter) {
+        conditions.push(eq(dc3Records.thematicAreaKey, input.thematicAreaFilter));
       }
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -765,6 +789,113 @@ export const dc3Router = router({
       }
 
       return results;
+    }),
+
+  // ─── Validar RFC ────────────────────────────────────────────────────────────
+  validateRFC: protectedProcedure
+    .input(z.object({ rfc: z.string().min(1) }))
+    .mutation(async ({ input }) => {
+      const result = validateRFC(input.rfc.trim().toUpperCase());
+      return {
+        valid: result.valid,
+        type: result.type,
+        error: result.error,
+        rfc: result.rfc,
+        rfcFormatted: result.valid ? formatRFC(result.rfc) : null,
+        homoclave: result.homoclave,
+      };
+    }),
+
+  // ─── Exportar registro individual a PDF ──────────────────────────────────────
+  exportToPdf: protectedProcedure
+    .input(z.object({ id: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [record] = await db.select().from(dc3Records).where(eq(dc3Records.id, input.id));
+      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Registro DC-3 no encontrado" });
+
+      const PDFDocument = (await import("pdfkit")).default;
+      const doc = new PDFDocument({ size: "LETTER", margin: 40 });
+      const chunks: Buffer[] = [];
+      doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+      const finishPromise = new Promise<Buffer>((resolve) => { doc.on("end", () => resolve(Buffer.concat(chunks))); });
+
+      // Encabezado
+      doc.fontSize(14).font("Helvetica-Bold").text("DC-3", { align: "center" });
+      doc.fontSize(10).font("Helvetica").text("CONSTANCIA DE COMPETENCIAS O HABILIDADES LABORALES", { align: "center" });
+      doc.fontSize(8).text("Formato oficial STPS — Artículo 153-A de la Ley Federal del Trabajo", { align: "center" });
+      if (record.folioNumber) {
+        doc.fontSize(9).font("Helvetica-Bold").text(`Folio: ${record.folioNumber}`, { align: "right" });
+      }
+      doc.moveDown(0.5);
+      doc.moveTo(40, doc.y).lineTo(572, doc.y).stroke();
+      doc.moveDown(0.5);
+
+      const field = (label: string, value: string | null | undefined) => {
+        doc.fontSize(8).font("Helvetica-Bold").text(`${label}: `, { continued: true });
+        doc.font("Helvetica").text(value ?? "—");
+      };
+
+      // Bloque 1: Trabajador
+      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("I. DATOS DEL TRABAJADOR");
+      doc.fillColor("black");
+      field("Nombre", record.workerName);
+      field("CURP", record.workerCurp);
+      field("Clave CNO", record.workerOccupationCnoKey ? `${record.workerOccupationCnoKey} — ${record.workerOccupationCnoDesc ?? ""}` : null);
+      field("Puesto", record.workerPosition);
+      doc.moveDown(0.5);
+
+      // Bloque 2: Empresa
+      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("II. DATOS DE LA EMPRESA");
+      doc.fillColor("black");
+      field("Nombre o Razón Social", record.companyName);
+      field("RFC", record.companyRfc);
+      doc.moveDown(0.5);
+
+      // Bloque 3: Programa
+      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("III. DATOS DEL PROGRAMA DE CAPACITACIÓN");
+      doc.fillColor("black");
+      field("Nombre del Curso", record.courseName);
+      field("Duración", record.courseDurationHours ? `${record.courseDurationHours} horas` : null);
+      const startDate = record.periodStartDate ? String(record.periodStartDate).slice(0, 10) : "—";
+      const endDate = record.periodEndDate ? String(record.periodEndDate).slice(0, 10) : "—";
+      field("Período", `${startDate} al ${endDate}`);
+      field("Área Temática", record.thematicAreaKey ? `${record.thematicAreaKey} — ${record.thematicAreaDesc ?? ""}` : null);
+      field("Agente Capacitador", record.trainingAgentName);
+      doc.moveDown(0.5);
+
+      // Bloque 4: Firmantes
+      doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("IV. FIRMAS");
+      doc.fillColor("black");
+      doc.moveDown(0.5);
+      const colW = 160;
+      const lineY = doc.y + 35;
+      const cols = [
+        { x: 50, label: "Instructor o Tutor", name: record.instructorName },
+        { x: 50 + colW + 20, label: "Patrón o Rep. Legal", name: record.employerRepName },
+        { x: 50 + (colW + 20) * 2, label: "Rep. de Trabajadores", name: record.workerRepName },
+      ];
+      for (const col of cols) {
+        doc.moveTo(col.x, lineY).lineTo(col.x + colW, lineY).stroke();
+        doc.fontSize(7).font("Helvetica-Bold").text(col.label, col.x, lineY + 3, { width: colW, align: "center" });
+        doc.fontSize(7).font("Helvetica").text(col.name ?? "(No especificado)", col.x, lineY + 13, { width: colW, align: "center" });
+      }
+      doc.y = lineY + 30;
+      doc.moveDown(1);
+
+      // Nota legal
+      doc.moveTo(40, doc.y).lineTo(572, doc.y).stroke();
+      doc.moveDown(0.3);
+      doc.fontSize(7).font("Helvetica").fillColor("#555")
+        .text("Los datos asentados en esta constancia se hacen bajo protesta de decir verdad. La constancia debe entregarse al trabajador dentro de los 20 días hábiles siguientes al término del curso.", { align: "justify" });
+      doc.moveDown(0.5);
+      doc.fontSize(7).fillColor("#888")
+        .text(`Generado: ${new Date().toLocaleDateString("es-MX")} | Estado: ${record.status === "issued" ? "Emitida" : record.status === "draft" ? "Borrador" : "Cancelada"}`, { align: "right" });
+
+      doc.end();
+      const pdfBuffer = await finishPromise;
+      return { pdfBase64: pdfBuffer.toString("base64"), folioNumber: record.folioNumber ?? `DC3-${record.id}` };
     }),
 
   // ─── Lookup CURP: valida formato + busca en empleados + llama API externa si hay token ───
