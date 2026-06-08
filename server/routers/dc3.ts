@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { dc3Records, companyDigitalSignature } from "../../drizzle/schema";
 import { eq, desc, and, like, or, sql, gte, lte } from "drizzle-orm";
@@ -9,6 +9,8 @@ import { validateRFC, formatRFC } from "../lib/rfc-validator";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
+import { createHash } from "crypto";
+import QRCode from "qrcode";
 
 // ─── Catálogos oficiales STPS ──────────────────────────────────────────────────
 
@@ -822,6 +824,44 @@ export const dc3Router = router({
       doc.on("data", (chunk: Buffer) => chunks.push(chunk));
       const finishPromise = new Promise<Buffer>((resolve) => { doc.on("end", () => resolve(Buffer.concat(chunks))); });
 
+      // ── Generar / reutilizar hash de verificación SHA-256 ───────────────────────────────────────
+      let verificationHash = record.verificationHash;
+      if (!verificationHash) {
+        // Construir la cadena canónica con los campos inmutables del registro
+        const canonical = [
+          record.id,
+          record.workerName,
+          record.workerCurp ?? "",
+          record.companyName,
+          record.companyRfc ?? "",
+          record.courseName,
+          record.courseDurationHours ?? "",
+          record.periodStartDate ? String(record.periodStartDate).slice(0, 10) : "",
+          record.periodEndDate ? String(record.periodEndDate).slice(0, 10) : "",
+          record.thematicAreaKey ?? "",
+          record.folioNumber ?? "",
+          record.createdAt.toISOString(),
+        ].join("|");
+        verificationHash = createHash("sha256").update(canonical, "utf8").digest("hex");
+        // Persistir el hash para que sea inmutable a partir de ahora
+        await db.update(dc3Records)
+          .set({ verificationHash })
+          .where(eq(dc3Records.id, record.id));
+      }
+
+      // URL pública de verificación
+      const appUrl = process.env.APP_PUBLIC_URL ?? "https://nom035mood-32dy4ksx.manus.space";
+      const verifyUrl = `${appUrl}/verificar-dc3?hash=${verificationHash}`;
+
+      // Generar QR como Buffer PNG (200x200 px)
+      const qrBuffer: Buffer = await QRCode.toBuffer(verifyUrl, {
+        type: "png",
+        width: 200,
+        margin: 1,
+        errorCorrectionLevel: "M",
+        color: { dark: "#000000", light: "#ffffff" },
+      });
+
       // Encabezado
       doc.fontSize(14).font("Helvetica-Bold").text("DC-3", { align: "center" });
       doc.fontSize(10).font("Helvetica").text("CONSTANCIA DE COMPETENCIAS O HABILIDADES LABORALES", { align: "center" });
@@ -923,18 +963,51 @@ export const dc3Router = router({
       doc.y = startY + sigBoxH + labelH + 15;
       doc.moveDown(0.5);
 
-      // Nota legal
+      // Nota legal + QR de verificación
       doc.moveTo(40, doc.y).lineTo(572, doc.y).stroke();
       doc.moveDown(0.3);
+
+      // Bloque QR a la derecha, texto legal a la izquierda
+      const qrSize = 70;
+      const qrX = 572 - qrSize; // margen derecho
+      const qrY = doc.y;
+
+      // Texto legal (columna izquierda, ancho reducido para dejar espacio al QR)
       doc.fontSize(7).font("Helvetica").fillColor("#555")
-        .text("Los datos asentados en esta constancia se hacen bajo protesta de decir verdad. La constancia debe entregarse al trabajador dentro de los 20 días hábiles siguientes al término del curso.", { align: "justify" });
-      doc.moveDown(0.5);
+        .text(
+          "Los datos asentados en esta constancia se hacen bajo protesta de decir verdad. " +
+          "La constancia debe entregarse al trabajador dentro de los 20 días hábiles siguientes al término del curso.",
+          40, qrY, { width: 460, align: "justify" }
+        );
+
+      // QR incrustado
+      doc.image(qrBuffer, qrX, qrY, { width: qrSize, height: qrSize });
+
+      // Leyenda bajo el QR
+      doc.fontSize(5.5).fillColor("#444")
+        .text("Verificar autenticidad", qrX, qrY + qrSize + 1, { width: qrSize, align: "center" });
+
+      // Mover el cursor al final del bloque QR
+      const blockBottom = qrY + qrSize + 12;
+      if (doc.y < blockBottom) doc.y = blockBottom;
+
+      doc.moveDown(0.3);
       doc.fontSize(7).fillColor("#888")
-        .text(`Generado: ${new Date().toLocaleDateString("es-MX")} | Estado: ${record.status === "issued" ? "Emitida" : record.status === "draft" ? "Borrador" : "Cancelada"}`, { align: "right" });
+        .text(
+          `Generado: ${new Date().toLocaleDateString("es-MX")} | ` +
+          `Estado: ${record.status === "issued" ? "Emitida" : record.status === "draft" ? "Borrador" : "Cancelada"} | ` +
+          `Hash: ${verificationHash.slice(0, 16)}…`,
+          { align: "right" }
+        );
 
       doc.end();
       const pdfBuffer = await finishPromise;
-      return { pdfBase64: pdfBuffer.toString("base64"), folioNumber: record.folioNumber ?? `DC3-${record.id}` };
+      return {
+        pdfBase64: pdfBuffer.toString("base64"),
+        folioNumber: record.folioNumber ?? `DC3-${record.id}`,
+        verificationHash,
+        verifyUrl,
+      };
     }),
 
   // ─── Lookup CURP: valida formato + busca en empleados + llama API externa si hay token ───
@@ -1097,6 +1170,44 @@ export const dc3Router = router({
     }),
 
   // ─── Listar firmantes del catálogo companyDigitalSignature ──────────────────────────────
+
+  // ─── Verificar autenticidad de una constancia DC-3 (endpoint público) ────────────────────
+  verify: publicProcedure
+    .input(z.object({ hash: z.string().min(1).max(64) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [record] = await db.select({
+        id: dc3Records.id,
+        workerName: dc3Records.workerName,
+        workerCurp: dc3Records.workerCurp,
+        companyName: dc3Records.companyName,
+        companyRfc: dc3Records.companyRfc,
+        courseName: dc3Records.courseName,
+        courseDurationHours: dc3Records.courseDurationHours,
+        periodStartDate: dc3Records.periodStartDate,
+        periodEndDate: dc3Records.periodEndDate,
+        thematicAreaKey: dc3Records.thematicAreaKey,
+        thematicAreaDesc: dc3Records.thematicAreaDesc,
+        instructorName: dc3Records.instructorName,
+        employerRepName: dc3Records.employerRepName,
+        workerRepName: dc3Records.workerRepName,
+        status: dc3Records.status,
+        folioNumber: dc3Records.folioNumber,
+        verificationHash: dc3Records.verificationHash,
+        createdAt: dc3Records.createdAt,
+        updatedAt: dc3Records.updatedAt,
+        instructorSignatureUrl: dc3Records.instructorSignatureUrl,
+        employerSignatureUrl: dc3Records.employerSignatureUrl,
+        workerRepSignatureUrl: dc3Records.workerRepSignatureUrl,
+      }).from(dc3Records).where(eq(dc3Records.verificationHash, input.hash));
+
+      if (!record) {
+        return { found: false as const, record: null };
+      }
+      return { found: true as const, record };
+    }),
+
   listSigners: protectedProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });

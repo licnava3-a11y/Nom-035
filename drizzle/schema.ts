@@ -6248,6 +6248,9 @@ export const dc3Records = mysqlTable("dc3_records", {
   workerRepSignatureKey: varchar("worker_rep_signature_key", { length: 512 }),
   signaturesUpdatedAt: timestamp("signatures_updated_at"),
 
+  // ── Verificación de autenticidad ─────────────────────────────────────────
+  verificationHash: varchar("verification_hash", { length: 64 }).unique(), // SHA-256 hex (64 chars)
+
   // ── Metadatos ─────────────────────────────────────────────────────────────
   status: mysqlEnum("status", ["draft", "issued", "cancelled"]).default("draft").notNull(),
   folioNumber: varchar("folio_number", { length: 50 }),

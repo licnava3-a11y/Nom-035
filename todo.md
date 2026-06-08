@@ -1001,3 +1001,14 @@
 - [x] Integrar panel de firmas en DC3Form (3 secciones: Instructor, Patrón, Rep. Trabajadores)
 - [x] Actualizar exportToPdf para incrustar imágenes de firma en el PDF con pdfkit
 - [x] Tests para dc3.saveSignature y exportToPdf con firmas (15 tests)
+
+## 🔄 EN PROGRESO — QR de Verificación DC-3 (2026-06-08)
+
+- [x] Columna verificationHash (TEXT, UNIQUE) en dc3_records + migración SQL
+- [x] Instalar paquete qrcode (npm) para generar QR en el servidor
+- [x] Función generateVerificationHash(record) → SHA-256 de campos clave
+- [x] Endpoint público dc3.verify (input: hash) → devuelve datos básicos de la constancia
+- [x] Actualizar exportToPdf para generar QR PNG e incrustarlo en el PDF
+- [x] Página pública /verificar-dc3?hash=XXX → muestra resultado de verificación
+- [x] Ruta pública en App.tsx para /verificar-dc3
+- [x] Tests para generateVerificationHash y dc3.verify (18 tests)

@@ -265,6 +265,7 @@ const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
 const StpsInspections = lazy(() => import("./pages/StpsInspections"));
 const DC3Manager = lazy(() => import("./pages/DC3Manager"));
 const DC3SignatureManager = lazy(() => import("./pages/DC3SignatureManager"));
+const DC3Verify = lazy(() => import("./pages/DC3Verify"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
 
@@ -2003,6 +2004,12 @@ function Router() {
         <Route path="/dc3-signers">
           <Suspense fallback={<PageLoader />}>
             <DC3SignatureManager />
+          </Suspense>
+        </Route>
+        {/* Ruta pública de verificación de constancias DC-3 (sin autenticación) */}
+        <Route path="/verificar-dc3">
+          <Suspense fallback={<PageLoader />}>
+            <DC3Verify />
           </Suspense>
         </Route>
         <Route path="/google-calendar">
