@@ -187,13 +187,14 @@ async function handleOAuthCallback(req: Request, res: Response) {
     const reason = classifyOAuthError(error);
     console.error("[OAuth] Callback failed:", reason, error?.response?.status, error?.response?.data ?? error?.message ?? error);
 
-    // For expired codes, redirect back to login automatically so the user
-    // can restart the flow without seeing a confusing error page.
+    // For expired codes, show the error page — do NOT auto-restart the login flow.
+    // Auto-restarting causes an infinite redirect loop because:
+    //   1. The new authorization code also expires before the token exchange completes
+    //   2. The server-generated redirectUri may differ from what the portal expects
+    // The user can click "Iniciar sesión" on the error page to restart manually.
     if (reason === "code_expired") {
-      const returnPath = state ? decodeReturnPath(state) : "/";
-      const loginUrl = `/api/oauth/login?returnTo=${encodeURIComponent(returnPath)}`;
-      console.log("[OAuth] Code expired — auto-restarting login flow:", loginUrl);
-      res.redirect(302, loginUrl);
+      console.log("[OAuth] Code expired — showing error page (no auto-restart to prevent infinite loop)");
+      res.redirect(302, `/login-error?reason=code_expired`);
       return;
     }
 
@@ -205,19 +206,26 @@ async function handleOAuthCallback(req: Request, res: Response) {
  * Initiate the OAuth login flow.
  * Redirects to the Manus OAuth portal with the correct parameters.
  * Accepts an optional `returnTo` query param to redirect after login.
- * This endpoint is called server-side when an expired authorization code
- * needs to restart the OAuth flow automatically.
+ *
+ * Uses the same /app-auth endpoint and parameter names as the frontend
+ * (client/src/const.ts getLoginUrl) to ensure consistent behavior.
  */
 function handleOAuthLogin(req: Request, res: Response) {
   const returnTo = getQueryParam(req, "returnTo") || "/";
-  const proto = req.protocol;
-  const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
-  const origin = `${proto}://${host}`;
 
-  // Read OAuth env vars from process.env (same values as VITE_ vars, injected at build)
-  const oauthPortalUrl = process.env.VITE_OAUTH_PORTAL_URL || process.env.OAUTH_SERVER_URL || "";
+  // Use APP_PUBLIC_URL if available (most reliable in production)
+  // This ensures the redirectUri matches exactly what the portal expects
+  const appPublicUrl = (process.env.APP_PUBLIC_URL || "").replace(/\/$/, "");
+  const proto = req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
+  const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
+  const origin = appPublicUrl || `${proto}://${host}`;
+
+  // Read OAuth env vars from process.env
+  // IMPORTANT: Use VITE_OAUTH_PORTAL_URL and /app-auth endpoint — same as frontend getLoginUrl()
+  const oauthPortalUrl = (process.env.VITE_OAUTH_PORTAL_URL || "").replace(/\/$/, "");
   const appId = process.env.VITE_APP_ID || "";
   const redirectUri = `${origin}/api/oauth/callback`;
+  // state encodes only the post-login destination path (same format as frontend)
   const state = Buffer.from(returnTo).toString("base64");
 
   if (!oauthPortalUrl || !appId) {
@@ -227,8 +235,9 @@ function handleOAuthLogin(req: Request, res: Response) {
     return;
   }
 
-  const loginUrl = `${oauthPortalUrl}/oauth/authorize?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${encodeURIComponent(state)}`;
-  console.log("[OAuth] Restarting login flow:", loginUrl);
+  // Use /app-auth endpoint with appId/redirectUri params — matches frontend getLoginUrl()
+  const loginUrl = `${oauthPortalUrl}/app-auth?appId=${encodeURIComponent(appId)}&redirectUri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&responseType=code`;
+  console.log("[OAuth] Login flow initiated:", { origin, redirectUri, loginUrl });
   res.redirect(302, loginUrl);
 }
 
