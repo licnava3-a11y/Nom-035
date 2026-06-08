@@ -6239,6 +6239,14 @@ export const dc3Records = mysqlTable("dc3_records", {
   instructorName: varchar("instructor_name", { length: 255 }),
   employerRepName: varchar("employer_rep_name", { length: 255 }),
   workerRepName: varchar("worker_rep_name", { length: 255 }),
+  // Firmas digitales (URLs S3 de imágenes PNG de la firma autógrafa)
+  instructorSignatureUrl: varchar("instructor_signature_url", { length: 512 }),
+  instructorSignatureKey: varchar("instructor_signature_key", { length: 512 }),
+  employerSignatureUrl: varchar("employer_signature_url", { length: 512 }),
+  employerSignatureKey: varchar("employer_signature_key", { length: 512 }),
+  workerRepSignatureUrl: varchar("worker_rep_signature_url", { length: 512 }),
+  workerRepSignatureKey: varchar("worker_rep_signature_key", { length: 512 }),
+  signaturesUpdatedAt: timestamp("signatures_updated_at"),
 
   // ── Metadatos ─────────────────────────────────────────────────────────────
   status: mysqlEnum("status", ["draft", "issued", "cancelled"]).default("draft").notNull(),

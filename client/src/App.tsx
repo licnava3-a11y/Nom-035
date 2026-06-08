@@ -264,6 +264,7 @@ const CommitteeModule = lazy(() => import("./pages/CommitteeModule"));
 const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
 const StpsInspections = lazy(() => import("./pages/StpsInspections"));
 const DC3Manager = lazy(() => import("./pages/DC3Manager"));
+const DC3SignatureManager = lazy(() => import("./pages/DC3SignatureManager"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
 
@@ -1998,6 +1999,11 @@ function Router() {
               <DC3Manager />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path="/dc3-signers">
+          <Suspense fallback={<PageLoader />}>
+            <DC3SignatureManager />
+          </Suspense>
         </Route>
         <Route path="/google-calendar">
           <DashboardLayout>

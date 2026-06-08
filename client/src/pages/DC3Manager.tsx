@@ -14,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Download, Upload, Plus, Search, FileSpreadsheet,
   Pencil, Trash2, FileText, AlertCircle, CheckCircle2,
-  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X
+  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X, PenLine
 } from "lucide-react";
+import DC3SignaturePanel from "@/components/DC3SignaturePanel";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -881,11 +882,37 @@ export function DC3Manager() {
 
       {/* Dialog: Formulario */}
       <Dialog open={showForm} onOpenChange={(o) => { if (!o) { setShowForm(false); setEditId(null); setForm(emptyForm); } }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editId ? "Editar Registro DC-3" : "Nuevo Registro DC-3"}</DialogTitle>
           </DialogHeader>
           <DC3Form form={form} setForm={setForm} catalogs={catalogsQuery.data} />
+
+          {/* Panel de firmas digitales — solo visible al editar un registro existente */}
+          {editId && (
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2 border-b pb-2">
+                <PenLine className="w-4 h-4 text-primary" />
+                <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                  Firmas Digitales
+                </h3>
+              </div>
+              <DC3SignaturePanel
+                dc3Id={editId}
+                instructorName={form.instructorName || undefined}
+                employerRepName={form.employerRepName || undefined}
+                workerRepName={form.workerRepName || undefined}
+              />
+            </div>
+          )}
+
+          {!editId && (
+            <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+              <Info className="w-3.5 h-3.5" />
+              Guarde el registro primero para poder capturar las firmas digitales.
+            </p>
+          )}
+
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => { setShowForm(false); setEditId(null); setForm(emptyForm); }}>Cancelar</Button>
             <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>

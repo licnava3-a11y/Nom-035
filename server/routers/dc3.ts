@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { dc3Records } from "../../drizzle/schema";
+import { dc3Records, companyDigitalSignature } from "../../drizzle/schema";
 import { eq, desc, and, like, or, sql, gte, lte } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { extractCURPData } from "../lib/curp-validator";
 import { validateRFC, formatRFC } from "../lib/rfc-validator";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
+import { storagePut } from "../storage";
 
 // ─── Catálogos oficiales STPS ──────────────────────────────────────────────────
 
@@ -865,24 +866,62 @@ export const dc3Router = router({
       field("Agente Capacitador", record.trainingAgentName);
       doc.moveDown(0.5);
 
-      // Bloque 4: Firmantes
+      // Bloque 4: Firmantes con imágenes de firma
       doc.fontSize(9).font("Helvetica-Bold").fillColor("#1a5276").text("IV. FIRMAS");
       doc.fillColor("black");
       doc.moveDown(0.5);
+
+      // Descargar imágenes de firma desde S3 (en paralelo)
+      const fetchSignatureBuffer = async (url: string | null | undefined): Promise<Buffer | null> => {
+        if (!url) return null;
+        try {
+          const https = await import("https");
+          const http = await import("http");
+          return await new Promise<Buffer>((resolve, reject) => {
+            const client = url.startsWith("https") ? https.default : http.default;
+            client.get(url, (res) => {
+              const bufs: Buffer[] = [];
+              res.on("data", (d: Buffer) => bufs.push(d));
+              res.on("end", () => resolve(Buffer.concat(bufs)));
+              res.on("error", reject);
+            }).on("error", reject);
+          });
+        } catch {
+          return null;
+        }
+      };
+
+      const [instrBuf, emplBuf, workerBuf] = await Promise.all([
+        fetchSignatureBuffer(record.instructorSignatureUrl),
+        fetchSignatureBuffer(record.employerSignatureUrl),
+        fetchSignatureBuffer(record.workerRepSignatureUrl),
+      ]);
+
       const colW = 160;
-      const lineY = doc.y + 35;
+      const sigBoxH = 50; // altura reservada para la imagen de firma
+      const labelH = 20;
+      const startY = doc.y;
+
       const cols = [
-        { x: 50, label: "Instructor o Tutor", name: record.instructorName },
-        { x: 50 + colW + 20, label: "Patrón o Rep. Legal", name: record.employerRepName },
-        { x: 50 + (colW + 20) * 2, label: "Rep. de Trabajadores", name: record.workerRepName },
+        { x: 50, label: "Instructor o Tutor", name: record.instructorName, buf: instrBuf },
+        { x: 50 + colW + 20, label: "Patrón o Rep. Legal", name: record.employerRepName, buf: emplBuf },
+        { x: 50 + (colW + 20) * 2, label: "Rep. de Trabajadores", name: record.workerRepName, buf: workerBuf },
       ];
+
       for (const col of cols) {
+        // Imagen de firma (si existe)
+        if (col.buf) {
+          doc.image(col.buf, col.x, startY, { width: colW, height: sigBoxH, fit: [colW, sigBoxH], align: "center", valign: "bottom" });
+        }
+        // Línea de firma
+        const lineY = startY + sigBoxH;
         doc.moveTo(col.x, lineY).lineTo(col.x + colW, lineY).stroke();
         doc.fontSize(7).font("Helvetica-Bold").text(col.label, col.x, lineY + 3, { width: colW, align: "center" });
         doc.fontSize(7).font("Helvetica").text(col.name ?? "(No especificado)", col.x, lineY + 13, { width: colW, align: "center" });
       }
-      doc.y = lineY + 30;
-      doc.moveDown(1);
+
+      doc.y = startY + sigBoxH + labelH + 15;
+      doc.moveDown(0.5);
 
       // Nota legal
       doc.moveTo(40, doc.y).lineTo(572, doc.y).stroke();
@@ -979,4 +1018,101 @@ export const dc3Router = router({
         } : null,
       };
     }),
+
+  // ─── Guardar firma digital en un registro DC-3 ───────────────────────────────────────────
+  // Recibe el data-URL PNG del canvas, lo sube a S3 y actualiza el registro.
+  saveSignature: protectedProcedure
+    .input(z.object({
+      id: z.number().int(),
+      role: z.enum(["instructor", "employer", "workerRep"]),
+      signatureDataUrl: z.string().min(10, "Firma requerida"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [record] = await db.select().from(dc3Records).where(eq(dc3Records.id, input.id));
+      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Registro DC-3 no encontrado" });
+
+      // Subir imagen a S3
+      const base64Data = input.signatureDataUrl.replace(/^data:image\/\w+;base64,/, "");
+      const fileBuffer = Buffer.from(base64Data, "base64");
+      const timestamp = Date.now();
+      const sigKey = `dc3-signatures/dc3-${input.id}-${input.role}-${timestamp}.png`;
+      const { url: sigUrl } = await storagePut(sigKey, fileBuffer, "image/png");
+
+      // Actualizar la columna correspondiente
+      const updateData: Record<string, string | Date> = { signaturesUpdatedAt: new Date() };
+      if (input.role === "instructor") {
+        updateData.instructorSignatureUrl = sigUrl;
+        updateData.instructorSignatureKey = sigKey;
+      } else if (input.role === "employer") {
+        updateData.employerSignatureUrl = sigUrl;
+        updateData.employerSignatureKey = sigKey;
+      } else {
+        updateData.workerRepSignatureUrl = sigUrl;
+        updateData.workerRepSignatureKey = sigKey;
+      }
+      await db.update(dc3Records).set(updateData as any).where(eq(dc3Records.id, input.id));
+      return { success: true, url: sigUrl };
+    }),
+
+  // ─── Obtener las firmas de un registro DC-3 ───────────────────────────────────────────────
+  getSignatures: protectedProcedure
+    .input(z.object({ id: z.number().int() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const [record] = await db.select({
+        instructorSignatureUrl: dc3Records.instructorSignatureUrl,
+        employerSignatureUrl: dc3Records.employerSignatureUrl,
+        workerRepSignatureUrl: dc3Records.workerRepSignatureUrl,
+        signaturesUpdatedAt: dc3Records.signaturesUpdatedAt,
+      }).from(dc3Records).where(eq(dc3Records.id, input.id));
+      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Registro DC-3 no encontrado" });
+      return record;
+    }),
+
+  // ─── Borrar una firma de un registro DC-3 ─────────────────────────────────────────────────
+  clearSignature: protectedProcedure
+    .input(z.object({
+      id: z.number().int(),
+      role: z.enum(["instructor", "employer", "workerRep"]),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const updateData: Record<string, null | Date> = { signaturesUpdatedAt: new Date() };
+      if (input.role === "instructor") {
+        updateData.instructorSignatureUrl = null;
+        updateData.instructorSignatureKey = null;
+      } else if (input.role === "employer") {
+        updateData.employerSignatureUrl = null;
+        updateData.employerSignatureKey = null;
+      } else {
+        updateData.workerRepSignatureUrl = null;
+        updateData.workerRepSignatureKey = null;
+      }
+      await db.update(dc3Records).set(updateData as any).where(eq(dc3Records.id, input.id));
+      return { success: true };
+    }),
+
+  // ─── Listar firmantes del catálogo companyDigitalSignature ──────────────────────────────
+  listSigners: protectedProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+    return db.select({
+      id: companyDigitalSignature.id,
+      nombreFirmante: companyDigitalSignature.nombreFirmante,
+      cargo: companyDigitalSignature.cargo,
+      departamento: companyDigitalSignature.departamento,
+      firmaUrl: companyDigitalSignature.firmaUrl,
+      tipoFirmante: companyDigitalSignature.tipoFirmante,
+      estadoAutorizacion: companyDigitalSignature.estadoAutorizacion,
+      activo: companyDigitalSignature.activo,
+    }).from(companyDigitalSignature)
+      .where(and(
+        eq(companyDigitalSignature.activo, true),
+        eq(companyDigitalSignature.estadoAutorizacion, "autorizado"),
+      ));
+  }),
 });

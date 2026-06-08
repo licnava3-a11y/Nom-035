@@ -989,3 +989,15 @@
 - [x] Página DC3Manager.tsx en panel admin: tabla de registros, importar Excel, exportar Excel, descargar plantilla
 - [x] Ruta /dc3-manager en App.tsx
 - [x] Enlace "Constancias DC-3 STPS" en sidebar DashboardLayout.tsx
+
+## 🔄 EN PROGRESO — Módulo de Firma Digital DC-3 (2026-06-08)
+
+- [x] Agregar columnas de firma a dc3_records: instructorSignatureUrl, employerSignatureUrl, workerRepSignatureUrl (+ keys S3)
+- [x] Nuevo endpoint dc3.saveSignature — guarda firma base64 a S3 y actualiza dc3_records
+- [x] Nuevo endpoint dc3.getSignatures — devuelve las 3 firmas de un registro
+- [x] Nuevo endpoint dc3.clearSignature — borra una firma específica
+- [x] Nuevo endpoint dc3.listSigners — lista firmantes del catálogo companyDigitalSignature
+- [x] Página DC3SignatureManager.tsx — catálogo de firmantes autorizados con SignaturePad
+- [x] Integrar panel de firmas en DC3Form (3 secciones: Instructor, Patrón, Rep. Trabajadores)
+- [x] Actualizar exportToPdf para incrustar imágenes de firma en el PDF con pdfkit
+- [x] Tests para dc3.saveSignature y exportToPdf con firmas (15 tests)
