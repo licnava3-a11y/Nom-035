@@ -165,6 +165,8 @@ import { stpsInspectionsRouter } from "./routers/stpsInspections";
 import { internalCommsRouter } from "./routers/internalComms";
 import { googleCalendarSyncRouter } from "./routers/googleCalendarSync";
 import { dc3Router } from "./routers/dc3";
+import { dc3RemoteSignRouter } from "./routers/dc3RemoteSign";
+import { formatCatalogRouter } from "./routers/formatCatalog";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1517,5 +1519,7 @@ export const appRouter = router({
   internalComms: internalCommsRouter,
   googleCalendarSync: googleCalendarSyncRouter,
   dc3: dc3Router,
+  dc3RemoteSign: dc3RemoteSignRouter,
+  formatCatalog: formatCatalogRouter,
 });
 export type AppRouter = typeof appRouter;

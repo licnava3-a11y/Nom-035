@@ -1012,3 +1012,25 @@
 - [x] Página pública /verificar-dc3?hash=XXX → muestra resultado de verificación
 - [x] Ruta pública en App.tsx para /verificar-dc3
 - [x] Tests para generateVerificationHash y dc3.verify (18 tests)
+
+## ✅ COMPLETADO — Firma Remota, Correo al Emitir y Catálogo de Formatos (2026-06-09)
+
+### Firma remota por enlace único
+- [x] Tabla dc3_remote_sign_tokens: id, dc3RecordId, role, token (UUID), expiresAt, usedAt, signerEmail, signerName, createdBy
+- [x] Endpoint protectedProcedure dc3.createRemoteSignToken (genera token + URL)
+- [x] Endpoint publicProcedure dc3.getRemoteSignToken (valida token, devuelve datos del registro)
+- [x] Endpoint publicProcedure dc3.submitRemoteSignature (recibe firma base64, guarda en S3, marca token como usado)
+- [x] Página pública /firmar-dc3/:token — canvas de firma móvil con instrucciones
+- [x] Botón "Solicitar firma remota" en DC3SignaturePanel con modal de configuración (email, nombre, rol, expiración)
+
+### Notificación por correo al emitir DC-3
+- [x] Endpoint dc3.update actualizado: al cambiar status a issued envía correo HTML con folio, datos del trabajador y enlace de verificación QR
+- [x] Correo HTML con datos del trabajador, curso, folio y enlace de verificación QR
+
+### Catálogo de formatos con versiones
+- [x] Tabla format_catalog: id, code, name, version, versionDate, reference, isActive, createdAt, updatedAt
+- [x] Datos de demostración: 5 versiones del DC-3 (v1.0 a v2.0) insertados en BD
+- [x] Router formatCatalog: list, create, update, setActive, delete, getActive
+- [x] Página FormatCatalog (admin) con tabla CRUD y botón "Activar versión"
+- [x] Actualizar exportToPdf para leer la versión activa e incluirla en el folio del PDF
+- [x] Enlace en sidebar: Catálogo de Formatos (/format-catalog)

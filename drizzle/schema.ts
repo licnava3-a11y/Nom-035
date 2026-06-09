@@ -681,12 +681,14 @@ export type InsertEmployeeHistory = typeof employeeHistory.$inferInsert;
 // Catálogo de formatos (para administración)
 export const formatCatalog = mysqlTable('format_catalog', {
   id: int('id').primaryKey().autoincrement(),
-  code: varchar('code', { length: 50 }).notNull().unique(), // Código del formato (ej: "FC", "AC", "ACG")
+  code: varchar('code', { length: 50 }).notNull(), // Código del formato (ej: "DC-3", "DC-4") — sin UNIQUE para permitir múltiples versiones
   name: varchar('name', { length: 255 }).notNull(), // Nombre del formato
   version: varchar('version', { length: 20 }).notNull(), // Versión del formato (ej: "1.0", "2.1")
   versionDate: date('version_date').notNull(), // Fecha de la versión
   reference: text('reference'), // Referencia legal o normativa
-  isActive: boolean('is_active').notNull().default(true),
+  changeNotes: text('change_notes'), // Notas de cambios en esta versión
+  isActive: boolean('is_active').notNull().default(false), // Solo una versión activa por código
+  createdBy: int('created_by'), // Usuario que creó la entrada
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),
 });
@@ -6262,3 +6264,35 @@ export const dc3Records = mysqlTable("dc3_records", {
 });
 export type DC3Record = typeof dc3Records.$inferSelect;
 export type InsertDC3Record = typeof dc3Records.$inferInsert;
+
+// ─── Tokens de firma remota DC-3 ──────────────────────────────────────────────
+/**
+ * Tokens de un solo uso para que firmantes externos (instructor, patrón,
+ * rep. de trabajadores) firmen una constancia DC-3 desde su dispositivo móvil
+ * sin necesidad de iniciar sesión en el sistema.
+ */
+export const dc3RemoteSignTokens = mysqlTable("dc3_remote_sign_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  dc3RecordId: int("dc3_record_id").notNull(),
+  // Rol del firmante: instructor | employer | workerRep
+  role: mysqlEnum("role", ["instructor", "employer", "workerRep"]).notNull(),
+  // Token UUID v4 de un solo uso
+  token: varchar("token", { length: 36 }).notNull().unique(),
+  // Datos del firmante (opcionales, para mostrar en la página de firma)
+  signerName: varchar("signer_name", { length: 255 }),
+  signerEmail: varchar("signer_email", { length: 255 }),
+  // Expiración configurable (default: 72 horas desde la creación)
+  expiresAt: timestamp("expires_at").notNull(),
+  // Cuándo fue usado (null = aún no usado)
+  usedAt: timestamp("used_at"),
+  // Quién generó el token
+  createdBy: int("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type DC3RemoteSignToken = typeof dc3RemoteSignTokens.$inferSelect;
+export type InsertDC3RemoteSignToken = typeof dc3RemoteSignTokens.$inferInsert;
+
+// Los tipos de formatCatalog se exportan desde la definición original (línea ~682)
+export type FormatCatalogEntry = typeof formatCatalog.$inferSelect;
+export type InsertFormatCatalogEntry = typeof formatCatalog.$inferInsert;
+

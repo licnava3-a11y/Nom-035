@@ -238,6 +238,7 @@ const hierarchicalMenuItems = [
       { label: "Visitas de Verificación STPS", path: "/stps-inspections", description: "Registro de visitas de inspección STPS con checklist NOM-035 y expediente de respuesta" },
       { label: "Constancias DC-3 STPS", path: "/dc3-manager", description: "Gestión de constancias de capacitación DC-3: importar desde Excel, exportar para SIRCE-STPS" },
       { label: "Firmantes DC-3", path: "/dc3-signers", description: "Catálogo de firmantes autorizados para constancias DC-3 (instructor, patrón, rep. trabajadores)" },
+      { label: "Catálogo de Formatos", path: "/format-catalog", description: "Versiones oficiales de formatos DC-3 y otros documentos normativos. La versión activa define la nomenclatura del folio en el PDF." },
       { label: "Sincronización Google Calendar", path: "/google-calendar", description: "Exporta reuniones del comité, vencimientos de contratos y fechas límite a Google Calendar" },
       { label: "Comunicación Interna", path: "/internal-comms", description: "Tablero de avisos, comunicados con acuse de recibo digital y canal de sugerencias anónimas" },
       { label: "Carpeta de Evidencias STPS", path: "/evidences-folder", description: "Carpeta de evidencias NOM-035 organizada por numerales" },

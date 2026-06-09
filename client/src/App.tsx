@@ -266,6 +266,8 @@ const StpsInspections = lazy(() => import("./pages/StpsInspections"));
 const DC3Manager = lazy(() => import("./pages/DC3Manager"));
 const DC3SignatureManager = lazy(() => import("./pages/DC3SignatureManager"));
 const DC3Verify = lazy(() => import("./pages/DC3Verify"));
+const DC3RemoteSign = lazy(() => import("./pages/DC3RemoteSign"));
+const FormatCatalog = lazy(() => import("./pages/FormatCatalog"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
 
@@ -2010,6 +2012,18 @@ function Router() {
         <Route path="/verificar-dc3">
           <Suspense fallback={<PageLoader />}>
             <DC3Verify />
+          </Suspense>
+        </Route>
+        {/* Firma remota DC-3 — página pública sin login */}
+        <Route path="/firmar-dc3/:token">
+          <Suspense fallback={<PageLoader />}>
+            <DC3RemoteSign />
+          </Suspense>
+        </Route>
+        {/* Catálogo de formatos */}
+        <Route path="/format-catalog">
+          <Suspense fallback={<PageLoader />}>
+            <FormatCatalog />
           </Suspense>
         </Route>
         <Route path="/google-calendar">

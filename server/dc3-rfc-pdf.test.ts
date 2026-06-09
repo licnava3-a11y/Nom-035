@@ -234,8 +234,8 @@ describe("dc3.exportToPdf — endpoint tRPC", () => {
 
   it("el folio del PDF coincide con el del registro", async () => {
     const result = await caller.dc3.exportToPdf({ id: testRecordId });
-    // El folio debe ser DC3-XXXX/YYYY o el ID del registro
-    expect(result.folioNumber).toMatch(/DC3-\d{4}\/\d{4}|DC3-\d+/);
+    // El folio debe seguir el patrón CODIGO-NNNN/YYYY (ej. DC-3-0001/2026 o DC-3-30006/2026)
+    expect(result.folioNumber).toMatch(/^[A-Z0-9-]+-\d{4,}\/\d{4}$/);
   });
 
   it("lanza NOT_FOUND para un ID inexistente", async () => {

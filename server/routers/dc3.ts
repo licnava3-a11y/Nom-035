@@ -11,6 +11,8 @@ import { TRPCError } from "@trpc/server";
 import { storagePut } from "../storage";
 import { createHash } from "crypto";
 import QRCode from "qrcode";
+import { sendEmail } from "../_core/email";
+import { formatCatalog } from "../../drizzle/schema";
 
 // ─── Catálogos oficiales STPS ──────────────────────────────────────────────────
 
@@ -131,9 +133,10 @@ const dc3RecordSchema = z.object({
 
 // ─── Helper: generar folio ────────────────────────────────────────────────────
 
-function generateDC3Folio(id: number): string {
+function generateDC3Folio(id: number, formatCode?: string): string {
   const year = new Date().getFullYear();
-  return `DC3-${String(id).padStart(4, "0")}/${year}`;
+  const code = (formatCode ?? "DC-3").replace(/[^A-Z0-9-]/gi, "");
+  return `${code}-${String(id).padStart(4, "0")}/${year}`;
 }
 
 // ─── Helper: generar plantilla Excel oficial DC-3 ─────────────────────────────
@@ -636,12 +639,67 @@ export const dc3Router = router({
       if (input.data.periodEndDate !== undefined) {
         updateData.periodEndDate = input.data.periodEndDate ? new Date(input.data.periodEndDate) : null;
       }
-      // Auto-generar folio al emitir
+      // Auto-generar folio al emitir y enviar notificación por correo
       if (input.data.status === "issued") {
-        const [existing] = await db.select({ folioNumber: dc3Records.folioNumber }).from(dc3Records).where(eq(dc3Records.id, input.id));
-        if (!existing?.folioNumber) {
-          updateData.folioNumber = generateDC3Folio(input.id);
+        const [existing] = await db.select({
+          folioNumber: dc3Records.folioNumber,
+          workerName: dc3Records.workerName,
+          courseName: dc3Records.courseName,
+          companyName: dc3Records.companyName,
+          verificationHash: dc3Records.verificationHash,
+          periodStartDate: dc3Records.periodStartDate,
+          periodEndDate: dc3Records.periodEndDate,
+        }).from(dc3Records).where(eq(dc3Records.id, input.id));
+
+        // Generar folio si no existe
+        let folio = existing?.folioNumber;
+        if (!folio) {
+          // Usar versión activa del catálogo de formatos para la nomenclatura
+          const [activeFormat] = await db.select({ code: formatCatalog.code, version: formatCatalog.version })
+            .from(formatCatalog)
+            .where(and(eq(formatCatalog.code, "DC-3"), eq(formatCatalog.isActive, true)))
+            .limit(1);
+          const formatCode = activeFormat?.code ?? "DC-3";
+          folio = generateDC3Folio(input.id, formatCode);
+          updateData.folioNumber = folio;
         }
+
+        // Enviar correo de notificación (no bloqueante)
+        const appUrl = process.env.APP_PUBLIC_URL ?? "https://nom035mood-32dy4ksx.manus.space";
+        const verifyUrl = existing?.verificationHash
+          ? `${appUrl}/verificar-dc3?hash=${existing.verificationHash}`
+          : `${appUrl}/verificar-dc3`;
+        const periodStr = existing?.periodStartDate && existing?.periodEndDate
+          ? `${String(existing.periodStartDate).slice(0, 10)} al ${String(existing.periodEndDate).slice(0, 10)}`
+          : "—";
+
+        sendEmail({
+          to: ctx.user.email ?? "",
+          subject: `Constancia DC-3 emitida: ${existing?.workerName ?? ""} — ${existing?.courseName ?? ""}`,
+          sourceModule: "dc3",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a2e;">
+              <div style="background: #1a1a2e; padding: 24px; border-radius: 8px 8px 0 0;">
+                <h1 style="color: #fff; margin: 0; font-size: 20px;">Constancia DC-3 Emitida</h1>
+                <p style="color: #94a3b8; margin: 4px 0 0; font-size: 13px;">Plataforma NOM-035 STPS</p>
+              </div>
+              <div style="background: #f8fafc; padding: 24px; border-radius: 0 0 8px 8px; border: 1px solid #e2e8f0;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr><td style="padding: 6px 0; color: #64748b; font-size: 13px; width: 140px;">Folio</td><td style="font-weight: bold; font-size: 14px;">${folio}</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b; font-size: 13px;">Trabajador</td><td style="font-size: 14px;">${existing?.workerName ?? ""}</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b; font-size: 13px;">Empresa</td><td style="font-size: 14px;">${existing?.companyName ?? ""}</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b; font-size: 13px;">Curso</td><td style="font-size: 14px;">${existing?.courseName ?? ""}</td></tr>
+                  <tr><td style="padding: 6px 0; color: #64748b; font-size: 13px;">Período</td><td style="font-size: 14px;">${periodStr}</td></tr>
+                </table>
+                <div style="margin-top: 20px; padding: 16px; background: #eff6ff; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                  <p style="margin: 0; font-size: 13px; color: #1e40af;">Puede verificar la autenticidad de esta constancia en el siguiente enlace:</p>
+                  <a href="${verifyUrl}" style="display: inline-block; margin-top: 8px; color: #2563eb; font-size: 13px; word-break: break-all;">${verifyUrl}</a>
+                </div>
+                <p style="margin-top: 20px; font-size: 12px; color: #94a3b8;">Este correo fue generado automáticamente por la Plataforma NOM-035 STPS. No responda a este mensaje.</p>
+              </div>
+            </div>
+          `,
+        }).catch((err) => console.error("[DC3] Error al enviar correo de emisión:", err));
       }
       await db.update(dc3Records).set(updateData).where(eq(dc3Records.id, input.id));
       return { success: true };
