@@ -1284,4 +1284,82 @@ export const dc3Router = router({
         eq(companyDigitalSignature.estadoAutorizacion, "autorizado"),
       ));
   }),
+
+  // ─── Dashboard de estadísticas DC-3 ────────────────────────────────────────────────────────────────────────────────────
+  getDashboardStats: protectedProcedure
+    .input(z.object({
+      dateFrom: z.number().optional(),
+      dateTo: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+
+      const now = new Date();
+      const from = input.dateFrom ? new Date(input.dateFrom) : new Date(now.getFullYear(), 0, 1);
+      const to = input.dateTo ? new Date(input.dateTo) : new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+
+      const rows = await db.select({
+        id: dc3Records.id,
+        status: dc3Records.status,
+        companyName: dc3Records.companyName,
+        thematicArea: dc3Records.thematicAreaKey,
+        createdAt: dc3Records.createdAt,
+      }).from(dc3Records)
+        .where(and(
+          gte(dc3Records.createdAt, from),
+          lte(dc3Records.createdAt, to),
+        ));
+
+      const total = rows.length;
+      const issued = rows.filter((r) => r.status === "issued").length;
+      const draft = rows.filter((r) => r.status === "draft").length;
+      const cancelled = rows.filter((r) => r.status === "cancelled").length;
+      const issueRate = total > 0 ? Math.round((issued / total) * 100) : 0;
+
+      // Agrupar por mes (YYYY-MM)
+      const byMonthMap = new Map<string, { draft: number; issued: number; cancelled: number }>();
+      for (const r of rows) {
+        const d = r.createdAt ? new Date(r.createdAt) : null;
+        if (!d) continue;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        const prev = byMonthMap.get(key) ?? { draft: 0, issued: 0, cancelled: 0 };
+        const s = r.status as "draft" | "issued" | "cancelled";
+        prev[s] = (prev[s] ?? 0) + 1;
+        byMonthMap.set(key, prev);
+      }
+      const byMonth = Array.from(byMonthMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([month, counts]) => ({ month, ...counts }));
+
+      // Agrupar por empresa (top 10)
+      const byCompanyMap = new Map<string, number>();
+      for (const r of rows) {
+        const key = r.companyName ?? "Sin empresa";
+        byCompanyMap.set(key, (byCompanyMap.get(key) ?? 0) + 1);
+      }
+      const byCompany = Array.from(byCompanyMap.entries())
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([company, count]) => ({ company, count }));
+
+      // Agrupar por área temática (top 10)
+      const byAreaMap = new Map<string, number>();
+      for (const r of rows) {
+        const key = r.thematicArea ?? "Sin área";
+        byAreaMap.set(key, (byAreaMap.get(key) ?? 0) + 1);
+      }
+      const byThematicArea = Array.from(byAreaMap.entries())
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 10)
+        .map(([area, count]) => ({ area, count }));
+
+      return {
+        kpis: { total, issued, draft, cancelled, issueRate },
+        byMonth,
+        byCompany,
+        byThematicArea,
+        period: { from: from.getTime(), to: to.getTime() },
+      };
+    }),
 });

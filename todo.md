@@ -1034,3 +1034,23 @@
 - [x] Página FormatCatalog (admin) con tabla CRUD y botón "Activar versión"
 - [x] Actualizar exportToPdf para leer la versión activa e incluirla en el folio del PDF
 - [x] Enlace en sidebar: Catálogo de Formatos (/format-catalog)
+
+## ✅ COMPLETADO — Reenvío Firma Remota, Dashboard DC-3 e Importación XLSX (2026-06-09)
+
+### Reenvío de enlace de firma remota
+- [x] Endpoint dc3RemoteSign.renewToken — invalida el token anterior y genera uno nuevo para el mismo rol/registro
+- [x] Botón "Reenviar enlace" en DC3SignaturePanel (visible cuando el token existe pero está expirado o usado)
+- [x] Modal de confirmación con campo de correo editable antes de reenviar
+
+### Dashboard de constancias DC-3 por período
+- [x] Endpoint dc3.getDashboardStats — totales por estado (draft/issued/cancelled), por mes, por empresa y por área temática
+- [x] Página DC3Dashboard.tsx con 4 gráficas Chart.js: barras por mes, dona por estado, barras por empresa, barras por área temática
+- [x] Filtros de período (mes actual / trimestre / año / rango personalizado)
+- [x] Tarjetas de KPI: total emitidas, pendientes, canceladas, tasa de emisión
+- [x] Enlace en sidebar y acceso directo en dashboard principal
+
+### Importación masiva DC-3 desde Excel
+- [x] Endpoint dc3.importFromExcel — ya existía implementado con validación por fila y auto-folio
+- [x] Plantilla XLSX descargable con columnas requeridas y datos de ejemplo (dc3.downloadTemplate)
+- [x] Botones Descargar Plantilla e Importar Excel en DC3Manager
+- [x] Tests para getDashboardStats y renewToken (19 tests en dc3-dashboard-renew.test.ts)

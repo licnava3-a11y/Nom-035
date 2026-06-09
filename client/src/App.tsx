@@ -267,6 +267,7 @@ const DC3Manager = lazy(() => import("./pages/DC3Manager"));
 const DC3SignatureManager = lazy(() => import("./pages/DC3SignatureManager"));
 const DC3Verify = lazy(() => import("./pages/DC3Verify"));
 const DC3RemoteSign = lazy(() => import("./pages/DC3RemoteSign"));
+const DC3Dashboard = lazy(() => import("./pages/DC3Dashboard"));
 const FormatCatalog = lazy(() => import("./pages/FormatCatalog"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
@@ -2002,6 +2003,12 @@ function Router() {
               <DC3Manager />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        {/* Dashboard de estadísticas DC-3 */}
+        <Route path="/dc3-dashboard">
+          <Suspense fallback={<PageLoader />}>
+            <DC3Dashboard />
+          </Suspense>
         </Route>
         <Route path="/dc3-signers">
           <Suspense fallback={<PageLoader />}>
