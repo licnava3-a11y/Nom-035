@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { dc3Records, companyDigitalSignature } from "../../drizzle/schema";
-import { eq, desc, and, like, or, sql, gte, lte } from "drizzle-orm";
+import { dc3Records, companyDigitalSignature, systemSettings } from "../../drizzle/schema";
+import { eq, desc, and, like, or, sql, gte, lte, inArray } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { extractCURPData } from "../lib/curp-validator";
 import { validateRFC, formatRFC } from "../lib/rfc-validator";
@@ -1360,6 +1360,125 @@ export const dc3Router = router({
         byCompany,
         byThematicArea,
         period: { from: from.getTime(), to: to.getTime() },
+      };
+    }),
+
+  /**
+   * Exportar registros DC-3 en formato XML compatible con SIRCE-STPS.
+   * Genera el archivo XML con la estructura requerida por el Sistema de
+   * Registro de Constancias de Empresas de la STPS.
+   *
+   * Referencia: Formato SIRCE v2.0 (STPS, 2018)
+   */
+  exportSirceXml: protectedProcedure
+    .input(
+      z.object({
+        ids: z.array(z.number()).optional(),
+        dateFrom: z.number().optional(),
+        dateTo: z.number().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+
+      const conditions: ReturnType<typeof eq>[] = [eq(dc3Records.status, "issued")];
+      if (input.ids && input.ids.length > 0) {
+        conditions.push(inArray(dc3Records.id, input.ids) as any);
+      }
+      if (input.dateFrom) {
+        conditions.push(gte(dc3Records.updatedAt, new Date(input.dateFrom)) as any);
+      }
+      if (input.dateTo) {
+        conditions.push(lte(dc3Records.updatedAt, new Date(input.dateTo)) as any);
+      }
+
+      const rows = await db
+        .select()
+        .from(dc3Records)
+        .where(and(...conditions))
+        .orderBy(dc3Records.id);
+
+      if (rows.length === 0) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No se encontraron constancias emitidas con los filtros especificados",
+        });
+      }
+
+      // Obtener configuración del sistema (RFC y razón social de la empresa)
+      const [settings] = await db.select().from(systemSettings).limit(1);
+      const companyRfc = (settings as any)?.rfc ?? "XAXX010101000";
+      const companyNameDefault = (settings as any)?.companyName ?? "EMPRESA";
+
+      const escapeXml = (str: string | null | undefined) =>
+        String(str ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+
+      const formatDate = (d: Date | string | null | undefined): string => {
+        if (!d) return "";
+        const dt = new Date(d as string);
+        if (isNaN(dt.getTime())) return "";
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, "0");
+        const day = String(dt.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      };
+
+      const constanciasXml = rows
+        .map((r) => {
+          return `    <Constancia>
+      <Folio>${escapeXml(r.folioNumber ?? String(r.id))}</Folio>
+      <RFC_Empresa>${escapeXml(r.companyRfc ?? companyRfc)}</RFC_Empresa>
+      <Razon_Social>${escapeXml(r.companyName ?? companyNameDefault)}</Razon_Social>
+      <CURP_Trabajador>${escapeXml(r.workerCurp)}</CURP_Trabajador>
+      <Nombre_Trabajador>${escapeXml(r.workerName)}</Nombre_Trabajador>
+      <Puesto>${escapeXml(r.workerPosition)}</Puesto>
+      <Nombre_Curso>${escapeXml(r.courseName)}</Nombre_Curso>
+      <Duracion_Horas>${r.courseDurationHours ?? 0}</Duracion_Horas>
+      <Fecha_Inicio>${formatDate(r.periodStartDate)}</Fecha_Inicio>
+      <Fecha_Fin>${formatDate(r.periodEndDate)}</Fecha_Fin>
+      <Area_Tematica>${escapeXml(r.thematicAreaDesc ?? r.thematicAreaKey ?? "")}</Area_Tematica>
+      <Modalidad>Presencial</Modalidad>
+      <Nombre_Instructor>${escapeXml(r.instructorName)}</Nombre_Instructor>
+      <Agente_Capacitador>${escapeXml(r.trainingAgentName ?? "")}</Agente_Capacitador>
+      <Numero_Constancia>${escapeXml(r.folioNumber ?? String(r.id))}</Numero_Constancia>
+      <Fecha_Emision>${formatDate(r.updatedAt)}</Fecha_Emision>
+      <Hash_Verificacion>${escapeXml(r.verificationHash)}</Hash_Verificacion>
+    </Constancia>`;
+        })
+        .join("\n");
+
+      const now = new Date();
+      const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Archivo generado por la Plataforma de Capacitación NOM-035 STPS
+  Fecha de generación: ${now.toISOString()}
+  Total de constancias: ${rows.length}
+  Formato: SIRCE-STPS v2.0
+-->
+<Constancias_DC3
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="2.0"
+  fecha_generacion="${formatDate(now)}"
+  total_registros="${rows.length}"
+  rfc_empresa="${escapeXml(companyRfc)}"
+>
+${constanciasXml}
+</Constancias_DC3>`;
+
+      console.log(
+        `[DC3 SIRCE Export] Usuario ${ctx.user.id} exportó ${rows.length} constancias al formato SIRCE XML`
+      );
+
+      return {
+        xml: xmlContent,
+        count: rows.length,
+        filename: `SIRCE_DC3_${companyRfc}_${formatDate(now).replace(/-/g, "")}.xml`,
       };
     }),
 });

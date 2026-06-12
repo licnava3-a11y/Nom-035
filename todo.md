@@ -1054,3 +1054,20 @@
 - [x] Plantilla XLSX descargable con columnas requeridas y datos de ejemplo (dc3.downloadTemplate)
 - [x] Botones Descargar Plantilla e Importar Excel en DC3Manager
 - [x] Tests para getDashboardStats y renewToken (19 tests en dc3-dashboard-renew.test.ts)
+
+## ✅ COMPLETADO — Exportación Dashboard DC-3, Alertas Vencimiento y SIRCE-STPS (2026-06-12)
+
+### Exportación Dashboard DC-3 a PDF/Excel
+- [x] Botón "Exportar PDF" en DC3Dashboard usando window.print con estilos @media print (oculta filtros, muestra gráficas y KPIs)
+- [x] Botón "Exportar Excel" en DC3Dashboard usando xlsx: 4 hojas (resumen KPIs, por mes, por empresa, por área temática)
+
+### Alertas automáticas de constancias DC-3 próximas a vencer
+- [x] Job diario dc3-expiry-alerts-job.ts — detecta constancias issued con más de 2 años desde emisión
+- [x] Correo HTML al responsable de capacitación con lista de trabajadores que requieren renovación
+- [x] Registrado en el scheduler del proyecto (server/_core/index.ts)
+
+### Integración SIRCE-STPS (exportación XML)
+- [x] Endpoint dc3.exportSirceXml — genera XML en formato SIRCE-STPS con los registros emitidos
+- [x] Botón "Exportar SIRCE" en DC3Manager con spinner de carga
+- [x] Descarga del archivo XML con nombre SIRCE-DC3-YYYYMMDD.xml
+- [x] 23 tests para generación XML, detección de vencimiento y estructura de datos del dashboard (dc3-sirce-export.test.ts)

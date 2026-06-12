@@ -52,6 +52,7 @@ import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
 import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-alerts-job";
 import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job";
 import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
+import { runDc3ExpiryAlertsJob } from "../jobs/dc3-expiry-alerts-job";
 import { runPacStaleItemsJob } from "../jobs/pac-stale-items-job";
 import { runRealtimeAlertsJob } from "../jobs/realtime-alerts-job";
 import { startPerformanceLcpAlertsJob } from "../jobs/performance-lcp-alerts-job";
@@ -394,6 +395,16 @@ async function startServer() {
       }
     }, 60000); // Check every minute
     console.log("[Dictamen Expiry Alert Job] Scheduled to run daily at 08:00");
+
+    // DC3 Expiry Alerts Job (daily at 07:30 AM)
+    setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 7 && now.getMinutes() === 30) {
+        console.log("[DC3 Expiry Alerts Job] Triggering daily DC3 expiry check");
+        runDc3ExpiryAlertsJob().catch(console.error);
+      }
+    }, 60000); // Check every minute
+    console.log("[DC3 Expiry Alerts Job] Scheduled to run daily at 07:30");
 
     // PAC Stale Items Job (daily at 09:00 AM)
     setInterval(() => {

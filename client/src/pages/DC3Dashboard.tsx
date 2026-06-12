@@ -32,7 +32,11 @@ import {
   BarChart3,
   Loader2,
   RefreshCw,
+  Download,
+  FileSpreadsheet,
+  Printer,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import {
   Chart,
   CategoryScale,
@@ -147,6 +151,46 @@ export default function DC3Dashboard() {
     { dateFrom: range.from, dateTo: range.to },
     { enabled: true }
   );
+
+  // ── Exportar a PDF (window.print) ───────────────────────────────────────────
+  function exportToPdf() {
+    window.print();
+  }
+
+  // ── Exportar a Excel (4 hojas) ──────────────────────────────────────────────
+  function exportToExcel() {
+    if (!data) return;
+    const wb = XLSX.utils.book_new();
+
+    // Hoja 1: Resumen KPIs
+    const kpiRows = [
+      ["Indicador", "Valor"],
+      ["Total constancias", data.kpis.total],
+      ["Emitidas", data.kpis.issued],
+      ["Borradores", data.kpis.draft],
+      ["Canceladas", data.kpis.cancelled],
+      ["Tasa de emisión (%)", data.kpis.issueRate],
+    ];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiRows), "Resumen KPIs");
+
+    // Hoja 2: Por mes
+    const monthRows = [["Mes", "Emitidas", "Borradores", "Canceladas"],
+      ...(data.byMonth ?? []).map((m) => [m.month, m.issued ?? 0, m.draft ?? 0, m.cancelled ?? 0])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(monthRows), "Por Mes");
+
+    // Hoja 3: Por empresa
+    const companyRows = [["Empresa", "Total constancias"],
+      ...(data.byCompany ?? []).map((c) => [c.company, c.count])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(companyRows), "Por Empresa");
+
+    // Hoja 4: Por área temática
+    const areaRows = [["Área Temática", "Total constancias"],
+      ...(data.byThematicArea ?? []).map((a: { area: string; count: number }) => [a.area, a.count])];
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(areaRows), "Por Área Temática");
+
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    XLSX.writeFile(wb, `dashboard_dc3_${today}.xlsx`);
+  }
 
   // ── Gráfica 1: Barras apiladas por mes ──────────────────────────────────────
   const barMonthData: ChartData<"bar"> = useMemo(() => ({
@@ -272,10 +316,32 @@ export default function DC3Dashboard() {
               Estadísticas de constancias de competencias laborales
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Actualizar
-          </Button>
+          <div className="flex items-center gap-2 no-print">
+            <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Actualizar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToExcel}
+              disabled={!data || isLoading}
+              className="gap-2"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-green-600" />
+              Exportar Excel
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportToPdf}
+              disabled={isLoading}
+              className="gap-2"
+            >
+              <Printer className="w-4 h-4 text-red-600" />
+              Exportar PDF
+            </Button>
+          </div>
         </div>
 
         {/* Filtros de período */}

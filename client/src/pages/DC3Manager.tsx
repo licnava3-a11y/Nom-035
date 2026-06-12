@@ -467,6 +467,28 @@ export function DC3Manager() {
     onError: (e) => toast({ title: "Error al importar", description: e.message, variant: "destructive" }),
   });
 
+  // ── Exportar SIRCE XML ──
+  const [exportingSirce, setExportingSirce] = useState(false);
+  const exportSirceMutation = trpc.dc3.exportSirceXml.useMutation({
+    onSuccess: (data) => {
+      const blob = new Blob([data.xml], { type: "application/xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: "XML SIRCE generado", description: `${data.count} constancias exportadas al formato SIRCE-STPS.` });
+      setExportingSirce(false);
+    },
+    onError: (e) => {
+      toast({ title: "Error al exportar SIRCE", description: e.message, variant: "destructive" });
+      setExportingSirce(false);
+    },
+  });
+
   // ── Exportar PDF individual ──
   const [exportingPdfId, setExportingPdfId] = useState<number | null>(null);
   const exportPdfMutation = trpc.dc3.exportToPdf.useMutation({
@@ -584,6 +606,19 @@ export function DC3Manager() {
           <Button variant="outline" size="sm" onClick={() => exportMutation.mutate({ status: statusFilter })} disabled={exportMutation.isPending}>
             <Download className="w-4 h-4 mr-2" />
             Exportar Excel
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            title="Exportar constancias emitidas en formato XML para carga en SIRCE-STPS"
+            onClick={() => {
+              setExportingSirce(true);
+              exportSirceMutation.mutate({});
+            }}
+            disabled={exportingSirce || exportSirceMutation.isPending}
+          >
+            {exportingSirce ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
+            Exportar SIRCE
           </Button>
           <Button size="sm" onClick={() => { setEditId(null); setForm(emptyForm); setShowForm(true); }}>
             <Plus className="w-4 h-4 mr-2" />
