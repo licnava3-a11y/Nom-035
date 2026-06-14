@@ -1071,3 +1071,12 @@
 - [x] Botón "Exportar SIRCE" en DC3Manager con spinner de carga
 - [x] Descarga del archivo XML con nombre SIRCE-DC3-YYYYMMDD.xml
 - [x] 23 tests para generación XML, detección de vencimiento y estructura de datos del dashboard (dc3-sirce-export.test.ts)
+
+## ✅ COMPLETADO — Checkboxes de selección múltiple para exportar SIRCE (2026-06-14)
+- [x] Estado selectedIds (Set<number>) en DC3Manager
+- [x] Columna checkbox en encabezado de tabla (seleccionar/deseleccionar todo, estado indeterminado)
+- [x] Checkbox por fila (solo registros issued; registros draft/cancelled muestran espacio vacío)
+- [x] Barra de acciones flotante al seleccionar: "X seleccionadas · Exportar SIRCE · Limpiar"
+- [x] Botón "Exportar SIRCE" en header pasa los ids seleccionados (o exporta todos si no hay selección)
+- [x] Filas seleccionadas resaltadas con bg-primary/5
+- [x] 1534/1534 tests pasando · 0 errores TypeScript

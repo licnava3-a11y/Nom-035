@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Download, Upload, Plus, Search, FileSpreadsheet,
   Pencil, Trash2, FileText, AlertCircle, CheckCircle2,
-  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X, PenLine
+  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X, PenLine, ListChecks
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import DC3SignaturePanel from "@/components/DC3SignaturePanel";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -468,6 +469,7 @@ export function DC3Manager() {
   });
 
   // ── Exportar SIRCE XML ──
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [exportingSirce, setExportingSirce] = useState(false);
   const exportSirceMutation = trpc.dc3.exportSirceXml.useMutation({
     onSuccess: (data) => {
@@ -584,6 +586,39 @@ export function DC3Manager() {
   const total = listQuery.data?.total ?? 0;
   const totalPages = Math.ceil(total / 20);
 
+  // ── Selección múltiple para SIRCE (depende de records) ──
+  const selectableIds = useMemo(
+    () => records.filter((r) => r.status === "issued").map((r) => r.id),
+    [records]
+  );
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selectedIds.has(id));
+  const someSelected = selectableIds.some((id) => selectedIds.has(id)) && !allSelected;
+  const selectedCount = selectableIds.filter((id) => selectedIds.has(id)).length;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        selectableIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        selectableIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  };
+
+  const toggleSelectRow = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Encabezado */}
@@ -613,12 +648,15 @@ export function DC3Manager() {
             title="Exportar constancias emitidas en formato XML para carga en SIRCE-STPS"
             onClick={() => {
               setExportingSirce(true);
-              exportSirceMutation.mutate({});
+              const ids = selectedCount > 0
+                ? selectableIds.filter((id) => selectedIds.has(id))
+                : undefined;
+              exportSirceMutation.mutate({ ids });
             }}
             disabled={exportingSirce || exportSirceMutation.isPending}
           >
-            {exportingSirce ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
-            Exportar SIRCE
+            {exportingSirce ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ListChecks className="w-4 h-4 mr-2" />}
+            {selectedCount > 0 ? `Exportar SIRCE (${selectedCount})` : "Exportar SIRCE"}
           </Button>
           <Button size="sm" onClick={() => { setEditId(null); setForm(emptyForm); setShowForm(true); }}>
             <Plus className="w-4 h-4 mr-2" />
@@ -750,6 +788,35 @@ export function DC3Manager() {
         )}
       </div>
 
+      {/* Barra de selección flotante */}
+      {selectedCount > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-background border shadow-lg rounded-full px-5 py-2.5 text-sm">
+          <ListChecks className="w-4 h-4 text-primary" />
+          <span className="font-medium">{selectedCount} constancia{selectedCount !== 1 ? "s" : ""} seleccionada{selectedCount !== 1 ? "s" : ""}</span>
+          <Button
+            size="sm"
+            className="h-7 rounded-full"
+            disabled={exportingSirce}
+            onClick={() => {
+              setExportingSirce(true);
+              exportSirceMutation.mutate({ ids: selectableIds.filter((id) => selectedIds.has(id)) });
+            }}
+          >
+            {exportingSirce ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ListChecks className="w-3.5 h-3.5 mr-1.5" />}
+            Exportar SIRCE
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 rounded-full text-muted-foreground"
+            onClick={() => setSelectedIds(new Set())}
+          >
+            <X className="w-3.5 h-3.5 mr-1" />
+            Limpiar
+          </Button>
+        </div>
+      )}
+
       {/* Tabla */}
       <Card>
         <CardHeader className="pb-3">
@@ -778,6 +845,14 @@ export function DC3Manager() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-10 pl-4">
+                      <Checkbox
+                        checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                        onCheckedChange={toggleSelectAll}
+                        aria-label="Seleccionar todas las emitidas"
+                        disabled={selectableIds.length === 0}
+                      />
+                    </TableHead>
                     <TableHead>Folio</TableHead>
                     <TableHead>Trabajador</TableHead>
                     <TableHead>Empresa</TableHead>
@@ -790,7 +865,21 @@ export function DC3Manager() {
                 </TableHeader>
                 <TableBody>
                   {records.map((r) => (
-                    <TableRow key={r.id}>
+                    <TableRow
+                      key={r.id}
+                      className={selectedIds.has(r.id) ? "bg-primary/5" : undefined}
+                    >
+                      <TableCell className="pl-4">
+                        {r.status === "issued" ? (
+                          <Checkbox
+                            checked={selectedIds.has(r.id)}
+                            onCheckedChange={() => toggleSelectRow(r.id)}
+                            aria-label={`Seleccionar ${r.folioNumber ?? r.id}`}
+                          />
+                        ) : (
+                          <span className="w-4 h-4 block" />
+                        )}
+                      </TableCell>
                       <TableCell className="font-mono text-xs">{r.folioNumber ?? `#${r.id}`}</TableCell>
                       <TableCell className="font-medium max-w-[180px] truncate">{r.workerName}</TableCell>
                       <TableCell className="max-w-[160px] truncate text-sm">{r.companyName}</TableCell>
