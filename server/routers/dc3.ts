@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { dc3Records, companyDigitalSignature, systemSettings } from "../../drizzle/schema";
+import { dc3Records, companyDigitalSignature, systemSettings, sirceExportHistory, users } from "../../drizzle/schema";
 import { eq, desc, and, like, or, sql, gte, lte, inArray } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { extractCURPData } from "../lib/curp-validator";
 import { validateRFC, formatRFC } from "../lib/rfc-validator";
 import * as employeesDb from "../db-employees";
 import { TRPCError } from "@trpc/server";
-import { storagePut } from "../storage";
+import { storagePut, storageGet } from "../storage";
 import { createHash } from "crypto";
 import QRCode from "qrcode";
 import { sendEmail } from "../_core/email";
@@ -1471,14 +1471,115 @@ export const dc3Router = router({
 ${constanciasXml}
 </Constancias_DC3>`;
 
+      // Calcular hash SHA-256 del contenido XML
+      const fileHash = createHash("sha256").update(xmlContent, "utf8").digest("hex");
+      const filename = `SIRCE_DC3_${companyRfc}_${formatDate(now).replace(/-/g, "")}.xml`;
+
+      // Guardar el XML en S3 para re-descarga posterior
+      let fileKey: string | undefined;
+      let fileUrl: string | undefined;
+      try {
+        const xmlBuffer = Buffer.from(xmlContent, "utf8");
+        const s3Key = `sirce-exports/${ctx.user.id}/${Date.now()}_${filename}`;
+        const uploaded = await storagePut(s3Key, xmlBuffer, "application/xml");
+        fileKey = uploaded.key;
+        fileUrl = uploaded.url;
+      } catch (storageErr) {
+        console.warn("[DC3 SIRCE Export] No se pudo guardar en S3, continuando sin almacenamiento:", storageErr);
+      }
+
+      // Obtener el nombre del usuario exportador
+      let exporterName: string | undefined;
+      try {
+        const [exporter] = await db.select({ name: users.name }).from(users).where(eq(users.id, ctx.user.id)).limit(1);
+        exporterName = exporter?.name ?? undefined;
+      } catch { /* no crítico */ }
+
+      // Registrar en el historial de exportaciones
+      try {
+        await db.insert(sirceExportHistory).values({
+          exportedBy: ctx.user.id,
+          exportedByName: exporterName,
+          recordCount: rows.length,
+          filename,
+          fileKey: fileKey ?? null,
+          fileUrl: fileUrl ?? null,
+          fileHash,
+          filtersJson: JSON.stringify(input),
+          companyRfc,
+        });
+      } catch (histErr) {
+        console.warn("[DC3 SIRCE Export] No se pudo registrar en historial:", histErr);
+      }
+
       console.log(
-        `[DC3 SIRCE Export] Usuario ${ctx.user.id} exportó ${rows.length} constancias al formato SIRCE XML`
+        `[DC3 SIRCE Export] Usuario ${ctx.user.id} exportó ${rows.length} constancias al formato SIRCE XML (hash: ${fileHash.slice(0, 8)}...)`
       );
 
       return {
         xml: xmlContent,
         count: rows.length,
-        filename: `SIRCE_DC3_${companyRfc}_${formatDate(now).replace(/-/g, "")}.xml`,
+        filename,
+        fileHash,
       };
+    }),
+
+  // ─── Historial de exportaciones SIRCE ─────────────────────────────────────
+
+  listSirceExports: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(20),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      const offset = (input.page - 1) * input.pageSize;
+      const [rows, countRows] = await Promise.all([
+        db
+          .select()
+          .from(sirceExportHistory)
+          .orderBy(desc(sirceExportHistory.exportedAt))
+          .limit(input.pageSize)
+          .offset(offset),
+        db.select({ total: sql<number>`count(*)` }).from(sirceExportHistory),
+      ]);
+      return {
+        exports: rows,
+        total: Number(countRows[0]?.total ?? 0),
+        page: input.page,
+        pageSize: input.pageSize,
+      };
+    }),
+
+  redownloadSirceExport: protectedProcedure
+    .input(z.object({ id: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      const [record] = await db
+        .select()
+        .from(sirceExportHistory)
+        .where(eq(sirceExportHistory.id, input.id))
+        .limit(1);
+      if (!record) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Exportación no encontrada" });
+      }
+      // Si hay fileKey en S3, generar URL de descarga
+      if (record.fileKey) {
+        try {
+          const { url } = await storageGet(record.fileKey);
+          return { url, filename: record.filename, fileHash: record.fileHash };
+        } catch (err) {
+          console.warn("[DC3 SIRCE Redownload] Error al obtener URL de S3:", err);
+        }
+      }
+      // Si no hay archivo en S3 (exportación antigua), indicar que no está disponible
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "El archivo de esta exportación ya no está disponible en el almacenamiento. Genere una nueva exportación con los mismos filtros.",
+      });
     }),
 });

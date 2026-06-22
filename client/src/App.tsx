@@ -269,6 +269,7 @@ const DC3Verify = lazy(() => import("./pages/DC3Verify"));
 const DC3RemoteSign = lazy(() => import("./pages/DC3RemoteSign"));
 const DC3Dashboard = lazy(() => import("./pages/DC3Dashboard"));
 const FormatCatalog = lazy(() => import("./pages/FormatCatalog"));
+const SirceExportHistory = lazy(() => import("./pages/SirceExportHistory"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
 
@@ -2031,6 +2032,12 @@ function Router() {
         <Route path="/format-catalog">
           <Suspense fallback={<PageLoader />}>
             <FormatCatalog />
+          </Suspense>
+        </Route>
+        {/* Historial de exportaciones SIRCE */}
+        <Route path="/sirce-history">
+          <Suspense fallback={<PageLoader />}>
+            <SirceExportHistory />
           </Suspense>
         </Route>
         <Route path="/google-calendar">

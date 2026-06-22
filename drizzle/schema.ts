@@ -6296,3 +6296,33 @@ export type InsertDC3RemoteSignToken = typeof dc3RemoteSignTokens.$inferInsert;
 export type FormatCatalogEntry = typeof formatCatalog.$inferSelect;
 export type InsertFormatCatalogEntry = typeof formatCatalog.$inferInsert;
 
+
+/**
+ * Historial de exportaciones SIRCE-STPS
+ * Registra cada vez que se genera un archivo XML para el SIRCE,
+ * incluyendo el usuario, la cantidad de registros, el hash SHA-256
+ * del archivo y la clave S3 para re-descarga.
+ */
+export const sirceExportHistory = mysqlTable("sirce_export_history", {
+  id: int("id").autoincrement().primaryKey(),
+  // Usuario que realizó la exportación
+  exportedBy: int("exported_by").notNull(),
+  exportedByName: varchar("exported_by_name", { length: 255 }),
+  // Cantidad de constancias incluidas
+  recordCount: int("record_count").notNull(),
+  // Nombre del archivo generado (ej. SIRCE_DC3_RFC_20240101.xml)
+  filename: varchar("filename", { length: 255 }).notNull(),
+  // Clave S3 donde se almacenó el archivo XML
+  fileKey: varchar("file_key", { length: 512 }),
+  // URL pública del archivo en S3
+  fileUrl: text("file_url"),
+  // Hash SHA-256 del contenido XML para verificación de integridad
+  fileHash: varchar("file_hash", { length: 64 }).notNull(),
+  // Filtros usados en la exportación (JSON serializado: ids, dateFrom, dateTo)
+  filtersJson: text("filters_json"),
+  // RFC de la empresa exportadora (para multi-tenant)
+  companyRfc: varchar("company_rfc", { length: 13 }),
+  exportedAt: timestamp("exported_at").defaultNow().notNull(),
+});
+export type SirceExportHistory = typeof sirceExportHistory.$inferSelect;
+export type InsertSirceExportHistory = typeof sirceExportHistory.$inferInsert;

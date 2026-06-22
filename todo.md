@@ -1080,3 +1080,23 @@
 - [x] Botón "Exportar SIRCE" en header pasa los ids seleccionados (o exporta todos si no hay selección)
 - [x] Filas seleccionadas resaltadas con bg-primary/5
 - [x] 1534/1534 tests pasando · 0 errores TypeScript
+
+## ✅ COMPLETADO — Historial de Exportaciones SIRCE (2026-06-22)
+
+### Tabla y migración
+- [x] Tabla sirce_export_history: id, exportedAt, exportedBy (userId), exportedByName, recordCount, fileKey (S3), fileHash (SHA-256), filename, companyRfc, createdAt
+- [x] Migración SQL aplicada en BD
+
+### Backend
+- [x] Actualizar exportSirceXml: guardar XML en S3 y registrar en sirce_export_history automáticamente
+- [x] Endpoint dc3.listSirceExports — lista historial paginado con datos del usuario y total de páginas
+- [x] Endpoint dc3.redownloadSirceExport — genera URL presignada de S3 para re-descarga (1 hora de vigencia)
+
+### Frontend
+- [x] Página SirceExportHistory.tsx — tabla con fecha, usuario, cantidad de registros, hash truncado, badge de estado y botón Re-descargar
+- [x] Ruta /sirce-history registrada en App.tsx
+- [x] Enlace "Historial SIRCE" en sidebar (sección DC-3)
+
+### Tests y calidad
+- [x] 20 tests en dc3-sirce-history.test.ts (hash SHA-256, paginación, re-descarga, registro automático)
+- [x] 1554/1554 tests pasando · 0 errores TypeScript
