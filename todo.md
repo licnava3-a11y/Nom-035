@@ -1100,3 +1100,26 @@
 ### Tests y calidad
 - [x] 20 tests en dc3-sirce-history.test.ts (hash SHA-256, paginación, re-descarga, registro automático)
 - [x] 1554/1554 tests pasando · 0 errores TypeScript
+
+## ✅ COMPLETADO — Filtros de búsqueda en Historial SIRCE (2026-06-24)
+
+### Endpoint backend
+- [x] Actualizar input schema de `listSirceExports` con 4 filtros opcionales: dateFrom, dateTo, exportedByName, companyRfc
+- [x] Construir condiciones Drizzle con gte/lte/like y and() dinámico
+- [x] Aplicar whereClause tanto a la query de datos como a la query de count (paginación correcta)
+- [x] Convertir timestamps numéricos a Date para gte/lte (campo exportedAt es MySqlTimestamp)
+
+### Frontend SirceExportHistory.tsx
+- [x] Panel de filtros expandible con botón "Filtros" + badge contador de filtros activos
+- [x] Accesos rápidos a períodos: Hoy, Esta semana, Este mes, Este año, Semana anterior, Mes anterior, Año anterior
+- [x] Inputs de fecha (dateFrom, dateTo) con conversión a timestamp ms
+- [x] Inputs de texto para usuario exportador y RFC empresa (búsqueda parcial)
+- [x] Badges de filtros activos con botón X para eliminar filtro individual
+- [x] Botón "Limpiar filtros" para resetear todos los filtros
+- [x] Reset de página a 1 al cambiar cualquier filtro
+- [x] Estado vacío diferenciado: "sin resultados con filtros" vs "sin exportaciones aún"
+- [x] Tarjeta de stats actualiza etiqueta según si hay filtros activos
+
+### Tests y calidad
+- [x] 23 tests nuevos en dc3-sirce-history.test.ts (conversión timestamps, construcción condiciones, períodos rápidos, filtrado en memoria, validación schema Zod)
+- [x] 1577/1577 tests pasando · 0 errores TypeScript

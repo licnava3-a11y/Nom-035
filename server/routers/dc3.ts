@@ -1531,20 +1531,46 @@ ${constanciasXml}
       z.object({
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(100).default(20),
+        dateFrom: z.number().optional(),
+        dateTo: z.number().optional(),
+        exportedByName: z.string().optional(),
+        companyRfc: z.string().optional(),
       })
     )
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       const offset = (input.page - 1) * input.pageSize;
+
+      // Construir condiciones de filtro
+      const conditions = [];
+      if (input.dateFrom !== undefined) {
+        conditions.push(gte(sirceExportHistory.exportedAt, new Date(input.dateFrom)));
+      }
+      if (input.dateTo !== undefined) {
+        conditions.push(lte(sirceExportHistory.exportedAt, new Date(input.dateTo)));
+      }
+      if (input.exportedByName) {
+        conditions.push(like(sirceExportHistory.exportedByName, `%${input.exportedByName}%`));
+      }
+      if (input.companyRfc) {
+        conditions.push(like(sirceExportHistory.companyRfc, `%${input.companyRfc}%`));
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
       const [rows, countRows] = await Promise.all([
         db
           .select()
           .from(sirceExportHistory)
+          .where(whereClause)
           .orderBy(desc(sirceExportHistory.exportedAt))
           .limit(input.pageSize)
           .offset(offset),
-        db.select({ total: sql<number>`count(*)` }).from(sirceExportHistory),
+        db
+          .select({ total: sql<number>`count(*)` })
+          .from(sirceExportHistory)
+          .where(whereClause),
       ]);
       return {
         exports: rows,
