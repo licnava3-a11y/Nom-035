@@ -261,27 +261,41 @@ export const systemSettingsRouter = router({
     }),
 
   /**
-   * Obtener datos de empresa (company_name, company_rfc, company_address)
+   * Obtener datos de empresa (campos completos NOM-035 / STPS)
    */
   getCompanyInfo: protectedProcedure.query(async () => {
+    const COMPANY_KEYS = [
+      "company_name",              // Razón Social
+      "company_rfc",               // RFC
+      "company_address",           // Domicilio fiscal
+      "company_logo",              // Logotipo URL
+      "company_legal_rep",         // Representante Legal
+      "company_registro_patronal", // Registro Patronal IMSS
+      "company_giro",              // Giro / actividad preponderante
+      "company_scian",             // Código SCIAN
+      "company_num_workers",       // Número de trabajadores
+      "company_stps_reg",          // Registro STPS
+      "company_phone",             // Teléfono
+      "company_email",             // Correo electrónico
+      "company_city",              // Ciudad
+      "company_state",             // Estado
+      "company_postal_code",       // Código Postal
+      "company_fiscal_regime",     // Régimen fiscal
+      "company_imss_subdelegacion",// Subdelegación IMSS
+    ];
     const db = await getDb();
-    if (!db) return { company_name: "", company_rfc: "", company_address: "", company_logo: "" };
+    if (!db) return Object.fromEntries(COMPANY_KEYS.map(k => [k, ""])) as Record<string, string>;
     const rows = await db
       .select({ key: systemSettings.settingKey, value: systemSettings.settingValue })
       .from(systemSettings)
-      .where(inArray(systemSettings.settingKey, ["company_name", "company_rfc", "company_address", "company_logo"]));
+      .where(inArray(systemSettings.settingKey, COMPANY_KEYS));
     const map: Record<string, string> = {};
     rows.forEach((r) => { map[r.key] = r.value ?? ""; });
-    return {
-      company_name: map["company_name"] ?? "",
-      company_rfc: map["company_rfc"] ?? "",
-      company_address: map["company_address"] ?? "",
-      company_logo: map["company_logo"] ?? "",
-    };
+    return Object.fromEntries(COMPANY_KEYS.map(k => [k, map[k] ?? ""])) as Record<string, string>;
   }),
 
   /**
-   * Guardar datos de empresa
+   * Guardar datos de empresa (campos completos NOM-035 / STPS)
    */
   saveCompanyInfo: adminProcedure
     .input(
@@ -290,6 +304,19 @@ export const systemSettingsRouter = router({
         company_rfc: z.string().max(20).optional(),
         company_address: z.string().max(500).optional(),
         company_logo: z.string().max(2048).optional(),
+        company_legal_rep: z.string().max(255).optional(),
+        company_registro_patronal: z.string().max(20).optional(),
+        company_giro: z.string().max(255).optional(),
+        company_scian: z.string().max(10).optional(),
+        company_num_workers: z.string().max(10).optional(),
+        company_stps_reg: z.string().max(50).optional(),
+        company_phone: z.string().max(20).optional(),
+        company_email: z.string().max(255).optional(),
+        company_city: z.string().max(100).optional(),
+        company_state: z.string().max(100).optional(),
+        company_postal_code: z.string().max(10).optional(),
+        company_fiscal_regime: z.string().max(100).optional(),
+        company_imss_subdelegacion: z.string().max(100).optional(),
       })
     )
     .mutation(async ({ input }) => {

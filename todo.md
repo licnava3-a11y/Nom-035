@@ -1123,3 +1123,207 @@
 ### Tests y calidad
 - [x] 23 tests nuevos en dc3-sirce-history.test.ts (conversión timestamps, construcción condiciones, períodos rápidos, filtrado en memoria, validación schema Zod)
 - [x] 1577/1577 tests pasando · 0 errores TypeScript
+
+---
+
+## 🔴 PLAN PRIORIZADO — Análisis Profundo Jun 2026
+
+> Análisis realizado el 2026-06-26. Cubre: UX, interrelaciones de datos, prellenado, compatibilidad con sistemas de RH (CONTPAQi NOI, Aspel NOI, SAP HCM, Oracle HCM) y brechas funcionales detectadas en el código.
+
+---
+
+### 🔴 CRÍTICO — P1: Prellenado de empresa en DC3Manager desde Configuración
+
+**Problema:** El formulario de nueva constancia DC-3 exige capturar manualmente el nombre y RFC de la empresa en cada registro. El sistema ya guarda `company_name` y `company_rfc` en `systemSettings`, pero DC3Manager **no los consume** al abrir el formulario.
+
+**Impacto:** El usuario recaptura los mismos datos en cada constancia, generando errores tipográficos y datos inconsistentes en el historial SIRCE.
+
+- [ ] Agregar `trpc.systemSettings.getCompanyInfo.useQuery()` en DC3Manager
+- [ ] Pre-rellenar `companyName` y `companyRfc` al montar el formulario (editable por el usuario)
+- [ ] Mostrar badge "Auto-rellenado desde Configuración" cuando se use el valor por defecto
+
+---
+
+### 🔴 CRÍTICO — P2: Prellenado de empleado en DC3Manager desde catálogo
+
+**Problema:** El campo CURP ya tiene lookup al catálogo de empleados, pero **no prellenan automáticamente** el puesto (`workerPosition`) ni el departamento del empleado encontrado.
+
+**Impacto:** El usuario debe buscar manualmente el puesto del trabajador aunque ya esté registrado en el sistema.
+
+- [ ] Extender `lookupCurp` para devolver también `departmentName` y `positionName`
+- [ ] Pre-rellenar `workerPosition` con el nombre del puesto del empleado encontrado
+- [ ] Agregar selector de empleado por nombre (además de CURP) con búsqueda typeahead
+
+---
+
+### 🔴 CRÍTICO — P3: Campos faltantes en importación masiva de empleados
+
+**Problema:** El router `massiveImport.importEmployees` **no acepta** RFC, NSS, género, nivel de escolaridad ni tipo de contrato. La plantilla XLSX tampoco los incluye. Los sistemas CONTPAQi NOI y Aspel NOI exportan estos campos como estándar.
+
+**Impacto:** Al importar desde CONTPAQi o NOI, los campos clave para NOM-035 (género para NMX-025, NSS para IMSS, RFC para CFDI) se pierden y deben capturarse uno a uno.
+
+- [ ] Extender schema Zod de `importEmployees` con: `rfc`, `nss`, `gender`, `educationLevel`, `contractType` (todos opcionales)
+- [ ] Actualizar el INSERT para incluir los nuevos campos
+- [ ] Regenerar `employees_template.xlsx` con columnas: Nombre, Apellido, Correo, Teléfono, CURP, RFC, NSS, NumEmpleado, Departamento (ID), Puesto (ID), FechaIngreso, Género, Escolaridad, TipoContrato
+- [ ] Agregar hoja "Catálogos" en la plantilla con valores válidos de género/escolaridad/contrato
+
+---
+
+### 🔴 CRÍTICO — P4: Módulo de Integración con Sistemas de RH (CONTPAQi / Aspel NOI / SAP / Oracle)
+
+**Problema:** No existe ningún módulo dedicado a importar/exportar datos desde los principales sistemas de nómina mexicanos. La plataforma es un sistema de cumplimiento NOM-035 que convive con nómina, pero no tiene puente de datos.
+
+**Campos estándar en CONTPAQi NOI y Aspel NOI:** Clave empleado, Nombre, Apellidos, RFC, CURP, NSS, Fecha alta, Fecha baja, Puesto, Departamento, Registro patronal, Salario diario, Tipo de jornada, Sexo, Fecha nacimiento, Estado civil, Código postal, Teléfono.
+
+- [ ] Crear página `HRIntegration.tsx` con tabs: CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM, SUA/IMSS
+- [ ] Tab CONTPAQi NOI: importar XLSX con mapeo de columnas (clave→employeeNumber, NSS→nss, RFC→rfc, etc.)
+- [ ] Tab Aspel NOI: importar XLSX con layout estándar NOI (mismos campos, diferente orden de columnas)
+- [ ] Tab SAP HCM: importar CSV con campos PERNR, VORNA, NACHN, GBDAT, ENAME, ORGEH, PLANS
+- [ ] Tab Oracle HCM: importar CSV con campos PersonNumber, FirstName, LastName, NationalIdentifier, HireDate, DepartmentName, JobCode
+- [ ] Tab SUA/IMSS: importar TXT con layout IMSS (NSS, RFC, CURP, nombre, salario, fecha alta/baja)
+- [ ] Mapeo visual de columnas: tabla drag-and-drop para asignar columna del archivo → campo del sistema
+- [ ] Vista previa de los primeros 5 registros antes de confirmar importación
+- [ ] Reporte de resultado: importados, actualizados, omitidos (duplicados), errores con fila y motivo
+- [ ] Exportar catálogo de empleados en formato CONTPAQi, NOI, SAP o Oracle para sincronización bidireccional
+- [ ] Agregar ruta `/hr-integration` en App.tsx y enlace en sidebar (sección Administración)
+- [ ] Tests unitarios para el mapeo de columnas y la validación de campos
+
+---
+
+### 🔴 CRÍTICO — P5: Datos de empresa incompletos en Configuración
+
+**Problema:** `systemSettings` solo guarda `company_name`, `company_rfc`, `company_address` y `company_logo`. Faltan campos críticos para documentos legales y SIRCE.
+
+**Impacto:** El Dictamen NOM-035, las constancias DC-3 y los reportes STPS usan datos de empresa incompletos.
+
+- [ ] Agregar campos en `systemSettings`: `company_legal_rep` (Representante Legal), `company_registro_patronal` (Registro Patronal IMSS), `company_giro` (Giro/Actividad económica), `company_phone`, `company_email_rh`, `company_state`, `company_city`, `company_zip`
+- [ ] Actualizar `getCompanyInfo` y `updateCompanyInfo` en systemSettings router
+- [ ] Actualizar `Settings.tsx` con los nuevos campos agrupados en secciones: Datos Fiscales, Datos de Contacto, Datos IMSS
+- [ ] Usar `company_legal_rep` en el Dictamen NOM-035 (LegalDocGenerator.tsx) y en DC-3 PDF
+- [ ] Usar `company_registro_patronal` en exportación SIRCE XML
+
+---
+
+### 🟡 MEDIO — P6: Selector de empleado por nombre en DC3Manager (además de CURP)
+
+**Problema:** El único punto de entrada para prellenar datos del trabajador en DC-3 es el campo CURP. Muchos usuarios no tienen el CURP a mano pero sí el nombre del empleado.
+
+- [ ] Agregar campo de búsqueda typeahead "Buscar empleado por nombre" en el formulario DC-3
+- [ ] Al seleccionar empleado: prellenar CURP, nombre completo, puesto y empresa
+- [ ] Mantener el campo CURP editable para correcciones manuales
+
+---
+
+### 🟡 MEDIO — P7: Exportar catálogo de empleados en formato compatible con CONTPAQi/NOI
+
+**Problema:** No existe botón para exportar el catálogo de empleados en el formato que esperan CONTPAQi NOI o Aspel NOI.
+
+- [ ] Agregar botón "Exportar para CONTPAQi" en `Employees.tsx` que genere XLSX con columnas: Código, Nombre, Apellidos, RFC, CURP, NSS, Puesto, Departamento, FechaAlta, SalarioDiario (si existe en payrollData), Sexo
+- [ ] Agregar botón "Exportar para Aspel NOI" con el mismo layout pero orden de columnas NOI estándar
+- [ ] Agregar botón "Exportar para SAP HCM" con campos PERNR, VORNA, NACHN, etc.
+
+---
+
+### 🟡 MEDIO — P8: Prellenado de datos de empresa en LegalDocGenerator
+
+**Problema:** El generador de Dictamen NOM-035 no prellenar automáticamente el nombre de la empresa, RFC ni representante legal desde `systemSettings`.
+
+- [ ] Consumir `trpc.systemSettings.getCompanyInfo` al montar LegalDocGenerator
+- [ ] Prellenar campos: razón social, RFC, representante legal, dirección
+- [ ] Mostrar badge "Datos desde Configuración" con link a /settings
+
+---
+
+### 🟡 MEDIO — P9: Validación de NSS (IMSS) en formulario de empleado
+
+**Problema:** El campo NSS en EmployeeNew/EmployeeEdit no tiene validación de formato (11 dígitos, dígito verificador IMSS).
+
+- [ ] Agregar validación de formato NSS: exactamente 11 dígitos numéricos
+- [ ] Implementar algoritmo de dígito verificador IMSS (Luhn modificado) en el frontend
+- [ ] Mostrar badge verde/rojo de validación en tiempo real junto al campo NSS
+
+---
+
+### 🟡 MEDIO — P10: Prellenado de datos en formulario de Encuesta NOM-035 desde perfil de empleado
+
+**Problema:** Cuando un empleado accede a su encuesta NOM-035, el sistema no prellenar automáticamente su departamento y puesto para el análisis de resultados por área.
+
+- [ ] Verificar que `surveyTokens` incluya `departmentId` y `positionId` del empleado al generar el token
+- [ ] Guardar `departmentId` y `positionId` en `surveyResponses` al completar la encuesta
+- [ ] Actualizar el análisis de resultados para segmentar por puesto además de departamento
+
+---
+
+### 🟡 MEDIO — P11: Exportar historial SIRCE filtrado a Excel
+
+**Problema:** No hay botón de exportación en la página de Historial SIRCE. Los auditores necesitan el historial en Excel para sus reportes.
+
+- [ ] Agregar botón "Exportar a Excel" en SirceExportHistory.tsx
+- [ ] Exportar los registros con filtros activos (no solo la página actual)
+- [ ] Columnas: Fecha, Usuario, RFC Empresa, Cantidad Constancias, Hash SHA-256, Nombre Archivo
+- [ ] Agregar endpoint `dc3.exportSirceHistoryExcel` que devuelva todos los registros filtrados sin paginación
+
+---
+
+### 🟡 MEDIO — P12: Consolidar campos de empresa en DC3Manager con multi-empresa
+
+**Problema:** DC3Manager permite emitir constancias para cualquier empresa (campo libre). No hay un catálogo de empresas clientes para seleccionar y prellenar.
+
+- [ ] Crear tabla `client_companies` (id, name, rfc, address, registroPatronal, isActive)
+- [ ] Agregar selector de empresa en DC3Manager con opción "Usar empresa propia" (desde systemSettings) y "Otra empresa" (desde catálogo)
+- [ ] Página `ClientCompanies.tsx` para gestionar el catálogo de empresas clientes
+- [ ] Ruta `/client-companies` en App.tsx y enlace en sidebar (sección DC-3)
+
+---
+
+### 🟢 BAJO — P13: Indicador de completitud del perfil de empleado
+
+**Problema:** No hay forma visual de saber qué tan completo está el perfil de un empleado (faltan CURP, RFC, NSS, foto, etc.).
+
+- [ ] Calcular % de completitud basado en campos clave: nombre, email, CURP, RFC, NSS, departamento, puesto, fechaIngreso, nivel educativo
+- [ ] Mostrar barra de progreso en EmployeeProfile y en la tabla de Employees
+- [ ] Filtro "Perfiles incompletos" en Employees.tsx para detectar empleados con datos faltantes
+
+---
+
+### 🟢 BAJO — P14: Importar desde SUA/IMSS (TXT de movimientos)
+
+**Problema:** El SUA del IMSS genera archivos TXT con altas, bajas y modificaciones de salario. No hay forma de importar estos movimientos directamente.
+
+- [ ] Parser de archivo TXT SUA (layout IMSS: NSS, RFC, CURP, nombre, SDI, tipo movimiento, fecha)
+- [ ] Tab "SUA/IMSS" en HRIntegration.tsx para cargar el TXT y procesar altas/bajas/modificaciones
+- [ ] Sincronizar automáticamente: altas → crear empleado, bajas → marcar terminationDate, modificaciones → actualizar salario en payrollData
+
+---
+
+### 🟢 BAJO — P15: Estadísticas de constancias exportadas en el panel de filtros SIRCE
+
+**Problema:** Las tarjetas de KPI en SirceExportHistory muestran el total histórico, pero no la suma de constancias del período filtrado.
+
+- [ ] Agregar campo `totalRecordsInFilter` en la respuesta de `listSirceExports`
+- [ ] Mostrar "X constancias en el período" en la tarjeta de stats cuando hay filtros activos
+
+---
+
+### 🟢 BAJO — P16: Mejoras de UX en navegación del sidebar
+
+**Problema:** El sidebar tiene más de 300 ítems de menú organizados en ~10 secciones. Algunos módulos relacionados están en secciones diferentes, dificultando la navegación.
+
+- [ ] Agregar sección "Integración con Sistemas Externos" en el sidebar con: Importación Masiva, Integración RH (CONTPAQi/NOI/SAP/Oracle), Exportar para Nómina
+- [ ] Mover "Importación Masiva" de la sección actual a la nueva sección de Integración
+- [ ] Agregar búsqueda en el sidebar (ya existe GlobalSearch pero no filtra el menú lateral)
+- [ ] Agregar tooltips con descripción al hacer hover en ítems del sidebar (ya existen en el código, verificar que estén activos)
+
+---
+
+### 🟢 BAJO — P17: Campos adicionales de empresa en Settings para cumplimiento NOM-035
+
+**Problema:** La NOM-035 requiere identificar el centro de trabajo, número de trabajadores y actividad económica. Estos datos no se capturan en Settings.
+
+- [ ] Agregar campos: `company_num_workers` (número de trabajadores), `company_activity_code` (código SCIAN de actividad económica), `company_work_center` (nombre del centro de trabajo), `company_stps_registration` (registro STPS)
+- [ ] Usar estos campos en el Dictamen NOM-035 y en los reportes STPS
+
+---
+
+> **Resumen ejecutivo del análisis:**
+> El sistema tiene una base sólida con 94 archivos de test y 1577 pruebas pasando. Las brechas más críticas son: (1) falta de prellenado automático de datos de empresa en DC-3 desde Configuración, (2) importación masiva sin campos RFC/NSS/género, (3) ausencia de módulo de integración con sistemas de nómina (CONTPAQi, Aspel NOI, SAP, Oracle), y (4) datos de empresa incompletos en systemSettings. La compatibilidad con sistemas de RH mexicanos requiere soporte para los layouts estándar de CONTPAQi NOI (Excel con mapeo de columnas) y Aspel NOI (Excel con layout fijo), así como el formato TXT del SUA/IMSS.

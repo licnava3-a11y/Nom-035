@@ -390,6 +390,9 @@ export function DC3Manager() {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [showImportResult, setShowImportResult] = useState(false);
 
+  // P1: Datos de empresa desde Configuración para prellenar formulario
+  const companyInfoQuery = trpc.systemSettings.getCompanyInfo.useQuery(undefined, { staleTime: 60_000 });
+
   const catalogsQuery = trpc.dc3.getCatalogs.useQuery();
 
   const listQuery = trpc.dc3.list.useQuery(
@@ -658,7 +661,17 @@ export function DC3Manager() {
             {exportingSirce ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ListChecks className="w-4 h-4 mr-2" />}
             {selectedCount > 0 ? `Exportar SIRCE (${selectedCount})` : "Exportar SIRCE"}
           </Button>
-          <Button size="sm" onClick={() => { setEditId(null); setForm(emptyForm); setShowForm(true); }}>
+          <Button size="sm" onClick={() => {
+            setEditId(null);
+            // P1: Prellenar empresa desde Configuración
+            const ci = companyInfoQuery.data;
+            setForm({
+              ...emptyForm,
+              companyName: ci?.company_name ?? "",
+              companyRfc: ci?.company_rfc ?? "",
+            });
+            setShowForm(true);
+          }}>
             <Plus className="w-4 h-4 mr-2" />
             Nuevo Registro
           </Button>

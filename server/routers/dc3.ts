@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { dc3Records, companyDigitalSignature, systemSettings, sirceExportHistory, users } from "../../drizzle/schema";
+import { dc3Records, companyDigitalSignature, systemSettings, sirceExportHistory, users, positions, departments } from "../../drizzle/schema";
 import { eq, desc, and, like, or, sql, gte, lte, inArray } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import { extractCURPData } from "../lib/curp-validator";
@@ -1092,21 +1092,44 @@ export const dc3Router = router({
         workerPosition: string;
         workerOccupationCnoKey: string;
         workerOccupationCnoDesc: string;
+        departmentName?: string;
+        employeeNumber?: string;
       } | null = null;
 
       try {
         const employee = await employeesDb.getEmployeeByCURP(curp);
         if (employee) {
-          // employees table: firstName (nombre), lastName (apellidos juntos)
           const fullName = [
             employee.lastName ?? "",
             employee.firstName ?? "",
           ].filter(Boolean).join(" ").toUpperCase();
+          // Obtener nombre de puesto y departamento con JOIN
+          let positionName = "";
+          let departmentName = "";
+          const dbInst = await getDb();
+          if (dbInst && employee.positionId) {
+            const [pos] = await dbInst
+              .select({ name: positions.name })
+              .from(positions)
+              .where(eq(positions.id, employee.positionId))
+              .limit(1);
+            positionName = pos?.name ?? "";
+          }
+          if (dbInst && employee.departmentId) {
+            const [dept] = await dbInst
+              .select({ name: departments.name })
+              .from(departments)
+              .where(eq(departments.id, employee.departmentId))
+              .limit(1);
+            departmentName = dept?.name ?? "";
+          }
           employeeData = {
             workerName: fullName,
-            workerPosition: "", // positionId requiere join; se omite por simplicidad
+            workerPosition: positionName,
             workerOccupationCnoKey: "",
             workerOccupationCnoDesc: "",
+            departmentName,
+            employeeNumber: employee.employeeNumber ?? "",
           };
         }
       } catch {

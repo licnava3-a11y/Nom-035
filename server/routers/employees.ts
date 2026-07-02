@@ -602,51 +602,113 @@ export const employeesRouter = router({
           allDepartments.map((d: any) => [d.name.toLowerCase(), d.id])
         );
 
+        // Obtener posiciones para mapeo por nombre
+        const allPositions = await db.select().from((await import('../../drizzle/schema')).positions);
+        const positionMap = new Map(
+          allPositions.map((p: any) => [p.name.toLowerCase(), p.id])
+        );
+
         for (let i = 0; i < data.length; i++) {
           const row: any = data[i];
           const rowNumber = i + 2; // +2 porque Excel empieza en 1 y tiene header
 
           try {
+            // Normalizar columnas: soportar español e inglés
+            // Columnas en español: nombre (apellido nombre), email, departamento, puesto,
+            //   telefono, fechaNacimiento, sexo, curp, rfc, nss, fechaIngreso,
+            //   nivelEducativo, numeroEmpleado
+            // Columnas en inglés (legado): firstName, lastName, email, department, positionId,
+            //   phone, hireDate, gender, curp, rfc, nss
+            let firstName: string = row.firstName || "";
+            let lastName: string = row.lastName || "";
+            if (!firstName && row.nombre) {
+              // Formato CONTPAQi/NOI: "APELLIDO PATERNO APELLIDO MATERNO NOMBRE(S)"
+              // o "Nombre Apellido" — dividir en partes
+              const parts = String(row.nombre).trim().split(/\s+/);
+              if (parts.length >= 3) {
+                // Asumir: últimas 2 partes = nombre(s), primeras = apellidos
+                firstName = parts.slice(2).join(" ");
+                lastName = parts.slice(0, 2).join(" ");
+              } else if (parts.length === 2) {
+                firstName = parts[1];
+                lastName = parts[0];
+              } else {
+                firstName = parts[0];
+                lastName = "";
+              }
+            }
+            const email: string = row.email || row.correo || row.correoElectronico || "";
+            const phone: string = row.phone || row.telefono || row.celular || "";
+            const curp: string = (row.curp || row.CURP || "").toString().toUpperCase().trim();
+            const rfc: string = (row.rfc || row.RFC || "").toString().toUpperCase().trim();
+            const nss: string = (row.nss || row.NSS || row.numeroSeguroSocial || "").toString().trim();
+            const employeeNumber: string = (row.numeroEmpleado || row.employeeNumber || row.claveEmpleado || row.clave || "").toString().trim();
+            const hireDateRaw: string = row.hireDate || row.fechaIngreso || row.fechaAlta || "";
+            // Mapear género (español/inglés/CONTPAQi)
+            let gender: "male" | "female" | "other" | "prefer_not_to_say" | null = null;
+            const sexoRaw = (row.gender || row.sexo || row.genero || "").toString().toLowerCase();
+            if (["m", "masculino", "male", "hombre", "h"].includes(sexoRaw)) gender = "male";
+            else if (["f", "femenino", "female", "mujer"].includes(sexoRaw)) gender = "female";
+            // Mapear nivel educativo
+            const edLevelMap: Record<string, string> = {
+              primaria: "primaria", secundaria: "secundaria",
+              preparatoria: "preparatoria", bachillerato: "preparatoria",
+              tecnico: "tecnico", técnico: "tecnico",
+              licenciatura: "licenciatura", ingenieria: "licenciatura", ingeniería: "licenciatura",
+              especialidad: "especialidad", maestria: "maestria", maestría: "maestria",
+              doctorado: "doctorado", otro: "otro",
+            };
+            const edRaw = (row.educationLevel || row.nivelEducativo || row.nivelEstudios || "").toString().toLowerCase();
+            const educationLevel = (edLevelMap[edRaw] || null) as any;
+
             // Validar campos obligatorios
-            if (!row.firstName || !row.lastName || !row.email) {
+            if (!firstName || !email) {
               throw new Error(
-                "Campos obligatorios faltantes: firstName, lastName, email"
+                `Campos obligatorios faltantes: ${!firstName ? 'nombre' : ''} ${!email ? 'email' : ''}`.trim()
               );
             }
 
             // Validar email único
-            const existingEmployee = await employeesDb.getEmployeeByEmail(
-              row.email
-            );
+            const existingEmployee = await employeesDb.getEmployeeByEmail(email);
             if (existingEmployee) {
-              throw new Error(`Email duplicado: ${row.email}`);
+              throw new Error(`Email duplicado: ${email}`);
             }
 
             // Asignar departamento automáticamente por nombre
             let departmentId = null;
-            if (row.department) {
-              const deptId = departmentMap.get(row.department.toLowerCase());
+            const deptRaw = row.department || row.departamento || row.area || "";
+            if (deptRaw) {
+              const deptId = departmentMap.get(deptRaw.toLowerCase());
               if (deptId) {
                 departmentId = deptId;
               } else {
-                // Departamento no encontrado, usar valor por defecto
-                console.warn(
-                  `Departamento no encontrado: ${row.department}, usando null`
-                );
+                console.warn(`Departamento no encontrado: ${deptRaw}, usando null`);
               }
             }
 
-            // Crear empleado
+            // Asignar puesto automáticamente por nombre
+            let positionId = row.positionId || null;
+            const puestoRaw = row.puesto || row.position || row.cargo || "";
+            if (!positionId && puestoRaw) {
+              const posId = positionMap.get(puestoRaw.toLowerCase());
+              if (posId) positionId = posId;
+            }
+
+            // Crear empleado con todos los campos
             await employeesDb.createEmployee({
-              firstName: row.firstName,
-              lastName: row.lastName,
-              email: row.email,
-              phone: row.phone || null,
-              departmentId: departmentId,
-              positionId: row.positionId || null,
-              hireDate: row.hireDate ? new Date(row.hireDate) : new Date(),
-              gender: row.gender || null,
-              curp: row.curp || null,
+              firstName,
+              lastName,
+              email,
+              phone: phone || null,
+              departmentId,
+              positionId: positionId || null,
+              hireDate: hireDateRaw ? new Date(hireDateRaw) : new Date(),
+              gender,
+              curp: curp || null,
+              rfc: rfc || null,
+              nss: nss || null,
+              employeeNumber: employeeNumber || null,
+              educationLevel,
               isActive: true,
             });
 

@@ -19,6 +19,20 @@ export default function Settings() {
   const [companyRfc, setCompanyRfc] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [companyLogo, setCompanyLogo] = useState(""); // URL del logo en S3
+  // P5: Campos extendidos NOM-035 / STPS
+  const [companyLegalRep, setCompanyLegalRep] = useState("");
+  const [companyRegistroPatronal, setCompanyRegistroPatronal] = useState("");
+  const [companyGiro, setCompanyGiro] = useState("");
+  const [companyScian, setCompanyScian] = useState("");
+  const [companyNumWorkers, setCompanyNumWorkers] = useState("");
+  const [companyStpsReg, setCompanyStpsReg] = useState("");
+  const [companyPhone, setCompanyPhone] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [companyCity, setCompanyCity] = useState("");
+  const [companyState, setCompanyState] = useState("");
+  const [companyPostalCode, setCompanyPostalCode] = useState("");
+  const [companyFiscalRegime, setCompanyFiscalRegime] = useState("");
+  const [companyImssSubdelegacion, setCompanyImssSubdelegacion] = useState("");
   const [isSavingCompany, setIsSavingCompany] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +56,20 @@ export default function Settings() {
       setCompanyRfc(companyInfo.company_rfc ?? "");
       setCompanyAddress(companyInfo.company_address ?? "");
       setCompanyLogo(companyInfo.company_logo ?? "");
+      // P5: Campos extendidos
+      setCompanyLegalRep(companyInfo.company_legal_rep ?? "");
+      setCompanyRegistroPatronal(companyInfo.company_registro_patronal ?? "");
+      setCompanyGiro(companyInfo.company_giro ?? "");
+      setCompanyScian(companyInfo.company_scian ?? "");
+      setCompanyNumWorkers(companyInfo.company_num_workers ?? "");
+      setCompanyStpsReg(companyInfo.company_stps_reg ?? "");
+      setCompanyPhone(companyInfo.company_phone ?? "");
+      setCompanyEmail(companyInfo.company_email ?? "");
+      setCompanyCity(companyInfo.company_city ?? "");
+      setCompanyState(companyInfo.company_state ?? "");
+      setCompanyPostalCode(companyInfo.company_postal_code ?? "");
+      setCompanyFiscalRegime(companyInfo.company_fiscal_regime ?? "");
+      setCompanyImssSubdelegacion(companyInfo.company_imss_subdelegacion ?? "");
     }
   }, [companyInfo]);
 
@@ -52,6 +80,20 @@ export default function Settings() {
       company_rfc: companyRfc,
       company_address: companyAddress,
       company_logo: companyLogo,
+      // P5: Campos extendidos
+      company_legal_rep: companyLegalRep,
+      company_registro_patronal: companyRegistroPatronal,
+      company_giro: companyGiro,
+      company_scian: companyScian,
+      company_num_workers: companyNumWorkers,
+      company_stps_reg: companyStpsReg,
+      company_phone: companyPhone,
+      company_email: companyEmail,
+      company_city: companyCity,
+      company_state: companyState,
+      company_postal_code: companyPostalCode,
+      company_fiscal_regime: companyFiscalRegime,
+      company_imss_subdelegacion: companyImssSubdelegacion,
     });
   };
 
@@ -279,35 +321,97 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Razón Social / Nombre de la Empresa</Label>
-              <Input
-                id="companyName"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="Empresa S.A. de C.V."
-              />
+            {/* ── Datos Fiscales ── */}
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide pt-2">Datos Fiscales</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Razón Social *</Label>
+                <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Empresa S.A. de C.V." />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyRfc">RFC *</Label>
+                <Input id="companyRfc" value={companyRfc} onChange={(e) => setCompanyRfc(e.target.value.toUpperCase())} placeholder="EMP010101ABC" maxLength={13} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyFiscalRegime">Régimen Fiscal</Label>
+                <Input id="companyFiscalRegime" value={companyFiscalRegime} onChange={(e) => setCompanyFiscalRegime(e.target.value)} placeholder="601 - General de Ley Personas Morales" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyLegalRep">Representante Legal</Label>
+                <Input id="companyLegalRep" value={companyLegalRep} onChange={(e) => setCompanyLegalRep(e.target.value)} placeholder="Lic. Juan Pérez García" />
+              </div>
             </div>
+
+            {/* ── Domicilio ── */}
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide pt-2">Domicilio</p>
             <div className="space-y-2">
-              <Label htmlFor="companyRfc">RFC</Label>
-              <Input
-                id="companyRfc"
-                value={companyRfc}
-                onChange={(e) => setCompanyRfc(e.target.value.toUpperCase())}
-                placeholder="EMP010101ABC"
-                maxLength={13}
-              />
+              <Label htmlFor="companyAddress">Domicilio Fiscal</Label>
+              <Input id="companyAddress" value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Av. Reforma 100, Col. Centro" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="companyAddress">Domicilio Fiscal (opcional)</Label>
-              <Input
-                id="companyAddress"
-                value={companyAddress}
-                onChange={(e) => setCompanyAddress(e.target.value)}
-                placeholder="Av. Reforma 100, Col. Centro, CDMX"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyCity">Ciudad</Label>
+                <Input id="companyCity" value={companyCity} onChange={(e) => setCompanyCity(e.target.value)} placeholder="Chihuahua" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyState">Estado</Label>
+                <Input id="companyState" value={companyState} onChange={(e) => setCompanyState(e.target.value)} placeholder="Chihuahua" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyPostalCode">Código Postal</Label>
+                <Input id="companyPostalCode" value={companyPostalCode} onChange={(e) => setCompanyPostalCode(e.target.value)} placeholder="31000" maxLength={5} />
+              </div>
             </div>
-            <div className="flex justify-end">
+
+            {/* ── Contacto ── */}
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide pt-2">Contacto</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyPhone">Teléfono</Label>
+                <Input id="companyPhone" value={companyPhone} onChange={(e) => setCompanyPhone(e.target.value)} placeholder="614-123-4567" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyEmail">Correo Electrónico</Label>
+                <Input id="companyEmail" type="email" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} placeholder="contacto@empresa.com" />
+              </div>
+            </div>
+
+            {/* ── Datos STPS / IMSS ── */}
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide pt-2">Datos STPS / IMSS</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyRegistroPatronal">Registro Patronal IMSS</Label>
+                <Input id="companyRegistroPatronal" value={companyRegistroPatronal} onChange={(e) => setCompanyRegistroPatronal(e.target.value.toUpperCase())} placeholder="Y12345678901" maxLength={15} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyStpsReg">Registro STPS</Label>
+                <Input id="companyStpsReg" value={companyStpsReg} onChange={(e) => setCompanyStpsReg(e.target.value)} placeholder="STPS-CHI-001" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyImssSubdelegacion">Subdelegación IMSS</Label>
+                <Input id="companyImssSubdelegacion" value={companyImssSubdelegacion} onChange={(e) => setCompanyImssSubdelegacion(e.target.value)} placeholder="Subdelegación 01 Chihuahua" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyNumWorkers">Número de Trabajadores</Label>
+                <Input id="companyNumWorkers" type="number" value={companyNumWorkers} onChange={(e) => setCompanyNumWorkers(e.target.value)} placeholder="50" min="1" />
+              </div>
+            </div>
+
+            {/* ── Actividad Económica ── */}
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide pt-2">Actividad Económica</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyGiro">Giro / Actividad Preponderante</Label>
+                <Input id="companyGiro" value={companyGiro} onChange={(e) => setCompanyGiro(e.target.value)} placeholder="Manufactura de productos metálicos" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyScian">Código SCIAN</Label>
+                <Input id="companyScian" value={companyScian} onChange={(e) => setCompanyScian(e.target.value)} placeholder="332" maxLength={10} />
+                <p className="text-xs text-muted-foreground">Sistema de Clasificación Industrial de América del Norte</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
               <Button onClick={handleSaveCompany} disabled={isSavingCompany || isUploadingLogo}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingCompany ? "Guardando..." : "Guardar Datos de Empresa"}
