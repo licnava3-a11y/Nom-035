@@ -45,6 +45,7 @@ import {
   CalendarRange,
   User,
   Building2,
+  FileSpreadsheet,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -173,6 +174,22 @@ export default function SirceExportHistory() {
     refetchOnWindowFocus: false,
   });
 
+  // P11: Exportar historial filtrado a Excel
+  const exportExcelMutation = trpc.dc3.exportSirceHistoryExcel.useMutation({
+    onSuccess: (result) => {
+      const bytes = Uint8Array.from(atob(result.data), c => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`Excel exportado: ${result.count} registros`);
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const redownloadMutation = trpc.dc3.redownloadSirceExport.useMutation({
     onSuccess: (result) => {
       const a = document.createElement("a");
@@ -263,6 +280,20 @@ export default function SirceExportHistory() {
             >
               <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
               Actualizar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportExcelMutation.mutate({ dateFrom: dateFrom || undefined, dateTo: dateTo || undefined, exportedByName: exportedByName.trim() || undefined, companyRfc: companyRfc.trim() || undefined })}
+              disabled={exportExcelMutation.isPending}
+              className="gap-2 text-green-700 border-green-300 hover:bg-green-50"
+            >
+              {exportExcelMutation.isPending ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="h-4 w-4" />
+              )}
+              Exportar Excel
             </Button>
           </div>
         </div>

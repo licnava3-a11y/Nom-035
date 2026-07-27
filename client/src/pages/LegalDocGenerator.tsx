@@ -191,7 +191,16 @@ function DocHistoryTable({ docs, onView, onDelete, type }: {
 
 function InvestigacionTab() {
   const { toast } = useToast();
+  const { data: companyInfo } = trpc.systemSettings.getCompanyInfo.useQuery();
   const [form, setForm] = useState({ empresa: "", area: "", fechaInvestigacion: "", responsableSst: "" });
+
+  // P8: Prellenar empresa desde configuración cuando carguen los datos
+  useEffect(() => {
+    if (companyInfo?.company_name && !form.empresa) {
+      setForm(prev => ({ ...prev, empresa: companyInfo.company_name || "" }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyInfo?.company_name]);
   const [activeDoc, setActiveDoc] = useState<any>(null);
   const [editedContenido, setEditedContenido] = useState<Record<string, string>>({});
   const [view, setView] = useState<"form" | "editor" | "history">("form");

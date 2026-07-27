@@ -167,6 +167,7 @@ import { googleCalendarSyncRouter } from "./routers/googleCalendarSync";
 import { dc3Router } from "./routers/dc3";
 import { dc3RemoteSignRouter } from "./routers/dc3RemoteSign";
 import { formatCatalogRouter } from "./routers/formatCatalog";
+import { hrIntegrationRouter } from "./routers/hrIntegration";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1521,5 +1522,6 @@ export const appRouter = router({
   dc3: dc3Router,
   dc3RemoteSign: dc3RemoteSignRouter,
   formatCatalog: formatCatalogRouter,
+  hrIntegration: hrIntegrationRouter,
 });
 export type AppRouter = typeof appRouter;

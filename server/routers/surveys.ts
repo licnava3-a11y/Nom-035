@@ -3,7 +3,7 @@ import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
-import { cases, departments, employees, jobPositions, nom035Results, notifications, questions, surveyAnonymousTokens, surveyAnswers, surveyNotifications, surveyPeriods, surveyQuestions, surveyResponses, surveyResults, surveyTokens, surveys, users } from "../../drizzle/schema";
+import { cases, departments, employees, jobPositions, nom035Results, notifications, positions, questions, surveyAnonymousTokens, surveyAnswers, surveyNotifications, surveyPeriods, surveyQuestions, surveyResponses, surveyResults, surveyTokens, surveys, users } from "../../drizzle/schema";
 import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
@@ -755,12 +755,23 @@ export const surveysRouter = router({
         .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
         .where(eq(surveyAnswers.responseId, input));
       
+      // P10: Prellenar departamento y puesto desde el catálogo de empleados
+      const [empInfo] = await db
+        .select({
+          departmentName: departments.name,
+          positionTitle:  positions.title,
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions,   eq(employees.positionId,   positions.id))
+        .where(eq(employees.userId, user.id))
+        .limit(1);
       // Preparar datos del reporte
       const reportData = {
         employeeName: user.name || user.email || 'Usuario sin nombre',
         employeeId: user.id.toString(),
-        department: undefined, // TODO: Agregar departamento si existe
-        position: undefined, // TODO: Agregar puesto si existe
+        department: empInfo?.departmentName ?? undefined,
+        position:   empInfo?.positionTitle  ?? undefined,
         surveyType: survey.type as 'guia_i' | 'guia_ii' | 'guia_iii',
         surveyDate: response.completedAt || new Date(),
         answers: answers.map(a => ({

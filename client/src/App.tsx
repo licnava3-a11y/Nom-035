@@ -179,6 +179,7 @@ const OrganizationalChanges = lazy(() => import("./pages/OrganizationalChanges")
 const EqualitySalaryGap = lazy(() => import("./pages/equality/SalaryGap"));
 const EqualityAffirmativeActions = lazy(() => import("./pages/equality/AffirmativeActions"));
 const MassiveImport = lazy(() => import("./pages/MassiveImport"));
+const HRIntegration = lazy(() => import("./pages/HRIntegration"));
 const EqualityComplaints = lazy(() => import("./pages/equality/Complaints"));
 const EqualityCommittee = lazy(() => import("./pages/equality/Committee"));
 const RegulatoryReports = lazy(() => import("./pages/RegulatoryReports"));
@@ -1373,6 +1374,13 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <MassiveImport />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/hr-integration"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <HRIntegration />
             </Suspense>
           </DashboardLayout>
         </Route>

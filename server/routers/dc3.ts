@@ -1109,11 +1109,11 @@ export const dc3Router = router({
           const dbInst = await getDb();
           if (dbInst && employee.positionId) {
             const [pos] = await dbInst
-              .select({ name: positions.name })
+              .select({ title: positions.title })
               .from(positions)
               .where(eq(positions.id, employee.positionId))
               .limit(1);
-            positionName = pos?.name ?? "";
+            positionName = pos?.title ?? "";
           }
           if (dbInst && employee.departmentId) {
             const [dept] = await dbInst
@@ -1630,5 +1630,53 @@ ${constanciasXml}
         code: "NOT_FOUND",
         message: "El archivo de esta exportación ya no está disponible en el almacenamiento. Genere una nueva exportación con los mismos filtros.",
       });
+    }),
+
+  // P11: Exportar historial SIRCE filtrado a Excel
+  exportSirceHistoryExcel: protectedProcedure
+    .input(z.object({
+      dateFrom:       z.string().optional(),
+      dateTo:         z.string().optional(),
+      exportedByName: z.string().optional(),
+      companyRfc:     z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+      const conditions: any[] = [];
+      if (input.dateFrom)       conditions.push(gte(sirceExportHistory.exportedAt, new Date(input.dateFrom)));
+      if (input.dateTo)         conditions.push(lte(sirceExportHistory.exportedAt, new Date(input.dateTo)));
+      if (input.exportedByName) conditions.push(like(sirceExportHistory.exportedByName, `%${input.exportedByName}%`));
+      if (input.companyRfc)     conditions.push(like(sirceExportHistory.companyRfc, `%${input.companyRfc}%`));
+      const rows = await db
+        .select()
+        .from(sirceExportHistory)
+        .where(conditions.length ? and(...conditions) : undefined)
+        .orderBy(desc(sirceExportHistory.exportedAt));
+      const data = rows.map((r: any) => ({
+        "Fecha de Exportación": r.exportedAt ? new Date(r.exportedAt).toLocaleString("es-MX") : "",
+        "Usuario Exportador":   r.exportedByName ?? "",
+        "RFC Empresa":          r.companyRfc ?? "",
+        "Constancias":          r.recordCount ?? 0,
+        "Archivo":              r.filename ?? "",
+        "Hash SHA-256":         r.fileHash ?? "",
+        "Folio Inicial":        r.folioStart ?? "",
+        "Folio Final":          r.folioEnd ?? "",
+        "Notas":                r.notes ?? "",
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
+      ws["!cols"] = [
+        { wch: 24 }, { wch: 28 }, { wch: 16 }, { wch: 12 },
+        { wch: 36 }, { wch: 70 }, { wch: 18 }, { wch: 18 }, { wch: 30 },
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Historial SIRCE");
+      const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+      const base64 = (buffer as Buffer).toString("base64");
+      return {
+        filename: `historial_sirce_${new Date().toISOString().split("T")[0]}.xlsx`,
+        data: base64,
+        count: data.length,
+      };
     }),
 });
