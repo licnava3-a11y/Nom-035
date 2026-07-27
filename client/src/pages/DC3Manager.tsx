@@ -133,16 +133,33 @@ const emptyForm: DC3FormData = {
 };
 
 function DC3Form({
-  form, setForm, catalogs, clientCompanies,
+  form, setForm, catalogs, clientCompanies, onCompanyCreated,
 }: {
   form: DC3FormData;
   setForm: (f: DC3FormData) => void;
   catalogs: { cnoAreas: { key: string; label: string }[]; thematicAreas: { key: string; label: string }[] } | undefined;
   clientCompanies?: Array<{ id: number; razonSocial: string; rfc?: string | null; isDefault?: boolean | null }>;
+  onCompanyCreated?: (company: { id: number; razonSocial: string; rfc?: string | null }) => void;
 }) {
   const { toast } = useToast();
   const set = (field: keyof DC3FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [field]: e.target.value });
+
+  // ── Modal de registro rápido de empresa cliente ──
+  const [showQuickCompany, setShowQuickCompany] = useState(false);
+  const [quickCompany, setQuickCompany] = useState({ razonSocial: "", rfc: "", representanteLegal: "", domicilioFiscal: "", giro: "" });
+  const setQC = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setQuickCompany(prev => ({ ...prev, [field]: e.target.value }));
+  const createCompanyMutation = trpc.dc3ClientCompanies.create.useMutation({
+    onSuccess: (data) => {
+      toast({ title: "Empresa registrada", description: `${data.razonSocial} agregada al catálogo` });
+      setForm({ ...form, companyName: data.razonSocial, companyRfc: data.rfc ?? "" });
+      onCompanyCreated?.(data);
+      setShowQuickCompany(false);
+      setQuickCompany({ razonSocial: "", rfc: "", representanteLegal: "", domicilioFiscal: "", giro: "" });
+    },
+    onError: (err) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
 
   // ── CURP lookup ──
   const lookupCurpMutation = trpc.dc3.lookupCurp.useMutation({
@@ -308,10 +325,22 @@ function DC3Form({
         <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1 mt-2">
           Datos de la Empresa
         </h3>
-        {/* P2: Selector de empresa del catálogo multi-empresa */}
-        {clientCompanies && clientCompanies.length > 0 && (
-          <div className="mb-3">
+        {/* P2: Selector de empresa del catálogo multi-empresa + botón registro rápido */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-1">
             <Label className="text-xs text-muted-foreground">Seleccionar del catálogo de empresas cliente</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-6 text-xs gap-1 text-primary hover:text-primary"
+              onClick={() => setShowQuickCompany(true)}
+            >
+              <Plus className="h-3 w-3" />
+              Nueva empresa
+            </Button>
+          </div>
+          {clientCompanies && clientCompanies.length > 0 ? (
             <Select
               onValueChange={(val) => {
                 if (val === "__manual") return;
@@ -319,7 +348,7 @@ function DC3Form({
                 if (co) setForm({ ...form, companyName: co.razonSocial, companyRfc: co.rfc ?? "" });
               }}
             >
-              <SelectTrigger className="h-8 text-sm mt-1">
+              <SelectTrigger className="h-8 text-sm">
                 <SelectValue placeholder="— Elegir empresa del catálogo —" />
               </SelectTrigger>
               <SelectContent>
@@ -331,8 +360,62 @@ function DC3Form({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs text-muted-foreground italic">
+              No hay empresas en el catálogo. Usa el botón "Nueva empresa" para agregar una.
+            </p>
+          )}
+        </div>
+
+        {/* Modal de registro rápido */}
+        <Dialog open={showQuickCompany} onOpenChange={setShowQuickCompany}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Registrar empresa cliente
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label>Razón Social *</Label>
+                <Input placeholder="EMPRESA EJEMPLO S.A. DE C.V." value={quickCompany.razonSocial} onChange={setQC("razonSocial")} />
+              </div>
+              <div>
+                <Label>RFC</Label>
+                <Input placeholder="EEJ900101AAA" value={quickCompany.rfc} onChange={setQC("rfc")} className="uppercase" />
+              </div>
+              <div>
+                <Label>Representante Legal</Label>
+                <Input placeholder="Nombre completo" value={quickCompany.representanteLegal} onChange={setQC("representanteLegal")} />
+              </div>
+              <div>
+                <Label>Domicilio Fiscal</Label>
+                <Input placeholder="Calle, núm., colonia, ciudad" value={quickCompany.domicilioFiscal} onChange={setQC("domicilioFiscal")} />
+              </div>
+              <div>
+                <Label>Giro / Actividad</Label>
+                <Input placeholder="Manufactura, Servicios, Comercio…" value={quickCompany.giro} onChange={setQC("giro")} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowQuickCompany(false)}>Cancelar</Button>
+              <Button
+                disabled={!quickCompany.razonSocial.trim() || createCompanyMutation.isPending}
+                onClick={() => createCompanyMutation.mutate({
+                  razonSocial: quickCompany.razonSocial.trim(),
+                  rfc: quickCompany.rfc.trim().toUpperCase() || undefined,
+                  representanteLegal: quickCompany.representanteLegal.trim() || undefined,
+                  domicilioFiscal: quickCompany.domicilioFiscal.trim() || undefined,
+                  giro: quickCompany.giro.trim() || undefined,
+                })}
+              >
+                {createCompanyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Guardar y usar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       <div>
         <Label>Nombre o Razón Social *</Label>

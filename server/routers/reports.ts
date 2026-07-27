@@ -8,7 +8,7 @@ import { TRPCError } from '@trpc/server';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { generateNom035Report } from '../pdfGenerators/nom035Report';
-import { cases, companyGeneralData, companyLogo, departments, employees, signatures, surveyPeriods, surveyResponses, surveyResults, users } from '../../drizzle/schema';
+import { cases, companyGeneralData, companyLogo, departments, employees, signatures, surveyPeriods, surveyResponses, surveyResults, systemSettings, users } from '../../drizzle/schema';
 import { eq, and, gte, lte, count, sql } from 'drizzle-orm';
 
 export const reportsRouter = router({
@@ -32,6 +32,9 @@ export const reportsRouter = router({
       if (!companyData) {
         throw new Error('No se encontraron datos de la empresa');
       }
+      // 1b. Leer campos extendidos desde systemSettings (SCIAN, centro de trabajo, registro STPS)
+      const sysSettingsRows = await db.select().from(systemSettings);
+      const getSysSetting = (key: string) => sysSettingsRows.find((s: any) => s.settingKey === key)?.settingValue ?? '';
 
       // 2. Obtener período de la encuesta
       const [period] = await db
@@ -153,9 +156,12 @@ export const reportsRouter = router({
           name: companyData.razonSocial,
           rfc: companyData.rfc,
           address: companyData.direccionFiscal,
-          mainActivity: companyData.giro || 'No especificada',
+          mainActivity: companyData.giro || getSysSetting('company_giro') || 'No especificada',
           totalEmployees: employeeCount.count,
           logoUrl: logoData?.logoUrl || undefined,
+          scian: getSysSetting('company_scian') || undefined,
+          workCenter: getSysSetting('company_work_center') || undefined,
+          stpsRegistration: getSysSetting('company_stps_registration') || undefined,
         },
         reportPeriod: {
           startDate: period.startDate,

@@ -1352,3 +1352,30 @@
 - [x] Campos SCIAN, Centro de Trabajo y Registro STPS incluidos en el prompt del LLM para el Dictamen NOM-035
 - [ ] Incluir estos campos en los reportes STPS (STPSReports.tsx) — pendiente siguiente sprint
 - [x] P17 resuelto: Usar estos campos en el Dictamen NOM-035 (completado)
+
+---
+
+## Sprint: SCIAN en STPS, Tooltip perfiles incompletos y Modal empresa DC-3 (2026-07-27)
+
+### SCIAN y centro de trabajo en reportes STPS
+- [ ] Leer company_scian, company_work_center, company_stps_registration en el router de STPSReports
+- [ ] Prellenar estos campos en el formulario de STPSReports.tsx
+- [ ] Incluir SCIAN y centro de trabajo en el PDF/HTML generado por los reportes STPS
+
+### Tooltip con lista de campos faltantes en badge de perfiles incompletos
+- [ ] Calcular lista de campos faltantes por empleado en el backend (devolver array de strings)
+- [ ] Mostrar tooltip en el badge rojo de Employees.tsx con la lista exacta de campos faltantes
+
+### Modal de registro rápido de empresa cliente en formulario DC-3
+- [ ] Agregar botón "+" junto al selector de empresa en DC3Manager
+- [ ] Modal inline con formulario mínimo: razón social, RFC, representante legal, domicilio
+- [ ] Al guardar, refrescar el selector y seleccionar la nueva empresa automáticamente
+
+---
+
+## Sprint: SCIAN en STPS + Tooltip perfiles + Modal empresa rapida (2026-07-27)
+
+- [x] SCIAN y centro de trabajo en reportes STPS: extender CompanyData en nom035Report.ts con scian/workCenter/stpsRegistration, leer systemSettings en reports.ts y pasar los campos al PDF generator del reporte NOM-035
+- [x] Tooltip con lista exacta de campos faltantes en badge de perfiles incompletos (Employees.tsx) — componente Tooltip de shadcn/ui con lista visual de cada campo faltante al hacer hover
+- [x] Modal de registro rapido de empresa cliente en formulario DC-3 — boton "Nueva empresa" junto al selector del catalogo, modal con 5 campos (razon social, RFC, representante legal, domicilio fiscal, giro), prellenado automatico de companyName y companyRfc al guardar, invalidacion del catalogo para que aparezca la nueva empresa en el selector
+- [x] Errores TS corregidos: guards db null en dc3ClientCompanies.ts (update, setDefault, uploadLogo), campo settingValue en dictamenDocs.ts, prop onCompanyCreated en DC3Form

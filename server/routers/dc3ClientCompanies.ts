@@ -42,6 +42,7 @@ export const dc3ClientCompaniesRouter = router({
     )
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) return [];
       let rows = await db
         .select()
         .from(dc3ClientCompanies)
@@ -69,6 +70,7 @@ export const dc3ClientCompaniesRouter = router({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       const [row] = await db
         .select()
         .from(dc3ClientCompanies)
@@ -83,6 +85,7 @@ export const dc3ClientCompaniesRouter = router({
    */
   getDefault: protectedProcedure.query(async () => {
     const db = await getDb();
+    if (!db) return null;
     const [row] = await db
       .select()
       .from(dc3ClientCompanies)
@@ -101,6 +104,7 @@ export const dc3ClientCompaniesRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Sin permisos para crear empresas" });
       }
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       // Si es la primera empresa, marcarla como predeterminada
       const existing = await db.select({ id: dc3ClientCompanies.id }).from(dc3ClientCompanies).limit(1);
       const isFirst = existing.length === 0;
@@ -122,6 +126,7 @@ export const dc3ClientCompaniesRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Sin permisos para editar empresas" });
       }
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       const { id, ...data } = input;
       await db.update(dc3ClientCompanies).set({ ...data, updatedAt: new Date() }).where(eq(dc3ClientCompanies.id, id));
       return { success: true };
@@ -137,6 +142,7 @@ export const dc3ClientCompaniesRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Sin permisos" });
       }
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       // Quitar default de todas
       await db.update(dc3ClientCompanies).set({ isDefault: false });
       // Marcar la seleccionada
@@ -154,6 +160,7 @@ export const dc3ClientCompaniesRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Sin permisos" });
       }
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       await db
         .update(dc3ClientCompanies)
         .set({ isActive: input.isActive, updatedAt: new Date() })
@@ -171,6 +178,7 @@ export const dc3ClientCompaniesRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "Solo administradores pueden eliminar empresas" });
       }
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       await db.delete(dc3ClientCompanies).where(eq(dc3ClientCompanies.id, input.id));
       return { success: true };
     }),
@@ -199,6 +207,7 @@ export const dc3ClientCompaniesRouter = router({
       const key = `dc3-client-companies/${input.id}/logo-${Date.now()}-${input.fileName}`;
       const { url } = await storagePut(key, buffer, input.mimeType);
       const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
       await db
         .update(dc3ClientCompanies)
         .set({ logoUrl: url, logoKey: key, updatedAt: new Date() })

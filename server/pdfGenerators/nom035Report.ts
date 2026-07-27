@@ -21,6 +21,9 @@ interface CompanyData {
   mainActivity: string;
   totalEmployees: number;
   logoUrl?: string;
+  scian?: string;
+  workCenter?: string;
+  stpsRegistration?: string;
 }
 
 interface RiskFactor {
@@ -103,6 +106,9 @@ export async function generateNom035Report(data: Nom035ReportData): Promise<{ ur
   addField(doc, 'RFC:', data.company.rfc);
   addField(doc, 'Domicilio:', data.company.address);
   addField(doc, 'Actividad Preponderante:', data.company.mainActivity);
+  if (data.company.scian) addField(doc, 'Código SCIAN:', data.company.scian);
+  if (data.company.workCenter) addField(doc, 'Centro de Trabajo:', data.company.workCenter);
+  if (data.company.stpsRegistration) addField(doc, 'Registro STPS:', data.company.stpsRegistration);
   addField(doc, 'Total de Trabajadores:', data.company.totalEmployees.toString());
   addField(doc, 'Período del Informe:', 
     `${formatDate(data.reportPeriod.startDate)} al ${formatDate(data.reportPeriod.endDate)}`

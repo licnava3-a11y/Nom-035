@@ -250,7 +250,7 @@ export const dictamenDocsRouter = router({
       const [legalRep] = await db.select().from(companyLegalRepresentative).limit(1);
       // P3: Leer campos extendidos desde systemSettings (SCIAN, centro de trabajo, representante legal, número de trabajadores)
       const sysSettings = await db.select().from(systemSettings);
-      const getSetting = (key: string) => sysSettings.find((s: any) => s.key === key)?.value ?? '';
+      const getSetting = (key: string) => sysSettings.find((s: any) => s.settingKey === key)?.settingValue ?? '';
       const scian = getSetting('company_scian');
       const workCenter = getSetting('company_work_center');
       const stpsRegistration = getSetting('company_stps_registration');

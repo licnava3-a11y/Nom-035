@@ -17,6 +17,12 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -429,10 +435,26 @@ export default function Employees() {
                     {(() => {
                       const missing = getMissingFields(employee);
                       return missing.length > 0 ? (
-                        <Badge variant="outline" className="border-amber-400 text-amber-600 text-xs" title={`Faltan: ${missing.join(', ')}`}>
-                          <ICONS.status.warning className="mr-1 h-3 w-3" />
-                          {missing.length} campo{missing.length > 1 ? 's' : ''}
-                        </Badge>
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="outline" className="border-amber-400 text-amber-600 text-xs cursor-help">
+                                <ICONS.status.warning className="mr-1 h-3 w-3" />
+                                {missing.length} campo{missing.length > 1 ? 's' : ''}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-xs">
+                              <p className="font-semibold mb-1 text-xs">Campos faltantes:</p>
+                              <ul className="text-xs space-y-0.5">
+                                {missing.map((field: string) => (
+                                  <li key={field} className="flex items-center gap-1">
+                                    <span className="text-amber-400">•</span> {field}
+                                  </li>
+                                ))}
+                              </ul>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ) : (
                         <Badge variant="outline" className="border-green-400 text-green-600 text-xs">
                           Completo
