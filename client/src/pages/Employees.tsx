@@ -46,6 +46,22 @@ export default function Employees() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [showRfcNss, setShowRfcNss] = useState(false);
+  const [incompleteOnly, setIncompleteOnly] = useState(false);
+
+  // Campos requeridos para calcular completitud en el frontend
+  const getMissingFields = (emp: any): string[] => {
+    const missing: string[] = [];
+    if (!emp.curp) missing.push('CURP');
+    if (!emp.rfc) missing.push('RFC');
+    if (!emp.nss) missing.push('NSS');
+    if (!emp.phone) missing.push('Teléfono');
+    if (!emp.departmentId) missing.push('Departamento');
+    if (!emp.positionId) missing.push('Puesto');
+    if (!emp.hireDate) missing.push('Fecha ingreso');
+    if (!emp.educationLevel) missing.push('Escolaridad');
+    if (!emp.gender) missing.push('Género');
+    return missing;
+  };
 
   // Fetch employees with filters
   const { data: employeesData, isLoading, refetch } = trpc.employees.list.useQuery({
@@ -54,6 +70,7 @@ export default function Employees() {
     isActive: statusFilter,
     page: currentPage,
     pageSize,
+    incompleteOnly: incompleteOnly || undefined,
   });
 
   const employees = employeesData?.employees;
@@ -251,6 +268,19 @@ export default function Employees() {
         </div>
         <div className="flex gap-2">
           <Button
+            variant={incompleteOnly ? "destructive" : "outline"}
+            size="sm"
+            onClick={() => { setIncompleteOnly(v => !v); setCurrentPage(1); }}
+          >
+            <ICONS.status.warning className="mr-2 h-4 w-4" />
+            Perfiles incompletos
+            {incompleteOnly && pagination?.totalCount !== undefined && (
+              <span className="ml-1.5 bg-white/20 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                {pagination.totalCount}
+              </span>
+            )}
+          </Button>
+          <Button
             variant={showRfcNss ? "default" : "outline"}
             size="sm"
             onClick={() => setShowRfcNss(v => !v)}
@@ -354,7 +384,7 @@ export default function Employees() {
           ))}
         </div>
       ) : !employees || employees.length === 0 ? (
-        search || departmentFilter ? (
+        search || departmentFilter || incompleteOnly ? (
           <Card>
             <CardContent className="py-12 text-center">
               <ICONS.users.single className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -396,6 +426,19 @@ export default function Employees() {
                       reentryCount={employee.reentryCount || 0}
                       previousHireDates={employee.previousHireDates}
                     />
+                    {(() => {
+                      const missing = getMissingFields(employee);
+                      return missing.length > 0 ? (
+                        <Badge variant="outline" className="border-amber-400 text-amber-600 text-xs" title={`Faltan: ${missing.join(', ')}`}>
+                          <ICONS.status.warning className="mr-1 h-3 w-3" />
+                          {missing.length} campo{missing.length > 1 ? 's' : ''}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-green-400 text-green-600 text-xs">
+                          Completo
+                        </Badge>
+                      );
+                    })()}
                   </div>
                 </div>
               </CardHeader>

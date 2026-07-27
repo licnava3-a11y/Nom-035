@@ -88,6 +88,7 @@ const hierarchicalMenuItems = [
       { label: "Reportes Automáticos", path: "/scheduled-reports", description: "Dashboards ejecutivos mensuales con métricas NMX-025 y NOM-035" },
       { label: "Importación Masiva", path: "/admin/import", description: "Importar datos desde Excel" },
       { label: "Integración con Sistemas de RH", path: "/hr-integration", description: "Importar/exportar empleados desde CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM y Nomipaq" },
+      { label: "Catálogo de Empresas Cliente", path: "/client-companies", description: "Gestiona las empresas para las que emites constancias DC-3 (multi-empresa)" },
       { label: "Reclutamiento", path: "/recruitment", description: "Gestión de vacantes y candidatos con filtro de escolaridad" },
       { label: "Vencimientos de Contratos", path: "/contract-expiration-dashboard", description: "Dashboard consolidado de contratos próximos a vencer con exportación Excel" },
       { label: "Gestión de Vacaciones", path: "/vacation-management", description: "Solicitudes con saldo LFT automático, flujo de aprobación y notificación a RH" },

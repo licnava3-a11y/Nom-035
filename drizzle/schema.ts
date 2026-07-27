@@ -6326,3 +6326,41 @@ export const sirceExportHistory = mysqlTable("sirce_export_history", {
 });
 export type SirceExportHistory = typeof sirceExportHistory.$inferSelect;
 export type InsertSirceExportHistory = typeof sirceExportHistory.$inferInsert;
+
+/**
+ * Catálogo de empresas cliente para DC-3 (multi-empresa)
+ * Permite emitir constancias DC-3 para múltiples empresas desde una sola cuenta.
+ * La empresa "principal" se marca con isDefault=true y se prellenar automáticamente en el formulario.
+ */
+export const dc3ClientCompanies = mysqlTable("dc3_client_companies", {
+  id: int("id").autoincrement().primaryKey(),
+  // Datos fiscales
+  razonSocial: varchar("razon_social", { length: 255 }).notNull(),
+  rfc: varchar("rfc", { length: 13 }).notNull(),
+  // Representante legal / responsable
+  representanteLegal: varchar("representante_legal", { length: 255 }),
+  // Domicilio
+  domicilio: varchar("domicilio", { length: 512 }),
+  municipio: varchar("municipio", { length: 100 }),
+  estado: varchar("estado", { length: 100 }),
+  codigoPostal: varchar("codigo_postal", { length: 5 }),
+  // Contacto
+  telefono: varchar("telefono", { length: 20 }),
+  email: varchar("email", { length: 255 }),
+  // Datos laborales
+  registroPatronal: varchar("registro_patronal", { length: 20 }),
+  giro: varchar("giro", { length: 255 }),
+  scian: varchar("scian", { length: 10 }),
+  numTrabajadores: int("num_trabajadores"),
+  // Logo (URL S3)
+  logoUrl: text("logo_url"),
+  logoKey: varchar("logo_key", { length: 512 }),
+  // Control
+  isActive: boolean("is_active").default(true).notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),
+  notas: text("notas"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type Dc3ClientCompany = typeof dc3ClientCompanies.$inferSelect;
+export type InsertDc3ClientCompany = typeof dc3ClientCompanies.$inferInsert;

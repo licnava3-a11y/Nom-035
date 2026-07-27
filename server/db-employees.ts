@@ -18,6 +18,7 @@ export async function getAllEmployees(filters?: {
   search?: string;
   page?: number;
   pageSize?: number;
+  incompleteOnly?: boolean;
 }): Promise<{ employees: EmployeeWithRelations[]; pagination: { page: number; pageSize: number; totalCount: number; totalPages: number } }> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -41,6 +42,22 @@ export async function getAllEmployees(filters?: {
         like(employees.employeeNumber, `%${filters.search}%`),
         like(employees.rfc, `%${filters.search}%`),
         like(employees.nss, `%${filters.search}%`)
+      )
+    );
+  }
+  // Perfiles incompletos: faltan CURP, RFC, NSS, teléfono, departamento, puesto, fecha ingreso, escolaridad o género
+  if (filters?.incompleteOnly) {
+    conditions.push(
+      or(
+        sql`(${employees.curp} IS NULL OR ${employees.curp} = '')`,
+        sql`(${employees.rfc} IS NULL OR ${employees.rfc} = '')`,
+        sql`(${employees.nss} IS NULL OR ${employees.nss} = '')`,
+        sql`(${employees.phone} IS NULL OR ${employees.phone} = '')`,
+        sql`${employees.departmentId} IS NULL`,
+        sql`${employees.positionId} IS NULL`,
+        sql`${employees.hireDate} IS NULL`,
+        sql`${employees.educationLevel} IS NULL`,
+        sql`${employees.gender} IS NULL`
       )
     );
   }

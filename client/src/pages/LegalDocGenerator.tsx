@@ -392,6 +392,8 @@ function DictamenTab() {
     trabajadoresHombres: 0, trabajadoresMujeres: 0, periodoEvaluado: "",
     responsableTecnico: "", cedulaProfesional: "", representanteLegal: "",
     investigationDocId: undefined as number | undefined,
+    // P3: Campos NOM-035/STPS desde systemSettings
+    scian: "", workCenter: "", stpsRegistration: "",
   });
   const [activeDoc, setActiveDoc] = useState<any>(null);
   const [editedContenido, setEditedContenido] = useState<Record<string, string>>({});
@@ -437,6 +439,10 @@ function DictamenTab() {
         trabajadoresMujeres: prefilledData.trabajadoresMujeres || prev.trabajadoresMujeres,
         representanteLegal: prefilledData.representanteLegal || prev.representanteLegal,
         periodoEvaluado: prefilledData.periodoEvaluado || prev.periodoEvaluado,
+        // P3: Prellenar campos NOM-035/STPS desde systemSettings
+        scian: (prefilledData as any).scian || prev.scian,
+        workCenter: (prefilledData as any).workCenter || prev.workCenter,
+        stpsRegistration: (prefilledData as any).stpsRegistration || prev.stpsRegistration,
       }));
       setPrefilledApplied(true);
     }
@@ -699,6 +705,22 @@ function DictamenTab() {
               <div className="col-span-2 space-y-1">
                 <Label>Domicilio Fiscal *</Label>
                 <Input placeholder="Calle, número, colonia, municipio, estado, C.P." value={form.domicilio} onChange={e => setForm(p => ({ ...p, domicilio: e.target.value }))} />
+              </div>
+              {/* P3: Campos NOM-035/STPS prellenados desde Configuración */}
+              <div className="space-y-1">
+                <Label className="flex items-center gap-1">
+                  Código SCIAN
+                  <span className="text-xs text-muted-foreground">(Actividad económica)</span>
+                </Label>
+                <Input placeholder="Ej: 311811" value={form.scian} onChange={e => setForm(p => ({ ...p, scian: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label>Centro de Trabajo</Label>
+                <Input placeholder="Nombre del centro de trabajo" value={form.workCenter} onChange={e => setForm(p => ({ ...p, workCenter: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label>Registro STPS</Label>
+                <Input placeholder="Número de registro ante la STPS" value={form.stpsRegistration} onChange={e => setForm(p => ({ ...p, stpsRegistration: e.target.value }))} />
               </div>
               <div className="space-y-1">
                 <Label>Total de Trabajadores *</Label>

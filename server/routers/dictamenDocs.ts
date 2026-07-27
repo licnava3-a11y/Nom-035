@@ -3,7 +3,7 @@ import { sendEmail } from "../_core/email";
 import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users , employees } from "../../drizzle/schema";
+import { dictamenDocs, docFormatConfig, caseInvestigationDocs, correctiveActions, companyGeneralData, companyLegalRepresentative, users, employees, systemSettings } from "../../drizzle/schema";
 import { createHash } from "crypto";
 import { inArray } from "drizzle-orm";
 import { eq, desc, sql } from "drizzle-orm";
@@ -41,6 +41,10 @@ async function generateDictamenContent(params: {
   representanteLegal: string;
   folio: string;
   fechaEmision: string;
+  // P3: Campos NOM-035/STPS
+  scian?: string;
+  workCenter?: string;
+  stpsRegistration?: string;
   // SECCIÓN 8.5 — datos reales de cumplimiento
   resumen85?: {
     cumplimiento: string;
@@ -57,9 +61,12 @@ async function generateDictamenContent(params: {
     accionesIndividual: number;
   };
 }): Promise<{ contenido: Record<string, string>; nivelRiesgoGlobal: string }> {
+  const scianLine = params.scian ? `\n- Código SCIAN (actividad económica): ${params.scian}` : '';
+  const workCenterLine = params.workCenter ? `\n- Centro de trabajo: ${params.workCenter}` : '';
+  const stpsLine = params.stpsRegistration ? `\n- Registro STPS: ${params.stpsRegistration}` : '';
   const userPrompt = `Genera el documento "Dictamen" para la NOM-035-STPS-2018 con los siguientes datos:
 - Razón social: ${params.razonSocial}
-- Domicilio: ${params.domicilio}
+- Domicilio: ${params.domicilio}${scianLine}${workCenterLine}${stpsLine}
 - Total de trabajadores: ${params.totalTrabajadores} (Hombres: ${params.trabajadoresHombres}, Mujeres: ${params.trabajadoresMujeres})
 - Período evaluado: ${params.periodoEvaluado}
 - Responsable técnico: ${params.responsableTecnico} (Cédula: ${params.cedulaProfesional})
@@ -159,6 +166,10 @@ export const dictamenDocsRouter = router({
       cedulaProfesional: z.string().min(3, "Cédula profesional requerida"),
       representanteLegal: z.string().min(2, "Representante legal requerido"),
       investigationDocId: z.number().optional(),
+      // P3: Campos NOM-035/STPS
+      scian: z.string().optional(),
+      workCenter: z.string().optional(),
+      stpsRegistration: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await requireDb();
@@ -237,6 +248,18 @@ export const dictamenDocsRouter = router({
       const db = await requireDb();
       const [company] = await db.select().from(companyGeneralData).limit(1);
       const [legalRep] = await db.select().from(companyLegalRepresentative).limit(1);
+      // P3: Leer campos extendidos desde systemSettings (SCIAN, centro de trabajo, representante legal, número de trabajadores)
+      const sysSettings = await db.select().from(systemSettings);
+      const getSetting = (key: string) => sysSettings.find((s: any) => s.key === key)?.value ?? '';
+      const scian = getSetting('company_scian');
+      const workCenter = getSetting('company_work_center');
+      const stpsRegistration = getSetting('company_stps_registration');
+      const repLegalSys = getSetting('company_representative_legal');
+      const numWorkersSys = getSetting('company_num_workers');
+      const giroSys = getSetting('company_giro');
+      const addressSys = getSetting('company_address');
+      const razonSocialSys = getSetting('company_name');
+      const rfcSys = getSetting('company_rfc');
       const genderCounts = await db
         .select({ sexo: users.sexo, count: sql<number>`COUNT(*)` })
         .from(users)
@@ -252,19 +275,24 @@ export const dictamenDocsRouter = router({
         if (g.sexo === 'Femenino') mujeres = Number(g.count);
       }
       const total = Number(totalRow?.count ?? 0);
+      const numWorkers = total || Number(numWorkersSys) || (company?.numeroTrabajadores ?? 0);
       const now = new Date();
       const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
       const periodoEvaluado = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
       return {
-        razonSocial: company?.razonSocial ?? '',
-        domicilio: company?.direccionFiscal ?? '',
-        totalTrabajadores: total || (company?.numeroTrabajadores ?? 0),
+        razonSocial: razonSocialSys || company?.razonSocial || '',
+        domicilio: addressSys || company?.direccionFiscal || '',
+        totalTrabajadores: numWorkers,
         trabajadoresHombres: hombres,
         trabajadoresMujeres: mujeres,
-        representanteLegal: (legalRep as any)?.nombre ?? company?.representanteLegal ?? '',
+        representanteLegal: repLegalSys || (legalRep as any)?.nombre || company?.representanteLegal || '',
         periodoEvaluado,
-        rfc: company?.rfc ?? '',
-        giro: company?.giro ?? '',
+        rfc: rfcSys || company?.rfc || '',
+        giro: giroSys || company?.giro || '',
+        // P3: Campos nuevos NOM-035/STPS desde systemSettings
+        scian,
+        workCenter,
+        stpsRegistration,
       };
     }),
 

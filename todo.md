@@ -1328,3 +1328,27 @@
 
 > **Resumen ejecutivo del análisis:**
 > El sistema tiene una base sólida con 94 archivos de test y 1577 pruebas pasando. Las brechas más críticas son: (1) falta de prellenado automático de datos de empresa en DC-3 desde Configuración, (2) importación masiva sin campos RFC/NSS/género, (3) ausencia de módulo de integración con sistemas de nómina (CONTPAQi, Aspel NOI, SAP, Oracle), y (4) datos de empresa incompletos en systemSettings. La compatibilidad con sistemas de RH mexicanos requiere soporte para los layouts estándar de CONTPAQi NOI (Excel con mapeo de columnas) y Aspel NOI (Excel con layout fijo), así como el formato TXT del SUA/IMSS.
+
+---
+
+## Sprint: Perfiles incompletos, Catálogo Empresas Clientes y SCIAN en Dictamen (2026-07-27)
+
+### Filtro perfiles incompletos en tabla de empleados
+- [x] Agregar botón toggle "Perfiles incompletos" en la barra de acciones de Employees.tsx
+- [x] Backend: procedure `list` acepta parámetro `incompleteOnly: boolean` en employees router y getAllEmployees
+- [x] Lógica: perfil incompleto = falta cualquiera de {curp, rfc, nss, phone, departmentId, positionId, hireDate, educationLevel, gender} (OR en WHERE)
+- [x] Badge rojo con número de campos faltantes en cada tarjeta de empleado cuando incompleteOnly está activo
+
+### Catálogo de empresas clientes en DC-3 (multi-empresa)
+- [x] Tabla `dc3_client_companies` creada en schema BD y migrada a la BD (drizzle-kit generate + webdev_execute_sql)
+- [x] Router `dc3ClientCompanies.ts` con CRUD completo (list, create, update, delete, setDefault) + exportar plantilla Excel
+- [x] Página `ClientCompanies.tsx` con tabla, búsqueda, modal de alta/edición, logo S3, botón empresa predeterminada
+- [x] Ruta `/client-companies` en App.tsx y enlace en sidebar (sección DC-3)
+- [x] Selector de empresa en DC3Manager: dropdown que prellenar nombre+RFC+domicilio desde el catálogo
+
+### SCIAN y centro de trabajo en Dictamen NOM-035 y reportes STPS
+- [x] Leer company_scian, company_work_center, company_num_workers, company_stps_registration en getPrefilledData de dictamenDocs.ts (desde systemSettings)
+- [x] Prellenar campos SCIAN, Centro de Trabajo y Registro STPS en el formulario de LegalDocGenerator.tsx
+- [x] Campos SCIAN, Centro de Trabajo y Registro STPS incluidos en el prompt del LLM para el Dictamen NOM-035
+- [ ] Incluir estos campos en los reportes STPS (STPSReports.tsx) — pendiente siguiente sprint
+- [x] P17 resuelto: Usar estos campos en el Dictamen NOM-035 (completado)

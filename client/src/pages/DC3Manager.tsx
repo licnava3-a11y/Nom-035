@@ -34,7 +34,7 @@ function EmployeeTypeahead({ onSelect }: {
   }, [query]);
 
   const { data, isLoading } = trpc.employees.list.useQuery(
-    { search: debouncedQuery, page: 1, limit: 8 },
+    { search: debouncedQuery, page: 1, pageSize: 8 },
     { enabled: debouncedQuery.length >= 2 }
   );
 
@@ -133,11 +133,12 @@ const emptyForm: DC3FormData = {
 };
 
 function DC3Form({
-  form, setForm, catalogs,
+  form, setForm, catalogs, clientCompanies,
 }: {
   form: DC3FormData;
   setForm: (f: DC3FormData) => void;
   catalogs: { cnoAreas: { key: string; label: string }[]; thematicAreas: { key: string; label: string }[] } | undefined;
+  clientCompanies?: Array<{ id: number; razonSocial: string; rfc?: string | null; isDefault?: boolean | null }>;
 }) {
   const { toast } = useToast();
   const set = (field: keyof DC3FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -307,6 +308,31 @@ function DC3Form({
         <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2 border-b pb-1 mt-2">
           Datos de la Empresa
         </h3>
+        {/* P2: Selector de empresa del catálogo multi-empresa */}
+        {clientCompanies && clientCompanies.length > 0 && (
+          <div className="mb-3">
+            <Label className="text-xs text-muted-foreground">Seleccionar del catálogo de empresas cliente</Label>
+            <Select
+              onValueChange={(val) => {
+                if (val === "__manual") return;
+                const co = clientCompanies.find((c) => String(c.id) === val);
+                if (co) setForm({ ...form, companyName: co.razonSocial, companyRfc: co.rfc ?? "" });
+              }}
+            >
+              <SelectTrigger className="h-8 text-sm mt-1">
+                <SelectValue placeholder="— Elegir empresa del catálogo —" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__manual">— Captura manual —</SelectItem>
+                {clientCompanies.map((co) => (
+                  <SelectItem key={co.id} value={String(co.id)}>
+                    {co.isDefault ? "⭐ " : ""}{co.razonSocial}{co.rfc ? ` · ${co.rfc}` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
       <div>
         <Label>Nombre o Razón Social *</Label>
@@ -469,6 +495,9 @@ export function DC3Manager() {
 
   // P1: Datos de empresa desde Configuración para prellenar formulario
   const companyInfoQuery = trpc.systemSettings.getCompanyInfo.useQuery(undefined, { staleTime: 60_000 });
+  // P2: Catálogo de empresas cliente para selector multi-empresa
+  const clientCompaniesQuery = trpc.dc3ClientCompanies.list.useQuery(undefined, { staleTime: 60_000 });
+  const clientCompanies = clientCompaniesQuery.data ?? [];
 
   const catalogsQuery = trpc.dc3.getCatalogs.useQuery();
 
@@ -1100,7 +1129,7 @@ export function DC3Manager() {
           <DialogHeader>
             <DialogTitle>{editId ? "Editar Registro DC-3" : "Nuevo Registro DC-3"}</DialogTitle>
           </DialogHeader>
-          <DC3Form form={form} setForm={setForm} catalogs={catalogsQuery.data} />
+          <DC3Form form={form} setForm={setForm} catalogs={catalogsQuery.data} clientCompanies={clientCompanies} />
 
           {/* Panel de firmas digitales — solo visible al editar un registro existente */}
           {editId && (

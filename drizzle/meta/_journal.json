@@ -1219,6 +1219,13 @@
       "when": 1781854913596,
       "tag": "0173_daily_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 174,
+      "version": "5",
+      "when": 1785172174500,
+      "tag": "0174_bitter_hercules",
+      "breakpoints": true
     }
   ]
 }

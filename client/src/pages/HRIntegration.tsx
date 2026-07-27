@@ -117,7 +117,8 @@ export default function HRIntegration() {
     setIsLoading(true);
     try {
       const buffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
+      const bytes = new Uint8Array(buffer);
+      const base64 = btoa(Array.from(bytes, b => String.fromCharCode(b)).join(""));
       setFileData({ base64, name: file.name });
 
       const result = await previewMutation.mutateAsync({

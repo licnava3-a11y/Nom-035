@@ -180,6 +180,7 @@ const EqualitySalaryGap = lazy(() => import("./pages/equality/SalaryGap"));
 const EqualityAffirmativeActions = lazy(() => import("./pages/equality/AffirmativeActions"));
 const MassiveImport = lazy(() => import("./pages/MassiveImport"));
 const HRIntegration = lazy(() => import("./pages/HRIntegration"));
+const ClientCompanies = lazy(() => import("./pages/ClientCompanies"));
 const EqualityComplaints = lazy(() => import("./pages/equality/Complaints"));
 const EqualityCommittee = lazy(() => import("./pages/equality/Committee"));
 const RegulatoryReports = lazy(() => import("./pages/RegulatoryReports"));
@@ -1376,6 +1377,11 @@ function Router() {
               <MassiveImport />
             </Suspense>
           </DashboardLayout>
+        </Route>
+        <Route path={"/client-companies"}>
+              <DashboardLayout>
+                <ClientCompanies />
+              </DashboardLayout>
         </Route>
         <Route path={"/hr-integration"}>
           <DashboardLayout>

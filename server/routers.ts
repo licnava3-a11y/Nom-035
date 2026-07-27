@@ -168,6 +168,7 @@ import { dc3Router } from "./routers/dc3";
 import { dc3RemoteSignRouter } from "./routers/dc3RemoteSign";
 import { formatCatalogRouter } from "./routers/formatCatalog";
 import { hrIntegrationRouter } from "./routers/hrIntegration";
+import { dc3ClientCompaniesRouter } from "./routers/dc3ClientCompanies";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1523,5 +1524,6 @@ export const appRouter = router({
   dc3RemoteSign: dc3RemoteSignRouter,
   formatCatalog: formatCatalogRouter,
   hrIntegration: hrIntegrationRouter,
+  dc3ClientCompanies: dc3ClientCompaniesRouter,
 });
 export type AppRouter = typeof appRouter;
