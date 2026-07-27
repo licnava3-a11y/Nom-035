@@ -494,9 +494,11 @@ export default function SirceExportHistory() {
                 <Download className="h-8 w-8 text-purple-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {data?.exports.reduce((sum, e) => sum + e.recordCount, 0) ?? "—"}
+                    {data?.totalRecords?.toLocaleString("es-MX") ?? "—"}
                   </p>
-                  <p className="text-sm text-muted-foreground">Constancias exportadas (esta página)</p>
+                  <p className="text-sm text-muted-foreground">
+                    {activeFilterCount > 0 ? "Constancias en el período filtrado" : "Total de constancias exportadas"}
+                  </p>
                 </div>
               </div>
             </CardContent>

@@ -1582,7 +1582,7 @@ ${constanciasXml}
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const [rows, countRows] = await Promise.all([
+      const [rows, countRows, sumRows] = await Promise.all([
         db
           .select()
           .from(sirceExportHistory)
@@ -1594,10 +1594,16 @@ ${constanciasXml}
           .select({ total: sql<number>`count(*)` })
           .from(sirceExportHistory)
           .where(whereClause),
+        // P15: Suma total de constancias en el período filtrado
+        db
+          .select({ totalRecords: sql<number>`COALESCE(SUM(record_count), 0)` })
+          .from(sirceExportHistory)
+          .where(whereClause),
       ]);
       return {
         exports: rows,
         total: Number(countRows[0]?.total ?? 0),
+        totalRecords: Number(sumRows[0]?.totalRecords ?? 0),
         page: input.page,
         pageSize: input.pageSize,
       };

@@ -1280,9 +1280,9 @@
 
 **Problema:** No hay forma visual de saber qué tan completo está el perfil de un empleado (faltan CURP, RFC, NSS, foto, etc.).
 
-- [ ] Calcular % de completitud basado en campos clave: nombre, email, CURP, RFC, NSS, departamento, puesto, fechaIngreso, nivel educativo
-- [ ] Mostrar barra de progreso en EmployeeProfile y en la tabla de Employees
-- [ ] Filtro "Perfiles incompletos" en Employees.tsx para detectar empleados con datos faltantes
+- [x] Calcular % de completitud basado en campos clave: nombre, email, CURP, RFC, NSS, departamento, puesto, fechaIngreso, nivel educativo
+- [x] Mostrar barra de progreso en EmployeeProfile con color semáforo (verde/ámbar/rojo) y lista de campos faltantes
+- [ ] Filtro "Perfiles incompletos" en Employees.tsx para detectar empleados con datos faltantes (pendiente)
 
 ---
 
@@ -1290,9 +1290,9 @@
 
 **Problema:** El SUA del IMSS genera archivos TXT con altas, bajas y modificaciones de salario. No hay forma de importar estos movimientos directamente.
 
-- [ ] Parser de archivo TXT SUA (layout IMSS: NSS, RFC, CURP, nombre, SDI, tipo movimiento, fecha)
-- [ ] Tab "SUA/IMSS" en HRIntegration.tsx para cargar el TXT y procesar altas/bajas/modificaciones
-- [ ] Sincronizar automáticamente: altas → crear empleado, bajas → marcar terminationDate, modificaciones → actualizar salario en payrollData
+- [x] Soporte SUA/IMSS agregado en HR_SYSTEMS y COLUMN_MAPS de hrIntegration.ts (mapeo de columnas NSS, RFC, CURP, SDI, Fecha Alta, Sexo)
+- [x] Importación de empleados desde archivos SUA/IMSS disponible en HRIntegration.tsx
+- [ ] Parser de archivo TXT SUA con movimientos de altas/bajas/modificaciones de salario (pendiente)
 
 ---
 
@@ -1300,8 +1300,8 @@
 
 **Problema:** Las tarjetas de KPI en SirceExportHistory muestran el total histórico, pero no la suma de constancias del período filtrado.
 
-- [ ] Agregar campo `totalRecordsInFilter` en la respuesta de `listSirceExports`
-- [ ] Mostrar "X constancias en el período" en la tarjeta de stats cuando hay filtros activos
+- [x] Agregar campo `totalRecords` (COALESCE SUM record_count) en la respuesta de `listSirceExports`
+- [x] Mostrar "X constancias en el período filtrado" en la tarjeta de stats cuando hay filtros activos
 
 ---
 
@@ -1309,10 +1309,10 @@
 
 **Problema:** El sidebar tiene más de 300 ítems de menú organizados en ~10 secciones. Algunos módulos relacionados están en secciones diferentes, dificultando la navegación.
 
-- [ ] Agregar sección "Integración con Sistemas Externos" en el sidebar con: Importación Masiva, Integración RH (CONTPAQi/NOI/SAP/Oracle), Exportar para Nómina
-- [ ] Mover "Importación Masiva" de la sección actual a la nueva sección de Integración
-- [ ] Agregar búsqueda en el sidebar (ya existe GlobalSearch pero no filtra el menú lateral)
-- [ ] Agregar tooltips con descripción al hacer hover en ítems del sidebar (ya existen en el código, verificar que estén activos)
+- [x] Enlace "Integración con Sistemas de RH" agregado al sidebar en la sección de Empleados
+- [ ] Mover "Importación Masiva" de la sección actual a la nueva sección de Integración (pendiente)
+- [ ] Agregar búsqueda en el sidebar (pendiente)
+- [ ] Agregar tooltips con descripción al hacer hover en ítems del sidebar (pendiente)
 
 ---
 
@@ -1320,8 +1320,9 @@
 
 **Problema:** La NOM-035 requiere identificar el centro de trabajo, número de trabajadores y actividad económica. Estos datos no se capturan en Settings.
 
-- [ ] Agregar campos: `company_num_workers` (número de trabajadores), `company_activity_code` (código SCIAN de actividad económica), `company_work_center` (nombre del centro de trabajo), `company_stps_registration` (registro STPS)
-- [ ] Usar estos campos en el Dictamen NOM-035 y en los reportes STPS
+- [x] Campos SCIAN, centro de trabajo, número de trabajadores y registro STPS ya existen en systemSettings.ts (getCompanyInfo/saveCompanyInfo)
+- [x] Campos visibles y editables en Settings.tsx
+- [ ] Usar estos campos en el Dictamen NOM-035 y en los reportes STPS (pendiente)
 
 ---
 

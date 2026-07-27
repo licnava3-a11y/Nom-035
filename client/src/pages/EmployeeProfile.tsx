@@ -549,8 +549,47 @@ export default function EmployeeProfile() {
               )}
             </div>
           </div>
-        </CardHeader>
+                </CardHeader>
       </Card>
+
+      {/* P13: Indicador de completitud del perfil */}
+      {(() => {
+        const fields = [
+          { label: "Nombre",           value: employee.firstName || employee.lastName },
+          { label: "Email",            value: employee.email },
+          { label: "Teléfono",         value: employee.phone },
+          { label: "CURP",             value: employee.curp },
+          { label: "RFC",              value: employee.rfc },
+          { label: "NSS",              value: employee.nss },
+          { label: "Departamento",     value: employee.departmentId },
+          { label: "Puesto",           value: employee.positionId },
+          { label: "Fecha de ingreso", value: employee.hireDate },
+          { label: "Escolaridad",      value: employee.educationLevel },
+          { label: "Género",           value: employee.gender },
+          { label: "Núm. Empleado",    value: employee.employeeNumber },
+        ];
+        const filled = fields.filter(f => f.value != null && f.value !== "").length;
+        const pct = Math.round((filled / fields.length) * 100);
+        const missing = fields.filter(f => !f.value);
+        const barColor = pct >= 90 ? "bg-green-500" : pct >= 60 ? "bg-amber-500" : "bg-red-500";
+        const textColor = pct >= 90 ? "text-green-600" : pct >= 60 ? "text-amber-600" : "text-red-600";
+        return (
+          <div className="rounded-lg border bg-card p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Completitud del perfil</span>
+              <span className={`text-sm font-bold ${textColor}`}>{pct}%</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+              <div className={`h-2 rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+            </div>
+            {missing.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Campos faltantes: {missing.map(f => f.label).join(", ")}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Contact Information */}

@@ -24,11 +24,12 @@ import { getDb } from "../db";
 // ─── Tipos de sistema origen ──────────────────────────────────────────────────
 
 export const HR_SYSTEMS = [
-  { id: "contpaqiNominas", label: "CONTPAQi Nóminas", vendor: "Grupo Caminante" },
-  { id: "aspelNoi",        label: "Aspel NOI",         vendor: "Aspel" },
+  { id: "contpaqiNominas", label: "CONTPAQi Nóminas",          vendor: "Grupo Caminante" },
+  { id: "aspelNoi",        label: "Aspel NOI",                vendor: "Aspel" },
   { id: "sapHcm",          label: "SAP HCM / SuccessFactors", vendor: "SAP" },
-  { id: "oracleHcm",       label: "Oracle HCM Cloud",  vendor: "Oracle" },
-  { id: "nomipaq",         label: "Nomipaq",            vendor: "Computación en Acción" },
+  { id: "oracleHcm",       label: "Oracle HCM Cloud",         vendor: "Oracle" },
+  { id: "nomipaq",         label: "Nomipaq",                  vendor: "Computación en Acción" },
+  { id: "suaImss",         label: "SUA / IMSS (TXT/CSV)",     vendor: "IMSS" },
   { id: "generic",         label: "Formato Genérico NOM-035", vendor: "Personalizado" },
 ] as const;
 
@@ -130,6 +131,24 @@ const COLUMN_MAPS: Record<HrSystemId, Record<string, string>> = {
     "Fecha Nacimiento":         "fechaNacimiento",
     "Email":                    "email",
     "Teléfono":                 "telefono",
+  },
+  suaImss: {
+    // SUA (Sistema Único de Autodeterminación) / IMSS — layout CSV/TXT
+    "NSS":                      "nss",
+    "NOMBRE DEL TRABAJADOR":    "nombre",
+    "NOMBRE":                   "nombre",
+    "RFC":                      "rfc",
+    "CURP":                     "curp",
+    "SALARIO DIARIO INTEGRADO": "salarioDiario",
+    "SDI":                      "salarioDiario",
+    "FECHA DE ALTA":             "fechaIngreso",
+    "FECHA ALTA":                "fechaIngreso",
+    "TIPO DE TRABAJADOR":        "tipoTrabajador",
+    "REGISTRO PATRONAL":         "registroPatronal",
+    "SEXO":                      "sexo",
+    "FECHA DE NACIMIENTO":       "fechaNacimiento",
+    "CLAVE":                     "employeeNumber",
+    "NO. TRABAJADOR":            "employeeNumber",
   },
   generic: {
     // Formato genérico NOM-035 (columnas en español)
@@ -240,7 +259,7 @@ export const hrIntegrationRouter = router({
     .input(z.object({
       fileData: z.string(),       // base64
       fileName: z.string(),
-      systemId: z.enum(["contpaqiNominas", "aspelNoi", "sapHcm", "oracleHcm", "nomipaq", "generic"]),
+      systemId: z.enum(["contpaqiNominas", "aspelNoi", "sapHcm", "oracleHcm", "nomipaq", "suaImss", "generic"]),
     }))
     .mutation(async ({ input }) => {
       const xlsx = await import("xlsx");
@@ -281,7 +300,7 @@ export const hrIntegrationRouter = router({
     .input(z.object({
       fileData: z.string(),       // base64
       fileName: z.string(),
-      systemId: z.enum(["contpaqiNominas", "aspelNoi", "sapHcm", "oracleHcm", "nomipaq", "generic"]),
+      systemId: z.enum(["contpaqiNominas", "aspelNoi", "sapHcm", "oracleHcm", "nomipaq", "suaImss", "generic"]),
       skipDuplicateEmails: z.boolean().default(true),
     }))
     .mutation(async ({ input }) => {
