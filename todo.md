@@ -1175,18 +1175,18 @@
 
 **Campos estándar en CONTPAQi NOI y Aspel NOI:** Clave empleado, Nombre, Apellidos, RFC, CURP, NSS, Fecha alta, Fecha baja, Puesto, Departamento, Registro patronal, Salario diario, Tipo de jornada, Sexo, Fecha nacimiento, Estado civil, Código postal, Teléfono.
 
-- [ ] Crear página `HRIntegration.tsx` con tabs: CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM, SUA/IMSS
-- [ ] Tab CONTPAQi NOI: importar XLSX con mapeo de columnas (clave→employeeNumber, NSS→nss, RFC→rfc, etc.)
-- [ ] Tab Aspel NOI: importar XLSX con layout estándar NOI (mismos campos, diferente orden de columnas)
-- [ ] Tab SAP HCM: importar CSV con campos PERNR, VORNA, NACHN, GBDAT, ENAME, ORGEH, PLANS
-- [ ] Tab Oracle HCM: importar CSV con campos PersonNumber, FirstName, LastName, NationalIdentifier, HireDate, DepartmentName, JobCode
-- [ ] Tab SUA/IMSS: importar TXT con layout IMSS (NSS, RFC, CURP, nombre, salario, fecha alta/baja)
-- [ ] Mapeo visual de columnas: tabla drag-and-drop para asignar columna del archivo → campo del sistema
-- [ ] Vista previa de los primeros 5 registros antes de confirmar importación
-- [ ] Reporte de resultado: importados, actualizados, omitidos (duplicados), errores con fila y motivo
-- [ ] Exportar catálogo de empleados en formato CONTPAQi, NOI, SAP o Oracle para sincronización bidireccional
-- [ ] Agregar ruta `/hr-integration` en App.tsx y enlace en sidebar (sección Administración)
-- [ ] Tests unitarios para el mapeo de columnas y la validación de campos
+- [x] Crear página `HRIntegration.tsx` con tabs: CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM, SUA/IMSS
+- [x] Tab CONTPAQi NOI: importar XLSX con mapeo de columnas (clave→employeeNumber, NSS→nss, RFC→rfc, etc.)
+- [x] Tab Aspel NOI: importar XLSX con layout estándar NOI (mismos campos, diferente orden de columnas)
+- [x] Tab SAP HCM: importar CSV con campos PERNR, VORNA, NACHN, GBDAT, ENAME, ORGEH, PLANS
+- [x] Tab Oracle HCM: importar CSV con campos PersonNumber, FirstName, LastName, NationalIdentifier, HireDate, DepartmentName, JobCode
+- [x] Tab SUA/IMSS: importar TXT con layout IMSS (NSS, RFC, CURP, nombre, salario, fecha alta/baja)
+- [x] Mapeo visual de columnas: tabla drag-and-drop para asignar columna del archivo → campo del sistema
+- [x] Vista previa de los primeros 5 registros antes de confirmar importación
+- [x] Reporte de resultado: importados, actualizados, omitidos (duplicados), errores con fila y motivo
+- [x] Exportar catálogo de empleados en formato CONTPAQi, NOI, SAP o Oracle para sincronización bidireccional
+- [x] Agregar ruta `/hr-integration` en App.tsx y enlace en sidebar (sección Administración)
+- [x] Tests unitarios para el mapeo de columnas y la validación de campos
 
 ---
 
@@ -1250,7 +1250,7 @@
 
 - [x] Verificar que `surveyTokens` incluya `departmentId` y `positionId` del empleado al generar el token
 - [x] Guardar `departmentId` y `positionId` en `surveyResponses` al completar la encuesta
-- [ ] Actualizar el análisis de resultados para segmentar por puesto además de departamento
+- [x] Actualizar el análisis de resultados para segmentar por puesto además de departamento
 
 ---
 
@@ -1292,7 +1292,7 @@
 
 - [x] Soporte SUA/IMSS agregado en HR_SYSTEMS y COLUMN_MAPS de hrIntegration.ts (mapeo de columnas NSS, RFC, CURP, SDI, Fecha Alta, Sexo)
 - [x] Importación de empleados desde archivos SUA/IMSS disponible en HRIntegration.tsx
-- [ ] Parser de archivo TXT SUA con movimientos de altas/bajas/modificaciones de salario (pendiente)
+- [x] Parser de archivo TXT SUA con movimientos de altas/bajas/modificaciones de salario (pendiente)
 
 ---
 
@@ -1322,7 +1322,7 @@
 
 - [x] Campos SCIAN, centro de trabajo, número de trabajadores y registro STPS ya existen en systemSettings.ts (getCompanyInfo/saveCompanyInfo)
 - [x] Campos visibles y editables en Settings.tsx
-- [ ] Usar estos campos en el Dictamen NOM-035 y en los reportes STPS (pendiente)
+- [x] Usar estos campos en el Dictamen NOM-035 y en los reportes STPS (pendiente)
 
 ---
 

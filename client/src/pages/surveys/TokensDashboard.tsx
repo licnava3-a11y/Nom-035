@@ -117,6 +117,28 @@ export default function TokensDashboard() {
     ],
   };
 
+  // Datos para gráfica por puesto
+  const positionChartData = {
+    labels: (stats as any).byPosition?.map((p: any) => p.position) ?? [],
+    datasets: [
+      {
+        label: 'Completados',
+        data: (stats as any).byPosition?.map((p: any) => p.completed) ?? [],
+        backgroundColor: '#10B981',
+      },
+      {
+        label: 'Pendientes',
+        data: (stats as any).byPosition?.map((p: any) => p.pending) ?? [],
+        backgroundColor: '#F59E0B',
+      },
+      {
+        label: 'Expirados',
+        data: (stats as any).byPosition?.map((p: any) => p.expired) ?? [],
+        backgroundColor: '#EF4444',
+      },
+    ],
+  };
+
   return (
     <div className="container py-8 space-y-6">
       {/* Header */}
@@ -286,24 +308,32 @@ export default function TokensDashboard() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                  x: {
-                    stacked: true,
-                  },
-                  y: {
-                    stacked: true,
-                  },
-                },
-                plugins: {
-                  legend: {
-                    position: 'bottom',
-                  },
-                },
+                scales: { x: { stacked: true }, y: { stacked: true } },
+                plugins: { legend: { position: 'bottom' } },
               }}
             />
           </div>
         </Card>
       </div>
+
+      {/* Gráfica por Puesto */}
+      {((stats as any).byPosition?.length ?? 0) > 0 && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Participación por Puesto</h2>
+          <div className="h-[300px]">
+            <Bar
+              data={positionChartData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y' as const,
+                scales: { x: { stacked: true }, y: { stacked: true } },
+                plugins: { legend: { position: 'bottom' } },
+              }}
+            />
+          </div>
+        </Card>
+      )}
 
       {/* Trabajadores Pendientes de Responder */}
       {stats.pendingTokens > 0 && (

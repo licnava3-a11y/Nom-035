@@ -65,6 +65,15 @@ const HR_SYSTEMS = [
     fields: ["Clave Empleado", "Nombre Completo", "RFC", "CURP", "NSS", "Área", "Puesto", "Fecha Ingreso", "Sexo", "Email"],
   },
   {
+    id: "suaImss",
+    label: "SUA / IMSS (TXT/CSV)",
+    vendor: "IMSS",
+    color: "bg-teal-50 border-teal-200",
+    badgeColor: "bg-teal-100 text-teal-800",
+    description: "Compatible con el Sistema Único de Autodeterminación (SUA) del IMSS. Importa movimientos de altas, bajas y modificaciones de salario desde archivos TXT o CSV.",
+    fields: ["NSS", "RFC", "CURP", "Nombre", "Apellido Paterno", "Apellido Materno", "Salario Diario", "Fecha Alta", "Fecha Baja", "Tipo Movimiento"],
+  },
+  {
     id: "generic",
     label: "Formato Genérico NOM-035",
     vendor: "Personalizado",

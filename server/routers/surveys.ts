@@ -2139,6 +2139,7 @@ export const surveysRouter = router({
           employeeName: users.name,
           employeeEmail: users.email,
           department: users.departamento,
+          position: users.puesto,
           expiresAt: surveyTokens.expiresAt,
           usedAt: surveyTokens.usedAt,
           sentVia: surveyTokens.sentVia,
@@ -2174,6 +2175,22 @@ export const surveysRouter = router({
         }
       });
 
+      // Estadísticas por puesto
+      const byPosition: Record<string, { total: number; completed: number; pending: number; expired: number }> = {};
+      tokens.forEach(t => {
+        const pos = t.position || 'Sin puesto';
+        if (!byPosition[pos]) {
+          byPosition[pos] = { total: 0, completed: 0, pending: 0, expired: 0 };
+        }
+        byPosition[pos].total++;
+        if (t.usedAt) {
+          byPosition[pos].completed++;
+        } else if (new Date(t.expiresAt!) > now) {
+          byPosition[pos].pending++;
+        } else {
+          byPosition[pos].expired++;
+        }
+      });
       // Estadísticas por encuesta
       const bySurvey: Record<number, { surveyTitle: string; total: number; completed: number; pending: number; expired: number }> = {};
       tokens.forEach(t => {
@@ -2198,6 +2215,11 @@ export const surveysRouter = router({
         completionRate,
         byDepartment: Object.entries(byDepartment).map(([dept, stats]: [string, any]) => ({
           department: dept,
+          ...stats,
+          completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
+        })),
+        byPosition: Object.entries(byPosition).map(([pos, stats]: [string, any]) => ({
+          position: pos,
           ...stats,
           completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
         })),
