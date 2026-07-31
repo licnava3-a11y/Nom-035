@@ -1,185 +1,84 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { cases, correctiveActions, surveys, userNotificationPreferences } from "../../drizzle/schema";
+import { notificationPreferences } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-/**
- * Router for managing user notification preferences
- */
 export const notificationPreferencesRouter = router({
   /**
-   * Get current user's notification preferences
-   * Creates default preferences if none exist
+   * Obtiene las preferencias de notificación del usuario autenticado.
+   * Si no existen, devuelve los valores predeterminados sin crear registro.
    */
   getPreferences: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
-    if (!db) throw new Error("Database connection failed");
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
 
-    // Try to get existing preferences
-    const [existing] = await db
+    const rows = await db
       .select()
-      .from(userNotificationPreferences)
-      .where(eq(userNotificationPreferences.userId, ctx.user.id))
+      .from(notificationPreferences)
+      .where(eq(notificationPreferences.userId, ctx.user.id))
       .limit(1);
 
-    // If no preferences exist, create default ones
-    if (!existing) {
-      const [newPrefs] = await db
-        .insert(userNotificationPreferences)
-        .values({
-          userId: ctx.user.id,
-          alertsEnabled: true,
-          remindersEnabled: true,
-          reportsEnabled: true,
-          surveysEnabled: true,
-          casesEnabled: true,
-          correctiveActionsEnabled: true,
-          frequency: "immediate",
-          dailySummaryEnabled: false,
-          dailySummaryTime: "09:00",
-          emailEnabled: true,
-          inAppEnabled: true,
-        });
-
-      // Return the newly created preferences
-      const [created] = await db
-        .select()
-        .from(userNotificationPreferences)
-        .where(eq(userNotificationPreferences.userId, ctx.user.id))
-        .limit(1);
-
-      return created;
+    if (rows.length === 0) {
+      return {
+        userId: ctx.user.id,
+        realtimeEnabled: true,
+        dailyEmailEnabled: false,
+        dailyEmailHour: 8,
+        weeklyEmailEnabled: false,
+        weeklyEmailDay: 1,
+      };
     }
 
-    return existing;
+    return rows[0];
   }),
 
   /**
-   * Update user's notification preferences
+   * Actualiza (o crea) las preferencias de notificación del usuario autenticado.
    */
   updatePreferences: protectedProcedure
     .input(
       z.object({
-        alertsEnabled: z.boolean().optional(),
-        remindersEnabled: z.boolean().optional(),
-        reportsEnabled: z.boolean().optional(),
-        surveysEnabled: z.boolean().optional(),
-        casesEnabled: z.boolean().optional(),
-        correctiveActionsEnabled: z.boolean().optional(),
-        frequency: z.enum(["immediate", "daily", "weekly"]).optional(),
-        dailySummaryEnabled: z.boolean().optional(),
-        dailySummaryTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(), // HH:mm format
-        emailEnabled: z.boolean().optional(),
-        inAppEnabled: z.boolean().optional(),
+        realtimeEnabled: z.boolean(),
+        dailyEmailEnabled: z.boolean(),
+        dailyEmailHour: z.number().int().min(0).max(23).default(8),
+        weeklyEmailEnabled: z.boolean(),
+        weeklyEmailDay: z.number().int().min(1).max(7).default(1),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new Error("Database connection failed");
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Base de datos no disponible" });
 
-      // Check if preferences exist
-      const [existing] = await db
-        .select()
-        .from(userNotificationPreferences)
-        .where(eq(userNotificationPreferences.userId, ctx.user.id))
+      const existing = await db
+        .select({ id: notificationPreferences.id })
+        .from(notificationPreferences)
+        .where(eq(notificationPreferences.userId, ctx.user.id))
         .limit(1);
 
-      if (!existing) {
-        // Create new preferences with provided values
-        await (db.insert(userNotificationPreferences) as any).values({
+      if (existing.length === 0) {
+        await db.insert(notificationPreferences).values({
           userId: ctx.user.id,
-          ...input,
+          realtimeEnabled: input.realtimeEnabled,
+          dailyEmailEnabled: input.dailyEmailEnabled,
+          dailyEmailHour: input.dailyEmailHour,
+          weeklyEmailEnabled: input.weeklyEmailEnabled,
+          weeklyEmailDay: input.weeklyEmailDay,
         });
       } else {
-        // Update existing preferences
         await db
-          .update(userNotificationPreferences)
-          .set(input)
-          .where(eq(userNotificationPreferences.userId, ctx.user.id));
+          .update(notificationPreferences)
+          .set({
+            realtimeEnabled: input.realtimeEnabled,
+            dailyEmailEnabled: input.dailyEmailEnabled,
+            dailyEmailHour: input.dailyEmailHour,
+            weeklyEmailEnabled: input.weeklyEmailEnabled,
+            weeklyEmailDay: input.weeklyEmailDay,
+          })
+          .where(eq(notificationPreferences.userId, ctx.user.id));
       }
 
-      // Return updated preferences
-      const [updated] = await db
-        .select()
-        .from(userNotificationPreferences)
-        .where(eq(userNotificationPreferences.userId, ctx.user.id))
-        .limit(1);
-
-      return updated;
-    }),
-
-  /**
-   * Reset preferences to defaults
-   */
-  resetToDefaults: protectedProcedure.mutation(async ({ ctx }) => {
-    const db = await getDb();
-    if (!db) throw new Error("Database connection failed");
-
-    await db
-      .update(userNotificationPreferences)
-      .set({
-        alertsEnabled: true,
-        remindersEnabled: true,
-        reportsEnabled: true,
-        surveysEnabled: true,
-        casesEnabled: true,
-        correctiveActionsEnabled: true,
-        frequency: "immediate",
-        dailySummaryEnabled: false,
-        dailySummaryTime: "09:00",
-        emailEnabled: true,
-        inAppEnabled: true,
-      } as any)
-      .where(eq(userNotificationPreferences.userId, ctx.user.id));
-
-    const [updated] = await db
-      .select()
-      .from(userNotificationPreferences)
-      .where(eq(userNotificationPreferences.userId, ctx.user.id))
-      .limit(1);
-
-    return updated;
-  }),
-
-  /**
-   * Check if a specific notification type is enabled for a user
-   */
-  isNotificationEnabled: protectedProcedure
-    .input(
-      z.object({
-        userId: z.number(),
-        notificationType: z.enum([
-          "alerts",
-          "reminders",
-          "reports",
-          "surveys",
-          "cases",
-          "correctiveActions",
-        ]),
-      })
-    )
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) return true; // Default to enabled if DB fails
-
-      const [prefs] = await db
-        .select()
-        .from(userNotificationPreferences)
-        .where(eq(userNotificationPreferences.userId, input.userId))
-        .limit(1);
-
-      if (!prefs) return true; // Default to enabled if no preferences
-
-      const fieldMap = {
-        alerts: prefs.alertsEnabled,
-        reminders: prefs.remindersEnabled,
-        reports: prefs.reportsEnabled,
-        surveys: prefs.surveysEnabled,
-        cases: prefs.casesEnabled,
-        correctiveActions: prefs.correctiveActionsEnabled,
-      };
-
-      return fieldMap[input.notificationType] ?? true;
+      return { success: true };
     }),
 });

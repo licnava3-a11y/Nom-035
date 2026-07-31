@@ -38,6 +38,7 @@ import {
   Edit,
   CheckCircle,
   XCircle,
+  Download,
 } from "lucide-react";
 
 const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
@@ -189,6 +190,13 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
   const closeMutation = trpc.clinicalRecords.closeRecord.useMutation({
     onSuccess: () => { utils.clinicalRecords.list.invalidate(); toast({ title: "Expediente cerrado" }); onClose(); },
   });
+  const exportPdfMutation = trpc.clinicalRecords.exportPdf.useMutation({
+    onSuccess: (data) => {
+      toast({ title: "PDF generado", description: `Folio: ${data.folio}` });
+      window.open(data.url, "_blank");
+    },
+    onError: (err) => toast({ title: "Error al generar PDF", description: err.message, variant: "destructive" }),
+  });
 
   if (isLoading) return <div className="p-8 text-center text-muted-foreground">Cargando expediente...</div>;
   if (!data) return null;
@@ -206,6 +214,15 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
           <Badge className={record.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
             {record.isActive ? "Activo" : "Cerrado"}
           </Badge>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => exportPdfMutation.mutate({ id: record.id })}
+            disabled={exportPdfMutation.isPending}
+          >
+            <Download className="h-4 w-4 mr-1" />
+            {exportPdfMutation.isPending ? "Generando..." : "Exportar PDF"}
+          </Button>
           {record.isActive && (
             <Button size="sm" variant="outline" onClick={() => closeMutation.mutate({ id: record.id })}>
               Cerrar expediente

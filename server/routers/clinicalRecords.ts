@@ -5,6 +5,8 @@ import {
   clinicalRecords,
   clinicalEvaluations,
   clinicalSessionNotes,
+  companyGeneralData,
+  companyLogo,
 } from "../../drizzle/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -339,6 +341,50 @@ export const clinicalRecordsRouter = router({
         .set({ isActive: false, updatedAt: new Date() } as Parameters<ReturnType<typeof db.update>["set"]>[0])
         .where(eq(clinicalRecords.id, input.id));
       return { success: true };
+    }),
+
+  // ─── Exportar expediente a PDF ─────────────────────────────────────────────
+  exportPdf: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      requireClinicalAccess(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [record] = await db
+        .select()
+        .from(clinicalRecords)
+        .where(eq(clinicalRecords.id, input.id))
+        .limit(1);
+      if (!record) throw new TRPCError({ code: "NOT_FOUND", message: "Expediente no encontrado" });
+
+      const [evaluations, sessionNotes] = await Promise.all([
+        db.select().from(clinicalEvaluations).where(eq(clinicalEvaluations.recordId, input.id)).orderBy(desc(clinicalEvaluations.evaluationDate)),
+        db.select().from(clinicalSessionNotes).where(eq(clinicalSessionNotes.recordId, input.id)).orderBy(desc(clinicalSessionNotes.sessionDate)),
+      ]);
+
+      const companyRows = await db.select().from(companyGeneralData).limit(1);
+      const company = companyRows[0];
+      const logoRows = await db.select().from(companyLogo).limit(1);
+      const logoUrl = logoRows[0]?.logoUrl ?? undefined;
+
+      const folio = `EXP-CLIN-${record.id}-${Date.now()}`;
+
+      const { generateClinicalRecordPDF } = await import("../pdfGenerators/clinicalRecordPDF");
+      const pdfBuffer = await generateClinicalRecordPDF({
+        record,
+        evaluations,
+        sessionNotes,
+        companyName: company?.razonSocial ?? "Empresa",
+        logoUrl,
+        folio,
+      });
+
+      const { storagePut } = await import("../storage");
+      const fileName = `clinical-records/expediente-${record.id}-${Date.now()}.pdf`;
+      const { url } = await storagePut(fileName, pdfBuffer, "application/pdf");
+
+      return { url, folio, fileName };
     }),
 
   // ─── Estadísticas ───────────────────────────────────────────────────────────

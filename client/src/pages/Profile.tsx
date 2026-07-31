@@ -1,24 +1,67 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Calendar, Award } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { User, Mail, Shield, Calendar, Award, Bell, Clock, CalendarDays, CheckCircle2 } from "lucide-react";
 
 export default function Profile() {
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Notification preferences state
+  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
+  const [dailyEmailEnabled, setDailyEmailEnabled] = useState(false);
+  const [dailyEmailHour, setDailyEmailHour] = useState("8");
+  const [weeklyEmailEnabled, setWeeklyEmailEnabled] = useState(false);
+  const [weeklyEmailDay, setWeeklyEmailDay] = useState("1");
+  const [prefsSaved, setPrefsSaved] = useState(false);
+
+  // Fetch existing preferences
+  const { isLoading: prefsLoading } = trpc.notificationPreferences.getPreferences.useQuery(undefined, {
+    onSuccess: (data: any) => {
+      if (data) {
+        setRealtimeEnabled(data.realtimeEnabled ?? true);
+        setDailyEmailEnabled(data.dailyEmailEnabled ?? false);
+        setDailyEmailHour(String(data.dailyEmailHour ?? 8));
+        setWeeklyEmailEnabled(data.weeklyEmailEnabled ?? false);
+        setWeeklyEmailDay(String(data.weeklyEmailDay ?? 1));
+      }
+    },
+  });
+
+  const updatePrefsMutation = trpc.notificationPreferences.updatePreferences.useMutation({
+    onSuccess: () => {
+      setPrefsSaved(true);
+      setTimeout(() => setPrefsSaved(false), 3000);
+      toast({ title: "Preferencias guardadas", description: "Tus preferencias de notificación han sido actualizadas." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "No se pudieron guardar las preferencias.", variant: "destructive" });
+    },
+  });
+
+  const handleSavePrefs = () => {
+    updatePrefsMutation.mutate({
+      realtimeEnabled,
+      dailyEmailEnabled,
+      dailyEmailHour: parseInt(dailyEmailHour),
+      weeklyEmailEnabled,
+      weeklyEmailDay: parseInt(weeklyEmailDay),
+    });
+  };
 
   const getInitials = (name: string) => {
     if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n: any) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n: any) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
   const getRoleLabel = (role: string) => {
@@ -27,9 +70,27 @@ export default function Profile() {
       instructor: "Instructor",
       student: "Estudiante",
       committee: "Comité de Atención",
+      empleado: "Empleado",
+      rh: "Recursos Humanos",
+      supervisor: "Supervisor",
     };
     return labels[role] || role;
   };
+
+  const hourOptions = Array.from({ length: 24 }, (_, i) => ({
+    value: String(i),
+    label: `${String(i).padStart(2, "0")}:00 hrs`,
+  }));
+
+  const dayOptions = [
+    { value: "1", label: "Lunes" },
+    { value: "2", label: "Martes" },
+    { value: "3", label: "Miércoles" },
+    { value: "4", label: "Jueves" },
+    { value: "5", label: "Viernes" },
+    { value: "6", label: "Sábado" },
+    { value: "7", label: "Domingo" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -123,6 +184,143 @@ export default function Profile() {
         </Card>
       </div>
 
+      {/* ─── Preferencias de Notificaciones ─── */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            <CardTitle>Preferencias de Notificaciones</CardTitle>
+          </div>
+          <CardDescription>
+            Elige cómo y cuándo deseas recibir notificaciones del sistema NOM-035
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {prefsLoading ? (
+            <div className="text-sm text-muted-foreground">Cargando preferencias...</div>
+          ) : (
+            <>
+              {/* Tiempo real */}
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <Bell className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Notificaciones en tiempo real</p>
+                    <p className="text-xs text-muted-foreground">
+                      Recibe alertas instantáneas dentro de la plataforma cuando ocurran eventos importantes
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={realtimeEnabled}
+                  onCheckedChange={setRealtimeEnabled}
+                />
+              </div>
+
+              <Separator />
+
+              {/* Resumen diario */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <Clock className="h-4 w-4 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Resumen diario por correo</p>
+                      <p className="text-xs text-muted-foreground">
+                        Recibe un correo con el resumen de actividades del día a la hora que elijas
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={dailyEmailEnabled}
+                    onCheckedChange={setDailyEmailEnabled}
+                  />
+                </div>
+                {dailyEmailEnabled && (
+                  <div className="ml-12 flex items-center gap-3">
+                    <Label className="text-sm text-muted-foreground whitespace-nowrap">Hora de envío:</Label>
+                    <Select value={dailyEmailHour} onValueChange={setDailyEmailHour}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Seleccionar hora" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {hourOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Resumen semanal */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10">
+                      <CalendarDays className="h-4 w-4 text-purple-500" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">Resumen semanal por correo</p>
+                      <p className="text-xs text-muted-foreground">
+                        Recibe un correo con el resumen semanal de actividades el día que elijas
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={weeklyEmailEnabled}
+                    onCheckedChange={setWeeklyEmailEnabled}
+                  />
+                </div>
+                {weeklyEmailEnabled && (
+                  <div className="ml-12 flex items-center gap-3">
+                    <Label className="text-sm text-muted-foreground whitespace-nowrap">Día de envío:</Label>
+                    <Select value={weeklyEmailDay} onValueChange={setWeeklyEmailDay}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Seleccionar día" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {dayOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button
+                  onClick={handleSavePrefs}
+                  disabled={updatePrefsMutation.isPending}
+                  className="min-w-[160px]"
+                >
+                  {updatePrefsMutation.isPending ? "Guardando..." : "Guardar preferencias"}
+                </Button>
+                {prefsSaved && (
+                  <div className="flex items-center gap-1 text-sm text-green-600">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Guardado correctamente</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Activity Stats */}
       {user?.role === "student" && (
         <div className="grid gap-4 md:grid-cols-3">
@@ -136,7 +334,6 @@ export default function Profile() {
               <p className="text-xs text-muted-foreground">Certificaciones obtenidas</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">En Progreso</CardTitle>
@@ -147,7 +344,6 @@ export default function Profile() {
               <p className="text-xs text-muted-foreground">Cursos activos</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Promedio</CardTitle>
@@ -179,7 +375,6 @@ export default function Profile() {
             </div>
             <Button variant="outline">Cambiar</Button>
           </div>
-
           <div className="flex items-center justify-between pt-4 border-t">
             <div>
               <h4 className="font-medium">Autenticación de Dos Factores</h4>
@@ -189,7 +384,6 @@ export default function Profile() {
             </div>
             <Button variant="outline">Configurar</Button>
           </div>
-
           <div className="flex items-center justify-between pt-4 border-t">
             <div>
               <h4 className="font-medium">Sesiones Activas</h4>

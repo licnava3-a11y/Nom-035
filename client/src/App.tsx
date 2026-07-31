@@ -275,6 +275,7 @@ const SirceExportHistory = lazy(() => import("./pages/SirceExportHistory"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
 const BuzonComunicacion = lazy(() => import("./pages/BuzonComunicacion"));
+const BuzonConsulta = lazy(() => import("./pages/BuzonConsulta"));
 const ClinicalRecords = lazy(() => import("./pages/ClinicalRecords"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
@@ -2102,6 +2103,11 @@ function Router() {
               <SurveyPublicResponse />
             </Suspense>
           )}
+        </Route>
+        <Route path="/buzon/consulta">
+          <Suspense fallback={<PageLoader />}>
+            <BuzonConsulta />
+          </Suspense>
         </Route>
         <Route path="/login-error">
           <Suspense fallback={<PageLoader />}>

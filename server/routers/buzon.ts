@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { buzonRequests, buzonAuditTrail, buzonAttachments, employees } from "../../drizzle/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
@@ -308,6 +308,48 @@ export const buzonRouter = router({
       });
 
       return { success: true };
+    }),
+
+  // ─── Consulta pública por folio (sin autenticación) ─────────────────────────
+  lookupByFolio: publicProcedure
+    .input(z.object({ folio: z.string().min(1).max(50) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const [request] = await db
+        .select({
+          id: buzonRequests.id,
+          publicFolio: buzonRequests.publicFolio,
+          requestType: buzonRequests.requestType,
+          status: buzonRequests.status,
+          createdAt: buzonRequests.createdAt,
+          updatedAt: buzonRequests.updatedAt,
+          resolvedAt: buzonRequests.resolvedAt,
+          resolutionText: buzonRequests.resolutionText,
+          // NO exponer: employeeId, formPayload (datos personales), internalNotes
+        })
+        .from(buzonRequests)
+        .where(eq(buzonRequests.publicFolio, input.folio.toUpperCase()))
+        .limit(1);
+
+      if (!request) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No se encontró ninguna solicitud con ese folio" });
+      }
+
+      // Obtener historial de estados (sin notas internas)
+      const auditHistory = await db
+        .select({
+          fromStatus: buzonAuditTrail.fromStatus,
+          toStatus: buzonAuditTrail.toStatus,
+          systemNote: buzonAuditTrail.systemNote,
+          createdAt: buzonAuditTrail.createdAt,
+        })
+        .from(buzonAuditTrail)
+        .where(eq(buzonAuditTrail.requestId, request.id))
+        .orderBy(buzonAuditTrail.createdAt);
+
+      return { request, auditHistory };
     }),
 
   // ─── Estadísticas ───────────────────────────────────────────────────────────

@@ -6474,3 +6474,17 @@ export const clinicalSessionNotes = mysqlTable("clinical_session_notes", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 export type ClinicalSessionNote = typeof clinicalSessionNotes.$inferSelect;
+
+// ─── Notification Preferences (sprint Jul 2026) ───────────────────────────────
+export const notificationPreferences = mysqlTable("notification_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  realtimeEnabled: boolean("realtime_enabled").default(true).notNull(),
+  dailyEmailEnabled: boolean("daily_email_enabled").default(false).notNull(),
+  dailyEmailHour: int("daily_email_hour").default(8),
+  weeklyEmailEnabled: boolean("weekly_email_enabled").default(false).notNull(),
+  weeklyEmailDay: int("weekly_email_day").default(1),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;

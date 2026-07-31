@@ -1469,3 +1469,16 @@
 - [x] Tabla resumen con filtros: departamento, puesto, sexo, rango de edad, jefe directo
 - [x] Exportar tabla filtrada a Excel desde el Dashboard de Tokens
 - [x] Actualizar endpoint `getTokenStats` para devolver datos de sexo, edad y jefe directo
+
+---
+## Sprint: Notificaciones, Buzón Público y PDF Expediente Clínico (2026-07-31)
+- [x] Tabla `notification_preferences` en BD (realtimeEnabled, dailyEmailEnabled, dailyEmailHour, weeklyEmailEnabled, weeklyEmailDay)
+- [x] Router `notificationPreferences` con procedures `getPreferences` y `updatePreferences`
+- [x] Sección de preferencias de notificaciones en Profile.tsx (tiempo real, resumen diario, resumen semanal)
+- [x] Página `NotificationSettings.tsx` actualizada para usar el nuevo router con campos correctos
+- [x] Procedure público `lookupByFolio` en router buzon.ts (sin autenticación, solo folio)
+- [x] Página `BuzonConsulta.tsx` — portal público para consultar estado de solicitud por folio
+- [x] Ruta pública `/buzon/consulta` registrada en App.tsx
+- [x] Generador PDF `clinicalRecordPDF.ts` con membrete, historia clínica, evaluaciones, notas de sesión y firma del profesional
+- [x] Procedure `exportPdf` en router clinicalRecords.ts (genera PDF, sube a S3, retorna URL)
+- [x] Botón "Exportar PDF" en ClinicalRecords.tsx (RecordDetailPanel) con estado de carga
