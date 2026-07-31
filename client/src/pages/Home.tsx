@@ -282,6 +282,27 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── BANNER BUZÓN ─────────────────────────────────────────────── */}
+        <div className="w-full bg-gradient-to-r from-amber-950/80 to-orange-950/80 border-y border-amber-700/40 py-5 px-6">
+          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                <Zap className="h-5 w-5 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-amber-200 font-bold text-sm">Buzón de Comunicación — Consulta tu solicitud</p>
+                <p className="text-amber-400/80 text-xs mt-0.5">¿Enviaste una sugerencia, queja o denuncia? Consulta el estado de tu solicitud con tu folio, de forma anónima y confidencial.</p>
+              </div>
+            </div>
+            <a
+              href="/buzon/consulta"
+              className="shrink-0 inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-sm px-5 py-2.5 rounded-lg transition-all duration-200 shadow-lg shadow-amber-900/30"
+            >
+              Consultar por Folio
+              <ChevronRight className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
         {/* ── STATS BAR ───────────────────────────────────────────────────── */}
         <div className="w-full border-y border-white/5 bg-white/[0.02] py-8 px-6">
           <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -463,6 +484,25 @@ export default function Home() {
         <Badge variant="outline" className="text-xs border-orange-500 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 gap-1">
           <ShieldCheck className="h-3 w-3" /> ISO 27002
         </Badge>
+      </div>
+      {/* Banner Buzón de Comunicación */}
+      <div className="rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/50 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
+            <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-amber-900 dark:text-amber-200">Buzón de Comunicación Interna</p>
+            <p className="text-xs text-amber-700 dark:text-amber-400/80">Los empleados pueden consultar el estado de su solicitud de forma anónima usando su folio.</p>
+          </div>
+        </div>
+        <a
+          href="/buzon/consulta"
+          className="shrink-0 inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
+        >
+          Portal de Consulta
+          <ChevronRight className="h-4 w-4" />
+        </a>
       </div>
       {/* Sistema de Alertas Visuales */}
       {metrics && (

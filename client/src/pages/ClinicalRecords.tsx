@@ -39,6 +39,9 @@ import {
   CheckCircle,
   XCircle,
   Download,
+  History,
+  ExternalLink,
+  X,
 } from "lucide-react";
 
 const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
@@ -190,10 +193,20 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
   const closeMutation = trpc.clinicalRecords.closeRecord.useMutation({
     onSuccess: () => { utils.clinicalRecords.list.invalidate(); toast({ title: "Expediente cerrado" }); onClose(); },
   });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewFolio, setPreviewFolio] = useState<string | null>(null);
+
+  const { data: exportedPdfs, refetch: refetchPdfs } = trpc.clinicalRecords.getExportedPdfs.useQuery(
+    { recordId },
+    { enabled: activeTab === "documentos" }
+  );
+
   const exportPdfMutation = trpc.clinicalRecords.exportPdf.useMutation({
     onSuccess: (data) => {
       toast({ title: "PDF generado", description: `Folio: ${data.folio}` });
-      window.open(data.url, "_blank");
+      setPreviewUrl(data.url);
+      setPreviewFolio(data.folio);
+      refetchPdfs();
     },
     onError: (err) => toast({ title: "Error al generar PDF", description: err.message, variant: "destructive" }),
   });
@@ -231,11 +244,39 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
         </div>
       </div>
 
+      {/* Modal de vista previa del PDF */}
+      {previewUrl && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-background rounded-xl shadow-2xl w-full max-w-4xl flex flex-col" style={{ height: '90vh' }}>
+            <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
+              <div>
+                <p className="font-semibold text-sm">Vista previa del Expediente Clínico</p>
+                {previewFolio && <p className="text-xs text-muted-foreground">Folio: {previewFolio}</p>}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, '_blank')}>
+                  <ExternalLink className="h-4 w-4 mr-1" />Abrir en nueva pestaña
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => { setPreviewUrl(null); setPreviewFolio(null); }}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <iframe
+              src={previewUrl}
+              className="flex-1 w-full rounded-b-xl"
+              title="Vista previa del expediente clínico"
+            />
+          </div>
+        </div>
+      )}
+
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 w-full">
+        <TabsList className="grid grid-cols-4 w-full">
           <TabsTrigger value="historia"><ClipboardList className="h-4 w-4 mr-1" />Historia</TabsTrigger>
           <TabsTrigger value="evaluaciones"><Brain className="h-4 w-4 mr-1" />Evaluaciones ({evaluations.length})</TabsTrigger>
           <TabsTrigger value="sesiones"><Calendar className="h-4 w-4 mr-1" />Sesiones ({sessionNotes.length})</TabsTrigger>
+          <TabsTrigger value="documentos"><History className="h-4 w-4 mr-1" />PDFs ({exportedPdfs?.length ?? 0})</TabsTrigger>
         </TabsList>
 
         {/* Tab Historia Clínica */}
@@ -381,6 +422,36 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
           ))}
           {!sessionNotes.length && !showSessionForm && (
             <p className="text-center text-muted-foreground text-sm py-4">No hay notas de sesión registradas</p>
+          )}
+        </TabsContent>
+
+        {/* Tab Documentos exportados */}
+        <TabsContent value="documentos" className="space-y-3 max-h-[50vh] overflow-y-auto">
+          {!exportedPdfs?.length ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <History className="h-10 w-10 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">No hay PDFs exportados aún.</p>
+              <p className="text-xs mt-1">Usa el botón "Exportar PDF" para generar el primer documento.</p>
+            </div>
+          ) : (
+            exportedPdfs.map((pdf) => (
+              <div key={pdf.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">Folio: {pdf.folio}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(pdf.createdAt).toLocaleString('es-MX')} — {pdf.generatedByName ?? 'Sistema'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-2">
+                  <Button size="sm" variant="outline" onClick={() => { setPreviewUrl(pdf.fileUrl); setPreviewFolio(pdf.folio); }}>
+                    <Eye className="h-4 w-4 mr-1" />Vista previa
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => window.open(pdf.fileUrl, '_blank')}>
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
           )}
         </TabsContent>
       </Tabs>

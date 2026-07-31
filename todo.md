@@ -1482,3 +1482,13 @@
 - [x] Generador PDF `clinicalRecordPDF.ts` con membrete, historia clínica, evaluaciones, notas de sesión y firma del profesional
 - [x] Procedure `exportPdf` en router clinicalRecords.ts (genera PDF, sube a S3, retorna URL)
 - [x] Botón "Exportar PDF" en ClinicalRecords.tsx (RecordDetailPanel) con estado de carga
+
+## Sprint: Banner Buzón, Historial PDFs y Vista Previa (Jul 2026)
+- [x] Banner del Buzón en pantalla de inicio (no autenticado) con enlace a /buzon/consulta
+- [x] Banner del Buzón en dashboard autenticado (Home.tsx)
+- [x] Tabla clinical_exported_pdfs en BD para historial de PDFs exportados
+- [x] Procedure getExportedPdfs en router clinicalRecords.ts
+- [x] Procedure exportPdf actualizado para guardar en historial automáticamente
+- [x] Pestaña "PDFs" en expediente clínico con historial de documentos exportados
+- [x] Modal de vista previa del PDF (iframe) con botón "Abrir en nueva pestaña"
+- [x] Vista previa se abre automáticamente al exportar y desde el historial

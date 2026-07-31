@@ -6488,3 +6488,16 @@ export const notificationPreferences = mysqlTable("notification_preferences", {
 });
 export type NotificationPreference = typeof notificationPreferences.$inferSelect;
 export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+// ─── Clinical Exported PDFs (historial de PDFs generados) ────────────────────
+export const clinicalExportedPdfs = mysqlTable("clinical_exported_pdfs", {
+  id: int("id").autoincrement().primaryKey(),
+  recordId: int("record_id").notNull(),
+  folio: varchar("folio", { length: 100 }).notNull(),
+  fileKey: varchar("file_key", { length: 500 }).notNull(),
+  fileUrl: text("file_url").notNull(),
+  generatedByUserId: int("generated_by_user_id"),
+  generatedByName: varchar("generated_by_name", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type ClinicalExportedPdf = typeof clinicalExportedPdfs.$inferSelect;

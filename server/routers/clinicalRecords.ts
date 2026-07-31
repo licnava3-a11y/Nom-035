@@ -7,6 +7,7 @@ import {
   clinicalSessionNotes,
   companyGeneralData,
   companyLogo,
+  clinicalExportedPdfs,
 } from "../../drizzle/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -384,7 +385,31 @@ export const clinicalRecordsRouter = router({
       const fileName = `clinical-records/expediente-${record.id}-${Date.now()}.pdf`;
       const { url } = await storagePut(fileName, pdfBuffer, "application/pdf");
 
+      // Guardar en historial
+      await db.insert(clinicalExportedPdfs).values({
+        recordId: input.id,
+        folio,
+        fileKey: fileName,
+        fileUrl: url,
+        generatedByUserId: ctx.user.id,
+        generatedByName: ctx.user.name ?? "Usuario",
+      });
+
       return { url, folio, fileName };
+    }),
+
+  // ─── Historial de PDFs exportados ──────────────────────────────────────────────
+  getExportedPdfs: protectedProcedure
+    .input(z.object({ recordId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      requireClinicalAccess(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      return db
+        .select()
+        .from(clinicalExportedPdfs)
+        .where(eq(clinicalExportedPdfs.recordId, input.recordId))
+        .orderBy(desc(clinicalExportedPdfs.createdAt));
     }),
 
   // ─── Estadísticas ───────────────────────────────────────────────────────────
