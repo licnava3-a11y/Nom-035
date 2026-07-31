@@ -7,8 +7,9 @@ import { requirePermission, requireDelete, requireAnyPermission } from "../permi
 import { validateCURP, validateRFC, validateNSS, validateEmail, validateHireDate, validateAge } from "../../shared/validators";
 import { getAddressByPostalCode } from "../lib/postal-code-api";
 import { getDb } from "../db";
-import { employees, employeePortalTokens } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { employees, employeePortalTokens, departments, positions } from "../../drizzle/schema";
+import { eq, and, isNotNull } from "drizzle-orm";
+import * as XLSX from "xlsx";
 
 export const employeesRouter = router({
   /**
@@ -1029,6 +1030,102 @@ export const employeesRouter = router({
         token,
         portalUrl,
         expiresAt: expiresAt.toISOString(),
+      };
+    }),
+
+  /**
+   * Exportar catálogo de empleados en formato CONTPAQi, NOI, SAP o genérico
+   */
+  exportToExcel: protectedProcedure
+    .input(z.object({
+      format: z.enum(["contpaqui", "noi", "sap", "generic"]).default("generic"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "BD no disponible" });
+
+      const rows = await db
+        .select({
+          id: employees.id,
+          firstName: employees.firstName,
+          lastName: employees.lastName,
+          email: employees.email,
+          phone: employees.phone,
+          curp: employees.curp,
+          rfc: employees.rfc,
+          nss: employees.nss,
+          employeeNumber: employees.employeeNumber,
+          hireDate: employees.hireDate,
+          gender: employees.gender,
+          educationLevel: employees.educationLevel,
+          contractType: employees.contractType,
+          isActive: employees.isActive,
+          departmentName: departments.name,
+          positionTitle: positions.title,
+        })
+        .from(employees)
+        .leftJoin(departments, eq(employees.departmentId, departments.id))
+        .leftJoin(positions, eq(employees.positionId, positions.id))
+        .orderBy(employees.lastName);
+
+      let data: Record<string, any>[];
+      let sheetName: string;
+      let filename: string;
+
+      if (input.format === "contpaqui" || input.format === "noi") {
+        // Formato CONTPAQi NOI
+        data = rows.map((r: any) => ({
+          "Código": r.employeeNumber ?? "",
+          "Nombre": r.firstName ?? "",
+          "Apellido Paterno": r.lastName?.split(" ")[0] ?? "",
+          "Apellido Materno": r.lastName?.split(" ").slice(1).join(" ") ?? "",
+          "RFC": r.rfc ?? "",
+          "CURP": r.curp ?? "",
+          "NSS": r.nss ?? "",
+          "Puesto": r.positionTitle ?? "",
+          "Departamento": r.departmentName ?? "",
+          "Fecha Alta": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "",
+          "Sexo": r.gender === "male" ? "M" : r.gender === "female" ? "F" : "",
+          "Correo": r.email ?? "",
+          "Teléfono": r.phone ?? "",
+          "Activo": r.isActive ? "Sí" : "No",
+        }));
+        sheetName = "Empleados CONTPAQi";
+        filename = `empleados_contpaqui_${new Date().toISOString().split("T")[0]}.xlsx`;
+      } else {
+        // Formato genérico
+        data = rows.map((r: any) => ({
+          "ID": r.id,
+          "Nombre": r.firstName ?? "",
+          "Apellidos": r.lastName ?? "",
+          "Correo": r.email ?? "",
+          "Teléfono": r.phone ?? "",
+          "CURP": r.curp ?? "",
+          "RFC": r.rfc ?? "",
+          "NSS": r.nss ?? "",
+          "Núm. Empleado": r.employeeNumber ?? "",
+          "Departamento": r.departmentName ?? "",
+          "Puesto": r.positionTitle ?? "",
+          "Fecha Ingreso": r.hireDate ? new Date(r.hireDate).toLocaleDateString("es-MX") : "",
+          "Género": r.gender ?? "",
+          "Escolaridad": r.educationLevel ?? "",
+          "Tipo Contrato": r.contractType ?? "",
+          "Activo": r.isActive ? "Sí" : "No",
+        }));
+        sheetName = "Empleados";
+        filename = `empleados_${new Date().toISOString().split("T")[0]}.xlsx`;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+      const base64 = (buffer as Buffer).toString("base64");
+
+      return {
+        filename,
+        data: base64,
+        count: rows.length,
       };
     }),
 });

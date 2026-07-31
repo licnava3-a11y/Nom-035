@@ -117,6 +117,22 @@ export default function Employees() {
       alert(`Error al leer archivo: ${error.message}`);
     }
   };
+  // Mutation para exportar catálogo de empleados a Excel
+  const exportExcelMutation = trpc.employees.exportToExcel.useMutation({
+    onSuccess: (data) => {
+      const link = document.createElement('a');
+      link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${data.data}`;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({ title: 'Exportación completada', description: `${data.count} trabajadores exportados` });
+    },
+    onError: (error) => {
+      toast({ title: 'Error al exportar', description: error.message, variant: 'destructive' });
+    },
+  });
+
   // Mutation para generar plantilla Excel
   const generateTemplateMutation = trpc.employees.generateImportTemplate.useMutation({
     onSuccess: (data) => {
@@ -294,6 +310,16 @@ export default function Employees() {
           >
             <ICONS.documents.generic className="mr-2 h-4 w-4" />
             {showRfcNss ? "Ocultar RFC/NSS" : "Mostrar RFC/NSS"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportExcelMutation.mutate({ format: "contpaqui" })}
+            disabled={exportExcelMutation.isPending}
+            title="Exportar catálogo de empleados en formato CONTPAQi/NOI"
+          >
+            {exportExcelMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ICONS.documents.generic className="mr-2 h-4 w-4" />}
+            Exportar Excel
           </Button>
           <Button
             variant="outline"

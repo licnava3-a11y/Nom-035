@@ -1162,10 +1162,10 @@
 
 **Impacto:** Al importar desde CONTPAQi o NOI, los campos clave para NOM-035 (género para NMX-025, NSS para IMSS, RFC para CFDI) se pierden y deben capturarse uno a uno.
 
-- [ ] Extender schema Zod de `importEmployees` con: `rfc`, `nss`, `gender`, `educationLevel`, `contractType` (todos opcionales)
-- [ ] Actualizar el INSERT para incluir los nuevos campos
-- [ ] Regenerar `employees_template.xlsx` con columnas: Nombre, Apellido, Correo, Teléfono, CURP, RFC, NSS, NumEmpleado, Departamento (ID), Puesto (ID), FechaIngreso, Género, Escolaridad, TipoContrato
-- [ ] Agregar hoja "Catálogos" en la plantilla con valores válidos de género/escolaridad/contrato
+- [x] Extender schema Zod de `importEmployees` con: `rfc`, `nss`, `gender`, `educationLevel`, `contractType` (todos opcionales)
+- [x] Actualizar el INSERT para incluir los nuevos campos
+- [x] Regenerar `employees_template.xlsx` con columnas: Nombre, Apellido, Correo, Teléfono, CURP, RFC, NSS, NumEmpleado, Departamento (ID), Puesto (ID), FechaIngreso, Género, Escolaridad, TipoContrato
+- [x] Agregar hoja "Catálogos" en la plantilla con valores válidos de género/escolaridad/contrato
 
 ---
 
@@ -1218,9 +1218,9 @@
 
 **Problema:** No existe botón para exportar el catálogo de empleados en el formato que esperan CONTPAQi NOI o Aspel NOI.
 
-- [ ] Agregar botón "Exportar para CONTPAQi" en `Employees.tsx` que genere XLSX con columnas: Código, Nombre, Apellidos, RFC, CURP, NSS, Puesto, Departamento, FechaAlta, SalarioDiario (si existe en payrollData), Sexo
-- [ ] Agregar botón "Exportar para Aspel NOI" con el mismo layout pero orden de columnas NOI estándar
-- [ ] Agregar botón "Exportar para SAP HCM" con campos PERNR, VORNA, NACHN, etc.
+- [x] Agregar botón "Exportar para CONTPAQi" en `Employees.tsx` que genere XLSX con columnas: Código, Nombre, Apellidos, RFC, CURP, NSS, Puesto, Departamento, FechaAlta, SalarioDiario (si existe en payrollData), Sexo
+- [x] Agregar botón "Exportar para Aspel NOI" con el mismo layout pero orden de columnas NOI estándar
+- [x] Agregar botón "Exportar para SAP HCM" con campos PERNR, VORNA, NACHN, etc.
 
 ---
 
@@ -1258,10 +1258,10 @@
 
 **Problema:** No hay botón de exportación en la página de Historial SIRCE. Los auditores necesitan el historial en Excel para sus reportes.
 
-- [ ] Agregar botón "Exportar a Excel" en SirceExportHistory.tsx
-- [ ] Exportar los registros con filtros activos (no solo la página actual)
-- [ ] Columnas: Fecha, Usuario, RFC Empresa, Cantidad Constancias, Hash SHA-256, Nombre Archivo
-- [ ] Agregar endpoint `dc3.exportSirceHistoryExcel` que devuelva todos los registros filtrados sin paginación
+- [x] Agregar botón "Exportar a Excel" en SirceExportHistory.tsx
+- [x] Exportar los registros con filtros activos (no solo la página actual)
+- [x] Columnas: Fecha, Usuario, RFC Empresa, Cantidad Constancias, Hash SHA-256, Nombre Archivo
+- [x] Agregar endpoint `dc3.exportSirceHistoryExcel` que devuelva todos los registros filtrados sin paginación
 
 ---
 
@@ -1282,7 +1282,7 @@
 
 - [x] Calcular % de completitud basado en campos clave: nombre, email, CURP, RFC, NSS, departamento, puesto, fechaIngreso, nivel educativo
 - [x] Mostrar barra de progreso en EmployeeProfile con color semáforo (verde/ámbar/rojo) y lista de campos faltantes
-- [ ] Filtro "Perfiles incompletos" en Employees.tsx para detectar empleados con datos faltantes (pendiente)
+- [x] Filtro "Perfiles incompletos" en Employees.tsx para detectar empleados con datos faltantes (pendiente)
 
 ---
 
@@ -1358,9 +1358,9 @@
 ## Sprint: SCIAN en STPS, Tooltip perfiles incompletos y Modal empresa DC-3 (2026-07-27)
 
 ### SCIAN y centro de trabajo en reportes STPS
-- [ ] Leer company_scian, company_work_center, company_stps_registration en el router de STPSReports
-- [ ] Prellenar estos campos en el formulario de STPSReports.tsx
-- [ ] Incluir SCIAN y centro de trabajo en el PDF/HTML generado por los reportes STPS
+- [x] Leer company_scian, company_work_center, company_stps_registration en el router de STPSReports
+- [x] Prellenar estos campos en el formulario de STPSReports.tsx
+- [x] Incluir SCIAN y centro de trabajo en el PDF/HTML generado por los reportes STPS
 
 ### Tooltip con lista de campos faltantes en badge de perfiles incompletos
 - [x] Calcular lista de campos faltantes por empleado en el backend (devolver array de strings)

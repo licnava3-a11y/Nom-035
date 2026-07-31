@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { sql, eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { departments, positions, employees } from "../../drizzle/schema";
 import { TRPCError } from "@trpc/server";
 
@@ -84,7 +84,7 @@ export const massiveImportRouter = router({
       }
     }),
 
-  // Import Employees
+  // Import Employees — Sprint: Importación Masiva Mejorada
   importEmployees: protectedProcedure
     .input(
       z.array(
@@ -92,13 +92,19 @@ export const massiveImportRouter = router({
           firstName: z.string().min(1, "El nombre es obligatorio"),
           lastName: z.string().min(1, "El apellido es obligatorio"),
           email: z.string().email("Correo electrónico inválido"),
-          phone: z.string().min(1, "El teléfono es obligatorio"),
+          phone: z.string().optional(),
           curp: z.string().min(18, "El CURP debe tener 18 caracteres").max(18),
-          employeeNumber: z.string().min(1, "El número de empleado es obligatorio"),
+          employeeNumber: z.string().optional(),
           departmentId: z.number().positive("Debe seleccionar un departamento"),
           positionId: z.number().positive("Debe seleccionar un puesto"),
           hireDate: z.string().min(1, "La fecha de ingreso es obligatoria"),
           isActive: z.boolean().optional(),
+          // Campos opcionales extendidos
+          rfc: z.string().max(13).optional(),
+          nss: z.string().max(11).optional(),
+          gender: z.enum(["male", "female", "other"]).optional(),
+          educationLevel: z.enum(["primary", "secondary", "high_school", "technical", "bachelor", "master", "doctorate", "other"]).optional(),
+          contractType: z.enum(["permanent", "temporary", "project", "internship", "outsourcing"]).optional(),
         })
       )
     )
@@ -109,7 +115,7 @@ export const massiveImportRouter = router({
 
         const results = [];
         const duplicates = [];
-        
+
         for (const employee of input) {
           // Check for duplicates by CURP if provided
           if (employee.curp) {
@@ -119,7 +125,7 @@ export const massiveImportRouter = router({
               .where(sql`${employees.curp} = ${employee.curp}`)
               .limit(1);
             const existingEmployee = existing[0];
-            
+
             if (existingEmployee) {
               duplicates.push({
                 curp: employee.curp,
@@ -141,12 +147,18 @@ export const massiveImportRouter = router({
             positionId: employee.positionId,
             hireDate: employee.hireDate ? new Date(employee.hireDate) : new Date(),
             isActive: employee.isActive !== undefined ? employee.isActive : true,
+            // Campos extendidos opcionales
+            rfc: employee.rfc || null,
+            nss: employee.nss || null,
+            gender: employee.gender || null,
+            educationLevel: employee.educationLevel || null,
+            contractType: employee.contractType || null,
             createdAt: new Date(),
             updatedAt: new Date(),
           });
           results.push(result);
         }
-        
+
         return {
           success: true,
           count: results.length,
