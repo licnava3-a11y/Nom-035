@@ -113,7 +113,7 @@ export const dc3ClientCompaniesRouter = router({
         ...input,
         isDefault: isFirst,
       });
-      return { success: true, id: (result as any).insertId };
+      return { success: true, id: (result as any).insertId, razonSocial: input.razonSocial, rfc: input.rfc ?? null };
     }),
 
   /**

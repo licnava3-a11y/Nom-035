@@ -1363,13 +1363,13 @@
 - [ ] Incluir SCIAN y centro de trabajo en el PDF/HTML generado por los reportes STPS
 
 ### Tooltip con lista de campos faltantes en badge de perfiles incompletos
-- [ ] Calcular lista de campos faltantes por empleado en el backend (devolver array de strings)
-- [ ] Mostrar tooltip en el badge rojo de Employees.tsx con la lista exacta de campos faltantes
+- [x] Calcular lista de campos faltantes por empleado en el backend (devolver array de strings)
+- [x] Mostrar tooltip en el badge rojo de Employees.tsx con la lista exacta de campos faltantes
 
 ### Modal de registro rápido de empresa cliente en formulario DC-3
-- [ ] Agregar botón "+" junto al selector de empresa en DC3Manager
-- [ ] Modal inline con formulario mínimo: razón social, RFC, representante legal, domicilio
-- [ ] Al guardar, refrescar el selector y seleccionar la nueva empresa automáticamente
+- [x] Agregar botón "+" junto al selector de empresa en DC3Manager
+- [x] Modal inline con formulario mínimo: razón social, RFC, representante legal, domicilio
+- [x] Al guardar, refrescar el selector y seleccionar la nueva empresa automáticamente
 
 ---
 
@@ -1379,3 +1379,38 @@
 - [x] Tooltip con lista exacta de campos faltantes en badge de perfiles incompletos (Employees.tsx) — componente Tooltip de shadcn/ui con lista visual de cada campo faltante al hacer hover
 - [x] Modal de registro rapido de empresa cliente en formulario DC-3 — boton "Nueva empresa" junto al selector del catalogo, modal con 5 campos (razon social, RFC, representante legal, domicilio fiscal, giro), prellenado automatico de companyName y companyRfc al guardar, invalidacion del catalogo para que aparezca la nueva empresa en el selector
 - [x] Errores TS corregidos: guards db null en dc3ClientCompanies.ts (update, setDefault, uploadLogo), campo settingValue en dictamenDocs.ts, prop onCompanyCreated en DC3Form
+
+## Sprint: Visor PDF Integrado (Fase 3) — Julio 2026
+
+### Componente PDFViewer reutilizable
+- [x] Reescribir `PDFViewer.tsx` con soporte dual: `pdfBase64` (base64) y `pdfUrl` (URL pública)
+- [x] Soporte para ambas APIs de cierre: `onClose` (nuevo) y `onOpenChange` (compatibilidad con Policies.tsx)
+- [x] Controles de zoom (ZoomIn, ZoomOut, Restablecer) con estado local
+- [x] Botón de descarga integrado en header y footer
+- [x] Estado de carga (`loading` prop) con spinner animado
+- [x] Visor iframe con prioridad base64 sobre URL pública
+- [x] Compatibilidad retroactiva: Policies.tsx sigue funcionando sin cambios
+
+### Integración en DC3Manager
+- [x] Import `PDFViewer` y `Eye` en DC3Manager.tsx
+- [x] Estado `pdfViewerOpen`, `pdfViewerData`, `previewingPdfId`
+- [x] Mutation `previewPdfMutation` (reutiliza `trpc.dc3.exportToPdf`)
+- [x] Botón morado (Eye) de vista previa junto al botón azul de descarga en tabla
+- [x] Modal PDFViewer montado al final del JSX con base64 y folio
+
+### Integración en RegulatoryReports
+- [x] Import `PDFViewer` en RegulatoryReports.tsx
+- [x] Estado `pdfViewerOpen`, `pdfViewerData` (base64 + url + folio)
+- [x] Mutation `generateReport` ahora abre el visor en lugar de `window.open`
+- [x] Botón "Vista Previa" habilitado (antes estaba `disabled`)
+- [x] Modal PDFViewer montado con base64 y fallback URL
+
+### Backend
+- [x] `generateNom035Report` retorna `{ url, key, base64 }` (antes solo `{ url, key }`)
+- [x] Router `reports.generateNom035Report` expone `pdfBase64` al frontend
+- [x] Corrección TS: `requirePermission(ctx.user, "employees", "read")` → guard de usuario
+- [x] Corrección TS: `null` → `undefined` en campos opcionales de `createCompanyMutation`
+
+### Tests
+- [x] 8 tests unitarios en `server/pdfViewer.test.ts` — todos pasando
+- [x] Tests de auth, dc3-rfc-pdf y pdfViewer: 34/34 pasando

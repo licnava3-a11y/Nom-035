@@ -14,10 +14,11 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Download, Upload, Plus, Search, FileSpreadsheet,
   Pencil, Trash2, FileText, AlertCircle, CheckCircle2,
-  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X, PenLine, ListChecks
+  Loader2, UserCheck, Info, ShieldCheck, ShieldX, X, PenLine, ListChecks, Eye
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import DC3SignaturePanel from "@/components/DC3SignaturePanel";
+import { PDFViewer } from "@/components/PDFViewer";
 
 // ─── Typeahead de empleado ────────────────────────────────────────────────────
 
@@ -404,9 +405,9 @@ function DC3Form({
                 disabled={!quickCompany.razonSocial.trim() || createCompanyMutation.isPending}
                 onClick={() => createCompanyMutation.mutate({
                   razonSocial: quickCompany.razonSocial.trim(),
-                  rfc: quickCompany.rfc.trim().toUpperCase() || undefined,
+                  rfc: quickCompany.rfc.trim().toUpperCase(),
                   representanteLegal: quickCompany.representanteLegal.trim() || undefined,
-                  domicilioFiscal: quickCompany.domicilioFiscal.trim() || undefined,
+                  domicilio: quickCompany.domicilioFiscal.trim() || undefined,
                   giro: quickCompany.giro.trim() || undefined,
                 })}
               >
@@ -685,6 +686,10 @@ export function DC3Manager() {
 
   // ── Exportar PDF individual ──
   const [exportingPdfId, setExportingPdfId] = useState<number | null>(null);
+  // ── Visor PDF ──
+  const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
+  const [pdfViewerData, setPdfViewerData] = useState<{ base64: string; folio: string } | null>(null);
+  const [previewingPdfId, setPreviewingPdfId] = useState<number | null>(null);
   const exportPdfMutation = trpc.dc3.exportToPdf.useMutation({
     onSuccess: (data) => {
       downloadBase64(data.pdfBase64, `DC3-${data.folioNumber}.pdf`, "application/pdf");
@@ -694,6 +699,17 @@ export function DC3Manager() {
     onError: (e) => {
       toast({ title: "Error al generar PDF", description: e.message, variant: "destructive" });
       setExportingPdfId(null);
+    },
+  });
+  const previewPdfMutation = trpc.dc3.exportToPdf.useMutation({
+    onSuccess: (data) => {
+      setPdfViewerData({ base64: data.pdfBase64, folio: data.folioNumber });
+      setPdfViewerOpen(true);
+      setPreviewingPdfId(null);
+    },
+    onError: (e) => {
+      toast({ title: "Error al previsualizar", description: e.message, variant: "destructive" });
+      setPreviewingPdfId(null);
     },
   });
 
@@ -1094,7 +1110,24 @@ export function DC3Manager() {
                       <TableCell>{statusBadge(r.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          {/* Botón PDF */}
+                          {/* Botón Vista Previa PDF */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                            title="Vista previa PDF"
+                            disabled={previewingPdfId === r.id}
+                            onClick={() => {
+                              setPreviewingPdfId(r.id);
+                              previewPdfMutation.mutate({ id: r.id });
+                            }}
+                          >
+                            {previewingPdfId === r.id
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              : <Eye className="w-3.5 h-3.5" />
+                            }
+                          </Button>
+                          {/* Botón PDF Descargar */}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -1247,6 +1280,16 @@ export function DC3Manager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Visor PDF integrado */}
+      <PDFViewer
+        open={pdfViewerOpen}
+        onClose={() => setPdfViewerOpen(false)}
+        pdfBase64={pdfViewerData?.base64}
+        filename={`DC3-${pdfViewerData?.folio ?? 'constancia'}.pdf`}
+        title={`Constancia DC-3 — Folio ${pdfViewerData?.folio ?? ''}`}
+        loading={previewPdfMutation.isPending}
+      />
     </div>
   );
 }

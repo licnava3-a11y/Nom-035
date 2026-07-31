@@ -15,7 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { FileText, Download, Loader2, Eye } from 'lucide-react';
-
+import { PDFViewer } from '@/components/PDFViewer';
 type AnalysisLevel = 'organizational' | 'group' | 'personal';
 
 export default function RegulatoryReports() {
@@ -31,15 +31,28 @@ export default function RegulatoryReports() {
     positionId: null as number | null,
   });
 
+  // Estado del visor PDF
+  const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
+  const [pdfViewerData, setPdfViewerData] = useState<{
+    base64?: string;
+    url?: string;
+    folio?: string;
+  } | null>(null);
+
   // Queries
   const { data: periods, isLoading: loadingPeriods } = trpc.reports.getAvailablePeriods.useQuery();
   const { data: signers, isLoading: loadingSigners } = trpc.reports.getAvailableSigners.useQuery();
 
-  // Mutation
+  // Mutation — genera PDF y abre el visor
   const generateReport = trpc.reports.generateNom035Report.useMutation({
     onSuccess: (data) => {
       toast.success('Informe generado exitosamente');
-      window.open(data.pdfUrl, '_blank');
+      setPdfViewerData({
+        base64: data.pdfBase64,
+        url: data.pdfUrl,
+        folio: data.folio,
+      });
+      setPdfViewerOpen(true);
     },
     onError: (error) => {
       toast.error(`Error al generar informe: ${error.message}`);
@@ -341,8 +354,17 @@ export default function RegulatoryReports() {
                 )}
               </Button>
 
-              <Button variant="outline" disabled>
-                <Eye className="mr-2 h-4 w-4" />
+              <Button
+                variant="outline"
+                onClick={handleGenerateReport}
+                disabled={generateReport.isPending}
+                title="Vista previa del informe PDF"
+              >
+                {generateReport.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Eye className="mr-2 h-4 w-4" />
+                )}
                 Vista Previa
               </Button>
             </div>
@@ -372,6 +394,16 @@ export default function RegulatoryReports() {
           </div>
         </div>
       </Card>
+      {/* Visor PDF */}
+      <PDFViewer
+        open={pdfViewerOpen}
+        onClose={() => setPdfViewerOpen(false)}
+        pdfBase64={pdfViewerData?.base64}
+        pdfUrl={!pdfViewerData?.base64 ? pdfViewerData?.url : undefined}
+        filename={`Informe-NOM035-${pdfViewerData?.folio ?? 'borrador'}.pdf`}
+        title={`Informe NOM-035 — Folio ${pdfViewerData?.folio ?? ''}`}
+        loading={generateReport.isPending}
+      />
     </div>
   );
 }

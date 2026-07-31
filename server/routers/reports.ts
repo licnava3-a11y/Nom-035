@@ -198,6 +198,7 @@ export const reportsRouter = router({
       return {
         success: true,
         pdfUrl: pdfResult.url,
+        pdfBase64: pdfResult.base64,
         folio,
         message: 'Informe NOM-035 generado exitosamente',
       };

@@ -70,7 +70,7 @@ interface Nom035ReportData {
   validationUrl: string;
 }
 
-export async function generateNom035Report(data: Nom035ReportData): Promise<{ url: string; key: string }> {
+export async function generateNom035Report(data: Nom035ReportData): Promise<{ url: string; key: string; base64: string }> {
   const doc = new PDFDocument({
     size: 'letter', // 612 x 792 puntos
     margins: { top: 72, bottom: 72, left: 72, right: 72 }, // 1 pulgada
@@ -309,9 +309,8 @@ export async function generateNom035Report(data: Nom035ReportData): Promise<{ ur
     'application/pdf'
   );
 
-  return result;
+  return { ...result, base64: pdfBuffer.toString('base64') };
 }
-
 // === FUNCIONES AUXILIARES ===
 
 async function addHeader(doc: PDFKit.PDFDocument, company: CompanyData, folio: string) {
