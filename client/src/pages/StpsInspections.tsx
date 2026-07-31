@@ -49,6 +49,7 @@ export default function StpsInspections() {
   });
 
   const utils = trpc.useUtils();
+  const { data: companyInfo } = trpc.systemSettings.getCompanyInfo.useQuery();
   const { data: inspections = [], isLoading } = trpc.stpsInspections.listInspections.useQuery();
   const { data: stats } = trpc.stpsInspections.getInspectionStats.useQuery();
   const { data: detail, isLoading: loadingDetail } = trpc.stpsInspections.getInspectionDetail.useQuery(
@@ -109,6 +110,24 @@ export default function StpsInspections() {
           <Plus className="h-4 w-4 mr-2" /> Nueva Visita
         </Button>
       </div>
+
+      {/* Banner de datos STPS de la empresa */}
+      {companyInfo && (companyInfo.company_scian || companyInfo.company_work_center || companyInfo.company_stps_registration) && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex flex-wrap gap-4 text-sm">
+          {companyInfo.company_scian && (
+            <span><span className="font-medium text-blue-700">SCIAN:</span> {companyInfo.company_scian}</span>
+          )}
+          {companyInfo.company_work_center && (
+            <span><span className="font-medium text-blue-700">Centro de Trabajo:</span> {companyInfo.company_work_center}</span>
+          )}
+          {companyInfo.company_stps_registration && (
+            <span><span className="font-medium text-blue-700">Registro STPS:</span> {companyInfo.company_stps_registration}</span>
+          )}
+          {companyInfo.company_name && (
+            <span><span className="font-medium text-blue-700">Empresa:</span> {companyInfo.company_name}</span>
+          )}
+        </div>
+      )}
 
       {/* KPIs */}
       {stats && (

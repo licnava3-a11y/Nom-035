@@ -1350,7 +1350,7 @@
 - [x] Leer company_scian, company_work_center, company_num_workers, company_stps_registration en getPrefilledData de dictamenDocs.ts (desde systemSettings)
 - [x] Prellenar campos SCIAN, Centro de Trabajo y Registro STPS en el formulario de LegalDocGenerator.tsx
 - [x] Campos SCIAN, Centro de Trabajo y Registro STPS incluidos en el prompt del LLM para el Dictamen NOM-035
-- [ ] Incluir estos campos en los reportes STPS (STPSReports.tsx) — pendiente siguiente sprint
+- [x] Incluir estos campos en los reportes STPS (StpsInspections.tsx) — banner SCIAN/Centro de Trabajo/Registro STPS visible en la página de Visitas de Verificación STPS
 - [x] P17 resuelto: Usar estos campos en el Dictamen NOM-035 (completado)
 
 ---
