@@ -176,6 +176,8 @@ const hierarchicalMenuItems = [
       { label: "Buzón de Quejas", path: "/mailbox", description: "Buzón de quejas y denuncias anónimas" },
       { label: "Buzón Comunicación Interna", path: "/mailbox-internal", description: "Sugerencias, quejas, felicitaciones y solicitudes de capacitación" },
       { label: "Mis Mensajes", path: "/my-mailbox", description: "Historial de tus mensajes al buzón interno" },
+      { label: "📬 Buzón NOM-035", path: "/buzon-comunicacion", description: "Quejas/Denuncias, Felicitaciones, Solicitudes DNC y Sugerencias con folio de seguimiento" },
+      { label: "🧠 Expediente Clínico Psicométrico", path: "/clinical-records", description: "Historia clínica, evaluaciones y notas de sesión (acceso restringido a personal clínico)" },
       { label: "Análisis de Riesgos", path: "/risk-analysis", description: "Reportes de análisis de riesgos psicosociales" },
       { label: "Acciones Correctivas", path: "/surveys/corrective-actions", description: "Plan de acciones para mitigar riesgos" },
       { label: "Alertas Tempranas", path: "/alerts", description: "Dashboard de alertas críticas" },

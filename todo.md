@@ -1414,3 +1414,58 @@
 ### Tests
 - [x] 8 tests unitarios en `server/pdfViewer.test.ts` — todos pasando
 - [x] Tests de auth, dc3-rfc-pdf y pdfViewer: 34/34 pasando
+
+---
+
+## Sprint: Buzón de Comunicación Interna
+
+### Schema y Backend
+- [x] Crear tablas: `buzon_requests`, `buzon_attachments`, `buzon_audit_trail` en drizzle/schema.ts
+- [x] Aplicar migración SQL con webdev_execute_sql
+- [x] Crear router `server/routers/buzon.ts` con procedures: `submitRequest`, `listRequests`, `getRequestDetail`, `updateStatus`, `addAuditNote`
+- [x] Validación de CURP del empleado antes de mostrar el formulario
+- [x] Generación de folio público: `{TIPO}-{AÑO}-{SECUENCIA}`
+- [x] Notificación al owner al recibir nueva solicitud (notifyOwner)
+
+### Frontend
+- [x] Crear `client/src/pages/BuzonComunicacion.tsx` con 4 tabs: Queja/Denuncia, Felicitación, Solicitud de Capacitación (DNC), Sugerencia
+- [x] Formulario Queja/Denuncia: fecha incidente, lugar, nombres involucrados, narrativa (mín 300 chars con contador), descripción impacto, toggle anonimato, adjuntos
+- [x] Formulario Felicitación: nombre reconocido, código de motivo, narrativa (mín 150 chars)
+- [x] Formulario Solicitud DNC: tema, justificación, nivel actual (slider), profundidad solicitada, utilidad laboral
+- [x] Formulario Sugerencia: área afectada, descripción problema, solución propuesta, beneficio estimado
+- [x] Panel Admin: tabla de solicitudes con filtros por tipo/estatus, máquina de estados, bitácora de cambios
+- [x] Agregar ruta `/buzon` en App.tsx y enlace en sidebar (sección Comunicación)
+
+---
+
+## Sprint: Expediente Clínico Psicométrico
+
+### Schema y Backend
+- [x] Crear tablas: `clinical_records`, `clinical_evaluations`, `clinical_session_notes`, `clinical_consent_docs` en drizzle/schema.ts
+- [x] Aplicar migración SQL con webdev_execute_sql
+- [x] Crear router `server/routers/clinicalRecords.ts` con procedures: `createRecord`, `getRecord`, `updateRecord`, `addEvaluation`, `addSessionNote`, `uploadConsentDoc`
+- [x] Restringir todos los procedures a rol `admin` o `psychologist` (adminProcedure)
+
+### Frontend
+- [x] Crear `client/src/pages/ClinicalRecords.tsx` con acceso restringido a Admin
+- [x] Sección Datos del Paciente: empleado vinculado, edad, contacto
+- [x] Sección Datos del Profesional: nombre, cédula profesional, especialidad
+- [x] Sección Historia Clínica: motivo consulta, antecedentes médicos (catálogo + otros), antecedentes personales, antecedentes familiares
+- [x] Sección Evaluaciones: nombre prueba, fecha, resultado, interpretación, archivo adjunto
+- [x] Sección Plan de Tratamiento: objetivos, actividades, fechas meta
+- [x] Sección Notas de Sesión: lista cronológica con fecha, observaciones, próxima cita
+- [x] Sección Documentación Legal: consentimiento informado con firma digital (checkbox + timestamp)
+- [x] Agregar ruta `/clinical-records` en App.tsx y enlace en sidebar (sección Administración, solo Admin)
+
+---
+
+## Sprint: Gráficos Interactivos Dashboard de Tokens
+
+- [x] Gráfico de dona: participación por sexo (masculino/femenino/no especificado)
+- [x] Gráfico de barras horizontales: participación por rango de edad NOM-035 (18-29, 30-39, 40-49, 50-59, 60+)
+- [x] Gráfico de barras apiladas: completados vs pendientes por departamento
+- [x] Gráfico de barras apiladas: completados vs pendientes por puesto
+- [x] Gráfico de barras: participación por jefe directo (top 10)
+- [x] Tabla resumen con filtros: departamento, puesto, sexo, rango de edad, jefe directo
+- [x] Exportar tabla filtrada a Excel desde el Dashboard de Tokens
+- [x] Actualizar endpoint `getTokenStats` para devolver datos de sexo, edad y jefe directo

@@ -2143,6 +2143,8 @@ export const surveysRouter = router({
           expiresAt: surveyTokens.expiresAt,
           usedAt: surveyTokens.usedAt,
           sentVia: surveyTokens.sentVia,
+          sexo: users.sexo,
+          fechaNacimiento: users.fechaNacimiento,
         })
         .from(surveyTokens)
         .leftJoin(users, eq(surveyTokens.userId, users.id))
@@ -2191,7 +2193,7 @@ export const surveysRouter = router({
           byPosition[pos].expired++;
         }
       });
-      // Estadísticas por encuesta
+            // Estadísticas por encuesta
       const bySurvey: Record<number, { surveyTitle: string; total: number; completed: number; pending: number; expired: number }> = {};
       tokens.forEach(t => {
         if (!bySurvey[t.surveyId]) {
@@ -2205,6 +2207,41 @@ export const surveysRouter = router({
         } else {
           bySurvey[t.surveyId].expired++;
         }
+      });
+
+      // Estadísticas por sexo/género
+      const bySexo: Record<string, { total: number; completed: number; pending: number; expired: number }> = {};
+      tokens.forEach(t => {
+        const sexo = t.sexo || 'No especificado';
+        if (!bySexo[sexo]) bySexo[sexo] = { total: 0, completed: 0, pending: 0, expired: 0 };
+        bySexo[sexo].total++;
+        if (t.usedAt) bySexo[sexo].completed++;
+        else if (new Date(t.expiresAt!) > now) bySexo[sexo].pending++;
+        else bySexo[sexo].expired++;
+      });
+
+      // Estadísticas por rango de edad NOM-035 (18-29, 30-39, 40-49, 50+)
+      const ageGroups: Record<string, { total: number; completed: number; pending: number; expired: number }> = {
+        '18-29': { total: 0, completed: 0, pending: 0, expired: 0 },
+        '30-39': { total: 0, completed: 0, pending: 0, expired: 0 },
+        '40-49': { total: 0, completed: 0, pending: 0, expired: 0 },
+        '50+': { total: 0, completed: 0, pending: 0, expired: 0 },
+        'Sin dato': { total: 0, completed: 0, pending: 0, expired: 0 },
+      };
+      tokens.forEach(t => {
+        let group = 'Sin dato';
+        if (t.fechaNacimiento) {
+          const birth = new Date(t.fechaNacimiento);
+          const age = Math.floor((now.getTime() - birth.getTime()) / (365.25 * 24 * 3600 * 1000));
+          if (age >= 18 && age <= 29) group = '18-29';
+          else if (age >= 30 && age <= 39) group = '30-39';
+          else if (age >= 40 && age <= 49) group = '40-49';
+          else if (age >= 50) group = '50+';
+        }
+        ageGroups[group].total++;
+        if (t.usedAt) ageGroups[group].completed++;
+        else if (new Date(t.expiresAt!) > now) ageGroups[group].pending++;
+        else ageGroups[group].expired++;
       });
 
       return {
@@ -2228,6 +2265,16 @@ export const surveysRouter = router({
           ...stats,
           completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
         })),
+        byGender: Object.entries(bySexo).map(([sexo, stats]: [string, any]) => ({
+          sexo,
+          ...stats,
+          completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
+        })),
+        byAgeGroup: Object.entries(ageGroups).map(([group, stats]: [string, any]) => ({
+          group,
+          ...stats,
+          completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100 * 100) / 100 : 0,
+        })).filter(g => g.total > 0),
         tokens: tokens.map(t => ({
           ...t,
           status: t.usedAt ? 'completado' : (new Date(t.expiresAt!) > now ? 'pendiente' : 'expirado'),

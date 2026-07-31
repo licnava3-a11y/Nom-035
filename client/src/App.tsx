@@ -274,6 +274,8 @@ const FormatCatalog = lazy(() => import("./pages/FormatCatalog"));
 const SirceExportHistory = lazy(() => import("./pages/SirceExportHistory"));
 const GoogleCalendarSync = lazy(() => import("./pages/GoogleCalendarSync"));
 const InternalComms = lazy(() => import("./pages/InternalComms"));
+const BuzonComunicacion = lazy(() => import("./pages/BuzonComunicacion"));
+const ClinicalRecords = lazy(() => import("./pages/ClinicalRecords"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -2065,6 +2067,20 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <InternalComms />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/buzon-comunicacion">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <BuzonComunicacion />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path="/clinical-records">
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <ClinicalRecords />
             </Suspense>
           </DashboardLayout>
         </Route>

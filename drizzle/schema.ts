@@ -6368,3 +6368,109 @@ export const dc3ClientCompanies = mysqlTable("dc3_client_companies", {
 });
 export type Dc3ClientCompany = typeof dc3ClientCompanies.$inferSelect;
 export type InsertDc3ClientCompany = typeof dc3ClientCompanies.$inferInsert;
+
+// ============================================================
+// BUZÓN DE COMUNICACIÓN INTERNA
+// ============================================================
+
+export const buzonRequests = mysqlTable("buzon_requests", {
+  id: int("id").autoincrement().primaryKey(),
+  publicFolio: varchar("public_folio", { length: 50 }).unique().notNull(),
+  requestType: varchar("request_type", { length: 20 }).notNull(), // QUEJA | FELICITACION | CAPACITACION | SUGERENCIA
+  status: varchar("status", { length: 30 }).default("REGISTRADA").notNull(),
+  employeeId: int("employee_id"),
+  anonymityFlag: boolean("anonymity_flag").default(false).notNull(),
+  formPayload: text("form_payload").notNull(),
+  priority: varchar("priority", { length: 10 }).default("NORMAL"),
+  internalNotes: text("internal_notes"),
+  resolutionText: text("resolution_text"),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedByUserId: int("resolved_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type BuzonRequest = typeof buzonRequests.$inferSelect;
+export type InsertBuzonRequest = typeof buzonRequests.$inferInsert;
+
+export const buzonAttachments = mysqlTable("buzon_attachments", {
+  id: int("id").autoincrement().primaryKey(),
+  requestId: int("request_id").notNull(),
+  s3Url: text("s3_url").notNull(),
+  s3Key: varchar("s3_key", { length: 512 }).notNull(),
+  fileHash: varchar("file_hash", { length: 64 }),
+  originalName: varchar("original_name", { length: 255 }),
+  mimeType: varchar("mime_type", { length: 100 }),
+  uploadedByUserId: int("uploaded_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type BuzonAttachment = typeof buzonAttachments.$inferSelect;
+
+export const buzonAuditTrail = mysqlTable("buzon_audit_trail", {
+  id: int("id").autoincrement().primaryKey(),
+  requestId: int("request_id").notNull(),
+  fromStatus: varchar("from_status", { length: 30 }),
+  toStatus: varchar("to_status", { length: 30 }).notNull(),
+  actionByUserId: int("action_by_user_id"),
+  actionByName: varchar("action_by_name", { length: 255 }),
+  internalNotes: text("internal_notes"),
+  systemNote: text("system_note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type BuzonAuditEntry = typeof buzonAuditTrail.$inferSelect;
+
+// ============================================================
+// EXPEDIENTE CLÍNICO PSICOMÉTRICO
+// ============================================================
+
+export const clinicalRecords = mysqlTable("clinical_records", {
+  id: int("id").autoincrement().primaryKey(),
+  employeeId: int("employee_id"),
+  patientName: varchar("patient_name", { length: 255 }).notNull(),
+  patientAge: int("patient_age"),
+  patientContact: varchar("patient_contact", { length: 255 }),
+  professionalName: varchar("professional_name", { length: 255 }).notNull(),
+  professionalLicense: varchar("professional_license", { length: 50 }),
+  professionalSpecialty: varchar("professional_specialty", { length: 100 }),
+  consultationReason: text("consultation_reason"),
+  medicalHistory: text("medical_history"),
+  personalHistory: text("personal_history"),
+  familyHistory: text("family_history"),
+  treatmentObjectives: text("treatment_objectives"),
+  treatmentActivities: text("treatment_activities"),
+  consentSigned: boolean("consent_signed").default(false).notNull(),
+  consentSignedAt: timestamp("consent_signed_at"),
+  consentDocUrl: text("consent_doc_url"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdByUserId: int("created_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type ClinicalRecord = typeof clinicalRecords.$inferSelect;
+export type InsertClinicalRecord = typeof clinicalRecords.$inferInsert;
+
+export const clinicalEvaluations = mysqlTable("clinical_evaluations", {
+  id: int("id").autoincrement().primaryKey(),
+  recordId: int("record_id").notNull(),
+  testName: varchar("test_name", { length: 255 }).notNull(),
+  evaluationDate: date("evaluation_date").notNull(),
+  result: text("result"),
+  interpretation: text("interpretation"),
+  fileUrl: text("file_url"),
+  fileKey: varchar("file_key", { length: 512 }),
+  appliedByUserId: int("applied_by_user_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type ClinicalEvaluation = typeof clinicalEvaluations.$inferSelect;
+
+export const clinicalSessionNotes = mysqlTable("clinical_session_notes", {
+  id: int("id").autoincrement().primaryKey(),
+  recordId: int("record_id").notNull(),
+  sessionDate: date("session_date").notNull(),
+  observations: text("observations").notNull(),
+  nextAppointment: date("next_appointment"),
+  sessionType: varchar("session_type", { length: 50 }).default("individual"),
+  authorUserId: int("author_user_id"),
+  authorName: varchar("author_name", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type ClinicalSessionNote = typeof clinicalSessionNotes.$inferSelect;
