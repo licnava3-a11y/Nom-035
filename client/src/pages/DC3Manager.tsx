@@ -134,13 +134,14 @@ const emptyForm: DC3FormData = {
 };
 
 function DC3Form({
-  form, setForm, catalogs, clientCompanies, onCompanyCreated,
+  form, setForm, catalogs, clientCompanies, onCompanyCreated, companyFromConfig,
 }: {
   form: DC3FormData;
   setForm: (f: DC3FormData) => void;
   catalogs: { cnoAreas: { key: string; label: string }[]; thematicAreas: { key: string; label: string }[] } | undefined;
   clientCompanies?: Array<{ id: number; razonSocial: string; rfc?: string | null; isDefault?: boolean | null }>;
   onCompanyCreated?: (company: { id: number; razonSocial: string; rfc?: string | null }) => void;
+  companyFromConfig?: { name: string; rfc: string };
 }) {
   const { toast } = useToast();
   const set = (field: keyof DC3FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -419,7 +420,14 @@ function DC3Form({
         </Dialog>
       </div>
       <div>
-        <Label>Nombre o Razón Social *</Label>
+        <Label className="flex items-center gap-1.5">
+          Nombre o Razón Social *
+          {companyFromConfig && form.companyName === companyFromConfig.name && (
+            <span className="text-xs text-green-600 font-normal border border-green-300 bg-green-50 rounded px-1.5 py-0.5">
+              Auto-rellenado desde Configuración
+            </span>
+          )}
+        </Label>
         <Input placeholder="EMPRESA EJEMPLO S.A. DE C.V." value={form.companyName} onChange={set("companyName")} />
       </div>
       <div>
@@ -1245,7 +1253,13 @@ export function DC3Manager() {
           <DialogHeader>
             <DialogTitle>{editId ? "Editar Registro DC-3" : "Nuevo Registro DC-3"}</DialogTitle>
           </DialogHeader>
-          <DC3Form form={form} setForm={setForm} catalogs={catalogsQuery.data} clientCompanies={clientCompanies} />
+          <DC3Form
+            form={form}
+            setForm={setForm}
+            catalogs={catalogsQuery.data}
+            clientCompanies={clientCompanies}
+            companyFromConfig={companyInfoQuery.data ? { name: companyInfoQuery.data.company_name ?? "", rfc: companyInfoQuery.data.company_rfc ?? "" } : undefined}
+          />
 
           {/* Panel de firmas digitales — solo visible al editar un registro existente */}
           {editId && (

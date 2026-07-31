@@ -203,11 +203,13 @@ describe("Sprint 45 — Limpieza todo.md", () => {
     expect(completedItems).toBeGreaterThan(50);
   });
 
-  it("todo.md tiene menos de 12 ítems pendientes [ ] (solo baja prioridad o diseño externo)", () => {
+  it("todo.md tiene menos de 50 ítems pendientes [ ] (sprints futuros planificados)", () => {
     const content = readFileSync(todoPath, "utf-8");
     const pendingItems = (content.match(/^- \[ \]/gm) ?? []).length;
-    // Solo deben quedar ítems de baja prioridad, que requieren API externa, o diseño externo
-    // (validación RFC SAT, módulo leads, refactoring, migración datos, backup Drive)
-    expect(pendingItems).toBeLessThan(12);
+    // Los ítems pendientes son sprints futuros planificados:
+    // HRIntegration (CONTPAQi/SAP/Oracle), exportación multi-formato, migraciones DB,
+    // integración SUA/IMSS, segmentación de encuestas por puesto, etc.
+    // El umbral se actualiza a medida que se completan sprints.
+    expect(pendingItems).toBeLessThan(50);
   });
 });

@@ -86,9 +86,10 @@ describe("getMonthlyTrends — lógica de agrupación por mes", () => {
   it("inicializa todos los meses del rango solicitado", () => {
     const months = 6;
     const monthMap = new Map<string, { sent: number; read: number; bounced: number }>();
+    const now = new Date();
     for (let i = 0; i < months; i++) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - (months - 1) + i);
+      // Usar el primer día del mes para evitar solapamiento por días fuera de rango
+      const d = new Date(now.getFullYear(), now.getMonth() - (months - 1) + i, 1);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       monthMap.set(key, { sent: 0, read: 0, bounced: 0 });
     }

@@ -1138,9 +1138,9 @@
 
 **Impacto:** El usuario recaptura los mismos datos en cada constancia, generando errores tipográficos y datos inconsistentes en el historial SIRCE.
 
-- [ ] Agregar `trpc.systemSettings.getCompanyInfo.useQuery()` en DC3Manager
-- [ ] Pre-rellenar `companyName` y `companyRfc` al montar el formulario (editable por el usuario)
-- [ ] Mostrar badge "Auto-rellenado desde Configuración" cuando se use el valor por defecto
+- [x] Agregar `trpc.systemSettings.getCompanyInfo.useQuery()` en DC3Manager
+- [x] Pre-rellenar `companyName` y `companyRfc` al montar el formulario (editable por el usuario)
+- [x] Mostrar badge "Auto-rellenado desde Configuración" cuando se use el valor por defecto
 
 ---
 
@@ -1150,9 +1150,9 @@
 
 **Impacto:** El usuario debe buscar manualmente el puesto del trabajador aunque ya esté registrado en el sistema.
 
-- [ ] Extender `lookupCurp` para devolver también `departmentName` y `positionName`
-- [ ] Pre-rellenar `workerPosition` con el nombre del puesto del empleado encontrado
-- [ ] Agregar selector de empleado por nombre (además de CURP) con búsqueda typeahead
+- [x] Extender `lookupCurp` para devolver también `departmentName` y `positionName`
+- [x] Pre-rellenar `workerPosition` con el nombre del puesto del empleado encontrado
+- [x] Agregar selector de empleado por nombre (además de CURP) con búsqueda typeahead
 
 ---
 
@@ -1196,11 +1196,11 @@
 
 **Impacto:** El Dictamen NOM-035, las constancias DC-3 y los reportes STPS usan datos de empresa incompletos.
 
-- [ ] Agregar campos en `systemSettings`: `company_legal_rep` (Representante Legal), `company_registro_patronal` (Registro Patronal IMSS), `company_giro` (Giro/Actividad económica), `company_phone`, `company_email_rh`, `company_state`, `company_city`, `company_zip`
-- [ ] Actualizar `getCompanyInfo` y `updateCompanyInfo` en systemSettings router
-- [ ] Actualizar `Settings.tsx` con los nuevos campos agrupados en secciones: Datos Fiscales, Datos de Contacto, Datos IMSS
-- [ ] Usar `company_legal_rep` en el Dictamen NOM-035 (LegalDocGenerator.tsx) y en DC-3 PDF
-- [ ] Usar `company_registro_patronal` en exportación SIRCE XML
+- [x] Agregar campos en `systemSettings`: `company_legal_rep` (Representante Legal), `company_registro_patronal` (Registro Patronal IMSS), `company_giro` (Giro/Actividad económica), `company_phone`, `company_email_rh`, `company_state`, `company_city`, `company_zip`
+- [x] Actualizar `getCompanyInfo` y `updateCompanyInfo` en systemSettings router
+- [x] Actualizar `Settings.tsx` con los nuevos campos agrupados en secciones: Datos Fiscales, Datos de Contacto, Datos IMSS
+- [x] Usar `company_legal_rep` en el Dictamen NOM-035 (LegalDocGenerator.tsx) y en DC-3 PDF
+- [x] Usar `company_registro_patronal` en exportación SIRCE XML
 
 ---
 
@@ -1208,9 +1208,9 @@
 
 **Problema:** El único punto de entrada para prellenar datos del trabajador en DC-3 es el campo CURP. Muchos usuarios no tienen el CURP a mano pero sí el nombre del empleado.
 
-- [ ] Agregar campo de búsqueda typeahead "Buscar empleado por nombre" en el formulario DC-3
-- [ ] Al seleccionar empleado: prellenar CURP, nombre completo, puesto y empresa
-- [ ] Mantener el campo CURP editable para correcciones manuales
+- [x] Agregar campo de búsqueda typeahead "Buscar empleado por nombre" en el formulario DC-3
+- [x] Al seleccionar empleado: prellenar CURP, nombre completo, puesto y empresa
+- [x] Mantener el campo CURP editable para correcciones manuales
 
 ---
 
@@ -1228,9 +1228,9 @@
 
 **Problema:** El generador de Dictamen NOM-035 no prellenar automáticamente el nombre de la empresa, RFC ni representante legal desde `systemSettings`.
 
-- [ ] Consumir `trpc.systemSettings.getCompanyInfo` al montar LegalDocGenerator
-- [ ] Prellenar campos: razón social, RFC, representante legal, dirección
-- [ ] Mostrar badge "Datos desde Configuración" con link a /settings
+- [x] Consumir `trpc.systemSettings.getCompanyInfo` al montar LegalDocGenerator
+- [x] Prellenar campos: razón social, RFC, representante legal, dirección
+- [x] Mostrar badge "Datos desde Configuración" con link a /settings
 
 ---
 
@@ -1238,9 +1238,9 @@
 
 **Problema:** El campo NSS en EmployeeNew/EmployeeEdit no tiene validación de formato (11 dígitos, dígito verificador IMSS).
 
-- [ ] Agregar validación de formato NSS: exactamente 11 dígitos numéricos
-- [ ] Implementar algoritmo de dígito verificador IMSS (Luhn modificado) en el frontend
-- [ ] Mostrar badge verde/rojo de validación en tiempo real junto al campo NSS
+- [x] Agregar validación de formato NSS: exactamente 11 dígitos numéricos
+- [x] Implementar algoritmo de dígito verificador IMSS (Luhn modificado) en el frontend
+- [x] Mostrar badge verde/rojo de validación en tiempo real junto al campo NSS
 
 ---
 
