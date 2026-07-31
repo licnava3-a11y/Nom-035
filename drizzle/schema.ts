@@ -860,6 +860,8 @@ export const surveyResponses = mysqlTable('survey_responses', {
   ipAddress: varchar('ip_address', { length: 45 }),
   deviceInfo: text('device_info'),
   results: text('results'), // Resultados calculados en JSON
+  departmentId: int('department_id').references(() => departments.id), // Departamento del trabajador al momento de responder
+  positionId: int('position_id').references(() => positions.id), // Puesto del trabajador al momento de responder
 });
 
 // Respuestas individuales a preguntas
@@ -883,6 +885,8 @@ export const surveyTokens = mysqlTable('survey_tokens', {
   sentVia: mysqlEnum('sent_via', ['email', 'sms', 'whatsapp', 'qr']), // Medio de envío
   sentAt: timestamp('sent_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  departmentId: int('department_id').references(() => departments.id), // Departamento del trabajador al momento de generar el token
+  positionId: int('position_id').references(() => positions.id), // Puesto del trabajador al momento de generar el token
 });
 
 // Resultados calculados de encuestas NOM-035 (con nivel de riesgo)

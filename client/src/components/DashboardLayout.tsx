@@ -86,7 +86,6 @@ const hierarchicalMenuItems = [
       { label: "Planes de Intervención", path: "/intervention-plans", description: "Planes de acción personalizados para empleados en riesgo crítico con mentores y seguimiento trimestral" },
       { label: "Alertas Tempranas", path: "/risk-alerts", description: "Sistema de alertas automáticas de riesgo psicosocial" },
       { label: "Reportes Automáticos", path: "/scheduled-reports", description: "Dashboards ejecutivos mensuales con métricas NMX-025 y NOM-035" },
-      { label: "Importación Masiva", path: "/admin/import", description: "Importar datos desde Excel" },
       { label: "Integración con Sistemas de RH", path: "/hr-integration", description: "Importar/exportar empleados desde CONTPAQi, Aspel NOI, SAP HCM, Oracle HCM y Nomipaq" },
       { label: "Catálogo de Empresas Cliente", path: "/client-companies", description: "Gestiona las empresas para las que emites constancias DC-3 (multi-empresa)" },
       { label: "Reclutamiento", path: "/recruitment", description: "Gestión de vacantes y candidatos con filtro de escolaridad" },
@@ -311,6 +310,7 @@ const hierarchicalMenuItems = [
       { label: "Estado de Jobs (Sprint 54)", path: "/admin/jobs", description: "Estado en tiempo real: notificaciones enviadas, omitidas y errores por job" },
       { label: "Configuración de Reportes", path: "/report-configuration", description: "Gestionar reportes ejecutivos automatizados" },
       { label: "Visitas por Empresa", path: "/company-visits", description: "Contador de visitas y páginas más visitadas por empresa" },
+      { label: "Importación Masiva", path: "/admin/import", description: "Importar datos masivamente desde Excel (empleados, cursos, departamentos)" },
       { label: "Informes de Errores", path: "/bug-reports", description: "Reporte y seguimiento de errores del sistema" },
       { label: "Peticiones de Mejora", path: "/feature-requests", description: "Solicitudes de nuevas funcionalidades con indicador de % implementadas" },
       { label: "⚡ Core Web Vitals", path: "/web-vitals", description: "Dashboard de métricas de rendimiento: LCP, CLS, INP, FCP, TTFB" },
@@ -517,6 +517,7 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
+  const [sidebarSearch, setSidebarSearch] = useState("");
   const [openSubmenus, setOpenSubmenus] = useState<string[]>(() => {
     // Cargar estado de localStorage
     const saved = localStorage.getItem('open-submenus');
@@ -631,8 +632,8 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
+          <SidebarHeader className="h-auto justify-center pb-1">
+            <div className="flex items-center gap-3 px-2 pt-3 transition-all w-full">
               <button
                 onClick={toggleSidebar}
                 className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
@@ -651,11 +652,43 @@ function DashboardLayoutContent({
                 </div>
               ) : null}
             </div>
+            {!isCollapsed && (
+              <div className="px-2 pb-2 pt-1">
+                <div className="relative">
+                  <svg className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <input
+                    type="text"
+                    placeholder="Buscar módulo..."
+                    value={sidebarSearch}
+                    onChange={e => setSidebarSearch(e.target.value)}
+                    className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted/50 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+                  />
+                </div>
+              </div>
+            )}
           </SidebarHeader>
 
           <SidebarContent className="gap-0">
             <SidebarMenu className="px-2 py-1">
-              {menuItems.filter(item => item.roles.includes(user?.role || "student")).map((item, index) => {
+              {menuItems.filter(item => {
+                if (!item.roles.includes(user?.role || "student")) return false;
+                if (!sidebarSearch.trim()) return true;
+                const q = sidebarSearch.toLowerCase();
+                // Buscar en el label del menú principal
+                if (item.label.toLowerCase().includes(q)) return true;
+                // Buscar en submenús de nivel 1
+                if ('submenu' in item && item.submenu) {
+                  return item.submenu.some((sub: any) => {
+                    if (sub.label?.toLowerCase().includes(q)) return true;
+                    // Buscar en submenús de nivel 2
+                    if ('submenu' in sub && sub.submenu) {
+                      return sub.submenu.some((nested: any) => nested.label?.toLowerCase().includes(q));
+                    }
+                    return false;
+                  });
+                }
+                return false;
+              }).map((item, index) => {
                 const itemKey = `menu-${index}`;
                 const isActive = item.path ? location === item.path : false;
                 const hasSubmenu = 'submenu' in item && item.submenu;

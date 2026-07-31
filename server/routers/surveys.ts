@@ -356,6 +356,21 @@ export const surveysRouter = router({
       // Generar token único para esta respuesta
       const responseToken = input.responseToken || generateToken();
       
+      // Obtener departmentId y positionId del empleado para segmentación por puesto/área
+      let empDeptId: number | null = null;
+      let empPosId: number | null = null;
+      if (userId) {
+        const [empData] = await db
+          .select({ departmentId: employees.departmentId, positionId: employees.positionId })
+          .from(employees)
+          .where(eq(employees.userId, userId))
+          .limit(1);
+        if (empData) {
+          empDeptId = empData.departmentId ?? null;
+          empPosId = empData.positionId ?? null;
+        }
+      }
+      
       // Crear respuesta
       await (db.insert(surveyResponses) as any).values({
         surveyId: input.surveyId,
@@ -364,6 +379,8 @@ export const surveysRouter = router({
         token: responseToken,
         completedAt: new Date(),
         startedAt: new Date(),
+        departmentId: empDeptId,
+        positionId: empPosId,
       });
       
       // Obtener el ID de la respuesta recién creada

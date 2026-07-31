@@ -1248,8 +1248,8 @@
 
 **Problema:** Cuando un empleado accede a su encuesta NOM-035, el sistema no prellenar automáticamente su departamento y puesto para el análisis de resultados por área.
 
-- [ ] Verificar que `surveyTokens` incluya `departmentId` y `positionId` del empleado al generar el token
-- [ ] Guardar `departmentId` y `positionId` en `surveyResponses` al completar la encuesta
+- [x] Verificar que `surveyTokens` incluya `departmentId` y `positionId` del empleado al generar el token
+- [x] Guardar `departmentId` y `positionId` en `surveyResponses` al completar la encuesta
 - [ ] Actualizar el análisis de resultados para segmentar por puesto además de departamento
 
 ---
@@ -1269,10 +1269,10 @@
 
 **Problema:** DC3Manager permite emitir constancias para cualquier empresa (campo libre). No hay un catálogo de empresas clientes para seleccionar y prellenar.
 
-- [ ] Crear tabla `client_companies` (id, name, rfc, address, registroPatronal, isActive)
-- [ ] Agregar selector de empresa en DC3Manager con opción "Usar empresa propia" (desde systemSettings) y "Otra empresa" (desde catálogo)
-- [ ] Página `ClientCompanies.tsx` para gestionar el catálogo de empresas clientes
-- [ ] Ruta `/client-companies` en App.tsx y enlace en sidebar (sección DC-3)
+- [x] Crear tabla `client_companies` (id, name, rfc, address, registroPatronal, isActive)
+- [x] Agregar selector de empresa en DC3Manager con opción "Usar empresa propia" (desde systemSettings) y "Otra empresa" (desde catálogo)
+- [x] Página `ClientCompanies.tsx` para gestionar el catálogo de empresas clientes
+- [x] Ruta `/client-companies` en App.tsx y enlace en sidebar (sección DC-3)
 
 ---
 
@@ -1310,9 +1310,9 @@
 **Problema:** El sidebar tiene más de 300 ítems de menú organizados en ~10 secciones. Algunos módulos relacionados están en secciones diferentes, dificultando la navegación.
 
 - [x] Enlace "Integración con Sistemas de RH" agregado al sidebar en la sección de Empleados
-- [ ] Mover "Importación Masiva" de la sección actual a la nueva sección de Integración (pendiente)
-- [ ] Agregar búsqueda en el sidebar (pendiente)
-- [ ] Agregar tooltips con descripción al hacer hover en ítems del sidebar (pendiente)
+- [x] Mover "Importación Masiva" de la sección actual a la nueva sección de Integración (pendiente)
+- [x] Agregar búsqueda en el sidebar (pendiente)
+- [x] Agregar tooltips con descripción al hacer hover en ítems del sidebar (pendiente)
 
 ---
 
