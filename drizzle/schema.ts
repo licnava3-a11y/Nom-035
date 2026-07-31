@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, decimal, date, bigint, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, mediumtext, timestamp, varchar, boolean, decimal, date, bigint, json } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -6440,6 +6440,7 @@ export const clinicalRecords = mysqlTable("clinical_records", {
   consentSigned: boolean("consent_signed").default(false).notNull(),
   consentSignedAt: timestamp("consent_signed_at"),
   consentDocUrl: text("consent_doc_url"),
+  professionalSignature: mediumtext("professional_signature"),
   isActive: boolean("is_active").default(true).notNull(),
   createdByUserId: int("created_by_user_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

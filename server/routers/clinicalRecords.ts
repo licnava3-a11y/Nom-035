@@ -395,6 +395,17 @@ export const clinicalRecordsRouter = router({
         generatedByName: ctx.user.name ?? "Usuario",
       });
 
+      // Notificación interna al profesional responsable del expediente
+      try {
+        const { notifyOwner } = await import("../_core/notification");
+        await notifyOwner({
+          title: `📄 PDF exportado — Expediente ${folio}`,
+          content: `El usuario ${ctx.user.name ?? ctx.user.email ?? 'desconocido'} exportó el expediente clínico de **${record.patientName}** (folio: ${folio}) el ${new Date().toLocaleString('es-MX')}. El documento está disponible en el sistema.`,
+        });
+      } catch {
+        // La notificación es no-bloqueante
+      }
+
       return { url, folio, fileName };
     }),
 
@@ -410,6 +421,23 @@ export const clinicalRecordsRouter = router({
         .from(clinicalExportedPdfs)
         .where(eq(clinicalExportedPdfs.recordId, input.recordId))
         .orderBy(desc(clinicalExportedPdfs.createdAt));
+    }),
+
+  // ─── Guardar firma electrónica del profesional ────────────────────────────────
+  saveProfessionalSignature: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      signatureBase64: z.string().min(10, "La firma no puede estar vacía"),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      requireClinicalAccess(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      await db
+        .update(clinicalRecords)
+        .set({ professionalSignature: input.signatureBase64 } as Parameters<ReturnType<typeof db.update>["set"]>[0])
+        .where(eq(clinicalRecords.id, input.id));
+      return { success: true };
     }),
 
   // ─── Estadísticas ───────────────────────────────────────────────────────────

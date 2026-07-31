@@ -32,6 +32,7 @@ interface ClinicalRecordPDFData {
     treatmentActivities?: string | null;
     consentSigned: boolean;
     consentSignedAt?: Date | null;
+    professionalSignature?: string | null;
     createdAt: Date;
   };
   evaluations: ClinicalEvaluation[];
@@ -226,8 +227,19 @@ export async function generateClinicalRecordPDF(data: ClinicalRecordPDFData): Pr
 
       // Bloque de firma
       const sigX = doc.page.width / 2 - 80;
-      doc.moveTo(sigX, doc.y + 40).lineTo(sigX + 160, doc.y + 40).strokeColor("#333").lineWidth(0.8).stroke();
-      doc.moveDown(2.8);
+      if (data.record.professionalSignature && data.record.professionalSignature.startsWith('data:image')) {
+        // Incrustar imagen de firma electrónica capturada en canvas
+        try {
+          const sigImgBuffer = Buffer.from(data.record.professionalSignature.split(',')[1], 'base64');
+          const sigY = doc.y;
+          doc.image(sigImgBuffer, sigX, sigY, { width: 160, height: 60 });
+          doc.y = sigY + 62;
+        } catch {
+          // Si la imagen falla, continuar con línea en blanco
+        }
+      }
+      doc.moveTo(sigX, doc.y + 2).lineTo(sigX + 160, doc.y + 2).strokeColor("#333").lineWidth(0.8).stroke();
+      doc.moveDown(1.2);
       doc
         .fontSize(10)
         .font("Helvetica-Bold")

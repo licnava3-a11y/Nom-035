@@ -1492,3 +1492,20 @@
 - [x] Pestaña "PDFs" en expediente clínico con historial de documentos exportados
 - [x] Modal de vista previa del PDF (iframe) con botón "Abrir en nueva pestaña"
 - [x] Vista previa se abre automáticamente al exportar y desde el historial
+
+## Sprint: Firma Electrónica, Buzón en Sidebar y Notificación PDF (Jul 2026)
+- [ ] Campo professional_signature (TEXT base64) en tabla clinical_records
+- [ ] Procedure saveProfessionalSignature en router clinicalRecords.ts
+- [ ] Componente SignaturePad.tsx (canvas HTML5) para capturar firma
+- [ ] Sección de firma en RecordDetailPanel (ClinicalRecords.tsx)
+- [ ] Incrustar firma en el PDF generado (clinicalRecordPDF.ts)
+- [ ] Enlace al portal del Buzón en el sidebar de DashboardLayout.tsx
+- [ ] Notificación interna al profesional al exportar PDF (procedure exportPdf)
+
+## Sprint: Firma Electrónica, Enlace Buzón en Sidebar y Notificación PDF
+- [x] Migración BD: columna professional_signature (mediumtext) en clinical_records
+- [x] Procedure saveProfessionalSignature en clinicalRecords router
+- [x] Notificación interna al profesional al exportar PDF (en exportPdf procedure)
+- [x] Componente SignaturePad.tsx integrado en pestaña "Firma" de RecordDetailPanel
+- [x] Firma electrónica incrustada en PDF generado (clinicalRecordPDF.ts)
+- [x] Enlace "Consultar Folio (Buzón)" agregado en sidebar de DashboardLayout.tsx

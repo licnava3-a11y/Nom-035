@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SignaturePad } from "@/components/SignaturePad";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -195,6 +196,10 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewFolio, setPreviewFolio] = useState<string | null>(null);
+  const saveSignatureMutation = trpc.clinicalRecords.saveProfessionalSignature.useMutation({
+    onSuccess: () => { refetch(); toast({ title: "Firma guardada correctamente" }); },
+    onError: (e) => toast({ title: "Error al guardar firma", description: e.message, variant: "destructive" }),
+  });
 
   const { data: exportedPdfs, refetch: refetchPdfs } = trpc.clinicalRecords.getExportedPdfs.useQuery(
     { recordId },
@@ -272,11 +277,12 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 w-full">
+        <TabsList className="grid grid-cols-5 w-full">
           <TabsTrigger value="historia"><ClipboardList className="h-4 w-4 mr-1" />Historia</TabsTrigger>
           <TabsTrigger value="evaluaciones"><Brain className="h-4 w-4 mr-1" />Evaluaciones ({evaluations.length})</TabsTrigger>
           <TabsTrigger value="sesiones"><Calendar className="h-4 w-4 mr-1" />Sesiones ({sessionNotes.length})</TabsTrigger>
           <TabsTrigger value="documentos"><History className="h-4 w-4 mr-1" />PDFs ({exportedPdfs?.length ?? 0})</TabsTrigger>
+          <TabsTrigger value="firma"><CheckCircle className="h-4 w-4 mr-1" />Firma</TabsTrigger>
         </TabsList>
 
         {/* Tab Historia Clínica */}
@@ -453,6 +459,34 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
               </div>
             ))
           )}
+        </TabsContent>
+
+        {/* Tab Firma electrónica del profesional */}
+        <TabsContent value="firma" className="space-y-4 max-h-[55vh] overflow-y-auto">
+          <div className="space-y-3">
+            <div>
+              <h3 className="font-semibold text-sm">Firma electrónica del profesional responsable</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                La firma se incrusta automáticamente en los PDFs exportados del expediente.
+                Solo el personal clínico autorizado puede modificarla.
+              </p>
+            </div>
+            <SignaturePad
+              onSave={(signatureDataUrl) =>
+                saveSignatureMutation.mutate({ id: record.id, signatureBase64: signatureDataUrl })
+              }
+              onCancel={() => setActiveTab("historia")}
+              signerName={record.professionalName}
+              signerRole={record.professionalSpecialty ?? undefined}
+              initialSignature={record.professionalSignature ?? undefined}
+            />
+            {record.professionalSignature && (
+              <p className="text-xs text-green-600 flex items-center gap-1">
+                <CheckCircle className="h-3 w-3" />
+                Firma registrada. Se incluirá en el próximo PDF exportado.
+              </p>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
