@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,17 +26,16 @@ export default function Profile() {
   const [prefsSaved, setPrefsSaved] = useState(false);
 
   // Fetch existing preferences
-  const { isLoading: prefsLoading } = trpc.notificationPreferences.getPreferences.useQuery(undefined, {
-    onSuccess: (data: any) => {
-      if (data) {
-        setRealtimeEnabled(data.realtimeEnabled ?? true);
-        setDailyEmailEnabled(data.dailyEmailEnabled ?? false);
-        setDailyEmailHour(String(data.dailyEmailHour ?? 8));
-        setWeeklyEmailEnabled(data.weeklyEmailEnabled ?? false);
-        setWeeklyEmailDay(String(data.weeklyEmailDay ?? 1));
-      }
-    },
-  });
+  const { data: prefsData, isLoading: prefsLoading } = trpc.notificationPreferences.getPreferences.useQuery();
+  useEffect(() => {
+    if (prefsData) {
+      setRealtimeEnabled(prefsData.realtimeEnabled ?? true);
+      setDailyEmailEnabled(prefsData.dailyEmailEnabled ?? false);
+      setDailyEmailHour(String(prefsData.dailyEmailHour ?? 8));
+      setWeeklyEmailEnabled(prefsData.weeklyEmailEnabled ?? false);
+      setWeeklyEmailDay(String(prefsData.weeklyEmailDay ?? 1));
+    }
+  }, [prefsData]);
 
   const updatePrefsMutation = trpc.notificationPreferences.updatePreferences.useMutation({
     onSuccess: () => {
