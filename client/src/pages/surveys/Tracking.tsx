@@ -90,7 +90,6 @@ export default function SurveysTracking() {
       toast.success("PDF descargado exitosamente");
     } catch (error) {
       toast.error("Error al generar el PDF");
-      console.error(error);
     } finally {
       setIsDownloadingPDF(false);
     }
@@ -126,7 +125,6 @@ export default function SurveysTracking() {
       toast.error("Error al enviar recordatorios", {
         description: error instanceof Error ? error.message : 'Error desconocido'
       });
-      console.error(error);
     } finally {
       setIsSendingReminders(false);
     }

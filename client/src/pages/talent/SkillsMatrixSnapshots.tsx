@@ -256,7 +256,6 @@ export default function SkillsMatrixSnapshots() {
       doc.save(`comparacion-snapshots-${snapshot1?.name}-vs-${snapshot2?.name}.pdf`);
       toast.success("PDF generado", { description: "El reporte se descargó correctamente" });
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       toast.error("Error", { description: "No se pudo generar el PDF" });
     }
   };

@@ -11,7 +11,7 @@ import {
   notifications,
   companyGeneralData,
 } from "../../drizzle/schema";
-import { eq, desc, sql, and, gte, lte, ne, asc } from "drizzle-orm";
+import { eq, desc, sql, and, gte, lte, ne, asc, inArray } from "drizzle-orm";
 import { notifyOwner } from "../_core/notification";
 import { sendEmail } from "../_core/email";
 import { emitNotificationToUser } from "../_core/websocket";
@@ -659,25 +659,38 @@ export const vacationsRouter = router({
         ? allEmployees.filter((e) => e.departmentId === input.departmentId)
         : allEmployees;
 
-      // Calcular saldo para cada empleado
-      const report = await Promise.all(
-        filtered.map(async (emp) => {
-          const balance = await calcEmployeeBalance(db, emp.id, table, emp.hireDate);
-          return {
-            employeeId: emp.id,
-            name: `${emp.firstName} ${emp.lastName}`,
-            email: emp.email,
-            department: emp.departmentName,
-            position: emp.positionTitle,
-            hireDate: emp.hireDate,
-            yearsOfService: balance.yearsOfService,
-            earnedDays: balance.earnedDays,
-            usedDays: balance.usedDays,
-            pendingDays: balance.pendingDays,
-            availableDays: balance.availableDays,
-          };
-        })
-      );
+      // Calcular saldo para todos los empleados en 2 queries en lugar de 2N (evita N+1)
+      const filteredIds = filtered.map(e => e.id);
+      const allVacReqs = filteredIds.length > 0
+        ? await db!.select({ employeeId: vacationRequests.employeeId, requestedDays: vacationRequests.requestedDays, status: vacationRequests.status })
+            .from(vacationRequests)
+            .where(and(inArray(vacationRequests.employeeId, filteredIds), sql`${vacationRequests.status} IN ('approved','pending')`))
+        : [];
+      const usedMap = new Map<number, number>();
+      const pendingMap = new Map<number, number>();
+      allVacReqs.forEach(r => {
+        if (r.status === 'approved') usedMap.set(r.employeeId, (usedMap.get(r.employeeId) ?? 0) + r.requestedDays);
+        if (r.status === 'pending') pendingMap.set(r.employeeId, (pendingMap.get(r.employeeId) ?? 0) + r.requestedDays);
+      });
+      const report = filtered.map(emp => {
+        const yearsOfService = emp.hireDate ? calcYearsOfService(emp.hireDate) : 0;
+        const earnedDays = getDaysByYears(yearsOfService, table);
+        const usedDays = usedMap.get(emp.id) ?? 0;
+        const pendingDays = pendingMap.get(emp.id) ?? 0;
+        return {
+          employeeId: emp.id,
+          name: `${emp.firstName} ${emp.lastName}`,
+          email: emp.email,
+          department: emp.departmentName,
+          position: emp.positionTitle,
+          hireDate: emp.hireDate,
+          yearsOfService,
+          earnedDays,
+          usedDays,
+          pendingDays,
+          availableDays: earnedDays - usedDays - pendingDays,
+        };
+      });
 
       // Ordenar por departamento y nombre
       report.sort((a, b) => a.department.localeCompare(b.department) || a.name.localeCompare(b.name));

@@ -186,62 +186,58 @@ export const executiveReportRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
 
-      // Obtener todos los departamentos
+      // Cargar todos los datos en queries paralelas (evita N+1 de O(N*4) a O(4))
       const allDepts = await db.select({ id: departments.id, name: departments.name }).from(departments);
+      const deptIds = allDepts.map(d => d.id);
 
-      const results = await Promise.all(allDepts.map(async (dept) => {
-        // Empleados del departamento
-        const deptEmployees = await db
-          .select({ id: employees.id, isActive: employees.isActive })
-          .from(employees)
-          .where(eq(employees.departmentId, dept.id));
+      const [allEmps, allVacPending, allPsycho, allAssignments, allCasesData] = await Promise.all([
+        deptIds.length > 0
+          ? db.select({ id: employees.id, isActive: employees.isActive, departmentId: employees.departmentId })
+              .from(employees).where(inArray(employees.departmentId, deptIds))
+          : Promise.resolve([]),
+        db.select({ employeeId: vacationRequests.employeeId }).from(vacationRequests)
+          .where(eq(vacationRequests.status, 'pending')),
+        db.select({ riskLevel: psychometricAssessments.riskLevel }).from(psychometricAssessments),
+        db.select({ status: trainingAssignments.status }).from(trainingAssignments),
+        db.select({ priority: cases.priority }).from(cases),
+      ]);
 
-        const total = deptEmployees.length;
-        const active = deptEmployees.filter(e => e.isActive).length;
-        const inactive = total - active;
-        const turnoverRate = total > 0 ? Math.round((inactive / total) * 100) : 0;
+      // Métricas globales (no dependen del departamento)
+      const highRiskPsychoGlobal = allPsycho.filter(p => p.riskLevel === "alto" || p.riskLevel === "muy_alto").length;
+      const completedAssignmentsGlobal = allAssignments.filter(a => a.status === "completed").length;
+      const globalTrainingRate = allAssignments.length > 0
+        ? Math.round((completedAssignmentsGlobal / allAssignments.length) * 100) : 0;
+      const highRiskCasesGlobal = allCasesData.filter(c => c.priority === "high" || c.priority === "critical").length;
+      const globalNom035Score = allCasesData.length > 0
+        ? Math.max(0, 100 - Math.round((highRiskCasesGlobal / allCasesData.length) * 100)) : 100;
 
-        // Vacaciones pendientes
-        const empIds = deptEmployees.map(e => e.id);
-        const pendingVac = empIds.length > 0
-          ? await db.select({ id: vacationRequests.id }).from(vacationRequests)
-              .where(inArray(vacationRequests.employeeId, empIds))
-          : [];
-        const pendingVacCount = pendingVac.length;
+      // Agrupar empleados y vacaciones por departamento
+      const empByDept = new Map<number, { id: number; isActive: boolean }[]>();
+      allEmps.forEach(e => {
+        const arr = empByDept.get(e.departmentId) ?? [];
+        arr.push(e);
+        empByDept.set(e.departmentId, arr);
+      });
+      const pendingVacEmpIds = new Set(allVacPending.map(v => v.employeeId));
 
-        // Evaluaciones psicometricas de alto riesgo
-        const psycho = await db
-          .select({ riskLevel: psychometricAssessments.riskLevel })
-          .from(psychometricAssessments);
-        const highRiskPsycho = psycho.filter(p => p.riskLevel === "alto" || p.riskLevel === "muy_alto").length;
-
-        // Asignaciones de capacitacion completadas (sin filtro por dept ya que no hay FK directa)
-        const assignments = await db
-          .select({ status: trainingAssignments.status })
-          .from(trainingAssignments);
-        const completedAssignments = assignments.filter(a => a.status === "completed").length;
-        const trainingRate = assignments.length > 0
-          ? Math.round((completedAssignments / assignments.length) * 100) : 0;
-
-        // Puntaje NOM-035: promedio de casos de alto riesgo (menor = mejor)
-        const deptCases = await db.select({ priority: cases.priority }).from(cases);
-        const highRiskCases = deptCases.filter(c => c.priority === "high" || c.priority === "critical").length;
-        const nom035Score = deptCases.length > 0
-          ? Math.max(0, 100 - Math.round((highRiskCases / deptCases.length) * 100))
-          : 100;
-
+      const results = allDepts.map(dept => {
+        const deptEmps = empByDept.get(dept.id) ?? [];
+        const total = deptEmps.length;
+        const active = deptEmps.filter(e => e.isActive).length;
+        const turnoverRate = total > 0 ? Math.round(((total - active) / total) * 100) : 0;
+        const pendingVacCount = deptEmps.filter(e => pendingVacEmpIds.has(e.id)).length;
         return {
           deptId: dept.id,
           deptName: dept.name,
           totalEmployees: total,
           activeEmployees: active,
           turnoverRate,
-          trainingRate,
-          nom035Score,
+          trainingRate: globalTrainingRate,
+          nom035Score: globalNom035Score,
           pendingVacations: pendingVacCount,
-          highRiskPsycho,
+          highRiskPsycho: highRiskPsychoGlobal,
         };
-      }));
+      });
 
       return results.filter(r => r.totalEmployees > 0);
     }),
@@ -259,44 +255,53 @@ export const executiveReportRouter = router({
       const fromTs = dateFrom ? new Date(dateFrom).getTime() : undefined;
       const toTs = dateTo ? new Date(dateTo).getTime() : undefined;
 
-      // Obtener todas las sucursales activas
+      // Cargar todos los datos en queries paralelas (evita N+1 de O(N*3) a O(3))
       const allBranches = await db.select().from(branches).where(eq(branches.isActive, true));
+      const branchIds = allBranches.map(b => b.id);
 
-      const results = await Promise.all(allBranches.map(async (branch) => {
-        // Empleados de la sucursal
-        const branchEmployees = await db.select({ id: employees.id, isActive: employees.isActive })
-          .from(employees)
-          .where(eq(employees.branchId, branch.id));
+      const [allBranchEmps, allTrainingNeeds, allBranchCases] = await Promise.all([
+        branchIds.length > 0
+          ? db.select({ id: employees.id, isActive: employees.isActive, branchId: employees.branchId })
+              .from(employees).where(inArray(employees.branchId, branchIds))
+          : Promise.resolve([]),
+        db.select({ employeeId: trainingNeeds.employeeId, status: trainingNeeds.status }).from(trainingNeeds),
+        db.select({ priority: cases.priority }).from(cases),
+      ]);
 
-        const total = branchEmployees.length;
+      // Métricas globales de casos
+      const highRiskCasesGlobal = allBranchCases.filter(c => c.priority === "high" || c.priority === "critical").length;
+      const globalNom035Score = allBranchCases.length > 0
+        ? Math.max(0, 100 - Math.round((highRiskCasesGlobal / allBranchCases.length) * 100)) : 100;
+
+      // Agrupar empleados y training needs por sucursal
+      const empByBranch = new Map<number, { id: number; isActive: boolean }[]>();
+      allBranchEmps.forEach(e => {
+        const arr = empByBranch.get(e.branchId!) ?? [];
+        arr.push(e);
+        empByBranch.set(e.branchId!, arr);
+      });
+      const trainingByEmp = new Map<number, { status: string }[]>();
+      allTrainingNeeds.forEach(n => {
+        const arr = trainingByEmp.get(n.employeeId) ?? [];
+        arr.push(n);
+        trainingByEmp.set(n.employeeId, arr);
+      });
+
+      const results = allBranches.map(branch => {
+        const branchEmps = empByBranch.get(branch.id) ?? [];
+        const total = branchEmps.length;
         if (total === 0) return null;
-
-        const active = branchEmployees.filter(e => e.isActive).length;
-        const inactive = total - active;
-        const turnoverRate = total > 0 ? Math.round((inactive / total) * 100) : 0;
-
-        const empIds = branchEmployees.map(e => e.id);
-
-        // Capacitación: trainingNeeds por empleados de la sucursal
+        const active = branchEmps.filter(e => e.isActive).length;
+        const turnoverRate = total > 0 ? Math.round(((total - active) / total) * 100) : 0;
+        // Capacitación por empleados de la sucursal
         let trainingCompleted = 0;
         let trainingTotal = 0;
-        if (empIds.length > 0) {
-          const needs = await db.select({ status: trainingNeeds.status })
-            .from(trainingNeeds)
-            .where(inArray(trainingNeeds.employeeId, empIds));
-          trainingTotal = needs.length;
-          trainingCompleted = needs.filter(n => n.status === "completada").length;
-        }
+        branchEmps.forEach(e => {
+          const needs = trainingByEmp.get(e.id) ?? [];
+          trainingTotal += needs.length;
+          trainingCompleted += needs.filter(n => n.status === "completada").length;
+        });
         const trainingRate = trainingTotal > 0 ? Math.round((trainingCompleted / trainingTotal) * 100) : 0;
-
-        // NOM-035: casos de alto riesgo
-        const branchCases = await db.select({ priority: cases.priority }).from(cases);
-        const highRiskCases = branchCases.filter(c => c.priority === "high" || c.priority === "critical").length;
-        const nom035Score = branchCases.length > 0
-          ? Math.max(0, 100 - Math.round((highRiskCases / branchCases.length) * 100))
-          : 100;
-        const highRiskCount = highRiskCases;
-
         return {
           branchId: branch.id,
           branchName: branch.name,
@@ -308,11 +313,11 @@ export const executiveReportRouter = router({
           trainingRate,
           trainingCompleted,
           trainingTotal,
-          nom035Score,
-          highRiskCount,
+          nom035Score: globalNom035Score,
+          highRiskCount: highRiskCasesGlobal,
           rotationRate: turnoverRate,
         };
-      }));
+      });
 
       return results.filter((r): r is NonNullable<typeof r> => r !== null);
     }),

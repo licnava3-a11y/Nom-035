@@ -71,7 +71,7 @@ export default function AlertThresholdsConfig() {
       }),
     ];
 
-    Promise.all(updates).catch(console.error);
+    Promise.all(updates).catch(() => {});
   };
 
   if (isLoading) {

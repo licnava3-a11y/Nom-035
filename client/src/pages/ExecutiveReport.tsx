@@ -444,7 +444,6 @@ export default function ExecutiveReport() {
       doc.save(`reporte-ejecutivo-nom035-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success("PDF con gr\u00e1ficas generado correctamente");
     } catch (err) {
-      console.error(err);
       toast.error("Error al generar el PDF");
     }
   };
@@ -579,7 +578,6 @@ export default function ExecutiveReport() {
       const dataUri = doc.output("datauristring");
       setPdfPreviewUrl(dataUri);
     } catch (err) {
-      console.error(err);
       toast.error("Error al generar la vista previa del PDF");
     } finally {
       setIsGeneratingPreview(false);

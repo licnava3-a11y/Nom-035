@@ -3,7 +3,7 @@ import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { bulkReassignmentDetails, bulkReassignments, departmentHistory, departments, employees, positions, predictiveAlgorithmConfig, predictiveTurnoverAlerts, systemSettings } from "../../drizzle/schema";
 import { sendEmail } from "../lib/email-sender";
-import { eq, like, and, sql, count, desc, isNull, gte } from "drizzle-orm";
+import { eq, like, and, sql, count, desc, isNull, gte, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const departmentsRouter = router({
@@ -803,21 +803,23 @@ export const departmentsRouter = router({
         .from(bulkReassignments)
         .execute();
 
-      // Obtener detalles de empleados para cada reasignación
-      const reassignmentsWithDetails = await Promise.all(
-        reassignments.map(async (reassignment) => {
-          const details = await db
-            .select()
-            .from(bulkReassignmentDetails)
-            .where(eq(bulkReassignmentDetails.reassignmentId, reassignment.id))
-            .execute();
-
-          return {
-            ...reassignment,
-            affectedEmployees: details,
-          };
-        })
-      );
+      // Obtener detalles de todos los reasignaciones en 1 query (evita N+1)
+      const reassignmentIds = reassignments.map(r => r.id);
+      const allDetails = reassignmentIds.length > 0
+        ? await db.select().from(bulkReassignmentDetails)
+            .where(inArray(bulkReassignmentDetails.reassignmentId, reassignmentIds))
+            .execute()
+        : [];
+      const detailsByReassignment = new Map<number, typeof allDetails>();
+      allDetails.forEach(d => {
+        const arr = detailsByReassignment.get(d.reassignmentId) ?? [];
+        arr.push(d);
+        detailsByReassignment.set(d.reassignmentId, arr);
+      });
+      const reassignmentsWithDetails = reassignments.map(reassignment => ({
+        ...reassignment,
+        affectedEmployees: detailsByReassignment.get(reassignment.id) ?? [],
+      }));
 
       return {
         reassignments: reassignmentsWithDetails,
@@ -855,64 +857,51 @@ export const departmentsRouter = router({
       .from(departments)
       .execute();
 
-    // Contar empleados por departamento
-    const employeeCounts = await Promise.all(
-      allDepartments.map(async (dept) => {
-        const [result] = await db
-          .select({ count: count() })
+    // Contar empleados por departamento (1 query en lugar de N)
+    const allDeptIds = allDepartments.map((d: any) => d.id);
+    const empCountRows = allDeptIds.length > 0
+      ? await db.select({ departmentId: employees.departmentId, cnt: count() })
           .from(employees)
-          .where(eq(employees.departmentId, dept.id))
-          .execute();
-
-        return {
-          departmentId: dept.id,
-          employeeCount: result.count,
-        };
-      })
-    );
+          .where(inArray(employees.departmentId, allDeptIds))
+          .groupBy(employees.departmentId)
+          .execute()
+      : [];
+    const empCountMap = new Map(empCountRows.map(r => [r.departmentId, r.cnt]));
 
     // Hoja 1: Departamentos
-    const departmentsData = allDepartments.map((dept: any) => {
-      const empCount = employeeCounts.find((ec: any) => ec.departmentId === dept.id);
-      return {
-        ID: dept.id,
-        "Nombre": dept.name,
-        "Código": dept.code,
-        "Manager": dept.managerName || "Sin asignar",
-        "Total Empleados": empCount?.employeeCount || 0,
-        "Fecha Creación": dept.createdAt
-          ? new Date(dept.createdAt).toLocaleDateString("es-MX")
-          : "",
-        "Estado": dept.isActive ? "Activo" : "Inactivo",
-      };
-    });
+    const departmentsData = allDepartments.map((dept: any) => ({
+      ID: dept.id,
+      "Nombre": dept.name,
+      "Código": dept.code,
+      "Manager": dept.managerName || "Sin asignar",
+      "Total Empleados": empCountMap.get(dept.id) ?? 0,
+      "Fecha Creación": dept.createdAt ? new Date(dept.createdAt).toLocaleDateString("es-MX") : "",
+      "Estado": dept.isActive ? "Activo" : "Inactivo",
+    }));
 
-    // Hoja 2: Empleados por Departamento
-    const employeesByDept = await Promise.all(
-      allDepartments.map(async (dept) => {
-        const deptEmployees = await db
-          .select({
-            id: employees.id,
-            name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
-            email: employees.email,
-            position: employees.positionId,
-            isActive: employees.isActive,
-          })
+    // Hoja 2: Empleados por Departamento (1 query en lugar de N)
+    const allEmpRows = allDeptIds.length > 0
+      ? await db.select({
+          id: employees.id,
+          name: sql<string>`CONCAT(${employees.firstName}, ' ', ${employees.lastName})`,
+          email: employees.email,
+          position: employees.positionId,
+          isActive: employees.isActive,
+          departmentId: employees.departmentId,
+        })
           .from(employees)
-          .where(eq(employees.departmentId, dept.id))
-          .execute();
-
-        return deptEmployees.map((emp: any) => ({
-          "Departamento": dept.name,
-          "ID Empleado": emp.id,
-          "Nombre": emp.name,
-          "Email": emp.email,
-          "Puesto": emp.position,
-          "Estado": emp.isActive,
-        }));
-      })
-    );
-    const flatEmployeesData = employeesByDept.flat();
+          .where(inArray(employees.departmentId, allDeptIds))
+          .execute()
+      : [];
+    const deptNameMap = new Map(allDepartments.map((d: any) => [d.id, d.name]));
+    const flatEmployeesData = allEmpRows.map((emp: any) => ({
+      "Departamento": deptNameMap.get(emp.departmentId) ?? "",
+      "ID Empleado": emp.id,
+      "Nombre": emp.name,
+      "Email": emp.email,
+      "Puesto": emp.position,
+      "Estado": emp.isActive,
+    }));
 
     // Hoja 3: Managers
     const managersData = allDepartments

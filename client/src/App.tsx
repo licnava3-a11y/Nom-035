@@ -659,13 +659,7 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/notification-history"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <NotificationHistory />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
+        {/* ruta eliminada - ver canónica */}
         <Route path={"/users"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -1339,13 +1333,7 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/organization-dashboard"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <OrganizationDashboard />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
+        {/* ruta eliminada - ver canónica */}
         <Route path={"/organization-chart"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -1407,13 +1395,7 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/regulatory-reports"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <RegulatoryReports />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
+        {/* ruta eliminada - ver canónica */}
         <Route path={"/surveys/mass-email"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>

@@ -20,7 +20,7 @@ import {
   Trash2, FileText, CheckCircle2, Clock, AlertTriangle, RefreshCw,
   Download, UserCheck,
 } from "lucide-react";
-import SignatureCanvas from "./SignatureCanvas";
+import SignatureCanvas from "../components/SignatureCanvas";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

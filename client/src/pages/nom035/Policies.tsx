@@ -188,7 +188,6 @@ export default function Policies() {
       };
       reader.readAsDataURL(fileToUpload);
     } catch (error) {
-      console.error('Error al cargar archivo:', error);
       setIsUploading(false);
     }
   };
@@ -243,7 +242,6 @@ export default function Policies() {
         // Subir nuevo archivo
         await handleUploadFile(selectedPolicy.id);
       } catch (error) {
-        console.error("Error al actualizar:", error);
         setIsUploading(false);
       }
     } else {

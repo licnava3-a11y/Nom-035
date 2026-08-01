@@ -44,7 +44,6 @@ export default function NotificationSettings() {
       refetch();
     } catch (error) {
       toast.error("Error al guardar preferencias");
-      console.error(error);
     }
   };
 

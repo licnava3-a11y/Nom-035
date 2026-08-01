@@ -187,7 +187,6 @@ export default function SurveyAdmin() {
       const fileName = `Encuesta_${surveyName}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(workbook, fileName);
     } catch (error) {
-      console.error('Error al exportar:', error);
       alert('Error al exportar los datos a Excel');
     }
   };
@@ -496,7 +495,6 @@ export default function SurveyAdmin() {
                             const results = JSON.parse(response.results);
                             riskLevel = results.overallRiskLevel || 'N/A';
                           } catch (e) {
-                            console.error('Error parsing results:', e);
                           }
                         }
 

@@ -43,7 +43,6 @@ export default function SurveysDashboard() {
       toast.success('Reporte generado exitosamente');
     } catch (error) {
       toast.error('Error al generar el reporte');
-      console.error(error);
     } finally {
       setIsDownloading(false);
     }

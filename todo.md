@@ -1509,3 +1509,29 @@
 - [x] Componente SignaturePad.tsx integrado en pestaña "Firma" de RecordDetailPanel
 - [x] Firma electrónica incrustada en PDF generado (clinicalRecordPDF.ts)
 - [x] Enlace "Consultar Folio (Buzón)" agregado en sidebar de DashboardLayout.tsx
+
+## Sprint: Descarga ZIP de PDFs e Indicador de Firma en Lista (Ago 2026)
+- [ ] Procedure `downloadAllPdfsZip` en router clinicalRecords.ts
+- [ ] Botón "Descargar todo (ZIP)" en pestaña PDFs de ClinicalRecords.tsx
+- [ ] Badge/ícono de firma registrada en la tabla principal de expedientes clínicos
+
+## Sprint: Optimizaciones de Auditoría
+- [ ] Eliminar 6 rutas duplicadas en App.tsx
+- [ ] Eliminar console.log en producción (9 archivos)
+- [ ] Eliminar páginas huérfanas (ComponentShowcase.tsx, SignatureCanvas.tsx)
+- [ ] Corregir N+1 en departments.ts
+- [ ] Corregir N+1 en compliance.ts
+- [ ] Corregir N+1 en vacations.ts
+- [ ] Corregir N+1 en assessments.ts
+- [ ] Corregir N+1 en executiveReport.ts
+
+## Sprint: Auditoría y Optimización de Código (2026-08-01)
+- [x] Eliminar 3 rutas duplicadas en App.tsx (/regulatory-reports, /executive-report, /reports/executive)
+- [x] Eliminar console.log de 9 archivos de producción
+- [x] Eliminar páginas huérfanas ComponentShowcase.tsx y SignatureCanvas.tsx (pages/)
+- [x] Corregir import roto de SignatureCanvas en CommitteeModule.tsx → ../components/SignatureCanvas
+- [x] Corregir N+1 en departments.ts: getReassignmentHistory y exportAll (inArray)
+- [x] Corregir N+1 en assessments.ts: getById (opciones) y delete (eliminar opciones)
+- [x] Corregir N+1 en vacations.ts: getBalanceReport (2N queries → 2 queries con inArray + Map)
+- [x] Corregir N+1 en executiveReport.ts: getComparativaDepts (4N → 5 queries paralelas)
+- [x] Corregir N+1 en executiveReport.ts: getBranchComparative (3N → 3 queries paralelas)

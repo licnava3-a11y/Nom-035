@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { assessments, courses, employees, examAnswers, examAttempts, examQuestionOptions, examQuestions, questions, users } from '../../drizzle/schema';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 
 export const assessmentsRouter = router({
   // Crear nueva evaluación
@@ -105,20 +105,23 @@ export const assessmentsRouter = router({
         .where(eq(examQuestions.assessmentId, input.id))
         .orderBy(examQuestions.orderIndex);
 
-      const questionsWithOptions = await Promise.all(
-        questions.map(async (question) => {
-          const options = await db
-            .select()
-            .from(examQuestionOptions)
-            .where(eq(examQuestionOptions.questionId, question.id))
-            .orderBy(examQuestionOptions.orderIndex);
-
-          return {
-            ...question,
-            options,
-          };
-        })
-      );
+      // Cargar todas las opciones en 1 query (evita N+1)
+      const questionIds = questions.map(q => q.id);
+      const allOptions = questionIds.length > 0
+        ? await db.select().from(examQuestionOptions)
+            .where(inArray(examQuestionOptions.questionId, questionIds))
+            .orderBy(examQuestionOptions.orderIndex)
+        : [];
+      const optionsByQuestion = new Map<number, typeof allOptions>();
+      allOptions.forEach(opt => {
+        const arr = optionsByQuestion.get(opt.questionId) ?? [];
+        arr.push(opt);
+        optionsByQuestion.set(opt.questionId, arr);
+      });
+      const questionsWithOptions = questions.map(question => ({
+        ...question,
+        options: optionsByQuestion.get(question.id) ?? [],
+      }));
 
       return {
         ...assessment[0],
@@ -163,16 +166,16 @@ export const assessmentsRouter = router({
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
-      // Eliminar preguntas y opciones asociadas
+      // Eliminar preguntas y opciones asociadas (1 query en lugar de N)
       const questions = await db
         .select({ id: examQuestions.id })
         .from(examQuestions)
         .where(eq(examQuestions.assessmentId, input.id));
 
-      for (const question of questions) {
+      if (questions.length > 0) {
         await db
           .delete(examQuestionOptions)
-          .where(eq(examQuestionOptions.questionId, question.id));
+          .where(inArray(examQuestionOptions.questionId, questions.map(q => q.id)));
       }
 
       await db

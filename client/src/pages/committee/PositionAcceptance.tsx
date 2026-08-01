@@ -133,7 +133,6 @@ export default function PositionAcceptance() {
 
       alert("Aceptación de cargo creada exitosamente");
     } catch (error) {
-      console.error("Error creating acceptance:", error);
       alert("Error al crear la aceptación");
     }
   };
