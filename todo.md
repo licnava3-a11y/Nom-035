@@ -1494,13 +1494,13 @@
 - [x] Vista previa se abre automáticamente al exportar y desde el historial
 
 ## Sprint: Firma Electrónica, Buzón en Sidebar y Notificación PDF (Jul 2026)
-- [ ] Campo professional_signature (TEXT base64) en tabla clinical_records
-- [ ] Procedure saveProfessionalSignature en router clinicalRecords.ts
-- [ ] Componente SignaturePad.tsx (canvas HTML5) para capturar firma
-- [ ] Sección de firma en RecordDetailPanel (ClinicalRecords.tsx)
-- [ ] Incrustar firma en el PDF generado (clinicalRecordPDF.ts)
-- [ ] Enlace al portal del Buzón en el sidebar de DashboardLayout.tsx
-- [ ] Notificación interna al profesional al exportar PDF (procedure exportPdf)
+- [x] Campo professional_signature (TEXT base64) en tabla clinical_records
+- [x] Procedure saveProfessionalSignature en router clinicalRecords.ts
+- [x] Componente SignaturePad.tsx (canvas HTML5) para capturar firma
+- [x] Sección de firma en RecordDetailPanel (ClinicalRecords.tsx)
+- [x] Incrustar firma en el PDF generado (clinicalRecordPDF.ts)
+- [x] Enlace al portal del Buzón en el sidebar de DashboardLayout.tsx
+- [x] Notificación interna al profesional al exportar PDF (procedure exportPdf)
 
 ## Sprint: Firma Electrónica, Enlace Buzón en Sidebar y Notificación PDF
 - [x] Migración BD: columna professional_signature (mediumtext) en clinical_records
