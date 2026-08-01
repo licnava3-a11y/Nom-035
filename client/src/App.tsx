@@ -277,6 +277,8 @@ const InternalComms = lazy(() => import("./pages/InternalComms"));
 const BuzonComunicacion = lazy(() => import("./pages/BuzonComunicacion"));
 const BuzonConsulta = lazy(() => import("./pages/BuzonConsulta"));
 const ClinicalRecords = lazy(() => import("./pages/ClinicalRecords"));
+const AlertsCentralDashboard = lazy(() => import("./pages/AlertsCentralDashboard"));
+const RetentionHubDashboard = lazy(() => import("./pages/RetentionHubDashboard"));
 
 // Loading fallback component - usa DashboardSkeleton del sistema centralizado de skeletons
 const PageLoader = () => (
@@ -377,7 +379,21 @@ function Router() {
         <Route path={"/intelligent-alerts"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <IntelligentAlertsDashboard />
+              <AlertsCentralDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/alerts-central"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <AlertsCentralDashboard />
+            </Suspense>
+          </DashboardLayout>
+        </Route>
+        <Route path={"/retention-hub"}>
+          <DashboardLayout>
+            <Suspense fallback={<PageLoader />}>
+              <RetentionHubDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
@@ -459,7 +475,7 @@ function Router() {
         <Route path={"/alerts-dashboard"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <AlertsDashboard />
+              <AlertsCentralDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
@@ -634,7 +650,7 @@ function Router() {
         <Route path={"/alert-admin-dashboard"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <AlertAdminDashboard />
+              <AlertsCentralDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
@@ -648,7 +664,7 @@ function Router() {
         <Route path={"/alert-metrics"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <AlertMetricsDashboard />
+              <AlertsCentralDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>

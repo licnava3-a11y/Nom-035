@@ -139,6 +139,14 @@ export default function CommitteeModule() {
     },
     onError: (e) => toast({ title: "Error al generar acta", description: e.message, variant: "destructive" }),
   });
+  const saveSignatureMut = trpc.committeeModule.saveSignature.useMutation({
+    onSuccess: () => {
+      setShowSignatureDialog(false);
+      if (selectedMeeting) utils.committeeModule.getMeeting.invalidate({ id: selectedMeeting });
+      toast({ title: "Firma registrada exitosamente" });
+    },
+    onError: (e) => toast({ title: "Error al guardar firma", description: e.message, variant: "destructive" }),
+  });
 
   const stats = statsQuery.data;
 
@@ -670,13 +678,14 @@ export default function CommitteeModule() {
       {/* ── Diálogo Firma Digital ── */}
       {showSignatureDialog && selectedMeeting && (
         <SignatureCanvas
-          meetingId={selectedMeeting}
-          onClose={() => setShowSignatureDialog(false)}
-          onSaved={() => {
-            setShowSignatureDialog(false);
-            utils.committeeModule.getMeeting.invalidate({ id: selectedMeeting });
-            toast({ title: "Firma registrada exitosamente" });
+          onSave={(signatureDataUrl) => {
+            saveSignatureMut.mutate({
+              meetingId: selectedMeeting,
+              signerName: user?.name ?? "Usuario",
+              signatureDataUrl,
+            });
           }}
+          onCancel={() => setShowSignatureDialog(false)}
         />
       )}
     </div>

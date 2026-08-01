@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SignaturePad } from "@/components/SignaturePad";
+import { AIFieldAssistant } from "@/components/AIFieldAssistant";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -120,18 +121,22 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
           <div>
             <Label>Motivo de consulta</Label>
             <Textarea rows={2} value={form.consultationReason} onChange={e => setForm(p => ({ ...p, consultationReason: e.target.value }))} />
+            <AIFieldAssistant fieldType="chiefComplaint" currentValue={form.consultationReason} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, consultationReason: text }))} />
           </div>
           <div>
             <Label>Antecedentes médicos</Label>
             <Textarea rows={2} placeholder="Enfermedades, tratamientos previos, medicación actual..." value={form.medicalHistory} onChange={e => setForm(p => ({ ...p, medicalHistory: e.target.value }))} />
+            <AIFieldAssistant fieldType="medicalHistory" currentValue={form.medicalHistory} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, medicalHistory: text }))} />
           </div>
           <div>
             <Label>Historia personal</Label>
             <Textarea rows={2} placeholder="Desarrollo, educación, relaciones, eventos significativos..." value={form.personalHistory} onChange={e => setForm(p => ({ ...p, personalHistory: e.target.value }))} />
+            <AIFieldAssistant fieldType="personalHistory" currentValue={form.personalHistory} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, personalHistory: text }))} />
           </div>
           <div>
             <Label>Historia familiar</Label>
             <Textarea rows={2} placeholder="Dinámica familiar, antecedentes relevantes..." value={form.familyHistory} onChange={e => setForm(p => ({ ...p, familyHistory: e.target.value }))} />
+            <AIFieldAssistant fieldType="familyHistory" currentValue={form.familyHistory} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, familyHistory: text }))} />
           </div>
         </div>
       </div>
@@ -142,6 +147,7 @@ function NewRecordForm({ onSubmit, loading }: { onSubmit: (data: Record<string, 
           <div>
             <Label>Objetivos terapéuticos</Label>
             <Textarea rows={2} value={form.treatmentObjectives} onChange={e => setForm(p => ({ ...p, treatmentObjectives: e.target.value }))} />
+            <AIFieldAssistant fieldType="therapeuticObjectives" currentValue={form.treatmentObjectives} patientAge={form.patientAge ? parseInt(form.patientAge) : undefined} onApply={(text) => setForm(p => ({ ...p, treatmentObjectives: text }))} />
           </div>
           <div>
             <Label>Actividades/Intervenciones planificadas</Label>
@@ -341,6 +347,7 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
               <div>
                 <Label>Interpretación clínica</Label>
                 <Textarea rows={3} placeholder="Análisis e interpretación de los resultados..." value={evalForm.interpretation} onChange={e => setEvalForm(p => ({ ...p, interpretation: e.target.value }))} />
+                <AIFieldAssistant fieldType="psychometricInterpretation" currentValue={evalForm.interpretation} diagnosisContext={evalForm.testName ? `Test aplicado: ${evalForm.testName}. Resultado: ${evalForm.result}` : undefined} onApply={(text) => setEvalForm(p => ({ ...p, interpretation: text }))} />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={() => addEvalMutation.mutate({ recordId: record.id, ...evalForm })} disabled={!evalForm.testName || !evalForm.evaluationDate || addEvalMutation.isPending}>
@@ -398,6 +405,7 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
               <div>
                 <Label>Observaciones clínicas *</Label>
                 <Textarea rows={4} placeholder="Descripción de la sesión, observaciones, avances, regresiones..." value={sessionForm.observations} onChange={e => setSessionForm(p => ({ ...p, observations: e.target.value }))} />
+                <AIFieldAssistant fieldType="sessionNote" currentValue={sessionForm.observations} diagnosisContext={`Tipo de sesión: ${sessionForm.sessionType}`} onApply={(text) => setSessionForm(p => ({ ...p, observations: text }))} />
               </div>
               <div>
                 <Label>Próxima cita</Label>
@@ -442,16 +450,47 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
         {/* Tab Documentos exportados */}
         <TabsContent value="documentos" className="space-y-3 max-h-[50vh] overflow-y-auto">
           {exportedPdfs && exportedPdfs.length > 1 && (
-            <div className="flex justify-end pb-1">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => downloadZipMutation.mutate({ recordId })}
-                disabled={downloadZipMutation.isPending}
-              >
-                <Archive className="h-4 w-4 mr-1" />
-                {downloadZipMutation.isPending ? "Generando ZIP..." : `Descargar todo (${exportedPdfs.length} PDFs)`}
-              </Button>
+            <div className="space-y-2 pb-1">
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => downloadZipMutation.mutate({ recordId })}
+                  disabled={downloadZipMutation.isPending}
+                  className="gap-2"
+                >
+                  {downloadZipMutation.isPending ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Empaquetando PDFs...
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="h-4 w-4" />
+                      Descargar todo ({exportedPdfs.length} PDFs) como ZIP
+                    </>
+                  )}
+                </Button>
+              </div>
+              {downloadZipMutation.isPending && (
+                <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 flex items-center gap-3">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="h-2 w-2 rounded-full bg-blue-400"
+                        style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-blue-700">
+                    Descargando y empaquetando {exportedPdfs.length} PDFs en un archivo ZIP. Esto puede tomar unos segundos...
+                  </p>
+                </div>
+              )}
             </div>
           )}
           {!exportedPdfs?.length ? (

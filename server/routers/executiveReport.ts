@@ -214,11 +214,12 @@ export const executiveReportRouter = router({
       // Agrupar empleados y vacaciones por departamento
       const empByDept = new Map<number, { id: number; isActive: boolean }[]>();
       allEmps.forEach(e => {
+        if (e.departmentId == null) return;
         const arr = empByDept.get(e.departmentId) ?? [];
         arr.push(e);
         empByDept.set(e.departmentId, arr);
       });
-      const pendingVacEmpIds = new Set(allVacPending.map(v => v.employeeId));
+      const pendingVacEmpIds = new Set(allVacPending.map(v => v.employeeId).filter((id): id is number => id != null));
 
       const results = allDepts.map(dept => {
         const deptEmps = empByDept.get(dept.id) ?? [];

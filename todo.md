@@ -1535,3 +1535,25 @@
 - [x] Corregir N+1 en vacations.ts: getBalanceReport (2N queries → 2 queries con inArray + Map)
 - [x] Corregir N+1 en executiveReport.ts: getComparativaDepts (4N → 5 queries paralelas)
 - [x] Corregir N+1 en executiveReport.ts: getBranchComparative (3N → 3 queries paralelas)
+
+## Sprint: IA en Expediente Clínico, Fusión Dashboards y Progreso ZIP
+- [ ] Procedure `suggestFieldContent` (IA) en clinicalRecords.ts
+- [ ] Componente AIFieldAssistant.tsx con botón "Sugerir con IA" y panel de sugerencias
+- [ ] Integrar AIFieldAssistant en NewRecordForm (historia clínica) y formulario de sesiones
+- [ ] Fusionar dashboards de Retención/Rotación en una vista única consolidada
+- [ ] Fusionar dashboards de Alertas en una vista única consolidada
+- [ ] Indicador de progreso animado para la descarga ZIP en ClinicalRecords.tsx
+
+## Sprint: IA en expediente, dashboards unificados y ZIP con progreso
+
+- [x] Procedure suggestFieldContent (IA) en clinicalRecords.ts con invokeLLM
+- [x] Componente AIFieldAssistant.tsx con botón "Sugerir con IA" y modal de sugerencia
+- [x] Integración AIFieldAssistant en 7 campos del expediente clínico (historia, motivo, antecedentes, objetivos, interpretación, nota sesión, plan)
+- [x] Indicador de progreso animado para descarga ZIP en ClinicalRecords.tsx
+- [x] AlertsCentralDashboard.tsx — vista unificada de 4 dashboards de alertas (activas, métricas, configuración, IA predictiva)
+- [x] RetentionHubDashboard.tsx — vista unificada de 5 dashboards de retención (rotación, riesgo, intervenciones, predictivo)
+- [x] Rutas /alerts-central y /retention-hub registradas en App.tsx
+- [x] Rutas antiguas de alertas redirigen a AlertsCentralDashboard
+- [x] Sidebar actualizado: "🔔 Centro de Alertas (unificado)" y "📊 Centro de Retención (unificado)"
+- [x] Corrección CommitteeModule.tsx: SignatureCanvas usa props correctas con mutation saveSignature
+- [x] Corrección executiveReport.ts: TS2345 departmentId/employeeId nullable

@@ -13,6 +13,7 @@ import { eq, desc, and, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import JSZip from "jszip";
 import { storagePut } from "../storage";
+import { invokeLLM } from "../_core/llm";
 
 // Roles autorizados para ver expedientes clínicos
 const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
@@ -474,6 +475,77 @@ export const clinicalRecordsRouter = router({
       const zipKey = `clinical-records/${input.recordId}/exports/expediente_completo_${Date.now()}.zip`;
       const { url } = await storagePut(zipKey, zipBuffer, "application/zip");
       return { url, count: pdfs.length };
+    }),
+
+
+  // ─── Asistente IA para campos de texto libre ─────────────────────────────
+  suggestFieldContent: protectedProcedure
+    .input(z.object({
+      fieldType: z.enum([
+        "chiefComplaint",
+        "medicalHistory",
+        "personalHistory",
+        "familyHistory",
+        "treatmentPlan",
+        "sessionNote",
+        "therapeuticObjectives",
+        "psychometricInterpretation",
+      ]),
+      context: z.string().optional(),
+      patientAge: z.number().optional(),
+      patientGender: z.string().optional(),
+      diagnosisContext: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      requireClinicalAccess(ctx.user.role);
+      const fieldLabels: Record<string, string> = {
+        chiefComplaint: "motivo de consulta",
+        medicalHistory: "antecedentes médicos",
+        personalHistory: "antecedentes personales",
+        familyHistory: "antecedentes familiares",
+        treatmentPlan: "plan de tratamiento",
+        sessionNote: "nota de sesión clínica",
+        therapeuticObjectives: "objetivos terapéuticos",
+        psychometricInterpretation: "interpretación de evaluación psicométrica",
+      };
+      const fieldInstructions: Record<string, string> = {
+        chiefComplaint: "Redacta un motivo de consulta clínico conciso y profesional (2-4 oraciones) que describa la problemática principal del paciente en términos psicológicos/ocupacionales.",
+        medicalHistory: "Lista los antecedentes médicos más relevantes para un expediente de salud ocupacional y riesgos psicosociales (NOM-035). Incluye condiciones crónicas, medicación actual y cirugías relevantes.",
+        personalHistory: "Describe los antecedentes personales relevantes: historia laboral, eventos de vida significativos, hábitos de salud y factores protectores.",
+        familyHistory: "Describe los antecedentes familiares relevantes: enfermedades hereditarias, dinámica familiar y factores de riesgo psicosocial familiar.",
+        treatmentPlan: "Elabora un plan de tratamiento estructurado con objetivos a corto y largo plazo, técnicas terapéuticas recomendadas y frecuencia de sesiones.",
+        sessionNote: "Redacta una nota de sesión clínica profesional con: estado actual del paciente, temas abordados, intervenciones realizadas y plan para próxima sesión.",
+        therapeuticObjectives: "Define objetivos terapéuticos SMART (específicos, medibles, alcanzables, relevantes y con tiempo definido) para el plan de intervención.",
+        psychometricInterpretation: "Redacta una interpretación clínica profesional de los resultados de la evaluación psicométrica, incluyendo implicaciones para el tratamiento.",
+      };
+      const patientInfo = [
+        input.patientAge ? `Edad del paciente: ${input.patientAge} años` : "",
+        input.patientGender ? `Género: ${input.patientGender}` : "",
+        input.diagnosisContext ? `Contexto diagnóstico: ${input.diagnosisContext}` : "",
+        input.context ? `Texto actual del profesional: "${input.context}"` : "",
+      ].filter(Boolean).join("\n");
+      const response = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `Eres un psicólogo clínico y especialista en salud ocupacional con experiencia en la NOM-035 STPS 2018. Tu tarea es asistir a profesionales de la salud redactando contenido clínico preciso, ético y profesional para expedientes psicológicos. Responde SIEMPRE en español. Sé conciso, clínico y profesional. No incluyas disclaimers ni explicaciones meta.`,
+          },
+          {
+            role: "user",
+            content: `Necesito sugerencias para el campo de "${fieldLabels[input.fieldType]}" en un expediente clínico.\n${patientInfo ? `Información del paciente:\n${patientInfo}\n` : ""}Instrucción: ${fieldInstructions[input.fieldType]}\n\nProporciona 3 variantes de texto sugerido, numeradas del 1 al 3, cada una en un párrafo separado. Que sean diferentes en enfoque pero igualmente profesionales.`,
+          },
+        ],
+      });
+      const rawContent = response.choices?.[0]?.message?.content ?? "";
+      const variants = rawContent
+        .split(/\n(?=\d+\.)/)
+        .map((v: string) => v.replace(/^\d+\.\s*/, "").trim())
+        .filter((v: string) => v.length > 20)
+        .slice(0, 3);
+      return {
+        suggestions: variants.length > 0 ? variants : [rawContent.trim()],
+        fieldType: input.fieldType,
+      };
     }),
 
   // ─── Estadísticas ───────────────────────────────────────────────────────────

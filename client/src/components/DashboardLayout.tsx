@@ -81,6 +81,7 @@ const hierarchicalMenuItems = [
       { label: "Dashboard de Rotación", path: "/employees/turnover", description: "Análisis de rotación de personal" },
       { label: "Reconocimientos", path: "/talent/recognitions", description: "Sistema de reconocimientos y felicitaciones corporativas" },
       { label: "Evaluación 360°", path: "/performance-evaluation-360", description: "Evaluación de desempeño 360° con Nine Box y Leadership Pipeline" },
+      { label: "📊 Centro de Retención (unificado)", path: "/retention-hub", description: "Vista unificada: rotación, empleados en riesgo, intervenciones y análisis predictivo" },
       { label: "Análisis de Retención", path: "/retention-analytics", description: "Análisis predictivo de rotación basado en tendencias de competencias" },
       { label: "Dashboard de Talento", path: "/talent-dashboard", description: "Vista ejecutiva unificada de Nine Box Matrix, Alertas de Riesgo y Métricas de Reportes" },
       { label: "Planes de Intervención", path: "/intervention-plans", description: "Planes de acción personalizados para empleados en riesgo crítico con mentores y seguimiento trimestral" },
@@ -186,12 +187,11 @@ const hierarchicalMenuItems = [
         label: "Sistema de Alertas", 
         description: "Gestión y análisis de alertas",
         submenu: [
+          { label: "🔔 Centro de Alertas (unificado)", path: "/alerts-central", description: "Vista unificada: alertas activas, métricas, configuración e IA predictiva" },
           { label: "Histórico de Alertas", path: "/alert-history", description: "Registro completo de alertas" },
-          { label: "Dashboard de Métricas", path: "/alert-metrics", description: "Análisis avanzado con gráficas" },
           { label: "Historial de Notificaciones", path: "/notifications/history", description: "Registro de notificaciones push" },
           { label: "Configuración de Umbrales", path: "/alert-thresholds", description: "Configurar umbrales de alertas" },
           { label: "Configuración de Reportes", path: "/alert-reports-config", description: "Frecuencia de reportes automáticos" },
-          { label: "Admin. de Alertas", path: "/alert-admin-dashboard", description: "Umbrales, frecuencia, destinatarios y WebSocket" },
         ]
       },
     ],
