@@ -1511,19 +1511,19 @@
 - [x] Enlace "Consultar Folio (Buzón)" agregado en sidebar de DashboardLayout.tsx
 
 ## Sprint: Descarga ZIP de PDFs e Indicador de Firma en Lista (Ago 2026)
-- [ ] Procedure `downloadAllPdfsZip` en router clinicalRecords.ts
-- [ ] Botón "Descargar todo (ZIP)" en pestaña PDFs de ClinicalRecords.tsx
-- [ ] Badge/ícono de firma registrada en la tabla principal de expedientes clínicos
+- [x] Procedure `downloadAllPdfsZip` en router clinicalRecords.ts
+- [x] Botón "Descargar todo (ZIP)" en pestaña PDFs de ClinicalRecords.tsx
+- [x] Badge/ícono de firma registrada en la tabla principal de expedientes clínicos
 
 ## Sprint: Optimizaciones de Auditoría
-- [ ] Eliminar 6 rutas duplicadas en App.tsx
-- [ ] Eliminar console.log en producción (9 archivos)
-- [ ] Eliminar páginas huérfanas (ComponentShowcase.tsx, SignatureCanvas.tsx)
-- [ ] Corregir N+1 en departments.ts
-- [ ] Corregir N+1 en compliance.ts
-- [ ] Corregir N+1 en vacations.ts
-- [ ] Corregir N+1 en assessments.ts
-- [ ] Corregir N+1 en executiveReport.ts
+- [x] Eliminar 6 rutas duplicadas en App.tsx
+- [x] Eliminar console.log en producción (9 archivos)
+- [x] Eliminar páginas huérfanas (ComponentShowcase.tsx, SignatureCanvas.tsx)
+- [x] Corregir N+1 en departments.ts
+- [x] Corregir N+1 en compliance.ts
+- [x] Corregir N+1 en vacations.ts
+- [x] Corregir N+1 en assessments.ts
+- [x] Corregir N+1 en executiveReport.ts
 
 ## Sprint: Auditoría y Optimización de Código (2026-08-01)
 - [x] Eliminar 3 rutas duplicadas en App.tsx (/regulatory-reports, /executive-report, /reports/executive)

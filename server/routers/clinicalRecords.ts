@@ -11,6 +11,8 @@ import {
 } from "../../drizzle/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import JSZip from "jszip";
+import { storagePut } from "../storage";
 
 // Roles autorizados para ver expedientes clínicos
 const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
@@ -438,6 +440,40 @@ export const clinicalRecordsRouter = router({
         .set({ professionalSignature: input.signatureBase64 } as Parameters<ReturnType<typeof db.update>["set"]>[0])
         .where(eq(clinicalRecords.id, input.id));
       return { success: true };
+    }),
+
+  // ─── Descarga masiva de PDFs en ZIP ─────────────────────────────────────────
+  downloadAllPdfsZip: protectedProcedure
+    .input(z.object({ recordId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      requireClinicalAccess(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      const pdfs = await db
+        .select()
+        .from(clinicalExportedPdfs)
+        .where(eq(clinicalExportedPdfs.recordId, input.recordId))
+        .orderBy(desc(clinicalExportedPdfs.createdAt));
+      if (pdfs.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No hay PDFs exportados para este expediente" });
+      }
+      const zip = new JSZip();
+      for (const pdf of pdfs) {
+        try {
+          const response = await fetch(pdf.fileUrl);
+          if (response.ok) {
+            const buffer = await response.arrayBuffer();
+            const safeName = `expediente_${pdf.folio}_${new Date(pdf.createdAt).toISOString().split('T')[0]}.pdf`.replace(/[^a-zA-Z0-9._-]/g, '_');
+            zip.file(safeName, buffer);
+          }
+        } catch {
+          // Si un PDF falla, continúa con los demás
+        }
+      }
+      const zipBuffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
+      const zipKey = `clinical-records/${input.recordId}/exports/expediente_completo_${Date.now()}.zip`;
+      const { url } = await storagePut(zipKey, zipBuffer, "application/zip");
+      return { url, count: pdfs.length };
     }),
 
   // ─── Estadísticas ───────────────────────────────────────────────────────────

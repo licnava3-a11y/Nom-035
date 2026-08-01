@@ -43,6 +43,7 @@ import {
   History,
   ExternalLink,
   X,
+  Archive,
 } from "lucide-react";
 
 const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
@@ -206,6 +207,13 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
     { enabled: activeTab === "documentos" }
   );
 
+  const downloadZipMutation = trpc.clinicalRecords.downloadAllPdfsZip.useMutation({
+    onSuccess: (data) => {
+      window.open(data.url, '_blank');
+      toast({ title: `ZIP generado con ${data.count} PDF(s)`, description: "El archivo se abrió en una nueva pestaña" });
+    },
+    onError: (err) => toast({ title: "Error al generar ZIP", description: err.message, variant: "destructive" }),
+  });
   const exportPdfMutation = trpc.clinicalRecords.exportPdf.useMutation({
     onSuccess: (data) => {
       toast({ title: "PDF generado", description: `Folio: ${data.folio}` });
@@ -433,6 +441,19 @@ function RecordDetailPanel({ recordId, onClose }: { recordId: number; onClose: (
 
         {/* Tab Documentos exportados */}
         <TabsContent value="documentos" className="space-y-3 max-h-[50vh] overflow-y-auto">
+          {exportedPdfs && exportedPdfs.length > 1 && (
+            <div className="flex justify-end pb-1">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => downloadZipMutation.mutate({ recordId })}
+                disabled={downloadZipMutation.isPending}
+              >
+                <Archive className="h-4 w-4 mr-1" />
+                {downloadZipMutation.isPending ? "Generando ZIP..." : `Descargar todo (${exportedPdfs.length} PDFs)`}
+              </Button>
+            </div>
+          )}
           {!exportedPdfs?.length ? (
             <div className="text-center py-8 text-muted-foreground">
               <History className="h-10 w-10 mx-auto mb-2 opacity-40" />
@@ -649,6 +670,11 @@ export default function ClinicalRecords() {
               </div>
               <div className="flex items-center gap-3">
                 <p className="text-xs text-muted-foreground">{new Date(record.createdAt).toLocaleDateString()}</p>
+                {record.professionalSignature && (
+                  <Badge className="bg-blue-100 text-blue-800 flex items-center gap-1" title="Firma electrónica registrada">
+                    <CheckCircle className="h-3 w-3" />Firmado
+                  </Badge>
+                )}
                 <Badge className={record.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
                   {record.isActive ? "Activo" : "Cerrado"}
                 </Badge>
