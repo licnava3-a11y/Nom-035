@@ -1537,12 +1537,12 @@
 - [x] Corregir N+1 en executiveReport.ts: getBranchComparative (3N → 3 queries paralelas)
 
 ## Sprint: IA en Expediente Clínico, Fusión Dashboards y Progreso ZIP
-- [ ] Procedure `suggestFieldContent` (IA) en clinicalRecords.ts
-- [ ] Componente AIFieldAssistant.tsx con botón "Sugerir con IA" y panel de sugerencias
-- [ ] Integrar AIFieldAssistant en NewRecordForm (historia clínica) y formulario de sesiones
-- [ ] Fusionar dashboards de Retención/Rotación en una vista única consolidada
-- [ ] Fusionar dashboards de Alertas en una vista única consolidada
-- [ ] Indicador de progreso animado para la descarga ZIP en ClinicalRecords.tsx
+- [x] Procedure `suggestFieldContent` (IA) en clinicalRecords.ts
+- [x] Componente AIFieldAssistant.tsx con botón "Sugerir con IA" y panel de sugerencias
+- [x] Integrar AIFieldAssistant en NewRecordForm (historia clínica) y formulario de sesiones
+- [x] Fusionar dashboards de Retención/Rotación en una vista única consolidada
+- [x] Fusionar dashboards de Alertas en una vista única consolidada
+- [x] Indicador de progreso animado para la descarga ZIP en ClinicalRecords.tsx
 
 ## Sprint: IA en expediente, dashboards unificados y ZIP con progreso
 

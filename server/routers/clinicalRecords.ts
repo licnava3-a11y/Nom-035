@@ -536,7 +536,9 @@ export const clinicalRecordsRouter = router({
           },
         ],
       });
-      const rawContent = response.choices?.[0]?.message?.content ?? "";
+      const rawContent: string = typeof response.choices?.[0]?.message?.content === "string"
+        ? response.choices[0].message.content
+        : "";
       const variants = rawContent
         .split(/\n(?=\d+\.)/)
         .map((v: string) => v.replace(/^\d+\.\s*/, "").trim())
