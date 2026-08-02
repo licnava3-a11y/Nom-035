@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { EmployeeAutofillSelector } from "@/components/EmployeeAutofillSelector";
+import type { EmployeeAutofillData } from "@/hooks/useEmployeeAutofill";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -524,6 +526,16 @@ export default function BuzonComunicacion() {
   const [newRequestType, setNewRequestType] = useState<"QUEJA" | "FELICITACION" | "CAPACITACION" | "SUGERENCIA">("QUEJA");
   const [anonymityFlag, setAnonymityFlag] = useState(false);
   const [newRequestOpen, setNewRequestOpen] = useState(false);
+  const [autofillEmployeeId, setAutofillEmployeeId] = useState<string | undefined>(undefined);
+  const [autofillData, setAutofillData] = useState<EmployeeAutofillData | null>(null);
+
+  const handleAutofillSelect = (data: EmployeeAutofillData | null) => {
+    setAutofillData(data);
+    setAutofillEmployeeId(data ? String(data.employeeId) : undefined);
+    if (data) {
+      toast({ title: "Datos prellenados", description: `Empleado: ${data.fullName}` });
+    }
+  };
   const [detailRequestId, setDetailRequestId] = useState<number | null>(null);
   const [filterType, setFilterType] = useState("ALL");
   const [filterStatus, setFilterStatus] = useState("");
@@ -609,6 +621,15 @@ export default function BuzonComunicacion() {
                   <p className="text-xs text-muted-foreground">Tu nombre no será visible para el equipo de RH</p>
                 </div>
               </div>
+              {/* Prellenado de empleado (solo si no es anónimo) */}
+              {!anonymityFlag && (
+                <EmployeeAutofillSelector
+                  onSelect={handleAutofillSelect}
+                  value={autofillEmployeeId}
+                  label="Prellenar datos del solicitante (opcional)"
+                  helperText="Al seleccionar un empleado, sus datos quedarán asociados a la solicitud"
+                />
+              )}
               {newRequestType === "QUEJA" && <QuejaForm onSubmit={handleSubmit("QUEJA")} loading={submitMutation.isPending} />}
               {newRequestType === "FELICITACION" && <FelicitacionForm onSubmit={handleSubmit("FELICITACION")} loading={submitMutation.isPending} />}
               {newRequestType === "CAPACITACION" && <CapacitacionForm onSubmit={handleSubmit("CAPACITACION")} loading={submitMutation.isPending} />}

@@ -1580,3 +1580,13 @@
 - [x] Agregar Chromium Alpine al Dockerfile de producción (más ligero que el de puppeteer)
 - [x] Corregir pdfGenerator: usar PUPPETEER_EXECUTABLE_PATH del sistema
 - [x] Mejorar manualChunks en vite.config.ts: dividir vendor-misc (2.8MB) en chunks más pequeños
+
+## Sprint: IA en 3 Campos de Casos, Autofill Buzón, Modal Detalle (2026-08-02)
+- [x] Agregar columnas rootCause, actionPlan, resolution a la tabla cases (migración SQL aplicada)
+- [x] Actualizar procedure updateCase para aceptar rootCause, actionPlan y resolution
+- [x] Ampliar fieldType en suggestCaseField: incluye rootCause y actionPlan
+- [x] Actualizar CaseAIAssistant.tsx: tipo CaseFieldType incluye rootCause y actionPlan con labels en español
+- [x] Implementar modal CaseDetailModal con CaseAIAssistant en los 4 campos (descripción, causa raíz, plan de acción, resolución)
+- [x] Botón "Ver Detalle" en tabla de casos abre modal completo con edición y guardado
+- [x] Integrar EmployeeAutofillSelector en BuzonComunicacion.tsx (visible solo cuando no es anónimo)
+- [x] Cron job email-digest: endpoint listo, activar en Manus Schedules después de publicar

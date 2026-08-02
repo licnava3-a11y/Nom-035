@@ -278,6 +278,9 @@ export const cases = mysqlTable("cases", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   closedAt: timestamp("closedAt"),
+  rootCause: text("rootCause"),        // Causa raíz identificada
+  actionPlan: text("actionPlan"),      // Plan de acción correctiva
+  resolution: text("resolution"),     // Resolución final del caso
 });
 
 export type Case = typeof cases.$inferSelect;

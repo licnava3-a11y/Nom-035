@@ -5,7 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-type CaseFieldType = "description" | "resolution";
+type CaseFieldType = "description" | "resolution" | "rootCause" | "actionPlan";
 
 interface CaseAIAssistantProps {
   fieldType: CaseFieldType;
@@ -19,6 +19,8 @@ interface CaseAIAssistantProps {
 const fieldLabels: Record<CaseFieldType, string> = {
   description: "Descripción del caso",
   resolution: "Resolución y acciones tomadas",
+  rootCause: "Causa raíz del problema",
+  actionPlan: "Plan de acción correctiva",
 };
 
 export function CaseAIAssistant({

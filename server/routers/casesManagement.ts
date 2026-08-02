@@ -272,6 +272,8 @@ export const casesManagementRouter = router({
         priority: z.enum(["low", "medium", "high", "critical"]).optional(),
         assignedTo: z.number().nullable().optional(),
         resolution: z.string().optional(),
+        rootCause: z.string().optional(),
+        actionPlan: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -288,7 +290,9 @@ export const casesManagementRouter = router({
         if (input.status) updateData.status = input.status;
         if (input.priority) updateData.priority = input.priority;
         if (input.assignedTo !== undefined) updateData.assignedTo = input.assignedTo;
-        if (input.resolution) updateData.resolution = input.resolution;
+        if (input.resolution !== undefined) updateData.resolution = input.resolution;
+        if (input.rootCause !== undefined) updateData.rootCause = input.rootCause;
+        if (input.actionPlan !== undefined) updateData.actionPlan = input.actionPlan;
 
         if (input.status === "resolved" || input.status === "closed") {
           updateData.resolvedAt = new Date();
@@ -343,7 +347,7 @@ export const casesManagementRouter = router({
   suggestCaseField: protectedProcedure
     .input(
       z.object({
-        fieldType: z.enum(["description", "resolution"]),
+        fieldType: z.enum(["description", "resolution", "rootCause", "actionPlan"]),
         context: z.string().optional(),
         currentValue: z.string().optional(),
         caseType: z.string().optional(),
@@ -353,6 +357,8 @@ export const casesManagementRouter = router({
       const fieldLabels: Record<string, string> = {
         description: "descripción detallada del caso",
         resolution: "resolución y acciones tomadas para cerrar el caso",
+        rootCause: "análisis de causa raíz del problema identificado",
+        actionPlan: "plan de acción correctiva y preventiva para evitar recurrencia",
       };
 
       const fieldLabel = fieldLabels[input.fieldType] || input.fieldType;
