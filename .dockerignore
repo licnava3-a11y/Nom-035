@@ -1,0 +1,46 @@
+# Dependencias locales (se reinstalan en el build)
+node_modules
+.pnpm-store
+
+# Snapshots de Drizzle (solo se necesitan los .sql para migraciones, no los meta)
+drizzle/meta
+
+# Artefactos de build previos
+dist
+client/dist
+
+# Archivos de desarrollo y logs
+.manus-logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Archivos de entorno (los secretos se inyectan automáticamente)
+.env
+.env.*
+!.env.example
+
+# Control de versiones
+.git
+.gitignore
+
+# Archivos de editor y OS
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+Thumbs.db
+
+# Tests y cobertura
+coverage
+*.test.ts
+*.spec.ts
+
+# Documentación y auditorías
+*.md
+!README.md
+
+# Archivos temporales
+tmp
+temp

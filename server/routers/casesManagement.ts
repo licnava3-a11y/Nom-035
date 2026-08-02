@@ -1,4 +1,5 @@
 import { router, protectedProcedure } from "../_core/trpc";
+import { invokeLLM } from "../_core/llm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
@@ -334,6 +335,66 @@ export const casesManagementRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Error al asignar caso",
+        });
+      }
+    }),
+
+  // Sugerir contenido de campo con IA
+  suggestCaseField: protectedProcedure
+    .input(
+      z.object({
+        fieldType: z.enum(["description", "resolution"]),
+        context: z.string().optional(),
+        currentValue: z.string().optional(),
+        caseType: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const fieldLabels: Record<string, string> = {
+        description: "descripción detallada del caso",
+        resolution: "resolución y acciones tomadas para cerrar el caso",
+      };
+
+      const fieldLabel = fieldLabels[input.fieldType] || input.fieldType;
+      const contextInfo = input.context ? `\nContexto adicional: ${input.context}` : "";
+      const currentValueInfo = input.currentValue
+        ? `\nContenido actual del campo: ${input.currentValue}`
+        : "";
+      const caseTypeInfo = input.caseType
+        ? `\nTipo de caso: ${input.caseType}`
+        : "";
+
+      const systemPrompt = `Eres un experto en gestión de casos de riesgos psicosociales en el trabajo según la NOM-035-STPS-2018.
+Tu tarea es ayudar a redactar contenido profesional y preciso para los campos del sistema de gestión de casos.
+Responde SOLO con el texto sugerido para el campo, sin explicaciones adicionales, sin comillas, sin formato markdown.
+El texto debe ser claro, objetivo, profesional y en español.`;
+
+      const userPrompt = `Sugiere un texto profesional para el campo "${fieldLabel}" de un caso de gestión de riesgos psicosociales.${caseTypeInfo}${contextInfo}${currentValueInfo}
+
+El texto debe ser específico, accionable y seguir las mejores prácticas de la NOM-035-STPS-2018.`;
+
+      try {
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        });
+
+        const content = response.choices?.[0]?.message?.content;
+        if (!content) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "No se pudo generar sugerencia",
+          });
+        }
+
+        return { suggestion: content as string };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error al generar sugerencia con IA",
         });
       }
     }),

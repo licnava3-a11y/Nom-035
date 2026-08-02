@@ -4,7 +4,7 @@
  * Rutas eliminadas: /alerts-dashboard, /alert-admin-dashboard, /alert-metrics, /intelligent-alerts
  * Ruta canónica: /alerts-central
  */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,13 +28,13 @@ import {
 } from "recharts";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-const PRIORITY_BADGE: Record<string, JSX.Element> = {
+const PRIORITY_BADGE: Record<string, React.ReactElement> = {
   critical: <Badge className="bg-red-100 text-red-800 border-red-300">Crítico</Badge>,
   high:     <Badge className="bg-orange-100 text-orange-800 border-orange-300">Alto</Badge>,
   medium:   <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">Medio</Badge>,
   low:      <Badge className="bg-blue-100 text-blue-800 border-blue-300">Bajo</Badge>,
 };
-const CATEGORY_BADGE: Record<string, JSX.Element> = {
+const CATEGORY_BADGE: Record<string, React.ReactElement> = {
   departmental: <Badge variant="outline">Departamental</Badge>,
   survey:       <Badge variant="outline">Encuesta</Badge>,
   case:         <Badge variant="outline">Caso</Badge>,
@@ -142,10 +142,10 @@ function TabMetricas() {
     <div className="space-y-4">
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Total Alertas", value: stats?.total ?? 0 },
-          { label: "Activas", value: stats?.active ?? 0, cls: "text-orange-600" },
-          { label: "Resueltas", value: stats?.resolved ?? 0, cls: "text-green-600" },
-          { label: "Tasa Resolución", value: stats?.total ? `${Math.round(((stats?.resolved ?? 0) / stats.total) * 100)}%` : "0%", cls: "text-blue-600" },
+          { label: "Total Alertas", value: stats?.totalAlerts ?? 0 },
+          { label: "Activas", value: stats?.activeAlerts ?? 0, cls: "text-orange-600" },
+          { label: "Resueltas", value: stats?.resolvedAlerts ?? 0, cls: "text-green-600" },
+          { label: "Tasa Resolución", value: stats?.totalAlerts ? `${Math.round(((stats?.resolvedAlerts ?? 0) / stats.totalAlerts) * 100)}%` : "0%", cls: "text-blue-600" },
         ].map(({ label, value, cls }) => (
           <Card key={label}><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{label}</CardTitle></CardHeader><CardContent><div className={`text-3xl font-bold ${cls ?? ""}`}>{value}</div></CardContent></Card>
         ))}
@@ -178,8 +178,8 @@ function TabMetricas() {
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie data={stats?.byPriority ?? []} dataKey="count" nameKey="priority" cx="50%" cy="50%" outerRadius={80} label={({ priority, percent }: any) => `${priority} ${(percent * 100).toFixed(0)}%`}>
-                  {(stats?.byPriority ?? []).map((_: any, i: number) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                <Pie data={[{ priority: "Críticos", count: stats?.criticalCases ?? 0 }, { priority: "Baja cobertura", count: stats?.lowCoverage ?? 0 }, { priority: "Excelente", count: stats?.excellentCompliance ?? 0 }]} dataKey="count" nameKey="priority" cx="50%" cy="50%" outerRadius={80} label={({ priority, percent }: any) => `${priority} ${(percent * 100).toFixed(0)}%`}>
+                  {[0,1,2].map((i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -193,7 +193,7 @@ function TabMetricas() {
           <CardHeader><CardTitle className="text-sm">Tiempo promedio de resolución (horas)</CardTitle></CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={resolution?.byType ?? []}>
+              <BarChart data={resolution?.byType ? Object.entries(resolution.byType as Record<string, number>).map(([type, avgHours]) => ({ type, avgHours })) : []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="type" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
@@ -214,10 +214,10 @@ function TabIA() {
   const [filterType, setFilterType] = useState<"all" | "anomaly" | "pattern" | "prediction">("all");
   const [filterSeverity, setFilterSeverity] = useState<"all" | "low" | "medium" | "high" | "critical">("all");
   const { data: dashboard } = trpc.intelligentAlerts.getDashboard.useQuery();
-  const { data: alerts, refetch } = trpc.intelligentAlerts.list.useQuery({ type: filterType === "all" ? undefined : filterType, severity: filterSeverity === "all" ? undefined : filterSeverity, limit: 50 });
+  const { data: alerts, refetch } = trpc.intelligentAlerts.list.useQuery({ alertType: filterType === "all" ? undefined : (filterType as any), severity: filterSeverity === "all" ? undefined : filterSeverity });
   const runAnalysis = trpc.intelligentAlerts.runPredictiveAnalysis.useMutation({ onSuccess: () => { toast.success("Análisis completado"); utils.intelligentAlerts.getDashboard.invalidate(); refetch(); }, onError: (e) => toast.error(e.message) });
-  const resolveAlert = trpc.intelligentAlerts.resolve.useMutation({ onSuccess: () => { toast.success("Alerta resuelta"); refetch(); }, onError: (e) => toast.error(e.message) });
-  const dismissAlert = trpc.intelligentAlerts.dismiss.useMutation({ onSuccess: () => { toast.success("Alerta descartada"); refetch(); }, onError: (e) => toast.error(e.message) });
+  const resolveAlert = trpc.intelligentAlerts.resolve.useMutation({ onSuccess: () => { toast.success("Alerta resuelta"); refetch(); }, onError: (e: any) => toast.error(e.message) });
+  const dismissAlert = trpc.intelligentAlerts.dismiss.useMutation({ onSuccess: () => { toast.success("Alerta descartada"); refetch(); }, onError: (e: any) => toast.error(e.message) });
 
   return (
     <div className="space-y-4">
@@ -229,9 +229,9 @@ function TabIA() {
       </div>
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Activas", value: dashboard?.activeAlerts ?? 0, cls: "text-orange-600" },
-          { label: "Críticas", value: dashboard?.criticalAlerts ?? 0, cls: "text-red-600" },
-          { label: "Resueltas", value: dashboard?.resolvedAlerts ?? 0, cls: "text-green-600" },
+          { label: "Activas", value: dashboard?.activeCount ?? 0, cls: "text-orange-600" },
+          { label: "Críticas", value: dashboard?.criticalCount ?? 0, cls: "text-red-600" },
+          { label: "Resueltas", value: dashboard?.resolvedCount ?? 0, cls: "text-green-600" },
           { label: "Tasa resolución", value: dashboard?.resolutionRate != null ? `${dashboard.resolutionRate}%` : "0%", cls: "text-blue-600" },
         ].map(({ label, value, cls }) => (
           <Card key={label}><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{label}</CardTitle></CardHeader><CardContent><div className={`text-3xl font-bold ${cls}`}>{value}</div></CardContent></Card>
@@ -267,8 +267,8 @@ function TabIA() {
                   {alert.recommendation && <p className="text-xs text-blue-700 mt-1 bg-blue-50 rounded px-2 py-1">💡 {alert.recommendation}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <Button size="sm" variant="ghost" onClick={() => resolveAlert.mutate({ alertId: alert.id })} disabled={resolveAlert.isPending}><CheckCircle2 className="h-4 w-4 text-green-600" /></Button>
-                  <Button size="sm" variant="ghost" onClick={() => dismissAlert.mutate({ alertId: alert.id })} disabled={dismissAlert.isPending}><BellOff className="h-4 w-4 text-gray-500" /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => resolveAlert.mutate({ id: alert.id, resolutionNotes: "Resuelta desde dashboard" })} disabled={resolveAlert.isPending}><CheckCircle2 className="h-4 w-4 text-green-600" /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => dismissAlert.mutate({ id: alert.id, reason: "Descartada desde dashboard" })} disabled={dismissAlert.isPending}><BellOff className="h-4 w-4 text-gray-500" /></Button>
                 </div>
               </div>
             </CardContent>
@@ -290,11 +290,9 @@ function TabConfiguracion() {
   const utils = trpc.useUtils();
   const { data: thresholds = [], isLoading: loadingThresholds } = trpc.alertThresholds.getAll.useQuery();
   const [thresholdValues, setThresholdValues] = useState<Record<string, number>>({});
-  const { data: schedules = [], isLoading: loadingSchedules } = trpc.alertSchedules.getAll.useQuery();
-  const [scheduleValues, setScheduleValues] = useState<Record<string, string>>({});
+    const [scheduleValues, setScheduleValues] = useState<Record<string, string>>({});
   const [recipients, setRecipients] = useState<string[]>([]);
   const [newRecipient, setNewRecipient] = useState("");
-
   useEffect(() => {
     if (thresholds.length > 0) {
       const vals: Record<string, number> = {};
@@ -302,19 +300,7 @@ function TabConfiguracion() {
       setThresholdValues(vals);
     }
   }, [thresholds]);
-
-  useEffect(() => {
-    if (schedules.length > 0) {
-      const vals: Record<string, string> = {};
-      schedules.forEach((s: any) => { vals[s.alertType] = s.frequency; });
-      setScheduleValues(vals);
-      const firstWithRecipients = schedules.find((s: any) => s.recipients?.length > 0);
-      if (firstWithRecipients) setRecipients(firstWithRecipients.recipients ?? []);
-    }
-  }, [schedules]);
-
-  const updateThreshold = trpc.alertThresholds.update.useMutation({ onSuccess: () => { toast.success("Umbral actualizado"); utils.alertThresholds.getAll.invalidate(); }, onError: (e) => toast.error(e.message) });
-  const updateSchedule = trpc.alertSchedules.update.useMutation({ onSuccess: () => { toast.success("Frecuencia actualizada"); utils.alertSchedules.getAll.invalidate(); }, onError: (e) => toast.error(e.message) });
+  const updateThreshold = trpc.alertThresholds.update.useMutation({ onSuccess: () => { toast.success("Umbral actualizado"); utils.alertThresholds.getAll.invalidate(); }, onError: (e: any) => toast.error(e.message) });
 
   return (
     <div className="space-y-6">
@@ -328,7 +314,7 @@ function TabConfiguracion() {
                 <div key={t.id} className="flex items-center gap-4">
                   <Label className="flex-1 text-sm">{ALERT_TYPE_LABELS[t.alertType] ?? t.alertType}</Label>
                   <Input type="number" className="w-28" value={thresholdValues[t.alertType] ?? t.threshold} onChange={(e) => setThresholdValues(p => ({ ...p, [t.alertType]: parseFloat(e.target.value) }))} />
-                  <Button size="sm" onClick={() => updateThreshold.mutate({ id: t.id, threshold: thresholdValues[t.alertType] ?? t.threshold })} disabled={updateThreshold.isPending}><Save className="h-4 w-4" /></Button>
+                  <Button size="sm" onClick={() => updateThreshold.mutate({ alertType: t.alertType, threshold: thresholdValues[t.alertType] ?? t.threshold })} disabled={updateThreshold.isPending}><Save className="h-4 w-4" /></Button>
                 </div>
               ))}
             </div>
@@ -340,20 +326,17 @@ function TabConfiguracion() {
       <Card>
         <CardHeader><CardTitle className="flex items-center gap-2 text-sm"><Clock className="h-4 w-4" />Frecuencia de Reportes</CardTitle></CardHeader>
         <CardContent>
-          {loadingSchedules ? <p className="text-sm text-muted-foreground">Cargando...</p> : (
-            <div className="space-y-3">
-              {schedules.map((s: any) => (
-                <div key={s.id} className="flex items-center gap-4">
-                  <Label className="flex-1 text-sm">{ALERT_TYPE_LABELS[s.alertType] ?? s.alertType}</Label>
-                  <Select value={scheduleValues[s.alertType] ?? s.frequency} onValueChange={(v) => setScheduleValues(p => ({ ...p, [s.alertType]: v }))}>
-                    <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-                    <SelectContent>{FREQ_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Button size="sm" onClick={() => updateSchedule.mutate({ id: s.id, frequency: scheduleValues[s.alertType] ?? s.frequency })} disabled={updateSchedule.isPending}><Save className="h-4 w-4" /></Button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="space-y-3">
+            {FREQ_OPTIONS.filter(o => o.value !== "disabled").map(opt => (
+              <div key={opt.value} className="flex items-center gap-4">
+                <Label className="flex-1 text-sm">{opt.label}</Label>
+                <Select value={scheduleValues[opt.value] ?? "disabled"} onValueChange={(v) => setScheduleValues(p => ({ ...p, [opt.value]: v }))}>
+                  <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                  <SelectContent>{FREQ_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

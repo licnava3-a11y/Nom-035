@@ -28,12 +28,12 @@ const PIE_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6"];
 
 // ─── Pestaña 1: Rotación histórica ──────────────────────────────────────────
 function TabRotacion() {
-  const [dateRange, setDateRange] = useState({ startDate: undefined as Date | undefined, endDate: undefined as Date | undefined });
-  const stableDateRange = useMemo(() => dateRange, []);
-  const { data: stats } = trpc.employees.getTurnoverStats.useQuery(stableDateRange);
+  const [startDate] = useState(() => new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split("T")[0]);
+  const [endDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const { data: stats } = trpc.employees.getTurnoverStats.useQuery({ startDate, endDate });
   const { data: trends } = trpc.employees.getMonthlyTrends.useQuery({ months: 12 });
-  const { data: byReason } = trpc.employees.getTerminationsByReason.useQuery(stableDateRange);
-  const { data: byDept } = trpc.employees.getTerminationsByDepartment.useQuery(stableDateRange);
+  const { data: byReason } = trpc.employees.getTerminationsByReason.useQuery({ startDate, endDate });
+  const { data: byDept } = trpc.employees.getTerminationsByDepartment.useQuery({ startDate, endDate });
 
   return (
     <div className="space-y-4">
@@ -42,7 +42,7 @@ function TabRotacion() {
           { label: "Tasa de Rotación", value: stats?.turnoverRate != null ? `${stats.turnoverRate}%` : "—", cls: "text-red-600" },
           { label: "Total Bajas", value: stats?.totalTerminations ?? 0, cls: "text-orange-600" },
           { label: "Empleados Activos", value: stats?.activeEmployees ?? 0, cls: "text-green-600" },
-          { label: "Promedio Antigüedad", value: stats?.avgTenureMonths != null ? `${stats.avgTenureMonths}m` : "—", cls: "" },
+          { label: "Tasa Rotación Mensual", value: stats?.averageMonthly != null ? `${stats.averageMonthly}%` : "—", cls: "" },
         ].map(({ label, value, cls }) => (
           <Card key={label}><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{label}</CardTitle></CardHeader><CardContent><div className={`text-3xl font-bold ${cls}`}>{value}</div></CardContent></Card>
         ))}
@@ -106,7 +106,7 @@ function TabRiesgo() {
   const [riskThreshold, setRiskThreshold] = useState(0.5);
   const { data: departments } = trpc.departments.list.useQuery({ page: 1, pageSize: 100 });
   const { data: stats } = trpc.predictiveAnalytics.getRetentionStats.useQuery();
-  const { data: atRisk, refetch } = trpc.predictiveAnalytics.identifyAtRiskEmployees.useQuery({ threshold: riskThreshold, departmentId: deptFilter !== "all" ? parseInt(deptFilter) : undefined });
+  const { data: atRisk, refetch } = trpc.predictiveAnalytics.identifyAtRiskEmployees.useQuery({ minScore: Math.round(riskThreshold * 100), departmentId: deptFilter !== "all" ? parseInt(deptFilter) : undefined });
   const generateAlerts = trpc.predictiveAnalytics.generateRetentionAlerts.useMutation({ onSuccess: () => { toast.success("Alertas generadas"); refetch(); }, onError: (e) => toast.error(e.message) });
 
   const getRiskBadge = (score: number) => {
@@ -119,7 +119,7 @@ function TabRiesgo() {
     <div className="space-y-4">
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Empleados Activos", value: stats?.totalEmployees ?? 0 },
+          { label: "Empleados Activos", value: stats?.totalActiveEmployees ?? 0 },
           { label: "Tasa Retención", value: stats?.retentionRate != null ? `${stats.retentionRate}%` : "—", cls: "text-green-600" },
           { label: "Riesgo Crítico", value: stats?.criticalRisk ?? 0, cls: "text-red-600" },
           { label: "Riesgo Alto", value: stats?.highRisk ?? 0, cls: "text-orange-600" },
@@ -135,7 +135,7 @@ function TabRiesgo() {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos</SelectItem>
-              {(departments?.departments ?? []).map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+              {((departments as any)?.departments ?? departments ?? []).map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -143,19 +143,19 @@ function TabRiesgo() {
           <Label className="text-xs mb-1 block">Umbral de riesgo ({(riskThreshold * 100).toFixed(0)}%)</Label>
           <input type="range" min={0.3} max={0.9} step={0.05} value={riskThreshold} onChange={(e) => setRiskThreshold(parseFloat(e.target.value))} className="w-full" />
         </div>
-        <Button size="sm" onClick={() => generateAlerts.mutate()} disabled={generateAlerts.isPending} className="gap-1">
+        <Button size="sm" onClick={() => generateAlerts.mutate({})} disabled={generateAlerts.isPending} className="gap-1">
           <Zap className="h-4 w-4" />{generateAlerts.isPending ? "Generando..." : "Generar alertas"}
         </Button>
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-sm">Empleados en riesgo ({atRisk?.length ?? 0})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm">Empleados en riesgo ({(atRisk as any)?.employees?.length ?? (Array.isArray(atRisk) ? atRisk.length : 0)})</CardTitle></CardHeader>
         <CardContent>
-          {atRisk?.length ? (
+          {(Array.isArray(atRisk) ? atRisk : (atRisk as any)?.employees ?? []).length > 0 ? (
             <Table>
               <TableHeader><TableRow><TableHead>Empleado</TableHead><TableHead>Departamento</TableHead><TableHead>Puesto</TableHead><TableHead>Riesgo</TableHead><TableHead>Factores</TableHead></TableRow></TableHeader>
               <TableBody>
-                {atRisk.map((emp: any) => (
+                {(Array.isArray(atRisk) ? atRisk : (atRisk as any)?.employees ?? []).map((emp: any) => (
                   <TableRow key={emp.employeeId}>
                     <TableCell className="font-medium">{emp.employeeName}</TableCell>
                     <TableCell>{emp.department}</TableCell>
@@ -260,8 +260,8 @@ function TabIntervenciones() {
 
 // ─── Pestaña 4: Análisis predictivo ─────────────────────────────────────────
 function TabPredictivo() {
-  const { data: predictions } = trpc.predictiveTurnoverDashboard.getHighRiskEmployees.useQuery({});
-  const { data: modelMetrics } = trpc.predictiveTurnoverDashboard.getModelMetrics?.useQuery?.() ?? { data: null };
+    const { data: predictions } = trpc.predictiveTurnoverDashboard.getHighRiskEmployees.useQuery({});
+  const modelMetrics = null;
 
   return (
     <div className="space-y-4">
@@ -270,17 +270,7 @@ function TabPredictivo() {
         <span>El modelo predictivo analiza factores como antigüedad, desempeño, salario y ausencias para calcular la probabilidad de rotación de cada empleado.</span>
       </div>
 
-      {modelMetrics && (
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: "Precisión del modelo", value: modelMetrics.accuracy != null ? `${(modelMetrics.accuracy * 100).toFixed(1)}%` : "—" },
-            { label: "Recall", value: modelMetrics.recall != null ? `${(modelMetrics.recall * 100).toFixed(1)}%` : "—" },
-            { label: "F1 Score", value: modelMetrics.f1Score != null ? `${(modelMetrics.f1Score * 100).toFixed(1)}%` : "—" },
-          ].map(({ label, value }) => (
-            <Card key={label}><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{label}</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{value}</div></CardContent></Card>
-          ))}
-        </div>
-      )}
+
 
       <Card>
         <CardHeader><CardTitle className="text-sm">Empleados con mayor probabilidad de rotación</CardTitle></CardHeader>

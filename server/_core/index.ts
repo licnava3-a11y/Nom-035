@@ -166,6 +166,13 @@ async function startServer() {
   // Evidence Token — endpoint público para subida de evidencias NOM-035 con token de 72h
   app.use("/api", evidenceTokenRouter);
 
+  // Email Digest — cron job que envía resúmenes diarios/semanales por correo
+  app.post("/api/scheduled/email-digest", (req, res) => {
+    import("../scheduledHandlers/emailDigestHandler")
+      .then(({ emailDigestHandler }) => emailDigestHandler(req, res))
+      .catch((err) => res.status(500).json({ error: String(err) }));
+  });
+
   // Heartbeat anti-cold-start — recibe el ping cada 10 minutos del cron de plataforma
   // Mantiene el contenedor Cloud Run "caliente" para eliminar cold starts
   app.post("/api/scheduled/warmup", (req, res) => {

@@ -1557,3 +1557,18 @@
 - [x] Sidebar actualizado: "🔔 Centro de Alertas (unificado)" y "📊 Centro de Retención (unificado)"
 - [x] Corrección CommitteeModule.tsx: SignatureCanvas usa props correctas con mutation saveSignature
 - [x] Corrección executiveReport.ts: TS2345 departmentId/employeeId nullable
+
+## Sprint: Cron Email Digest, IA en Casos, Prellenado Automático (2026-08-02)
+- [x] .dockerignore creado para excluir drizzle/meta/ (178 snapshots = 72 MB) — fix error de publicación
+- [x] Corrección TS en AlertsCentralDashboard.tsx y RetentionHubDashboard.tsx
+- [x] Patches de cron en sdk.ts (CRON_OPEN_ID_PREFIX, buildCronUser, short-circuit en authenticateRequest)
+- [x] Patches de cron en manusTypes.ts (campo taskUid)
+- [x] emailDigestHandler.ts creado en server/scheduledHandlers/ — handler del cron job de resúmenes por correo
+- [x] Endpoint /api/scheduled/email-digest registrado en server/_core/index.ts
+- [x] Procedure suggestCaseField (IA) en casesManagement.ts con invokeLLM
+- [x] Componente CaseAIAssistant.tsx — asistente IA para campos de texto libre en gestión de casos
+- [x] CaseAIAssistant integrado en campo descripción de CasesManagement.tsx
+- [x] Hook useEmployeeAutofill.ts — prellenado automático de formularios desde tabla employees
+- [x] Componente EmployeeAutofillSelector.tsx — selector reutilizable con prellenado automático
+- [x] Corrección TS2352 en sdk.ts (cron user cast via unknown)
+- [x] 0 errores TypeScript confirmados (tsc --noEmit)

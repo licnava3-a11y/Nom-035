@@ -16,6 +16,7 @@ import { startOfDay, endOfDay } from "date-fns";
 import { Pagination } from "@/components/Pagination";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { CaseAIAssistant } from "@/components/CaseAIAssistant";
 
 export default function CasesManagement() {
   const [page, setPage] = useState(1);
@@ -363,6 +364,12 @@ export default function CasesManagement() {
                   onChange={(e) => setNewCase({ ...newCase, description: e.target.value })}
                   placeholder="Describe el caso en detalle..."
                   rows={4}
+                />
+                <CaseAIAssistant
+                  fieldType="description"
+                  currentValue={newCase.description}
+                  caseType={newCase.caseType}
+                  onApply={(text) => setNewCase({ ...newCase, description: text })}
                 />
               </div>
             </div>
