@@ -1572,3 +1572,11 @@
 - [x] Componente EmployeeAutofillSelector.tsx — selector reutilizable con prellenado automático
 - [x] Corrección TS2352 en sdk.ts (cron user cast via unknown)
 - [x] 0 errores TypeScript confirmados (tsc --noEmit)
+
+## Sprint: Performance y Bundle Infinito (2026-08-02)
+- [x] Diagnosticar causa raíz del bundle infinito en login
+- [x] Corregir useAuth: solo guardar en localStorage cuando hay datos válidos (no undefined/loading)
+- [x] Corregir Dockerfile: PUPPETEER_SKIP_DOWNLOAD para evitar descarga de Chromium (~170MB)
+- [x] Agregar Chromium Alpine al Dockerfile de producción (más ligero que el de puppeteer)
+- [x] Corregir pdfGenerator: usar PUPPETEER_EXECUTABLE_PATH del sistema
+- [x] Mejorar manualChunks en vite.config.ts: dividir vendor-misc (2.8MB) en chunks más pequeños

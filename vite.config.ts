@@ -261,7 +261,55 @@ export default defineConfig({
           if (id.includes('node_modules/sonner/') || id.includes('node_modules/vaul/') || id.includes('node_modules/cmdk/')) {
             return 'vendor-ui-extra';
           }
-          // Resto de node_modules → vendor-misc
+          // PDF.js (muy pesado, solo para visualización de PDFs)
+          if (id.includes('node_modules/pdfjs-dist/')) {
+            return 'vendor-pdfjs';
+          }
+          // react-pdf
+          if (id.includes('node_modules/react-pdf/')) {
+            return 'vendor-react-pdf';
+          }
+          // QR Code
+          if (id.includes('node_modules/qrcode/')) {
+            return 'vendor-qrcode';
+          }
+          // html2canvas + html-to-image (exportación visual)
+          if (id.includes('node_modules/html2canvas/') || id.includes('node_modules/html-to-image/')) {
+            return 'vendor-html2img';
+          }
+          // docx (generación de Word)
+          if (id.includes('node_modules/docx/')) {
+            return 'vendor-docx';
+          }
+          // exceljs (alternativa a xlsx)
+          if (id.includes('node_modules/exceljs/')) {
+            return 'vendor-exceljs';
+          }
+          // jszip (compresión ZIP)
+          if (id.includes('node_modules/jszip/')) {
+            return 'vendor-jszip';
+          }
+          // embla-carousel
+          if (id.includes('node_modules/embla-carousel')) {
+            return 'vendor-carousel';
+          }
+          // dagre + elkjs (layout de grafos)
+          if (id.includes('node_modules/dagre/') || id.includes('node_modules/elkjs/')) {
+            return 'vendor-graph-layout';
+          }
+          // react-signature-canvas
+          if (id.includes('node_modules/react-signature-canvas/') || id.includes('node_modules/signature_pad/')) {
+            return 'vendor-signature';
+          }
+          // react-dropzone
+          if (id.includes('node_modules/react-dropzone/')) {
+            return 'vendor-dropzone';
+          }
+          // react-resizable-panels
+          if (id.includes('node_modules/react-resizable-panels/')) {
+            return 'vendor-panels';
+          }
+          // Resto de node_modules → vendor-misc (ahora mucho más pequeño)
           if (id.includes('node_modules/')) {
             return 'vendor-misc';
           }

@@ -39,6 +39,7 @@ export async function generatePDFFromHTML(
   try {
     // Detectar el ejecutable de Chromium disponible
     const executablePath =
+      process.env.PUPPETEER_EXECUTABLE_PATH ||
       process.env.CHROMIUM_PATH ||
       (await findChromiumExecutable());
 

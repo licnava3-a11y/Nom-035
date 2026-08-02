@@ -66,10 +66,19 @@ export function useAuth(options?: UseAuthOptions) {
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
-    localStorage.setItem(
-      "manus-runtime-user-info",
-      JSON.stringify(meQuery.data)
-    );
+    // Solo persistir en localStorage cuando la query terminó (no durante loading)
+    // y solo si hay un usuario válido o si la sesión expiró explícitamente (null)
+    // NUNCA guardar undefined (estado de carga) para evitar falsos positivos en LandingPage
+    if (!meQuery.isLoading) {
+      if (meQuery.data) {
+        // Sesión activa: guardar datos del usuario
+        localStorage.setItem("manus-runtime-user-info", JSON.stringify(meQuery.data));
+      } else if (meQuery.data === null) {
+        // Sesión expirada: limpiar caché para evitar redirección instantánea en LandingPage
+        localStorage.removeItem("manus-runtime-user-info");
+      }
+      // Si hay error de red (undefined), NO tocar localStorage (mantener caché anterior)
+    }
 
     // Determinar si es un error de autenticación explícito (401) vs timeout/red
     const isAuthError =
