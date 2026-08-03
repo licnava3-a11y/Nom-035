@@ -54,7 +54,8 @@ COPY --from=builder /app/drizzle ./drizzle
 # Variables de entorno por defecto (sobreescribir en docker-compose o .env)
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV LOCAL_AUTH=true
+# LOCAL_AUTH=true solo para desarrollo local sin OAuth. En produccion se usa Manus OAuth.
+# NO establecer LOCAL_AUTH aqui — las variables de entorno de produccion lo inyectan si es necesario.
 # Apuntar puppeteer al Chromium del sistema Alpine
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 

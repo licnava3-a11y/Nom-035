@@ -1595,3 +1595,9 @@
 - [x] EmployeeAutofillSelector en QuejaForm para registrar empleado afectado (sección naranja con 4 campos prellenados)
 - [x] Notificaciones de éxito granulares por campo en CaseDetailModal (indicadores amber/green, contador de cambios pendientes)
 - [x] Exportación a PDF del detalle del caso: procedure generateCasePdf + botón Exportar PDF en modal + toast con enlace directo
+
+## Sprint: Fix Raíz Ciclo Infinito Login y Preview (2026-08-03)
+- [x] Diagnóstico: URL de preview expirada (temporal por diseño de sandbox — no es un bug del servidor)
+- [x] Causa raíz ciclo infinito login: ENV LOCAL_AUTH=true hardcodeado en Dockerfile línea 57 → servidor en producción usaba auth local en lugar de Manus OAuth → callback /api/oauth/callback no registrado → 404 → loop
+- [x] Fix: eliminar ENV LOCAL_AUTH=true del Dockerfile (producción usa Manus OAuth; LOCAL_AUTH solo para dev local)
+- [x] Verificado: 0 errores TypeScript, servidor HTTP 200, flujo OAuth correcto en sdk.ts/oauth.ts/context.ts
