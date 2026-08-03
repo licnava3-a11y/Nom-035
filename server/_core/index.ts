@@ -3,8 +3,7 @@ import compression from "compression";
 import express from "express";
 import { createServer } from "http";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
-import { globalLimiter, authLimiter, contactFormLimiter, apiLimiter, exportLimiter } from "./rateLimiter";
+import { globalLimiter, authLimiter, apiLimiter } from "./rateLimiter";
 import net from "net";
 import fs from "fs";
 import path from "path";
@@ -13,52 +12,20 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerLocalAuthRoutes } from "./localAuth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./vite";
 import uploadRouter from "../upload";
 import exportRouter from "../exportRouter";
 import confirmReadRouter from "../confirmReadRouter";
 import evidenceTokenRouter from "../nom035EvidenceTokenRouter";
-import { startSurveyAlertsJob } from "../jobs/survey-alerts-job";
-import { startCoverageAlertsJob } from "../jobs/survey-coverage-alerts-job";
-import { startAlertSummaryCronJob } from "../jobs/alertSummaryCronJob";
-import { startSecurityAlertsJob } from "../jobs/security-alerts-job";
-import { startModelPerformanceMonitorJob } from "../jobs/model-performance-monitor-job";
-import { startModelAutoRetrainingJob } from "../jobs/model-auto-retraining-job";
-import { startPayrollCompensationAlertsJob } from "../jobs/payroll-compensation-alerts-job";
-import { startExternalOfferRiskMonitorJob } from "../jobs/external-offer-risk-monitor-job";
-import { startAgreementsAlertsJob } from "../jobs/agreementsAlerts";
-import { startCorrectiveActionsRemindersJob } from "../jobs/corrective-actions-reminders-job";
-import { startStaleCasesJob } from "../jobs/stale-cases-alerts-job";
-import { startCalculateRiskLevelJob } from "../jobs/calculate-risk-level-job";
-import { runRootCauseAnalysisJob } from "../jobs/root-cause-analysis-job";
-import { startTrainingRemindersJob } from "../jobs/training-reminders-job";
-import { startDepartmentsWithoutManagerJob } from "../jobs/departments-without-manager-job";
-import { startApprovalRemindersJob } from "../jobs/approvalRemindersJob";
-import { startPredictiveTurnoverJob } from "../jobs/predictive-turnover-job";
-import { runIntelligentAlertsJob } from "../jobs/intelligent-alerts-job";
-import { runCorrectiveActionPlansRemindersJob, correctiveActionPlansRemindersJobSchedule } from "../jobs/corrective-action-plans-reminders-job";
-import { schedulePostCaseSurveysJob } from "../jobs/post-case-surveys-job";
-import { scheduleDepartmentalAlertsJob } from "../jobs/departmental-alerts-job";
-import { scheduleSurveyRemindersJob } from "../jobs/survey-reminders-job";
-import { runTokenExpirationJob } from "../jobs/anonymousTokenExpirationJob";
-import { runPredictiveAlertsJob } from "../jobs/predictiveAlertsJob";
-import { generateMonthlySnapshots } from "../jobs/autoSnapshotsJob";
-import { detectCompetencyRegressions } from "../jobs/competencyRegressionAlertsJob";
-import { weeklyReportJob, monthlyReportJob } from "../jobs/executive-reports-job";
 import { initializeWebSocket } from "./websocket";
-import { initializeSentimentAnalysisJob } from "../jobs/sentiment-analysis-job";
-import { initializeComplianceRemindersJob } from "../jobs/compliance-reminders-job";
-import { runMonthlyReportsJob } from "./jobs/monthly-reports-job";
-import { runContractExpirationAlertsJob } from "../jobs/contract-expiration-alerts-job";
-import { startPsychometricReminderJob } from "../jobs/psychometric-reminder-job";
-import { runDictamenExpiryAlertJob } from "../jobs/dictamen-expiry-alert-job";
-import { runDc3ExpiryAlertsJob } from "../jobs/dc3-expiry-alerts-job";
-import { runPacStaleItemsJob } from "../jobs/pac-stale-items-job";
-import { runRealtimeAlertsJob } from "../jobs/realtime-alerts-job";
-import { startPerformanceLcpAlertsJob } from "../jobs/performance-lcp-alerts-job";
-import { startDispatchUnreadAlertsJob } from "../jobs/dispatch-unread-alerts-job";
-import { startNom035ActionAlertsJob } from "../jobs/nom035-action-alerts-job";
 
+// ─── NO static job imports here ──────────────────────────────────────────────
+// All job modules are loaded dynamically inside startJobs() to keep the initial
+// memory footprint below the 512 MiB Cloud Run Autoscale limit.
+// Loading 34 job modules statically adds ~200 MB at startup, causing OOM before
+// the health check passes, which triggers a restart loop that destroys the
+// session cookie set by the OAuth callback → infinite login cycle.
+// ─────────────────────────────────────────────────────────────────────────────
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -79,6 +46,206 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+/**
+ * Consolidated minute-tick scheduler.
+ * Replaces 14+ individual setInterval(fn, 60_000) calls with a single timer.
+ * Each entry: { hour, minute, dayOfWeek?, dayOfMonth?, fn, label }
+ */
+function startConsolidatedMinuteTick() {
+  // Schedule table — all times are server-local (UTC in Cloud Run)
+  const schedules: Array<{
+    label: string;
+    hour: number;
+    minute: number;
+    dayOfWeek?: number;   // 0=Sun … 6=Sat
+    dayOfMonth?: number;  // 1-31
+    fn: () => Promise<void> | void;
+  }> = [];
+
+  // Populated after dynamic imports (see startJobs)
+  (globalThis as any).__consolidatedSchedules = schedules;
+
+  setInterval(() => {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const dow = now.getDay();
+    const dom = now.getDate();
+    for (const s of schedules) {
+      if (s.hour !== h || s.minute !== m) continue;
+      if (s.dayOfWeek !== undefined && s.dayOfWeek !== dow) continue;
+      if (s.dayOfMonth !== undefined && s.dayOfMonth !== dom) continue;
+      console.log(`[Scheduler] Triggering: ${s.label}`);
+      Promise.resolve(s.fn()).catch(err =>
+        console.error(`[Scheduler] Error in ${s.label}:`, err)
+      );
+    }
+  }, 60_000);
+}
+
+async function startJobs() {
+  console.log('[Jobs] Iniciando todos los jobs de alertas automáticas...');
+  const schedules: Array<any> = (globalThis as any).__consolidatedSchedules ?? [];
+
+  // ── Jobs with their own internal scheduler ──────────────────────────────
+  const jobModules = await Promise.allSettled([
+    import("../jobs/survey-alerts-job"),
+    import("../jobs/survey-coverage-alerts-job"),
+    import("../jobs/alertSummaryCronJob"),
+    import("../jobs/security-alerts-job"),
+    import("../jobs/model-performance-monitor-job"),
+    import("../jobs/model-auto-retraining-job"),
+    import("../jobs/payroll-compensation-alerts-job"),
+    import("../jobs/external-offer-risk-monitor-job"),
+    import("../jobs/agreementsAlerts"),
+    import("../jobs/corrective-actions-reminders-job"),
+    import("../jobs/stale-cases-alerts-job"),
+    import("../jobs/calculate-risk-level-job"),
+    import("../jobs/training-reminders-job"),
+    import("../jobs/departments-without-manager-job"),
+    import("../jobs/predictive-turnover-job"),
+    import("../jobs/approvalRemindersJob"),
+    import("../jobs/dispatch-unread-alerts-job"),
+    import("../jobs/nom035-action-alerts-job"),
+    import("../jobs/deadlineAlertsJob"),
+    import("../jobs/post-case-surveys-job"),
+    import("../jobs/departmental-alerts-job"),
+    import("../jobs/survey-reminders-job"),
+    import("../jobs/sentiment-analysis-job"),
+    import("../jobs/compliance-reminders-job"),
+    import("../jobs/psychometric-reminder-job"),
+    import("../jobs/performance-lcp-alerts-job"),
+  ]);
+
+  const starters: Array<[string, string]> = [
+    ["startSurveyAlertsJob", "survey-alerts-job"],
+    ["startCoverageAlertsJob", "survey-coverage-alerts-job"],
+    ["startAlertSummaryCronJob", "alertSummaryCronJob"],
+    ["startSecurityAlertsJob", "security-alerts-job"],
+    ["startModelPerformanceMonitorJob", "model-performance-monitor-job"],
+    ["startModelAutoRetrainingJob", "model-auto-retraining-job"],
+    ["startPayrollCompensationAlertsJob", "payroll-compensation-alerts-job"],
+    ["startExternalOfferRiskMonitorJob", "external-offer-risk-monitor-job"],
+    ["startAgreementsAlertsJob", "agreementsAlerts"],
+    ["startCorrectiveActionsRemindersJob", "corrective-actions-reminders-job"],
+    ["startStaleCasesJob", "stale-cases-alerts-job"],
+    ["startCalculateRiskLevelJob", "calculate-risk-level-job"],
+    ["startTrainingRemindersJob", "training-reminders-job"],
+    ["startDepartmentsWithoutManagerJob", "departments-without-manager-job"],
+    ["startPredictiveTurnoverJob", "predictive-turnover-job"],
+    ["startApprovalRemindersJob", "approvalRemindersJob"],
+    ["startDispatchUnreadAlertsJob", "dispatch-unread-alerts-job"],
+    ["startNom035ActionAlertsJob", "nom035-action-alerts-job"],
+    ["startDeadlineAlertsJob", "deadlineAlertsJob"],
+    ["schedulePostCaseSurveysJob", "post-case-surveys-job"],
+    ["scheduleDepartmentalAlertsJob", "departmental-alerts-job"],
+    ["scheduleSurveyRemindersJob", "survey-reminders-job"],
+    ["initializeSentimentAnalysisJob", "sentiment-analysis-job"],
+    ["initializeComplianceRemindersJob", "compliance-reminders-job"],
+    ["startPsychometricReminderJob", "psychometric-reminder-job"],
+    ["startPerformanceLcpAlertsJob", "performance-lcp-alerts-job"],
+  ];
+
+  for (let i = 0; i < jobModules.length; i++) {
+    const result = jobModules[i];
+    const [fnName, modName] = starters[i];
+    if (result.status === "fulfilled") {
+      const mod = result.value as any;
+      if (typeof mod[fnName] === "function") {
+        try { mod[fnName](); } catch (e) { console.error(`[Jobs] Error starting ${modName}:`, e); }
+      }
+    } else {
+      console.error(`[Jobs] Failed to load ${modName}:`, result.reason);
+    }
+  }
+
+  // ── Jobs registered in the consolidated minute-tick ──────────────────────
+  try {
+    const { runCorrectiveActionPlansRemindersJob } = await import("../jobs/corrective-action-plans-reminders-job");
+    schedules.push({ label: "corrective-action-plans-reminders", hour: 9, minute: 0, fn: runCorrectiveActionPlansRemindersJob });
+  } catch (e) { console.error("[Jobs] corrective-action-plans-reminders-job load error:", e); }
+
+  try {
+    const { runIntelligentAlertsJob } = await import("../jobs/intelligent-alerts-job");
+    schedules.push({ label: "intelligent-alerts", hour: 2, minute: 0, fn: runIntelligentAlertsJob });
+  } catch (e) { console.error("[Jobs] intelligent-alerts-job load error:", e); }
+
+  try {
+    const { runRootCauseAnalysisJob } = await import("../jobs/root-cause-analysis-job");
+    schedules.push({ label: "root-cause-analysis", hour: 3, minute: 0, dayOfMonth: 1, fn: runRootCauseAnalysisJob });
+  } catch (e) { console.error("[Jobs] root-cause-analysis-job load error:", e); }
+
+  try {
+    const { runPredictiveAlertsJob } = await import("../jobs/predictiveAlertsJob");
+    schedules.push({ label: "predictive-alerts", hour: 8, minute: 0, fn: runPredictiveAlertsJob });
+  } catch (e) { console.error("[Jobs] predictiveAlertsJob load error:", e); }
+
+  try {
+    const { generateMonthlySnapshots } = await import("../jobs/autoSnapshotsJob");
+    schedules.push({ label: "auto-snapshots", hour: 0, minute: 0, dayOfMonth: 1, fn: generateMonthlySnapshots });
+  } catch (e) { console.error("[Jobs] autoSnapshotsJob load error:", e); }
+
+  try {
+    const { detectCompetencyRegressions } = await import("../jobs/competencyRegressionAlertsJob");
+    schedules.push({ label: "competency-regression", hour: 9, minute: 0, fn: detectCompetencyRegressions });
+  } catch (e) { console.error("[Jobs] competencyRegressionAlertsJob load error:", e); }
+
+  try {
+    const { weeklyReportJob, monthlyReportJob } = await import("../jobs/executive-reports-job");
+    schedules.push({ label: "weekly-report", hour: 8, minute: 0, dayOfWeek: 1, fn: weeklyReportJob });
+    schedules.push({ label: "monthly-report", hour: 8, minute: 0, dayOfMonth: 1, fn: monthlyReportJob });
+  } catch (e) { console.error("[Jobs] executive-reports-job load error:", e); }
+
+  try {
+    const { runMonthlyReportsJob } = await import("./jobs/monthly-reports-job");
+    schedules.push({ label: "monthly-reports", hour: 8, minute: 0, dayOfMonth: 1, fn: runMonthlyReportsJob });
+  } catch (e) { console.error("[Jobs] monthly-reports-job load error:", e); }
+
+  try {
+    const { runContractExpirationAlertsJob } = await import("../jobs/contract-expiration-alerts-job");
+    schedules.push({ label: "contract-expiration", hour: 8, minute: 0, fn: runContractExpirationAlertsJob });
+  } catch (e) { console.error("[Jobs] contract-expiration-alerts-job load error:", e); }
+
+  try {
+    const { runDictamenExpiryAlertJob } = await import("../jobs/dictamen-expiry-alert-job");
+    schedules.push({ label: "dictamen-expiry", hour: 8, minute: 0, fn: runDictamenExpiryAlertJob });
+  } catch (e) { console.error("[Jobs] dictamen-expiry-alert-job load error:", e); }
+
+  try {
+    const { runDc3ExpiryAlertsJob } = await import("../jobs/dc3-expiry-alerts-job");
+    schedules.push({ label: "dc3-expiry", hour: 7, minute: 30, fn: runDc3ExpiryAlertsJob });
+  } catch (e) { console.error("[Jobs] dc3-expiry-alerts-job load error:", e); }
+
+  try {
+    const { runPacStaleItemsJob } = await import("../jobs/pac-stale-items-job");
+    schedules.push({ label: "pac-stale-items", hour: 9, minute: 0, fn: runPacStaleItemsJob });
+  } catch (e) { console.error("[Jobs] pac-stale-items-job load error:", e); }
+
+  try {
+    const { runRealtimeAlertsJob } = await import("../jobs/realtime-alerts-job");
+    // Realtime runs every 15 min — use its own interval (not minute-tick)
+    setInterval(() => runRealtimeAlertsJob().catch(console.error), 15 * 60 * 1000);
+    console.log("[Realtime Alerts Job] Scheduled to run every 15 minutes via WebSocket");
+  } catch (e) { console.error("[Jobs] realtime-alerts-job load error:", e); }
+
+  // Token expiration job — needs its own setTimeout for first-run alignment
+  try {
+    const { runTokenExpirationJob } = await import("../jobs/anonymousTokenExpirationJob");
+    const now = new Date();
+    const next9AM = new Date(now);
+    next9AM.setHours(9, 0, 0, 0);
+    if (now >= next9AM) next9AM.setDate(next9AM.getDate() + 1);
+    const msUntilNext9AM = next9AM.getTime() - now.getTime();
+    setTimeout(() => {
+      runTokenExpirationJob();
+      setInterval(runTokenExpirationJob, 24 * 60 * 60 * 1000);
+    }, msUntilNext9AM);
+    console.log(`[Token Expiration Job] First execution scheduled for ${next9AM.toLocaleString('es-MX')}`);
+  } catch (e) { console.error("[Jobs] anonymousTokenExpirationJob load error:", e); }
+
+  console.log('[Jobs] Todos los jobs de alertas automáticas iniciados correctamente.');
+}
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
@@ -87,68 +254,50 @@ async function startServer() {
   // - req.protocol reflects HTTPS from x-forwarded-proto
   // - cookies with sameSite='none' + secure=true are set correctly
   // - req.hostname reflects the real host from x-forwarded-host
-  // NOTE: 'true' trusts all proxies — required for Manus multi-proxy production setup
-  // to prevent infinite login loops caused by secure=false cookie detection.
   app.set('trust proxy', true);
 
-  // Compresión gzip/deflate — reducir payload ~70% en assets JS/CSS/JSON
-  // Se aplica ANTES de todos los middlewares para comprimir todas las respuestas
+  // Compresión gzip/deflate
   app.use(compression({
-    level: 6,          // Nivel de compresión (1-9). 6 = balance óptimo velocidad/tamaño
-    threshold: 1024,   // Solo comprimir respuestas > 1KB
+    level: 6,
+    threshold: 1024,
     filter: (req, res) => {
-      // No comprimir si el cliente no acepta gzip
       if (req.headers['x-no-compression']) return false;
       return compression.filter(req, res);
     },
   }));
 
-  // Aplicar rate limiting global a todas las rutas
+  // Rate limiting
   app.use(globalLimiter);
-  
-  // Rate limiting específico para autenticación (más estricto)
   app.use("/api/oauth", authLimiter);
-  
-  // Rate limiting para endpoints de API sensibles
   app.use("/api/trpc", apiLimiter);
-  
-  // Rate limiting para formularios de contacto (si existen)
-  // app.use("/api/contact", contactFormLimiter);
-  
-  // Rate limiting para exportaciones y reportes
-  // app.use("/api/export", exportLimiter);
 
-  // Security headers with helmet
+  // Security headers
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"], // Permite CDN externos (Chart.js, analytics, etc.)
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https:"],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "https:"],
         imgSrc: ["'self'", "data:", "blob:", "https:"],
-        connectSrc: ["'self'", "ws:", "wss:", "https:"], // Permite llamadas API a dominios externos
+        connectSrc: ["'self'", "ws:", "wss:", "https:"],
         frameSrc: ["'self'", "https:"],
         workerSrc: ["'self'", "blob:"],
         childSrc: ["'self'", "blob:"],
       },
     },
-    crossOriginEmbedderPolicy: false, // Necesario para algunos recursos externos
+    crossOriginEmbedderPolicy: false,
   }));
-  
-  // Configure body parser with larger size limit for file uploads
+
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  
 
-  
-  // Health check universal — disponible siempre, sin autenticación
-  // Usado por Cloud Run startup probe y Dockerfile HEALTHCHECK
+  // Health check — always available, no auth required
   app.get("/api/health", (_req, res) => {
     res.status(200).json({ ok: true, ts: Date.now() });
   });
 
-  // Autenticación: local (usuario/contraseña) o Manus OAuth
+  // Authentication mode
   const useLocalAuth = process.env.LOCAL_AUTH === 'true';
   if (useLocalAuth) {
     registerLocalAuthRoutes(app);
@@ -157,27 +306,22 @@ async function startServer() {
     registerOAuthRoutes(app);
     console.log('[Auth] Modo: Manus OAuth');
   }
-  // Upload API
+
   app.use("/api", uploadRouter);
-  // Export API
   app.use("/api", exportRouter);
-  // Confirm Read — endpoint público para confirmar lectura de minutas por correo
   app.use("/api", confirmReadRouter);
-  // Evidence Token — endpoint público para subida de evidencias NOM-035 con token de 72h
   app.use("/api", evidenceTokenRouter);
 
-  // Email Digest — cron job que envía resúmenes diarios/semanales por correo
+  // Email Digest scheduled endpoint
   app.post("/api/scheduled/email-digest", (req, res) => {
     import("../scheduledHandlers/emailDigestHandler")
       .then(({ emailDigestHandler }) => emailDigestHandler(req, res))
       .catch((err) => res.status(500).json({ error: String(err) }));
   });
 
-  // Heartbeat anti-cold-start — recibe el ping cada 10 minutos del cron de plataforma
-  // Mantiene el contenedor Cloud Run "caliente" para eliminar cold starts
+  // Warmup / anti-cold-start ping
   app.post("/api/scheduled/warmup", (req, res) => {
     try {
-      // Aceptar tanto cron autenticado como ping simple (x-manus-cron-task-uid header)
       const taskUid = req.headers["x-manus-cron-task-uid"] ?? "manual";
       console.log(`[Warmup] Ping recibido. taskUid=${taskUid} ts=${Date.now()}`);
       res.json({ ok: true, ts: Date.now(), taskUid });
@@ -195,33 +339,9 @@ async function startServer() {
       createContext,
     })
   );
-  // development mode uses Vite, production mode uses static files
-  // IMPORTANT: ALWAYS use serveStatic — never call setupVite in production.
-  // setupVite imports vite.config.ts which pulls in native binaries
-  // (@tailwindcss/oxide, @rollup) that crash Node.js with SIGSEGV in both
-  // sandbox (dev) and Cloud Run (prod). serveStatic handles both environments.
-  //
-  // Fallback logic: if dist/public does not exist (cold start or first deploy),
-  // fall back to Vite dev server. setupVite is only used in development.
-  // In production NEVER call setupVite — it imports native binaries that crash Cloud Run.
-  // Use import.meta.dirname (ESM-compatible) instead of __dirname (CJS-only)
-  // import.meta.dirname = /project/server/_core in dev, /project/dist in prod bundle
-  const distPublicPath = path.join(import.meta.dirname, "../../dist/public");
-  const distPublicExists = fs.existsSync(distPublicPath) && fs.existsSync(path.join(distPublicPath, "index.html"));
-  if (process.env.NODE_ENV === "production") {
-    // Production: always use serveStatic
-    serveStatic(app);
-  } else if (distPublicExists) {
-    // Development with pre-built dist: use serveStatic
-    serveStatic(app);
-  } else {
-    // Development without dist: falling back to Vite dev server
-    // Note: setupVite(app, server) is referenced here for fallback documentation purposes.
-    // In practice we use serveStatic which internally handles the Vite dev proxy
-    // to avoid native binary crashes (@tailwindcss/oxide, @rollup).
-    // setupVite(app, server) — disabled: causes SIGSEGV with native binaries
-    serveStatic(app);
-  }
+
+  // Static files (production) or Vite proxy (development)
+  serveStatic(app);
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
@@ -230,210 +350,23 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  // Inicializar WebSocket
   initializeWebSocket(server);
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
 
-    // IMPORTANTE: Todos los jobs se inician con un delay de 30s para que Cloud Run
-    // pase el health check (/api/health) ANTES de que los jobs saturen CPU/memoria.
-    // Sin este delay, los jobs ejecutan consultas masivas a la BD en el arranque
-    // (ej. Stale Cases Job envía 655 notificaciones), causando que el contenedor
-    // falle el health check y se reinicie en bucle (“espere el servidor”).
-    const JOB_STARTUP_DELAY_MS = 30_000; // 30 segundos
+    // Start the consolidated minute-tick scheduler (single setInterval)
+    startConsolidatedMinuteTick();
+
+    // Delay job loading by 30s so Cloud Run health check passes BEFORE
+    // job modules are loaded into memory. This prevents OOM restarts that
+    // destroy the session cookie set by the OAuth callback.
+    const JOB_STARTUP_DELAY_MS = 30_000;
     console.log(`[Jobs] Todos los jobs iniciarán en ${JOB_STARTUP_DELAY_MS / 1000}s para permitir el health check de Cloud Run`);
 
     setTimeout(() => {
-    console.log('[Jobs] Iniciando todos los jobs de alertas automáticas...');
-    // Iniciar jobs de alertas automáticas
-    startSurveyAlertsJob();
-    startCoverageAlertsJob();
-    startAlertSummaryCronJob();
-    startSecurityAlertsJob();
-    startModelPerformanceMonitorJob();
-    startModelAutoRetrainingJob();
-    startPayrollCompensationAlertsJob();
-    startExternalOfferRiskMonitorJob();
-    startAgreementsAlertsJob();
-    startCorrectiveActionsRemindersJob();
-    startStaleCasesJob();
-    startCalculateRiskLevelJob();
-    startTrainingRemindersJob();
-    startDepartmentsWithoutManagerJob();
-    startPredictiveTurnoverJob();
-    startApprovalRemindersJob();
-    startDispatchUnreadAlertsJob();
-    startNom035ActionAlertsJob();
-
-    // Deadline Alerts Job (daily at 9:00 AM)
-    import("../jobs/deadlineAlertsJob").then(({ startDeadlineAlertsJob }) => {
-      startDeadlineAlertsJob();
-    });
-
-    // Corrective Action Plans Reminders Job (daily at 9:00 AM)
-    setInterval(async () => {
-      const now = new Date();
-      if (now.getHours() === 9 && now.getMinutes() === 0) {
-        await runCorrectiveActionPlansRemindersJob();
-      }
-    }, 60000); // Check every minute
-
-    // Intelligent Alerts Job (daily at 2:00 AM)
-    setInterval(async () => {
-      const now = new Date();
-      if (now.getHours() === 2 && now.getMinutes() === 0) {
-        await runIntelligentAlertsJob();
-      }
-    }, 60000); // Check every minute
-    schedulePostCaseSurveysJob();
-    scheduleDepartmentalAlertsJob();
-    scheduleSurveyRemindersJob();
-    
-    // Schedule root cause analysis job (monthly on 1st day at 3:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getDate() === 1 && now.getHours() === 3 && now.getMinutes() === 0) {
-        runRootCauseAnalysisJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    
-    // Schedule predictive alerts job (daily at 8:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 8 && now.getMinutes() === 0) {
-        runPredictiveAlertsJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-
-    // Schedule automatic snapshots job (monthly on 1st at 00:00)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getDate() === 1 && now.getHours() === 0 && now.getMinutes() === 0) {
-        console.log("[Auto Snapshots Job] Triggering monthly snapshots generation");
-        generateMonthlySnapshots().catch(console.error);
-      }
-    }, 60000); // Check every minute
-
-    // Schedule competency regression alerts job (daily at 9:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 9 && now.getMinutes() === 0) {
-        console.log("[Competency Regression Job] Triggering regression detection");
-        detectCompetencyRegressions().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    
-    // Job de notificaciones de expiración de tokens anónimos (diario a las 9:00 AM)
-    const scheduleTokenExpirationJob = () => {
-      const now = new Date();
-      const next9AM = new Date(now);
-      next9AM.setHours(9, 0, 0, 0);
-      
-      if (now > next9AM) {
-        next9AM.setDate(next9AM.getDate() + 1);
-      }
-      
-      const msUntilNext9AM = next9AM.getTime() - now.getTime();
-      
-      setTimeout(() => {
-        runTokenExpirationJob();
-        setInterval(runTokenExpirationJob, 24 * 60 * 60 * 1000); // Cada 24 horas
-      }, msUntilNext9AM);
-      
-      console.log(`[Token Expiration Job] First execution scheduled for ${next9AM.toLocaleString('es-MX')}`);
-    };
-    
-    scheduleTokenExpirationJob();
-    
-    // Executive Reports Jobs
-    // Weekly report: Every Monday at 8:00 AM
-    setInterval(() => {
-      const now = new Date();
-      if (now.getDay() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
-        console.log("[Executive Reports Job] Triggering weekly report generation");
-        weeklyReportJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    
-    // Monthly report: 1st day of each month at 8:00 AM
-    setInterval(() => {
-      const now = new Date();
-      if (now.getDate() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
-        console.log("[Executive Reports Job] Triggering monthly report generation");
-        monthlyReportJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    
-    // Sentiment Analysis Job
-    initializeSentimentAnalysisJob();
-    
-    // Compliance Reminders Job
-    initializeComplianceRemindersJob();
-
-    // Contract Expiration Alerts Job (daily at 8:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 8 && now.getMinutes() === 0) {
-        console.log("[Contract Expiration Alerts Job] Triggering daily contract expiration check");
-        runContractExpirationAlertsJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    console.log("[Contract Expiration Alerts Job] Scheduled to run daily at 08:00");
-    
-    // Monthly Reports Job (1st day of month at 8:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getDate() === 1 && now.getHours() === 8 && now.getMinutes() === 0) {
-        console.log("[Monthly Reports Job] Triggering automated monthly reports");
-        runMonthlyReportsJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-
-    // Psychometric Annual Reminder Job (1st of each month at 9:00 AM)
-    startPsychometricReminderJob();
-
-    // Dictamen NOM-035 Expiry Alert Job (daily at 08:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 8 && now.getMinutes() === 0) {
-        console.log("[Dictamen Expiry Alert Job] Triggering daily dictamen expiry check");
-        runDictamenExpiryAlertJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    console.log("[Dictamen Expiry Alert Job] Scheduled to run daily at 08:00");
-
-    // DC3 Expiry Alerts Job (daily at 07:30 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 7 && now.getMinutes() === 30) {
-        console.log("[DC3 Expiry Alerts Job] Triggering daily DC3 expiry check");
-        runDc3ExpiryAlertsJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    console.log("[DC3 Expiry Alerts Job] Scheduled to run daily at 07:30");
-
-    // PAC Stale Items Job (daily at 09:00 AM)
-    setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 9 && now.getMinutes() === 0) {
-        console.log("[PAC Stale Items Job] Triggering daily PAC stale items check");
-        runPacStaleItemsJob().catch(console.error);
-      }
-    }, 60000); // Check every minute
-    console.log("[PAC Stale Items Job] Scheduled to run daily at 09:00");
-
-    // Realtime Alerts Job via WebSocket (every 15 minutes)
-    setInterval(() => {
-      runRealtimeAlertsJob().catch(console.error);
-    }, 15 * 60 * 1000); // Every 15 minutes
-    console.log("[Realtime Alerts Job] Scheduled to run every 15 minutes via WebSocket");
-
-    // Performance LCP Alerts Job (daily at 06:00 AM)
-    startPerformanceLcpAlertsJob();
-
-    console.log('[Jobs] Todos los jobs de alertas automáticas iniciados correctamente.');
-    }, JOB_STARTUP_DELAY_MS); // Fin del delay de 30s
+      startJobs().catch(err => console.error('[Jobs] Error iniciando jobs:', err));
+    }, JOB_STARTUP_DELAY_MS);
   });
 }
 

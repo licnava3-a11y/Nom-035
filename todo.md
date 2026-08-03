@@ -1601,3 +1601,12 @@
 - [x] Causa raíz ciclo infinito login: ENV LOCAL_AUTH=true hardcodeado en Dockerfile línea 57 → servidor en producción usaba auth local en lugar de Manus OAuth → callback /api/oauth/callback no registrado → 404 → loop
 - [x] Fix: eliminar ENV LOCAL_AUTH=true del Dockerfile (producción usa Manus OAuth; LOCAL_AUTH solo para dev local)
 - [x] Verificado: 0 errores TypeScript, servidor HTTP 200, flujo OAuth correcto en sdk.ts/oauth.ts/context.ts
+
+## Sprint: Fix Definitivo Ciclo Infinito Login + OOM (2026-08-03)
+
+- [x] Diagnosticar causa raíz: 34 imports estáticos de jobs causaban OOM en Cloud Run (512 MB), reiniciando el servidor y destruyendo la cookie OAuth → ciclo infinito de login
+- [x] Reescribir server/_core/index.ts: convertir todos los imports de jobs a dinámicos (import()) dentro de startJobs() async
+- [x] Consolidar 14 setInterval(fn, 60_000) en un único timer compartido (startConsolidatedMinuteTick)
+- [x] Verificar que todos los jobs se inician en 230ms sin errores con imports dinámicos
+- [x] Confirmar HTTP 200 en /api/health y [Auth] Modo: Manus OAuth en logs
+- [x] Confirmar que ENV LOCAL_AUTH=true fue eliminado del Dockerfile
