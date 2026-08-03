@@ -1590,3 +1590,8 @@
 - [x] Botón "Ver Detalle" en tabla de casos abre modal completo con edición y guardado
 - [x] Integrar EmployeeAutofillSelector en BuzonComunicacion.tsx (visible solo cuando no es anónimo)
 - [x] Cron job email-digest: endpoint listo, activar en Manus Schedules después de publicar
+
+## Sprint: Autofill Quejas, UX Modal Casos, PDF Detalle Caso (2026-08-03)
+- [x] EmployeeAutofillSelector en QuejaForm para registrar empleado afectado (sección naranja con 4 campos prellenados)
+- [x] Notificaciones de éxito granulares por campo en CaseDetailModal (indicadores amber/green, contador de cambios pendientes)
+- [x] Exportación a PDF del detalle del caso: procedure generateCasePdf + botón Exportar PDF en modal + toast con enlace directo

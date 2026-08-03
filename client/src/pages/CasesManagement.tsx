@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Search, FileText, User, AlertCircle, CheckCircle, Clock, UserCheck, Eye, Sparkles } from "lucide-react";
+import { Plus, Search, FileText, User, AlertCircle, CheckCircle, Clock, UserCheck, Eye, Sparkles, Save, RefreshCw, Download } from "lucide-react";
 import { DateRangeFilter, type DateRange } from "@/components/DateRangeFilter";
 import { startOfDay, endOfDay } from "date-fns";
 import { Pagination } from "@/components/Pagination";
@@ -30,6 +30,11 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
     status?: string;
   } | null>(null);
 
+  // Rastrear qué campos han sido modificados (para el indicador visual)
+  const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set());
+  // Rastrear qué campos se guardaron exitosamente (para el checkmark temporal)
+  const [savedFields, setSavedFields] = useState<Set<string>>(new Set());
+
   // Inicializar editFields cuando llegan los datos
   const fields = editFields ?? {
     rootCause: caseData?.rootCause ?? "",
@@ -38,18 +43,55 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
     status: caseData?.status ?? "open",
   };
 
+  const hasPendingChanges = dirtyFields.size > 0;
+
+  const generatePdf = trpc.casesManagement.generateCasePdf.useMutation({
+    onSuccess: ({ url, caseNumber }) => {
+      toast.success(`📄 PDF generado: ${caseNumber}`, {
+        description: "Haz clic en el enlace para descargar",
+        duration: 8000,
+        action: {
+          label: "Abrir PDF",
+          onClick: () => window.open(url, "_blank"),
+        },
+      });
+    },
+    onError: (e) => toast.error("❌ Error al generar PDF: " + e.message, { duration: 5000 }),
+  });
+
   const updateCase = trpc.casesManagement.updateCase.useMutation({
     onSuccess: () => {
-      toast.success("Caso actualizado exitosamente");
+      // Notificación detallada con los campos guardados
+      const fieldLabels: Record<string, string> = {
+        rootCause: "Causa Raíz",
+        actionPlan: "Plan de Acción",
+        resolution: "Resolución",
+        status: "Estado",
+      };
+      const changedLabels = Array.from(dirtyFields).map(f => fieldLabels[f] || f).join(", ");
+      toast.success(
+        changedLabels
+          ? `✅ Guardado: ${changedLabels}`
+          : "✅ Caso actualizado exitosamente",
+        { description: `Folio: ${caseData?.caseNumber}`, duration: 4000 }
+      );
+      // Marcar campos como guardados (checkmark temporal por 3 s)
+      setSavedFields(new Set(dirtyFields));
+      setTimeout(() => setSavedFields(new Set()), 3000);
+      setDirtyFields(new Set());
       utils.casesManagement.getCaseById.invalidate({ id: caseId });
       utils.casesManagement.listCases.invalidate();
       utils.casesManagement.getCasesStats.invalidate();
       setEditFields(null);
     },
-    onError: (e) => toast.error("Error al actualizar: " + e.message),
+    onError: (e) => toast.error("❌ Error al guardar: " + e.message, { duration: 5000 }),
   });
 
   const handleSave = () => {
+    if (!hasPendingChanges) {
+      toast.info("No hay cambios pendientes", { duration: 2000 });
+      return;
+    }
     updateCase.mutate({
       id: caseId,
       rootCause: fields.rootCause,
@@ -69,6 +111,16 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
       }),
       [key]: value,
     }));
+    // Marcar el campo como modificado
+    setDirtyFields((prev) => {
+      const next = new Set(prev);
+      const original = key === "rootCause" ? (caseData?.rootCause ?? "")
+        : key === "actionPlan" ? (caseData?.actionPlan ?? "")
+        : key === "resolution" ? (caseData?.resolution ?? "")
+        : (caseData?.status ?? "open");
+      if (value !== original) next.add(key); else next.delete(key);
+      return next;
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -86,10 +138,18 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
     return labels[status] || status;
   };
 
+  // Helper: indicador de estado por campo
+  const FieldStatusIndicator = ({ fieldKey }: { fieldKey: string }) => {
+    if (savedFields.has(fieldKey)) return <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Guardado</span>;
+    if (dirtyFields.has(fieldKey)) return <span className="text-xs text-amber-600 flex items-center gap-1"><RefreshCw className="h-3 w-3" /> Sin guardar</span>;
+    return null;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
+        <span className="ml-3 text-sm text-muted-foreground">Cargando caso...</span>
       </div>
     );
   }
@@ -105,7 +165,15 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
           <h3 className="font-semibold text-lg capitalize">{caseData.caseType} — {caseData.reporterName}</h3>
           <p className="text-sm text-muted-foreground">{caseData.reporterEmail}</p>
         </div>
-        <Badge className={getStatusColor(caseData.status)}>{getStatusLabel(caseData.status)}</Badge>
+        <div className="flex items-center gap-2">
+          {hasPendingChanges && (
+            <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1">
+              <RefreshCw className="h-3 w-3" />
+              {dirtyFields.size} campo{dirtyFields.size !== 1 ? "s" : ""} sin guardar
+            </span>
+          )}
+          <Badge className={getStatusColor(caseData.status)}>{getStatusLabel(caseData.status)}</Badge>
+        </div>
       </div>
 
       <Separator />
@@ -122,16 +190,20 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
 
       {/* Causa Raíz — con IA */}
       <div className="space-y-2">
-        <Label htmlFor="rootCause" className="flex items-center gap-2 text-sm font-semibold">
-          <Sparkles className="h-4 w-4 text-purple-500" />
-          Causa Raíz
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="rootCause" className="flex items-center gap-2 text-sm font-semibold">
+            <Sparkles className="h-4 w-4 text-purple-500" />
+            Causa Raíz
+          </Label>
+          <FieldStatusIndicator fieldKey="rootCause" />
+        </div>
         <Textarea
           id="rootCause"
           value={fields.rootCause}
           onChange={(e) => setField("rootCause", e.target.value)}
           placeholder="Describe la causa raíz identificada del problema..."
           rows={3}
+          className={dirtyFields.has("rootCause") ? "border-amber-300 focus-visible:ring-amber-300" : savedFields.has("rootCause") ? "border-green-300" : ""}
         />
         <CaseAIAssistant
           fieldType="rootCause"
@@ -144,16 +216,20 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
 
       {/* Plan de Acción — con IA */}
       <div className="space-y-2">
-        <Label htmlFor="actionPlan" className="flex items-center gap-2 text-sm font-semibold">
-          <Sparkles className="h-4 w-4 text-purple-500" />
-          Plan de Acción Correctiva
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="actionPlan" className="flex items-center gap-2 text-sm font-semibold">
+            <Sparkles className="h-4 w-4 text-purple-500" />
+            Plan de Acción Correctiva
+          </Label>
+          <FieldStatusIndicator fieldKey="actionPlan" />
+        </div>
         <Textarea
           id="actionPlan"
           value={fields.actionPlan}
           onChange={(e) => setField("actionPlan", e.target.value)}
           placeholder="Describe las acciones correctivas y preventivas a implementar..."
           rows={3}
+          className={dirtyFields.has("actionPlan") ? "border-amber-300 focus-visible:ring-amber-300" : savedFields.has("actionPlan") ? "border-green-300" : ""}
         />
         <CaseAIAssistant
           fieldType="actionPlan"
@@ -166,16 +242,20 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
 
       {/* Resolución — con IA */}
       <div className="space-y-2">
-        <Label htmlFor="resolution" className="flex items-center gap-2 text-sm font-semibold">
-          <Sparkles className="h-4 w-4 text-purple-500" />
-          Resolución Final
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="resolution" className="flex items-center gap-2 text-sm font-semibold">
+            <Sparkles className="h-4 w-4 text-purple-500" />
+            Resolución Final
+          </Label>
+          <FieldStatusIndicator fieldKey="resolution" />
+        </div>
         <Textarea
           id="resolution"
           value={fields.resolution}
           onChange={(e) => setField("resolution", e.target.value)}
           placeholder="Describe la resolución y acciones tomadas para cerrar el caso..."
           rows={3}
+          className={dirtyFields.has("resolution") ? "border-amber-300 focus-visible:ring-amber-300" : savedFields.has("resolution") ? "border-green-300" : ""}
         />
         <CaseAIAssistant
           fieldType="resolution"
@@ -188,9 +268,12 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
 
       {/* Cambio de estado */}
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Estado del caso</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-semibold">Estado del caso</Label>
+          <FieldStatusIndicator fieldKey="status" />
+        </div>
         <Select value={fields.status} onValueChange={(v) => setField("status", v)}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className={`w-48 ${dirtyFields.has("status") ? "border-amber-300" : ""}` }>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -205,15 +288,31 @@ function CaseDetailModal({ caseId, onClose }: { caseId: number; onClose: () => v
       <Separator />
 
       {/* Acciones */}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>Cerrar</Button>
+      <div className="flex justify-between gap-2">
         <LoadingButton
-          onClick={handleSave}
-          loading={updateCase.isPending}
-          loadingText="Guardando..."
+          variant="outline"
+          onClick={() => {
+            generatePdf.mutate({ id: caseId });
+          }}
+          loading={generatePdf.isPending}
+          loadingText="Generando PDF..."
         >
-          Guardar cambios
+          <Download className="h-4 w-4 mr-1" />
+          Exportar PDF
         </LoadingButton>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onClose}>Cerrar</Button>
+          <LoadingButton
+            onClick={handleSave}
+            loading={updateCase.isPending}
+            loadingText="Guardando..."
+            disabled={!hasPendingChanges}
+            className={hasPendingChanges ? "" : "opacity-60"}
+          >
+            <Save className="h-4 w-4 mr-1" />
+            {hasPendingChanges ? `Guardar ${dirtyFields.size} cambio${dirtyFields.size !== 1 ? "s" : ""}` : "Sin cambios"}
+          </LoadingButton>
+        </div>
       </div>
     </div>
   );

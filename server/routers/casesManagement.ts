@@ -445,4 +445,114 @@ El texto debe ser específico, accionable y seguir las mejores prácticas de la 
       });
     }
   }),
+
+  // Generar PDF del detalle del caso
+  generateCasePdf: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+
+        const [caseData] = await db.select().from(cases).where(eq(cases.id, input.id)).limit(1);
+        if (!caseData) throw new TRPCError({ code: "NOT_FOUND", message: "Caso no encontrado" });
+
+        const statusLabels: Record<string, string> = {
+          open: "Abierto", investigating: "Investigando", resolved: "Resuelto", closed: "Cerrado",
+        };
+        const priorityLabels: Record<string, string> = {
+          low: "Baja", medium: "Media", high: "Alta", critical: "Crítica",
+        };
+        const caseTypeLabels: Record<string, string> = {
+          mobbing: "Acoso Laboral", harassment: "Hostigamiento", stress: "Estrés Laboral",
+          violence: "Violencia Laboral", burnout: "Burnout", other: "Otro",
+        };
+
+        const formatDate = (d: Date | string | null) =>
+          d ? new Date(d).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" }) : "N/A";
+
+        const section = (title: string, content: string, color = "#1e3a5f") => `
+          <div style="margin-bottom:20px">
+            <div style="background:${color};color:#fff;padding:8px 14px;border-radius:4px 4px 0 0;font-size:13px;font-weight:600;letter-spacing:.5px">${title}</div>
+            <div style="border:1px solid #dde3ec;border-top:none;padding:14px;border-radius:0 0 4px 4px;background:#fff;font-size:13px;line-height:1.7;color:#2d3748;white-space:pre-wrap">${content || '<span style="color:#9ca3af;font-style:italic">Sin información registrada</span>'}</div>
+          </div>`;
+
+        const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+        <style>
+          body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:0;background:#f7f9fc;color:#1a202c}
+          .page{max-width:800px;margin:0 auto;padding:32px}
+          .header{background:linear-gradient(135deg,#0f2d4a 0%,#1e3a5f 60%,#2d6a4f 100%);color:#fff;padding:28px 32px;border-radius:8px;margin-bottom:28px}
+          .header h1{margin:0 0 4px;font-size:22px;font-weight:700}
+          .header p{margin:0;font-size:12px;opacity:.8}
+          .folio{font-family:monospace;font-size:14px;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:4px;display:inline-block;margin-top:8px}
+          .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+          .meta-item{background:#fff;border:1px solid #dde3ec;border-radius:6px;padding:12px 14px}
+          .meta-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+          .meta-value{font-size:13px;font-weight:600;color:#1a202c}
+          .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+          .badge-open{background:#dbeafe;color:#1d4ed8}
+          .badge-investigating{background:#ede9fe;color:#7c3aed}
+          .badge-resolved{background:#dcfce7;color:#15803d}
+          .badge-closed{background:#f3f4f6;color:#374151}
+          .badge-critical{background:#fee2e2;color:#dc2626}
+          .badge-high{background:#ffedd5;color:#c2410c}
+          .badge-medium{background:#fef9c3;color:#a16207}
+          .badge-low{background:#f0fdf4;color:#15803d}
+          .footer{margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center}
+          .ai-badge{background:#f3e8ff;color:#7c3aed;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:6px}
+          @media print{body{background:#fff}.page{padding:16px}}
+        </style></head><body><div class="page">
+          <div class="header">
+            <h1>Reporte de Caso NOM-035 STPS 2018</h1>
+            <p>Plataforma de Gestión de Riesgos Psicosociales</p>
+            <div class="folio">${caseData.caseNumber}</div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">Tipo de Caso</div>
+              <div class="meta-value">${caseTypeLabels[caseData.caseType] || caseData.caseType}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Estado</div>
+              <div class="meta-value"><span class="badge badge-${caseData.status}">${statusLabels[caseData.status] || caseData.status}</span></div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Prioridad</div>
+              <div class="meta-value"><span class="badge badge-${caseData.priority}">${priorityLabels[caseData.priority] || caseData.priority}</span></div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Fecha de Apertura</div>
+              <div class="meta-value">${formatDate(caseData.createdAt)}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Reportado por</div>
+              <div class="meta-value">${caseData.reporterName || "Anónimo"}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Correo del Reportante</div>
+              <div class="meta-value">${caseData.reporterEmail || "N/A"}</div>
+            </div>
+          </div>
+
+          ${section("Descripción del Caso", caseData.description || "")}
+          ${section("Causa Raíz Identificada", caseData.rootCause || "", "#4c1d95")}
+          ${section("Plan de Acción Correctiva", caseData.actionPlan || "", "#1e3a5f")}
+          ${section("Resolución Final", caseData.resolution || "", "#14532d")}
+
+          <div class="footer">
+            Generado el ${new Date().toLocaleString("es-MX")} &nbsp;&bull;&nbsp; Folio: ${caseData.caseNumber} &nbsp;&bull;&nbsp; NOM-035-STPS-2018 &nbsp;&bull;&nbsp; Plataforma de Gestión de Riesgos Psicosociales
+          </div>
+        </div></body></html>`;
+
+        const { generatePDFFromHTML } = await import("../_core/pdfGenerator");
+        const fileName = `caso-${caseData.caseNumber}-${Date.now()}`;
+        const pdfUrl = await generatePDFFromHTML(html, fileName, { format: "A4", orientation: "portrait" });
+        return { url: pdfUrl, caseNumber: caseData.caseNumber };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        console.error("[CasesManagement] Error generating PDF:", error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al generar el PDF del caso" });
+      }
+    }),
 });

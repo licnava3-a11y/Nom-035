@@ -82,7 +82,36 @@ function QuejaForm({ onSubmit, loading }: { onSubmit: (data: Record<string, unkn
     requestedAction: "",
     witnessNames: "",
     previousReportFiled: false,
+    // Datos del empleado afectado (prellenado automático)
+    affectedEmployeeId: "",
+    affectedEmployeeName: "",
+    affectedEmployeeDepartment: "",
+    affectedEmployeePosition: "",
+    affectedEmployeeEmail: "",
   });
+
+  const handleAffectedEmployeeSelect = (data: EmployeeAutofillData | null) => {
+    if (data) {
+      setForm(p => ({
+        ...p,
+        affectedEmployeeId: String(data.employeeId),
+        affectedEmployeeName: data.fullName,
+        affectedEmployeeDepartment: data.departmentName,
+        affectedEmployeePosition: data.positionName,
+        affectedEmployeeEmail: data.email,
+        incidentLocation: p.incidentLocation || data.departmentName, // prellenar ubicación si está vacía
+      }));
+    } else {
+      setForm(p => ({
+        ...p,
+        affectedEmployeeId: "",
+        affectedEmployeeName: "",
+        affectedEmployeeDepartment: "",
+        affectedEmployeePosition: "",
+        affectedEmployeeEmail: "",
+      }));
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,6 +124,56 @@ function QuejaForm({ onSubmit, loading }: { onSubmit: (data: Record<string, unkn
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Sección: Empleado Afectado */}
+      <div className="rounded-lg border border-orange-100 bg-orange-50/40 p-3 space-y-3">
+        <p className="text-xs font-semibold text-orange-700 flex items-center gap-1">
+          <span>👤</span> Empleado Afectado (opcional — datos se guardan en el expediente del caso)
+        </p>
+        <EmployeeAutofillSelector
+          onSelect={handleAffectedEmployeeSelect}
+          value={form.affectedEmployeeId || undefined}
+          label="Seleccionar empleado afectado"
+          helperText="Al seleccionar, se registran automáticamente nombre, departamento, puesto y correo"
+          placeholder="Buscar empleado afectado..."
+        />
+        {form.affectedEmployeeName && (
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <div>
+              <Label className="text-xs">Nombre</Label>
+              <Input
+                value={form.affectedEmployeeName}
+                onChange={e => setForm(p => ({ ...p, affectedEmployeeName: e.target.value }))}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Departamento</Label>
+              <Input
+                value={form.affectedEmployeeDepartment}
+                onChange={e => setForm(p => ({ ...p, affectedEmployeeDepartment: e.target.value }))}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Puesto</Label>
+              <Input
+                value={form.affectedEmployeePosition}
+                onChange={e => setForm(p => ({ ...p, affectedEmployeePosition: e.target.value }))}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Correo</Label>
+              <Input
+                value={form.affectedEmployeeEmail}
+                onChange={e => setForm(p => ({ ...p, affectedEmployeeEmail: e.target.value }))}
+                className="h-8 text-sm"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Fecha del incidente *</Label>
