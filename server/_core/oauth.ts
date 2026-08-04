@@ -25,27 +25,25 @@ function getQueryParam(req: Request, key: string): string | undefined {
  * to reconstruct the correct public-facing origin.
  */
 function buildRegisteredRedirectUri(req: Request): string {
-  // PRIORITY ORDER for building the canonical redirectUri:
-  // 1. APP_PUBLIC_URL env var — set explicitly in production (most reliable)
-  // 2. x-forwarded-host + x-forwarded-proto — set by Cloud Run / Manus proxy
-  // 3. host header + req.protocol — fallback for local development
+  // DEFINITIVE FIX (2026-08-04):
+  // ALWAYS use the real host from the incoming request, NEVER APP_PUBLIC_URL.
   //
-  // CRITICAL: The OAuth server validates that the redirectUri in the token exchange
-  // EXACTLY matches the one sent in the authorization request. Using localhost:3000
-  // when the frontend registered nom035mood-32dy4ksx.manus.space causes 401 errors
-  // and an infinite login redirect loop.
-  if (ENV.appPublicUrl) {
-    // Use the explicitly configured public URL (most reliable in production)
-    const publicOrigin = ENV.appPublicUrl.replace(/\/$/, ""); // strip trailing slash
-    console.log("[OAuth] Using APP_PUBLIC_URL for redirectUri:", publicOrigin);
-    return `${publicOrigin}/api/oauth/callback`;
-  }
-  // Fallback: reconstruct from proxy headers (works in production when APP_PUBLIC_URL is not set)
+  // Root cause of the infinite login loop:
+  // APP_PUBLIC_URL = "https://nom035mood-32dy4ksx.manus.space" (production domain)
+  // But the user navigates via the sandbox preview URL (*.manus.computer).
+  // When the OAuth callback used APP_PUBLIC_URL to build redirectUri, the cookie
+  // was set for manus.space while the browser was on manus.computer → auth.me
+  // always returned 401 → infinite redirect loop.
+  //
+  // The frontend always sends `window.location.origin + /api/oauth/callback` as
+  // the registered redirectUri. So we MUST reconstruct the same origin from the
+  // actual request headers — this works for BOTH the sandbox preview URL AND the
+  // published production domain automatically.
   const proto = req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
   const host = req.get("x-forwarded-host") || req.get("host") || req.hostname;
-  console.log("[OAuth] Building redirectUri from headers — proto:", proto, "host:", host);
-  // ALWAYS use /api/oauth/callback — this is what the frontend sends to the OAuth portal.
-  return `${proto}://${host}/api/oauth/callback`;
+  const redirectUri = `${proto}://${host}/api/oauth/callback`;
+  console.log("[OAuth] Building redirectUri from request headers — proto:", proto, "host:", host, "→", redirectUri);
+  return redirectUri;
 }
 
 /**

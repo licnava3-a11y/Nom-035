@@ -1660,3 +1660,8 @@
 - [x] Botón descarga PNG de la gráfica de barras
 - [x] Fix error conexión rechazada (reinicio servidor)
 - [x] Mejorar robustez del ciclo de login en Home.tsx (agregar loading guard)
+
+## Sprint: Fix definitivo ciclo login (2026-08-04)
+- [x] Causa raíz identificada: APP_PUBLIC_URL (manus.space) vs preview URL (manus.computer) → mismatch de host → cookie inválida → 401 → loop
+- [x] Fix en server/_core/oauth.ts: buildRegisteredRedirectUri ahora usa SIEMPRE x-forwarded-host de la request real, nunca APP_PUBLIC_URL
+- [x] Verificado: servidor recargó oauth.ts, HTTP 200 en / y /api/trpc/auth.me
