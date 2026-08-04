@@ -88,6 +88,7 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
     positionName: "",
     department: "",
     description: "",
+    notes: "",
     riskLevel: "low" as "low" | "medium" | "high" | "very_high",
     employeeCount: 0,
     autoRisk: true,
@@ -108,6 +109,7 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
         positionName: position.title,
         department: position.department || "",
         description: position.description || "",
+        notes: "",
         riskLevel: position.riskLevel,
         employeeCount: position.employees,
         autoRisk: true,
@@ -151,6 +153,7 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
       positionName: formData.positionName,
       department: formData.department,
       description: formData.description,
+      notes: formData.notes,
       riskLevel: formData.riskLevel,
       employeeCount: formData.employeeCount,
       factors,
@@ -219,6 +222,21 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
             />
           </div>
 
+
+          {/* Observaciones del análisis */}
+          <div className="space-y-2">
+            <Label htmlFor="edit-notes">
+              Observaciones del Análisis
+              <span className="text-xs text-muted-foreground font-normal ml-1">(opcional — se guardará en el historial)</span>
+            </Label>
+            <Textarea
+              id="edit-notes"
+              placeholder="Describe el contexto de este análisis, cambios relevantes en el puesto, acciones tomadas, etc."
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              rows={3}
+            />
+          </div>
           {/* ── Factores Psicosociales ────────────────────────────────────── */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">

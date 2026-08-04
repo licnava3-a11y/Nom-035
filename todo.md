@@ -1689,3 +1689,16 @@
 - [x] Procedimiento tRPC jobPositions.update para guardar edición y crear entrada en historial
 - [x] Procedimiento tRPC jobPositions.getHistory para obtener historial por positionId
 - [x] Sección de historial en modal de detalles: tabla con fecha, índice, nivel de riesgo, empleados
+
+## Sprint: Tendencia + Observaciones + Export Excel historial (2026-08-04)
+- [ ] Agregar campo "notes" (observaciones) en JobEditDialog y pasarlo al procedimiento update
+- [ ] Actualizar tRPC jobPositions.update para guardar notes en jobPositionHistory
+- [ ] Mostrar columna "Observaciones" en la tabla de historial del modal de detalles
+- [ ] Agregar mini gráfica de línea de tendencia (Chart.js) del índice de riesgo en el historial
+- [ ] Agregar botón "Exportar Excel" del historial completo en el modal de detalles
+
+## Sprint: Tendencia + Observaciones + Excel Historial (2026-08-04)
+- [x] Componente HistoryTrendChart (gráfica de línea Chart.js) para visualizar evolución del índice
+- [x] Botón "Excel" en el historial del modal de detalles para exportar todos los análisis anteriores
+- [x] Campo de texto "Observaciones del Análisis" en JobEditDialog (se guarda en historial)
+- [x] Columna "Observaciones" en la tabla del historial dentro del modal de detalles

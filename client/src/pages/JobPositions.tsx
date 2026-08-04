@@ -120,6 +120,29 @@ const EmployeesBarChart = forwardRef<BarChartHandle, { positions: any[] }>(funct
     </div>
   );
 });
+// ── Componente gráfica de tendencia del historial ────────────────────────────
+function HistoryTrendChart({ data }: { data: any[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartInst = useRef<Chart | null>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || !data || data.length < 2) return;
+    chartInst.current?.destroy();
+    const sorted = [...data].sort((a, b) => new Date(a.analyzedAt).getTime() - new Date(b.analyzedAt).getTime());
+    const labels = sorted.map((r) => new Date(r.analyzedAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short" }));
+    const values = sorted.map((r) => Number(r.riskIndex));
+    const pointColors = values.map((v) => v >= 3.5 ? "#dc2626" : v >= 2.5 ? "#d97706" : "#16a34a");
+    chartInst.current = new Chart(canvasRef.current, {
+      type: "line",
+      data: { labels, datasets: [{ label: "Índice de Riesgo", data: values, borderColor: "#6366f1", backgroundColor: "rgba(99,102,241,0.08)", pointBackgroundColor: pointColors, pointBorderColor: pointColors, pointRadius: 5, pointHoverRadius: 7, tension: 0.3, fill: true }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` Índice: ${ctx.parsed.y}/5` } } }, scales: { y: { min: 1, max: 5, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: "rgba(0,0,0,0.06)" } }, x: { ticks: { font: { size: 11 } }, grid: { display: false } } } },
+    });
+    return () => { chartInst.current?.destroy(); };
+  }, [data]);
+
+  return (<div style={{ height: 140 }}><canvas ref={canvasRef} /></div>);
+}
+
 
 // ── Componente principal ───────────────────────────────────────────────────────
 export default function JobPositions() {
@@ -986,9 +1009,45 @@ export default function JobPositions() {
                 </div>
               </div>
               {/* Historial de análisis */}
+              {historyQuery.isLoading && (
+                <p className="text-xs text-muted-foreground text-center py-2">Cargando historial...</p>
+              )}
               {historyQuery.data && historyQuery.data.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-2">Historial de análisis</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Historial de análisis ({historyQuery.data.length})</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-7 px-2"
+                      onClick={() => {
+                        if (!selectedPosition || !historyQuery.data) return;
+                        import('xlsx').then((XLSX) => {
+                          const rows = historyQuery.data.map((row: any) => ({
+                            Fecha: new Date(row.analyzedAt).toLocaleDateString('es-MX'),
+                            'Índice': row.riskIndex,
+                            'Nivel de Riesgo': row.riskLevel === 'very_high' ? 'Muy Alto' : row.riskLevel === 'high' ? 'Alto' : row.riskLevel === 'medium' ? 'Medio' : 'Bajo',
+                            Empleados: row.employeeCount,
+                            Observaciones: row.notes || '',
+                          }));
+                          const ws = XLSX.utils.json_to_sheet(rows);
+                          const wb = XLSX.utils.book_new();
+                          XLSX.utils.book_append_sheet(wb, ws, 'Historial');
+                          XLSX.writeFile(wb, `historial_${selectedPosition.title.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+                          toast.success('Historial exportado a Excel');
+                        });
+                      }}
+                    >
+                      <Download className="h-3 w-3 mr-1" />Excel
+                    </Button>
+                  </div>
+                  {/* Gráfica de tendencia */}
+                  {historyQuery.data.length >= 2 && (
+                    <div className="border rounded-lg p-3 bg-muted/20">
+                      <p className="text-xs text-muted-foreground mb-2">Evolución del Índice de Riesgo</p>
+                      <HistoryTrendChart data={historyQuery.data} />
+                    </div>
+                  )}
                   <div className="border rounded-lg overflow-hidden">
                     <table className="w-full text-xs">
                       <thead className="bg-muted/60">
@@ -997,12 +1056,13 @@ export default function JobPositions() {
                           <th className="text-center px-3 py-2 font-medium">Índice</th>
                           <th className="text-center px-3 py-2 font-medium">Riesgo</th>
                           <th className="text-center px-3 py-2 font-medium">Empleados</th>
+                          <th className="text-left px-3 py-2 font-medium">Observaciones</th>
                         </tr>
                       </thead>
                       <tbody>
                         {historyQuery.data.map((row: any) => (
                           <tr key={row.id} className="border-t hover:bg-muted/30">
-                            <td className="px-3 py-2">{new Date(row.analyzedAt).toLocaleDateString("es-MX")}</td>
+                            <td className="px-3 py-2 whitespace-nowrap">{new Date(row.analyzedAt).toLocaleDateString('es-MX')}</td>
                             <td className="px-3 py-2 text-center font-semibold">{row.riskIndex}/5</td>
                             <td className="px-3 py-2 text-center">
                               <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
@@ -1013,15 +1073,13 @@ export default function JobPositions() {
                               </span>
                             </td>
                             <td className="px-3 py-2 text-center">{row.employeeCount}</td>
+                            <td className="px-3 py-2 text-muted-foreground max-w-[120px] truncate" title={row.notes || ''}>{row.notes || '—'}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
-              )}
-              {historyQuery.isLoading && (
-                <p className="text-xs text-muted-foreground text-center py-2">Cargando historial...</p>
               )}
               {historyQuery.data?.length === 0 && (
                 <p className="text-xs text-muted-foreground text-center py-2">Sin análisis anteriores registrados</p>
