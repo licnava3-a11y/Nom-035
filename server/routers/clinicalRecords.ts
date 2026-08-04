@@ -8,8 +8,10 @@ import {
   companyGeneralData,
   companyLogo,
   clinicalExportedPdfs,
+  employees,
+  departments,
 } from "../../drizzle/schema";
-import { eq, desc, and, like, sql } from "drizzle-orm";
+import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import JSZip from "jszip";
 import { storagePut } from "../storage";
@@ -28,12 +30,13 @@ function requireClinicalAccess(role: string) {
 }
 
 export const clinicalRecordsRouter = router({
-  // ─── Listar expedientes ─────────────────────────────────────────────────────
+    // ─── Listar expedientes ─────────────────────────────────────────────────────
   list: protectedProcedure
     .input(
       z.object({
         search: z.string().optional(),
         isActive: z.boolean().optional(),
+        departmentId: z.number().optional(),
         page: z.number().default(1),
         pageSize: z.number().default(20),
       })
@@ -42,7 +45,15 @@ export const clinicalRecordsRouter = router({
       requireClinicalAccess(ctx.user.role);
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
-
+      // Si se filtra por departamento, obtener los IDs de empleados de ese departamento
+      let employeeIdsInDept: number[] | undefined;
+      if (input.departmentId) {
+        const empRows = await db
+          .select({ id: employees.id })
+          .from(employees)
+          .where(eq(employees.departmentId, input.departmentId));
+        employeeIdsInDept = empRows.map(e => e.id);
+      }
       const conditions = [];
       if (input.isActive !== undefined) {
         conditions.push(eq(clinicalRecords.isActive, input.isActive));
@@ -50,10 +61,14 @@ export const clinicalRecordsRouter = router({
       if (input.search) {
         conditions.push(like(clinicalRecords.patientName, `%${input.search}%`));
       }
-
+      if (employeeIdsInDept !== undefined) {
+        if (employeeIdsInDept.length === 0) {
+          return { records: [], total: 0 };
+        }
+        conditions.push(inArray(clinicalRecords.employeeId, employeeIdsInDept));
+      }
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
       const offset = (input.page - 1) * input.pageSize;
-
       const [records, countResult] = await Promise.all([
         db
           .select()
@@ -67,7 +82,6 @@ export const clinicalRecordsRouter = router({
           .from(clinicalRecords)
           .where(whereClause),
       ]);
-
       return { records, total: countResult[0]?.count ?? 0 };
     }),
 
@@ -579,6 +593,7 @@ export const clinicalRecordsRouter = router({
     .input(z.object({
       search: z.string().optional(),
       isActive: z.boolean().optional(),
+      departmentId: z.number().optional(),
       limit: z.number().min(1).max(200).default(50),
     }))
     .mutation(async ({ input, ctx }) => {
@@ -586,10 +601,24 @@ export const clinicalRecordsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
 
+      // Filtro por departamento: obtener IDs de empleados del departamento
+      let employeeIdsInDept: number[] | undefined;
+      if (input.departmentId) {
+        const empRows = await db
+          .select({ id: employees.id })
+          .from(employees)
+          .where(eq(employees.departmentId, input.departmentId));
+        employeeIdsInDept = empRows.map(e => e.id);
+        if (employeeIdsInDept.length === 0) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'No hay empleados en el departamento seleccionado' });
+        }
+      }
+
       // Construir condiciones de filtro (igual que list)
       const conditions = [];
       if (input.isActive !== undefined) conditions.push(eq(clinicalRecords.isActive, input.isActive));
       if (input.search) conditions.push(like(clinicalRecords.patientName, `%${input.search}%`));
+      if (employeeIdsInDept !== undefined) conditions.push(inArray(clinicalRecords.employeeId, employeeIdsInDept));
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const records = await db

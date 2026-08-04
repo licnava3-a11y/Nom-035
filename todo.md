@@ -1737,3 +1737,10 @@
 - [x] Frontend JobPositions: panel "Sincronizar desde encuestas NOM-035" en detalle del puesto con botón de actualización automática y estado de carga
 - [x] Backend tRPC: clinicalRecords.bulkExportZip — genera ZIP con PDFs de todos los expedientes clínicos filtrados y lo sube a S3
 - [x] Frontend ClinicalRecords: botón "Exportar ZIP (N)" en barra de filtros que respeta búsqueda y filtro activo/cerrado
+
+## Sprint: Animación ZIP + Filtro Departamento Expedientes (2026-08-04)
+- [x] Backend: agregar filtro departmentId al procedimiento clinicalRecords.list (join con employees por departmentId)
+- [x] Backend: agregar filtro departmentId al procedimiento clinicalRecords.bulkExportZip
+- [x] Frontend: selector de departamento en barra de filtros de ClinicalRecords (usa departments.list)
+- [x] Frontend: overlay de carga modal con spinner animado, nombre de departamento y barra de progreso al generar ZIP
+- [x] Frontend: toast de éxito enriquecido con conteo de expedientes y nombre del departamento filtrado

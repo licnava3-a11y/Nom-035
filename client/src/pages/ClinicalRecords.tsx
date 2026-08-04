@@ -573,26 +573,42 @@ export default function ClinicalRecords() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [showActive, setShowActive] = useState<boolean | undefined>(true);
+  const [departmentId, setDepartmentId] = useState<number | undefined>(undefined);
   const [newRecordOpen, setNewRecordOpen] = useState(false);
   const [selectedRecordId, setSelectedRecordId] = useState<number | null>(null);
+  const [zipProgress, setZipProgress] = useState<{ step: string; pct: number } | null>(null);
+
+  // Cargar lista de departamentos para el filtro (sin paginación, todos activos)
+  const { data: deptListData } = trpc.departments.list.useQuery({ pageSize: 100, isActive: true });
+  const deptList = deptListData?.data ?? [];
 
   const { data: listData, isLoading, refetch } = trpc.clinicalRecords.list.useQuery({
     search: search || undefined,
     isActive: showActive,
+    departmentId: departmentId,
     page: 1,
     pageSize: 50,
   });
 
-    const { data: stats } = trpc.clinicalRecords.getStats.useQuery();
+  const { data: stats } = trpc.clinicalRecords.getStats.useQuery();
   const [bulkExporting, setBulkExporting] = useState(false);
   const bulkExportZipMutation = trpc.clinicalRecords.bulkExportZip.useMutation({
     onSuccess: (data) => {
       setBulkExporting(false);
+      setZipProgress(null);
       window.open(data.url, '_blank');
-      toast({ title: `📦 ZIP generado: ${data.count} expediente${data.count !== 1 ? 's' : ''}`, description: 'El archivo se abrió en una nueva pestaña' });
+      const deptName = departmentId
+        ? (deptList.find((d: any) => d.id === departmentId)?.name ?? 'Departamento seleccionado')
+        : 'Todos los departamentos';
+      toast({
+        title: `✅ ZIP generado exitosamente`,
+        description: `${data.count} expediente${data.count !== 1 ? 's' : ''} exportado${data.count !== 1 ? 's' : ''} — ${deptName}. El archivo se abrió en una nueva pestaña.`,
+        duration: 6000,
+      });
     },
     onError: (err) => {
       setBulkExporting(false);
+      setZipProgress(null);
       toast({ title: 'Error al generar ZIP', description: err.message, variant: 'destructive' });
     },
   });
@@ -674,9 +690,35 @@ export default function ClinicalRecords() {
         </div>
       )}
 
+      {/* Overlay de carga durante generación de ZIP */}
+      {(bulkExporting || bulkExportZipMutation.isPending) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-card border rounded-xl shadow-2xl p-8 flex flex-col items-center gap-5 min-w-[320px]">
+            <div className="relative">
+              <svg className="animate-spin h-16 w-16 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <Archive className="absolute inset-0 m-auto h-7 w-7 text-purple-400" />
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-lg">Generando archivo ZIP</p>
+              <p className="text-muted-foreground text-sm mt-1">
+                Compilando {listData?.total ?? 0} expediente{(listData?.total ?? 0) !== 1 ? 's' : ''}
+                {departmentId && deptList.find((d: any) => d.id === departmentId) ? ` — ${deptList.find((d: any) => d.id === departmentId)?.name}` : ''}...
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">Esto puede tardar unos segundos</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div className="h-2 bg-purple-500 rounded-full animate-pulse" style={{ width: '70%' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filtros */}
-      <div className="flex gap-3 mb-4">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar por nombre del paciente..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
@@ -684,11 +726,26 @@ export default function ClinicalRecords() {
           value={showActive === undefined ? "all" : showActive ? "active" : "closed"}
           onValueChange={v => setShowActive(v === "all" ? undefined : v === "active")}
         >
-          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="active">Activos</SelectItem>
             <SelectItem value="closed">Cerrados</SelectItem>
+          </SelectContent>
+        </Select>
+        {/* Filtro por departamento */}
+        <Select
+          value={departmentId ? String(departmentId) : "all"}
+          onValueChange={v => setDepartmentId(v === "all" ? undefined : Number(v))}
+        >
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Todos los departamentos" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los departamentos</SelectItem>
+            {deptList.map((d: any) => (
+              <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button
@@ -699,25 +756,15 @@ export default function ClinicalRecords() {
             bulkExportZipMutation.mutate({
               search: search || undefined,
               isActive: showActive,
+              departmentId: departmentId,
               limit: 100,
             });
           }}
           title={`Exportar ${listData?.total ?? 0} expediente(s) filtrado(s) como ZIP`}
+          className="shrink-0"
         >
-          {bulkExporting || bulkExportZipMutation.isPending ? (
-            <>
-              <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Generando ZIP...
-            </>
-          ) : (
-            <>
-              <Archive className="h-4 w-4 mr-2" />
-              Exportar ZIP ({listData?.total ?? 0})
-            </>
-          )}
+          <Archive className="h-4 w-4 mr-2" />
+          Exportar ZIP ({listData?.total ?? 0})
         </Button>
       </div>
 
