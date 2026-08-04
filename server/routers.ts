@@ -1290,7 +1290,33 @@ export const appRouter = router({
   // Job positions
   jobPositions: router({
     list: protectedProcedure.query(async () => {
-      return await db.getAllJobPositions();
+      const allPositions = await db.getAllJobPositions();
+      if (allPositions.length === 0) return [];
+      // Contar empleados por nombre de puesto cruzando positions.title con jobPositions.positionName
+      try {
+        const { getDb } = await import('./db');
+        const { employees: empTable, positions: posTable } = await import('../drizzle/schema');
+        const { count: drizzleCount, inArray: drizzleInArray } = await import('drizzle-orm');
+        const rawDb = await getDb();
+        const countMap: Record<string, number> = {};
+        if (rawDb) {
+          const posNames = [...new Set(allPositions.map(p => p.positionName))];
+          const matchedPos = await rawDb.select({ id: posTable.id, title: posTable.title })
+            .from(posTable).where(drizzleInArray(posTable.title, posNames));
+          if (matchedPos.length > 0) {
+            const matchedIds = matchedPos.map(p => p.id);
+            const empCounts = await rawDb.select({ positionId: empTable.positionId, total: drizzleCount() })
+              .from(empTable).where(drizzleInArray(empTable.positionId, matchedIds))
+              .groupBy(empTable.positionId);
+            const idToName: Record<number, string> = {};
+            matchedPos.forEach(p => { idToName[p.id] = p.title; });
+            empCounts.forEach(ec => { if (ec.positionId) countMap[idToName[ec.positionId] ?? ''] = ec.total; });
+          }
+        }
+        return allPositions.map(p => ({ ...p, employeeCount: countMap[p.positionName] ?? 0 }));
+      } catch {
+        return allPositions.map(p => ({ ...p, employeeCount: 0 }));
+      }
     }),
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))

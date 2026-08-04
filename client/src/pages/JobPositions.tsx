@@ -71,7 +71,7 @@ export default function JobPositions() {
     id: pos.id,
     title: pos.positionName,
     department: pos.department || 'Sin departamento',
-    employees: 0, // TODO: calcular empleados por puesto
+    employees: (pos as any).employeeCount ?? 0,
     riskLevel: pos.riskLevel === 'low' ? 'bajo' : pos.riskLevel === 'medium' ? 'medio' : pos.riskLevel === 'high' ? 'alto' : 'muy_alto',
     lastAnalysis: new Date(pos.createdAt).toISOString().split('T')[0],
     factors: {

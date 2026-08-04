@@ -1631,4 +1631,4 @@
 - [x] Reemplazar `'Organización'` con query dinámica a companyGeneralData.razonSocial en surveys.ts (línea 928)
 
 ### 🟢 BAJO — JobPositions: contador de empleados por puesto
-- [ ] Calcular empleados por puesto en JobPositions.tsx usando query real (COUNT de employees por positionId) [PENDIENTE BAJO]
+- [x] Calcular empleados por puesto en JobPositions.tsx: procedure jobPositions.list ahora incluye `employeeCount` via JOIN positions.title = jobPositions.positionName + COUNT de employees. Frontend usa `(pos as any).employeeCount ?? 0`
