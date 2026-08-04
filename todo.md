@@ -1649,3 +1649,8 @@
 - [x] Badge prominente con número de empleados en cada tarjeta de puesto (chip azul destacado)
 - [x] Indicador visual del criterio de ordenamiento activo (chip con ícono + texto debajo de los controles)
 - [x] Contador de resultados con criterio activo siempre visible
+
+## Sprint: Vista tabla + gráfica + exportación Excel en JobPositions (2026-08-04)
+- [x] Toggle tarjetas/tabla con columnas ordenables (Puesto, Departamento, Empleados, Riesgo, Índice)
+- [x] Gráfica de barras horizontales Chart.js con distribución de empleados por puesto
+- [x] Botón "Exportar Excel" que descarga los datos filtrados actualmente visibles
