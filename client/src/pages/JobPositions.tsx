@@ -162,10 +162,20 @@ export default function JobPositions() {
   const [editOpen, setEditOpen] = useState(false);
   const [editPosition, setEditPosition] = useState<any | null>(null);
   // Historial de análisis
+  const [histDateFrom, setHistDateFrom] = useState("");
+  const [histDateTo, setHistDateTo] = useState("");
+  const [showComparative, setShowComparative] = useState(false);
   const historyQuery = trpc.jobPositions.getHistory.useQuery(
     { positionId: selectedPosition?.id ?? 0 },
     { enabled: detailOpen && !!selectedPosition?.id }
   );
+  // Historial filtrado por rango de fechas
+  const filteredHistory = (historyQuery.data ?? []).filter((row: any) => {
+    const d = new Date(row.analyzedAt);
+    if (histDateFrom && d < new Date(histDateFrom)) return false;
+    if (histDateTo && d > new Date(histDateTo + "T23:59:59")) return false;
+    return true;
+  });
   // Ordenamiento de tabla: columna + dirección
   const [tableSort, setTableSort] = useState<{ col: string; dir: "asc" | "desc" }>({
     col: "employees",
@@ -1014,8 +1024,37 @@ export default function JobPositions() {
               )}
               {historyQuery.data && historyQuery.data.length > 0 && (
                 <div className="space-y-3">
+                  {/* Filtro de rango de fechas */}
+                  <div className="flex flex-wrap items-center gap-2 bg-muted/30 rounded-lg p-2">
+                    <span className="text-xs text-muted-foreground font-medium">Filtrar por fecha:</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground">Desde</span>
+                      <input
+                        type="date"
+                        value={histDateFrom}
+                        onChange={(e) => setHistDateFrom(e.target.value)}
+                        className="text-xs border rounded px-1.5 py-0.5 bg-background h-6"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground">Hasta</span>
+                      <input
+                        type="date"
+                        value={histDateTo}
+                        onChange={(e) => setHistDateTo(e.target.value)}
+                        className="text-xs border rounded px-1.5 py-0.5 bg-background h-6"
+                      />
+                    </div>
+                    {(histDateFrom || histDateTo) && (
+                      <button
+                        onClick={() => { setHistDateFrom(""); setHistDateTo(""); }}
+                        className="text-xs text-muted-foreground hover:text-foreground underline"
+                      >Limpiar</button>
+                    )}
+                    <span className="ml-auto text-xs text-muted-foreground">{filteredHistory.length} de {historyQuery.data.length} registros</span>
+                  </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Historial de análisis ({historyQuery.data.length})</p>
+                    <p className="text-sm font-medium">Historial de análisis ({filteredHistory.length})</p>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1041,11 +1080,74 @@ export default function JobPositions() {
                       <Download className="h-3 w-3 mr-1" />Excel
                     </Button>
                   </div>
+                  {/* Tabla comparativa: actual vs anterior */}
+                  {filteredHistory.length >= 2 && (
+                    <div className="border rounded-lg p-3 bg-indigo-50/50 dark:bg-indigo-950/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-medium text-indigo-700 dark:text-indigo-300">Comparativa: último análisis vs anterior</p>
+                        <button
+                          onClick={() => setShowComparative((v) => !v)}
+                          className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+                        >{showComparative ? 'Ocultar' : 'Ver comparativa'}</button>
+                      </div>
+                      {showComparative && (() => {
+                        const sorted = [...filteredHistory].sort((a: any, b: any) => new Date(b.analyzedAt).getTime() - new Date(a.analyzedAt).getTime());
+                        const curr = sorted[0] as any;
+                        const prev = sorted[1] as any;
+                        const factorLabels: Record<string, string> = { workload: 'Carga de Trabajo', control: 'Control', leadership: 'Liderazgo', relationships: 'Relaciones', workEnvironment: 'Ambiente' };
+                        const currF = (() => { try { return typeof curr.factors === 'string' ? JSON.parse(curr.factors) : curr.factors; } catch { return {}; } })();
+                        const prevF = (() => { try { return typeof prev.factors === 'string' ? JSON.parse(prev.factors) : prev.factors; } catch { return {}; } })();
+                        return (
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="text-muted-foreground">
+                                <th className="text-left py-1 font-medium">Factor</th>
+                                <th className="text-center py-1 font-medium">{new Date(prev.analyzedAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</th>
+                                <th className="text-center py-1 font-medium">{new Date(curr.analyzedAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</th>
+                                <th className="text-center py-1 font-medium">Δ</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.keys(factorLabels).map((key) => {
+                                const c = currF[key] ?? 0;
+                                const p = prevF[key] ?? 0;
+                                const delta = c - p;
+                                return (
+                                  <tr key={key} className="border-t">
+                                    <td className="py-1 pr-2">{factorLabels[key]}</td>
+                                    <td className="text-center py-1">{p}/5</td>
+                                    <td className="text-center py-1 font-semibold">{c}/5</td>
+                                    <td className="text-center py-1">
+                                      {delta > 0 ? (
+                                        <span className="text-red-600 font-bold">▲ +{delta}</span>
+                                      ) : delta < 0 ? (
+                                        <span className="text-green-600 font-bold">▼ {delta}</span>
+                                      ) : (
+                                        <span className="text-muted-foreground">—</span>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                              <tr className="border-t bg-muted/30">
+                                <td className="py-1 font-semibold">Índice Global</td>
+                                <td className="text-center py-1">{prev.riskIndex}/5</td>
+                                <td className="text-center py-1 font-bold">{curr.riskIndex}/5</td>
+                                <td className="text-center py-1">
+                                  {(() => { const d = Number(curr.riskIndex) - Number(prev.riskIndex); return d > 0 ? <span className="text-red-600 font-bold">▲ +{d.toFixed(1)}</span> : d < 0 ? <span className="text-green-600 font-bold">▼ {d.toFixed(1)}</span> : <span className="text-muted-foreground">—</span>; })()}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        );
+                      })()}
+                    </div>
+                  )}
                   {/* Gráfica de tendencia */}
-                  {historyQuery.data.length >= 2 && (
+                  {filteredHistory.length >= 2 && (
                     <div className="border rounded-lg p-3 bg-muted/20">
                       <p className="text-xs text-muted-foreground mb-2">Evolución del Índice de Riesgo</p>
-                      <HistoryTrendChart data={historyQuery.data} />
+                      <HistoryTrendChart data={filteredHistory} />
                     </div>
                   )}
                   <div className="border rounded-lg overflow-hidden">
@@ -1060,7 +1162,7 @@ export default function JobPositions() {
                         </tr>
                       </thead>
                       <tbody>
-                        {historyQuery.data.map((row: any) => (
+                        {filteredHistory.map((row: any) => (
                           <tr key={row.id} className="border-t hover:bg-muted/30">
                             <td className="px-3 py-2 whitespace-nowrap">{new Date(row.analyzedAt).toLocaleDateString('es-MX')}</td>
                             <td className="px-3 py-2 text-center font-semibold">{row.riskIndex}/5</td>

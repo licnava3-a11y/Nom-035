@@ -1691,14 +1691,19 @@
 - [x] Sección de historial en modal de detalles: tabla con fecha, índice, nivel de riesgo, empleados
 
 ## Sprint: Tendencia + Observaciones + Export Excel historial (2026-08-04)
-- [ ] Agregar campo "notes" (observaciones) en JobEditDialog y pasarlo al procedimiento update
-- [ ] Actualizar tRPC jobPositions.update para guardar notes en jobPositionHistory
-- [ ] Mostrar columna "Observaciones" en la tabla de historial del modal de detalles
-- [ ] Agregar mini gráfica de línea de tendencia (Chart.js) del índice de riesgo en el historial
-- [ ] Agregar botón "Exportar Excel" del historial completo en el modal de detalles
+- [x] Agregar campo "notes" (observaciones) en JobEditDialog y pasarlo al procedimiento update
+- [x] Actualizar tRPC jobPositions.update para guardar notes en jobPositionHistory
+- [x] Mostrar columna "Observaciones" en la tabla de historial del modal de detalles
+- [x] Agregar mini gráfica de línea de tendencia (Chart.js) del índice de riesgo en el historial
+- [x] Agregar botón "Exportar Excel" del historial completo en el modal de detalles
 
 ## Sprint: Tendencia + Observaciones + Excel Historial (2026-08-04)
 - [x] Componente HistoryTrendChart (gráfica de línea Chart.js) para visualizar evolución del índice
 - [x] Botón "Excel" en el historial del modal de detalles para exportar todos los análisis anteriores
 - [x] Campo de texto "Observaciones del Análisis" en JobEditDialog (se guarda en historial)
 - [x] Columna "Observaciones" en la tabla del historial dentro del modal de detalles
+
+## Sprint: Filtro fechas + Comparativa factores + Alerta dashboard (2026-08-04)
+- [ ] Filtro de rango de fechas (desde/hasta) en el historial del modal de detalles de JobPositions
+- [ ] Tabla comparativa de factores: análisis actual vs anterior con indicadores triangulo arriba/abajo
+- [ ] Alerta visual en dashboard principal para puestos cuyo riesgo haya aumentado en el último análisis

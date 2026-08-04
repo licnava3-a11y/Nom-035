@@ -57,6 +57,8 @@ export default function Home() {
   const { data: metrics, isLoading: metricsLoading } = trpc.executiveDashboard.getMetrics.useQuery();
   // Widget NOM-035 Matriz
   const { data: matrizStats, isLoading: matrizLoading } = trpc.nom035Matrix.getGlobalStats.useQuery(undefined, { retry: false });
+  // Widget alertas de riesgo escalado en puestos
+  const { data: escalatedRisks } = trpc.jobPositions.getRiskEscalated.useQuery(undefined, { retry: false, refetchOnWindowFocus: false });
   // Widget de calidad
   const [qualityPeriod, setQualityPeriod] = useState<number | undefined>(undefined);
   const [qualityDateFrom, setQualityDateFrom] = useState<string>("");
@@ -555,6 +557,55 @@ export default function Home() {
         </div>
       )}
 
+      {/* Widget: Puestos con riesgo psicosocial aumentado */}
+      {escalatedRisks && escalatedRisks.length > 0 && (
+        <Card className="border-l-4 border-l-red-600 bg-red-50/60 dark:bg-red-950/20">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+                <CardTitle className="text-sm font-bold text-red-700 dark:text-red-400">
+                  Alerta: {escalatedRisks.length} puesto{escalatedRisks.length > 1 ? 's' : ''} con riesgo psicosocial aumentado
+                </CardTitle>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7 px-3 border-red-300 text-red-700 hover:bg-red-100"
+                onClick={() => setLocation('/job-positions')}
+              >
+                Ver Puestos
+                <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </div>
+            <CardDescription className="text-xs text-red-600/80 mt-1">
+              Los siguientes puestos registraron un índice de riesgo mayor en su último análisis vs el anterior.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <div className="space-y-1.5">
+              {escalatedRisks.slice(0, 5).map((pos: any) => (
+                <div key={pos.id} className="flex items-center justify-between bg-white dark:bg-red-950/30 rounded-lg px-3 py-2 border border-red-200 dark:border-red-800">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                    <span className="text-sm font-medium truncate">{pos.positionName}</span>
+                    {pos.department && (
+                      <span className="text-xs text-muted-foreground hidden sm:inline">— {pos.department}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs text-muted-foreground">{pos.previousIndex}/5 → <span className="font-bold text-red-600">{pos.currentIndex}/5</span></span>
+                    <span className="text-xs font-bold text-red-600 bg-red-100 dark:bg-red-900/40 px-1.5 py-0.5 rounded">▲ +{pos.delta}</span>
+                  </div>
+                </div>
+              ))}
+              {escalatedRisks.length > 5 && (
+                <p className="text-xs text-muted-foreground text-center pt-1">y {escalatedRisks.length - 5} puesto{escalatedRisks.length - 5 > 1 ? 's' : ''} más...</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       {/* Widget de Vigencia del Dictamen NOM-035 */}
       {dictamenVigencia ? (
         <Card className={`border-l-4 ${

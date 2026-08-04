@@ -1398,6 +1398,45 @@ export const appRouter = router({
         }
         return { success: true };
       }),
+    getRiskEscalated: protectedProcedure.query(async () => {
+      try {
+        const { getDb } = await import('./db');
+        const { jobPositionHistory, jobPositions: jpTable } = await import('../drizzle/schema');
+        const { desc: descOrd, eq: eqOp } = await import('drizzle-orm');
+        const rawDb = await getDb();
+        if (!rawDb) return [];
+        const positions = await rawDb.select().from(jpTable);
+        const escalated: any[] = [];
+        for (const pos of positions) {
+          const rows = await rawDb
+            .select()
+            .from(jobPositionHistory)
+            .where(eqOp(jobPositionHistory.positionId, pos.id))
+            .orderBy(descOrd(jobPositionHistory.analyzedAt))
+            .limit(2);
+          if (rows.length >= 2) {
+            const curr = Number(rows[0].riskIndex);
+            const prev = Number(rows[1].riskIndex);
+            if (curr > prev) {
+              escalated.push({
+                id: pos.id,
+                positionName: pos.positionName,
+                department: pos.department,
+                riskLevel: pos.riskLevel,
+                currentIndex: curr,
+                previousIndex: prev,
+                delta: parseFloat((curr - prev).toFixed(2)),
+                analyzedAt: rows[0].analyzedAt,
+              });
+            }
+          }
+        }
+        return escalated.sort((a: any, b: any) => b.delta - a.delta);
+      } catch (e) {
+        console.error('[JobPositions] Error fetching escalated risks:', e);
+        return [];
+      }
+    }),
     getHistory: protectedProcedure
       .input(z.object({ positionId: z.number() }))
       .query(async ({ input }) => {
