@@ -20,7 +20,7 @@ export default function NMX025EvidencesFolder() {
   const [isExporting, setIsExporting] = useState(false);
 
   // Query para obtener nombre de la empresa desde configuración
-  const { data: companyData } = trpc.company.generalData.useQuery();
+  const { data: companyData } = trpc.company.generalData.get.useQuery();
   const companyName = (companyData as any)?.razonSocial ?? 'Mi Empresa';
 
   // Query para obtener evidencias

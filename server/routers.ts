@@ -1335,6 +1335,7 @@ export const appRouter = router({
         description: z.string().optional(),
         riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
         employeeCount: z.number().int().min(0).optional(),
+        analysisNotes: z.string().optional(),
         factors: z.object({
           workload: z.number().min(1).max(5),
           control: z.number().min(1).max(5),
@@ -1370,7 +1371,7 @@ export const appRouter = router({
         }).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const { id, factors, ...rest } = input;
+        const { id, factors, analysisNotes, ...rest } = input;
         await db.updateJobPosition(id, {
           ...rest,
           ...(factors !== undefined ? { factors: JSON.stringify(factors) } : {}),

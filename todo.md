@@ -1744,3 +1744,10 @@
 - [x] Frontend: selector de departamento en barra de filtros de ClinicalRecords (usa departments.list)
 - [x] Frontend: overlay de carga modal con spinner animado, nombre de departamento y barra de progreso al generar ZIP
 - [x] Frontend: toast de éxito enriquecido con conteo de expedientes y nombre del departamento filtrado
+
+## Sprint: Corrección de errores TS raíz (2026-08-04)
+- [x] Corregir error TS en JobEditDialog.tsx: campo notes no existe en input de jobPositions.update → renombrado a analysisNotes
+- [x] Agregar analysisNotes al input del procedimiento jobPositions.update en routers.ts
+- [x] Corregir error TS en ClinicalRecords.tsx: eliminar propiedad duration del toast (no existe en tipo Toast de shadcn/ui)
+- [x] Corregir error TS en NMX025EvidencesFolder.tsx: trpc.company.generalData.useQuery() → trpc.company.generalData.get.useQuery()
+- [x] Corregir error TS pre-existente en server/db.ts: cast as any para compatibilidad drizzle-orm/mysql2

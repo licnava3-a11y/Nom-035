@@ -603,7 +603,6 @@ export default function ClinicalRecords() {
       toast({
         title: `✅ ZIP generado exitosamente`,
         description: `${data.count} expediente${data.count !== 1 ? 's' : ''} exportado${data.count !== 1 ? 's' : ''} — ${deptName}. El archivo se abrió en una nueva pestaña.`,
-        duration: 6000,
       });
     },
     onError: (err) => {

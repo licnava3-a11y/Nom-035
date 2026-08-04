@@ -153,7 +153,7 @@ export function JobEditDialog({ open, onOpenChange, onSuccess, position }: JobEd
       positionName: formData.positionName,
       department: formData.department,
       description: formData.description,
-      notes: formData.notes,
+      analysisNotes: formData.notes,
       riskLevel: formData.riskLevel,
       employeeCount: formData.employeeCount,
       factors,

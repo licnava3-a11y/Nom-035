@@ -27,7 +27,7 @@ export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
       _pool = createControlledPool();
-      _db = drizzle(_pool);
+      _db = drizzle(_pool) as any;
       console.log("[Database] Pool initialized (connectionLimit: 15)");
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
