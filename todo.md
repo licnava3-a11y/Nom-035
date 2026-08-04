@@ -1637,3 +1637,9 @@
 - [x] URL de preview: es temporal por diseño del sandbox (expira entre sesiones). Servidor dev HTTP 200. Usar botón View en panel de gestión para URL fresca. Sitio publicado: nom035mood-32dy4ksx.manus.space
 - [x] Panel de notificaciones mejorado en /settings/notifications: tipos de alerta por categoría (casos, encuestas, contratos, capacitación, etc.), canales (email/in-app), resumen diario/semanal con hora y día configurable, badges de estado activo
 - [x] Filtro interactivo en JobPositions.tsx: búsqueda por nombre/departamento, filtro por nivel de riesgo (bajo/medio/alto/todos), ordenamiento por más/menos empleados, mayor riesgo o nombre A-Z, contador de resultados filtrados
+
+## Sprint: Fix Definitivo Ciclo Infinito Login (Raíz Real) — 2026-08-04
+- [x] Causa raíz identificada: `drizzle(URL)` crea pool MySQL sin `connectionLimit` → ETIMEDOUT en 40+ jobs simultáneos → OOM → servidor reinicia → cookie OAuth destruida → ciclo infinito
+- [x] Corrección 1: `server/db.ts` — reemplazar `drizzle(URL)` con pool explícito `mysql.createPool({ connectionLimit: 5, waitForConnections: true, queueLimit: 50, connectTimeout: 10000 })`
+- [x] Corrección 2: `server/_core/index.ts` — agregar staggering de 500ms entre cada job start para evitar picos de conexiones BD simultáneas
+- [x] Verificado: `[Database] Pool initialized (connectionLimit: 5)` en logs, servidor HTTP 200, 0 errores TypeScript

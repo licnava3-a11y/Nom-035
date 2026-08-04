@@ -146,9 +146,11 @@ async function startJobs() {
     ["startPerformanceLcpAlertsJob", "performance-lcp-alerts-job"],
   ];
 
+  // Stagger job starts by 500ms each to avoid simultaneous DB connections / memory spikes
   for (let i = 0; i < jobModules.length; i++) {
     const result = jobModules[i];
     const [fnName, modName] = starters[i];
+    await new Promise(r => setTimeout(r, 500)); // 500ms gap between each job start
     if (result.status === "fulfilled") {
       const mod = result.value as any;
       if (typeof mod[fnName] === "function") {

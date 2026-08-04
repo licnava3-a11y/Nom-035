@@ -1,18 +1,38 @@
 import { eq, asc, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { InsertUser, answerOptions, caseAssignments, caseDocuments, caseFollowUps, cases, certificates, committeeMembers, courses, evaluationAttempts, evaluations, expenseRequests, invoices, jobFunctions, jobPositions, leads, mailbox, mailboxResponses, modules, notifications, performanceEvaluations, positions, purchaseOrders, questions, resources, salespeople, sentimentAnalysis, studentAnswers, studentProgress, surveyResponses, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: mysql.Pool | null = null;
+
+// Create a controlled MySQL pool with strict connection limits to prevent ETIMEDOUT / OOM crashes
+function createControlledPool(): mysql.Pool {
+  const url = process.env.DATABASE_URL!;
+  return mysql.createPool({
+    uri: url,
+    connectionLimit: 5,       // max 5 simultaneous connections — prevents pool exhaustion
+    waitForConnections: true, // queue requests instead of throwing when pool is full
+    queueLimit: 50,           // max 50 queued requests before rejecting
+    connectTimeout: 10_000,   // 10s connect timeout
+    idleTimeout: 60_000,      // release idle connections after 60s
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10_000,
+  });
+}
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _pool = createControlledPool();
+      _db = drizzle(_pool);
+      console.log("[Database] Pool initialized (connectionLimit: 5)");
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
+      _pool = null;
     }
   }
   return _db;
