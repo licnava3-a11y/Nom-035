@@ -583,8 +583,19 @@ export default function ClinicalRecords() {
     pageSize: 50,
   });
 
-  const { data: stats } = trpc.clinicalRecords.getStats.useQuery();
-
+    const { data: stats } = trpc.clinicalRecords.getStats.useQuery();
+  const [bulkExporting, setBulkExporting] = useState(false);
+  const bulkExportZipMutation = trpc.clinicalRecords.bulkExportZip.useMutation({
+    onSuccess: (data) => {
+      setBulkExporting(false);
+      window.open(data.url, '_blank');
+      toast({ title: `📦 ZIP generado: ${data.count} expediente${data.count !== 1 ? 's' : ''}`, description: 'El archivo se abrió en una nueva pestaña' });
+    },
+    onError: (err) => {
+      setBulkExporting(false);
+      toast({ title: 'Error al generar ZIP', description: err.message, variant: 'destructive' });
+    },
+  });
   const createMutation = trpc.clinicalRecords.create.useMutation({
     onSuccess: () => {
       refetch();
@@ -680,6 +691,34 @@ export default function ClinicalRecords() {
             <SelectItem value="closed">Cerrados</SelectItem>
           </SelectContent>
         </Select>
+        <Button
+          variant="outline"
+          disabled={bulkExporting || bulkExportZipMutation.isPending || !listData?.records.length}
+          onClick={() => {
+            setBulkExporting(true);
+            bulkExportZipMutation.mutate({
+              search: search || undefined,
+              isActive: showActive,
+              limit: 100,
+            });
+          }}
+          title={`Exportar ${listData?.total ?? 0} expediente(s) filtrado(s) como ZIP`}
+        >
+          {bulkExporting || bulkExportZipMutation.isPending ? (
+            <>
+              <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Generando ZIP...
+            </>
+          ) : (
+            <>
+              <Archive className="h-4 w-4 mr-2" />
+              Exportar ZIP ({listData?.total ?? 0})
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Lista de expedientes */}

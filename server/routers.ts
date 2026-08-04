@@ -1540,6 +1540,112 @@ export const appRouter = router({
           return [];
         }
       }),
+    // Sincronizar factores psicosociales desde resultados de encuestas NOM-035
+    syncFromSurveys: protectedProcedure
+      .input(z.object({ positionId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const { getDb } = await import('./db');
+          const { nom035Results, employees, departments, jobPositions: jpTable, jobPositionHistory } = await import('../drizzle/schema');
+          const { eq: eqOp, desc: descOrd, sql } = await import('drizzle-orm');
+          const rawDb = await getDb();
+          if (!rawDb) throw new Error('Database not available');
+          const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, input.positionId)).limit(1);
+          if (!posRows.length) throw new Error('Puesto no encontrado');
+          const pos = posRows[0];
+          let deptCondition: any = sql`1=1`;
+          if (pos.department) {
+            const deptRows = await rawDb.select({ id: departments.id }).from(departments).where(eqOp(departments.name, pos.department)).limit(1);
+            if (deptRows.length > 0) deptCondition = eqOp(employees.departmentId, deptRows[0].id);
+          }
+          const results = await rawDb
+            .select({ categoryScores: nom035Results.categoryScores, globalScore: nom035Results.globalScore })
+            .from(nom035Results)
+            .innerJoin(employees, eqOp(nom035Results.employeeId, employees.id))
+            .where(deptCondition)
+            .orderBy(descOrd(nom035Results.completedAt))
+            .limit(50);
+          if (!results.length) {
+            return { success: false, message: 'No se encontraron encuestas NOM-035 para este departamento', updated: false, count: 0 };
+          }
+          const CATEGORY_MAX: Record<string, number> = {
+            'Condiciones en el ambiente de trabajo': 40,
+            'Carga de trabajo': 30,
+            'Falta de control sobre el trabajo': 25,
+            'Jornada de trabajo': 20,
+            'Liderazgo': 35,
+            'Relaciones en el trabajo': 30,
+            'Violencia': 25,
+          };
+          const accum = { workload: 0, control: 0, leadership: 0, relationships: 0, workEnvironment: 0 };
+          for (const r of results) {
+            const cats: Record<string, number> = typeof r.categoryScores === 'string'
+              ? JSON.parse(r.categoryScores as string)
+              : ((r.categoryScores as Record<string, number>) ?? {});
+            const norm = (val: number, max: number) => Math.max(1, Math.min(5, Math.round((val / max) * 4) + 1));
+            accum.workload       += norm((cats['Carga de trabajo'] ?? 0) + (cats['Jornada de trabajo'] ?? 0), CATEGORY_MAX['Carga de trabajo'] + CATEGORY_MAX['Jornada de trabajo']);
+            accum.control        += norm(cats['Falta de control sobre el trabajo'] ?? 0, CATEGORY_MAX['Falta de control sobre el trabajo']);
+            accum.leadership     += norm(cats['Liderazgo'] ?? 0, CATEGORY_MAX['Liderazgo']);
+            accum.relationships  += norm((cats['Relaciones en el trabajo'] ?? 0) + (cats['Violencia'] ?? 0), CATEGORY_MAX['Relaciones en el trabajo'] + CATEGORY_MAX['Violencia']);
+            accum.workEnvironment += norm(cats['Condiciones en el ambiente de trabajo'] ?? 0, CATEGORY_MAX['Condiciones en el ambiente de trabajo']);
+          }
+          const n = results.length;
+          const newFactors = {
+            workload:        Math.round(accum.workload / n),
+            control:         Math.round(accum.control / n),
+            leadership:      Math.round(accum.leadership / n),
+            relationships:   Math.round(accum.relationships / n),
+            workEnvironment: Math.round(accum.workEnvironment / n),
+          };
+          const avgIdx = parseFloat(((newFactors.workload + newFactors.control + newFactors.leadership + newFactors.relationships + newFactors.workEnvironment) / 5).toFixed(1));
+          const newRiskLevel = avgIdx >= 4 ? 'very_high' : avgIdx >= 3 ? 'high' : avgIdx >= 2 ? 'medium' : 'low';
+          await rawDb.update(jpTable)
+            .set({ factors: JSON.stringify(newFactors), riskLevel: newRiskLevel, updatedAt: new Date() })
+            .where(eqOp(jpTable.id, input.positionId));
+          await rawDb.insert(jobPositionHistory).values({
+            positionId: input.positionId,
+            riskLevel: newRiskLevel,
+            riskIndex: avgIdx.toFixed(1),
+            employeeCount: pos.employeeCount ?? 0,
+            factors: JSON.stringify(newFactors),
+            analyzedBy: ctx.user.id,
+            notes: `Actualizado autom\u00e1ticamente desde ${n} encuesta${n !== 1 ? 's' : ''} NOM-035 del departamento "${pos.department ?? 'General'}".`,
+          });
+          return { success: true, updated: true, count: n, newFactors, newRiskLevel, avgIdx, message: `Factores actualizados desde ${n} encuesta${n !== 1 ? 's' : ''} NOM-035` };
+        } catch (e: any) {
+          console.error('[JobPositions] Error syncing from surveys:', e);
+          throw new Error(e.message ?? 'Error al sincronizar desde encuestas');
+        }
+      }),
+    getSurveySummaryForPosition: protectedProcedure
+      .input(z.object({ positionId: z.number() }))
+      .query(async ({ input }) => {
+        try {
+          const { getDb } = await import('./db');
+          const { nom035Results, employees, departments, jobPositions: jpTable } = await import('../drizzle/schema');
+          const { eq: eqOp, desc: descOrd, sql } = await import('drizzle-orm');
+          const rawDb = await getDb();
+          if (!rawDb) return { count: 0, department: null, latestDate: null };
+          const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, input.positionId)).limit(1);
+          if (!posRows.length) return { count: 0, department: null, latestDate: null };
+          const pos = posRows[0];
+          let deptCond: any = sql`1=1`;
+          if (pos.department) {
+            const deptRows = await rawDb.select({ id: departments.id }).from(departments).where(eqOp(departments.name, pos.department)).limit(1);
+            if (deptRows.length > 0) deptCond = eqOp(employees.departmentId, deptRows[0].id);
+          }
+          const rows = await rawDb
+            .select({ id: nom035Results.id, completedAt: nom035Results.completedAt })
+            .from(nom035Results)
+            .innerJoin(employees, eqOp(nom035Results.employeeId, employees.id))
+            .where(deptCond)
+            .orderBy(descOrd(nom035Results.completedAt))
+            .limit(100);
+          return { count: rows.length, department: pos.department, latestDate: rows[0]?.completedAt ?? null };
+        } catch (e) {
+          return { count: 0, department: null, latestDate: null };
+        }
+      }),
   }),
 
   // System Config

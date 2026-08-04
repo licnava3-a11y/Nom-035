@@ -1729,3 +1729,11 @@
 - [x] Actualizar tRPC getNotificationLog para aceptar dateFrom y dateTo como filtros opcionales
 - [x] Agregar controles de fecha (Desde/Hasta) y accesos rápidos (Hoy/Semana/Mes/Mes anterior) en panel historial de notificaciones
 - [x] Botón "Exportar Excel" en el panel de historial que descargue las alertas filtradas
+
+## Sprint: Gráfica PDF + Encuestas-Puestos + ZIP Expedientes (2026-08-04)
+- [x] Gráfica de distribución de riesgo (barras horizontales coloreadas por nivel) en Reporte General PDF de JobPositions
+- [x] Backend tRPC: jobPositions.syncFromSurveys — calcula factores psicosociales promedio desde encuestas NOM-035 del departamento y actualiza el puesto con historial
+- [x] Backend tRPC: jobPositions.getSurveySummaryForPosition — devuelve conteo y fecha de última encuesta disponible para el departamento del puesto
+- [x] Frontend JobPositions: panel "Sincronizar desde encuestas NOM-035" en detalle del puesto con botón de actualización automática y estado de carga
+- [x] Backend tRPC: clinicalRecords.bulkExportZip — genera ZIP con PDFs de todos los expedientes clínicos filtrados y lo sube a S3
+- [x] Frontend ClinicalRecords: botón "Exportar ZIP (N)" en barra de filtros que respeta búsqueda y filtro activo/cerrado

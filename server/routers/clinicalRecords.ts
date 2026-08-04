@@ -573,4 +573,79 @@ export const clinicalRecordsRouter = router({
       totalSessions: totalSessions[0]?.count ?? 0,
     };
   }),
+
+  // ── Exportación masiva ZIP de expedientes filtrados ───────────────────────
+  bulkExportZip: protectedProcedure
+    .input(z.object({
+      search: z.string().optional(),
+      isActive: z.boolean().optional(),
+      limit: z.number().min(1).max(200).default(50),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      requireClinicalAccess(ctx.user.role);
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+      // Construir condiciones de filtro (igual que list)
+      const conditions = [];
+      if (input.isActive !== undefined) conditions.push(eq(clinicalRecords.isActive, input.isActive));
+      if (input.search) conditions.push(like(clinicalRecords.patientName, `%${input.search}%`));
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const records = await db
+        .select()
+        .from(clinicalRecords)
+        .where(whereClause)
+        .orderBy(desc(clinicalRecords.createdAt))
+        .limit(input.limit);
+
+      if (!records.length) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'No se encontraron expedientes con los filtros aplicados' });
+      }
+
+      // Cargar datos compartidos una sola vez
+      const companyRows = await db.select().from(companyGeneralData).limit(1);
+      const company = companyRows[0];
+      const logoRows = await db.select().from(companyLogo).limit(1);
+      const logoUrl = logoRows[0]?.logoUrl ?? undefined;
+      const { generateClinicalRecordPDF } = await import('../pdfGenerators/clinicalRecordPDF');
+
+      const zip = new JSZip();
+      const folderName = `expedientes-clinicos-${new Date().toISOString().slice(0, 10)}`;
+      const folder = zip.folder(folderName)!;
+
+      // Generar PDF para cada expediente y agregarlo al ZIP
+      for (const record of records) {
+        const [evaluations, sessionNotes] = await Promise.all([
+          db.select().from(clinicalEvaluations).where(eq(clinicalEvaluations.recordId, record.id)).orderBy(desc(clinicalEvaluations.evaluationDate)),
+          db.select().from(clinicalSessionNotes).where(eq(clinicalSessionNotes.recordId, record.id)).orderBy(desc(clinicalSessionNotes.sessionDate)),
+        ]);
+        const folio = `EXP-CLIN-${record.id}-${Date.now()}`;
+        const pdfBuffer = await generateClinicalRecordPDF({
+          record,
+          evaluations,
+          sessionNotes,
+          companyName: company?.razonSocial ?? 'Empresa',
+          logoUrl,
+          folio,
+        });
+        const safeName = record.patientName.replace(/[^a-zA-Z0-9\u00C0-\u024F\s-]/g, '').replace(/\s+/g, '_').slice(0, 60);
+        folder.file(`${safeName}_${record.id}.pdf`, pdfBuffer);
+      }
+
+      const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+      const zipKey = `clinical-records/bulk-export-${ctx.user.id}-${Date.now()}.zip`;
+      const { url: zipUrl } = await storagePut(zipKey, zipBuffer, 'application/zip');
+
+      // Notificar al propietario
+      try {
+        const { notifyOwner } = await import('../_core/notification');
+        await notifyOwner({
+          title: `📦 Exportación masiva ZIP — ${records.length} expedientes`,
+          content: `El usuario ${ctx.user.name ?? ctx.user.email ?? 'desconocido'} exportó ${records.length} expediente${records.length !== 1 ? 's' : ''} clínico${records.length !== 1 ? 's' : ''} en formato ZIP el ${new Date().toLocaleString('es-MX')}.`,
+        });
+      } catch { /* no bloqueante */ }
+
+      return { url: zipUrl, count: records.length, zipKey };
+    }),
 });

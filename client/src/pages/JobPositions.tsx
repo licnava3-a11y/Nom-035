@@ -165,6 +165,22 @@ export default function JobPositions() {
   const [histDateFrom, setHistDateFrom] = useState("");
   const [histDateTo, setHistDateTo] = useState("");
   const [showComparative, setShowComparative] = useState(false);
+  const syncFromSurveysMutation = trpc.jobPositions.syncFromSurveys.useMutation({
+    onSuccess: (data) => {
+      if (data.updated) {
+        toast.success(data.message ?? 'Factores actualizados desde encuestas NOM-035');
+        refetch();
+        historyQuery.refetch();
+      } else {
+        toast.warning(data.message ?? 'No se encontraron encuestas para este departamento');
+      }
+    },
+    onError: (err) => toast.error(`Error al sincronizar: ${err.message}`),
+  });
+  const surveySummaryQuery = trpc.jobPositions.getSurveySummaryForPosition.useQuery(
+    { positionId: selectedPosition?.id ?? 0 },
+    { enabled: detailOpen && !!selectedPosition?.id }
+  );
   const historyQuery = trpc.jobPositions.getHistory.useQuery(
     { positionId: selectedPosition?.id ?? 0 },
     { enabled: detailOpen && !!selectedPosition?.id }
@@ -385,7 +401,42 @@ export default function JobPositions() {
       doc.setTextColor(60, 60, 60);
       doc.text(`Total empleados cubiertos: ${totalEmp}`, mg, y); y += 5;
       doc.text(`Índice promedio de riesgo: ${avgIdx}/5`, mg, y); y += 5;
-      doc.text(`Puestos riesgo Alto/Muy Alto: ${highRisk}   Medio: ${medRisk}   Bajo: ${lowRisk}`, mg, y); y += 10;
+      doc.text(`Puestos riesgo Alto/Muy Alto: ${highRisk}   Medio: ${medRisk}   Bajo: ${lowRisk}`, mg, y); y += 12;
+      // ── Gráfica de distribución de riesgo ──────────────────────────────────────
+      const veryHighRisk = displayPositions.filter((p: any) => p.riskLevel === 'very_high').length;
+      const highOnlyRisk = displayPositions.filter((p: any) => p.riskLevel === 'high').length;
+      const medOnlyRisk = displayPositions.filter((p: any) => p.riskLevel === 'medium').length;
+      const lowOnlyRisk = displayPositions.filter((p: any) => p.riskLevel === 'low').length;
+      const totalPos = displayPositions.length || 1;
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
+      doc.text('Distribución de Puestos por Nivel de Riesgo', mg, y); y += 6;
+      const chartItems = [
+        { label: 'Muy Alto', count: veryHighRisk, r: 220, g: 38, b: 38 },
+        { label: 'Alto',     count: highOnlyRisk, r: 234, g: 88, b: 12 },
+        { label: 'Medio',    count: medOnlyRisk,  r: 202, g: 138, b: 4 },
+        { label: 'Bajo',     count: lowOnlyRisk,  r: 22,  g: 163, b: 74 },
+      ];
+      const maxBarW = 100;
+      const barRowH = 7;
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      chartItems.forEach((item) => {
+        const barLen = totalPos > 0 ? (item.count / totalPos) * maxBarW : 0;
+        doc.setTextColor(60, 60, 60);
+        doc.text(item.label, mg, y + barRowH * 0.65);
+        // Fondo barra
+        doc.setFillColor(230, 230, 230);
+        doc.roundedRect(mg + 22, y, maxBarW, barRowH - 1.5, 1, 1, 'F');
+        // Barra coloreada
+        if (barLen > 0) {
+          doc.setFillColor(item.r, item.g, item.b);
+          doc.roundedRect(mg + 22, y, barLen, barRowH - 1.5, 1, 1, 'F');
+        }
+        // Etiqueta de valor
+        doc.setTextColor(60, 60, 60);
+        doc.text(`${item.count} (${((item.count / totalPos) * 100).toFixed(0)}%)`, mg + 22 + maxBarW + 3, y + barRowH * 0.65);
+        y += barRowH + 1;
+      });
+      y += 6;
       // Tabla de puestos
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
@@ -1386,6 +1437,50 @@ export default function JobPositions() {
               )}
               {historyQuery.data?.length === 0 && (
                 <p className="text-xs text-muted-foreground text-center py-2">Sin análisis anteriores registrados</p>
+              )}
+              {/* Panel de sincronización desde encuestas NOM-035 */}
+              {surveySummaryQuery.data !== undefined && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50/60 dark:bg-blue-950/20 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-0.5">
+                        Sincronizar desde encuestas NOM-035
+                      </p>
+                      {surveySummaryQuery.data.count > 0 ? (
+                        <p className="text-xs text-blue-600 dark:text-blue-400">
+                          {surveySummaryQuery.data.count} encuesta{surveySummaryQuery.data.count !== 1 ? 's' : ''} disponible{surveySummaryQuery.data.count !== 1 ? 's' : ''}
+                          {surveySummaryQuery.data.latestDate && (
+                            <> — última: {new Date(surveySummaryQuery.data.latestDate).toLocaleDateString('es-MX')}</>
+                          )}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">Sin encuestas NOM-035 en el departamento "{selectedPosition?.department}"</p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs h-7 px-2.5 border-blue-300 text-blue-700 hover:bg-blue-100 shrink-0"
+                      disabled={syncFromSurveysMutation.isPending || (surveySummaryQuery.data?.count ?? 0) === 0}
+                      onClick={() => {
+                        if (!selectedPosition?.id) return;
+                        syncFromSurveysMutation.mutate({ positionId: selectedPosition.id });
+                      }}
+                    >
+                      {syncFromSurveysMutation.isPending ? (
+                        <>
+                          <svg className="animate-spin h-3 w-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Sincronizando...
+                        </>
+                      ) : (
+                        <><RefreshCw className="h-3 w-3 mr-1" />Actualizar desde encuestas</>
+                      )}
+                    </Button>
+                  </div>
+                </div>
               )}
               <div className="flex gap-2 pt-1">
                 <Button className="flex-1" onClick={() => {
