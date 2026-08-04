@@ -84,73 +84,46 @@ function startConsolidatedMinuteTick() {
 }
 
 async function startJobs() {
-  console.log('[Jobs] Iniciando todos los jobs de alertas automáticas...');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // JOBS CRÍTICOS NOM-035 — solo los estrictamente necesarios para la norma.
+  // Jobs no críticos (ML, análisis predictivo, reportes ejecutivos, etc.) están
+  // deshabilitados para reducir la carga en la BD y el consumo de memoria.
+  // ═══════════════════════════════════════════════════════════════════════════
+  console.log('[Jobs] Iniciando jobs críticos NOM-035...');
   const schedules: Array<any> = (globalThis as any).__consolidatedSchedules ?? [];
 
-  // ── Jobs with their own internal scheduler ──────────────────────────────
+  // ── Jobs activos con su propio scheduler interno (solo críticos NOM-035) ───
   const jobModules = await Promise.allSettled([
-    import("../jobs/survey-alerts-job"),
-    import("../jobs/survey-coverage-alerts-job"),
-    import("../jobs/alertSummaryCronJob"),
-    import("../jobs/security-alerts-job"),
-    import("../jobs/model-performance-monitor-job"),
-    import("../jobs/model-auto-retraining-job"),
-    import("../jobs/payroll-compensation-alerts-job"),
-    import("../jobs/external-offer-risk-monitor-job"),
-    import("../jobs/agreementsAlerts"),
-    import("../jobs/corrective-actions-reminders-job"),
-    import("../jobs/stale-cases-alerts-job"),
-    import("../jobs/calculate-risk-level-job"),
-    import("../jobs/training-reminders-job"),
-    import("../jobs/departments-without-manager-job"),
-    import("../jobs/predictive-turnover-job"),
-    import("../jobs/approvalRemindersJob"),
-    import("../jobs/dispatch-unread-alerts-job"),
-    import("../jobs/nom035-action-alerts-job"),
-    import("../jobs/deadlineAlertsJob"),
-    import("../jobs/post-case-surveys-job"),
-    import("../jobs/departmental-alerts-job"),
-    import("../jobs/survey-reminders-job"),
-    import("../jobs/sentiment-analysis-job"),
-    import("../jobs/compliance-reminders-job"),
-    import("../jobs/psychometric-reminder-job"),
-    import("../jobs/performance-lcp-alerts-job"),
+    import("../jobs/survey-alerts-job"),           // Alertas de encuestas NOM-035
+    import("../jobs/survey-coverage-alerts-job"),   // Cobertura de encuestas
+    import("../jobs/nom035-action-alerts-job"),      // Acciones NOM-035 por vencer
+    import("../jobs/corrective-actions-reminders-job"), // Recordatorios acciones correctivas
+    import("../jobs/training-reminders-job"),        // Recordatorios de capacitación
+    import("../jobs/calculate-risk-level-job"),      // Cálculo nivel de riesgo psicosocial
+    import("../jobs/survey-reminders-job"),          // Recordatorios de encuestas pendientes
+    import("../jobs/dispatch-unread-alerts-job"),    // Despacho de alertas no leídas
+    import("../jobs/compliance-reminders-job"),      // Recordatorios de cumplimiento
+    import("../jobs/deadlineAlertsJob"),             // Alertas de fechas límite
   ]);
 
   const starters: Array<[string, string]> = [
     ["startSurveyAlertsJob", "survey-alerts-job"],
     ["startCoverageAlertsJob", "survey-coverage-alerts-job"],
-    ["startAlertSummaryCronJob", "alertSummaryCronJob"],
-    ["startSecurityAlertsJob", "security-alerts-job"],
-    ["startModelPerformanceMonitorJob", "model-performance-monitor-job"],
-    ["startModelAutoRetrainingJob", "model-auto-retraining-job"],
-    ["startPayrollCompensationAlertsJob", "payroll-compensation-alerts-job"],
-    ["startExternalOfferRiskMonitorJob", "external-offer-risk-monitor-job"],
-    ["startAgreementsAlertsJob", "agreementsAlerts"],
-    ["startCorrectiveActionsRemindersJob", "corrective-actions-reminders-job"],
-    ["startStaleCasesJob", "stale-cases-alerts-job"],
-    ["startCalculateRiskLevelJob", "calculate-risk-level-job"],
-    ["startTrainingRemindersJob", "training-reminders-job"],
-    ["startDepartmentsWithoutManagerJob", "departments-without-manager-job"],
-    ["startPredictiveTurnoverJob", "predictive-turnover-job"],
-    ["startApprovalRemindersJob", "approvalRemindersJob"],
-    ["startDispatchUnreadAlertsJob", "dispatch-unread-alerts-job"],
     ["startNom035ActionAlertsJob", "nom035-action-alerts-job"],
-    ["startDeadlineAlertsJob", "deadlineAlertsJob"],
-    ["schedulePostCaseSurveysJob", "post-case-surveys-job"],
-    ["scheduleDepartmentalAlertsJob", "departmental-alerts-job"],
+    ["startCorrectiveActionsRemindersJob", "corrective-actions-reminders-job"],
+    ["startTrainingRemindersJob", "training-reminders-job"],
+    ["startCalculateRiskLevelJob", "calculate-risk-level-job"],
     ["scheduleSurveyRemindersJob", "survey-reminders-job"],
-    ["initializeSentimentAnalysisJob", "sentiment-analysis-job"],
+    ["startDispatchUnreadAlertsJob", "dispatch-unread-alerts-job"],
     ["initializeComplianceRemindersJob", "compliance-reminders-job"],
-    ["startPsychometricReminderJob", "psychometric-reminder-job"],
-    ["startPerformanceLcpAlertsJob", "performance-lcp-alerts-job"],
+    ["startDeadlineAlertsJob", "deadlineAlertsJob"],
   ];
 
-  // Stagger job starts by 500ms each to avoid simultaneous DB connections / memory spikes
+  // Gap mínimo de 200ms entre jobs — el pool de 15 conexiones puede manejarlo
   for (let i = 0; i < jobModules.length; i++) {
     const result = jobModules[i];
     const [fnName, modName] = starters[i];
-    await new Promise(r => setTimeout(r, 1500)); // 1500ms gap — prevents DB pool exhaustion at cold start
+    await new Promise(r => setTimeout(r, 200)); // 200ms mínimo entre jobs
     if (result.status === "fulfilled") {
       const mod = result.value as any;
       if (typeof mod[fnName] === "function") {
@@ -161,47 +134,11 @@ async function startJobs() {
     }
   }
 
-  // ── Jobs registered in the consolidated minute-tick ──────────────────────
+  // ── Jobs críticos en el minute-tick consolidado ───────────────────────────
   try {
     const { runCorrectiveActionPlansRemindersJob } = await import("../jobs/corrective-action-plans-reminders-job");
     schedules.push({ label: "corrective-action-plans-reminders", hour: 9, minute: 0, fn: runCorrectiveActionPlansRemindersJob });
   } catch (e) { console.error("[Jobs] corrective-action-plans-reminders-job load error:", e); }
-
-  try {
-    const { runIntelligentAlertsJob } = await import("../jobs/intelligent-alerts-job");
-    schedules.push({ label: "intelligent-alerts", hour: 2, minute: 0, fn: runIntelligentAlertsJob });
-  } catch (e) { console.error("[Jobs] intelligent-alerts-job load error:", e); }
-
-  try {
-    const { runRootCauseAnalysisJob } = await import("../jobs/root-cause-analysis-job");
-    schedules.push({ label: "root-cause-analysis", hour: 3, minute: 0, dayOfMonth: 1, fn: runRootCauseAnalysisJob });
-  } catch (e) { console.error("[Jobs] root-cause-analysis-job load error:", e); }
-
-  try {
-    const { runPredictiveAlertsJob } = await import("../jobs/predictiveAlertsJob");
-    schedules.push({ label: "predictive-alerts", hour: 8, minute: 0, fn: runPredictiveAlertsJob });
-  } catch (e) { console.error("[Jobs] predictiveAlertsJob load error:", e); }
-
-  try {
-    const { generateMonthlySnapshots } = await import("../jobs/autoSnapshotsJob");
-    schedules.push({ label: "auto-snapshots", hour: 0, minute: 0, dayOfMonth: 1, fn: generateMonthlySnapshots });
-  } catch (e) { console.error("[Jobs] autoSnapshotsJob load error:", e); }
-
-  try {
-    const { detectCompetencyRegressions } = await import("../jobs/competencyRegressionAlertsJob");
-    schedules.push({ label: "competency-regression", hour: 9, minute: 0, fn: detectCompetencyRegressions });
-  } catch (e) { console.error("[Jobs] competencyRegressionAlertsJob load error:", e); }
-
-  try {
-    const { weeklyReportJob, monthlyReportJob } = await import("../jobs/executive-reports-job");
-    schedules.push({ label: "weekly-report", hour: 8, minute: 0, dayOfWeek: 1, fn: weeklyReportJob });
-    schedules.push({ label: "monthly-report", hour: 8, minute: 0, dayOfMonth: 1, fn: monthlyReportJob });
-  } catch (e) { console.error("[Jobs] executive-reports-job load error:", e); }
-
-  try {
-    const { runMonthlyReportsJob } = await import("./jobs/monthly-reports-job");
-    schedules.push({ label: "monthly-reports", hour: 8, minute: 0, dayOfMonth: 1, fn: runMonthlyReportsJob });
-  } catch (e) { console.error("[Jobs] monthly-reports-job load error:", e); }
 
   try {
     const { runContractExpirationAlertsJob } = await import("../jobs/contract-expiration-alerts-job");
@@ -223,14 +160,7 @@ async function startJobs() {
     schedules.push({ label: "pac-stale-items", hour: 9, minute: 0, fn: runPacStaleItemsJob });
   } catch (e) { console.error("[Jobs] pac-stale-items-job load error:", e); }
 
-  try {
-    const { runRealtimeAlertsJob } = await import("../jobs/realtime-alerts-job");
-    // Realtime runs every 15 min — use its own interval (not minute-tick)
-    setInterval(() => runRealtimeAlertsJob().catch(console.error), 15 * 60 * 1000);
-    console.log("[Realtime Alerts Job] Scheduled to run every 15 minutes via WebSocket");
-  } catch (e) { console.error("[Jobs] realtime-alerts-job load error:", e); }
-
-  // Token expiration job — needs its own setTimeout for first-run alignment
+  // Token expiration job — diario a las 9 AM
   try {
     const { runTokenExpirationJob } = await import("../jobs/anonymousTokenExpirationJob");
     const now = new Date();
@@ -245,7 +175,33 @@ async function startJobs() {
     console.log(`[Token Expiration Job] First execution scheduled for ${next9AM.toLocaleString('es-MX')}`);
   } catch (e) { console.error("[Jobs] anonymousTokenExpirationJob load error:", e); }
 
-  console.log('[Jobs] Todos los jobs de alertas automáticas iniciados correctamente.');
+  // ── Jobs NO CRÍTICOS deshabilitados (reducen carga DB y memoria) ────────────
+  // DESHABILITADO: model-performance-monitor-job (ML, no NOM-035)
+  // DESHABILITADO: model-auto-retraining-job (ML, no NOM-035)
+  // DESHABILITADO: payroll-compensation-alerts-job (nómina, no NOM-035)
+  // DESHABILITADO: external-offer-risk-monitor-job (riesgo externo, no NOM-035)
+  // DESHABILITADO: predictive-turnover-job (rotación predictiva, no NOM-035)
+  // DESHABILITADO: sentiment-analysis-job (análisis de sentimiento, no NOM-035)
+  // DESHABILITADO: psychometric-reminder-job (psicometría, no NOM-035)
+  // DESHABILITADO: performance-lcp-alerts-job (desempeño LCP, no NOM-035)
+  // DESHABILITADO: intelligent-alerts-job (ML, no NOM-035)
+  // DESHABILITADO: root-cause-analysis-job (ML, no NOM-035)
+  // DESHABILITADO: predictiveAlertsJob (ML, no NOM-035)
+  // DESHABILITADO: autoSnapshotsJob (snapshots mensuales, no crítico)
+  // DESHABILITADO: competencyRegressionAlertsJob (ML, no NOM-035)
+  // DESHABILITADO: executive-reports-job (reportes ejecutivos, no crítico)
+  // DESHABILITADO: monthly-reports-job (reportes mensuales, no crítico)
+  // DESHABILITADO: security-alerts-job (seguridad doc, no NOM-035 core)
+  // DESHABILITADO: alertSummaryCronJob (resumen alertas, no crítico)
+  // DESHABILITADO: agreementsAlerts (acuerdos, no NOM-035 core)
+  // DESHABILITADO: stale-cases-alerts-job (casos viejos, no crítico)
+  // DESHABILITADO: departments-without-manager-job (org, no NOM-035)
+  // DESHABILITADO: approvalRemindersJob (aprobaciones, no crítico)
+  // DESHABILITADO: post-case-surveys-job (encuestas post-caso, no crítico)
+  // DESHABILITADO: departmental-alerts-job (alertas dept, no crítico)
+  // DESHABILITADO: realtime-alerts-job (WebSocket, no crítico para NOM-035)
+
+  console.log('[Jobs] Jobs críticos NOM-035 iniciados. Jobs no críticos deshabilitados para optimizar recursos.');
 }
 
 async function startServer() {
@@ -360,15 +316,27 @@ async function startServer() {
     // Start the consolidated minute-tick scheduler (single setInterval)
     startConsolidatedMinuteTick();
 
-    // Delay job loading by 30s so Cloud Run health check passes BEFORE
-    // job modules are loaded into memory. This prevents OOM restarts that
-    // destroy the session cookie set by the OAuth callback.
-    const JOB_STARTUP_DELAY_MS = 45_000;
-    console.log(`[Jobs] Todos los jobs iniciarán en ${JOB_STARTUP_DELAY_MS / 1000}s para permitir el health check de Cloud Run`);
+    // Delay inicial de 15s: suficiente para que Cloud Run pase el health check (~5s)
+    // y el pool de DB se estabilice antes de que los jobs empiecen a conectarse.
+    const JOB_STARTUP_DELAY_MS = 15_000;
+    console.log(`[Jobs] Jobs críticos NOM-035 iniciarán en ${JOB_STARTUP_DELAY_MS / 1000}s`);
 
     setTimeout(() => {
       startJobs().catch(err => console.error('[Jobs] Error iniciando jobs:', err));
     }, JOB_STARTUP_DELAY_MS);
+
+    // Warmup periódico: ping interno cada 4 minutos para evitar hibernación de Cloud Run.
+    // Esto elimina los cold starts que causan ETIMEDOUT en la DB al primer request.
+    const WARMUP_INTERVAL_MS = 4 * 60 * 1000; // 4 minutos
+    setInterval(() => {
+      const http = require('http');
+      const req = http.request({ hostname: 'localhost', port, path: '/api/health', method: 'GET' }, (res: any) => {
+        res.resume(); // consume response body
+      });
+      req.on('error', () => {}); // silenciar errores de red internos
+      req.end();
+    }, WARMUP_INTERVAL_MS);
+    console.log(`[Warmup] Ping interno cada ${WARMUP_INTERVAL_MS / 60000} minutos para evitar hibernación`);
   });
 }
 

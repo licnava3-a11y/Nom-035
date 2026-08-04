@@ -1665,3 +1665,9 @@
 - [x] Causa raíz identificada: APP_PUBLIC_URL (manus.space) vs preview URL (manus.computer) → mismatch de host → cookie inválida → 401 → loop
 - [x] Fix en server/_core/oauth.ts: buildRegisteredRedirectUri ahora usa SIEMPRE x-forwarded-host de la request real, nunca APP_PUBLIC_URL
 - [x] Verificado: servidor recargó oauth.ts, HTTP 200 en / y /api/trpc/auth.me
+
+## Sprint: Optimización arranque servidor (2026-08-04)
+- [x] Deshabilitar jobs no críticos para NOM-035 (model-auto-retraining, sentiment-analysis, predictive-turnover, external-offer-risk, payroll-compensation, performance-lcp, psychometric-reminder, model-performance-monitor, competency-regression, root-cause-analysis, intelligent-alerts, auto-snapshots, predictive-alerts, monthly-reports, executive-reports)
+- [x] Reducir gap entre jobs al mínimo (200ms) — ya no hay saturación con pool de 15 conexiones
+- [x] Mejorar delay inicial de jobs: reducir a 15s (el health check de Cloud Run pasa en ~5s)
+- [x] Implementar ping periódico de warmup cada 4 minutos en el servidor para evitar hibernación
