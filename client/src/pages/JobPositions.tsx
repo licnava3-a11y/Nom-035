@@ -7,10 +7,12 @@ import {
   Briefcase, AlertTriangle, TrendingUp, Plus, FileText,
   Search, ArrowUpDown, Users, ArrowUp, ArrowDown, X,
   ChevronUp, ChevronDown, LayoutGrid, Table2, Download,
-  ChevronUpSquare, ChevronDownSquare, ImageDown, Building2
+  ChevronUpSquare, ChevronDownSquare, ImageDown, Building2,
+  Eye, RefreshCw
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
@@ -128,6 +130,9 @@ export default function JobPositions() {
   const [showChart, setShowChart] = useState(true);
   const [filterDept, setFilterDept] = useState<DeptFilter>("all");
   const barChartRef = useRef<BarChartHandle>(null);
+  // Modal de detalles del puesto
+  const [selectedPosition, setSelectedPosition] = useState<any | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   // Ordenamiento de tabla: columna + dirección
   const [tableSort, setTableSort] = useState<{ col: string; dir: "asc" | "desc" }>({
     col: "employees",
@@ -679,9 +684,15 @@ export default function JobPositions() {
                     ))}
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm">Ver Detalles</Button>
-                    <Button variant="outline" size="sm">Actualizar Análisis</Button>
-                    <Button variant="outline" size="sm">Descargar Reporte</Button>
+                    <Button variant="outline" size="sm" onClick={() => { setSelectedPosition(position); setDetailOpen(true); }}>
+                      <Eye className="h-3.5 w-3.5 mr-1" />Ver Detalles
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
+                      <RefreshCw className="h-3.5 w-3.5 mr-1" />Actualizar Análisis
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => toast.info("Generando reporte PDF...", { description: position.title })}>
+                      <FileText className="h-3.5 w-3.5 mr-1" />Reporte
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -799,6 +810,75 @@ export default function JobPositions() {
       </Card>
 
       <JobAnalysisDialog open={dialogOpen} onOpenChange={setDialogOpen} onSuccess={refetch} />
+
+      {/* Modal de detalles del puesto */}
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-primary" />
+              {selectedPosition?.title}
+            </DialogTitle>
+            <DialogDescription>{selectedPosition?.department}</DialogDescription>
+          </DialogHeader>
+          {selectedPosition && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Empleados asignados</p>
+                  <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold ${employeeBadgeClass(selectedPosition.employees)}`}>
+                    <Users className="h-3.5 w-3.5" />
+                    {selectedPosition.employees} {selectedPosition.employees === 1 ? "empleado" : "empleados"}
+                  </div>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Nivel de riesgo</p>
+                  {getRiskBadge(selectedPosition.riskLevel)}
+                </div>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Índice de riesgo</p>
+                  <span className={`text-lg font-bold ${calcIndex(selectedPosition.factors) >= 4 ? "text-red-600" : calcIndex(selectedPosition.factors) >= 3 ? "text-yellow-600" : "text-green-600"}`}>
+                    {calcIndex(selectedPosition.factors)}/5
+                  </span>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Último análisis</p>
+                  <span className="text-sm font-medium">{new Date(selectedPosition.lastAnalysis).toLocaleDateString("es-MX")}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-2">Factores de riesgo psicosocial</p>
+                <div className="space-y-2">
+                  {[
+                    { label: "Carga de Trabajo",   value: selectedPosition.factors.workload },
+                    { label: "Control",             value: selectedPosition.factors.control },
+                    { label: "Liderazgo",           value: selectedPosition.factors.leadership },
+                    { label: "Relaciones",          value: selectedPosition.factors.relationships },
+                    { label: "Ambiente Laboral",    value: selectedPosition.factors.workEnvironment },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground w-36 shrink-0">{label}</span>
+                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all ${value >= 4 ? "bg-red-500" : value >= 3 ? "bg-yellow-500" : "bg-green-500"}`}
+                          style={{ width: `${(value / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-semibold w-6 text-right">{value}/5</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button className="flex-1" onClick={() => { setDetailOpen(false); setDialogOpen(true); }}>
+                  <RefreshCw className="h-4 w-4 mr-1.5" />Actualizar Análisis
+                </Button>
+                <Button variant="outline" onClick={() => setDetailOpen(false)}>Cerrar</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1671,3 +1671,8 @@
 - [x] Reducir gap entre jobs al mínimo (200ms) — ya no hay saturación con pool de 15 conexiones
 - [x] Mejorar delay inicial de jobs: reducir a 15s (el health check de Cloud Run pasa en ~5s)
 - [x] Implementar ping periódico de warmup cada 4 minutos en el servidor para evitar hibernación
+
+## Sprint: Verificación login + jobs ejecutivos + Ver Detalles (2026-08-04)
+- [x] Verificar login en producción (navegador) — OK, sin ciclo, redirectUri correcto
+- [x] Reactivar executive-reports-job (weekly + monthly) en minute-tick — lunes 8AM + día 1 de cada mes
+- [x] Conectar botones "Ver Detalles" en JobPositions al modal de detalles (Dialog con factores, empleados, índice, riesgo + botón Actualizar Análisis)

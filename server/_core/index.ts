@@ -1,7 +1,7 @@
 import "dotenv/config";
 import compression from "compression";
 import express from "express";
-import { createServer } from "http";
+import { createServer, request as httpRequest } from "http";
 import helmet from "helmet";
 import { globalLimiter, authLimiter, apiLimiter } from "./rateLimiter";
 import net from "net";
@@ -159,6 +159,14 @@ async function startJobs() {
     const { runPacStaleItemsJob } = await import("../jobs/pac-stale-items-job");
     schedules.push({ label: "pac-stale-items", hour: 9, minute: 0, fn: runPacStaleItemsJob });
   } catch (e) { console.error("[Jobs] pac-stale-items-job load error:", e); }
+
+  // Reportes ejecutivos reactivados (solo se ejecutan en horario programado, no al arrancar)
+  try {
+    const { weeklyReportJob, monthlyReportJob } = await import("../jobs/executive-reports-job");
+    schedules.push({ label: "weekly-report", hour: 8, minute: 0, dayOfWeek: 1, fn: weeklyReportJob });
+    schedules.push({ label: "monthly-report", hour: 8, minute: 0, dayOfMonth: 1, fn: monthlyReportJob });
+    console.log("[Jobs] executive-reports-job reactivado (lunes 8AM + día 1 de cada mes)");
+  } catch (e) { console.error("[Jobs] executive-reports-job load error:", e); }
 
   // Token expiration job — diario a las 9 AM
   try {
@@ -326,11 +334,10 @@ async function startServer() {
     }, JOB_STARTUP_DELAY_MS);
 
     // Warmup periódico: ping interno cada 4 minutos para evitar hibernación de Cloud Run.
-    // Esto elimina los cold starts que causan ETIMEDOUT en la DB al primer request.
+    // Usa httpRequest importado en la cabecera (ESM, no require).
     const WARMUP_INTERVAL_MS = 4 * 60 * 1000; // 4 minutos
     setInterval(() => {
-      const http = require('http');
-      const req = http.request({ hostname: 'localhost', port, path: '/api/health', method: 'GET' }, (res: any) => {
+      const req = httpRequest({ hostname: 'localhost', port, path: '/api/health', method: 'GET' }, (res) => {
         res.resume(); // consume response body
       });
       req.on('error', () => {}); // silenciar errores de red internos
