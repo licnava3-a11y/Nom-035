@@ -1643,3 +1643,9 @@
 - [x] Corrección 1: `server/db.ts` — reemplazar `drizzle(URL)` con pool explícito `mysql.createPool({ connectionLimit: 5, waitForConnections: true, queueLimit: 50, connectTimeout: 10000 })`
 - [x] Corrección 2: `server/_core/index.ts` — agregar staggering de 500ms entre cada job start para evitar picos de conexiones BD simultáneas
 - [x] Verificado: `[Database] Pool initialized (connectionLimit: 5)` en logs, servidor HTTP 200, 0 errores TypeScript
+
+## Sprint: Filtro interactivo mejorado en JobPositions (2026-08-04)
+- [x] Botones de orden rápido (▲ ▼) en la cabecera de la columna "Empleados" para cambiar entre mayor→menor y menor→mayor con un solo clic
+- [x] Badge prominente con número de empleados en cada tarjeta de puesto (chip azul destacado)
+- [x] Indicador visual del criterio de ordenamiento activo (chip con ícono + texto debajo de los controles)
+- [x] Contador de resultados con criterio activo siempre visible
