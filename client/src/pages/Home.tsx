@@ -59,13 +59,69 @@ export default function Home() {
   const { data: matrizStats, isLoading: matrizLoading } = trpc.nom035Matrix.getGlobalStats.useQuery(undefined, { retry: false });
   // Widget alertas de riesgo escalado en puestos
   const { data: escalatedRisksRaw } = trpc.jobPositions.getRiskEscalated.useQuery(undefined, { retry: false, refetchOnWindowFocus: false });
-  const { data: notificationLogData } = trpc.jobPositions.getNotificationLog.useQuery({ limit: 10 }, { retry: false, refetchOnWindowFocus: false });
+  const [notifDateFrom, setNotifDateFrom] = useState<string>('');
+  const [notifDateTo, setNotifDateTo] = useState<string>('');
+  const { data: notificationLogData } = trpc.jobPositions.getNotificationLog.useQuery(
+    { limit: 200, dateFrom: notifDateFrom || undefined, dateTo: notifDateTo || undefined },
+    { retry: false, refetchOnWindowFocus: false }
+  );
   const { data: thresholdConfig } = trpc.systemConfig.get.useQuery({ key: 'notificationThreshold' }, { retry: false });
   const setThresholdMutation = trpc.systemConfig.set.useMutation();
   const utils = trpc.useUtils();
   const [riskThreshold, setRiskThreshold] = useState<number>(0.5);
   const [thresholdSaved, setThresholdSaved] = useState(false);
   const [showNotifLog, setShowNotifLog] = useState(false);
+
+  // Exportar historial de notificaciones a Excel/CSV
+  const exportNotifLogToExcel = () => {
+    if (!notificationLogData || notificationLogData.length === 0) return;
+    const XLSX = (window as any).__XLSX;
+    if (!XLSX) {
+      const header = 'Fecha,Puesto,Departamento,\u00cdndice Anterior,\u00cdndice Nuevo,Delta,Nivel de Riesgo';
+      const rows = notificationLogData.map((log: any) =>
+        `"${new Date(log.sentAt).toLocaleString('es-MX')}","${log.positionName}","${log.department ?? ''}",${log.prevIndex},${log.newIndex},${log.delta},"${log.riskLevel}"`
+      );
+      const csv = [header, ...rows].join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `alertas-riesgo-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      return;
+    }
+    const ws = XLSX.utils.json_to_sheet(notificationLogData.map((log: any) => ({
+      Fecha: new Date(log.sentAt).toLocaleString('es-MX'),
+      Puesto: log.positionName,
+      Departamento: log.department ?? '',
+      '\u00cdndice Anterior': log.prevIndex,
+      '\u00cdndice Nuevo': log.newIndex,
+      Delta: log.delta,
+      'Nivel de Riesgo': log.riskLevel,
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Alertas de Riesgo');
+    XLSX.writeFile(wb, `alertas-riesgo-${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
+  // Accesos rápidos de fechas para historial de notificaciones
+  const setNotifQuickRange = (range: 'today' | 'week' | 'month' | 'prev_month') => {
+    const now = new Date();
+    if (range === 'today') {
+      const d = now.toISOString().slice(0,10);
+      setNotifDateFrom(d); setNotifDateTo(d);
+    } else if (range === 'week') {
+      const from = new Date(now); from.setDate(now.getDate() - 6);
+      setNotifDateFrom(from.toISOString().slice(0,10)); setNotifDateTo(now.toISOString().slice(0,10));
+    } else if (range === 'month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1);
+      setNotifDateFrom(from.toISOString().slice(0,10)); setNotifDateTo(now.toISOString().slice(0,10));
+    } else if (range === 'prev_month') {
+      const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const to = new Date(now.getFullYear(), now.getMonth(), 0);
+      setNotifDateFrom(from.toISOString().slice(0,10)); setNotifDateTo(to.toISOString().slice(0,10));
+    }
+  };
+
   // Sync threshold from DB when loaded
   const thresholdFromDb = thresholdConfig ? parseFloat(thresholdConfig.configValue) : null;
   const effectiveThreshold = thresholdFromDb !== null ? thresholdFromDb : riskThreshold;
@@ -645,10 +701,53 @@ export default function Home() {
             </div>
             {/* Panel historial de notificaciones */}
             {showNotifLog && (
-              <div className="mt-4 border-t border-red-200 dark:border-red-800 pt-3">
-                <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-2">Historial de alertas enviadas</p>
+              <div className="mt-4 border-t border-red-200 dark:border-red-800 pt-3 space-y-3">
+                {/* Cabecera con contador y botón exportar */}
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <p className="text-xs font-semibold text-red-700 dark:text-red-400">
+                    Historial de alertas enviadas
+                    {notificationLogData && notificationLogData.length > 0 && (
+                      <span className="ml-2 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded-full">
+                        {notificationLogData.length} registro{notificationLogData.length !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </p>
+                  <button
+                    onClick={exportNotifLogToExcel}
+                    disabled={!notificationLogData || notificationLogData.length === 0}
+                    className="text-xs px-2.5 py-1 rounded border border-red-300 text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 font-medium"
+                  >
+                    ↓ Exportar Excel
+                  </button>
+                </div>
+                {/* Filtros de fecha */}
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['today','week','month','prev_month'] as const).map(r => (
+                      <button key={r} onClick={() => setNotifQuickRange(r)}
+                        className="text-xs px-2 py-0.5 rounded border border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+                        {r === 'today' ? 'Hoy' : r === 'week' ? 'Últimos 7 días' : r === 'month' ? 'Este mes' : 'Mes anterior'}
+                      </button>
+                    ))}
+                    {(notifDateFrom || notifDateTo) && (
+                      <button onClick={() => { setNotifDateFrom(''); setNotifDateTo(''); }}
+                        className="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50">
+                        ✕ Limpiar
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <label className="text-xs text-muted-foreground">Desde:</label>
+                    <input type="date" value={notifDateFrom} onChange={e => setNotifDateFrom(e.target.value)}
+                      className="text-xs border border-red-200 rounded px-2 py-0.5 bg-white dark:bg-gray-900 text-foreground" />
+                    <label className="text-xs text-muted-foreground">Hasta:</label>
+                    <input type="date" value={notifDateTo} onChange={e => setNotifDateTo(e.target.value)}
+                      className="text-xs border border-red-200 rounded px-2 py-0.5 bg-white dark:bg-gray-900 text-foreground" />
+                  </div>
+                </div>
+                {/* Tabla de resultados */}
                 {!notificationLogData || notificationLogData.length === 0 ? (
-                  <p className="text-xs text-muted-foreground italic">No hay alertas registradas aún.</p>
+                  <p className="text-xs text-muted-foreground italic">No hay alertas para el período seleccionado.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs">

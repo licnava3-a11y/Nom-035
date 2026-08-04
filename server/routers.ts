@@ -1506,15 +1506,35 @@ export const appRouter = router({
         }
       }),
     getNotificationLog: protectedProcedure
-      .input(z.object({ limit: z.number().optional().default(20) }))
+      .input(z.object({
+        limit: z.number().optional().default(100),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+      }))
       .query(async ({ input }) => {
         try {
           const { getDb } = await import('./db');
           const { riskNotificationLog } = await import('../drizzle/schema');
-          const { desc: descOrd } = await import('drizzle-orm');
+          const { desc: descOrd, gte, lte, and } = await import('drizzle-orm');
           const rawDb = await getDb();
           if (!rawDb) return [];
-          return await rawDb.select().from(riskNotificationLog).orderBy(descOrd(riskNotificationLog.sentAt)).limit(input.limit);
+          const conditions: any[] = [];
+          if (input.dateFrom) {
+            const from = new Date(input.dateFrom);
+            from.setHours(0, 0, 0, 0);
+            conditions.push(gte(riskNotificationLog.sentAt, from));
+          }
+          if (input.dateTo) {
+            const to = new Date(input.dateTo);
+            to.setHours(23, 59, 59, 999);
+            conditions.push(lte(riskNotificationLog.sentAt, to));
+          }
+          const baseQuery = rawDb.select().from(riskNotificationLog)
+            .orderBy(descOrd(riskNotificationLog.sentAt))
+            .limit(input.limit);
+          if (conditions.length === 0) return await baseQuery;
+          if (conditions.length === 1) return await baseQuery.where(conditions[0]);
+          return await baseQuery.where(and(...conditions));
         } catch (e) {
           console.error('[JobPositions] Error fetching notification log:', e);
           return [];

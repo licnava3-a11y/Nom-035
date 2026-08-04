@@ -1716,11 +1716,16 @@
 
 ## Sprint: Historial notificaciones + umbral DB + Reporte General PDF
 
-- [ ] Tabla notification_log en DB para registrar notificaciones enviadas (positionId, positionName, prevIndex, newIndex, delta, sentAt)
-- [ ] Tabla system_config en DB para almacenar parámetros configurables (key/value), incluyendo notificationThreshold
-- [ ] Procedimiento tRPC jobPositions.getNotificationLog para obtener historial de notificaciones
-- [ ] Procedimientos tRPC systemConfig.get y systemConfig.set para leer/escribir umbral
-- [ ] Actualizar update de jobPositions para leer notificationThreshold desde system_config antes de notificar
-- [ ] Panel historial de notificaciones en Home.tsx (tabla con fecha, puesto, delta, nivel)
-- [ ] Control de umbral de notificación en el dashboard con botón Guardar (persiste en DB)
-- [ ] Botón "Reporte General PDF" en JobPositions que genere PDF con todos los puestos filtrados
+- [x] Tabla notification_log en DB para registrar notificaciones enviadas (positionId, positionName, prevIndex, newIndex, delta, sentAt)
+- [x] Tabla system_config en DB para almacenar parámetros configurables (key/value), incluyendo notificationThreshold
+- [x] Procedimiento tRPC jobPositions.getNotificationLog para obtener historial de notificaciones
+- [x] Procedimientos tRPC systemConfig.get y systemConfig.set para leer/escribir umbral
+- [x] Actualizar update de jobPositions para leer notificationThreshold desde system_config antes de notificar
+- [x] Panel historial de notificaciones en Home.tsx (tabla con fecha, puesto, delta, nivel)
+- [x] Control de umbral de notificación en el dashboard con botón Guardar (persiste en DB)
+- [x] Botón "Reporte General PDF" en JobPositions que genere PDF con todos los puestos filtrados
+
+## Sprint: Filtro fechas + Excel historial notificaciones (2026-08-04)
+- [x] Actualizar tRPC getNotificationLog para aceptar dateFrom y dateTo como filtros opcionales
+- [x] Agregar controles de fecha (Desde/Hasta) y accesos rápidos (Hoy/Semana/Mes/Mes anterior) en panel historial de notificaciones
+- [x] Botón "Exportar Excel" en el panel de historial que descargue las alertas filtradas
