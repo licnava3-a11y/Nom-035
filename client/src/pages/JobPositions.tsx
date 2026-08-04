@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import {
   Briefcase, AlertTriangle, TrendingUp, Plus, FileText,
   Search, ArrowUpDown, Users, ArrowUp, ArrowDown, X,
   ChevronUp, ChevronDown, LayoutGrid, Table2, Download,
-  ChevronUpSquare, ChevronDownSquare
+  ChevronUpSquare, ChevronDownSquare, ImageDown, Building2
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +19,7 @@ import Chart from "chart.js/auto";
 
 type SortKey = "employees_desc" | "employees_asc" | "risk" | "name";
 type RiskFilter = "all" | "bajo" | "medio" | "alto";
+type DeptFilter = string;
 type ViewMode = "cards" | "table";
 
 // ── Colores de riesgo ──────────────────────────────────────────────────────────
@@ -39,17 +40,28 @@ function employeeBadgeClass(count: number) {
 }
 
 // ── Componente gráfica de barras horizontales ─────────────────────────────────
-function EmployeesBarChart({ positions }: { positions: any[] }) {
+type BarChartHandle = { downloadPng: () => void };
+const EmployeesBarChart = forwardRef<BarChartHandle, { positions: any[] }>(function EmployeesBarChart({ positions }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart | null>(null);
+  const chartInst = useRef<Chart | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    downloadPng() {
+      if (!canvasRef.current) return;
+      const link = document.createElement("a");
+      link.download = `distribucion-empleados-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = canvasRef.current.toDataURL("image/png");
+      link.click();
+    },
+  }));
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    if (chartRef.current) chartRef.current.destroy();
+    if (chartInst.current) chartInst.current.destroy();
 
     const sorted = [...positions].sort((a, b) => b.employees - a.employees).slice(0, 15);
 
-    chartRef.current = new Chart(canvasRef.current, {
+    chartInst.current = new Chart(canvasRef.current, {
       type: "bar",
       data: {
         labels: sorted.map(p => p.title.length > 28 ? p.title.slice(0, 26) + "…" : p.title),
@@ -93,7 +105,7 @@ function EmployeesBarChart({ positions }: { positions: any[] }) {
       },
     });
 
-    return () => { chartRef.current?.destroy(); };
+    return () => { chartInst.current?.destroy(); };
   }, [positions]);
 
   const chartHeight = Math.max(180, Math.min(positions.length, 15) * 36 + 40);
@@ -103,7 +115,7 @@ function EmployeesBarChart({ positions }: { positions: any[] }) {
       <canvas ref={canvasRef} />
     </div>
   );
-}
+});
 
 // ── Componente principal ───────────────────────────────────────────────────────
 export default function JobPositions() {
@@ -114,6 +126,8 @@ export default function JobPositions() {
   const [filterRisk, setFilterRisk] = useState<RiskFilter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
   const [showChart, setShowChart] = useState(true);
+  const [filterDept, setFilterDept] = useState<DeptFilter>("all");
+  const barChartRef = useRef<BarChartHandle>(null);
   // Ordenamiento de tabla: columna + dirección
   const [tableSort, setTableSort] = useState<{ col: string; dir: "asc" | "desc" }>({
     col: "employees",
@@ -150,13 +164,17 @@ export default function JobPositions() {
     : examplePositions;
 
   // ── Filtrado ─────────────────────────────────────────────────────────────────
+  // Lista de departamentos únicos
+  const departments = Array.from(new Set(rawPositions.map((p: any) => p.department))).sort() as string[];
+
   const filteredPositions = rawPositions.filter((p: any) => {
     const matchSearch =
       searchQuery === "" ||
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.department.toLowerCase().includes(searchQuery.toLowerCase());
     const matchRisk = filterRisk === "all" || p.riskLevel === filterRisk;
-    return matchSearch && matchRisk;
+    const matchDept = filterDept === "all" || p.department === filterDept;
+    return matchSearch && matchRisk && matchDept;
   });
 
   // ── Ordenamiento para vista tarjetas ─────────────────────────────────────────
@@ -251,10 +269,11 @@ export default function JobPositions() {
   const clearFilters = () => {
     setSearchQuery("");
     setFilterRisk("all");
+    setFilterDept("all");
     setSortBy("employees_desc");
   };
 
-  const hasActiveFilters = searchQuery !== "" || filterRisk !== "all";
+  const hasActiveFilters = searchQuery !== "" || filterRisk !== "all" || filterDept !== "all";
 
   const getRiskBadge = (level: string) => {
     switch (level) {
@@ -377,20 +396,34 @@ export default function JobPositions() {
                 <span className="text-red-600 font-medium">rojo = alto</span>
               </CardDescription>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowChart(v => !v)}
-              className="text-muted-foreground"
-            >
-              {showChart ? <ChevronUpSquare className="h-4 w-4" /> : <ChevronDownSquare className="h-4 w-4" />}
-              <span className="ml-1 text-xs">{showChart ? "Ocultar" : "Mostrar"}</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              {showChart && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => barChartRef.current?.downloadPng()}
+                  title="Descargar gráfica como PNG"
+                  className="text-xs"
+                >
+                  <ImageDown className="h-3.5 w-3.5 mr-1.5" />
+                  Descargar PNG
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowChart(v => !v)}
+                className="text-muted-foreground"
+              >
+                {showChart ? <ChevronUpSquare className="h-4 w-4" /> : <ChevronDownSquare className="h-4 w-4" />}
+                <span className="ml-1 text-xs">{showChart ? "Ocultar" : "Mostrar"}</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         {showChart && (
           <CardContent className="pt-0">
-            <EmployeesBarChart positions={displayPositions} />
+            <EmployeesBarChart ref={barChartRef} positions={displayPositions} />
           </CardContent>
         )}
       </Card>
@@ -408,6 +441,19 @@ export default function JobPositions() {
               className="pl-9"
             />
           </div>
+
+          {/* Filtro de departamento */}
+          <Select value={filterDept} onValueChange={v => setFilterDept(v)}>
+            <SelectTrigger className="w-52">
+              <SelectValue placeholder="Departamento" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los departamentos</SelectItem>
+              {departments.map(dept => (
+                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Filtro de riesgo */}
           <Select value={filterRisk} onValueChange={v => setFilterRisk(v as RiskFilter)}>

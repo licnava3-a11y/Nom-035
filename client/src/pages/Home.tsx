@@ -48,7 +48,7 @@ ChartJS.register(
 type Period = 'today' | 'this_week' | 'this_month' | 'this_year' | 'last_week' | 'last_month' | 'last_year';
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [period, setPeriod] = useState<Period>('this_month');
   const [alertMonths, setAlertMonths] = useState<6 | 12 | 24>(6);
@@ -208,6 +208,20 @@ export default function Home() {
       },
     ],
   };
+
+  // Mostrar skeleton durante la carga inicial para evitar el ciclo de login
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center mx-auto shadow-lg shadow-red-900/50">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white" />
+          </div>
+          <p className="text-white/60 text-sm">Cargando aplicación...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (

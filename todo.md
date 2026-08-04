@@ -1654,3 +1654,9 @@
 - [x] Toggle tarjetas/tabla con columnas ordenables (Puesto, Departamento, Empleados, Riesgo, Índice)
 - [x] Gráfica de barras horizontales Chart.js con distribución de empleados por puesto
 - [x] Botón "Exportar Excel" que descarga los datos filtrados actualmente visibles
+
+## Sprint: Filtro departamento + PNG + fix conexión (2026-08-04)
+- [x] Filtro desplegable por departamento en JobPositions
+- [x] Botón descarga PNG de la gráfica de barras
+- [x] Fix error conexión rechazada (reinicio servidor)
+- [x] Mejorar robustez del ciclo de login en Home.tsx (agregar loading guard)
