@@ -1704,6 +1704,12 @@
 - [x] Columna "Observaciones" en la tabla del historial dentro del modal de detalles
 
 ## Sprint: Filtro fechas + Comparativa factores + Alerta dashboard (2026-08-04)
-- [ ] Filtro de rango de fechas (desde/hasta) en el historial del modal de detalles de JobPositions
-- [ ] Tabla comparativa de factores: análisis actual vs anterior con indicadores triangulo arriba/abajo
-- [ ] Alerta visual en dashboard principal para puestos cuyo riesgo haya aumentado en el último análisis
+- [x] Filtro de rango de fechas (desde/hasta) en el historial del modal de detalles de JobPositions
+- [x] Tabla comparativa de factores: análisis actual vs anterior con indicadores triangulo arriba/abajo
+- [x] Alerta visual en dashboard principal para puestos cuyo riesgo haya aumentado en el último análisis
+
+## Sprint: PDF comparativo + umbral alerta + notificaciones
+- [ ] Botón "Exportar PDF comparativo" en la tabla comparativa de factores del modal de detalles
+- [ ] PDF con barras de colores para cada factor (actual vs anterior), índice global y delta
+- [ ] Campo de umbral configurable en el dashboard (slider/input) para filtrar alertas de riesgo escalado (default 0.5)
+- [ ] Notificación automática al administrador (notifyOwner) al guardar análisis con riesgo mayor al anterior

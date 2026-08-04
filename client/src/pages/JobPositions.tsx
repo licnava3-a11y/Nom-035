@@ -1085,10 +1085,89 @@ export default function JobPositions() {
                     <div className="border rounded-lg p-3 bg-indigo-50/50 dark:bg-indigo-950/20">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-medium text-indigo-700 dark:text-indigo-300">Comparativa: último análisis vs anterior</p>
-                        <button
-                          onClick={() => setShowComparative((v) => !v)}
-                          className="text-xs text-indigo-600 hover:text-indigo-800 underline"
-                        >{showComparative ? 'Ocultar' : 'Ver comparativa'}</button>
+                        <div className="flex items-center gap-2">
+                          {showComparative && (
+                            <button
+                              onClick={() => {
+                                const sorted2 = [...filteredHistory].sort((a: any, b: any) => new Date(b.analyzedAt).getTime() - new Date(a.analyzedAt).getTime());
+                                const curr2 = sorted2[0] as any;
+                                const prev2 = sorted2[1] as any;
+                                const fLabels: Record<string, string> = { workload: 'Carga de Trabajo', control: 'Control', leadership: 'Liderazgo', relationships: 'Relaciones', workEnvironment: 'Ambiente' };
+                                const cF = (() => { try { return typeof curr2.factors === 'string' ? JSON.parse(curr2.factors) : (curr2.factors || {}); } catch { return {}; } })();
+                                const pF = (() => { try { return typeof prev2.factors === 'string' ? JSON.parse(prev2.factors) : (prev2.factors || {}); } catch { return {}; } })();
+                                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                                const W = 210; const mg = 15;
+                                doc.setFillColor(30, 41, 59);
+                                doc.rect(0, 0, W, 28, 'F');
+                                doc.setTextColor(255, 255, 255);
+                                doc.setFontSize(13);
+                                doc.setFont('helvetica', 'bold');
+                                doc.text('Reporte Comparativo de Factores Psicosociales', mg, 12);
+                                doc.setFontSize(9);
+                                doc.setFont('helvetica', 'normal');
+                                doc.text(`Puesto: ${selectedPosition?.positionName || selectedPosition?.title || ''}  |  Depto: ${selectedPosition?.department || ''}`, mg, 20);
+                                doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, mg, 26);
+                                doc.setTextColor(30, 41, 59);
+                                let y2 = 38;
+                                doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+                                doc.text('Factor', mg, y2);
+                                doc.text(new Date(prev2.analyzedAt).toLocaleDateString('es-MX'), 100, y2, { align: 'center' });
+                                doc.text(new Date(curr2.analyzedAt).toLocaleDateString('es-MX'), 140, y2, { align: 'center' });
+                                doc.text('Δ', 175, y2, { align: 'center' });
+                                y2 += 4;
+                                doc.setDrawColor(200, 200, 200);
+                                doc.line(mg, y2, W - mg, y2);
+                                y2 += 6;
+                                doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+                                const barW = 35; const barH = 4;
+                                Object.keys(fLabels).forEach((key) => {
+                                  const cv = cF[key] ?? 0; const pv = pF[key] ?? 0; const dv = cv - pv;
+                                  doc.setTextColor(30, 41, 59);
+                                  doc.text(fLabels[key], mg, y2);
+                                  doc.setFillColor(148, 163, 184);
+                                  doc.rect(80, y2 - 3.5, (pv / 5) * barW, barH, 'F');
+                                  doc.setFillColor(210, 210, 210);
+                                  doc.rect(80 + (pv / 5) * barW, y2 - 3.5, barW - (pv / 5) * barW, barH, 'F');
+                                  doc.setTextColor(30, 41, 59); doc.text(`${pv}/5`, 118, y2);
+                                  const rg: [number, number, number] = cv <= 2 ? [34, 197, 94] : cv <= 3.5 ? [251, 191, 36] : [239, 68, 68];
+                                  doc.setFillColor(...rg);
+                                  doc.rect(120, y2 - 3.5, (cv / 5) * barW, barH, 'F');
+                                  doc.setFillColor(210, 210, 210);
+                                  doc.rect(120 + (cv / 5) * barW, y2 - 3.5, barW - (cv / 5) * barW, barH, 'F');
+                                  doc.text(`${cv}/5`, 158, y2);
+                                  if (dv > 0) doc.setTextColor(239, 68, 68);
+                                  else if (dv < 0) doc.setTextColor(34, 197, 94);
+                                  else doc.setTextColor(148, 163, 184);
+                                  doc.text(dv > 0 ? `▲ +${dv}` : dv < 0 ? `▼ ${dv}` : '—', 175, y2, { align: 'center' });
+                                  y2 += 10;
+                                  doc.setDrawColor(230, 230, 230);
+                                  doc.line(mg, y2 - 3, W - mg, y2 - 3);
+                                });
+                                y2 += 2;
+                                doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(30, 41, 59);
+                                doc.text('Índice Global', mg, y2);
+                                doc.text(`${prev2.riskIndex}/5`, 118, y2);
+                                doc.text(`${curr2.riskIndex}/5`, 158, y2);
+                                const gd = Number(curr2.riskIndex) - Number(prev2.riskIndex);
+                                if (gd > 0) doc.setTextColor(239, 68, 68);
+                                else if (gd < 0) doc.setTextColor(34, 197, 94);
+                                else doc.setTextColor(148, 163, 184);
+                                doc.text(gd > 0 ? `▲ +${gd.toFixed(1)}` : gd < 0 ? `▼ ${gd.toFixed(1)}` : '—', 175, y2, { align: 'center' });
+                                doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(148, 163, 184);
+                                doc.text('NOM-035-STPS-2018 — Reporte generado automáticamente', mg, 285);
+                                const fname = `comparativo-${(selectedPosition?.positionName || selectedPosition?.title || 'puesto').replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`;
+                                doc.save(fname);
+                              }}
+                              className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded flex items-center gap-1"
+                            >
+                              <Download className="h-3 w-3" /> PDF
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setShowComparative((v) => !v)}
+                            className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+                          >{showComparative ? 'Ocultar' : 'Ver comparativa'}</button>
+                        </div>
                       </div>
                       {showComparative && (() => {
                         const sorted = [...filteredHistory].sort((a: any, b: any) => new Date(b.analyzedAt).getTime() - new Date(a.analyzedAt).getTime());

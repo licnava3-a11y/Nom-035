@@ -58,7 +58,9 @@ export default function Home() {
   // Widget NOM-035 Matriz
   const { data: matrizStats, isLoading: matrizLoading } = trpc.nom035Matrix.getGlobalStats.useQuery(undefined, { retry: false });
   // Widget alertas de riesgo escalado en puestos
-  const { data: escalatedRisks } = trpc.jobPositions.getRiskEscalated.useQuery(undefined, { retry: false, refetchOnWindowFocus: false });
+  const { data: escalatedRisksRaw } = trpc.jobPositions.getRiskEscalated.useQuery(undefined, { retry: false, refetchOnWindowFocus: false });
+  const [riskThreshold, setRiskThreshold] = useState<number>(0.5);
+  const escalatedRisks = (escalatedRisksRaw ?? []).filter((p: any) => Number(p.delta) >= riskThreshold);
   // Widget de calidad
   const [qualityPeriod, setQualityPeriod] = useState<number | undefined>(undefined);
   const [qualityDateFrom, setQualityDateFrom] = useState<string>("");
@@ -581,6 +583,17 @@ export default function Home() {
             <CardDescription className="text-xs text-red-600/80 mt-1">
               Los siguientes puestos registraron un índice de riesgo mayor en su último análisis vs el anterior.
             </CardDescription>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs text-red-700 dark:text-red-400 font-medium whitespace-nowrap">Umbral mínimo:</span>
+              <input
+                type="range" min={0} max={2} step={0.1}
+                value={riskThreshold}
+                onChange={(e) => setRiskThreshold(Number(e.target.value))}
+                className="w-28 accent-red-600"
+              />
+              <span className="text-xs font-bold text-red-700 dark:text-red-400 w-8">≥ {riskThreshold.toFixed(1)}</span>
+              <button onClick={() => setRiskThreshold(0.5)} className="text-xs text-red-500 hover:text-red-700 underline">Reset</button>
+            </div>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             <div className="space-y-1.5">

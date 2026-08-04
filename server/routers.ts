@@ -1379,18 +1379,46 @@ export const appRouter = router({
         if (factors && rest.riskLevel) {
           try {
             const { getDb } = await import('./db');
-            const { jobPositionHistory } = await import('../drizzle/schema');
+            const { jobPositionHistory, jobPositions: jpTable } = await import('../drizzle/schema');
+            const { desc: descOrd, eq: eqOp } = await import('drizzle-orm');
             const rawDb = await getDb();
             if (rawDb) {
               const avg = (factors.workload + factors.control + factors.leadership + factors.relationships + factors.workEnvironment) / 5;
+              const newIndex = parseFloat(avg.toFixed(1));
+              // Check if risk increased vs previous analysis
+              const prevRows = await rawDb
+                .select()
+                .from(jobPositionHistory)
+                .where(eqOp(jobPositionHistory.positionId, id))
+                .orderBy(descOrd(jobPositionHistory.analyzedAt))
+                .limit(1);
+              const prevIndex = prevRows.length > 0 ? Number(prevRows[0].riskIndex) : null;
               await rawDb.insert(jobPositionHistory).values({
                 positionId: id,
                 riskLevel: rest.riskLevel,
-                riskIndex: avg.toFixed(1),
+                riskIndex: newIndex.toFixed(1),
                 employeeCount: rest.employeeCount ?? 0,
                 factors: JSON.stringify(factors),
                 analyzedBy: ctx.user.id,
               });
+              // Send automatic notification if risk increased
+              if (prevIndex !== null && newIndex > prevIndex) {
+                try {
+                  const { notifyOwner } = await import('./_core/notification');
+                  const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, id)).limit(1);
+                  const posName = posRows[0]?.positionName ?? `Puesto #${id}`;
+                  const dept = posRows[0]?.department ? ` (${posRows[0].department})` : '';
+                  const delta = (newIndex - prevIndex).toFixed(1);
+                  const riskLabel: Record<string, string> = { low: 'Bajo', medium: 'Medio', high: 'Alto', very_high: 'Muy Alto' };
+                  await notifyOwner({
+                    title: `⚠️ Riesgo psicosocial aumentado: ${posName}${dept}`,
+                    content: `El índice de riesgo del puesto "${posName}"${dept} aumentó de ${prevIndex}/5 a ${newIndex}/5 (▲ +${delta}). Nivel actual: ${riskLabel[rest.riskLevel] ?? rest.riskLevel}. Analizado por: ${ctx.user.name ?? ctx.user.openId}. Fecha: ${new Date().toLocaleString('es-MX')}.`,
+                  });
+                  console.log(`[JobPositions] Notificación enviada: riesgo aumentado en "${posName}" (${prevIndex} → ${newIndex})`);
+                } catch (notifErr) {
+                  console.error('[JobPositions] Error enviando notificación de riesgo:', notifErr);
+                }
+              }
             }
           } catch (e) {
             console.error('[JobPositions] Error saving history:', e);
