@@ -859,7 +859,7 @@ export default function JobPositions() {
                           </div>
                         </td>
                       </tr>
-                    })}
+                    ))}
                   </tbody>
                   <tfoot className="bg-muted/30 border-t">
                     <tr>
@@ -973,6 +973,9 @@ export default function JobPositions() {
               <div className="flex gap-2 pt-1">
                 <Button className="flex-1" onClick={() => { setDetailOpen(false); setDialogOpen(true); }}>
                   <RefreshCw className="h-4 w-4 mr-1.5" />Actualizar Análisis
+                </Button>
+                <Button variant="outline" onClick={() => { generatePositionPdf(selectedPosition); }}>
+                  <FileText className="h-4 w-4 mr-1.5" />Reporte PDF
                 </Button>
                 <Button variant="outline" onClick={() => setDetailOpen(false)}>Cerrar</Button>
               </div>

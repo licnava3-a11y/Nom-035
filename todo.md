@@ -1676,3 +1676,8 @@
 - [x] Verificar login en producción (navegador) — OK, sin ciclo, redirectUri correcto
 - [x] Reactivar executive-reports-job (weekly + monthly) en minute-tick — lunes 8AM + día 1 de cada mes
 - [x] Conectar botones "Ver Detalles" en JobPositions al modal de detalles (Dialog con factores, empleados, índice, riesgo + botón Actualizar Análisis)
+
+## Sprint: Sliders factores + employeeCount + PDF en modal (2026-08-04)
+- [x] Agregar 5 sliders de factores psicosociales en JobAnalysisDialog (workload, control, leadership, relationships, workEnvironment)
+- [x] Agregar campo numérico editable de employeeCount en el formulario de creación/edición de puestos
+- [x] Agregar botón "Reporte PDF" dentro del modal de detalles del puesto (Dialog)
