@@ -376,6 +376,22 @@ export const jobPositions = mysqlTable("jobPositions", {
 export type JobPosition = typeof jobPositions.$inferSelect;
 export type InsertJobPosition = typeof jobPositions.$inferInsert;
 
+// ── Job Position History ──────────────────────────────────────────────────────
+export const jobPositionHistory = mysqlTable("jobPositionHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  positionId: int("positionId").notNull().references(() => jobPositions.id, { onDelete: "cascade" }),
+  riskLevel: mysqlEnum("riskLevel", ["low", "medium", "high", "very_high"]).notNull(),
+  riskIndex: varchar("riskIndex", { length: 10 }).notNull(), // e.g. "3.4"
+  employeeCount: int("employeeCount").notNull().default(0),
+  factors: text("factors"), // JSON snapshot
+  notes: text("notes"),
+  analyzedAt: timestamp("analyzedAt").defaultNow().notNull(),
+  analyzedBy: int("analyzedBy"), // FK to users
+});
+
+export type JobPositionHistory = typeof jobPositionHistory.$inferSelect;
+export type InsertJobPositionHistory = typeof jobPositionHistory.$inferInsert;
+
 /**
  * Job functions table - Functions breakdown for positions
  */

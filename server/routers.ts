@@ -1369,13 +1369,55 @@ export const appRouter = router({
           workEnvironment: z.number().min(1).max(5),
         }).optional(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { id, factors, ...rest } = input;
         await db.updateJobPosition(id, {
           ...rest,
           ...(factors !== undefined ? { factors: JSON.stringify(factors) } : {}),
         });
+        // Save history snapshot when factors are provided
+        if (factors && rest.riskLevel) {
+          try {
+            const { getDb } = await import('./db');
+            const { jobPositionHistory } = await import('../drizzle/schema');
+            const rawDb = await getDb();
+            if (rawDb) {
+              const avg = (factors.workload + factors.control + factors.leadership + factors.relationships + factors.workEnvironment) / 5;
+              await rawDb.insert(jobPositionHistory).values({
+                positionId: id,
+                riskLevel: rest.riskLevel,
+                riskIndex: avg.toFixed(1),
+                employeeCount: rest.employeeCount ?? 0,
+                factors: JSON.stringify(factors),
+                analyzedBy: ctx.user.id,
+              });
+            }
+          } catch (e) {
+            console.error('[JobPositions] Error saving history:', e);
+          }
+        }
         return { success: true };
+      }),
+    getHistory: protectedProcedure
+      .input(z.object({ positionId: z.number() }))
+      .query(async ({ input }) => {
+        try {
+          const { getDb } = await import('./db');
+          const { jobPositionHistory } = await import('../drizzle/schema');
+          const { desc: descOrd, eq: eqOp } = await import('drizzle-orm');
+          const rawDb = await getDb();
+          if (!rawDb) return [];
+          const rows = await rawDb
+            .select()
+            .from(jobPositionHistory)
+            .where(eqOp(jobPositionHistory.positionId, input.positionId))
+            .orderBy(descOrd(jobPositionHistory.analyzedAt))
+            .limit(20);
+          return rows;
+        } catch (e) {
+          console.error('[JobPositions] Error fetching history:', e);
+          return [];
+        }
       }),
   }),
 

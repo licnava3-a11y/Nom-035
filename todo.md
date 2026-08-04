@@ -1681,3 +1681,11 @@
 - [x] Agregar 5 sliders de factores psicosociales en JobAnalysisDialog (workload, control, leadership, relationships, workEnvironment)
 - [x] Agregar campo numérico editable de employeeCount en el formulario de creación/edición de puestos
 - [x] Agregar botón "Reporte PDF" dentro del modal de detalles del puesto (Dialog)
+
+## Sprint: Edición puesto + riesgo automático + historial (2026-08-04)
+- [x] Crear tabla job_position_history en DB para guardar historial de análisis
+- [x] Crear JobEditDialog con datos precargados (positionName, department, description, riskLevel, employeeCount, factors)
+- [x] Lógica de nivel de riesgo automático: índice < 2.5 → Bajo, 2.5-3.5 → Medio, 3.5-4.5 → Alto, > 4.5 → Muy Alto
+- [x] Procedimiento tRPC jobPositions.update para guardar edición y crear entrada en historial
+- [x] Procedimiento tRPC jobPositions.getHistory para obtener historial por positionId
+- [x] Sección de historial en modal de detalles: tabla con fecha, índice, nivel de riesgo, empleados

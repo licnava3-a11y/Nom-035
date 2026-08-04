@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
+import { JobEditDialog } from "@/components/JobEditDialog";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import Chart from "chart.js/auto";
 import { jsPDF } from "jspdf";
@@ -134,6 +135,14 @@ export default function JobPositions() {
   // Modal de detalles del puesto
   const [selectedPosition, setSelectedPosition] = useState<any | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  // Modal de edición de puesto
+  const [editOpen, setEditOpen] = useState(false);
+  const [editPosition, setEditPosition] = useState<any | null>(null);
+  // Historial de análisis
+  const historyQuery = trpc.jobPositions.getHistory.useQuery(
+    { positionId: selectedPosition?.id ?? 0 },
+    { enabled: detailOpen && !!selectedPosition?.id }
+  );
   // Ordenamiento de tabla: columna + dirección
   const [tableSort, setTableSort] = useState<{ col: string; dir: "asc" | "desc" }>({
     col: "employees",
@@ -911,6 +920,12 @@ export default function JobPositions() {
       </Card>
 
       <JobAnalysisDialog open={dialogOpen} onOpenChange={setDialogOpen} onSuccess={refetch} />
+      <JobEditDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSuccess={refetch}
+        position={editPosition}
+      />
 
       {/* Modal de detalles del puesto */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
@@ -970,8 +985,53 @@ export default function JobPositions() {
                   ))}
                 </div>
               </div>
+              {/* Historial de análisis */}
+              {historyQuery.data && historyQuery.data.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Historial de análisis</p>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-xs">
+                      <thead className="bg-muted/60">
+                        <tr>
+                          <th className="text-left px-3 py-2 font-medium">Fecha</th>
+                          <th className="text-center px-3 py-2 font-medium">Índice</th>
+                          <th className="text-center px-3 py-2 font-medium">Riesgo</th>
+                          <th className="text-center px-3 py-2 font-medium">Empleados</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {historyQuery.data.map((row: any) => (
+                          <tr key={row.id} className="border-t hover:bg-muted/30">
+                            <td className="px-3 py-2">{new Date(row.analyzedAt).toLocaleDateString("es-MX")}</td>
+                            <td className="px-3 py-2 text-center font-semibold">{row.riskIndex}/5</td>
+                            <td className="px-3 py-2 text-center">
+                              <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                row.riskLevel === 'high' || row.riskLevel === 'very_high' ? 'bg-red-100 text-red-700' :
+                                row.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+                              }`}>
+                                {row.riskLevel === 'very_high' ? 'Muy Alto' : row.riskLevel === 'high' ? 'Alto' : row.riskLevel === 'medium' ? 'Medio' : 'Bajo'}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 text-center">{row.employeeCount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+              {historyQuery.isLoading && (
+                <p className="text-xs text-muted-foreground text-center py-2">Cargando historial...</p>
+              )}
+              {historyQuery.data?.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-2">Sin análisis anteriores registrados</p>
+              )}
               <div className="flex gap-2 pt-1">
-                <Button className="flex-1" onClick={() => { setDetailOpen(false); setDialogOpen(true); }}>
+                <Button className="flex-1" onClick={() => {
+                  setEditPosition(selectedPosition);
+                  setDetailOpen(false);
+                  setEditOpen(true);
+                }}>
                   <RefreshCw className="h-4 w-4 mr-1.5" />Actualizar Análisis
                 </Button>
                 <Button variant="outline" onClick={() => { generatePositionPdf(selectedPosition); }}>
