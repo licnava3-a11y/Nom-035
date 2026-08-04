@@ -555,4 +555,36 @@ El texto debe ser específico, accionable y seguir las mejores prácticas de la 
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al generar el PDF del caso" });
       }
     }),
+
+  /**
+   * Obtener casos abiertos (no cerrados) para el dashboard gerencial
+   * Ordenados por prioridad descendente y fecha de creación
+   */
+  getOpenCases: protectedProcedure
+    .input(z.object({ limit: z.number().min(1).max(50).default(5) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB no disponible" });
+      const { ne } = await import("drizzle-orm");
+      const openCases = await db
+        .select({
+          id: cases.id,
+          caseNumber: cases.caseNumber,
+          caseType: cases.caseType,
+          status: cases.status,
+          priority: cases.priority,
+          reporterName: cases.reporterName,
+          isAnonymous: cases.isAnonymous,
+          createdAt: cases.createdAt,
+          description: cases.description,
+        })
+        .from(cases)
+        .where(ne(cases.status, "closed"))
+        .orderBy(
+          sql`FIELD(${cases.priority}, 'critical', 'high', 'medium', 'low')`,
+          desc(cases.createdAt)
+        )
+        .limit(input.limit);
+      return openCases;
+    }),
 });

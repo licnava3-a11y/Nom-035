@@ -19,6 +19,10 @@ export default function NMX025EvidencesFolder() {
   const [companySize, setCompanySize] = useState<'small' | 'medium' | 'large'>('large');
   const [isExporting, setIsExporting] = useState(false);
 
+  // Query para obtener nombre de la empresa desde configuración
+  const { data: companyData } = trpc.company.getGeneralData.useQuery();
+  const companyName = (companyData as any)?.razonSocial ?? 'Mi Empresa';
+
   // Query para obtener evidencias
   const { data: evidences, isLoading } = trpc.nmx025EvidencesFolder.getEvidences.useQuery({
     companySize,
@@ -50,7 +54,7 @@ export default function NMX025EvidencesFolder() {
     setIsExporting(true);
     exportPDF.mutate({ 
       companySize,
-      companyName: "Mi Empresa" // TODO: obtener de configuración
+      companyName,
     });
   };
 

@@ -3,7 +3,7 @@ import { router, publicProcedure, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { requirePermission } from "../permissions";
 import { getDb } from "../db";
-import { cases, departments, employees, jobPositions, nom035Results, notifications, positions, questions, surveyAnonymousTokens, surveyAnswers, surveyNotifications, surveyPeriods, surveyQuestions, surveyResponses, surveyResults, surveyTokens, surveys, users } from "../../drizzle/schema";
+import { cases, companyGeneralData, departments, employees, jobPositions, nom035Results, notifications, positions, questions, surveyAnonymousTokens, surveyAnswers, surveyNotifications, surveyPeriods, surveyQuestions, surveyResponses, surveyResults, surveyTokens, surveys, users } from "../../drizzle/schema";
 import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
@@ -924,9 +924,11 @@ export const surveysRouter = router({
         averageScore: scores.reduce((a: any, b: any) => a + b, 0) / scores.length,
       }));
       
+      // Obtener nombre real de la empresa desde configuración
+      const [companyInfo] = await db.select({ razonSocial: companyGeneralData.razonSocial }).from(companyGeneralData).limit(1);
       // Preparar datos del reporte
       const reportData = {
-        organizationName: 'Organización', // TODO: Obtener nombre real
+        organizationName: companyInfo?.razonSocial ?? 'Organización',
         reportDate: new Date(),
         totalEmployees: totalWorkers?.count || 0,
         totalResponses: responses.length,

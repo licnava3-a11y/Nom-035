@@ -26,8 +26,31 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function ComplianceNOM035Dashboard() {
   const [selectedNumeral, setSelectedNumeral] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const utils = trpc.useUtils();
+
+  const handleExportPDF = () => {
+    setIsExporting(true);
+    const printStyle = document.createElement('style');
+    printStyle.id = 'compliance-print-style';
+    printStyle.textContent = `
+      @media print {
+        body * { visibility: hidden !important; }
+        #compliance-dashboard-content, #compliance-dashboard-content * { visibility: visible !important; }
+        #compliance-dashboard-content { position: absolute; left: 0; top: 0; width: 100%; }
+        .no-print { display: none !important; }
+        @page { size: A4 portrait; margin: 15mm; }
+      }
+    `;
+    document.head.appendChild(printStyle);
+    setTimeout(() => {
+      window.print();
+      document.head.removeChild(printStyle);
+      setIsExporting(false);
+      toast.success('Reporte de cumplimiento enviado a impresión / PDF');
+    }, 300);
+  };
 
   // Query: cumplimiento por numeral
   const { data: complianceData = [], isLoading } = trpc.complianceNOM035.getComplianceByNumeral.useQuery();
@@ -135,7 +158,7 @@ export default function ComplianceNOM035Dashboard() {
   };
 
   return (
-    <div className="container py-8 space-y-6">
+    <div id="compliance-dashboard-content" className="container py-8 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -145,12 +168,12 @@ export default function ComplianceNOM035Dashboard() {
           </h1>
         </div>
         <Button
-          onClick={() => { /* TODO: implement PDF export */ }}
-          disabled={false}
-          className="flex items-center gap-2"
+          onClick={handleExportPDF}
+          disabled={isExporting || isLoading}
+          className="flex items-center gap-2 no-print"
         >
-          <span className="h-4 w-4" />
-          Exportar a PDF
+          <FileCheck className="h-4 w-4" />
+          {isExporting ? 'Generando...' : 'Exportar a PDF'}
         </Button>
       </div>
       <div>

@@ -17,9 +17,7 @@ import { Bar, Line } from 'react-chartjs-2';
 export default function DashboardGerente() {
   const { data: stats, isLoading } = trpc.dashboard.getManagerStats.useQuery();
   const { data: teamPerformance } = trpc.dashboard.getTeamPerformance.useQuery();
-  // TODO: Implementar cases.getOpenCases procedure
-  // const { data: openCases } = trpc.cases.getOpenCases.useQuery({ limit: 5 });
-  const openCases: any[] = [];
+  const { data: openCases = [] } = trpc.casesManagement.getOpenCases.useQuery({ limit: 5 });
   const { data: complianceMetrics } = trpc.dashboard.getNOM035Compliance.useQuery();
 
   if (isLoading) {
@@ -212,10 +210,10 @@ export default function DashboardGerente() {
                   <div className="flex-1">
                     <p className="font-medium">Caso #{caso.caseNumber}</p>
                     <p className="text-sm text-muted-foreground">
-                      {caso.category} • {caso.status}
+                      {caso.caseType} &bull; <span className={caso.priority === 'critical' ? 'text-red-600 font-semibold' : caso.priority === 'high' ? 'text-orange-500' : 'text-muted-foreground'}>{caso.priority}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Reportado: {new Date(caso.reportedDate).toLocaleDateString('es-MX')}
+                      Abierto: {new Date(caso.createdAt).toLocaleDateString('es-MX')}
                     </p>
                   </div>
                   <Link href={`/cases/${caso.id}`}>

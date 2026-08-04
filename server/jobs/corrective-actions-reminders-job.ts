@@ -1,5 +1,5 @@
 import { getDb } from "../db";
-import { correctiveActions, users } from "../../drizzle/schema";
+import { correctiveActions, users, systemSettings } from "../../drizzle/schema";
 import { and, eq, gte, lte, isNull } from "drizzle-orm";
 import { sendEmail } from "../lib/email-sender";
 
@@ -204,8 +204,13 @@ async function sendCoordinatorWeeklySummary() {
       return true;
     }
 
-    // TODO: Obtener email del coordinador desde configuración
-    const coordinatorEmail = 'coordinador@empresa.com';
+    // Obtener email del coordinador/RH desde systemSettings
+    const [settings] = await db.select().from(systemSettings).limit(1);
+    const coordinatorEmail = (settings as any)?.hrEmail as string | undefined;
+    if (!coordinatorEmail) {
+      console.warn('[Corrective Actions Reminders] No hay email de coordinador/RH configurado en systemSettings (campo hrEmail). Saltando resumen semanal.');
+      return true;
+    }
 
     const html = `
       <!DOCTYPE html>

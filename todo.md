@@ -1610,3 +1610,25 @@
 - [x] Verificar que todos los jobs se inician en 230ms sin errores con imports dinámicos
 - [x] Confirmar HTTP 200 en /api/health y [Auth] Modo: Manus OAuth en logs
 - [x] Confirmar que ENV LOCAL_AUTH=true fue eliminado del Dockerfile
+
+## Sprint: Resolución de TODOs Críticos en Código — Ago 2026
+
+### 🔴 CRÍTICO — TODOs en jobs de alertas (emails hardcodeados)
+- [x] agreementsAlerts.ts: reemplazar `admin@empresa.com` con email dinámico del responsable del acuerdo (JOIN con users.email via responsibleUserId) y fallback a hrEmail de systemSettings
+- [x] corrective-actions-reminders-job.ts: reemplazar `coordinador@empresa.com` con hrEmail de systemSettings (patrón idéntico a contract-expiration-alerts-job.ts)
+
+### 🔴 CRÍTICO — DashboardGerente: casos abiertos sin datos
+- [x] Agregar procedure `casesManagement.getOpenCases` (input: limit) que devuelva casos con status != 'cerrado' ordenados por prioridad
+- [x] Activar la query en DashboardGerente.tsx (descomentar y usar el procedure real, con prioridad visual critical/high/medium)
+
+### 🟡 MEDIO — ComplianceNOM035Dashboard: botón PDF sin implementar
+- [x] Implementar exportación PDF en ComplianceNOM035Dashboard.tsx (window.print con estilos A4, id compliance-dashboard-content, botón no-print)
+
+### 🟡 MEDIO — NMX025EvidencesFolder: companyName hardcodeado
+- [x] Reemplazar `"Mi Empresa"` con `trpc.company.getGeneralData.useQuery()` en NMX025EvidencesFolder.tsx (usa razonSocial con fallback)
+
+### 🟡 MEDIO — surveys.ts: organizationName hardcodeado
+- [x] Reemplazar `'Organización'` con query dinámica a companyGeneralData.razonSocial en surveys.ts (línea 928)
+
+### 🟢 BAJO — JobPositions: contador de empleados por puesto
+- [ ] Calcular empleados por puesto en JobPositions.tsx usando query real (COUNT de employees por positionId) [PENDIENTE BAJO]
