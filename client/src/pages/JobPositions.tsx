@@ -18,6 +18,7 @@ import { trpc } from "@/lib/trpc";
 import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import Chart from "chart.js/auto";
+import { jsPDF } from "jspdf";
 
 type SortKey = "employees_desc" | "employees_asc" | "risk" | "name";
 type RiskFilter = "all" | "bajo" | "medio" | "alto";
@@ -164,7 +165,14 @@ export default function JobPositions() {
           : pos.riskLevel === "high" ? "alto"
           : "muy_alto",
         lastAnalysis: new Date(pos.createdAt).toISOString().split("T")[0],
-        factors: { workload: 2, control: 3, leadership: 3, relationships: 3, workEnvironment: 3 },
+        factors: (() => {
+          try {
+            const raw = (pos as any).factors;
+            if (raw && typeof raw === "string") return JSON.parse(raw);
+            if (raw && typeof raw === "object" && raw !== null) return raw;
+          } catch {}
+          return { workload: 2, control: 3, leadership: 3, relationships: 3, workEnvironment: 3 };
+        })(),
       }))
     : examplePositions;
 
@@ -213,6 +221,88 @@ export default function JobPositions() {
       col,
       dir: prev.col === col && prev.dir === "asc" ? "desc" : "asc",
     }));
+  }
+
+  // ── Generar PDF de un puesto ──────────────────────────────────────────────────
+  function generatePositionPdf(position: any) {
+    try {
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const W = 210;
+      const margin = 18;
+      // Cabecera azul oscuro
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, W, 28, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Reporte de Análisis de Puesto", margin, 12);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("NOM-035-STPS-2018 — Factores de Riesgo Psicosocial", margin, 20);
+      doc.text(`Generado: ${new Date().toLocaleString("es-MX")}`, W - margin, 20, { align: "right" });
+      // Datos del puesto
+      doc.setTextColor(15, 23, 42);
+      let y = 38;
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text(position.title, margin, y);
+      y += 7;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Departamento: ${position.department}`, margin, y); y += 6;
+      doc.text(`Empleados asignados: ${position.employees}`, margin, y); y += 6;
+      const riskLabel = position.riskLevel === "alto" ? "Alto" : position.riskLevel === "medio" ? "Medio" : "Bajo";
+      doc.text(`Nivel de riesgo: ${riskLabel}`, margin, y); y += 6;
+      doc.text(`Índice de riesgo: ${calcIndex(position.factors)}/5`, margin, y); y += 6;
+      doc.text(`Último análisis: ${new Date(position.lastAnalysis).toLocaleDateString("es-MX")}`, margin, y); y += 12;
+      // Factores psicosociales
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(15, 23, 42);
+      doc.text("Factores de Riesgo Psicosocial", margin, y); y += 7;
+      const factorList = [
+        { label: "Carga de Trabajo", value: position.factors.workload },
+        { label: "Control sobre el Trabajo", value: position.factors.control },
+        { label: "Liderazgo", value: position.factors.leadership },
+        { label: "Relaciones en el Trabajo", value: position.factors.relationships },
+        { label: "Ambiente de Trabajo", value: position.factors.workEnvironment },
+      ];
+      const barW = 100;
+      const barH = 5;
+      factorList.forEach(({ label, value }) => {
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(60, 60, 60);
+        doc.text(label, margin, y + 4);
+        doc.setFillColor(230, 230, 230);
+        doc.rect(margin + 60, y, barW, barH, "F");
+        const r = value >= 4 ? 220 : value >= 3 ? 217 : 22;
+        const g = value >= 4 ? 38 : value >= 3 ? 119 : 163;
+        const b = value >= 4 ? 38 : value >= 3 ? 6 : 74;
+        doc.setFillColor(r, g, b);
+        doc.rect(margin + 60, y, (value / 5) * barW, barH, "F");
+        doc.setTextColor(15, 23, 42);
+        doc.setFont("helvetica", "bold");
+        doc.text(`${value}/5`, margin + 60 + barW + 3, y + 4);
+        y += 10;
+      });
+      // Pie
+      y += 8;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, W - margin, y);
+      y += 6;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(130, 130, 130);
+      doc.text("Este reporte fue generado automáticamente por la Plataforma NOM-035 STPS 2018.", margin, y);
+      const filename = `reporte-puesto-${position.title.replace(/\s+/g, "-").toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(filename);
+      toast.success(`PDF generado: ${position.title}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al generar el PDF");
+    }
   }
 
   // ── Exportar a Excel ─────────────────────────────────────────────────────────
@@ -690,8 +780,8 @@ export default function JobPositions() {
                     <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
                       <RefreshCw className="h-3.5 w-3.5 mr-1" />Actualizar Análisis
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => toast.info("Generando reporte PDF...", { description: position.title })}>
-                      <FileText className="h-3.5 w-3.5 mr-1" />Reporte
+                    <Button variant="outline" size="sm" onClick={() => generatePositionPdf(position)}>
+                      <FileText className="h-3.5 w-3.5 mr-1" />Reporte PDF
                     </Button>
                   </div>
                 </div>
@@ -729,6 +819,7 @@ export default function JobPositions() {
                       <SortableHeader col="risk"       label="Nivel de Riesgo" />
                       <SortableHeader col="index"      label="Índice" />
                       <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Último Análisis</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -757,8 +848,18 @@ export default function JobPositions() {
                         <td className="px-4 py-3 text-muted-foreground text-xs">
                           {new Date(p.lastAnalysis).toLocaleDateString("es-MX")}
                         </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => { setSelectedPosition(p); setDetailOpen(true); }}>
+                              <Eye className="h-3.5 w-3.5 mr-1" />Ver
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => generatePositionPdf(p)}>
+                              <FileText className="h-3.5 w-3.5 mr-1" />PDF
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
-                    ))}
+                    })}
                   </tbody>
                   <tfoot className="bg-muted/30 border-t">
                     <tr>
@@ -771,7 +872,7 @@ export default function JobPositions() {
                           {tableSortedPositions.reduce((s: number, p: any) => s + p.employees, 0)}
                         </div>
                       </td>
-                      <td colSpan={3} />
+                      <td colSpan={4} />
                     </tr>
                   </tfoot>
                 </table>

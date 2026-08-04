@@ -367,6 +367,8 @@ export const jobPositions = mysqlTable("jobPositions", {
   description: text("description"),
   riskLevel: mysqlEnum("riskLevel", ["low", "medium", "high", "very_high"]),
   createdBy: int("createdBy").notNull(),
+  employeeCount: int("employee_count").notNull().default(0),
+  factors: text("factors"), // JSON: {workload, control, leadership, relationships, workEnvironment} 1-5
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

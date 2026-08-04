@@ -1334,10 +1334,21 @@ export const appRouter = router({
         department: z.string().optional(),
         description: z.string().optional(),
         riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
+        employeeCount: z.number().int().min(0).optional(),
+        factors: z.object({
+          workload: z.number().min(1).max(5),
+          control: z.number().min(1).max(5),
+          leadership: z.number().min(1).max(5),
+          relationships: z.number().min(1).max(5),
+          workEnvironment: z.number().min(1).max(5),
+        }).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        const { factors, ...rest } = input;
         const position = await db.createJobPosition({
-          ...input,
+          ...rest,
+          employeeCount: rest.employeeCount ?? 0,
+          factors: factors ? JSON.stringify(factors) : null,
           createdBy: ctx.user.id,
         });
         return position;
@@ -1349,10 +1360,21 @@ export const appRouter = router({
         department: z.string().optional(),
         description: z.string().optional(),
         riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
+        employeeCount: z.number().int().min(0).optional(),
+        factors: z.object({
+          workload: z.number().min(1).max(5),
+          control: z.number().min(1).max(5),
+          leadership: z.number().min(1).max(5),
+          relationships: z.number().min(1).max(5),
+          workEnvironment: z.number().min(1).max(5),
+        }).optional(),
       }))
       .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        await db.updateJobPosition(id, data);
+        const { id, factors, ...rest } = input;
+        await db.updateJobPosition(id, {
+          ...rest,
+          ...(factors !== undefined ? { factors: JSON.stringify(factors) } : {}),
+        });
         return { success: true };
       }),
   }),
