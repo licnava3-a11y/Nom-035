@@ -12,10 +12,10 @@ function createControlledPool(): mysql.Pool {
   const url = process.env.DATABASE_URL!;
   return mysql.createPool({
     uri: url,
-    connectionLimit: 5,       // max 5 simultaneous connections — prevents pool exhaustion
+    connectionLimit: 15,      // aumentado a 15: soporta jobs concurrentes + auth sin agotarse
     waitForConnections: true, // queue requests instead of throwing when pool is full
-    queueLimit: 50,           // max 50 queued requests before rejecting
-    connectTimeout: 10_000,   // 10s connect timeout
+    queueLimit: 100,          // max 100 queued requests before rejecting
+    connectTimeout: 15_000,   // 15s connect timeout
     idleTimeout: 60_000,      // release idle connections after 60s
     enableKeepAlive: true,
     keepAliveInitialDelay: 10_000,
@@ -28,7 +28,7 @@ export async function getDb() {
     try {
       _pool = createControlledPool();
       _db = drizzle(_pool);
-      console.log("[Database] Pool initialized (connectionLimit: 5)");
+      console.log("[Database] Pool initialized (connectionLimit: 15)");
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -96,16 +96,30 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   }
 }
 
-export async function getUserByOpenId(openId: string) {
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
+// getUserByOpenId con retry para el flujo de auth (ETIMEDOUT al cold start)
+export async function getUserByOpenId(openId: string, retries = 3): Promise<typeof users.$inferSelect | undefined> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const db = await getDb();
+    if (!db) {
+      console.warn("[Database] Cannot get user: database not available");
+      return undefined;
+    }
+    try {
+      const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+      return result.length > 0 ? result[0] : undefined;
+    } catch (err: any) {
+      const code = err?.code ?? err?.cause?.code;
+      const isRetryable = code === 'ETIMEDOUT' || code === 'ECONNRESET' || code === 'PROTOCOL_CONNECTION_LOST';
+      if (isRetryable && attempt < retries) {
+        const delay = 600 * attempt; // 600ms, 1200ms
+        console.warn(`[Database] getUserByOpenId attempt ${attempt}/${retries} failed (${code}), retrying in ${delay}ms...`);
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
   }
-
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  return undefined;
 }
 
 // User management

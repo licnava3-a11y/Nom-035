@@ -150,7 +150,7 @@ async function startJobs() {
   for (let i = 0; i < jobModules.length; i++) {
     const result = jobModules[i];
     const [fnName, modName] = starters[i];
-    await new Promise(r => setTimeout(r, 500)); // 500ms gap between each job start
+    await new Promise(r => setTimeout(r, 1500)); // 1500ms gap — prevents DB pool exhaustion at cold start
     if (result.status === "fulfilled") {
       const mod = result.value as any;
       if (typeof mod[fnName] === "function") {
@@ -363,7 +363,7 @@ async function startServer() {
     // Delay job loading by 30s so Cloud Run health check passes BEFORE
     // job modules are loaded into memory. This prevents OOM restarts that
     // destroy the session cookie set by the OAuth callback.
-    const JOB_STARTUP_DELAY_MS = 30_000;
+    const JOB_STARTUP_DELAY_MS = 45_000;
     console.log(`[Jobs] Todos los jobs iniciarán en ${JOB_STARTUP_DELAY_MS / 1000}s para permitir el health check de Cloud Run`);
 
     setTimeout(() => {
