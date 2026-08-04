@@ -59,8 +59,23 @@ export default function Home() {
   const { data: matrizStats, isLoading: matrizLoading } = trpc.nom035Matrix.getGlobalStats.useQuery(undefined, { retry: false });
   // Widget alertas de riesgo escalado en puestos
   const { data: escalatedRisksRaw } = trpc.jobPositions.getRiskEscalated.useQuery(undefined, { retry: false, refetchOnWindowFocus: false });
+  const { data: notificationLogData } = trpc.jobPositions.getNotificationLog.useQuery({ limit: 10 }, { retry: false, refetchOnWindowFocus: false });
+  const { data: thresholdConfig } = trpc.systemConfig.get.useQuery({ key: 'notificationThreshold' }, { retry: false });
+  const setThresholdMutation = trpc.systemConfig.set.useMutation();
+  const utils = trpc.useUtils();
   const [riskThreshold, setRiskThreshold] = useState<number>(0.5);
-  const escalatedRisks = (escalatedRisksRaw ?? []).filter((p: any) => Number(p.delta) >= riskThreshold);
+  const [thresholdSaved, setThresholdSaved] = useState(false);
+  const [showNotifLog, setShowNotifLog] = useState(false);
+  // Sync threshold from DB when loaded
+  const thresholdFromDb = thresholdConfig ? parseFloat(thresholdConfig.configValue) : null;
+  const effectiveThreshold = thresholdFromDb !== null ? thresholdFromDb : riskThreshold;
+  const escalatedRisks = (escalatedRisksRaw ?? []).filter((p: any) => Number(p.delta) >= effectiveThreshold);
+  const handleSaveThreshold = async () => {
+    await setThresholdMutation.mutateAsync({ key: 'notificationThreshold', value: riskThreshold.toFixed(1) });
+    utils.systemConfig.get.invalidate({ key: 'notificationThreshold' });
+    setThresholdSaved(true);
+    setTimeout(() => setThresholdSaved(false), 2000);
+  };
   // Widget de calidad
   const [qualityPeriod, setQualityPeriod] = useState<number | undefined>(undefined);
   const [qualityDateFrom, setQualityDateFrom] = useState<string>("");
@@ -583,7 +598,7 @@ export default function Home() {
             <CardDescription className="text-xs text-red-600/80 mt-1">
               Los siguientes puestos registraron un índice de riesgo mayor en su último análisis vs el anterior.
             </CardDescription>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span className="text-xs text-red-700 dark:text-red-400 font-medium whitespace-nowrap">Umbral mínimo:</span>
               <input
                 type="range" min={0} max={2} step={0.1}
@@ -592,7 +607,19 @@ export default function Home() {
                 className="w-28 accent-red-600"
               />
               <span className="text-xs font-bold text-red-700 dark:text-red-400 w-8">≥ {riskThreshold.toFixed(1)}</span>
+              <button
+                onClick={handleSaveThreshold}
+                className={`text-xs px-2 py-0.5 rounded border font-medium transition-colors ${thresholdSaved ? 'bg-green-100 border-green-400 text-green-700' : 'bg-white border-red-300 text-red-700 hover:bg-red-50'}`}
+              >
+                {thresholdSaved ? '✓ Guardado' : 'Guardar'}
+              </button>
               <button onClick={() => setRiskThreshold(0.5)} className="text-xs text-red-500 hover:text-red-700 underline">Reset</button>
+              <button
+                onClick={() => setShowNotifLog(!showNotifLog)}
+                className="text-xs text-red-600 hover:text-red-800 underline ml-auto"
+              >
+                {showNotifLog ? 'Ocultar historial' : 'Ver historial de alertas'}
+              </button>
             </div>
           </CardHeader>
           <CardContent className="px-4 pb-4">
@@ -616,6 +643,49 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground text-center pt-1">y {escalatedRisks.length - 5} puesto{escalatedRisks.length - 5 > 1 ? 's' : ''} más...</p>
               )}
             </div>
+            {/* Panel historial de notificaciones */}
+            {showNotifLog && (
+              <div className="mt-4 border-t border-red-200 dark:border-red-800 pt-3">
+                <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-2">Historial de alertas enviadas</p>
+                {!notificationLogData || notificationLogData.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic">No hay alertas registradas aún.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-left text-red-600 border-b border-red-200">
+                          <th className="pb-1 pr-3">Fecha</th>
+                          <th className="pb-1 pr-3">Puesto</th>
+                          <th className="pb-1 pr-3">Departamento</th>
+                          <th className="pb-1 pr-3">Índice</th>
+                          <th className="pb-1 pr-3">Delta</th>
+                          <th className="pb-1">Nivel</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {notificationLogData.map((log: any) => (
+                          <tr key={log.id} className="border-b border-red-100 dark:border-red-900/30 hover:bg-red-50/50 dark:hover:bg-red-950/20">
+                            <td className="py-1 pr-3 whitespace-nowrap">{new Date(log.sentAt).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                            <td className="py-1 pr-3 font-medium max-w-[120px] truncate">{log.positionName}</td>
+                            <td className="py-1 pr-3 text-muted-foreground max-w-[100px] truncate">{log.department ?? '—'}</td>
+                            <td className="py-1 pr-3 whitespace-nowrap">{log.prevIndex} → <span className="font-bold text-red-600">{log.newIndex}</span></td>
+                            <td className="py-1 pr-3"><span className="font-bold text-red-600">▲ +{log.delta}</span></td>
+                            <td className="py-1">
+                              <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                log.riskLevel === 'very_high' ? 'bg-red-200 text-red-800' :
+                                log.riskLevel === 'high' ? 'bg-orange-200 text-orange-800' :
+                                log.riskLevel === 'medium' ? 'bg-yellow-200 text-yellow-800' :
+                                'bg-green-200 text-green-800'
+                              }`}>{log.riskLevel === 'very_high' ? 'Muy Alto' : log.riskLevel === 'high' ? 'Alto' : log.riskLevel === 'medium' ? 'Medio' : 'Bajo'}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

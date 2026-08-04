@@ -347,6 +347,122 @@ export default function JobPositions() {
     }
   }
 
+
+  // ── Reporte General PDF ──────────────────────────────────────────────────────
+  function generateGeneralReport() {
+    try {
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = 210;
+      const mg = 14;
+      const rowH = 8;
+      // Cabecera
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, W, 30, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Reporte General de Análisis de Puestos', mg, 12);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('NOM-035-STPS-2018 — Factores de Riesgo Psicosocial', mg, 20);
+      doc.text(`Generado: ${new Date().toLocaleString('es-MX')}`, W - mg, 20, { align: 'right' });
+      doc.text(`Total de puestos: ${displayPositions.length}`, W - mg, 27, { align: 'right' });
+      // Resumen ejecutivo
+      let y = 40;
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Resumen Ejecutivo', mg, y); y += 7;
+      const totalEmp = displayPositions.reduce((s: number, p: any) => s + (p.employees || 0), 0);
+      const highRisk = displayPositions.filter((p: any) => p.riskLevel === 'alto' || p.riskLevel === 'very_high').length;
+      const medRisk = displayPositions.filter((p: any) => p.riskLevel === 'medio' || p.riskLevel === 'medium').length;
+      const lowRisk = displayPositions.filter((p: any) => p.riskLevel === 'bajo' || p.riskLevel === 'low').length;
+      const avgIdx = displayPositions.length > 0
+        ? (displayPositions.reduce((s: number, p: any) => s + calcIndex(p.factors), 0) / displayPositions.length).toFixed(2)
+        : '0.00';
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(60, 60, 60);
+      doc.text(`Total empleados cubiertos: ${totalEmp}`, mg, y); y += 5;
+      doc.text(`Índice promedio de riesgo: ${avgIdx}/5`, mg, y); y += 5;
+      doc.text(`Puestos riesgo Alto/Muy Alto: ${highRisk}   Medio: ${medRisk}   Bajo: ${lowRisk}`, mg, y); y += 10;
+      // Tabla de puestos
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text('Detalle por Puesto', mg, y); y += 6;
+      // Encabezados de tabla
+      doc.setFillColor(30, 41, 59);
+      doc.rect(mg, y, W - mg * 2, rowH, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text('#', mg + 2, y + 5.5);
+      doc.text('Puesto', mg + 8, y + 5.5);
+      doc.text('Departamento', mg + 65, y + 5.5);
+      doc.text('Emp.', mg + 108, y + 5.5);
+      doc.text('Índice', mg + 120, y + 5.5);
+      doc.text('Riesgo', mg + 135, y + 5.5);
+      doc.text('CW', mg + 152, y + 5.5);
+      doc.text('CT', mg + 160, y + 5.5);
+      doc.text('LD', mg + 168, y + 5.5);
+      doc.text('RL', mg + 176, y + 5.5);
+      doc.text('AM', mg + 184, y + 5.5);
+      y += rowH;
+      // Filas
+      displayPositions.forEach((p: any, i: number) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        const bg = i % 2 === 0 ? [248, 250, 252] : [255, 255, 255];
+        doc.setFillColor(bg[0], bg[1], bg[2]);
+        doc.rect(mg, y, W - mg * 2, rowH, 'F');
+        doc.setTextColor(30, 30, 30);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.text(String(i + 1), mg + 2, y + 5.5);
+        const titleTrunc = p.title.length > 22 ? p.title.slice(0, 21) + '…' : p.title;
+        doc.text(titleTrunc, mg + 8, y + 5.5);
+        const deptTrunc = (p.department || '').length > 18 ? (p.department || '').slice(0, 17) + '…' : (p.department || '—');
+        doc.text(deptTrunc, mg + 65, y + 5.5);
+        doc.text(String(p.employees || 0), mg + 108, y + 5.5);
+        const idx = calcIndex(p.factors);
+        const rColor = idx >= 3.5 ? [220, 38, 38] : idx >= 2.5 ? [217, 119, 6] : [22, 163, 74];
+        doc.setTextColor(rColor[0], rColor[1], rColor[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.text(String(idx), mg + 120, y + 5.5);
+        const rl = p.riskLevel === 'alto' || p.riskLevel === 'very_high' ? 'Alto' : p.riskLevel === 'medio' || p.riskLevel === 'medium' ? 'Medio' : 'Bajo';
+        doc.text(rl, mg + 135, y + 5.5);
+        doc.setTextColor(60, 60, 60);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(p.factors.workload), mg + 152, y + 5.5);
+        doc.text(String(p.factors.control), mg + 160, y + 5.5);
+        doc.text(String(p.factors.leadership), mg + 168, y + 5.5);
+        doc.text(String(p.factors.relationships), mg + 176, y + 5.5);
+        doc.text(String(p.factors.workEnvironment), mg + 184, y + 5.5);
+        y += rowH;
+      });
+      // Leyenda y pie
+      y += 4;
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(130, 130, 130);
+      doc.text('CW=Carga Trabajo  CT=Control  LD=Liderazgo  RL=Relaciones  AM=Ambiente', mg, y);
+      y += 5;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(mg, y, W - mg, y);
+      y += 5;
+      doc.text('Este reporte fue generado automáticamente por la Plataforma NOM-035 STPS 2018.', mg, y);
+      const fname = `reporte-general-puestos-${new Date().toISOString().slice(0, 10)}.pdf`;
+      doc.save(fname);
+      toast.success(`Reporte general generado: ${displayPositions.length} puestos`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Error al generar el reporte general');
+    }
+  }
+
   // ── Exportar a Excel ─────────────────────────────────────────────────────────
   async function exportToExcel() {
     try {
@@ -661,6 +777,12 @@ export default function JobPositions() {
           <Button variant="outline" size="sm" onClick={exportToExcel} className="shrink-0">
             <Download className="h-4 w-4 mr-1.5" />
             Exportar Excel
+          </Button>
+
+          {/* Reporte General PDF */}
+          <Button variant="outline" size="sm" onClick={generateGeneralReport} className="shrink-0 border-slate-400 text-slate-700 hover:bg-slate-50">
+            <FileText className="h-4 w-4 mr-1.5" />
+            Reporte General PDF
           </Button>
 
           {/* Limpiar filtros */}

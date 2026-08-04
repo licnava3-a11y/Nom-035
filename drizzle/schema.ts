@@ -6523,3 +6523,29 @@ export const clinicalExportedPdfs = mysqlTable("clinical_exported_pdfs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 export type ClinicalExportedPdf = typeof clinicalExportedPdfs.$inferSelect;
+
+// ─── Risk Notification Log (historial de alertas de riesgo psicosocial) ───────
+export const riskNotificationLog = mysqlTable("risk_notification_log", {
+  id: int("id").autoincrement().primaryKey(),
+  positionId: int("position_id").notNull(),
+  positionName: varchar("position_name", { length: 255 }).notNull(),
+  department: varchar("department", { length: 255 }),
+  prevIndex: decimal("prev_index", { precision: 4, scale: 1 }).notNull(),
+  newIndex: decimal("new_index", { precision: 4, scale: 1 }).notNull(),
+  delta: decimal("delta", { precision: 4, scale: 2 }).notNull(),
+  riskLevel: varchar("risk_level", { length: 20 }).notNull(),
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+});
+export type RiskNotificationLog = typeof riskNotificationLog.$inferSelect;
+export type InsertRiskNotificationLog = typeof riskNotificationLog.$inferInsert;
+
+// ─── System Config (parámetros configurables por clave/valor) ─────────────────
+export const systemConfig = mysqlTable("system_config", {
+  id: int("id").autoincrement().primaryKey(),
+  configKey: varchar("config_key", { length: 100 }).notNull().unique(),
+  configValue: text("config_value").notNull(),
+  description: varchar("description", { length: 255 }),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type SystemConfig = typeof systemConfig.$inferSelect;
+export type InsertSystemConfig = typeof systemConfig.$inferInsert;

@@ -1401,20 +1401,39 @@ export const appRouter = router({
                 factors: JSON.stringify(factors),
                 analyzedBy: ctx.user.id,
               });
-              // Send automatic notification if risk increased
+              // Send automatic notification if risk increased (using configurable threshold)
               if (prevIndex !== null && newIndex > prevIndex) {
                 try {
-                  const { notifyOwner } = await import('./_core/notification');
-                  const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, id)).limit(1);
-                  const posName = posRows[0]?.positionName ?? `Puesto #${id}`;
-                  const dept = posRows[0]?.department ? ` (${posRows[0].department})` : '';
-                  const delta = (newIndex - prevIndex).toFixed(1);
-                  const riskLabel: Record<string, string> = { low: 'Bajo', medium: 'Medio', high: 'Alto', very_high: 'Muy Alto' };
-                  await notifyOwner({
-                    title: `⚠️ Riesgo psicosocial aumentado: ${posName}${dept}`,
-                    content: `El índice de riesgo del puesto "${posName}"${dept} aumentó de ${prevIndex}/5 a ${newIndex}/5 (▲ +${delta}). Nivel actual: ${riskLabel[rest.riskLevel] ?? rest.riskLevel}. Analizado por: ${ctx.user.name ?? ctx.user.openId}. Fecha: ${new Date().toLocaleString('es-MX')}.`,
-                  });
-                  console.log(`[JobPositions] Notificación enviada: riesgo aumentado en "${posName}" (${prevIndex} → ${newIndex})`);
+                  // Read threshold from system_config
+                  const { systemConfig: sysConfigTable, riskNotificationLog: riskLogTable } = await import('../drizzle/schema');
+                  const { eq: eqSys } = await import('drizzle-orm');
+                  const thresholdRows = await rawDb.select().from(sysConfigTable).where(eqSys(sysConfigTable.configKey, 'notificationThreshold')).limit(1);
+                  const threshold = thresholdRows.length > 0 ? parseFloat(thresholdRows[0].configValue) : 0.5;
+                  const delta = parseFloat((newIndex - prevIndex).toFixed(2));
+                  if (delta >= threshold) {
+                    const { notifyOwner } = await import('./_core/notification');
+                    const posRows = await rawDb.select().from(jpTable).where(eqOp(jpTable.id, id)).limit(1);
+                    const posName = posRows[0]?.positionName ?? `Puesto #${id}`;
+                    const dept = posRows[0]?.department ?? '';
+                    const riskLabel: Record<string, string> = { low: 'Bajo', medium: 'Medio', high: 'Alto', very_high: 'Muy Alto' };
+                    await notifyOwner({
+                      title: `⚠️ Riesgo psicosocial aumentado: ${posName}${dept ? ` (${dept})` : ''}`,
+                      content: `El índice de riesgo del puesto "${posName}"${dept ? ` (${dept})` : ''} aumentó de ${prevIndex}/5 a ${newIndex}/5 (▲ +${delta.toFixed(1)}). Nivel actual: ${riskLabel[rest.riskLevel] ?? rest.riskLevel}. Analizado por: ${ctx.user.name ?? ctx.user.openId}. Fecha: ${new Date().toLocaleString('es-MX')}.`,
+                    });
+                    // Save to risk_notification_log
+                    await rawDb.insert(riskLogTable).values({
+                      positionId: id,
+                      positionName: posName,
+                      department: dept || null,
+                      prevIndex: prevIndex.toFixed(1),
+                      newIndex: newIndex.toFixed(1),
+                      delta: delta.toFixed(2),
+                      riskLevel: rest.riskLevel,
+                    });
+                    console.log(`[JobPositions] Notificación enviada: riesgo aumentado en "${posName}" (${prevIndex} → ${newIndex}), delta=${delta}, threshold=${threshold}`);
+                  } else {
+                    console.log(`[JobPositions] Riesgo aumentó pero delta=${delta} < threshold=${threshold}, no se notifica.`);
+                  }
                 } catch (notifErr) {
                   console.error('[JobPositions] Error enviando notificación de riesgo:', notifErr);
                 }
@@ -1484,6 +1503,56 @@ export const appRouter = router({
         } catch (e) {
           console.error('[JobPositions] Error fetching history:', e);
           return [];
+        }
+      }),
+    getNotificationLog: protectedProcedure
+      .input(z.object({ limit: z.number().optional().default(20) }))
+      .query(async ({ input }) => {
+        try {
+          const { getDb } = await import('./db');
+          const { riskNotificationLog } = await import('../drizzle/schema');
+          const { desc: descOrd } = await import('drizzle-orm');
+          const rawDb = await getDb();
+          if (!rawDb) return [];
+          return await rawDb.select().from(riskNotificationLog).orderBy(descOrd(riskNotificationLog.sentAt)).limit(input.limit);
+        } catch (e) {
+          console.error('[JobPositions] Error fetching notification log:', e);
+          return [];
+        }
+      }),
+  }),
+
+  // System Config
+  systemConfig: router({
+    get: protectedProcedure
+      .input(z.object({ key: z.string() }))
+      .query(async ({ input }) => {
+        try {
+          const { getDb } = await import('./db');
+          const { systemConfig: sysConfigTable } = await import('../drizzle/schema');
+          const { eq: eqOp } = await import('drizzle-orm');
+          const rawDb = await getDb();
+          if (!rawDb) return null;
+          const rows = await rawDb.select().from(sysConfigTable).where(eqOp(sysConfigTable.configKey, input.key)).limit(1);
+          return rows[0] ?? null;
+        } catch (e) {
+          console.error('[SystemConfig] Error fetching config:', e);
+          return null;
+        }
+      }),
+    set: protectedProcedure
+      .input(z.object({ key: z.string(), value: z.string(), description: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        try {
+          const { getDb } = await import('./db');
+          const { systemConfig: sysConfigTable } = await import('../drizzle/schema');
+          const rawDb = await getDb();
+          if (!rawDb) return { success: false };
+          await rawDb.insert(sysConfigTable).values({ configKey: input.key, configValue: input.value, description: input.description }).onDuplicateKeyUpdate({ set: { configValue: input.value } });
+          return { success: true };
+        } catch (e) {
+          console.error('[SystemConfig] Error setting config:', e);
+          return { success: false };
         }
       }),
   }),

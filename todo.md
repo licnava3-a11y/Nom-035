@@ -1709,7 +1709,18 @@
 - [x] Alerta visual en dashboard principal para puestos cuyo riesgo haya aumentado en el último análisis
 
 ## Sprint: PDF comparativo + umbral alerta + notificaciones
-- [ ] Botón "Exportar PDF comparativo" en la tabla comparativa de factores del modal de detalles
-- [ ] PDF con barras de colores para cada factor (actual vs anterior), índice global y delta
-- [ ] Campo de umbral configurable en el dashboard (slider/input) para filtrar alertas de riesgo escalado (default 0.5)
-- [ ] Notificación automática al administrador (notifyOwner) al guardar análisis con riesgo mayor al anterior
+- [x] Botón "Exportar PDF comparativo" en la tabla comparativa de factores del modal de detalles
+- [x] PDF con barras de colores para cada factor (actual vs anterior), índice global y delta
+- [x] Campo de umbral configurable en el dashboard (slider/input) para filtrar alertas de riesgo escalado (default 0.5)
+- [x] Notificación automática al administrador (notifyOwner) al guardar análisis con riesgo mayor al anterior
+
+## Sprint: Historial notificaciones + umbral DB + Reporte General PDF
+
+- [ ] Tabla notification_log en DB para registrar notificaciones enviadas (positionId, positionName, prevIndex, newIndex, delta, sentAt)
+- [ ] Tabla system_config en DB para almacenar parámetros configurables (key/value), incluyendo notificationThreshold
+- [ ] Procedimiento tRPC jobPositions.getNotificationLog para obtener historial de notificaciones
+- [ ] Procedimientos tRPC systemConfig.get y systemConfig.set para leer/escribir umbral
+- [ ] Actualizar update de jobPositions para leer notificationThreshold desde system_config antes de notificar
+- [ ] Panel historial de notificaciones en Home.tsx (tabla con fecha, puesto, delta, nivel)
+- [ ] Control de umbral de notificación en el dashboard con botón Guardar (persiste en DB)
+- [ ] Botón "Reporte General PDF" en JobPositions que genere PDF con todos los puestos filtrados
