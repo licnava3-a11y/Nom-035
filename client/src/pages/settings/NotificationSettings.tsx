@@ -7,7 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Bell, Clock, CalendarDays, RefreshCw, Save, CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Bell, Clock, CalendarDays, RefreshCw, Save, CheckCircle2, Mail, Monitor, AlertTriangle, ShieldAlert, ClipboardList, FileText, Info } from "lucide-react";
+
+// ─── Tipos de alerta configurables ───────────────────────────────────────────
+const ALERT_TYPES = [
+  { key: "alertsEnabled", label: "Alertas del sistema", description: "Avisos críticos de la plataforma, errores y mantenimiento", icon: AlertTriangle, color: "text-red-500" },
+  { key: "casesEnabled", label: "Gestión de casos", description: "Nuevos casos asignados, actualizaciones y cierres", icon: ShieldAlert, color: "text-orange-500" },
+  { key: "surveysEnabled", label: "Encuestas NOM-035", description: "Recordatorios de encuestas pendientes y resultados disponibles", icon: ClipboardList, color: "text-blue-500" },
+  { key: "correctiveActionsEnabled", label: "Acciones correctivas", description: "Vencimientos de acciones correctivas y planes de intervención", icon: FileText, color: "text-yellow-600" },
+  { key: "remindersEnabled", label: "Recordatorios", description: "Vencimientos de contratos, vacaciones pendientes y tareas", icon: Clock, color: "text-purple-500" },
+  { key: "reportsEnabled", label: "Reportes automáticos", description: "Reportes ejecutivos, análisis de riesgo y dashboards programados", icon: FileText, color: "text-green-500" },
+] as const;
+type AlertKey = typeof ALERT_TYPES[number]["key"];
 
 export default function NotificationSettings() {
   const { data: preferences, isLoading, refetch } = trpc.notificationPreferences.getPreferences.useQuery();
@@ -19,6 +31,16 @@ export default function NotificationSettings() {
   const [weeklyEmailEnabled, setWeeklyEmailEnabled] = useState(false);
   const [weeklyEmailDay, setWeeklyEmailDay] = useState("1");
   const [hasChanges, setHasChanges] = useState(false);
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [inAppEnabled, setInAppEnabled] = useState(true);
+  const [alertTypes, setAlertTypes] = useState<Record<AlertKey, boolean>>({
+    alertsEnabled: true, casesEnabled: true, surveysEnabled: true,
+    correctiveActionsEnabled: true, remindersEnabled: true, reportsEnabled: true,
+  });
+  const handleAlertToggle = (key: AlertKey, value: boolean) => {
+    setAlertTypes(prev => ({ ...prev, [key]: value }));
+    setHasChanges(true);
+  };
 
   useEffect(() => {
     if (preferences) {
@@ -53,6 +75,9 @@ export default function NotificationSettings() {
     setDailyEmailHour("8");
     setWeeklyEmailEnabled(false);
     setWeeklyEmailDay("1");
+    setEmailEnabled(true);
+    setInAppEnabled(true);
+    setAlertTypes({ alertsEnabled: true, casesEnabled: true, surveysEnabled: true, correctiveActionsEnabled: true, remindersEnabled: true, reportsEnabled: true });
     setHasChanges(true);
   };
 
@@ -71,8 +96,10 @@ export default function NotificationSettings() {
     { value: "7", label: "Domingo" },
   ];
 
+  const activeAlerts = Object.values(alertTypes).filter(Boolean).length;
+
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground p-4">Cargando preferencias...</div>;
+    return <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground"><RefreshCw className="h-4 w-4 animate-spin" />Cargando preferencias...</div>;
   }
 
   return (
@@ -85,38 +112,91 @@ export default function NotificationSettings() {
           </p>
         </div>
         {hasChanges && (
-          <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-2 rounded-md">
-            <Bell className="h-4 w-4" />
-            <span>Cambios sin guardar</span>
-          </div>
+          <Badge variant="secondary" className="gap-1">
+            <Info className="h-3 w-3" />
+            Cambios sin guardar
+          </Badge>
         )}
       </div>
 
-      {/* Tiempo real */}
+      {/* Canales */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Bell className="h-4 w-4 text-blue-500" />
-            Notificaciones en Tiempo Real
+            <Monitor className="h-4 w-4 text-blue-500" />
+            Canales de Notificación
           </CardTitle>
-          <CardDescription>
-            Alertas instantáneas dentro de la plataforma cuando ocurran eventos importantes
-          </CardDescription>
+          <CardDescription>Elige cómo quieres recibir las notificaciones</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Monitor className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="inApp" className="cursor-pointer">Notificaciones en la plataforma</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Alertas en tiempo real dentro de la aplicación</p>
+              </div>
+            </div>
+            <Switch id="inApp" checked={inAppEnabled} onCheckedChange={(v) => { setInAppEnabled(v); setHasChanges(true); }} />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Bell className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="realtime" className="cursor-pointer">Notificaciones push en tiempo real</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Alertas inmediatas sin necesidad de recargar la página</p>
+              </div>
+            </div>
+            <Switch id="realtime" checked={realtimeEnabled} onCheckedChange={(v) => { setRealtimeEnabled(v); setHasChanges(true); }} />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <Label htmlFor="emailCh" className="cursor-pointer">Notificaciones por correo electrónico</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Recibe alertas en tu correo registrado en el perfil</p>
+              </div>
+            </div>
+            <Switch id="emailCh" checked={emailEnabled} onCheckedChange={(v) => { setEmailEnabled(v); setHasChanges(true); }} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tipos de alerta */}
+      <Card>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="realtime">Activar notificaciones en tiempo real</Label>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Recibirás alertas al instante en la barra de notificaciones
-              </p>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Bell className="h-4 w-4 text-orange-500" />
+                Tipos de Alerta
+              </CardTitle>
+              <CardDescription>Selecciona qué categorías de notificaciones deseas recibir</CardDescription>
             </div>
-            <Switch
-              id="realtime"
-              checked={realtimeEnabled}
-              onCheckedChange={(v) => { setRealtimeEnabled(v); setHasChanges(true); }}
-            />
+            <Badge variant="outline" className="text-xs">{activeAlerts}/{ALERT_TYPES.length} activas</Badge>
           </div>
+        </CardHeader>
+        <CardContent className="space-y-1">
+          {ALERT_TYPES.map((type, idx) => {
+            const Icon = type.icon;
+            return (
+              <div key={type.key}>
+                {idx > 0 && <Separator className="my-3" />}
+                <div className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-3">
+                    <Icon className={`h-4 w-4 ${type.color}`} />
+                    <div>
+                      <Label htmlFor={type.key} className="cursor-pointer font-medium">{type.label}</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">{type.description}</p>
+                    </div>
+                  </div>
+                  <Switch id={type.key} checked={alertTypes[type.key]} onCheckedChange={(v) => handleAlertToggle(type.key, v)} />
+                </div>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

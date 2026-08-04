@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, AlertTriangle, TrendingUp, Plus, FileText } from "lucide-react";
+import { Briefcase, AlertTriangle, TrendingUp, Plus, FileText, Search, ArrowUpDown, Users } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
@@ -13,6 +15,9 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 export default function JobPositions() {
   const { user } = useAuth();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"employees_desc" | "employees_asc" | "risk" | "name">("employees_desc");
+  const [filterRisk, setFilterRisk] = useState<"all" | "bajo" | "medio" | "alto">("all");
 
   // Obtener puestos reales de la base de datos
   const { data: jobPositions = [], refetch } = trpc.jobPositions.list.useQuery();
@@ -67,7 +72,7 @@ export default function JobPositions() {
   ];
 
   // Usar datos reales si existen, si no usar ejemplos
-  const displayPositions = jobPositions.length > 0 ? jobPositions.map(pos => ({
+  const rawPositions = jobPositions.length > 0 ? jobPositions.map(pos => ({
     id: pos.id,
     title: pos.positionName,
     department: pos.department || 'Sin departamento',
@@ -82,6 +87,26 @@ export default function JobPositions() {
       workEnvironment: 3,
     },
   })) : examplePositions;
+
+  // Aplicar búsqueda, filtro de riesgo y ordenamiento
+  const displayPositions = rawPositions
+    .filter((p: any) => {
+      const matchSearch = searchQuery === "" ||
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.department.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchRisk = filterRisk === "all" || p.riskLevel === filterRisk;
+      return matchSearch && matchRisk;
+    })
+    .sort((a: any, b: any) => {
+      if (sortBy === "employees_desc") return b.employees - a.employees;
+      if (sortBy === "employees_asc") return a.employees - b.employees;
+      if (sortBy === "risk") {
+        const order: Record<string, number> = { alto: 0, medio: 1, bajo: 2 };
+        return (order[a.riskLevel] ?? 3) - (order[b.riskLevel] ?? 3);
+      }
+      if (sortBy === "name") return a.title.localeCompare(b.title);
+      return 0;
+    });
 
   const getRiskBadge = (level: string) => {
     switch (level) {
@@ -180,9 +205,59 @@ export default function JobPositions() {
         </Card>
       </div>
 
+      {/* Filtros y búsqueda */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por puesto o departamento..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <Select value={filterRisk} onValueChange={(v) => setFilterRisk(v as any)}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Nivel de riesgo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos los riesgos</SelectItem>
+            <SelectItem value="bajo">Riesgo Bajo</SelectItem>
+            <SelectItem value="medio">Riesgo Medio</SelectItem>
+            <SelectItem value="alto">Riesgo Alto</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder="Ordenar por" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="employees_desc">
+              <span className="flex items-center gap-2"><Users className="h-3.5 w-3.5" />Más empleados primero</span>
+            </SelectItem>
+            <SelectItem value="employees_asc">
+              <span className="flex items-center gap-2"><Users className="h-3.5 w-3.5" />Menos empleados primero</span>
+            </SelectItem>
+            <SelectItem value="risk">
+              <span className="flex items-center gap-2"><AlertTriangle className="h-3.5 w-3.5" />Mayor riesgo primero</span>
+            </SelectItem>
+            <SelectItem value="name">
+              <span className="flex items-center gap-2"><ArrowUpDown className="h-3.5 w-3.5" />Nombre A-Z</span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Job Positions List */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Puestos de Trabajo</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Puestos de Trabajo</h2>
+          {(searchQuery || filterRisk !== "all") && (
+            <span className="text-sm text-muted-foreground">
+              {displayPositions.length} resultado{displayPositions.length !== 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
         {displayPositions.length === 0 && (
           <Card>
             <CardContent className="pt-6">

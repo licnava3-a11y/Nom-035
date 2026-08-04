@@ -1632,3 +1632,8 @@
 
 ### 🟢 BAJO — JobPositions: contador de empleados por puesto
 - [x] Calcular empleados por puesto en JobPositions.tsx: procedure jobPositions.list ahora incluye `employeeCount` via JOIN positions.title = jobPositions.positionName + COUNT de employees. Frontend usa `(pos as any).employeeCount ?? 0`
+
+## Sprint: Preview Fix, Panel Notificaciones y Filtro Puestos (2026-08-04)
+- [x] URL de preview: es temporal por diseño del sandbox (expira entre sesiones). Servidor dev HTTP 200. Usar botón View en panel de gestión para URL fresca. Sitio publicado: nom035mood-32dy4ksx.manus.space
+- [x] Panel de notificaciones mejorado en /settings/notifications: tipos de alerta por categoría (casos, encuestas, contratos, capacitación, etc.), canales (email/in-app), resumen diario/semanal con hora y día configurable, badges de estado activo
+- [x] Filtro interactivo en JobPositions.tsx: búsqueda por nombre/departamento, filtro por nivel de riesgo (bajo/medio/alto/todos), ordenamiento por más/menos empleados, mayor riesgo o nombre A-Z, contador de resultados filtrados
