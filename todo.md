@@ -1751,3 +1751,5 @@
 - [x] Corregir error TS en ClinicalRecords.tsx: eliminar propiedad duration del toast (no existe en tipo Toast de shadcn/ui)
 - [x] Corregir error TS en NMX025EvidencesFolder.tsx: trpc.company.generalData.useQuery() → trpc.company.generalData.get.useQuery()
 - [x] Corregir error TS pre-existente en server/db.ts: cast as any para compatibilidad drizzle-orm/mysql2
+- [x] Corregir input tipado de jobPositions.update para aceptar analysisNotes y preservar observaciones en el historial
+- [x] Ejecutar prueba unitaria aislada del contrato jobPositions.update (2 pruebas aprobadas)

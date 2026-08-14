@@ -196,6 +196,23 @@ const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next({ ctx });
 });
 
+export const jobPositionUpdateInput = z.object({
+  id: z.number(),
+  positionName: z.string().min(1, 'El nombre del puesto es requerido').optional(),
+  department: z.string().optional(),
+  description: z.string().optional(),
+  riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
+  employeeCount: z.number().int().min(0).optional(),
+  analysisNotes: z.string().optional(),
+  factors: z.object({
+    workload: z.number().min(1).max(5),
+    control: z.number().min(1).max(5),
+    leadership: z.number().min(1).max(5),
+    relationships: z.number().min(1).max(5),
+    workEnvironment: z.number().min(1).max(5),
+  }).optional(),
+});
+
 export const appRouter = router({
   system: systemRouter,
   rolesPermissions: rolesPermissionsRouter,
@@ -1355,21 +1372,7 @@ export const appRouter = router({
         return position;
       }),
     update: instructorProcedure
-      .input(z.object({
-        id: z.number(),
-        positionName: z.string().min(1, 'El nombre del puesto es requerido').optional(),
-        department: z.string().optional(),
-        description: z.string().optional(),
-        riskLevel: z.enum(['low', 'medium', 'high', 'very_high']).optional(),
-        employeeCount: z.number().int().min(0).optional(),
-        factors: z.object({
-          workload: z.number().min(1).max(5),
-          control: z.number().min(1).max(5),
-          leadership: z.number().min(1).max(5),
-          relationships: z.number().min(1).max(5),
-          workEnvironment: z.number().min(1).max(5),
-        }).optional(),
-      }))
+      .input(jobPositionUpdateInput)
       .mutation(async ({ input, ctx }) => {
         const { id, factors, analysisNotes, ...rest } = input;
         await db.updateJobPosition(id, {
@@ -1400,6 +1403,7 @@ export const appRouter = router({
                 riskIndex: newIndex.toFixed(1),
                 employeeCount: rest.employeeCount ?? 0,
                 factors: JSON.stringify(factors),
+                notes: analysisNotes ?? null,
                 analyzedBy: ctx.user.id,
               });
               // Send automatic notification if risk increased (using configurable threshold)
