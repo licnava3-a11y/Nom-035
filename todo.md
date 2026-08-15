@@ -1753,3 +1753,33 @@
 - [x] Corregir error TS pre-existente en server/db.ts: cast as any para compatibilidad drizzle-orm/mysql2
 - [x] Corregir input tipado de jobPositions.update para aceptar analysisNotes y preservar observaciones en el historial
 - [x] Ejecutar prueba unitaria aislada del contrato jobPositions.update (2 pruebas aprobadas)
+
+## Auditoría integral y experiencia JobPositions (2026-08-14)
+- [x] Implementar estados de carga, vacío y error recuperable en JobPositions para consultas y acciones críticas
+- [x] Cubrir transiciones de carga, error, vacío y listo de JobPositions con 3 pruebas unitarias aisladas
+- [x] Auditar compilación, TypeScript, pruebas, rutas, respuestas 404, contratos tRPC y dependencias
+- [x] Auditar páginas, formularios, campos, nombres, correlaciones de datos, filtros y desplegables
+- [x] Auditar UX, accesibilidad, rendimiento, memoria, bundles y duplicidades de código
+- [x] Consolidar todos los hallazgos y plan priorizado de crítico a fácil en todo.md
+
+### Plan de remediación — P0 Crítico
+- [ ] Dependencias: resolver 5 vulnerabilidades críticas y 97 altas identificadas por `pnpm audit --prod`, con actualización controlada y pruebas de regresión.
+- [ ] Compilación: dividir el chequeo TypeScript en proyectos o referencias para evitar el OOM actual de `tsc --noEmit` (agotó un heap de 1.5 GB) y recuperar validación obligatoria en CI.
+- [ ] Rutas: eliminar la colisión de `/cases/assignment` y registrar o redirigir los enlaces sin ruta: `/administrative/expenses`, `/compliance/checklist`, `/documents/history`, `/nom035-admin-panel`, `/survey-send`, `/training/calendar`, `/training/my-courses` y `/trends-charts`.
+- [ ] Integridad JobPositions: reemplazar la correlación de empleados por nombre de puesto (`positions.title` ↔ `jobPositions.positionName`) por una relación `positionId` con llave foránea y migración segura.
+- [ ] Exactitud de reportes: corregir la gráfica PDF de distribución de riesgo, que compara niveles en inglés mientras la UI normaliza a valores en español, y validar Muy Alto/Alto/Medio/Bajo con datos reales.
+
+### Plan de remediación — P1 Alto
+- [ ] Pruebas: corregir y clasificar los 14 fallos existentes de la suite completa; comenzar por `server/sprint55.test.ts`, cuya aserción no coincide con el arranque actual mediante `serveStatic`.
+- [ ] Datos reales: sustituir métricas y contenidos simulados o incompletos en `dashboard.ts`, `training.ts`, `Reports.tsx`, `ReportTemplates.tsx`, servicios de email y firma digital por fuentes productivas o estados explícitos de “sin datos”.
+- [ ] Desplegables: corregir `BuzonComunicacion.tsx` para no usar `<SelectItem value="">` y completar un inventario de contratos de opciones/campos de los filtros dinámicos.
+- [ ] Observabilidad: reducir los 795 `console.log/warn/error` a un logger estructurado por entorno y reemplazar los `catch {}` que silencian errores funcionales.
+- [ ] Calidad de tipos: reducir gradualmente los 1,235 usos de `as any`, empezando por routers de mayor tráfico y contratos de empleados, puestos y encuestas.
+
+### Plan de remediación — P2 Medio
+- [ ] Modularizar archivos de alto acoplamiento: `App.tsx`, `server/routers.ts`, `surveys.ts`, `JobPositions.tsx`, `Home.tsx` y `EmployeeProfile.tsx`, todos superiores a 1,500 líneas o cercanos a ese umbral.
+- [ ] UX y accesibilidad: sustituir botones nativos de alternancia por controles semánticos accesibles, completar estados de vacío en tablas y estandarizar etiquetas/ayuda de filtros.
+- [ ] Rendimiento: medir y separar bundles por dominio funcional; preservar importación diferida de gráficos/PDF y añadir presupuestos de bundle y memoria al pipeline.
+- [ ] Backlog funcional: implementar los TODOs de notificaciones, capacitación, tendencias y filtros departamentales únicamente después de resolver P0 y P1.
+
+> Registro duplicado de auditoría consolidado en este bloque el 2026-08-15; no requiere ejecución adicional.

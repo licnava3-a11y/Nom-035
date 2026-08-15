@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,18 +19,23 @@ import { trpc } from "@/lib/trpc";
 import { JobAnalysisDialog } from "@/components/JobAnalysisDialog";
 import { JobEditDialog } from "@/components/JobEditDialog";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { AlertError } from "@/components/AlertError";
+import { EmptyState } from "@/components/EmptyState";
+import { parseTRPCError } from "@/lib/errorMessages";
+import { getJobPositionsListState } from "./jobPositionsState";
 import Chart from "chart.js/auto";
 import { jsPDF } from "jspdf";
 
 type SortKey = "employees_desc" | "employees_asc" | "risk" | "name";
-type RiskFilter = "all" | "bajo" | "medio" | "alto";
+type RiskFilter = "all" | "bajo" | "medio" | "alto" | "muy_alto";
 type DeptFilter = string;
 type ViewMode = "cards" | "table";
 
 // ── Colores de riesgo ──────────────────────────────────────────────────────────
-const RISK_ORDER: Record<string, number> = { alto: 0, medio: 1, bajo: 2 };
+const RISK_ORDER: Record<string, number> = { muy_alto: 0, alto: 1, medio: 2, bajo: 3 };
 
 const RISK_COLORS: Record<string, string> = {
+  muy_alto: "#991b1b",
   bajo: "#16a34a",
   medio: "#d97706",
   alto: "#dc2626",
@@ -198,21 +204,16 @@ export default function JobPositions() {
     dir: "desc",
   });
 
-  const { data: jobPositions = [], refetch } = trpc.jobPositions.list.useQuery();
+  const {
+    data: jobPositions,
+    refetch,
+    isLoading: isPositionsLoading,
+    isFetching: isPositionsFetching,
+    isError: isPositionsError,
+    error: positionsError,
+  } = trpc.jobPositions.list.useQuery();
 
-  // ── Datos de ejemplo ─────────────────────────────────────────────────────────
-  const examplePositions = [
-    { id: 1, title: "Gerente de Recursos Humanos",  department: "Recursos Humanos", employees: 3,  riskLevel: "bajo",  lastAnalysis: "2026-01-15", factors: { workload: 2, control: 3, leadership: 4, relationships: 4, workEnvironment: 3 } },
-    { id: 2, title: "Operador de Producción",        department: "Producción",       employees: 45, riskLevel: "alto",  lastAnalysis: "2026-01-20", factors: { workload: 4, control: 2, leadership: 3, relationships: 3, workEnvironment: 2 } },
-    { id: 3, title: "Analista de Sistemas",           department: "Tecnología",       employees: 8,  riskLevel: "medio", lastAnalysis: "2026-01-25", factors: { workload: 3, control: 3, leadership: 3, relationships: 4, workEnvironment: 3 } },
-    { id: 4, title: "Supervisor de Calidad",          department: "Calidad",          employees: 12, riskLevel: "medio", lastAnalysis: "2026-02-01", factors: { workload: 3, control: 3, leadership: 3, relationships: 3, workEnvironment: 3 } },
-    { id: 5, title: "Auxiliar Administrativo",        department: "Administración",   employees: 6,  riskLevel: "bajo",  lastAnalysis: "2026-02-05", factors: { workload: 2, control: 3, leadership: 3, relationships: 4, workEnvironment: 3 } },
-    { id: 6, title: "Técnico de Mantenimiento",       department: "Mantenimiento",    employees: 18, riskLevel: "alto",  lastAnalysis: "2026-02-10", factors: { workload: 4, control: 2, leadership: 3, relationships: 3, workEnvironment: 2 } },
-    { id: 7, title: "Coordinador de Logística",       department: "Logística",        employees: 9,  riskLevel: "medio", lastAnalysis: "2026-02-12", factors: { workload: 3, control: 3, leadership: 3, relationships: 3, workEnvironment: 3 } },
-  ];
-
-  const rawPositions = jobPositions.length > 0
-    ? jobPositions.map(pos => ({
+  const rawPositions = useMemo(() => (jobPositions ?? []).map(pos => ({
         id: pos.id,
         title: pos.positionName,
         department: pos.department || "Sin departamento",
@@ -231,8 +232,12 @@ export default function JobPositions() {
           } catch {}
           return { workload: 2, control: 3, leadership: 3, relationships: 3, workEnvironment: 3 };
         })(),
-      }))
-    : examplePositions;
+      })), [jobPositions]);
+  const listState = getJobPositionsListState({
+    isLoading: isPositionsLoading,
+    isError: isPositionsError,
+    recordCount: rawPositions.length,
+  });
 
   // ── Filtrado ─────────────────────────────────────────────────────────────────
   // Lista de departamentos únicos
@@ -584,6 +589,7 @@ export default function JobPositions() {
       case "bajo":  return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Riesgo Bajo</Badge>;
       case "medio": return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Riesgo Medio</Badge>;
       case "alto":  return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Riesgo Alto</Badge>;
+      case "muy_alto": return <Badge variant="outline" className="bg-red-100 text-red-900 border-red-300">Riesgo Muy Alto</Badge>;
       default:      return null;
     }
   };
@@ -617,28 +623,69 @@ export default function JobPositions() {
     );
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
-  return (
-    <div className="space-y-6">
+  const pageHeader = (
+    <>
       <Breadcrumb items={[{ label: "Gestión de Talento", href: "/" }, { label: "Puestos" }]} />
-
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Análisis de Puestos</h1>
-          <p className="text-muted-foreground mt-1">
-            Evaluación de factores de riesgo psicosocial por puesto de trabajo
-          </p>
+          <p className="text-muted-foreground mt-1">Evaluación de factores de riesgo psicosocial por puesto de trabajo</p>
         </div>
-        <div className="flex items-center gap-2">
-          {(user?.role === "admin" || user?.role === "instructor") && (
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Análisis
-            </Button>
-          )}
-        </div>
+        {(user?.role === "admin" || user?.role === "instructor") && (
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />Nuevo Análisis
+          </Button>
+        )}
       </div>
+    </>
+  );
+
+  if (listState === "loading") {
+    return (
+      <div className="space-y-6">
+        {pageHeader}
+        <Card aria-busy="true" aria-live="polite">
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+            <div>
+              <p className="font-medium">Cargando análisis de puestos</p>
+              <p className="text-sm text-muted-foreground">Estamos preparando la información más reciente.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (listState === "error") {
+    return (
+      <div className="space-y-6">
+        {pageHeader}
+        <AlertError error={parseTRPCError(positionsError)} onAction={() => void refetch()} />
+      </div>
+    );
+  }
+
+  if (listState === "empty") {
+    return (
+      <div className="space-y-6">
+        {pageHeader}
+        <EmptyState
+          icon={Briefcase}
+          title="Aún no hay análisis de puestos"
+          description="Crea el primer análisis para visualizar el riesgo psicosocial y los factores por puesto."
+          action={user?.role === "admin" || user?.role === "instructor" ? { label: "Crear análisis", onClick: () => setDialogOpen(true) } : undefined}
+          secondaryAction={{ label: "Actualizar", onClick: () => void refetch() }}
+        />
+        <JobAnalysisDialog open={dialogOpen} onOpenChange={setDialogOpen} onSuccess={refetch} />
+      </div>
+    );
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────────
+  return (
+    <div className="space-y-6">
+      {pageHeader}
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -682,7 +729,11 @@ export default function JobPositions() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2.8</div>
+            <div className="text-2xl font-bold">
+              {displayPositions.length > 0
+                ? (displayPositions.reduce((sum: number, position: any) => sum + calcIndex(position.factors), 0) / displayPositions.length).toFixed(1)
+                : "—"}
+            </div>
             <p className="text-xs text-muted-foreground">Escala de 1 a 5</p>
           </CardContent>
         </Card>
@@ -769,6 +820,7 @@ export default function JobPositions() {
               <SelectItem value="bajo">Riesgo Bajo</SelectItem>
               <SelectItem value="medio">Riesgo Medio</SelectItem>
               <SelectItem value="alto">Riesgo Alto</SelectItem>
+              <SelectItem value="muy_alto">Riesgo Muy Alto</SelectItem>
             </SelectContent>
           </Select>
 
@@ -886,7 +938,8 @@ export default function JobPositions() {
               <span>Haz clic en los encabezados de columna para ordenar</span>
             </div>
           )}
-          <span className="text-xs text-muted-foreground ml-auto">
+          <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
+            {isPositionsFetching && <RefreshCw className="h-3 w-3 animate-spin" aria-label="Actualizando puestos" />}
             {displayPositions.length} puesto{displayPositions.length !== 1 ? "s" : ""}
             {hasActiveFilters ? " encontrado" + (displayPositions.length !== 1 ? "s" : "") : " en total"}
           </span>
@@ -904,7 +957,7 @@ export default function JobPositions() {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-center text-muted-foreground">
-                  No se encontraron puestos con los filtros aplicados.
+                  No se encontraron puestos con los filtros aplicados. Ajusta los filtros o usa “Limpiar”.
                 </p>
               </CardContent>
             </Card>
@@ -1020,7 +1073,7 @@ export default function JobPositions() {
           <CardContent className="p-0">
             {tableSortedPositions.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                No se encontraron puestos con los filtros aplicados.
+                No se encontraron puestos con los filtros aplicados. Ajusta los filtros o usa “Limpiar”.
               </p>
             ) : (
               <div className="overflow-x-auto">
