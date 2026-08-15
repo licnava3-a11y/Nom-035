@@ -26,7 +26,7 @@ La mejora solicitada en **JobPositions** quedó aplicada: la página ya diferenc
 
 **Remediación aplicada:** el reporte general y el reporte individual de puestos ya usan la normalización española de riesgos (`muy_alto`, `alto`, `medio`, `bajo`). La distribución PDF se cubrió con una prueba unitaria que verifica los cuatro niveles.
 
-**Migración aplicada:** `jobPositions.catalogPositionId` ahora referencia opcionalmente a `positions.id`. La consulta de puestos cuenta empleados mediante esa llave y conserva el conteo analizado para registros históricos aún no vinculados. La inspección previa encontró cinco análisis históricos sin puesto equivalente en el catálogo; se dejaron intactos para evitar asociaciones por nombre potencialmente erróneas.
+**Migración aplicada:** `jobPositions.catalogPositionId` ahora referencia opcionalmente a `positions.id`. La consulta de puestos cuenta empleados mediante esa llave y conserva el conteo analizado para registros históricos aún no vinculados. La inspección previa detectó cinco análisis históricos sin puesto equivalente; se crearon sus cinco puestos canónicos únicamente cuando coincidieron exactamente el nombre y el departamento existente. La verificación posterior confirmó 5 de 5 análisis vinculados y 0 sin vínculo.
 
 ## Remediación inicial de dependencias
 
@@ -35,6 +35,8 @@ Se actualizaron las dependencias directas `jspdf` a `4.2.1` y `handlebars` a `4.
 ## Revisión de formularios y desplegables
 
 La revisión estática detectó un uso incompatible de `SelectItem` con valor vacío en el Buzón de Comunicación. Los `<option value="">` nativos encontrados se usan, en general, como placeholder y no comparten la restricción de Radix UI. Se recomienda normalizar los valores de “Todos” y “Sin seleccionar” como centinelas explícitos (`all`, `none`, `unassigned`) y centralizar los contratos de filtros.
+
+**Remediación aplicada:** el filtro de estado del Buzón usa ahora el centinela no vacío `ALL` y convierte este valor a `undefined` solo al construir la consulta. La sintaxis del componente se validó mediante compilación aislada.
 
 ## Rutas que requieren acción
 
@@ -53,6 +55,10 @@ La ruta `/cases/assignment` aparece dos veces: una versión renderiza `Cases` y 
 | Chequeo TypeScript completo | No concluye: OOM con heap de 1.5 GB |
 | Auditoría de dependencias de producción | 210 hallazgos: 17 bajos, 91 moderados, 97 altos y 5 críticos |
 | Prueba aislada del contrato `jobPositions.update` (checkpoint anterior) | 2/2 aprobadas |
+
+## Actualización de pruebas heredadas
+
+La ejecución secuencial de la suite completa identificó 13 aserciones heredadas que ya no reflejaban la arquitectura activa: redirect OAuth basado en host real, servidor estático ESM centralizado, jobs no críticos deshabilitados y arranque dinámico de jobs con espera de 15 segundos. Se actualizaron dichas pruebas sin reducir la cobertura de comportamiento. La nueva ejecución completa finalizó correctamente con **99 archivos y 1,620 pruebas aprobadas**.
 
 ## Secuencia de cierre de todo.md
 

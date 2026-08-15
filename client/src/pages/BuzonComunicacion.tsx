@@ -617,12 +617,12 @@ export default function BuzonComunicacion() {
   };
   const [detailRequestId, setDetailRequestId] = useState<number | null>(null);
   const [filterType, setFilterType] = useState("ALL");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: listData, isLoading } = trpc.buzon.listRequests.useQuery({
     requestType: filterType as "QUEJA" | "FELICITACION" | "CAPACITACION" | "SUGERENCIA" | "ALL",
-    status: filterStatus || undefined,
+    status: filterStatus === "ALL" ? undefined : filterStatus,
     search: searchQuery || undefined,
     page: 1,
     pageSize: 50,
@@ -757,7 +757,7 @@ export default function BuzonComunicacion() {
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-48"><SelectValue placeholder="Estado" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos los estados</SelectItem>
+              <SelectItem value="ALL">Todos los estados</SelectItem>
               {Object.entries(STATUS_LABELS).map(([k, v]) => (
                 <SelectItem key={k} value={k}>{v}</SelectItem>
               ))}

@@ -166,10 +166,11 @@ describe("ESM Compatibility — Prevención de errores de despliegue en Cloud Ru
     expect(allViolations).toHaveLength(0);
   });
 
-  it("server/_core/index.ts usa import.meta.dirname para resolver rutas de archivos", () => {
+  it("server/_core/index.ts delega las rutas estáticas al módulo ESM compatible", () => {
     const indexPath = join(ROOT, "server/_core/index.ts");
     const content = readFileSync(indexPath, "utf-8");
-    expect(content).toContain("import.meta.dirname");
+    expect(content).toContain('import { serveStatic } from "./vite"');
+    expect(content).toContain("serveStatic(app)");
   });
 
   it("el proyecto tiene package.json con type:module (confirma que el runtime es ESM)", () => {
@@ -178,15 +179,10 @@ describe("ESM Compatibility — Prevención de errores de despliegue en Cloud Ru
     expect(pkg.type).toBe("module");
   });
 
-  it("server/_core/index.ts tiene distPublicPath definido con import.meta.dirname", () => {
-    const indexPath = join(ROOT, "server/_core/index.ts");
-    const content = readFileSync(indexPath, "utf-8");
-    expect(content).toContain("distPublicPath");
-    expect(content).toContain("distPublicExists");
-    // Verificar que distPublicPath usa import.meta.dirname, no __dirname
-    const distPathLine = content.split("\n").find((l) => l.includes("distPublicPath") && l.includes("path.join"));
-    expect(distPathLine).toBeDefined();
-    expect(distPathLine).toContain("import.meta.dirname");
-    expect(distPathLine).not.toContain("__dirname");
+  it("server/_core/vite.ts resuelve el directorio estático con import.meta.dirname", () => {
+    const vitePath = join(ROOT, "server/_core/vite.ts");
+    const content = readFileSync(vitePath, "utf-8");
+    expect(content).toContain("const distPath");
+    expect(content).toContain("import.meta.dirname");
   });
 });

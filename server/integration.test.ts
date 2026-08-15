@@ -94,16 +94,15 @@ describe("Servidor Express: estructura y rutas críticas", () => {
     expect(indexContent).toContain("import path from \"path\"");
   });
 
-  it("index.ts debe tener lógica de fallback a Vite cuando dist/public no existe", () => {
+  it("index.ts debe delegar el fallback SPA al servidor estático centralizado", () => {
     const indexPath = path.resolve(
       import.meta.dirname,
       "./_core/index.ts"
     );
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    expect(indexContent).toContain("distPublicExists");
-    expect(indexContent).toContain("falling back to Vite dev server");
-    expect(indexContent).toContain("setupVite(app, server)");
+    expect(indexContent).toContain('import { serveStatic } from "./vite"');
+    expect(indexContent).toContain("serveStatic(app)");
   });
 
   it("index.ts debe registrar todas las rutas críticas de la API", () => {

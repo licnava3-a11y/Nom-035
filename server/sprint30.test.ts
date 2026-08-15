@@ -11,15 +11,14 @@ describe("Sprint 30 - Corrección pantalla en blanco, spinner y modal PDF", () =
     expect(pkg.dependencies).toHaveProperty("tailwindcss");
   });
 
-  // Test 2: El servidor tiene fallback de Vite cuando dist/public no existe
-  it("el servidor index.ts tiene lógica de fallback cuando dist/public no existe", () => {
+  // Test 2: El servidor delega el fallback SPA al módulo estático ESM
+  it("el servidor index.ts delega el fallback cuando dist/public no existe", () => {
     const indexContent = fs.readFileSync(
       path.resolve(__dirname, "_core/index.ts"),
       "utf-8"
     );
-    expect(indexContent).toContain("distPublicPath");
-    expect(indexContent).toContain("existsSync");
-    expect(indexContent).toContain("setupVite");
+    expect(indexContent).toContain('import { serveStatic } from "./vite"');
+    expect(indexContent).toContain("serveStatic(app)");
   });
 
   // Test 3: El spinner de carga está en index.html

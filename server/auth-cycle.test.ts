@@ -9,7 +9,8 @@
  * 3. El servidor redirige a /login-error?reason=code_expired
  * 4. El frontend reinicia el flujo → ciclo infinito
  *
- * Solución: APP_PUBLIC_URL tiene prioridad sobre los headers de proxy.
+ * Solución: el host real de la solicitud tiene prioridad para que preview y
+ * producción usen el mismo origen que abrió el navegador.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -27,32 +28,21 @@ describe("ENV.appPublicUrl", () => {
   });
 });
 
-// ─── Test 2: oauth.ts debe usar APP_PUBLIC_URL como primera prioridad ────────
+// ─── Test 2: oauth.ts debe usar el host real de la solicitud ─────────────────
 describe("buildRegisteredRedirectUri en oauth.ts", () => {
-  it("debe importar ENV y usar ENV.appPublicUrl como primera prioridad", () => {
+  it("debe reconstruir el redirectUri desde los headers del proxy", () => {
     const oauthContent = readFileSync(join(ROOT, "server/_core/oauth.ts"), "utf-8");
-    // Debe importar ENV
-    expect(oauthContent).toContain('import { ENV }');
-    // Debe usar appPublicUrl como primera condición
-    expect(oauthContent).toContain("ENV.appPublicUrl");
-    // La función buildRegisteredRedirectUri debe tener un if(ENV.appPublicUrl) que retorna primero
-    expect(oauthContent).toContain("if (ENV.appPublicUrl)");
+    const redirectFunction = oauthContent.match(/function buildRegisteredRedirectUri[\s\S]*?\n\}/)?.[0] ?? "";
+    expect(redirectFunction).toContain("x-forwarded-proto");
+    expect(redirectFunction).toContain("x-forwarded-host");
+    expect(redirectFunction).toContain("/api/oauth/callback");
   });
 
-  it("no debe usar localhost como redirectUri cuando APP_PUBLIC_URL está configurado", () => {
+  it("no debe priorizar APP_PUBLIC_URL sobre el host actual", () => {
     const oauthContent = readFileSync(join(ROOT, "server/_core/oauth.ts"), "utf-8");
-    // El bloque if(ENV.appPublicUrl) debe contener un return con /api/oauth/callback
-    // Esto garantiza que cuando APP_PUBLIC_URL está configurado, se retorna antes del fallback
-    const appPublicBlock = oauthContent.match(/if \(ENV\.appPublicUrl\) \{[\s\S]*?\n  \}/)?.[0] ?? "";
-    expect(appPublicBlock.length).toBeGreaterThan(0);
-    expect(appPublicBlock).toContain("return");
-    expect(appPublicBlock).toContain("/api/oauth/callback");
-    // El fallback de x-forwarded-host debe estar FUERA del bloque if(ENV.appPublicUrl)
-    // (es decir, después del bloque, no dentro)
-    const afterAppPublicBlock = oauthContent.slice(
-      oauthContent.indexOf(appPublicBlock) + appPublicBlock.length
-    );
-    expect(afterAppPublicBlock).toContain("x-forwarded-host");
+    const redirectFunction = oauthContent.match(/function buildRegisteredRedirectUri[\s\S]*?\n\}/)?.[0] ?? "";
+    expect(redirectFunction).not.toContain("ENV.appPublicUrl");
+    expect(redirectFunction).toContain('req.get("host")');
   });
 });
 

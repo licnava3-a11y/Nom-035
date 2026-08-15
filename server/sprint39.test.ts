@@ -103,12 +103,12 @@ describe("Sprint 39 — Alertas LCP Email", () => {
     expect(content).toContain("return { success: true, alertCreated: true, emailSent");
   });
 
-  it("el job está registrado en el scheduler de index.ts", () => {
+  it("el scheduler documenta que el job LCP está deshabilitado por no ser crítico", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "server/_core/index.ts"),
       "utf-8"
     );
-    expect(content).toContain("startPerformanceLcpAlertsJob");
+    expect(content).toContain("DESHABILITADO: performance-lcp-alerts-job");
   });
 });
 

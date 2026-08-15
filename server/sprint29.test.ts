@@ -54,12 +54,12 @@ describe("Sprint 29 – Performance LCP alert job", () => {
     expect(content).toContain("performance_lcp");
   });
 
-  it("_core/index.ts registers the performance LCP job", async () => {
+  it("_core/index.ts documenta que el job LCP queda deshabilitado por ser no crítico", async () => {
     const fs = await import("fs");
     const path = await import("path");
     const indexPath = path.resolve(__dirname, "./_core/index.ts");
     const content = fs.readFileSync(indexPath, "utf-8");
-    expect(content).toContain("startPerformanceLcpAlertsJob");
+    expect(content).toContain("DESHABILITADO: performance-lcp-alerts-job");
   });
 });
 
