@@ -24,6 +24,14 @@ La mejora solicitada en **JobPositions** quedó aplicada: la página ya diferenc
 | P1 | Tipado evasivo y observabilidad dispersa | 1,235 `as any`; 795 `console.*`; 3 `catch {}` | Mayor riesgo de contratos rotos y fallos difíciles de diagnosticar | Establecer tipos de dominio, logger central y manejo explícito de errores |
 | P2 | Archivos de gran tamaño y acoplamiento | `surveys.ts` 2,848 líneas; `App.tsx` 2,168; varios archivos >1,500 | Coste alto de mantenimiento, consumo de memoria y conflictos | Extraer routers, rutas, helpers, diálogos y subcomponentes por dominio |
 
+**Remediación aplicada:** el reporte general y el reporte individual de puestos ya usan la normalización española de riesgos (`muy_alto`, `alto`, `medio`, `bajo`). La distribución PDF se cubrió con una prueba unitaria que verifica los cuatro niveles.
+
+**Migración aplicada:** `jobPositions.catalogPositionId` ahora referencia opcionalmente a `positions.id`. La consulta de puestos cuenta empleados mediante esa llave y conserva el conteo analizado para registros históricos aún no vinculados. La inspección previa encontró cinco análisis históricos sin puesto equivalente en el catálogo; se dejaron intactos para evitar asociaciones por nombre potencialmente erróneas.
+
+## Remediación inicial de dependencias
+
+Se actualizaron las dependencias directas `jspdf` a `4.2.1` y `handlebars` a `4.7.9`, ambas versiones corregidas. La auditoría posterior redujo las vulnerabilidades críticas de cinco a tres y las altas de 97 a 87. Permanecen `basic-ftp`, `fast-xml-parser` y `tar` como dependencias transitivas de Puppeteer, AWS SDK/Tailwind, respectivamente. No se forzó una sustitución mayor de esos árboles para evitar romper el flujo de generación PDF, almacenamiento o compilación; su actualización queda planificada y aislada como siguiente acción P0.
+
 ## Revisión de formularios y desplegables
 
 La revisión estática detectó un uso incompatible de `SelectItem` con valor vacío en el Buzón de Comunicación. Los `<option value="">` nativos encontrados se usan, en general, como placeholder y no comparten la restricción de Radix UI. Se recomienda normalizar los valores de “Todos” y “Sin seleccionar” como centinelas explícitos (`all`, `none`, `unassigned`) y centralizar los contratos de filtros.
@@ -33,6 +41,8 @@ La revisión estática detectó un uso incompatible de `SelectItem` con valor va
 Los siguientes enlaces internos están presentes en el frontend y no cuentan con una ruta textual equivalente en `App.tsx`: `/administrative/expenses`, `/compliance/checklist`, `/documents/history`, `/nom035-admin-panel`, `/survey-send`, `/training/calendar`, `/training/my-courses` y `/trends-charts`.
 
 La ruta `/cases/assignment` aparece dos veces: una versión renderiza `Cases` y otra `CaseAssignment`. La primera coincidencia puede ocultar la segunda según el orden de evaluación del router.
+
+**Remediación aplicada:** se consolidó `/cases/assignment` para renderizar únicamente `CaseAssignment`. También se añadieron aliases de compatibilidad para los nueve enlaces heredados detectados, redirigiéndolos a su ruta canónica y evitando respuestas 404 en navegación interna.
 
 ## Validación realizada
 

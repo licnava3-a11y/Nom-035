@@ -198,6 +198,7 @@ const committeeProcedure = protectedProcedure.use(({ ctx, next }) => {
 
 export const jobPositionUpdateInput = z.object({
   id: z.number(),
+  catalogPositionId: z.number().int().positive().nullable().optional(),
   positionName: z.string().min(1, 'El nombre del puesto es requerido').optional(),
   department: z.string().optional(),
   description: z.string().optional(),
@@ -1309,30 +1310,33 @@ export const appRouter = router({
     list: protectedProcedure.query(async () => {
       const allPositions = await db.getAllJobPositions();
       if (allPositions.length === 0) return [];
-      // Contar empleados por nombre de puesto cruzando positions.title con jobPositions.positionName
+      // Contar empleados mediante la relación explícita al catálogo, no por coincidencia de título.
       try {
         const { getDb } = await import('./db');
-        const { employees: empTable, positions: posTable } = await import('../drizzle/schema');
+        const { employees: empTable } = await import('../drizzle/schema');
         const { count: drizzleCount, inArray: drizzleInArray } = await import('drizzle-orm');
         const rawDb = await getDb();
-        const countMap: Record<string, number> = {};
+        const countMap: Record<number, number> = {};
         if (rawDb) {
-          const posNames = [...new Set(allPositions.map(p => p.positionName))];
-          const matchedPos = await rawDb.select({ id: posTable.id, title: posTable.title })
-            .from(posTable).where(drizzleInArray(posTable.title, posNames));
-          if (matchedPos.length > 0) {
-            const matchedIds = matchedPos.map(p => p.id);
+          const catalogPositionIds = allPositions
+            .map(position => position.catalogPositionId)
+            .filter((id): id is number => id !== null);
+          if (catalogPositionIds.length > 0) {
             const empCounts = await rawDb.select({ positionId: empTable.positionId, total: drizzleCount() })
-              .from(empTable).where(drizzleInArray(empTable.positionId, matchedIds))
+              .from(empTable).where(drizzleInArray(empTable.positionId, catalogPositionIds))
               .groupBy(empTable.positionId);
-            const idToName: Record<number, string> = {};
-            matchedPos.forEach(p => { idToName[p.id] = p.title; });
-            empCounts.forEach(ec => { if (ec.positionId) countMap[idToName[ec.positionId] ?? ''] = ec.total; });
+            empCounts.forEach(countEntry => {
+              if (countEntry.positionId) countMap[countEntry.positionId] = countEntry.total;
+            });
           }
         }
-        return allPositions.map(p => ({ ...p, employeeCount: countMap[p.positionName] ?? 0 }));
+        return allPositions.map(position => ({
+          ...position,
+          // Mientras se vinculan registros históricos, se conserva el conteo analizado guardado.
+          employeeCount: position.catalogPositionId ? (countMap[position.catalogPositionId] ?? 0) : position.employeeCount,
+        }));
       } catch {
-        return allPositions.map(p => ({ ...p, employeeCount: 0 }));
+        return allPositions;
       }
     }),
     getById: protectedProcedure
@@ -1347,6 +1351,7 @@ export const appRouter = router({
       }),
     create: instructorProcedure
       .input(z.object({
+        catalogPositionId: z.number().int().positive().nullable().optional(),
         positionName: z.string().min(1, 'El nombre del puesto es requerido'),
         department: z.string().optional(),
         description: z.string().optional(),

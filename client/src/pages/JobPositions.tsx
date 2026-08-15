@@ -22,7 +22,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { AlertError } from "@/components/AlertError";
 import { EmptyState } from "@/components/EmptyState";
 import { parseTRPCError } from "@/lib/errorMessages";
-import { getJobPositionsListState } from "./jobPositionsState";
+import { getJobPositionsListState, getRiskDistribution } from "./jobPositionsState";
 import Chart from "chart.js/auto";
 import { jsPDF } from "jspdf";
 
@@ -315,7 +315,7 @@ export default function JobPositions() {
       doc.setTextColor(80, 80, 80);
       doc.text(`Departamento: ${position.department}`, margin, y); y += 6;
       doc.text(`Empleados asignados: ${position.employees}`, margin, y); y += 6;
-      const riskLabel = position.riskLevel === "alto" ? "Alto" : position.riskLevel === "medio" ? "Medio" : "Bajo";
+      const riskLabel = position.riskLevel === "muy_alto" ? "Muy Alto" : position.riskLevel === "alto" ? "Alto" : position.riskLevel === "medio" ? "Medio" : "Bajo";
       doc.text(`Nivel de riesgo: ${riskLabel}`, margin, y); y += 6;
       doc.text(`Índice de riesgo: ${calcIndex(position.factors)}/5`, margin, y); y += 6;
       doc.text(`Último análisis: ${new Date(position.lastAnalysis).toLocaleDateString("es-MX")}`, margin, y); y += 12;
@@ -395,9 +395,10 @@ export default function JobPositions() {
       doc.setFont('helvetica', 'bold');
       doc.text('Resumen Ejecutivo', mg, y); y += 7;
       const totalEmp = displayPositions.reduce((s: number, p: any) => s + (p.employees || 0), 0);
-      const highRisk = displayPositions.filter((p: any) => p.riskLevel === 'alto' || p.riskLevel === 'very_high').length;
-      const medRisk = displayPositions.filter((p: any) => p.riskLevel === 'medio' || p.riskLevel === 'medium').length;
-      const lowRisk = displayPositions.filter((p: any) => p.riskLevel === 'bajo' || p.riskLevel === 'low').length;
+      const riskDistribution = getRiskDistribution(displayPositions);
+      const highRisk = riskDistribution.alto + riskDistribution.muy_alto;
+      const medRisk = riskDistribution.medio;
+      const lowRisk = riskDistribution.bajo;
       const avgIdx = displayPositions.length > 0
         ? (displayPositions.reduce((s: number, p: any) => s + calcIndex(p.factors), 0) / displayPositions.length).toFixed(2)
         : '0.00';
@@ -408,18 +409,14 @@ export default function JobPositions() {
       doc.text(`Índice promedio de riesgo: ${avgIdx}/5`, mg, y); y += 5;
       doc.text(`Puestos riesgo Alto/Muy Alto: ${highRisk}   Medio: ${medRisk}   Bajo: ${lowRisk}`, mg, y); y += 12;
       // ── Gráfica de distribución de riesgo ──────────────────────────────────────
-      const veryHighRisk = displayPositions.filter((p: any) => p.riskLevel === 'very_high').length;
-      const highOnlyRisk = displayPositions.filter((p: any) => p.riskLevel === 'high').length;
-      const medOnlyRisk = displayPositions.filter((p: any) => p.riskLevel === 'medium').length;
-      const lowOnlyRisk = displayPositions.filter((p: any) => p.riskLevel === 'low').length;
       const totalPos = displayPositions.length || 1;
       doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42);
       doc.text('Distribución de Puestos por Nivel de Riesgo', mg, y); y += 6;
       const chartItems = [
-        { label: 'Muy Alto', count: veryHighRisk, r: 220, g: 38, b: 38 },
-        { label: 'Alto',     count: highOnlyRisk, r: 234, g: 88, b: 12 },
-        { label: 'Medio',    count: medOnlyRisk,  r: 202, g: 138, b: 4 },
-        { label: 'Bajo',     count: lowOnlyRisk,  r: 22,  g: 163, b: 74 },
+        { label: 'Muy Alto', count: riskDistribution.muy_alto, r: 220, g: 38, b: 38 },
+        { label: 'Alto',     count: riskDistribution.alto,     r: 234, g: 88, b: 12 },
+        { label: 'Medio',    count: riskDistribution.medio,    r: 202, g: 138, b: 4 },
+        { label: 'Bajo',     count: riskDistribution.bajo,     r: 22,  g: 163, b: 74 },
       ];
       const maxBarW = 100;
       const barRowH = 7;

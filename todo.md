@@ -1765,9 +1765,10 @@
 ### Plan de remediación — P0 Crítico
 - [ ] Dependencias: resolver 5 vulnerabilidades críticas y 97 altas identificadas por `pnpm audit --prod`, con actualización controlada y pruebas de regresión.
 - [ ] Compilación: dividir el chequeo TypeScript en proyectos o referencias para evitar el OOM actual de `tsc --noEmit` (agotó un heap de 1.5 GB) y recuperar validación obligatoria en CI.
-- [ ] Rutas: eliminar la colisión de `/cases/assignment` y registrar o redirigir los enlaces sin ruta: `/administrative/expenses`, `/compliance/checklist`, `/documents/history`, `/nom035-admin-panel`, `/survey-send`, `/training/calendar`, `/training/my-courses` y `/trends-charts`.
-- [ ] Integridad JobPositions: reemplazar la correlación de empleados por nombre de puesto (`positions.title` ↔ `jobPositions.positionName`) por una relación `positionId` con llave foránea y migración segura.
-- [ ] Exactitud de reportes: corregir la gráfica PDF de distribución de riesgo, que compara niveles en inglés mientras la UI normaliza a valores en español, y validar Muy Alto/Alto/Medio/Bajo con datos reales.
+- [x] Rutas: eliminar la colisión de `/cases/assignment` y registrar o redirigir los enlaces sin ruta: `/administrative/expenses`, `/compliance/checklist`, `/documents/history`, `/nom035-admin-panel`, `/survey-send`, `/training/calendar`, `/training/my-courses` y `/trends-charts`.
+- [x] Integridad JobPositions: reemplazar la correlación de empleados por nombre de puesto (`positions.title` ↔ `jobPositions.positionName`) por una relación `positionId` con llave foránea y migración segura.
+- [ ] Datos JobPositions: vincular los 5 análisis históricos sin coincidencia de catálogo cuando se registren sus puestos canónicos en `positions`.
+- [x] Exactitud de reportes: corregir la gráfica PDF de distribución de riesgo, que compara niveles en inglés mientras la UI normaliza a valores en español, y validar Muy Alto/Alto/Medio/Bajo con datos reales.
 
 ### Plan de remediación — P1 Alto
 - [ ] Pruebas: corregir y clasificar los 14 fallos existentes de la suite completa; comenzar por `server/sprint55.test.ts`, cuya aserción no coincide con el arranque actual mediante `serveStatic`.

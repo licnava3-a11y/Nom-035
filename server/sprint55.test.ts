@@ -44,17 +44,11 @@ describe("Sprint 55 — Corrección definitiva del segfault en producción", () 
     expect(content).toContain("await import(\"vite\")");
   });
 
-  it("index.ts en producción NUNCA llama setupVite", () => {
+  it("index.ts delega el fallback SPA al servidor estático compatible con producción y sandbox", () => {
     const content = fs.readFileSync(indexTsPath, "utf-8");
-    // En producción (NODE_ENV=production), debe ir directo a serveStatic
-    expect(content).toContain('process.env.NODE_ENV === "production"');
-    // El bloque de producción debe llamar serveStatic, no setupVite
-    const prodBlock = content.match(/if\s*\(process\.env\.NODE_ENV\s*===\s*"production"\)\s*\{([^}]+)\}/);
-    expect(prodBlock).not.toBeNull();
-    if (prodBlock) {
-      expect(prodBlock[1]).toContain("serveStatic");
-      expect(prodBlock[1]).not.toContain("setupVite");
-    }
+    // serveStatic resuelve el directorio según NODE_ENV y entrega el fallback SPA.
+    expect(content).toContain("serveStatic(app)");
+    expect(content).not.toContain("setupVite(app");
   });
 
   it("package.json build script excluye vite y sus plugins nativos", () => {

@@ -1,7 +1,7 @@
 import { Suspense, lazy, useState, useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Redirect, Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
@@ -291,6 +291,16 @@ function Router() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
+        {/* Alias de compatibilidad para enlaces internos heredados. */}
+        <Route path={"/administrative/expenses/:id"}><Redirect to="/administrative/expense-requests" /></Route>
+        <Route path={"/administrative/expenses"}><Redirect to="/administrative/expense-requests" /></Route>
+        <Route path={"/compliance/checklist"}><Redirect to="/compliance-checklist" /></Route>
+        <Route path={"/documents/history"}><Redirect to="/documents-history" /></Route>
+        <Route path={"/nom035-admin-panel"}><Redirect to="/nom035-admin" /></Route>
+        <Route path={"/survey-send"}><Redirect to="/surveys/mass-email" /></Route>
+        <Route path={"/training/calendar"}><Redirect to="/training-dashboard" /></Route>
+        <Route path={"/training/my-courses"}><Redirect to="/courses" /></Route>
+        <Route path={"/trends-charts"}><Redirect to="/trends" /></Route>
         <Route path={"/"}>
           <Suspense fallback={<PageLoader />}>
             <LandingPage />
@@ -489,7 +499,7 @@ function Router() {
         <Route path={"/cases/assignment"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
-              <Cases />
+              <CaseAssignment />
             </Suspense>
           </DashboardLayout>
         </Route>
@@ -913,13 +923,6 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <Documents />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path={"/cases/assignment"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <CaseAssignment />
             </Suspense>
           </DashboardLayout>
         </Route>

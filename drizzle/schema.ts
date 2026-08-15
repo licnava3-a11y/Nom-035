@@ -362,6 +362,8 @@ export type InsertResource = typeof resources.$inferInsert;
  */
 export const jobPositions = mysqlTable("jobPositions", {
   id: int("id").autoincrement().primaryKey(),
+  // Relación canónica con el catálogo positions; evita correlaciones por título.
+  catalogPositionId: int("catalogPositionId").references(() => positions.id, { onDelete: "set null" }),
   positionName: varchar("positionName", { length: 255 }).notNull(),
   department: varchar("department", { length: 255 }),
   description: text("description"),
