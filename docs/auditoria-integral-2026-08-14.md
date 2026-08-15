@@ -60,6 +60,14 @@ La ruta `/cases/assignment` aparece dos veces: una versión renderiza `Cases` y 
 
 La ejecución secuencial de la suite completa identificó 13 aserciones heredadas que ya no reflejaban la arquitectura activa: redirect OAuth basado en host real, servidor estático ESM centralizado, jobs no críticos deshabilitados y arranque dinámico de jobs con espera de 15 segundos. Se actualizaron dichas pruebas sin reducir la cobertura de comportamiento. La nueva ejecución completa finalizó correctamente con **99 archivos y 1,620 pruebas aprobadas**.
 
+## Validación TypeScript segmentada
+
+Se sustituyó el chequeo monolítico por `check:server` y `check:client`, con proyectos TypeScript independientes y archivos incrementales separados. El servidor valida con 1.5 GB y el cliente con 2 GB, evitando el agotamiento de memoria del proceso global. Esta validación expuso y permitió corregir imports React duplicados en `JobPositions` y `JobEditDialog`, además de incorporar una declaración local para la importación dinámica de `html-pdf-node`. Ambos chequeos terminan actualmente sin errores.
+
+## Remediación de dependencias críticas
+
+La actualización controlada de `puppeteer`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` y `@tailwindcss/vite` eliminó las cinco vulnerabilidades críticas iniciales. También se retiró `html-pdf-node`, que arrastraba una versión obsoleta de Puppeteer y de `node-fetch`; el generador de PDF usa ahora Puppeteer 25 mediante importación dinámica y el Chromium configurado para el entorno. La auditoría actual reporta **0 vulnerabilidades críticas** y 54 altas. Las altas restantes se mantienen como trabajo P1, ya que incluyen cadenas de herramientas y librerías cuya actualización mayor requiere revisión funcional específica.
+
 ## Secuencia de cierre de todo.md
 
 1. Resolver P0 de seguridad, validación TypeScript, navegación e integridad de datos.

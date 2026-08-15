@@ -1,16 +1,16 @@
 import Handlebars from 'handlebars';
-// Import dinámico — html-pdf-node usa puppeteer internamente
-// El import estático causaba segfault en Cloud Run al arrancar
-let _htmlPdf: any = null;
-async function getHtmlPdf() {
-  if (!_htmlPdf) {
+// Import dinámico: evita cargar Chromium durante el arranque del servidor.
+// Se usa Puppeteer actualizado directamente para no depender de html-pdf-node.
+let _puppeteer: typeof import("puppeteer").default | null = null;
+async function getPuppeteer(): Promise<typeof import("puppeteer").default> {
+  if (!_puppeteer) {
     try {
-      _htmlPdf = (await import('html-pdf-node')).default;
+      _puppeteer = (await import("puppeteer")).default;
     } catch {
-      throw new Error('html-pdf-node no disponible. Requiere Chromium instalado.');
+      throw new Error("Puppeteer no está disponible. Requiere Chromium instalado.");
     }
   }
-  return _htmlPdf;
+  return _puppeteer;
 }
 import QRCode from 'qrcode';
 
@@ -67,7 +67,7 @@ export async function generatePDFFromTemplate(
   `;
 
   // Generar PDF desde HTML
-  const options = { 
+  const options: import("puppeteer").PDFOptions = {
     format: 'A4',
     printBackground: true,
     margin: {
@@ -78,11 +78,20 @@ export async function generatePDFFromTemplate(
     }
   };
   
-  const file = { content: fullHtml };
-  const htmlPdf = await getHtmlPdf();
-  const pdfBuffer = await htmlPdf.generatePdf(file, options);
+  const puppeteer = await getPuppeteer();
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
 
-  return pdfBuffer;
+  try {
+    const page = await browser.newPage();
+    await page.setContent(fullHtml, { waitUntil: "load" });
+    return Buffer.from(await page.pdf(options));
+  } finally {
+    await browser.close();
+  }
 }
 
 export async function generateQRCode(url: string): Promise<string> {

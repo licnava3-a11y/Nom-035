@@ -1763,14 +1763,15 @@
 - [x] Consolidar todos los hallazgos y plan priorizado de crítico a fácil en todo.md
 
 ### Plan de remediación — P0 Crítico
-- [ ] Dependencias: resolver 5 vulnerabilidades críticas y 97 altas identificadas por `pnpm audit --prod`, con actualización controlada y pruebas de regresión.
-- [ ] Compilación: dividir el chequeo TypeScript en proyectos o referencias para evitar el OOM actual de `tsc --noEmit` (agotó un heap de 1.5 GB) y recuperar validación obligatoria en CI.
+- [x] Dependencias críticas: eliminar las 5 vulnerabilidades críticas identificadas por `pnpm audit --prod` y reducir las altas de 97 a 54 mediante actualización controlada y pruebas de regresión.
+- [x] Compilación: dividir el chequeo TypeScript en proyectos o referencias para evitar el OOM actual de `tsc --noEmit` (agotó un heap de 1.5 GB) y recuperar validación obligatoria en CI.
 - [x] Rutas: eliminar la colisión de `/cases/assignment` y registrar o redirigir los enlaces sin ruta: `/administrative/expenses`, `/compliance/checklist`, `/documents/history`, `/nom035-admin-panel`, `/survey-send`, `/training/calendar`, `/training/my-courses` y `/trends-charts`.
 - [x] Integridad JobPositions: reemplazar la correlación de empleados por nombre de puesto (`positions.title` ↔ `jobPositions.positionName`) por una relación `positionId` con llave foránea y migración segura.
 - [x] Datos JobPositions: vincular los 5 análisis históricos sin coincidencia de catálogo cuando se registren sus puestos canónicos en `positions`.
 - [x] Exactitud de reportes: corregir la gráfica PDF de distribución de riesgo, que compara niveles en inglés mientras la UI normaliza a valores en español, y validar Muy Alto/Alto/Medio/Bajo con datos reales.
 
 ### Plan de remediación — P1 Alto
+- [ ] Dependencias altas: reducir las 54 vulnerabilidades altas restantes, empezando por reemplazos compatibles o mitigaciones documentadas para `xlsx`, `vite-plugin-pwa` y las cadenas transitivas de Vite/Monaco.
 - [x] Pruebas: corregir y clasificar los 14 fallos existentes de la suite completa; comenzar por `server/sprint55.test.ts`, cuya aserción no coincide con el arranque actual mediante `serveStatic`.
 - [ ] Datos reales: sustituir métricas y contenidos simulados o incompletos en `dashboard.ts`, `training.ts`, `Reports.tsx`, `ReportTemplates.tsx`, servicios de email y firma digital por fuentes productivas o estados explícitos de “sin datos”.
 - [x] Desplegables: corregir `BuzonComunicacion.tsx` para no usar `<SelectItem value="">` y completar un inventario de contratos de opciones/campos de los filtros dinámicos.
