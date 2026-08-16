@@ -35,7 +35,6 @@ import {
 import { trpc } from '@/lib/trpc';
 import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight, Maximize, Printer, FileSpreadsheet, Calendar, History } from 'lucide-react';
 import { toPng } from 'html-to-image';
-import ELK from 'elkjs/lib/elk.bundled.js';
 import * as XLSX from 'xlsx';
 
 // Nodo personalizado para departamentos (vista completa)
@@ -164,9 +163,6 @@ const nodeTypes = {
   compactDepartment: CompactDepartmentNode,
 };
 
-// Inicializar ELK para layout automático
-const elk = new ELK();
-
 type DepartmentNode = {
   id: number;
   name: string;
@@ -260,6 +256,10 @@ async function getLayoutedElements(
       targets: [edge.target],
     })),
   };
+
+  // ELK es un motor pesado; se carga únicamente cuando el usuario abre/calcula el organigrama.
+  const { default: ELK } = await import('elkjs/lib/elk.bundled.js');
+  const elk = new ELK();
 
   // Calcular layout con ELK
   const layoutedGraph = await elk.layout(graph);

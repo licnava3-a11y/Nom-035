@@ -77,11 +77,17 @@ export function serveStatic(app: Express) {
   // compiled index.html with hashed asset references — we must NOT overwrite it.
   const indexPath = path.resolve(distPath, "index.html");
   const clientIndexPath = path.resolve(import.meta.dirname, "../..", "client", "index.html");
-  if (process.env.NODE_ENV === "development" && fs.existsSync(clientIndexPath)) {
-    // Always refresh in dev to keep placeholders in sync with client/index.html
+  const restoreDevelopmentIndex = () => {
+    if (process.env.NODE_ENV !== "development" || !fs.existsSync(clientIndexPath)) return false;
     fs.mkdirSync(distPath, { recursive: true });
     fs.copyFileSync(clientIndexPath, indexPath);
-    console.log(`[serveStatic] Dev: refreshed dist/public/index.html from client/index.html`);
+    console.log(`[serveStatic] Dev: restored dist/public/index.html from client/index.html`);
+    return true;
+  };
+
+  if (process.env.NODE_ENV === "development" && fs.existsSync(clientIndexPath)) {
+    // Always refresh in dev to keep placeholders in sync with client/index.html
+    restoreDevelopmentIndex();
   } else if (!fs.existsSync(indexPath) && fs.existsSync(clientIndexPath)) {
     // Production fallback: only copy if missing (should not happen after vite build)
     fs.mkdirSync(distPath, { recursive: true });
@@ -104,6 +110,9 @@ export function serveStatic(app: Express) {
   // Handles ALL routes (SPA fallback) and injects runtime env values.
   app.use("*", (_req, res) => {
     try {
+      // A local build may clean dist/ while the preview server remains active.
+      // Restore the source index on demand so preview never returns ENOENT.
+      if (!fs.existsSync(indexPath)) restoreDevelopmentIndex();
       let html = fs.readFileSync(indexPath, "utf-8");
       // Replace Vite-style %PLACEHOLDER% with actual runtime env values.
       // VITE_APP_ID and VITE_OAUTH_PORTAL_URL are injected by the platform
@@ -119,9 +128,9 @@ export function serveStatic(app: Express) {
         .replace(/%VITE_FRONTEND_FORGE_API_URL%/g, process.env.VITE_FRONTEND_FORGE_API_URL ?? "");
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.send(html);
-    } catch {
-      // Fallback: serve the file as-is if reading fails
-      res.sendFile(indexPath);
+    } catch (error) {
+      console.error("[serveStatic] Could not restore preview index:", error);
+      res.status(503).type("text/plain").send("La vista previa se está recuperando. Actualiza la página en unos segundos.");
     }
   });
 }

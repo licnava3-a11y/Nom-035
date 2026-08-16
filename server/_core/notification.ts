@@ -3,6 +3,7 @@ import { ENV } from "./env";
 import { getDb } from "../db";
 import { smtpConfig } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { logNonBlockingFailure, logStructured } from "./logger";
 
 export type NotificationPayload = {
   title: string;
@@ -88,7 +89,8 @@ export async function isNotificationsEnabled(): Promise<boolean> {
         _notifEnabledCache = envDefault;
       }
     }
-  } catch {
+  } catch (error) {
+    logNonBlockingFailure("notification.enabled_config_read_failed", error);
     _notifEnabledCache = envDefault;
   }
   _notifEnabledCacheAt = now;
@@ -114,7 +116,7 @@ export async function notifyOwner(
   // Guard: verificar si las notificaciones internas están habilitadas
   const notifEnabled = await isNotificationsEnabled();
   if (!notifEnabled) {
-    console.log("[Notificación PAUSADA] Se habría enviado al owner:", { title, preview: content.slice(0, 80) });
+    logStructured("info", "notification.owner_skipped_disabled", { titleLength: title.length, contentLength: content.length });
     return false;
   }
 
@@ -148,17 +150,17 @@ export async function notifyOwner(
 
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
-      console.warn(
-        `[Notification] Failed to notify owner (${response.status} ${response.statusText})${
-          detail ? `: ${detail}` : ""
-        }`
-      );
+      logStructured("warn", "notification.owner_upstream_rejected", {
+        status: response.status,
+        statusText: response.statusText,
+        detailLength: detail.length,
+      });
       return false;
     }
 
     return true;
   } catch (error) {
-    console.warn("[Notification] Error calling notification service:", error);
+    logNonBlockingFailure("notification.owner_upstream_failed", error);
     return false;
   }
 }

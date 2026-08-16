@@ -68,9 +68,15 @@ Se sustituyó el chequeo monolítico por `check:server` y `check:client`, con pr
 
 La actualización controlada de `puppeteer`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` y `@tailwindcss/vite` eliminó las cinco vulnerabilidades críticas iniciales. También se retiró `html-pdf-node`, que arrastraba una versión obsoleta de Puppeteer y de `node-fetch`; el generador de PDF usa ahora Puppeteer 25 mediante importación dinámica y el Chromium configurado para el entorno. La auditoría actual reporta **0 vulnerabilidades críticas** y 54 altas. Las altas restantes se mantienen como trabajo P1, ya que incluyen cadenas de herramientas y librerías cuya actualización mayor requiere revisión funcional específica.
 
+### Actualización de superficie de dependencias
+
+Las actualizaciones de tRPC, Axios, Drizzle, Multer, `express-rate-limit` y Vite, junto con la separación de las herramientas Vite del runtime de producción, redujeron los hallazgos altos de 54 a **24** y mantuvieron el conteo crítico en **0**. Los hallazgos restantes se concentran en `xlsx`, cuya versión actual no tiene corrección publicada, y en cadenas transitivas con recomendaciones de versión no disponibles para sus paquetes padres. Como control compensatorio, la importación XLSX quedó limitada a 10 MB, extensiones XLSX/CSV y lectura sin fórmulas, HTML de celda ni VBA; las dependencias de build ya no se incluyen en el contenedor de producción.
+
 ## Métricas verificables
 
 Se eliminaron las series demostrativas del router de dashboard y de la página de reportes. Las tarjetas y gráficas consumen ahora conteos persistidos de empleados activos, respuestas NOM-035 concluidas, asignaciones de capacitación, casos y cursos publicados. Cuando aún no existen registros suficientes, la interfaz muestra un estado explícito de ausencia; no presenta porcentajes, tendencias ni valores de referencia simulados.
+
+El dashboard de instructor tampoco genera fechas, confirmaciones o calificaciones ficticias. Mientras el modelo no almacene sesiones programadas, inscripciones y evaluaciones de curso, los procedimientos retornan colecciones vacías o “N/D”, y la interfaz comunica esa ausencia de datos.
 
 ## Observabilidad inicial
 
@@ -79,6 +85,8 @@ Se incorporó `server/_core/logger.ts` para emitir eventos JSON sin datos sensib
 ## Contratos de dominio reforzados
 
 La importación masiva de empleados ahora procesa celdas mediante un contrato explícito, valida identificadores opcionales y utiliza los nombres canónicos de departamento y puesto. En los reportes agregados de encuestas NOM-035 se reemplazaron conversiones `any` por arreglos numéricos y una unión explícita de las guías II y III. Estas modificaciones se validaron con los chequeos TypeScript segmentados y 16 pruebas focalizadas aprobadas.
+
+La persistencia de respuestas de encuesta ahora usa una conexión Drizzle no nullable y resultados serializables explícitos; además, los tokens anónimos y autenticados se actualizan sin coerciones de tipo. La validación posterior de servidor y cliente concluyó sin errores.
 
 ## Secuencia de cierre de todo.md
 

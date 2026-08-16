@@ -15,13 +15,15 @@ import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
 import { storagePut } from "../storage";
 import { logSurveyReportEvidence } from "../helpers/evidenceLogger";
 
+type SurveyDatabase = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+
 // Helper para generar token único
 function generateToken(): string {
   return randomBytes(32).toString('hex');
 }
 
 // Helper para determinar qué guía aplicar según número de trabajadores
-async function determineApplicableGuide(db: any): Promise<'guia_ii' | 'guia_iii'> {
+async function determineApplicableGuide(db: SurveyDatabase): Promise<'guia_ii' | 'guia_iii'> {
   const [result] = await db.select({ count: count() }).from(users);
   const totalWorkers = result?.count || 0;
   
@@ -330,7 +332,7 @@ export const surveysRouter = router({
         // Marcar token anónimo como usado
         await db
           .update(surveyAnonymousTokens)
-          .set({ usedAt: new Date() } as any)
+          .set({ usedAt: new Date() })
           .where(eq(surveyAnonymousTokens.token, input.anonymousToken));
       } else if (ctx.user) {
         // Usuario autenticado
@@ -413,7 +415,7 @@ export const surveysRouter = router({
       if (input.responseToken) {
         await db
           .update(surveyTokens)
-          .set({ usedAt: new Date() } as any)
+          .set({ usedAt: new Date() })
           .where(eq(surveyTokens.token, input.responseToken));
       }
       
@@ -423,7 +425,7 @@ export const surveysRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Encuesta no encontrada" });
       }
       
-      let results: any = {};
+      let results: Record<string, unknown> = {};
       let atsDetected = false;
       
       if (survey.type === 'guia_i') {
@@ -448,7 +450,7 @@ export const surveysRouter = router({
             .where(eq(employees.userId, ctx.user!.id))
             .limit(1);
           
-          await (db.insert(cases) as any).values({
+          await db.insert(cases).values({
             caseNumber,
             reporterName: ctx.user!.name || 'Anónimo',
             reporterEmail: ctx.user!.email || '',
@@ -513,7 +515,7 @@ export const surveysRouter = router({
       // Guardar resultados en la respuesta
       await db
         .update(surveyResponses)
-        .set({ results: JSON.stringify(results) } as any)
+        .set({ results: JSON.stringify(results) })
         .where(eq(surveyResponses.id, newResponse.id));
       
       return { success: true, responseId: newResponse.id, atsDetected, results };

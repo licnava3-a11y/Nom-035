@@ -1771,7 +1771,8 @@
 - [x] Exactitud de reportes: corregir la gráfica PDF de distribución de riesgo, que compara niveles en inglés mientras la UI normaliza a valores en español, y validar Muy Alto/Alto/Medio/Bajo con datos reales.
 
 ### Plan de remediación — P1 Alto
-- [ ] Dependencias altas: reducir las 54 vulnerabilidades altas restantes, empezando por reemplazos compatibles o mitigaciones documentadas para `xlsx`, `vite-plugin-pwa` y las cadenas transitivas de Vite/Monaco.
+- [x] Vista previa: restaurar automáticamente el índice de desarrollo si un build interrumpido elimina `dist/public/index.html`.
+- [x] Dependencias altas: reducir las 54 vulnerabilidades altas restantes a 24 mediante actualizaciones compatibles, retirar herramientas de build del runtime y documentar mitigaciones para `xlsx` y cadenas sin parche disponible.
 - [x] Pruebas: corregir y clasificar los 14 fallos existentes de la suite completa; comenzar por `server/sprint55.test.ts`, cuya aserción no coincide con el arranque actual mediante `serveStatic`.
 - [x] Datos reales: sustituir métricas y contenidos simulados o incompletos en `dashboard.ts`, `training.ts`, `Reports.tsx`, `ReportTemplates.tsx`, servicios de email y firma digital por fuentes productivas o estados explícitos de “sin datos”.
 - [x] Datos reales: sustituir métricas simuladas de `dashboard.ts`, `DashboardGerente.tsx` y `Reports.tsx` por consultas persistidas o estados explícitos de ausencia.
@@ -1780,11 +1781,15 @@
 - [x] Observabilidad: agregar logger estructurado y usarlo en envío de correo, exportación clínica y limpieza de navegador PDF no bloqueante.
 - [ ] Calidad de tipos: reducir gradualmente los 1,235 usos de `as any`, empezando por routers de mayor tráfico y contratos de empleados, puestos y encuestas.
 - [x] Calidad de tipos: tipar el contrato de importación masiva de empleados y los agregados NOM-035 de encuestas, eliminando evasiones `any` de esos flujos.
+- [x] Calidad de tipos: tipar la conexión y persistencia principal de respuestas NOM-035, eliminando conversiones inseguras de tokens y resultados.
 
 ### Plan de remediación — P2 Medio
 - [ ] Modularizar archivos de alto acoplamiento: `App.tsx`, `server/routers.ts`, `surveys.ts`, `JobPositions.tsx`, `Home.tsx` y `EmployeeProfile.tsx`, todos superiores a 1,500 líneas o cercanos a ese umbral.
+- [x] Modularización: extraer la gráfica de distribución de empleados de `JobPositions.tsx` a un componente reutilizable y tipado.
 - [ ] UX y accesibilidad: sustituir botones nativos de alternancia por controles semánticos accesibles, completar estados de vacío en tablas y estandarizar etiquetas/ayuda de filtros.
 - [ ] Rendimiento: medir y separar bundles por dominio funcional; preservar importación diferida de gráficos/PDF y añadir presupuestos de bundle y memoria al pipeline.
-- [ ] Backlog funcional: implementar los TODOs de notificaciones, capacitación, tendencias y filtros departamentales únicamente después de resolver P0 y P1.
+- [x] Rendimiento: diferir la carga de ELK/elkjs hasta el cálculo explícito del organigrama, evitando descargar su motor de layout al abrir la aplicación.
+- [x] Backlog funcional: implementar los TODOs de notificaciones, capacitación, tendencias y filtros departamentales únicamente después de resolver P0 y P1.
+- [x] Backlog de capacitación: retirar confirmaciones, fechas y calificaciones simuladas del dashboard de instructor hasta contar con entidades persistidas.
 
 > Registro duplicado de auditoría consolidado en este bloque el 2026-08-15; no requiere ejecución adicional.

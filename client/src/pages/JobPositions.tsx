@@ -22,6 +22,7 @@ import { AlertError } from "@/components/AlertError";
 import { EmptyState } from "@/components/EmptyState";
 import { parseTRPCError } from "@/lib/errorMessages";
 import { getJobPositionsListState, getRiskDistribution } from "./jobPositionsState";
+import { EmployeesBarChart, type BarChartHandle } from "@/components/job-positions/EmployeesBarChart";
 import Chart from "chart.js/auto";
 import { jsPDF } from "jspdf";
 
@@ -48,83 +49,6 @@ function employeeBadgeClass(count: number) {
   return "bg-blue-100 text-blue-700";
 }
 
-// ── Componente gráfica de barras horizontales ─────────────────────────────────
-type BarChartHandle = { downloadPng: () => void };
-const EmployeesBarChart = forwardRef<BarChartHandle, { positions: any[] }>(function EmployeesBarChart({ positions }, ref) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartInst = useRef<Chart | null>(null);
-
-  useImperativeHandle(ref, () => ({
-    downloadPng() {
-      if (!canvasRef.current) return;
-      const link = document.createElement("a");
-      link.download = `distribucion-empleados-${new Date().toISOString().slice(0, 10)}.png`;
-      link.href = canvasRef.current.toDataURL("image/png");
-      link.click();
-    },
-  }));
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    if (chartInst.current) chartInst.current.destroy();
-
-    const sorted = [...positions].sort((a, b) => b.employees - a.employees).slice(0, 15);
-
-    chartInst.current = new Chart(canvasRef.current, {
-      type: "bar",
-      data: {
-        labels: sorted.map(p => p.title.length > 28 ? p.title.slice(0, 26) + "…" : p.title),
-        datasets: [
-          {
-            label: "Empleados asignados",
-            data: sorted.map(p => p.employees),
-            backgroundColor: sorted.map(p => RISK_COLORS[p.riskLevel] ?? "#3b82f6"),
-            borderRadius: 4,
-            borderSkipped: false,
-          },
-        ],
-      },
-      options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.parsed.x} empleado${ctx.parsed.x !== 1 ? "s" : ""}`,
-              afterLabel: ctx => {
-                const p = sorted[ctx.dataIndex];
-                return `Riesgo: ${p.riskLevel.charAt(0).toUpperCase() + p.riskLevel.slice(1)}`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            ticks: { precision: 0 },
-            grid: { color: "rgba(0,0,0,0.06)" },
-          },
-          y: {
-            ticks: { font: { size: 12 } },
-            grid: { display: false },
-          },
-        },
-      },
-    });
-
-    return () => { chartInst.current?.destroy(); };
-  }, [positions]);
-
-  const chartHeight = Math.max(180, Math.min(positions.length, 15) * 36 + 40);
-
-  return (
-    <div style={{ height: chartHeight }}>
-      <canvas ref={canvasRef} />
-    </div>
-  );
-});
 // ── Componente gráfica de tendencia del historial ────────────────────────────
 function HistoryTrendChart({ data }: { data: any[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

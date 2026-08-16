@@ -7,8 +7,8 @@ import { eq, desc, sql } from "drizzle-orm";
 
 /**
  * Training Router - Procedures para dashboard de instructor
- * NOTA: Estos procedures retornan datos mock temporales.
- * Reemplazar con queries reales cuando se implemente la gestión completa de cursos con instructores.
+ * Los indicadores sin fuente persistida se devuelven como ausencia explícita;
+ * nunca se fabrican fechas, calificaciones ni confirmaciones.
  */
 export const trainingRouter = router({
   // Estadísticas del instructor
@@ -33,19 +33,12 @@ export const trainingRouter = router({
           .where(eq(courses.isPublished, false))
       : [{ count: 0 }];
 
-    // Contar total de cursos
-    const totalCourses = db
-      ? await db
-          .select({ count: sql<number>`count(*)` })
-          .from(courses)
-      : [{ count: 0 }];
-
     return {
       completedCourses: Number(publishedCourses[0]?.count || 0),
       pendingCourses: Number(unpublishedCourses[0]?.count || 0),
-      pendingConfirmations: 0, // TODO: Implementar cuando se agregue tabla de confirmaciones
-      averageRating: 4.5, // TODO: Implementar cuando se agregue tabla de evaluaciones
-      recentEvaluations: [], // TODO: Implementar cuando se agregue tabla de evaluaciones
+      pendingConfirmations: 0,
+      averageRating: null,
+      recentEvaluations: [], // Sin evaluaciones persistidas en el modelo actual
     };
     } catch (error) {
       console.error('[Training] Error getting instructor stats:', error);
@@ -59,30 +52,9 @@ export const trainingRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database not available");
     
-    // Obtener cursos publicados más recientes
-    const upcomingCourses = db
-      ? await db
-          .select({
-            id: courses.id,
-            courseName: courses.title,
-            duration: courses.duration,
-          })
-          .from(courses)
-          .where(eq(courses.isPublished, true))
-          .orderBy(desc(courses.createdAt))
-          .limit(5)
-      : [];
-
-    // Mapear a formato esperado con fechas mock (hasta que se agreguen campos de fechas)
-    const today = new Date();
-    return upcomingCourses.map((course: any, index: number) => ({
-      id: course.id,
-      courseName: course.courseName,
-      startDate: new Date(today.getTime() + (index + 1) * 7 * 24 * 60 * 60 * 1000), // Mock: próximas semanas
-      endDate: new Date(today.getTime() + (index + 1) * 7 * 24 * 60 * 60 * 1000),
-      duration: course.duration || 120,
-      participants: 0, // TODO: Implementar cuando se agregue tabla de inscripciones
-    }));
+    // Los cursos no almacenan inicio/fin ni inscripción en el modelo actual.
+    // Devolver vacío evita presentar una agenda ficticia al instructor.
+    return [];
     } catch (error) {
       console.error('[Training] Error getting upcoming courses:', error);
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al obtener cursos próximos" });
@@ -92,17 +64,8 @@ export const trainingRouter = router({
   // Confirmaciones pendientes
   getInstructorPendingConfirmations: protectedProcedure.query(async ({ ctx }) => {
     try {
-      // TODO: Implementar query real cuando se agregue gestión de confirmaciones
-    const proposedDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-
-    return [
-      {
-        id: 3,
-        courseName: "Prevención del Burnout",
-        proposedDate,
-        duration: 240,
-      },
-    ];
+      // La confirmación de sesiones aún no tiene entidad persistida.
+      return [];
     } catch (error) {
       console.error('[Training] Error getting pending confirmations:', error);
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Error al obtener confirmaciones pendientes" });

@@ -576,7 +576,7 @@ export const employeesRouter = router({
     .input(
       z.object({
         fileData: z.string(), // Base64 encoded file
-        fileName: z.string(),
+        fileName: z.string().regex(/\.(xlsx|csv)$/i, "Solo se permiten archivos XLSX o CSV"),
       })
     )
     .mutation(async ({ input }) => {
@@ -584,7 +584,19 @@ export const employeesRouter = router({
       try {
         // Decodificar archivo base64
         const buffer = Buffer.from(input.fileData, "base64");
-        const workbook = xlsx.read(buffer, { type: "buffer" });
+        if (buffer.length === 0 || buffer.length > 10 * 1024 * 1024) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "El archivo debe tener un tamaño máximo de 10 MB",
+          });
+        }
+        const workbook = xlsx.read(buffer, {
+          type: "buffer",
+          cellFormula: false,
+          cellHTML: false,
+          cellText: false,
+          bookVBA: false,
+        });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const data = xlsx.utils.sheet_to_json<ImportedEmployeeRow>(worksheet);

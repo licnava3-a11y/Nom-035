@@ -79,8 +79,8 @@ export default function DashboardInstructor() {
             <Star className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.averageRating?.toFixed(1) || 'N/A'}</div>
-            <p className="text-xs text-muted-foreground">De 5.0</p>
+            <div className="text-2xl font-bold">{stats?.averageRating ?? 'N/D'}</div>
+            <p className="text-xs text-muted-foreground">Disponible al registrar evaluaciones</p>
           </CardContent>
         </Card>
       </div>
@@ -93,7 +93,7 @@ export default function DashboardInstructor() {
             Cursos Próximos a Impartir
           </CardTitle>
           <CardDescription>
-            Cursos confirmados programados para las próximas semanas
+            Cursos con fecha y participantes confirmados
           </CardDescription>
         </CardHeader>
         <CardContent>
