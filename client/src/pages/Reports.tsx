@@ -1,197 +1,97 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputWithValidation } from "@/components/ui/input-with-validation";
 import { Button } from "@/components/ui/button";
+import { AlertCircle, BarChart3, Download, FileText, RefreshCw, TrendingUp, Users } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { BarChart3, Download, FileText, TrendingUp, Users, AlertCircle, Calendar } from "lucide-react";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { useState } from "react";
+const pieColors = ["#dc2626", "#f59e0b", "#eab308", "#6b7280", "#2563eb"];
+
+function ChartEmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex h-[300px] items-center justify-center px-8 text-center text-sm text-muted-foreground">
+      {message}
+    </div>
+  );
+}
 
 export default function Reports() {
-  const { user } = useAuth();
-  const [timePeriod, setTimePeriod] = useState("month");
-
-  // Datos de ejemplo para las gráficas
-  const trainingProgressData = [
-    { name: "Ene", completadas: 12, enProgreso: 8 },
-    { name: "Feb", completadas: 15, enProgreso: 10 },
-    { name: "Mar", completadas: 18, enProgreso: 12 },
-    { name: "Abr", completadas: 22, enProgreso: 15 },
-    { name: "May", completadas: 25, enProgreso: 18 },
-    { name: "Jun", completadas: 28, enProgreso: 20 },
-  ];
-
-  const casesData = [
-    { name: "Mobbing", value: 5, color: "#ef4444" },
-    { name: "Burnout", value: 8, color: "#f59e0b" },
-    { name: "Violencia", value: 3, color: "#dc2626" },
-    { name: "Estrés", value: 12, color: "#eab308" },
-    { name: "Otro", value: 2, color: "#6b7280" },
-  ];
-
-  const complianceData = [
-    { mes: "Ene", cumplimiento: 85 },
-    { mes: "Feb", cumplimiento: 88 },
-    { mes: "Mar", cumplimiento: 90 },
-    { mes: "Abr", cumplimiento: 92 },
-    { mes: "May", cumplimiento: 93 },
-    { mes: "Jun", cumplimiento: 94 },
-  ];
-
-  const categoryData = [
-    { categoria: "Fundamentos", participantes: 45 },
-    { categoria: "Mobbing", participantes: 32 },
-    { categoria: "Burnout", participantes: 28 },
-    { categoria: "Protocolos", participantes: 38 },
-    { categoria: "Comité", participantes: 15 },
-  ];
+  const { data: metrics, isLoading, error, refetch } = trpc.dashboard.getReportsMetrics.useQuery();
+  const stats = metrics?.stats;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Reportes y Métricas</h1>
-          <p className="text-muted-foreground mt-2">
-            Análisis y estadísticas del programa de capacitación NOM-035
-          </p>
+          <p className="mt-2 text-muted-foreground">Indicadores consolidados a partir de registros persistidos del sistema.</p>
         </div>
-        <div className="flex gap-2">
-          <div className="relative w-[180px]">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <select
-              value={timePeriod}
-              onChange={(e) => setTimePeriod(e.target.value)}
-              className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="week">Última semana</option>
-              <option value="month">Último mes</option>
-              <option value="quarter">Último trimestre</option>
-              <option value="year">Último año</option>
-            </select>
-          </div>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
-        </div>
+        <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
+          <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+          Actualizar métricas
+        </Button>
       </div>
 
-      {/* Quick Stats */}
+      {error && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="flex flex-col justify-between gap-3 pt-6 sm:flex-row sm:items-center">
+            <p className="text-sm text-destructive">No fue posible cargar métricas verificables. Intenta actualizar de nuevo.</p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>Reintentar</Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Capacitaciones</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">28</div>
-            <p className="text-xs text-muted-foreground">Completadas este mes</p>
-            <p className="text-xs text-green-600 mt-1">+12% vs mes anterior</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Participantes</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">158</div>
-            <p className="text-xs text-muted-foreground">Empleados capacitados</p>
-            <p className="text-xs text-green-600 mt-1">+8% vs mes anterior</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Casos Atendidos</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">30</div>
-            <p className="text-xs text-muted-foreground">En el último trimestre</p>
-            <p className="text-xs text-red-600 mt-1">+5% vs trimestre anterior</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cumplimiento NOM-035</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">94%</div>
-            <p className="text-xs text-muted-foreground">Objetivo: 90%</p>
-            <p className="text-xs text-green-600 mt-1">+2% vs mes anterior</p>
-          </CardContent>
-        </Card>
+        <MetricCard title="Capacitaciones" value={stats?.completedTrainings} description="Asignaciones completadas" icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />} loading={isLoading} />
+        <MetricCard title="Participantes" value={stats?.trainedParticipants} description="Asignaciones de personal completadas" icon={<Users className="h-4 w-4 text-muted-foreground" />} loading={isLoading} />
+        <MetricCard title="Casos atendidos" value={stats?.resolvedCases} description="Resueltos o cerrados" icon={<AlertCircle className="h-4 w-4 text-muted-foreground" />} loading={isLoading} />
+        <MetricCard title="Cumplimiento NOM-035" value={stats ? `${stats.nom035Compliance}%` : undefined} description="Respuestas concluidas / empleados activos" icon={<BarChart3 className="h-4 w-4 text-muted-foreground" />} loading={isLoading} />
       </div>
 
-      {/* Charts Row 1 */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Training Progress Chart */}
+      {!isLoading && !error && !metrics?.hasData && (
         <Card>
-          <CardHeader>
-            <CardTitle>Progreso de Capacitación</CardTitle>
-            <CardDescription>Capacitaciones completadas y en progreso por mes</CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            Aún no hay registros suficientes para calcular métricas. Las gráficas se habilitarán al registrar empleados, encuestas, capacitaciones o casos.
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <ChartCard title="Progreso de Capacitación" description="Asignaciones completadas y en progreso registradas">
+          {metrics?.training.length ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={trainingProgressData}>
+              <BarChart data={metrics.training}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                <YAxis />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="completadas" fill="#10b981" name="Completadas" />
-                <Bar dataKey="enProgreso" fill="#3b82f6" name="En Progreso" />
+                <Bar dataKey="enProgreso" fill="#3b82f6" name="En progreso" />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          ) : <ChartEmptyState message="No hay asignaciones de capacitación registradas." />}
+        </ChartCard>
 
-        {/* Cases Distribution Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribución de Casos</CardTitle>
-            <CardDescription>Casos de riesgo psicosocial por tipo</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ChartCard title="Distribución de Casos" description="Casos de riesgo psicosocial por tipo">
+          {metrics?.cases.length ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie
-                  data={casesData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {casesData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
+                <Pie data={metrics.cases} cx="50%" cy="50%" outerRadius={88} dataKey="value" nameKey="name" label>
+                  {metrics.cases.map((entry, index) => <Cell key={`${entry.name}-${index}`} fill={pieColors[index % pieColors.length]} />)}
                 </Pie>
                 <Tooltip />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          ) : <ChartEmptyState message="No hay casos registrados para visualizar." />}
+        </ChartCard>
       </div>
 
-      {/* Charts Row 2 */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Compliance Trend Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tendencia de Cumplimiento</CardTitle>
-            <CardDescription>Porcentaje de cumplimiento NOM-035 mensual</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ChartCard title="Cumplimiento NOM-035" description="Porcentaje actual de respuestas concluidas">
+          {metrics?.compliance.length ? (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={complianceData}>
+              <LineChart data={metrics.compliance}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="mes" />
                 <YAxis domain={[0, 100]} />
@@ -200,152 +100,56 @@ export default function Reports() {
                 <Line type="monotone" dataKey="cumplimiento" stroke="#10b981" strokeWidth={2} name="Cumplimiento %" />
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          ) : <ChartEmptyState message="No hay respuestas NOM-035 concluidas." />}
+        </ChartCard>
 
-        {/* Category Participation Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Participación por Categoría</CardTitle>
-            <CardDescription>Número de participantes por categoría de curso</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ChartCard title="Cursos por Categoría" description="Cursos publicados registrados por categoría">
+          {metrics?.categories.length ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={categoryData} layout="vertical">
+              <BarChart data={metrics.categories} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="categoria" type="category" width={100} />
+                <XAxis type="number" allowDecimals={false} />
+                <YAxis dataKey="categoria" type="category" width={120} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="participantes" fill="#3b82f6" name="Participantes" />
+                <Bar dataKey="cantidad" fill="#3b82f6" name="Cursos publicados" />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          ) : <ChartEmptyState message="No hay cursos publicados registrados." />}
+        </ChartCard>
       </div>
 
-      {/* Available Reports */}
-      <div className="space-y-4">
+      <section className="space-y-4">
         <h2 className="text-xl font-semibold">Reportes Disponibles</h2>
-        
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Report 1 */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <FileText className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">Reporte de Capacitación</CardTitle>
-                  <CardDescription className="mt-1">
-                    Listado completo de capacitaciones, participantes y certificaciones
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/pdf', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar PDF
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/excel', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar Excel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Report 2 */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <AlertCircle className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">Reporte de Casos</CardTitle>
-                  <CardDescription className="mt-1">
-                    Estadísticas y seguimiento de casos de riesgo psicosocial
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/cases/pdf', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar PDF
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/cases/excel', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar Excel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Report 3 */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">Reporte de Cumplimiento</CardTitle>
-                  <CardDescription className="mt-1">
-                    Indicadores de cumplimiento NOM-035 y áreas de mejora
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/compliance/pdf', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar PDF
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/compliance/excel', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar Excel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Report 4 */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-lg">Reporte de Participantes</CardTitle>
-                  <CardDescription className="mt-1">
-                    Progreso individual y certificaciones por empleado
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/pdf', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar PDF
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.open('/api/export/training/excel', '_blank')}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar Excel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <ReportCard title="Reporte de Capacitación" description="Listado de capacitaciones, asignaciones y certificaciones" pdf="/api/export/training/pdf" excel="/api/export/training/excel" />
+          <ReportCard title="Reporte de Casos" description="Estadísticas y seguimiento de casos de riesgo psicosocial" pdf="/api/export/cases/pdf" excel="/api/export/cases/excel" icon={<AlertCircle className="h-6 w-6 text-primary" />} />
+          <ReportCard title="Reporte de Cumplimiento" description="Indicadores NOM-035 y áreas de mejora" pdf="/api/export/compliance/pdf" excel="/api/export/compliance/excel" icon={<BarChart3 className="h-6 w-6 text-primary" />} />
+          <ReportCard title="Reporte de Participantes" description="Progreso individual y certificaciones por empleado" pdf="/api/export/training/pdf" excel="/api/export/training/excel" icon={<Users className="h-6 w-6 text-primary" />} />
         </div>
-      </div>
+      </section>
     </div>
+  );
+}
+
+function MetricCard({ title, value, description, icon, loading }: { title: string; value: string | number | undefined; description: string; icon: React.ReactNode; loading: boolean }) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">{title}</CardTitle>{icon}</CardHeader>
+      <CardContent><div className="text-2xl font-bold">{loading ? "…" : value ?? "—"}</div><p className="text-xs text-muted-foreground">{description}</p></CardContent>
+    </Card>
+  );
+}
+
+function ChartCard({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
+  return <Card><CardHeader><CardTitle>{title}</CardTitle><CardDescription>{description}</CardDescription></CardHeader><CardContent>{children}</CardContent></Card>;
+}
+
+function ReportCard({ title, description, pdf, excel, icon = <FileText className="h-6 w-6 text-primary" /> }: { title: string; description: string; pdf: string; excel: string; icon?: React.ReactNode }) {
+  return (
+    <Card>
+      <CardHeader><div className="flex items-start gap-4"><div className="rounded-lg bg-primary/10 p-2">{icon}</div><div><CardTitle className="text-lg">{title}</CardTitle><CardDescription className="mt-1">{description}</CardDescription></div></div></CardHeader>
+      <CardContent><div className="flex gap-2"><Button variant="outline" size="sm" onClick={() => window.open(pdf, "_blank", "noopener,noreferrer")}><Download className="mr-2 h-4 w-4" />PDF</Button><Button variant="outline" size="sm" onClick={() => window.open(excel, "_blank", "noopener,noreferrer")}><Download className="mr-2 h-4 w-4" />Excel</Button></div></CardContent>
+    </Card>
   );
 }

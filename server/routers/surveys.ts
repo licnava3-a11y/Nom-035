@@ -895,6 +895,7 @@ export const surveysRouter = router({
             .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
             .where(eq(surveyAnswers.responseId, response.id));
           
+          const guideType: "guia_ii" | "guia_iii" = survey.type === "guia_ii" ? "guia_ii" : "guia_iii";
           const result = calculator.calculateSurveyResult(
             answers.map(a => ({
               questionId: a.questionId,
@@ -904,7 +905,7 @@ export const surveysRouter = router({
               domain: a.domain || '',
               dimension: a.dimension || '',
             })),
-            survey.type as 'guia_ii' | 'guia_iii'
+            guideType
           );
           
           riskDistribution[result.finalRiskLevel] = (riskDistribution[result.finalRiskLevel] || 0) + 1;
@@ -919,9 +920,9 @@ export const surveysRouter = router({
       }
       
       // Calcular promedios por categoría
-      const averageRiskByCategory = Object.entries(categoryScores).map(([category, scores]: [string, any]) => ({
+      const averageRiskByCategory = Object.entries(categoryScores).map(([category, scores]) => ({
         category,
-        averageScore: scores.reduce((a: any, b: any) => a + b, 0) / scores.length,
+        averageScore: scores.length > 0 ? scores.reduce((total, score) => total + score, 0) / scores.length : 0,
       }));
       
       // Obtener nombre real de la empresa desde configuración

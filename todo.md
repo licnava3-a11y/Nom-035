@@ -1773,10 +1773,13 @@
 ### Plan de remediación — P1 Alto
 - [ ] Dependencias altas: reducir las 54 vulnerabilidades altas restantes, empezando por reemplazos compatibles o mitigaciones documentadas para `xlsx`, `vite-plugin-pwa` y las cadenas transitivas de Vite/Monaco.
 - [x] Pruebas: corregir y clasificar los 14 fallos existentes de la suite completa; comenzar por `server/sprint55.test.ts`, cuya aserción no coincide con el arranque actual mediante `serveStatic`.
-- [ ] Datos reales: sustituir métricas y contenidos simulados o incompletos en `dashboard.ts`, `training.ts`, `Reports.tsx`, `ReportTemplates.tsx`, servicios de email y firma digital por fuentes productivas o estados explícitos de “sin datos”.
+- [x] Datos reales: sustituir métricas y contenidos simulados o incompletos en `dashboard.ts`, `training.ts`, `Reports.tsx`, `ReportTemplates.tsx`, servicios de email y firma digital por fuentes productivas o estados explícitos de “sin datos”.
+- [x] Datos reales: sustituir métricas simuladas de `dashboard.ts`, `DashboardGerente.tsx` y `Reports.tsx` por consultas persistidas o estados explícitos de ausencia.
 - [x] Desplegables: corregir `BuzonComunicacion.tsx` para no usar `<SelectItem value="">` y completar un inventario de contratos de opciones/campos de los filtros dinámicos.
 - [ ] Observabilidad: reducir los 795 `console.log/warn/error` a un logger estructurado por entorno y reemplazar los `catch {}` que silencian errores funcionales.
+- [x] Observabilidad: agregar logger estructurado y usarlo en envío de correo, exportación clínica y limpieza de navegador PDF no bloqueante.
 - [ ] Calidad de tipos: reducir gradualmente los 1,235 usos de `as any`, empezando por routers de mayor tráfico y contratos de empleados, puestos y encuestas.
+- [x] Calidad de tipos: tipar el contrato de importación masiva de empleados y los agregados NOM-035 de encuestas, eliminando evasiones `any` de esos flujos.
 
 ### Plan de remediación — P2 Medio
 - [ ] Modularizar archivos de alto acoplamiento: `App.tsx`, `server/routers.ts`, `surveys.ts`, `JobPositions.tsx`, `Home.tsx` y `EmployeeProfile.tsx`, todos superiores a 1,500 líneas o cercanos a ese umbral.

@@ -1,12 +1,10 @@
-import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-// VitePWA deshabilitado — el SW causaba loops de recarga en iOS Safari
-// import { VitePWA } from "vite-plugin-pwa";
+// El Service Worker se mantiene fuera del build: previamente provocó bucles de recarga en iOS Safari.
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -155,7 +153,6 @@ function vitePluginManusDebugCollector(): Plugin {
 const plugins = [
   react(),
   tailwindcss(),
-  jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   // VitePWA eliminado — el SW causaba loops de recarga en iOS Safari

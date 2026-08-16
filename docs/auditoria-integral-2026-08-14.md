@@ -68,6 +68,18 @@ Se sustituyó el chequeo monolítico por `check:server` y `check:client`, con pr
 
 La actualización controlada de `puppeteer`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` y `@tailwindcss/vite` eliminó las cinco vulnerabilidades críticas iniciales. También se retiró `html-pdf-node`, que arrastraba una versión obsoleta de Puppeteer y de `node-fetch`; el generador de PDF usa ahora Puppeteer 25 mediante importación dinámica y el Chromium configurado para el entorno. La auditoría actual reporta **0 vulnerabilidades críticas** y 54 altas. Las altas restantes se mantienen como trabajo P1, ya que incluyen cadenas de herramientas y librerías cuya actualización mayor requiere revisión funcional específica.
 
+## Métricas verificables
+
+Se eliminaron las series demostrativas del router de dashboard y de la página de reportes. Las tarjetas y gráficas consumen ahora conteos persistidos de empleados activos, respuestas NOM-035 concluidas, asignaciones de capacitación, casos y cursos publicados. Cuando aún no existen registros suficientes, la interfaz muestra un estado explícito de ausencia; no presenta porcentajes, tendencias ni valores de referencia simulados.
+
+## Observabilidad inicial
+
+Se incorporó `server/_core/logger.ts` para emitir eventos JSON sin datos sensibles. Los primeros flujos migrados son la cola y envío SMTP, las notificaciones posteriores a exportaciones clínicas y el cierre de Chromium en generación PDF. Los fallos no bloqueantes ya no se descartan silenciosamente y quedan identificados por un nombre de evento estable.
+
+## Contratos de dominio reforzados
+
+La importación masiva de empleados ahora procesa celdas mediante un contrato explícito, valida identificadores opcionales y utiliza los nombres canónicos de departamento y puesto. En los reportes agregados de encuestas NOM-035 se reemplazaron conversiones `any` por arreglos numéricos y una unión explícita de las guías II y III. Estas modificaciones se validaron con los chequeos TypeScript segmentados y 16 pruebas focalizadas aprobadas.
+
 ## Secuencia de cierre de todo.md
 
 1. Resolver P0 de seguridad, validación TypeScript, navegación e integridad de datos.

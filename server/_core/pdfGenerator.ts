@@ -83,7 +83,11 @@ export async function generatePDFFromHTML(
     return url;
   } catch (error) {
     if (browser) {
-      try { await browser.close(); } catch {}
+      try {
+        await browser.close();
+      } catch (closeError) {
+        logNonBlockingFailure("pdf.browser_close_failed", closeError, { fileName });
+      }
     }
     throw new Error(`Error al generar PDF: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -129,3 +133,4 @@ export async function generatePDFFromTemplate(
   const html = template(data);
   return generatePDFFromHTML(html, fileName, options);
 }
+import { logNonBlockingFailure } from "./logger";

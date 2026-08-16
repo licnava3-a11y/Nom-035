@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import { getDb } from "../db";
 import { smtpConfig, emailQueue } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { logNonBlockingFailure, logStructured } from "./logger";
 
 interface EmailOptions {
   to: string | string[];
@@ -39,7 +40,8 @@ export async function isEmailEnabled(): Promise<boolean> {
         _emailEnabledCache = process.env.EMAIL_ENABLED === "true";
       }
     }
-  } catch {
+  } catch (error) {
+    logNonBlockingFailure("email.enabled_config_read_failed", error);
     _emailEnabledCache = process.env.EMAIL_ENABLED === "true";
   }
   _emailEnabledCacheAt = now;
@@ -67,8 +69,8 @@ async function enqueueEmail(options: EmailOptions): Promise<void> {
       sourceModule: options.sourceModule || "unknown",
       status: "pending",
     });
-  } catch (err) {
-    console.error("[Email Queue] Error al encolar correo:", err);
+  } catch (error) {
+    logNonBlockingFailure("email.queue_enqueue_failed", error, { sourceModule: options.sourceModule ?? "unknown" });
   }
 }
 
@@ -100,7 +102,7 @@ async function sendViaSmtp(options: EmailOptions): Promise<boolean> {
     }
 
     if (!smtpHost || !smtpUser || !smtpPass) {
-      console.log("[Email] SMTP no configurado. Correo no enviado:", { to: options.to, subject: options.subject });
+      logStructured("warn", "email.smtp_not_configured", { sourceModule: options.sourceModule ?? "unknown" });
       return false;
     }
 
@@ -119,10 +121,13 @@ async function sendViaSmtp(options: EmailOptions): Promise<boolean> {
       text: options.text,
     });
 
-    console.log(`[Email] Enviado exitosamente a ${options.to}`);
+    logStructured("info", "email.sent", {
+      sourceModule: options.sourceModule ?? "unknown",
+      recipientCount: Array.isArray(options.to) ? options.to.length : 1,
+    });
     return true;
   } catch (error) {
-    console.error("[Email] Error al enviar:", error);
+    logNonBlockingFailure("email.send_failed", error, { sourceModule: options.sourceModule ?? "unknown" });
     return false;
   }
 }
@@ -134,10 +139,10 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   if (!enabled) {
     // Registrar en cola para reenvío posterior
     await enqueueEmail(options);
-    console.log(
-      "[Email PAUSADO] Correo encolado para reenvío al activar SMTP:",
-      { to: options.to, subject: options.subject, module: options.sourceModule }
-    );
+    logStructured("info", "email.queued_while_paused", {
+      sourceModule: options.sourceModule ?? "unknown",
+      recipientCount: Array.isArray(options.to) ? options.to.length : 1,
+    });
     return true; // No rompe flujos que dependen del resultado
   }
 
@@ -189,8 +194,8 @@ export async function flushEmailQueue(): Promise<{ sent: number; failed: number 
         failed++;
       }
     }
-  } catch (err) {
-    console.error("[Email Queue] Error al procesar cola:", err);
+  } catch (error) {
+    logNonBlockingFailure("email.queue_flush_failed", error);
   }
 
   return { sent, failed };

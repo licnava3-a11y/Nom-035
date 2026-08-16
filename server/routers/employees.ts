@@ -10,6 +10,17 @@ import { getDb } from "../db";
 import { employees, employeePortalTokens, departments, positions } from "../../drizzle/schema";
 import { eq, and, isNotNull } from "drizzle-orm";
 import * as XLSX from "xlsx";
+import { logStructured } from "../_core/logger";
+
+type ImportedCell = string | number | boolean | Date | null | undefined;
+type ImportedEmployeeRow = Record<string, ImportedCell>;
+type EducationLevel = "primaria" | "secundaria" | "preparatoria" | "tecnico" | "licenciatura" | "especialidad" | "maestria" | "doctorado" | "otro";
+
+const importText = (value: ImportedCell) => value === null || value === undefined ? "" : String(value).trim();
+const importOptionalId = (value: ImportedCell) => {
+  const candidate = Number(importText(value));
+  return Number.isInteger(candidate) && candidate > 0 ? candidate : null;
+};
 
 export const employeesRouter = router({
   /**
@@ -570,17 +581,13 @@ export const employeesRouter = router({
     )
     .mutation(async ({ input }) => {
       const xlsx = await import("xlsx");
-      const { getDb } = await import("../db");
-      const { departments } = await import("../../drizzle/schema");
-      const { eq, sql } = await import("drizzle-orm");
-
       try {
         // Decodificar archivo base64
         const buffer = Buffer.from(input.fileData, "base64");
         const workbook = xlsx.read(buffer, { type: "buffer" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const data = xlsx.utils.sheet_to_json(worksheet);
+        const data = xlsx.utils.sheet_to_json<ImportedEmployeeRow>(worksheet);
 
         if (data.length === 0) {
           throw new TRPCError({
@@ -595,23 +602,23 @@ export const employeesRouter = router({
           total: data.length,
           successful: 0,
           failed: 0,
-          errors: [] as Array<{ row: number; error: string; data: any }>,
+          errors: [] as Array<{ row: number; error: string; data: ImportedEmployeeRow }>,
         };
 
         // Obtener todos los departamentos para mapeo
         const allDepartments = await db.select().from(departments);
         const departmentMap = new Map(
-          allDepartments.map((d: any) => [d.name.toLowerCase(), d.id])
+          allDepartments.map((department) => [department.name.toLowerCase(), department.id])
         );
 
         // Obtener posiciones para mapeo por nombre
-        const allPositions = await db.select().from((await import('../../drizzle/schema')).positions);
+        const allPositions = await db.select().from(positions);
         const positionMap = new Map(
-          allPositions.map((p: any) => [p.name.toLowerCase(), p.id])
+          allPositions.map((position) => [position.title.toLowerCase(), position.id])
         );
 
         for (let i = 0; i < data.length; i++) {
-          const row: any = data[i];
+          const row = data[i];
           const rowNumber = i + 2; // +2 porque Excel empieza en 1 y tiene header
 
           try {
@@ -621,12 +628,13 @@ export const employeesRouter = router({
             //   nivelEducativo, numeroEmpleado
             // Columnas en inglés (legado): firstName, lastName, email, department, positionId,
             //   phone, hireDate, gender, curp, rfc, nss
-            let firstName: string = row.firstName || "";
-            let lastName: string = row.lastName || "";
-            if (!firstName && row.nombre) {
+            let firstName = importText(row.firstName);
+            let lastName = importText(row.lastName);
+            const fullName = importText(row.nombre);
+            if (!firstName && fullName) {
               // Formato CONTPAQi/NOI: "APELLIDO PATERNO APELLIDO MATERNO NOMBRE(S)"
               // o "Nombre Apellido" — dividir en partes
-              const parts = String(row.nombre).trim().split(/\s+/);
+              const parts = fullName.split(/\s+/);
               if (parts.length >= 3) {
                 // Asumir: últimas 2 partes = nombre(s), primeras = apellidos
                 firstName = parts.slice(2).join(" ");
@@ -639,20 +647,20 @@ export const employeesRouter = router({
                 lastName = "";
               }
             }
-            const email: string = row.email || row.correo || row.correoElectronico || "";
-            const phone: string = row.phone || row.telefono || row.celular || "";
-            const curp: string = (row.curp || row.CURP || "").toString().toUpperCase().trim();
-            const rfc: string = (row.rfc || row.RFC || "").toString().toUpperCase().trim();
-            const nss: string = (row.nss || row.NSS || row.numeroSeguroSocial || "").toString().trim();
-            const employeeNumber: string = (row.numeroEmpleado || row.employeeNumber || row.claveEmpleado || row.clave || "").toString().trim();
-            const hireDateRaw: string = row.hireDate || row.fechaIngreso || row.fechaAlta || "";
+            const email = importText(row.email || row.correo || row.correoElectronico);
+            const phone = importText(row.phone || row.telefono || row.celular);
+            const curp = importText(row.curp || row.CURP).toUpperCase();
+            const rfc = importText(row.rfc || row.RFC).toUpperCase();
+            const nss = importText(row.nss || row.NSS || row.numeroSeguroSocial);
+            const employeeNumber = importText(row.numeroEmpleado || row.employeeNumber || row.claveEmpleado || row.clave);
+            const hireDateRaw = importText(row.hireDate || row.fechaIngreso || row.fechaAlta);
             // Mapear género (español/inglés/CONTPAQi)
             let gender: "male" | "female" | "other" | "prefer_not_to_say" | null = null;
-            const sexoRaw = (row.gender || row.sexo || row.genero || "").toString().toLowerCase();
+            const sexoRaw = importText(row.gender || row.sexo || row.genero).toLowerCase();
             if (["m", "masculino", "male", "hombre", "h"].includes(sexoRaw)) gender = "male";
             else if (["f", "femenino", "female", "mujer"].includes(sexoRaw)) gender = "female";
             // Mapear nivel educativo
-            const edLevelMap: Record<string, string> = {
+            const edLevelMap: Record<string, EducationLevel> = {
               primaria: "primaria", secundaria: "secundaria",
               preparatoria: "preparatoria", bachillerato: "preparatoria",
               tecnico: "tecnico", técnico: "tecnico",
@@ -660,8 +668,8 @@ export const employeesRouter = router({
               especialidad: "especialidad", maestria: "maestria", maestría: "maestria",
               doctorado: "doctorado", otro: "otro",
             };
-            const edRaw = (row.educationLevel || row.nivelEducativo || row.nivelEstudios || "").toString().toLowerCase();
-            const educationLevel = (edLevelMap[edRaw] || null) as any;
+            const edRaw = importText(row.educationLevel || row.nivelEducativo || row.nivelEstudios).toLowerCase();
+            const educationLevel = edLevelMap[edRaw] ?? null;
 
             // Validar campos obligatorios
             if (!firstName || !email) {
@@ -678,19 +686,19 @@ export const employeesRouter = router({
 
             // Asignar departamento automáticamente por nombre
             let departmentId = null;
-            const deptRaw = row.department || row.departamento || row.area || "";
+            const deptRaw = importText(row.department || row.departamento || row.area);
             if (deptRaw) {
               const deptId = departmentMap.get(deptRaw.toLowerCase());
               if (deptId) {
                 departmentId = deptId;
               } else {
-                console.warn(`Departamento no encontrado: ${deptRaw}, usando null`);
+                logStructured("warn", "employee_import.department_not_found", { row: rowNumber });
               }
             }
 
             // Asignar puesto automáticamente por nombre
-            let positionId = row.positionId || null;
-            const puestoRaw = row.puesto || row.position || row.cargo || "";
+            let positionId = importOptionalId(row.positionId);
+            const puestoRaw = importText(row.puesto || row.position || row.cargo);
             if (!positionId && puestoRaw) {
               const posId = positionMap.get(puestoRaw.toLowerCase());
               if (posId) positionId = posId;
@@ -715,21 +723,21 @@ export const employeesRouter = router({
             });
 
             results.successful++;
-          } catch (error: any) {
+          } catch (error) {
             results.failed++;
             results.errors.push({
               row: rowNumber,
-              error: error.message,
+              error: error instanceof Error ? error.message : String(error),
               data: row,
             });
           }
         }
 
         return results;
-      } catch (error: any) {
+      } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Error al procesar archivo: ${error.message}`,
+          message: `Error al procesar archivo: ${error instanceof Error ? error.message : String(error)}`,
         });
       }
     }),
@@ -1129,4 +1137,3 @@ export const employeesRouter = router({
       };
     }),
 });
-

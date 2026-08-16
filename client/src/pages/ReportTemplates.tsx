@@ -31,6 +31,7 @@ export default function ReportTemplates() {
   });
 
   const { data: templates, refetch } = trpc.reportTemplates.list.useQuery({});
+  const { data: companyData } = trpc.company.generalData.get.useQuery();
   const createMutation = trpc.reportTemplates.create.useMutation();
   const updateMutation = trpc.reportTemplates.update.useMutation();
   const deleteMutation = trpc.reportTemplates.delete.useMutation();
@@ -114,16 +115,16 @@ export default function ReportTemplates() {
   const getPreviewHTML = () => {
     if (!selectedTemplate) return "";
     
-    // Reemplazar variables con datos de ejemplo
+    // La vista previa usa configuración persistida o valores vacíos explícitos.
     let html = selectedTemplate.htmlTemplate;
     const variables = {
-      logo: "https://via.placeholder.com/150x50?text=LOGO",
-      razonSocial: "EMPRESA EJEMPLO S.A. DE C.V.",
-      rfc: "EEJ010101ABC",
-      folio: "VN-001/2026",
+      logo: "",
+      razonSocial: companyData?.razonSocial || "",
+      rfc: companyData?.rfc || "",
+      folio: "",
       fecha: new Date().toLocaleDateString("es-MX"),
-      titulo: "Reporte de Verificación de Numerales NOM-035",
-      contenido: "<p>Contenido de ejemplo del reporte...</p>",
+      titulo: selectedTemplate.nombre || "",
+      contenido: "",
     };
 
     Object.entries(variables).forEach(([key, value]) => {
@@ -390,7 +391,7 @@ export default function ReportTemplates() {
           <DialogHeader>
             <DialogTitle>Vista Previa - {selectedTemplate?.nombre}</DialogTitle>
             <DialogDescription>
-              Visualización con datos de ejemplo
+              Usa los datos de empresa configurados; los campos sin fuente permanecen vacíos.
             </DialogDescription>
           </DialogHeader>
           <div className="border rounded-md overflow-auto" style={{ height: "70vh" }}>

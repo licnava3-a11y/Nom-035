@@ -100,7 +100,7 @@ export default function DashboardGerente() {
           <CardContent>
             <div className="text-2xl font-bold">{stats?.nom035Compliance || 0}%</div>
             <p className="text-xs text-muted-foreground">
-              {stats?.nom035Trend === 'up' ? '+' : ''}{stats?.nom035Change || 0}% vs mes anterior
+              Comparativo histórico no disponible
             </p>
           </CardContent>
         </Card>

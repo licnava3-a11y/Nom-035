@@ -73,7 +73,7 @@ export const signaturesRouter = router({
         input.documentId
       );
 
-      // Capturar metadata del dispositivo (simulado, en producción usar headers reales)
+      // Capturar metadata disponible de la solicitud para trazabilidad de la firma.
       const ipAddress = ctx.req?.ip || 'unknown';
       const userAgent = ctx.req?.headers['user-agent'] || 'unknown';
       const deviceInfo = `${userAgent.substring(0, 200)}`;

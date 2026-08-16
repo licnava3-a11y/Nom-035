@@ -5,7 +5,6 @@
  * esbuild bundleaba vite.config.ts en dist/index.js, incluyendo:
  *   - @tailwindcss/oxide (binario nativo .node)
  *   - @rollup/rollup-linux-x64-gnu (binario nativo .node)
- *   - @builder.io/vite-plugin-jsx-loc
  *   - vite-plugin-manus-runtime
  * Estos binarios nativos causan SIGSEGV en Cloud Run al cargar el módulo.
  *
@@ -58,7 +57,7 @@ describe("Sprint 55 — Corrección definitiva del segfault en producción", () 
     expect(buildScript).toContain("--external:@vitejs/plugin-react");
     expect(buildScript).toContain("--external:@tailwindcss/vite");
     expect(buildScript).toContain("--external:vite-plugin-manus-runtime");
-    expect(buildScript).toContain("--external:@builder.io/vite-plugin-jsx-loc");
+    expect(buildScript).not.toContain("@builder.io/vite-plugin-jsx-loc");
   });
 
   it("package.json build script usa NODE_OPTIONS=--max-old-space-size=4096", () => {

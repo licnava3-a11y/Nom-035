@@ -16,6 +16,7 @@ import { TRPCError } from "@trpc/server";
 import JSZip from "jszip";
 import { storagePut } from "../storage";
 import { invokeLLM } from "../_core/llm";
+import { logNonBlockingFailure } from "../_core/logger";
 
 // Roles autorizados para ver expedientes clínicos
 const AUTHORIZED_ROLES = ["admin", "super_admin", "psychologist", "clinical_professional"];
@@ -673,7 +674,12 @@ export const clinicalRecordsRouter = router({
           title: `📦 Exportación masiva ZIP — ${records.length} expedientes`,
           content: `El usuario ${ctx.user.name ?? ctx.user.email ?? 'desconocido'} exportó ${records.length} expediente${records.length !== 1 ? 's' : ''} clínico${records.length !== 1 ? 's' : ''} en formato ZIP el ${new Date().toLocaleString('es-MX')}.`,
         });
-      } catch { /* no bloqueante */ }
+      } catch (error) {
+        logNonBlockingFailure("clinical_export.owner_notification_failed", error, {
+          exportedRecordCount: records.length,
+          userId: ctx.user.id,
+        });
+      }
 
       return { url: zipUrl, count: records.length, zipKey };
     }),
