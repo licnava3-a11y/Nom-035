@@ -17,6 +17,7 @@ const MAX_LOG_SIZE_BYTES = 1 * 1024 * 1024; // 1MB per log file
 const TRIM_TARGET_BYTES = Math.floor(MAX_LOG_SIZE_BYTES * 0.6); // Trim to 60% to avoid constant re-trimming
 
 type LogSource = "browserConsole" | "networkRequests" | "sessionReplay";
+const BUNDLE_BUDGET_BYTES = 900 * 1024;
 
 function ensureLogDir() {
   if (!fs.existsSync(LOG_DIR)) {
@@ -150,11 +151,28 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+function vitePluginBundleBudget(): Plugin {
+  return {
+    name: "nom035-bundle-budget",
+    generateBundle(_options, bundle) {
+      const oversizedChunks = Object.values(bundle)
+        .filter((entry): entry is import("rollup").OutputChunk => entry.type === "chunk")
+        .filter((entry) => Buffer.byteLength(entry.code, "utf-8") > BUNDLE_BUDGET_BYTES)
+        .map((entry) => `${entry.fileName} (${Math.ceil(Buffer.byteLength(entry.code, "utf-8") / 1024)} KB)`);
+
+      if (oversizedChunks.length > 0) {
+        this.warn(`Presupuesto de bundle excedido (900 KB): ${oversizedChunks.join(", ")}`);
+      }
+    },
+  };
+}
+
 const plugins = [
   react(),
   tailwindcss(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
+  vitePluginBundleBudget(),
   // VitePWA eliminado — el SW causaba loops de recarga en iOS Safari
   // y el módulo virtual virtual:pwa-register/react rompe el bundle de producción
 ];
@@ -313,7 +331,7 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 2000, // 2MB para evitar warnings en chunks grandes
+    chunkSizeWarningLimit: 900,
   },
   server: {
     host: true,

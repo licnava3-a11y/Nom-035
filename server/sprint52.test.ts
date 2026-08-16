@@ -34,7 +34,7 @@ describe("Sprint 52 — Jobs con delay de arranque (anti-cold-start)", () => {
   it("los módulos de jobs se cargan dinámicamente dentro de startJobs", () => {
     expect(content).toContain("async function startJobs()");
     expect(content).toContain("await import(");
-    expect(content).toContain("Jobs críticos NOM-035");
+    expect(content).toContain("critical_jobs_starting");
   });
 
   it("el cierre del setTimeout está ANTES del cierre del server.listen", () => {
@@ -46,7 +46,7 @@ describe("Sprint 52 — Jobs con delay de arranque (anti-cold-start)", () => {
   });
 
   it("el servidor imprime mensaje de delay al arrancar", () => {
-    expect(content).toContain("Jobs críticos NOM-035 iniciarán en");
+    expect(content).toContain("scheduled_jobs_delayed");
     expect(content).toContain("Cloud Run pase el health check");
   });
 });

@@ -10,6 +10,7 @@
     "check": "pnpm check:server && pnpm check:client",
     "check:server": "NODE_OPTIONS=--max-old-space-size=1536 tsc --noEmit -p tsconfig.server.json",
     "check:client": "NODE_OPTIONS=--max-old-space-size=2048 tsc --noEmit -p tsconfig.client.json",
+    "check:type-safety": "node scripts/check-type-safety.mjs",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:e2e": "playwright test",

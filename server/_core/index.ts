@@ -12,12 +12,15 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerLocalAuthRoutes } from "./localAuth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic } from "./vite";
+import { serveStatic, setupVite } from "./vite";
 import uploadRouter from "../upload";
 import exportRouter from "../exportRouter";
 import confirmReadRouter from "../confirmReadRouter";
 import evidenceTokenRouter from "../nom035EvidenceTokenRouter";
 import { initializeWebSocket } from "./websocket";
+import { installLegacyConsoleAdapter, logNonBlockingFailure, logStructured } from "./logger";
+
+installLegacyConsoleAdapter();
 
 // ─── NO static job imports here ──────────────────────────────────────────────
 // All job modules are loaded dynamically inside startJobs() to keep the initial
@@ -75,9 +78,9 @@ function startConsolidatedMinuteTick() {
       if (s.hour !== h || s.minute !== m) continue;
       if (s.dayOfWeek !== undefined && s.dayOfWeek !== dow) continue;
       if (s.dayOfMonth !== undefined && s.dayOfMonth !== dom) continue;
-      console.log(`[Scheduler] Triggering: ${s.label}`);
+      logStructured("info", "scheduled_job_triggered", { job: s.label });
       Promise.resolve(s.fn()).catch(err =>
-        console.error(`[Scheduler] Error in ${s.label}:`, err)
+        logNonBlockingFailure("scheduled_job_failed", err, { job: s.label })
       );
     }
   }, 60_000);
@@ -89,7 +92,7 @@ async function startJobs() {
   // Jobs no críticos (ML, análisis predictivo, reportes ejecutivos, etc.) están
   // deshabilitados para reducir la carga en la BD y el consumo de memoria.
   // ═══════════════════════════════════════════════════════════════════════════
-  console.log('[Jobs] Iniciando jobs críticos NOM-035...');
+  logStructured("info", "critical_jobs_starting", {});
   const schedules: Array<any> = (globalThis as any).__consolidatedSchedules ?? [];
 
   // ── Jobs activos con su propio scheduler interno (solo críticos NOM-035) ───
@@ -127,10 +130,10 @@ async function startJobs() {
     if (result.status === "fulfilled") {
       const mod = result.value as any;
       if (typeof mod[fnName] === "function") {
-        try { mod[fnName](); } catch (e) { console.error(`[Jobs] Error starting ${modName}:`, e); }
+        try { mod[fnName](); } catch (e) { logNonBlockingFailure("job_start_failed", e, { job: modName }); }
       }
     } else {
-      console.error(`[Jobs] Failed to load ${modName}:`, result.reason);
+      logNonBlockingFailure("job_module_load_failed", result.reason, { job: modName });
     }
   }
 
@@ -138,35 +141,35 @@ async function startJobs() {
   try {
     const { runCorrectiveActionPlansRemindersJob } = await import("../jobs/corrective-action-plans-reminders-job");
     schedules.push({ label: "corrective-action-plans-reminders", hour: 9, minute: 0, fn: runCorrectiveActionPlansRemindersJob });
-  } catch (e) { console.error("[Jobs] corrective-action-plans-reminders-job load error:", e); }
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "corrective-action-plans-reminders" }); }
 
   try {
     const { runContractExpirationAlertsJob } = await import("../jobs/contract-expiration-alerts-job");
     schedules.push({ label: "contract-expiration", hour: 8, minute: 0, fn: runContractExpirationAlertsJob });
-  } catch (e) { console.error("[Jobs] contract-expiration-alerts-job load error:", e); }
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "contract-expiration" }); }
 
   try {
     const { runDictamenExpiryAlertJob } = await import("../jobs/dictamen-expiry-alert-job");
     schedules.push({ label: "dictamen-expiry", hour: 8, minute: 0, fn: runDictamenExpiryAlertJob });
-  } catch (e) { console.error("[Jobs] dictamen-expiry-alert-job load error:", e); }
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "dictamen-expiry" }); }
 
   try {
     const { runDc3ExpiryAlertsJob } = await import("../jobs/dc3-expiry-alerts-job");
     schedules.push({ label: "dc3-expiry", hour: 7, minute: 30, fn: runDc3ExpiryAlertsJob });
-  } catch (e) { console.error("[Jobs] dc3-expiry-alerts-job load error:", e); }
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "dc3-expiry" }); }
 
   try {
     const { runPacStaleItemsJob } = await import("../jobs/pac-stale-items-job");
     schedules.push({ label: "pac-stale-items", hour: 9, minute: 0, fn: runPacStaleItemsJob });
-  } catch (e) { console.error("[Jobs] pac-stale-items-job load error:", e); }
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "pac-stale-items" }); }
 
   // Reportes ejecutivos reactivados (solo se ejecutan en horario programado, no al arrancar)
   try {
     const { weeklyReportJob, monthlyReportJob } = await import("../jobs/executive-reports-job");
     schedules.push({ label: "weekly-report", hour: 8, minute: 0, dayOfWeek: 1, fn: weeklyReportJob });
     schedules.push({ label: "monthly-report", hour: 8, minute: 0, dayOfMonth: 1, fn: monthlyReportJob });
-    console.log("[Jobs] executive-reports-job reactivado (lunes 8AM + día 1 de cada mes)");
-  } catch (e) { console.error("[Jobs] executive-reports-job load error:", e); }
+    logStructured("info", "scheduled_job_enabled", { job: "executive-reports" });
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "executive-reports" }); }
 
   // Token expiration job — diario a las 9 AM
   try {
@@ -180,8 +183,8 @@ async function startJobs() {
       runTokenExpirationJob();
       setInterval(runTokenExpirationJob, 24 * 60 * 60 * 1000);
     }, msUntilNext9AM);
-    console.log(`[Token Expiration Job] First execution scheduled for ${next9AM.toLocaleString('es-MX')}`);
-  } catch (e) { console.error("[Jobs] anonymousTokenExpirationJob load error:", e); }
+    logStructured("info", "scheduled_job_registered", { job: "anonymous-token-expiration", scheduledAt: next9AM.toISOString() });
+  } catch (e) { logNonBlockingFailure("scheduled_job_load_failed", e, { job: "anonymous-token-expiration" }); }
 
   // ── Jobs NO CRÍTICOS deshabilitados (reducen carga DB y memoria) ────────────
   // DESHABILITADO: model-performance-monitor-job (ML, no NOM-035)
@@ -209,7 +212,7 @@ async function startJobs() {
   // DESHABILITADO: departmental-alerts-job (alertas dept, no crítico)
   // DESHABILITADO: realtime-alerts-job (WebSocket, no crítico para NOM-035)
 
-  console.log('[Jobs] Jobs críticos NOM-035 iniciados. Jobs no críticos deshabilitados para optimizar recursos.');
+  logStructured("info", "critical_jobs_started", { nonCriticalJobsDisabled: true });
 }
 
 async function startServer() {
@@ -267,10 +270,10 @@ async function startServer() {
   const useLocalAuth = process.env.LOCAL_AUTH === 'true';
   if (useLocalAuth) {
     registerLocalAuthRoutes(app);
-    console.log('[Auth] Modo: Autenticación local (usuario/contraseña)');
+    logStructured("info", "authentication_mode_configured", { mode: "local" });
   } else {
     registerOAuthRoutes(app);
-    console.log('[Auth] Modo: Manus OAuth');
+    logStructured("info", "authentication_mode_configured", { mode: "oauth" });
   }
 
   app.use("/api", uploadRouter);
@@ -289,10 +292,10 @@ async function startServer() {
   app.post("/api/scheduled/warmup", (req, res) => {
     try {
       const taskUid = req.headers["x-manus-cron-task-uid"] ?? "manual";
-      console.log(`[Warmup] Ping recibido. taskUid=${taskUid} ts=${Date.now()}`);
+      logStructured("info", "warmup_ping_received", { taskUid: String(taskUid) });
       res.json({ ok: true, ts: Date.now(), taskUid });
     } catch (err) {
-      console.error("[Warmup] Error:", err);
+      logNonBlockingFailure("warmup_ping_failed", err);
       res.status(500).json({ error: String(err), ts: Date.now() });
     }
   });
@@ -306,20 +309,25 @@ async function startServer() {
     })
   );
 
-  // Static files (production) or Vite proxy (development)
-  serveStatic(app);
+  // El sandbox necesita Vite para transformar /src/main.tsx y completar la hidratación.
+  // Producción utiliza únicamente los artefactos estáticos ya compilados.
+  if (process.env.NODE_ENV === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
+    logStructured("warn", "preferred_port_unavailable", { preferredPort, selectedPort: port });
   }
 
   initializeWebSocket(server);
 
   server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+    logStructured("info", "server_started", { port });
 
     // Start the consolidated minute-tick scheduler (single setInterval)
     startConsolidatedMinuteTick();
@@ -327,10 +335,10 @@ async function startServer() {
     // Delay inicial de 15s: suficiente para que Cloud Run pase el health check (~5s)
     // y el pool de DB se estabilice antes de que los jobs empiecen a conectarse.
     const JOB_STARTUP_DELAY_MS = 15_000;
-    console.log(`[Jobs] Jobs críticos NOM-035 iniciarán en ${JOB_STARTUP_DELAY_MS / 1000}s`);
+    logStructured("info", "scheduled_jobs_delayed", { delaySeconds: JOB_STARTUP_DELAY_MS / 1000 });
 
     setTimeout(() => {
-      startJobs().catch(err => console.error('[Jobs] Error iniciando jobs:', err));
+      startJobs().catch(err => logNonBlockingFailure("scheduled_jobs_start_failed", err));
     }, JOB_STARTUP_DELAY_MS);
 
     // Warmup periódico: ping interno cada 4 minutos para evitar hibernación de Cloud Run.
@@ -340,11 +348,11 @@ async function startServer() {
       const req = httpRequest({ hostname: 'localhost', port, path: '/api/health', method: 'GET' }, (res) => {
         res.resume(); // consume response body
       });
-      req.on('error', () => {}); // silenciar errores de red internos
+      req.on('error', (error) => logNonBlockingFailure("warmup_request_failed", error));
       req.end();
     }, WARMUP_INTERVAL_MS);
-    console.log(`[Warmup] Ping interno cada ${WARMUP_INTERVAL_MS / 60000} minutos para evitar hibernación`);
+    logStructured("info", "warmup_interval_enabled", { intervalMinutes: WARMUP_INTERVAL_MS / 60000 });
   });
 }
 
-startServer().catch(console.error);
+startServer().catch((error) => logNonBlockingFailure("server_start_failed", error));

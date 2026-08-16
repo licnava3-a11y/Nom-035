@@ -88,6 +88,12 @@ La importación masiva de empleados ahora procesa celdas mediante un contrato ex
 
 La persistencia de respuestas de encuesta ahora usa una conexión Drizzle no nullable y resultados serializables explícitos; además, los tokens anónimos y autenticados se actualizan sin coerciones de tipo. La validación posterior de servidor y cliente concluyó sin errores.
 
+## Modularización priorizada, UX y rendimiento
+
+La primera fase de modularización extrajo las visualizaciones de distribución y tendencia de `JobPositions` a componentes tipados en `client/src/components/job-positions/`, y concentró los aliases heredados de navegación en `client/src/routes/legacyRedirects.ts`. Esta reducción mantiene los contratos tRPC y de rutas sin cambios de comportamiento. Los controles de JobPositions ahora exponen nombres accesibles, grupos semánticos y estado `aria-pressed`.
+
+El motor ELK del organigrama se importa solo cuando el usuario solicita calcular la vista, y Vite incorpora un presupuesto visible de 900 KB por chunk para alertar en compilación sobre regresiones de tamaño. La siguiente separación de routers o páginas extensas debe realizarse junto con cambios funcionales del dominio correspondiente para evitar refactors masivos sin cobertura de flujo.
+
 ## Secuencia de cierre de todo.md
 
 1. Resolver P0 de seguridad, validación TypeScript, navegación e integridad de datos.

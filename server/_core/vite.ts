@@ -2,6 +2,7 @@ import express, { type Express } from "express";
 import fs from "fs";
 import { type Server } from "http";
 import path from "path";
+import { logNonBlockingFailure, logStructured } from "./logger";
 
 // CRITICAL: vite and vite.config MUST be imported dynamically so that esbuild
 // marks them as external and does NOT bundle them into dist/index.js.
@@ -66,9 +67,7 @@ export function serveStatic(app: Express) {
       : path.resolve(import.meta.dirname, "public");
 
   if (!fs.existsSync(distPath)) {
-    console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
-    );
+    logStructured("warn", "static_directory_missing", { environment: process.env.NODE_ENV ?? "unknown" });
   }
 
   // Ensure dist/public/index.html always has the correct %VITE_*% placeholders.
@@ -81,7 +80,7 @@ export function serveStatic(app: Express) {
     if (process.env.NODE_ENV !== "development" || !fs.existsSync(clientIndexPath)) return false;
     fs.mkdirSync(distPath, { recursive: true });
     fs.copyFileSync(clientIndexPath, indexPath);
-    console.log(`[serveStatic] Dev: restored dist/public/index.html from client/index.html`);
+    logStructured("info", "preview_index_restored", { environment: "development" });
     return true;
   };
 
@@ -92,7 +91,7 @@ export function serveStatic(app: Express) {
     // Production fallback: only copy if missing (should not happen after vite build)
     fs.mkdirSync(distPath, { recursive: true });
     fs.copyFileSync(clientIndexPath, indexPath);
-    console.log(`[serveStatic] Prod fallback: copied client/index.html → dist/public/index.html`);
+    logStructured("warn", "production_index_fallback_restored", {});
   }
 
   // Serve static assets (JS, CSS, images, fonts) — but NOT index.html.
@@ -129,7 +128,7 @@ export function serveStatic(app: Express) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       res.send(html);
     } catch (error) {
-      console.error("[serveStatic] Could not restore preview index:", error);
+      logNonBlockingFailure("preview_index_restore_failed", error);
       res.status(503).type("text/plain").send("La vista previa se está recuperando. Actualiza la página en unos segundos.");
     }
   });

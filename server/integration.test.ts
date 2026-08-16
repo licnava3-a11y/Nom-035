@@ -49,15 +49,14 @@ describe("Server fallback: Vite cuando dist/public no existe", () => {
 // Sprint 42: VitePWA fue comentado para solucionar el spinner infinito en iOS Safari.
 // El import está comentado pero el plugin no está activo en el build.
 describe("Service Worker PWA: VitePWA deshabilitado (Sprint 42)", () => {
-  it("vite.config.ts tiene el import de VitePWA comentado (deshabilitado)", async () => {
+  it("vite.config.ts no importa VitePWA y documenta su deshabilitación", async () => {
     const configPath = path.resolve(
       import.meta.dirname,
       "../vite.config.ts"
     );
     const configContent = fs.readFileSync(configPath, "utf-8");
-    // El import está comentado — VitePWA está deshabilitado
-    expect(configContent).toContain("// import { VitePWA }");
-    expect(configContent).toContain("VitePWA deshabilitado");
+    expect(configContent).not.toContain("vite-plugin-pwa");
+    expect(configContent).toContain("Service Worker se mantiene fuera del build");
   });
 
   it("index.html tiene script inline para desregistrar Service Workers", async () => {
@@ -94,14 +93,16 @@ describe("Servidor Express: estructura y rutas críticas", () => {
     expect(indexContent).toContain("import path from \"path\"");
   });
 
-  it("index.ts debe delegar el fallback SPA al servidor estático centralizado", () => {
+  it("index.ts debe usar Vite en desarrollo y servidor estático centralizado en producción", () => {
     const indexPath = path.resolve(
       import.meta.dirname,
       "./_core/index.ts"
     );
     const indexContent = fs.readFileSync(indexPath, "utf-8");
 
-    expect(indexContent).toContain('import { serveStatic } from "./vite"');
+    expect(indexContent).toContain('import { serveStatic, setupVite } from "./vite"');
+    expect(indexContent).toContain('process.env.NODE_ENV === "development"');
+    expect(indexContent).toContain("await setupVite(app, server)");
     expect(indexContent).toContain("serveStatic(app)");
   });
 

@@ -23,7 +23,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { parseTRPCError } from "@/lib/errorMessages";
 import { getJobPositionsListState, getRiskDistribution } from "./jobPositionsState";
 import { EmployeesBarChart, type BarChartHandle } from "@/components/job-positions/EmployeesBarChart";
-import Chart from "chart.js/auto";
+import { HistoryTrendChart } from "@/components/job-positions/HistoryTrendChart";
 import { jsPDF } from "jspdf";
 
 type SortKey = "employees_desc" | "employees_asc" | "risk" | "name";
@@ -48,30 +48,6 @@ function employeeBadgeClass(count: number) {
   if (count >= 5)  return "bg-blue-400 text-white";
   return "bg-blue-100 text-blue-700";
 }
-
-// ── Componente gráfica de tendencia del historial ────────────────────────────
-function HistoryTrendChart({ data }: { data: any[] }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartInst = useRef<Chart | null>(null);
-
-  useEffect(() => {
-    if (!canvasRef.current || !data || data.length < 2) return;
-    chartInst.current?.destroy();
-    const sorted = [...data].sort((a, b) => new Date(a.analyzedAt).getTime() - new Date(b.analyzedAt).getTime());
-    const labels = sorted.map((r) => new Date(r.analyzedAt).toLocaleDateString("es-MX", { day: "2-digit", month: "short" }));
-    const values = sorted.map((r) => Number(r.riskIndex));
-    const pointColors = values.map((v) => v >= 3.5 ? "#dc2626" : v >= 2.5 ? "#d97706" : "#16a34a");
-    chartInst.current = new Chart(canvasRef.current, {
-      type: "line",
-      data: { labels, datasets: [{ label: "Índice de Riesgo", data: values, borderColor: "#6366f1", backgroundColor: "rgba(99,102,241,0.08)", pointBackgroundColor: pointColors, pointBorderColor: pointColors, pointRadius: 5, pointHoverRadius: 7, tension: 0.3, fill: true }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` Índice: ${ctx.parsed.y}/5` } } }, scales: { y: { min: 1, max: 5, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: "rgba(0,0,0,0.06)" } }, x: { ticks: { font: { size: 11 } }, grid: { display: false } } } },
-    });
-    return () => { chartInst.current?.destroy(); };
-  }, [data]);
-
-  return (<div style={{ height: 140 }}><canvas ref={canvasRef} /></div>);
-}
-
 
 // ── Componente principal ───────────────────────────────────────────────────────
 export default function JobPositions() {
@@ -140,7 +116,7 @@ export default function JobPositions() {
         id: pos.id,
         title: pos.positionName,
         department: pos.department || "Sin departamento",
-        employees: (pos as any).employeeCount ?? 0,
+        employees: pos.employeeCount ?? 0,
         riskLevel:
           pos.riskLevel === "low" ? "bajo"
           : pos.riskLevel === "medium" ? "medio"
@@ -149,7 +125,7 @@ export default function JobPositions() {
         lastAnalysis: new Date(pos.createdAt).toISOString().split("T")[0],
         factors: (() => {
           try {
-            const raw = (pos as any).factors;
+            const raw = pos.factors;
             if (raw && typeof raw === "string") return JSON.parse(raw);
             if (raw && typeof raw === "object" && raw !== null) return raw;
           } catch {}
@@ -710,6 +686,7 @@ export default function JobPositions() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
+              aria-label="Buscar puestos o departamentos"
               placeholder="Buscar por puesto o departamento..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
@@ -719,7 +696,7 @@ export default function JobPositions() {
 
           {/* Filtro de departamento */}
           <Select value={filterDept} onValueChange={v => setFilterDept(v)}>
-            <SelectTrigger className="w-52">
+            <SelectTrigger className="w-52" aria-label="Filtrar por departamento">
               <SelectValue placeholder="Departamento" />
             </SelectTrigger>
             <SelectContent>
@@ -732,7 +709,7 @@ export default function JobPositions() {
 
           {/* Filtro de riesgo */}
           <Select value={filterRisk} onValueChange={v => setFilterRisk(v as RiskFilter)}>
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-44" aria-label="Filtrar por nivel de riesgo">
               <SelectValue placeholder="Nivel de riesgo" />
             </SelectTrigger>
             <SelectContent>
@@ -747,7 +724,7 @@ export default function JobPositions() {
           {/* Ordenamiento (solo en vista tarjetas) */}
           {viewMode === "cards" && (
             <Select value={sortBy} onValueChange={v => setSortBy(v as SortKey)}>
-              <SelectTrigger className="w-56">
+              <SelectTrigger className="w-56" aria-label="Ordenar puestos">
                 <SelectValue placeholder="Ordenar por" />
               </SelectTrigger>
               <SelectContent>
@@ -768,10 +745,12 @@ export default function JobPositions() {
           )}
 
           {/* Toggle vista */}
-          <div className="flex items-center border rounded-md overflow-hidden shrink-0">
+          <div className="flex items-center border rounded-md overflow-hidden shrink-0" role="group" aria-label="Cambiar tipo de vista">
             <button
+              type="button"
               onClick={() => setViewMode("cards")}
               title="Vista de tarjetas"
+              aria-pressed={viewMode === "cards"}
               className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
                 viewMode === "cards"
                   ? "bg-primary text-primary-foreground"
@@ -783,8 +762,10 @@ export default function JobPositions() {
             </button>
             <div className="w-px h-5 bg-border" />
             <button
+              type="button"
               onClick={() => setViewMode("table")}
               title="Vista de tabla"
+              aria-pressed={viewMode === "table"}
               className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
                 viewMode === "table"
                   ? "bg-primary text-primary-foreground"
@@ -825,10 +806,12 @@ export default function JobPositions() {
                 {sortLabel[sortBy].icon}
                 <span>Ordenado por: {sortLabel[sortBy].text}</span>
               </div>
-              <div className="flex items-center gap-1 border rounded-md overflow-hidden">
+              <div className="flex items-center gap-1 border rounded-md overflow-hidden" role="group" aria-label="Orden rápido por empleados">
                 <button
+                  type="button"
                   onClick={() => setSortBy("employees_desc")}
                   title="Más empleados primero"
+                  aria-pressed={sortBy === "employees_desc"}
                   className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium transition-colors ${
                     sortBy === "employees_desc"
                       ? "bg-primary text-primary-foreground"
@@ -839,8 +822,10 @@ export default function JobPositions() {
                 </button>
                 <div className="w-px h-5 bg-border" />
                 <button
+                  type="button"
                   onClick={() => setSortBy("employees_asc")}
                   title="Menos empleados primero"
+                  aria-pressed={sortBy === "employees_asc"}
                   className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium transition-colors ${
                     sortBy === "employees_asc"
                       ? "bg-primary text-primary-foreground"

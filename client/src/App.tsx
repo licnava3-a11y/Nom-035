@@ -16,6 +16,7 @@ import { PWAInstallBanner } from "./components/PWAInstallBanner";
 import { trpc } from "./lib/trpc";
 import { useAuth } from "./_core/hooks/useAuth";
 import { usePageTitle } from "./hooks/usePageTitle";
+import { legacyRedirects } from "./routes/legacyRedirects";
 
 // Lazy load all page components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -292,15 +293,9 @@ function Router() {
     <Suspense fallback={<PageLoader />}>
       <Switch>
         {/* Alias de compatibilidad para enlaces internos heredados. */}
-        <Route path={"/administrative/expenses/:id"}><Redirect to="/administrative/expense-requests" /></Route>
-        <Route path={"/administrative/expenses"}><Redirect to="/administrative/expense-requests" /></Route>
-        <Route path={"/compliance/checklist"}><Redirect to="/compliance-checklist" /></Route>
-        <Route path={"/documents/history"}><Redirect to="/documents-history" /></Route>
-        <Route path={"/nom035-admin-panel"}><Redirect to="/nom035-admin" /></Route>
-        <Route path={"/survey-send"}><Redirect to="/surveys/mass-email" /></Route>
-        <Route path={"/training/calendar"}><Redirect to="/training-dashboard" /></Route>
-        <Route path={"/training/my-courses"}><Redirect to="/courses" /></Route>
-        <Route path={"/trends-charts"}><Redirect to="/trends" /></Route>
+        {legacyRedirects.map(({ path, to }) => (
+          <Route key={path} path={path}><Redirect to={to} /></Route>
+        ))}
         <Route path={"/"}>
           <Suspense fallback={<PageLoader />}>
             <LandingPage />

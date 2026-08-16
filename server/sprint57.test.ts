@@ -80,9 +80,10 @@ describe("Sprint 57 — serveStatic reemplaza placeholders en runtime", () => {
     expect(result).not.toContain("%VITE_OAUTH_PORTAL_URL%");
   });
 
-  it("vite.ts tiene fallback res.sendFile si la lectura del HTML falla", () => {
+  it("vite.ts restaura el índice de desarrollo y comunica recuperación si la lectura falla", () => {
     const content = fs.readFileSync(VITE_TS_PATH, "utf-8");
-    expect(content).toContain("sendFile");
+    expect(content).toContain("restoreDevelopmentIndex");
+    expect(content).toContain("La vista previa se está recuperando");
     expect(content).toContain("catch");
   });
 });

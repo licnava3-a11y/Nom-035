@@ -43,11 +43,12 @@ describe("Sprint 55 — Corrección definitiva del segfault en producción", () 
     expect(content).toContain("await import(\"vite\")");
   });
 
-  it("index.ts delega el fallback SPA al servidor estático compatible con producción y sandbox", () => {
+  it("index.ts usa Vite solo en desarrollo y estáticos compatibles en producción", () => {
     const content = fs.readFileSync(indexTsPath, "utf-8");
-    // serveStatic resuelve el directorio según NODE_ENV y entrega el fallback SPA.
+    // Producción entrega el SPA compilado; desarrollo usa Vite para transformar main.tsx.
     expect(content).toContain("serveStatic(app)");
-    expect(content).not.toContain("setupVite(app");
+    expect(content).toContain("await setupVite(app, server)");
+    expect(content).toContain('process.env.NODE_ENV === "development"');
   });
 
   it("package.json build script excluye vite y sus plugins nativos", () => {

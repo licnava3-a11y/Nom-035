@@ -166,10 +166,12 @@ describe("ESM Compatibility — Prevención de errores de despliegue en Cloud Ru
     expect(allViolations).toHaveLength(0);
   });
 
-  it("server/_core/index.ts delega las rutas estáticas al módulo ESM compatible", () => {
+  it("server/_core/index.ts usa Vite en desarrollo y estáticos ESM en producción", () => {
     const indexPath = join(ROOT, "server/_core/index.ts");
     const content = readFileSync(indexPath, "utf-8");
-    expect(content).toContain('import { serveStatic } from "./vite"');
+    expect(content).toContain('import { serveStatic, setupVite } from "./vite"');
+    expect(content).toContain('process.env.NODE_ENV === "development"');
+    expect(content).toContain("await setupVite(app, server)");
     expect(content).toContain("serveStatic(app)");
   });
 

@@ -3,11 +3,12 @@ import fs from "fs";
 import path from "path";
 
 describe("Sprint 30 - Corrección pantalla en blanco, spinner y modal PDF", () => {
-  // Test 1: Vite y plugins están en dependencies (no solo devDependencies)
-  it("vite está en dependencies para que esté disponible en producción", () => {
+  // Test 1: Vite y su plugin son herramientas de build, no dependencias de runtime.
+  it("vite y su plugin están en devDependencies para excluirlos de producción", () => {
     const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
-    expect(pkg.dependencies).toHaveProperty("vite");
-    expect(pkg.dependencies).toHaveProperty("@vitejs/plugin-react");
+    expect(pkg.devDependencies).toHaveProperty("vite");
+    expect(pkg.devDependencies).toHaveProperty("@vitejs/plugin-react");
+    expect(pkg.dependencies).not.toHaveProperty("vite");
     expect(pkg.dependencies).toHaveProperty("tailwindcss");
   });
 
@@ -17,7 +18,8 @@ describe("Sprint 30 - Corrección pantalla en blanco, spinner y modal PDF", () =
       path.resolve(__dirname, "_core/index.ts"),
       "utf-8"
     );
-    expect(indexContent).toContain('import { serveStatic } from "./vite"');
+    expect(indexContent).toContain('import { serveStatic, setupVite } from "./vite"');
+    expect(indexContent).toContain("await setupVite(app, server)");
     expect(indexContent).toContain("serveStatic(app)");
   });
 

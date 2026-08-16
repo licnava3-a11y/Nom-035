@@ -5,6 +5,7 @@
 
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import type { Request, Response } from "express";
+import { logStructured } from "./logger";
 
 /**
  * Helper para generar key de rate limit compatible con IPv4 e IPv6
@@ -59,7 +60,7 @@ export const authLimiter = rateLimit({
   skipSuccessfulRequests: true, // No contar requests exitosos
   keyGenerator: generateKey,
   handler: (req: Request, res: Response) => {
-    console.warn(`[Rate Limit] Auth limit exceeded for IP: ${req.ip}`);
+    logStructured("warn", "rate_limit_exceeded", { scope: "auth" });
     res.status(429).json({
       error: "Demasiados intentos de autenticación. Por favor intenta nuevamente en 15 minutos.",
       retryAfter: 900,
@@ -85,7 +86,7 @@ export const contactFormLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: generateKey,
   handler: (req: Request, res: Response) => {
-    console.warn(`[Rate Limit] Contact form limit exceeded for IP: ${req.ip}`);
+    logStructured("warn", "rate_limit_exceeded", { scope: "contact_form" });
     res.status(429).json({
       error: "Has enviado demasiados mensajes. Por favor intenta nuevamente en 1 hora.",
       retryAfter: 3600,
@@ -111,7 +112,7 @@ export const apiLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: generateKey,
   handler: (req: Request, res: Response) => {
-    console.warn(`[Rate Limit] API limit exceeded for IP: ${req.ip} on ${req.path}`);
+    logStructured("warn", "rate_limit_exceeded", { scope: "api", path: req.path });
     res.status(429).json({
       error: "Demasiadas solicitudes a este endpoint. Por favor intenta nuevamente en 5 minutos.",
       retryAfter: 300,
@@ -137,7 +138,7 @@ export const exportLimiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: generateKey,
   handler: (req: Request, res: Response) => {
-    console.warn(`[Rate Limit] Export limit exceeded for IP: ${req.ip}`);
+    logStructured("warn", "rate_limit_exceeded", { scope: "export" });
     res.status(429).json({
       error: "Demasiadas exportaciones solicitadas. Por favor intenta nuevamente en 10 minutos.",
       retryAfter: 600,
