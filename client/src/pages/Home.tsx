@@ -18,32 +18,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AlertBanner } from "@/components/AlertBanner";
 import { WhatsAppDemoButton } from "@/components/WhatsAppButton";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
-
-// Registrar componentes de Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+import { ChartSkeleton } from "@/components/skeletons/ChartSkeleton";
+import { LazyDashboardChart } from "@/components/charts/LazyDashboardChart";
 
 type Period = 'today' | 'this_week' | 'this_month' | 'this_year' | 'last_week' | 'last_month' | 'last_year';
 
@@ -1023,9 +999,9 @@ export default function Home() {
           <CardContent>
             <div className="h-[300px]">
               {trendsLoading ? (
-                <div className="flex items-center justify-center h-full">Cargando...</div>
+                <ChartSkeleton type="line" height="h-[300px]" title={false} />
               ) : (
-                <Line options={lineChartOptions} data={casesTrendData} />
+                <LazyDashboardChart kind="line" options={lineChartOptions} data={casesTrendData} />
               )}
             </div>
           </CardContent>
@@ -1040,9 +1016,9 @@ export default function Home() {
           <CardContent>
             <div className="h-[300px]">
               {trendsLoading ? (
-                <div className="flex items-center justify-center h-full">Cargando...</div>
+                <ChartSkeleton type="doughnut" height="h-[300px]" title={false} />
               ) : (
-                <Doughnut options={doughnutOptions} data={riskDistributionData} />
+                <LazyDashboardChart kind="doughnut" options={doughnutOptions} data={riskDistributionData} />
               )}
             </div>
           </CardContent>
@@ -1057,9 +1033,9 @@ export default function Home() {
           <CardContent>
             <div className="h-[300px]">
               {trendsLoading ? (
-                <div className="flex items-center justify-center h-full">Cargando...</div>
+                <ChartSkeleton type="bar" height="h-[300px]" title={false} />
               ) : (
-                <Bar options={lineChartOptions} data={surveyCoverageData} />
+                <LazyDashboardChart kind="bar" options={lineChartOptions} data={surveyCoverageData} />
               )}
             </div>
           </CardContent>
@@ -1074,9 +1050,10 @@ export default function Home() {
           <CardContent>
             <div className="h-[300px]">
               {comparisonLoading ? (
-                <div className="flex items-center justify-center h-full">Cargando...</div>
+                <ChartSkeleton type="bar" height="h-[300px]" title={false} />
               ) : (
-                <Bar
+                <LazyDashboardChart
+                  kind="bar"
                   options={{
                     ...lineChartOptions,
                     plugins: {
@@ -1173,9 +1150,10 @@ export default function Home() {
         <CardContent>
           <div className="h-[300px]">
             {alertTrendsLoading ? (
-              <div className="flex items-center justify-center h-full">Cargando...</div>
-            ) : (
-              <Line
+                <ChartSkeleton type="line" height="h-[300px]" title={false} />
+              ) : (
+              <LazyDashboardChart
+                kind="line"
                 options={lineChartOptions}
                 data={{
                   labels: alertTrends?.map(t => {
