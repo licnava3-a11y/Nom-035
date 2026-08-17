@@ -332,6 +332,9 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 900,
+    // El reporte propio calcula gzip de forma secuencial después del build.
+    // Evitar el cálculo concurrente de Vite reduce el pico de memoria en CI y sandbox.
+    reportCompressedSize: false,
   },
   server: {
     host: true,

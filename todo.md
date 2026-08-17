@@ -1796,3 +1796,13 @@
 - [x] Backlog de capacitación: retirar confirmaciones, fechas y calificaciones simuladas del dashboard de instructor hasta contar con entidades persistidas.
 
 > Registro duplicado de auditoría consolidado en este bloque el 2026-08-15; no requiere ejecución adicional.
+
+## Mejoras de aseguramiento continuo (2026-08-16)
+- [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
+- [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.
+- [x] Generar y conservar un reporte de presupuesto de bundle por publicación. Primer reporte: 24,535.2 KB sin comprimir / 3,665.1 KB gzip; 5 assets exceden 900 KB.
+
+## Mejoras de aseguramiento continuo (2026-08-16)
+- [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
+- [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.
+- [x] Generar y conservar un reporte de presupuesto de bundle por publicación. Primer reporte: 24,535.2 KB sin comprimir / 3,665.1 KB gzip; 5 assets exceden 900 KB.

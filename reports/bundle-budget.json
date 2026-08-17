@@ -1,0 +1,1924 @@
+{
+  "generatedAt": "2026-08-17T01:20:46.312Z",
+  "budgetBytes": 921600,
+  "assetCount": 318,
+  "totalBytes": 25124078,
+  "totalGzipBytes": 3753056,
+  "oversizedAssets": [
+    "dist/public/assets/vendor-graph-layout-CIt0EtGt.js",
+    "dist/public/assets/vendor-export-Bo40muEw.js",
+    "dist/public/assets/vendor-charts-CUlnfr0p.js",
+    "dist/public/assets/vendor-misc-BuKk9rZO.js",
+    "dist/public/assets/vendor-react-_55IQ9pF.js"
+  ],
+  "assets": [
+    {
+      "file": "dist/public/assets/vendor-graph-layout-CIt0EtGt.js",
+      "bytes": 3311888,
+      "gzipBytes": 569028,
+      "exceedsBudget": true
+    },
+    {
+      "file": "dist/public/assets/vendor-export-Bo40muEw.js",
+      "bytes": 1423484,
+      "gzipBytes": 334067,
+      "exceedsBudget": true
+    },
+    {
+      "file": "dist/public/assets/vendor-charts-CUlnfr0p.js",
+      "bytes": 1347010,
+      "gzipBytes": 261327,
+      "exceedsBudget": true
+    },
+    {
+      "file": "dist/public/assets/vendor-misc-BuKk9rZO.js",
+      "bytes": 1344520,
+      "gzipBytes": 286536,
+      "exceedsBudget": true
+    },
+    {
+      "file": "dist/public/assets/vendor-react-_55IQ9pF.js",
+      "bytes": 1047705,
+      "gzipBytes": 184938,
+      "exceedsBudget": true
+    },
+    {
+      "file": "dist/public/assets/vendor-docx-DwaoF0P4.js",
+      "bytes": 667075,
+      "gzipBytes": 131473,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/index-BXaUrJUV.js",
+      "bytes": 649730,
+      "gzipBytes": 74565,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-html2img-Ddj6fYxn.js",
+      "bytes": 376811,
+      "gzipBytes": 70450,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-radix-BPBFrHDl.js",
+      "bytes": 303846,
+      "gzipBytes": 55230,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Dashboard-ByhQrzPC.js",
+      "bytes": 271672,
+      "gzipBytes": 23194,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeProfile-B-8wKx4L.js",
+      "bytes": 244902,
+      "gzipBytes": 27976,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeOperatingRules-DU6b0jkh.js",
+      "bytes": 239866,
+      "gzipBytes": 24882,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/JobPositions-DvDPvWfF.js",
+      "bytes": 221643,
+      "gzipBytes": 27519,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/index-BmgYVcW6.css",
+      "bytes": 216532,
+      "gzipBytes": 31061,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DC3Manager-DUBn8oEg.js",
+      "bytes": 202686,
+      "gzipBytes": 22665,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-trpc-w7tIt2E4.js",
+      "bytes": 201828,
+      "gzipBytes": 37628,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExitInterviews-DwuWi8Hh.js",
+      "bytes": 155152,
+      "gzipBytes": 18764,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-jszip-BJ-p4iWP.js",
+      "bytes": 149924,
+      "gzipBytes": 33583,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CorrectiveActions-kc-4b4bg.js",
+      "bytes": 142874,
+      "gzipBytes": 13263,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-dates-CXVjR0eg.js",
+      "bytes": 141014,
+      "gzipBytes": 28007,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Nom035Matrix-C6fiNdct.js",
+      "bytes": 134603,
+      "gzipBytes": 17265,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/LegalDocGenerator-DxfG66Qm.js",
+      "bytes": 126831,
+      "gzipBytes": 17229,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ClinicalRecords-DGjuztRO.js",
+      "bytes": 124801,
+      "gzipBytes": 13751,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/InternalMailbox-C5GUNjZ9.js",
+      "bytes": 120240,
+      "gzipBytes": 14677,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExecutiveReport-CXViv8gR.js",
+      "bytes": 119028,
+      "gzipBytes": 14762,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/VacationManagement-DdjImBj0.js",
+      "bytes": 115061,
+      "gzipBytes": 12296,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PsychosocialAIDashboard-Ctq6XGuq.js",
+      "bytes": 109118,
+      "gzipBytes": 9746,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AnnualTrainingPlan-BmFt1et0.js",
+      "bytes": 108830,
+      "gzipBytes": 12237,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BuzonComunicacion-B-Ce4aB6.js",
+      "bytes": 107913,
+      "gzipBytes": 11838,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ReportConfigurationPanel-B85AGT3U.js",
+      "bytes": 106780,
+      "gzipBytes": 8037,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Cases-uyNQdNFc.js",
+      "bytes": 105828,
+      "gzipBytes": 12172,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-i18n-K8OOq6W9.js",
+      "bytes": 104042,
+      "gzipBytes": 23916,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CasesManagement-QAsq6Tqx.js",
+      "bytes": 101074,
+      "gzipBytes": 10598,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeModule-SB53SjzF.js",
+      "bytes": 100334,
+      "gzipBytes": 9096,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DepartmentMetrics-Dhynps2a.js",
+      "bytes": 95760,
+      "gzipBytes": 8859,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/KPIDashboard-DNmOs8rl.js",
+      "bytes": 92709,
+      "gzipBytes": 11120,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SMTPConfig-BmyENI9C.js",
+      "bytes": 92080,
+      "gzipBytes": 9322,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/LegalPortada-DZFieq6r.js",
+      "bytes": 91954,
+      "gzipBytes": 10452,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeMinutesManagement-U1l585uJ.js",
+      "bytes": 91736,
+      "gzipBytes": 9670,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeAnnualReports-DtTcBx8e.js",
+      "bytes": 88988,
+      "gzipBytes": 8001,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/InterventionImpactDashboard-ED2YSkMP.js",
+      "bytes": 86822,
+      "gzipBytes": 8406,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SuperAdminPanel-CIVyD73j.js",
+      "bytes": 86638,
+      "gzipBytes": 8636,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RecommendationsTracking-hK74YXSo.js",
+      "bytes": 85967,
+      "gzipBytes": 7162,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SkillsMatrixSnapshots-Dr4c27mj.js",
+      "bytes": 85174,
+      "gzipBytes": 7963,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/InternalComms-CyS5Z0fV.js",
+      "bytes": 84957,
+      "gzipBytes": 8284,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EarlyWarnings-BUfekU85.js",
+      "bytes": 84684,
+      "gzipBytes": 6491,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TokensDashboard-MZ4-uTfp.js",
+      "bytes": 83402,
+      "gzipBytes": 8138,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentActaFinalResultados-B762WzmC.js",
+      "bytes": 80731,
+      "gzipBytes": 7378,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Nom035AdminPanel-CAfYwv-_.js",
+      "bytes": 80077,
+      "gzipBytes": 7546,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SkillsMatrix-DD15QAOO.js",
+      "bytes": 79668,
+      "gzipBytes": 12107,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CompanySettings-DUEl4vvi.js",
+      "bytes": 79229,
+      "gzipBytes": 7886,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertHistory-CUalezjp.js",
+      "bytes": 79072,
+      "gzipBytes": 10326,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Nom035ComplianceDashboard-C-1T9RKs.js",
+      "bytes": 77222,
+      "gzipBytes": 8457,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RetentionConsolidatedDashboard-BBRJLx-N.js",
+      "bytes": 76757,
+      "gzipBytes": 6771,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PostCaseSurveysDashboard-JxN1otQv.js",
+      "bytes": 75753,
+      "gzipBytes": 8689,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertsCentralDashboard-BaBDql32.js",
+      "bytes": 74112,
+      "gzipBytes": 7678,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Resources-CmqfvTRB.js",
+      "bytes": 73150,
+      "gzipBytes": 8235,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-ui-extra-NLWGYfpS.js",
+      "bytes": 72499,
+      "gzipBytes": 17035,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeNew-DReD7eo9.js",
+      "bytes": 72494,
+      "gzipBytes": 9008,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DepartmentManagement-Cd9YTeUu.js",
+      "bytes": 72310,
+      "gzipBytes": 7742,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveyAdmin-BAYmn3s_.js",
+      "bytes": 72069,
+      "gzipBytes": 6698,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Positions-DcZ4qseH.js",
+      "bytes": 71217,
+      "gzipBytes": 7675,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SalaryEquityDashboard-CfgbgJON.js",
+      "bytes": 70486,
+      "gzipBytes": 5683,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SirceExportHistory-BxG_Eoz4.js",
+      "bytes": 69122,
+      "gzipBytes": 7792,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Employees-BQHIH_LB.js",
+      "bytes": 68476,
+      "gzipBytes": 8164,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DispatchesPanel-HSpoAVMH.js",
+      "bytes": 68432,
+      "gzipBytes": 8676,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/OrganizationalCompetenciesManager--fHJSP3u.js",
+      "bytes": 68217,
+      "gzipBytes": 7030,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-socket-CG7YVIDs.js",
+      "bytes": 67718,
+      "gzipBytes": 16013,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CorrectiveActionPlansManagement-XrcrE4zj.js",
+      "bytes": 67269,
+      "gzipBytes": 6277,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MinuteRecipients-DfL1QgQ3.js",
+      "bytes": 67099,
+      "gzipBytes": 8093,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/IntelligentAlertsDashboard-SRf0whuJ.js",
+      "bytes": 66226,
+      "gzipBytes": 5761,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/JobApplication-BZGin_Re.js",
+      "bytes": 65787,
+      "gzipBytes": 7091,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/HRIntegration-B4X2jeYs.js",
+      "bytes": 65731,
+      "gzipBytes": 7603,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeTrainingsManagement-DaoSefcY.js",
+      "bytes": 65208,
+      "gzipBytes": 5617,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TrainingROIDashboard-kGN430jN.js",
+      "bytes": 65120,
+      "gzipBytes": 6052,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveyPeriodsManager-w8POwcQt.js",
+      "bytes": 64898,
+      "gzipBytes": 6583,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NOM035DetailedReport-BUtAE1hV.js",
+      "bytes": 64614,
+      "gzipBytes": 8683,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Policies-X1n9lj3B.js",
+      "bytes": 64376,
+      "gzipBytes": 7083,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/OrganizationChart-0p9QM9Z8.js",
+      "bytes": 63599,
+      "gzipBytes": 8820,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-forms-BNa6rvmv.js",
+      "bytes": 60140,
+      "gzipBytes": 13041,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RetentionInterventionsDashboard-Bn0hAuXA.js",
+      "bytes": 59726,
+      "gzipBytes": 5567,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PerformanceEvaluation360-DpOLs7bC.js",
+      "bytes": 59218,
+      "gzipBytes": 6953,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-qrcode-BfHVFdZN.js",
+      "bytes": 58889,
+      "gzipBytes": 13198,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TakeEvaluation-UFwWFdPp.js",
+      "bytes": 56894,
+      "gzipBytes": 6193,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PermissionAudit-DwiGggOD.js",
+      "bytes": 56533,
+      "gzipBytes": 6255,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/VacationCalendar-CiwT7flz.js",
+      "bytes": 56347,
+      "gzipBytes": 7434,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RetentionHubDashboard-D351eWuB.js",
+      "bytes": 56125,
+      "gzipBytes": 6163,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveysAdminPanel-DR9q7OS6.js",
+      "bytes": 55934,
+      "gzipBytes": 6211,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertAdminDashboard-DT7qC5be.js",
+      "bytes": 55644,
+      "gzipBytes": 6844,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RolesPermissions-nToD1O3h.js",
+      "bytes": 55481,
+      "gzipBytes": 7016,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PredictiveCorrelationDashboard-56K4OPf8.js",
+      "bytes": 55403,
+      "gzipBytes": 4378,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SecurityAlerts-wJ1OQSsb.js",
+      "bytes": 55147,
+      "gzipBytes": 5108,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AnonymousTokens-CvFhGMk1.js",
+      "bytes": 55114,
+      "gzipBytes": 5989,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ModelPerformanceAlerts-PcIgffyK.js",
+      "bytes": 55108,
+      "gzipBytes": 6373,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeEdit-CgK7oPut.js",
+      "bytes": 54935,
+      "gzipBytes": 6345,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RootCauseAnalysis-BdoYxKAC.js",
+      "bytes": 54617,
+      "gzipBytes": 5827,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EfirmaSAT-D2PBjmOh.js",
+      "bytes": 54331,
+      "gzipBytes": 5772,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PayrollCompensationDashboard-hXE4PEVX.js",
+      "bytes": 54308,
+      "gzipBytes": 5321,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/OrganizationalChanges-Dm_712ie.js",
+      "bytes": 54210,
+      "gzipBytes": 6502,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RecruitmentManagement-8A8hig-Z.js",
+      "bytes": 54174,
+      "gzipBytes": 6107,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ActionPlan-CyS_e_JM.js",
+      "bytes": 53975,
+      "gzipBytes": 4746,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/FeatureRequests-CLcO-C8-.js",
+      "bytes": 53923,
+      "gzipBytes": 5945,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BranchComparativeReport-CRL7aBcf.js",
+      "bytes": 53758,
+      "gzipBytes": 5974,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TrainingCertificates-GzRx6kvl.js",
+      "bytes": 53697,
+      "gzipBytes": 5678,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SentimentAnalysisDashboard-Bi148EFw.js",
+      "bytes": 53243,
+      "gzipBytes": 5928,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PredictiveTurnoverDashboard-D8EjtN84.js",
+      "bytes": 52713,
+      "gzipBytes": 6075,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeTraining-GoV-Kfv3.js",
+      "bytes": 51837,
+      "gzipBytes": 4559,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Settings-DGjr6D3p.js",
+      "bytes": 51196,
+      "gzipBytes": 6031,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TrainingEvaluationsDashboard-Cg2RaJdR.js",
+      "bytes": 51079,
+      "gzipBytes": 4459,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CaseDetail-CIW_GgHT.js",
+      "bytes": 51069,
+      "gzipBytes": 5632,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-icons-DmGAb9f8.js",
+      "bytes": 50963,
+      "gzipBytes": 12465,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentAudit-CB0Av9Xn.js",
+      "bytes": 50962,
+      "gzipBytes": 5448,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Profile-BNq73NdT.js",
+      "bytes": 50585,
+      "gzipBytes": 5034,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/WorkplaceViolenceProtocol-DZa9IGPo.js",
+      "bytes": 49409,
+      "gzipBytes": 5137,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MeetingMinuteForm-B5B84lM1.js",
+      "bytes": 49273,
+      "gzipBytes": 6145,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SharedReportsHistory-CUoCV7qO.js",
+      "bytes": 48679,
+      "gzipBytes": 4734,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NumeralsVerification-Bj0nP1FT.js",
+      "bytes": 48653,
+      "gzipBytes": 6502,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EvidencesFolder-CtlQZGLU.js",
+      "bytes": 48485,
+      "gzipBytes": 5946,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DepartmentalTrends-DcDTKunx.js",
+      "bytes": 48185,
+      "gzipBytes": 5027,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ClientCompanies-BMx5GvP7.js",
+      "bytes": 48068,
+      "gzipBytes": 5711,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SignatureAudit-BUCvClUH.js",
+      "bytes": 47746,
+      "gzipBytes": 4972,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Tracking-CfqnpPnw.js",
+      "bytes": 47535,
+      "gzipBytes": 5367,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DashboardAdministrativo-h-Jn-wGm.js",
+      "bytes": 47281,
+      "gzipBytes": 6361,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CSRFViolationsPage-LvxM69Lj.js",
+      "bytes": 47059,
+      "gzipBytes": 4955,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/InterventionPredictionDashboard-wVw6w3On.js",
+      "bytes": 47032,
+      "gzipBytes": 4309,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TalentDashboard-DCJT4DBz.js",
+      "bytes": 46679,
+      "gzipBytes": 4934,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DeadlineComplianceDashboard-C9-Izyac.js",
+      "bytes": 46664,
+      "gzipBytes": 4764,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertMetricsDashboard-CikeUNaF.js",
+      "bytes": 46038,
+      "gzipBytes": 4556,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BugReports-CHvu7mhO.js",
+      "bytes": 45839,
+      "gzipBytes": 5702,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/WebVitalsDashboard-D_zo-MQw.js",
+      "bytes": 45613,
+      "gzipBytes": 5271,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DNCDashboard-BOFlbl7p.js",
+      "bytes": 45389,
+      "gzipBytes": 4604,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/FormatCatalog-C7QcZi25.js",
+      "bytes": 44971,
+      "gzipBytes": 5045,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NineBoxMatrix-CoCFyb2t.js",
+      "bytes": 44867,
+      "gzipBytes": 4826,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AssessmentsManagement-B8NVVI4w.js",
+      "bytes": 44611,
+      "gzipBytes": 4780,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/InterventionPlans-MbiTRArX.js",
+      "bytes": 43542,
+      "gzipBytes": 4759,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AuditLogReport-BfXB-4WS.js",
+      "bytes": 43473,
+      "gzipBytes": 5413,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TrainingDashboard-Bp-0pR__.js",
+      "bytes": 43433,
+      "gzipBytes": 4444,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveyApply-D_DIdYQh.js",
+      "bytes": 43201,
+      "gzipBytes": 5779,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/StpsInspections-4bDNprjG.js",
+      "bytes": 43038,
+      "gzipBytes": 5421,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CareerPlanningDashboard-DrxmcDOX.js",
+      "bytes": 43034,
+      "gzipBytes": 4272,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CaseAssignment-C0UR8Lff.js",
+      "bytes": 42873,
+      "gzipBytes": 5155,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BenchmarkingDashboard-BfiOg_7F.js",
+      "bytes": 42850,
+      "gzipBytes": 4700,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RegulatoryReports-CUOp18bQ.js",
+      "bytes": 42662,
+      "gzipBytes": 4749,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NotificationSettings-Ck6OckVb.js",
+      "bytes": 41839,
+      "gzipBytes": 4732,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentActaRecorridoNOM019-DRXNXNaa.js",
+      "bytes": 41631,
+      "gzipBytes": 4459,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CompetenciesDashboard-05PRWYw9.js",
+      "bytes": 41434,
+      "gzipBytes": 4315,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TokenManagement-BLuPV5vv.js",
+      "bytes": 41415,
+      "gzipBytes": 5107,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Departments-0bSQBLVc.js",
+      "bytes": 40157,
+      "gzipBytes": 4539,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-dropzone-CPSM0AAH.js",
+      "bytes": 39760,
+      "gzipBytes": 8909,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DC3SignatureManager-CpLY5GVE.js",
+      "bytes": 39301,
+      "gzipBytes": 5070,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NineBoxGrid-CgjHWqNQ.js",
+      "bytes": 39204,
+      "gzipBytes": 4244,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ComplianceNOM035Dashboard-c4nwipKQ.js",
+      "bytes": 38950,
+      "gzipBytes": 5298,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ContractExpirationDashboard-DK4HcP4e.js",
+      "bytes": 38748,
+      "gzipBytes": 5133,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MyCommitteeTrainings-BhcxDM05.js",
+      "bytes": 38721,
+      "gzipBytes": 4044,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TrendsCharts-Dzz8Ny9X.js",
+      "bytes": 38681,
+      "gzipBytes": 3710,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NotificationsHistory-DAox5e8c.js",
+      "bytes": 38671,
+      "gzipBytes": 4141,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExpenseRequests-DJtPIK1k.js",
+      "bytes": 38268,
+      "gzipBytes": 4191,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Dashboard-B7CozmOO.js",
+      "bytes": 38194,
+      "gzipBytes": 4194,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExecutiveDashboard-CZykSmpk.js",
+      "bytes": 38158,
+      "gzipBytes": 4034,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ConsolidatedDashboard-jLry84tr.js",
+      "bytes": 37881,
+      "gzipBytes": 4222,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/GoogleCalendarSync-DFtreBvV.js",
+      "bytes": 37828,
+      "gzipBytes": 5043,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Investigations-BkG2Lfdq.js",
+      "bytes": 37337,
+      "gzipBytes": 4178,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/GuideIIResults-B39ldgiP.js",
+      "bytes": 37311,
+      "gzipBytes": 4636,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ThresholdABTestingDashboard-OKdeu9a2.js",
+      "bytes": 36884,
+      "gzipBytes": 4269,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ScheduledReports-B84_wDTU.js",
+      "bytes": 36763,
+      "gzipBytes": 4236,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ApprovalCalendarPage-DHnrl2zq.js",
+      "bytes": 36666,
+      "gzipBytes": 4676,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ClimateAnalysisDashboard-D_n_wOXC.js",
+      "bytes": 36642,
+      "gzipBytes": 4037,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BranchesManagement-0hSjKLpq.js",
+      "bytes": 36597,
+      "gzipBytes": 4355,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TurnoverManagementPanel-D2RC3p8O.js",
+      "bytes": 36509,
+      "gzipBytes": 4258,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MinuteRecipientHistory-B_Y0w6Hz.js",
+      "bytes": 36361,
+      "gzipBytes": 4527,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AffirmativeActions-JncrZF9c.js",
+      "bytes": 35899,
+      "gzipBytes": 4192,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PurchaseOrders-CefutLw3.js",
+      "bytes": 35810,
+      "gzipBytes": 3700,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Courses-DQcK5xxD.js",
+      "bytes": 35775,
+      "gzipBytes": 4705,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ReportTemplates-CDWg5bUN.js",
+      "bytes": 35731,
+      "gzipBytes": 4460,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BuzonConsulta-DFjCzNyC.js",
+      "bytes": 35681,
+      "gzipBytes": 4691,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Payments-MOxvpogH.js",
+      "bytes": 35615,
+      "gzipBytes": 3633,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ModelThresholdsConfig-o-rJndLn.js",
+      "bytes": 35224,
+      "gzipBytes": 3742,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DC3Verify-BQznvVNQ.js",
+      "bytes": 35058,
+      "gzipBytes": 4012,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SentimentCasesCorrelationDashboard-CnRF4l-i.js",
+      "bytes": 35050,
+      "gzipBytes": 3929,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeTermination-DhgRCFEs.js",
+      "bytes": 35037,
+      "gzipBytes": 4813,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveySend-BblLpl21.js",
+      "bytes": 34926,
+      "gzipBytes": 4434,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertsDashboard-DYJa3Mwy.js",
+      "bytes": 34888,
+      "gzipBytes": 3459,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MailboxForm-DrIuEV5O.js",
+      "bytes": 34793,
+      "gzipBytes": 4000,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TurnoverDashboard-Dfw45Tef.js",
+      "bytes": 34696,
+      "gzipBytes": 4473,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentFormats-BM1-6kOI.js",
+      "bytes": 34666,
+      "gzipBytes": 4481,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExternalOfferAlertsDashboard-C0N22ocB.js",
+      "bytes": 34580,
+      "gzipBytes": 3380,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/VacationSeniorityManager-9PbdPS9s.js",
+      "bytes": 34561,
+      "gzipBytes": 4569,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PredictiveAnalytics-xWnGci8C.js",
+      "bytes": 34486,
+      "gzipBytes": 3597,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MassSurveyEmail-D6yI8o7n.js",
+      "bytes": 34365,
+      "gzipBytes": 4457,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AdminJobs-C5B58fqc.js",
+      "bytes": 34283,
+      "gzipBytes": 4417,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Users-1ddfrfjL.js",
+      "bytes": 34057,
+      "gzipBytes": 3554,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CustomPermissions-BTjSSigk.js",
+      "bytes": 33977,
+      "gzipBytes": 4654,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/QuestionBank-DForChPD.js",
+      "bytes": 33970,
+      "gzipBytes": 4379,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeDocuments-xMlaF111.js",
+      "bytes": 33250,
+      "gzipBytes": 4864,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DC3Dashboard-g9ZoEb1B.js",
+      "bytes": 33209,
+      "gzipBytes": 4606,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DC3RemoteSign-D3gNHtjp.js",
+      "bytes": 33044,
+      "gzipBytes": 4292,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RetentionAnalytics-Dfx9b22n.js",
+      "bytes": 32913,
+      "gzipBytes": 3572,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/JobMonitoringDashboard-l1bNZvV2.js",
+      "bytes": 32846,
+      "gzipBytes": 3576,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/BudgetPlannerDashboard-tiAjCcc0.js",
+      "bytes": 32658,
+      "gzipBytes": 3891,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Complaints-BS7YHr8f.js",
+      "bytes": 32563,
+      "gzipBytes": 4096,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ModelRetrainingHistory-fCMrjRg1.js",
+      "bytes": 32443,
+      "gzipBytes": 2977,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SalaryTrendsDashboard-TTytK-4n.js",
+      "bytes": 32319,
+      "gzipBytes": 3302,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/OrganizationDashboard-DLLgWfgn.js",
+      "bytes": 32192,
+      "gzipBytes": 4144,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeePortal-DGLx19At.js",
+      "bytes": 32072,
+      "gzipBytes": 3863,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Welcome-B-M2fr9R.js",
+      "bytes": 31902,
+      "gzipBytes": 3768,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Recognitions-Dk2PDt_1.js",
+      "bytes": 31716,
+      "gzipBytes": 4299,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentActaConstitutiva-DkQUSset.js",
+      "bytes": 31231,
+      "gzipBytes": 4055,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AgreementsDashboard-aZQ7xENz.js",
+      "bytes": 31221,
+      "gzipBytes": 3366,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentGallery-UwE-WOst.js",
+      "bytes": 31032,
+      "gzipBytes": 3987,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveyPublicResponse-COOg9cXQ.js",
+      "bytes": 30781,
+      "gzipBytes": 4892,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ReportsHistory-C9UT2ACx.js",
+      "bytes": 30719,
+      "gzipBytes": 4434,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MassiveImport-BWwB4aC6.js",
+      "bytes": 30679,
+      "gzipBytes": 3463,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EvidenceFolder-C7BTSaGq.js",
+      "bytes": 30653,
+      "gzipBytes": 3535,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MailboxDetail-H5VU_Ewc.js",
+      "bytes": 30548,
+      "gzipBytes": 3724,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Reports-DJFeRXjp.js",
+      "bytes": 30448,
+      "gzipBytes": 3646,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RiskAlerts-BCF9jK5j.js",
+      "bytes": 30301,
+      "gzipBytes": 3782,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlgorithmConfig-OxeuIzqA.js",
+      "bytes": 30077,
+      "gzipBytes": 3302,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SampleSize-C2GaTfAy.js",
+      "bytes": 30037,
+      "gzipBytes": 3119,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Committee-Cm6i61TW.js",
+      "bytes": 29790,
+      "gzipBytes": 3791,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ModelEvolutionDashboard-CkqRfkod.js",
+      "bytes": 29756,
+      "gzipBytes": 3372,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NMX025EvidencesFolder-C8Al10jH.js",
+      "bytes": 29375,
+      "gzipBytes": 4084,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SalaryGap-CZRvIvun.js",
+      "bytes": 29236,
+      "gzipBytes": 3418,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NOM037Landing-BPG0gHdG.js",
+      "bytes": 29084,
+      "gzipBytes": 3919,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Mailbox-CTxnBB1C.js",
+      "bytes": 29082,
+      "gzipBytes": 3571,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NOM035Landing-Cz9_95-c.js",
+      "bytes": 29081,
+      "gzipBytes": 4066,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NOM035Results-D8LF8FSX.js",
+      "bytes": 28873,
+      "gzipBytes": 3720,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentAceptacionCargo-DmgA-JZ0.js",
+      "bytes": 28806,
+      "gzipBytes": 3367,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentsHistory-CXm-g1SZ.js",
+      "bytes": 28574,
+      "gzipBytes": 3461,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeTrainingNeeds-C_6-GIgJ.js",
+      "bytes": 28510,
+      "gzipBytes": 3676,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PublicSurveyResponse-l_-nbJdM.js",
+      "bytes": 28138,
+      "gzipBytes": 4301,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveyResults-Bq72royI.js",
+      "bytes": 28028,
+      "gzipBytes": 3890,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/VerifyOperatingRules-BTAjK2jV.js",
+      "bytes": 27829,
+      "gzipBytes": 3124,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PublicSurvey-Bd85ClYA.js",
+      "bytes": 27538,
+      "gzipBytes": 3638,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Committee-Bbi2j2k1.js",
+      "bytes": 27386,
+      "gzipBytes": 3218,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeMemberNew-B60rHj6t.js",
+      "bytes": 27005,
+      "gzipBytes": 3674,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/QuestionnairePublic-BV1laTuq.js",
+      "bytes": 26970,
+      "gzipBytes": 5106,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MeetingMinutes-DShgWsnP.js",
+      "bytes": 26755,
+      "gzipBytes": 3178,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TakeExam-CvCrIhc3.js",
+      "bytes": 26743,
+      "gzipBytes": 3845,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ComplianceDashboard-Dd-ZLyiN.js",
+      "bytes": 26386,
+      "gzipBytes": 2810,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Contact-D6I5Gjmq.js",
+      "bytes": 25815,
+      "gzipBytes": 2943,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ApprovalMetrics-BcHEdrti.js",
+      "bytes": 25558,
+      "gzipBytes": 3074,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SurveyForm-ZBYYfX66.js",
+      "bytes": 25191,
+      "gzipBytes": 3802,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/JobProfileManagement-s6M9i02F.js",
+      "bytes": 24855,
+      "gzipBytes": 3256,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExecutiveReportsPanel-CvjLKbQK.js",
+      "bytes": 24737,
+      "gzipBytes": 3294,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PredictiveDashboard-K0BW7P8v.js",
+      "bytes": 24530,
+      "gzipBytes": 3165,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Policy-0Ud9S4Ag.js",
+      "bytes": 24190,
+      "gzipBytes": 3327,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlgorithmEffectiveness-DG567JaQ.js",
+      "bytes": 23709,
+      "gzipBytes": 2799,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ExamResults-B9lpl-hu.js",
+      "bytes": 23676,
+      "gzipBytes": 2845,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CasesMetrics-1eio6GpS.js",
+      "bytes": 23487,
+      "gzipBytes": 3567,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/OperatingRules-pYrYEKT6.js",
+      "bytes": 23453,
+      "gzipBytes": 2745,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CompanyVisits-B_h64zQ7.js",
+      "bytes": 23213,
+      "gzipBytes": 2328,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AnonymousSurveyAccess-BLVqC508.js",
+      "bytes": 23019,
+      "gzipBytes": 3238,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmployeeCompetencyEvaluation--bXrP_ZT.js",
+      "bytes": 23010,
+      "gzipBytes": 3688,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/VerifyReport-DXugtpvi.js",
+      "bytes": 22598,
+      "gzipBytes": 2591,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PrivacyPolicy-D3fBmp8J.js",
+      "bytes": 22531,
+      "gzipBytes": 3011,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertReportsConfig-C6IAAreP.js",
+      "bytes": 22323,
+      "gzipBytes": 3010,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TermsOfUse-OvIjYbDv.js",
+      "bytes": 22154,
+      "gzipBytes": 2986,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ComplianceChecklist-CJOszkGA.js",
+      "bytes": 21287,
+      "gzipBytes": 3206,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NOM035Questionnaire-DzHSvuKZ.js",
+      "bytes": 21213,
+      "gzipBytes": 3349,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/MyMailbox-BSGO_813.js",
+      "bytes": 20816,
+      "gzipBytes": 3285,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-signature-BwrqTXI5.js",
+      "bytes": 20658,
+      "gzipBytes": 5307,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeMemberProfile-8s9bzqhq.js",
+      "bytes": 20556,
+      "gzipBytes": 2212,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Evaluations-BFvxURTk.js",
+      "bytes": 20184,
+      "gzipBytes": 2328,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/RiskAnalysis-Ds9Rtt1L.js",
+      "bytes": 20180,
+      "gzipBytes": 3095,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Compliance-7bx7BizK.js",
+      "bytes": 20066,
+      "gzipBytes": 2492,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DepartmentSelector-DNy1iFak.js",
+      "bytes": 19698,
+      "gzipBytes": 4030,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PositionAcceptance-Wa26uir0.js",
+      "bytes": 19630,
+      "gzipBytes": 3725,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Notifications-CiGp95fy.js",
+      "bytes": 19551,
+      "gzipBytes": 2754,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ConstitutiveAct-LtsnRMfO.js",
+      "bytes": 18847,
+      "gzipBytes": 2457,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/AlertThresholdsConfig-D8X-3e9k.js",
+      "bytes": 17349,
+      "gzipBytes": 2736,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-monaco-DfLSDLni.js",
+      "bytes": 17317,
+      "gzipBytes": 5304,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SignatureTest-DBN8RhIY.js",
+      "bytes": 16578,
+      "gzipBytes": 2641,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DocumentFuncionesComite-lUpmrMxO.js",
+      "bytes": 16452,
+      "gzipBytes": 2679,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TestDataSeeder-wqOiwU-f.js",
+      "bytes": 16080,
+      "gzipBytes": 2174,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/CommitteeMemberEdit-CXsjNvZa.js",
+      "bytes": 16047,
+      "gzipBytes": 2360,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/NotificationsDashboard-DqPfL8ZM.js",
+      "bytes": 15831,
+      "gzipBytes": 2581,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SignaturePad-W0pcaI9T.js",
+      "bytes": 14509,
+      "gzipBytes": 2565,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/PDFViewer-D8mEMHmW.js",
+      "bytes": 12688,
+      "gzipBytes": 1939,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Surveys-BlVb8dKb.js",
+      "bytes": 12306,
+      "gzipBytes": 1999,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/LoginError-BFU9o_Xb.js",
+      "bytes": 12040,
+      "gzipBytes": 2342,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Prevention-C71Nv3EB.js",
+      "bytes": 11775,
+      "gzipBytes": 2039,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DateRangeFilter-DPda02o6.js",
+      "bytes": 10135,
+      "gzipBytes": 1941,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/input-with-validation-ohAiB34o.js",
+      "bytes": 10049,
+      "gzipBytes": 2293,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Pagination-BD_V2xcu.js",
+      "bytes": 9722,
+      "gzipBytes": 1374,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/calendar-CWp_hVV8.js",
+      "bytes": 9387,
+      "gzipBytes": 2216,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Documents-BXOzviXu.js",
+      "bytes": 9153,
+      "gzipBytes": 1804,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/LandingPage-B3j2vcFC.js",
+      "bytes": 8513,
+      "gzipBytes": 1718,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/SignatureCanvas-B5_GToCE.js",
+      "bytes": 7990,
+      "gzipBytes": 1607,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-flow-B5DZHykP.css",
+      "bytes": 7322,
+      "gzipBytes": 1603,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/alert-dialog-B4VtEHHZ.js",
+      "bytes": 5793,
+      "gzipBytes": 1137,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ApplicationSuccess-Ka7WZGYq.js",
+      "bytes": 5409,
+      "gzipBytes": 1298,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ReentryBadge-sih88qpx.js",
+      "bytes": 4659,
+      "gzipBytes": 1099,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ProtectedButton-82hoiE-9.js",
+      "bytes": 4343,
+      "gzipBytes": 1087,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/EmptyState-D8-Ifqq-.js",
+      "bytes": 4240,
+      "gzipBytes": 816,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/WhatsAppButton-DSgzZabb.js",
+      "bytes": 3961,
+      "gzipBytes": 1434,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/ConfirmDialog-B0Q7ETt-.js",
+      "bytes": 3674,
+      "gzipBytes": 841,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/table-BLLWr0ZF.js",
+      "bytes": 3477,
+      "gzipBytes": 774,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/accordion-BtbLaHhn.js",
+      "bytes": 3369,
+      "gzipBytes": 976,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/DateRangePicker-CVpCoYve.js",
+      "bytes": 3295,
+      "gzipBytes": 892,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/Breadcrumb-CFvQzIld.js",
+      "bytes": 3210,
+      "gzipBytes": 785,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/slider-DA_g3bdq.js",
+      "bytes": 3122,
+      "gzipBytes": 991,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/TableSkeleton-CJau7EbO.js",
+      "bytes": 2949,
+      "gzipBytes": 610,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/tabs-BB4K5c7D.js",
+      "bytes": 2742,
+      "gzipBytes": 840,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/GuideIII-DTgnh-LJ.js",
+      "bytes": 2548,
+      "gzipBytes": 1113,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/GuideI-CID2kMYk.js",
+      "bytes": 2483,
+      "gzipBytes": 1097,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/GuideII-4Ix016E5.js",
+      "bytes": 2483,
+      "gzipBytes": 1092,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/radio-group-0ujcW305.js",
+      "bytes": 2353,
+      "gzipBytes": 818,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/alert-BqLWPRoy.js",
+      "bytes": 2238,
+      "gzipBytes": 785,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/webVitals-BZwGajYV.js",
+      "bytes": 2194,
+      "gzipBytes": 949,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/textarea-mAnYZGEG.js",
+      "bytes": 2015,
+      "gzipBytes": 838,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/switch-DPcV9fIr.js",
+      "bytes": 1664,
+      "gzipBytes": 703,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/loading-button-CyeDiChj.js",
+      "bytes": 1246,
+      "gzipBytes": 551,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/progress-Bc_GNu2h.js",
+      "bytes": 1223,
+      "gzipBytes": 549,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/separator-Zt_jcD-x.js",
+      "bytes": 875,
+      "gzipBytes": 459,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/label-DB5P4LYz.js",
+      "bytes": 823,
+      "gzipBytes": 471,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/emptyStates-D5pXeITC.js",
+      "bytes": 686,
+      "gzipBytes": 409,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/useDebounce-CbmsMX_z.js",
+      "bytes": 437,
+      "gzipBytes": 246,
+      "exceedsBudget": false
+    },
+    {
+      "file": "dist/public/assets/vendor-flow-CONhkmqu.js",
+      "bytes": 37,
+      "gzipBytes": 57,
+      "exceedsBudget": false
+    }
+  ]
+}

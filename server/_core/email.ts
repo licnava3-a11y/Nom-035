@@ -111,6 +111,9 @@ async function sendViaSmtp(options: EmailOptions): Promise<boolean> {
       port: smtpPort,
       secure: smtpPort === 465,
       auth: { user: smtpUser, pass: smtpPass },
+      // Los mensajes de la plataforma no requieren leer archivos ni URL remotas.
+      disableFileAccess: true,
+      disableUrlAccess: true,
     });
 
     await transporter.sendMail({
