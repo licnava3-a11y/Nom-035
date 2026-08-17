@@ -13,5 +13,7 @@ describe("canalización de calidad", () => {
     expect(workflow).toContain("actions/upload-artifact@v4");
     expect(workflow).toContain("reports/dependency-audit.json");
     expect(workflow).toContain("reports/bundle-budget.json");
+    expect(workflow).toContain("actions/github-script@v7");
+    expect(workflow).toContain("nom035-bundle-budget");
   });
 });

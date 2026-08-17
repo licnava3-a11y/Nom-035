@@ -13,5 +13,8 @@ describe("reporte de presupuesto de bundle", () => {
     expect(manifest).toContain("pnpm report:bundle");
     const viteConfig = readFileSync(resolve(process.cwd(), "vite.config.ts"), "utf8");
     expect(viteConfig).toContain("reportCompressedSize: false");
+    expect(viteConfig).toContain("vendor-xlsx");
+    expect(viteConfig).toContain("vendor-pdf");
+    expect(viteConfig).toContain("vendor-export-utils");
   });
 });

@@ -42,7 +42,7 @@ import {
 import { Plus, Pencil, Trash2, Search, Briefcase, Users, Download, Upload, FileSpreadsheet } from "lucide-react";
 import ProtectedButton from "@/components/ProtectedButton";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 
 const LEVEL_LABELS: Record<string, string> = {
   executive: "Ejecutivo",
@@ -85,7 +85,8 @@ export default function Positions() {
     },
   });
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = async () => {
+    const XLSX = await loadXlsx();
     const template = [
       ["Codigo", "Titulo", "Departamento", "Nivel", "EscolaridadMinima", "Descripcion"],
       ["GTE-001", "Gerente de Tecnología", "Tecnología", "management", "licenciatura", "Responsable del área de TI"],
@@ -104,8 +105,9 @@ export default function Positions() {
     if (!file) return;
     setIsImporting(true);
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
+        const XLSX = await loadXlsx();
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
@@ -286,8 +288,9 @@ export default function Positions() {
           />
           <Button
             variant="outline"
-            onClick={() => {
+            onClick={async () => {
               if (!data?.data?.length) { toast.error("No hay puestos para exportar"); return; }
+              const XLSX = await loadXlsx();
               const rows = data.data.map((p: any) => ({
                 "Código": p.code,
                 "Título": p.title,

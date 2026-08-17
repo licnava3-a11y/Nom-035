@@ -1807,6 +1807,16 @@
 - [x] Aislar XLSX mediante importación dinámica en exportaciones de alto uso.
 - [x] Conservar reportes de bundle y auditoría de dependencias como artefactos de CI.
 
+## Optimización de exportación y revisión PR (2026-08-17)
+- [x] Migrar exportaciones XLSX restantes de prioridad alta a un cargador dinámico reutilizable. Los módulos de exportación menos frecuentes quedan aislados en `vendor-xlsx` y no bloquean la carga inicial.
+- [x] Migrar historial de alertas (exportación de página y completa) al cargador `loadXlsx` bajo demanda.
+- [x] Migrar reporte ejecutivo y comparativa psicométrica al cargador `loadXlsx` bajo demanda.
+- [x] Migrar la comparativa de departamentos de KPIs al cargador `loadXlsx` bajo demanda.
+- [x] Migrar la exportación de saldo de vacaciones al cargador `loadXlsx` bajo demanda.
+- [x] Migrar plantilla, importación y exportación del catálogo de puestos al cargador `loadXlsx` bajo demanda.
+- [x] Dividir `vendor-export` en chunks independientes por XLSX, PDF y utilidades de exportación visual.
+- [x] Agregar comentario automático del presupuesto de bundle en pull requests.
+
 ## Mejoras de aseguramiento continuo (2026-08-16)
 - [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
 - [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.

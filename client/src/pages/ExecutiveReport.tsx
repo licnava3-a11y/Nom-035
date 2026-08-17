@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -183,7 +183,7 @@ export default function ExecutiveReport() {
   const exportRiskComparisonToExcel = async () => {
     if (!riskComparison || riskComparison.comparison.length === 0) return;
     try {
-      const { utils, writeFile } = await import("xlsx");
+      const { utils, writeFile } = await loadXlsx();
       const trendLabel = (t: string) => t === "up" ? "Sube" : t === "down" ? "Baja" : "Estable";
       const rows = riskComparison.comparison.map((row: any) => ({
         "Departamento": row.departmentName,
@@ -220,7 +220,8 @@ export default function ExecutiveReport() {
   };
   const { data: companiesList = [] } = trpc.superAdmin.listCompaniesSimple.useQuery();
 
-  function exportToExcel() {
+  async function exportToExcel() {
+    const XLSX = await loadXlsx();
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: KPIs Globales

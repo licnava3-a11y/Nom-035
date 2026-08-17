@@ -27,7 +27,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel, AlignmentType } from "docx";
 import { saveAs } from "file-saver";
@@ -254,8 +254,9 @@ export default function AlertHistory() {
     setTimeout(() => { printWindow.print(); }, 400);
   };
 
-  const handleExportToExcel = () => {
+  const handleExportToExcel = async () => {
     if (!alerts || alerts.length === 0) return;
+    const XLSX = await loadXlsx();
 
     const wb = XLSX.utils.book_new();
 
@@ -318,6 +319,7 @@ export default function AlertHistory() {
         toast({ title: "Sin datos", description: "No hay alertas para exportar con los filtros actuales.", variant: "destructive" });
         return;
       }
+      const XLSX = await loadXlsx();
       const wb = XLSX.utils.book_new();
       const metadata = [
         ["Histórico Completo de Alertas - Plataforma NOM-035"],

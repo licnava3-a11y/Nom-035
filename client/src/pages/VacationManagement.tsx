@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import {
   Calendar,
   Clock,
@@ -246,11 +246,12 @@ export default function VacationManagement() {
   };
 
   // ── Export balance report to XLSX ──────────────────────────────────────────
-  const handleExportBalanceXLSX = () => {
+  const handleExportBalanceXLSX = async () => {
     if (!balanceReport || balanceReport.length === 0) {
       toast.error("No hay datos para exportar");
       return;
     }
+    const XLSX = await loadXlsx();
 
     const wb = XLSX.utils.book_new();
 

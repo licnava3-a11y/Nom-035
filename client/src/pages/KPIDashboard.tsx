@@ -1,5 +1,5 @@
 import { useState } from "react";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -146,8 +146,9 @@ export default function KPIDashboard() {
 
 
   // ── Exportar comparativa a Excel ─────────────────────────────────────────────
-  function exportComparativaXLSX() {
+  async function exportComparativaXLSX() {
     if (!comparativaDepts || comparativaDepts.length === 0) return;
+    const XLSX = await loadXlsx();
 
     const now = new Date();
     const fechaStr = now.toLocaleDateString("es-MX", { year: "numeric", month: "2-digit", day: "2-digit" }).replace(/\//g, "-");

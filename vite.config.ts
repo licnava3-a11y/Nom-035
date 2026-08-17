@@ -224,13 +224,20 @@ export default defineConfig({
           ) {
             return 'vendor-charts';
           }
-          // Excel + PDF (solo se cargan en páginas de exportación)
+          // Exportaciones: aislar cada familia para no descargar XLSX al generar PDF y viceversa.
+          if (id.includes('node_modules/xlsx/')) {
+            return 'vendor-xlsx';
+          }
+          if (id.includes('node_modules/jspdf/') || id.includes('node_modules/jspdf-autotable/')) {
+            return 'vendor-pdf';
+          }
           if (
-            id.includes('node_modules/xlsx/') ||
-            id.includes('node_modules/jspdf/') ||
-            id.includes('node_modules/jspdf-autotable/')
+            id.includes('node_modules/docx/') ||
+            id.includes('node_modules/file-saver/') ||
+            id.includes('node_modules/html2canvas/') ||
+            id.includes('node_modules/fflate/')
           ) {
-            return 'vendor-export';
+            return 'vendor-export-utils';
           }
           // i18n (pesado, vale separar)
           if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next/')) {
