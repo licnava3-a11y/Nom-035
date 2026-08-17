@@ -308,9 +308,13 @@ export default defineConfig({
           if (id.includes('node_modules/embla-carousel')) {
             return 'vendor-carousel';
           }
-          // dagre + elkjs (layout de grafos)
-          if (id.includes('node_modules/dagre/') || id.includes('node_modules/elkjs/')) {
-            return 'vendor-graph-layout';
+          // Los motores de layout se cargan en momentos distintos.
+          // ELK solo se importa al calcular el organigrama; no debe viajar con Dagre.
+          if (id.includes('node_modules/elkjs/')) {
+            return 'vendor-elk-layout';
+          }
+          if (id.includes('node_modules/dagre/')) {
+            return 'vendor-dagre-layout';
           }
           // react-signature-canvas
           if (id.includes('node_modules/react-signature-canvas/') || id.includes('node_modules/signature_pad/')) {

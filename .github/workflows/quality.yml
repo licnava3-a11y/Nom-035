@@ -49,3 +49,29 @@ jobs:
 
       - name: Run test suite sequentially
         run: pnpm exec vitest run --pool=forks --maxWorkers=1 --minWorkers=1
+
+      - name: Prepare quality reports
+        if: always()
+        run: mkdir -p reports
+
+      - name: Generate dependency audit report
+        if: always()
+        run: pnpm audit --prod --json > reports/dependency-audit.json || true
+
+      - name: Build and generate bundle budget report
+        if: success()
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: pnpm build
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports-${{ github.run_number }}
+          path: |
+            reports/dependency-audit.json
+            reports/bundle-budget.json
+            reports/bundle-budget.md
+          if-no-files-found: warn
+          retention-days: 30

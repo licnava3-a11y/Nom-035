@@ -35,7 +35,6 @@ import {
 import { trpc } from '@/lib/trpc';
 import { Download, Users, Building2, Loader2, Search, ChevronLeft, ChevronRight, X, Minimize2, Maximize2, ArrowDown, ArrowRight, Maximize, Printer, FileSpreadsheet, Calendar, History } from 'lucide-react';
 import { toPng } from 'html-to-image';
-import * as XLSX from 'xlsx';
 
 // Nodo personalizado para departamentos (vista completa)
 function DepartmentNode({ data }: NodeProps<{ name: string; code: string; employeeCount: number; manager?: string; level: number; isHighlighted?: boolean }>) {
@@ -465,7 +464,7 @@ export default function OrganizationChart() {
   }, [isCompactMode, orientation]);
 
   // Exportar estructura jerárquica a Excel
-  const handleExportExcel = useCallback(() => {
+  const handleExportExcel = useCallback(async () => {
     if (!hierarchy) return;
 
     // Función para aplanar el árbol jerárquico
@@ -491,6 +490,8 @@ export default function OrganizationChart() {
     };
 
     const flatData = flattenHierarchy(hierarchy as DepartmentNode[]);
+    // XLSX es pesado y solo se necesita si el usuario exporta.
+    const XLSX = await import('xlsx');
     
     // Crear workbook y worksheet
     const ws = XLSX.utils.json_to_sheet(flatData);

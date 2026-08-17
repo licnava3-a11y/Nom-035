@@ -1802,6 +1802,11 @@
 - [x] Aplicar importación diferida a las visualizaciones Chart.js prioritarias de JobPositions y dashboard.
 - [x] Validar reducción de carga inicial y cobertura de regresión de los esqueletos. La prueba focalizada y la comprobación sintáctica con esbuild aprobaron; el build completo del sandbox se limita por memoria durante el renderizado de chunks.
 
+## Optimización de entrega y CI (2026-08-17)
+- [x] Separar el motor ELK de layout en un chunk diferido independiente.
+- [x] Aislar XLSX mediante importación dinámica en exportaciones de alto uso.
+- [x] Conservar reportes de bundle y auditoría de dependencias como artefactos de CI.
+
 ## Mejoras de aseguramiento continuo (2026-08-16)
 - [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
 - [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.

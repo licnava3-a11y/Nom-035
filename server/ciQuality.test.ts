@@ -10,5 +10,8 @@ describe("canalización de calidad", () => {
     expect(workflow).toContain("pnpm check:type-safety");
     expect(workflow).toContain("--maxWorkers=1");
     expect(workflow).toContain("--frozen-lockfile");
+    expect(workflow).toContain("actions/upload-artifact@v4");
+    expect(workflow).toContain("reports/dependency-audit.json");
+    expect(workflow).toContain("reports/bundle-budget.json");
   });
 });
