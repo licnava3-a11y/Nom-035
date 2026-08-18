@@ -1,7 +1,7 @@
 import { useState } from "react";
-import * as XLSX from "xlsx";
 import DashboardLayout from "@/components/DashboardLayout";
 import { trpc } from "@/lib/trpc";
+import { loadXlsx } from "@/lib/loadXlsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,8 @@ function staleItemsCount(items: any[]): number {
 }
 
 // ─── Exportar PAC a XLSX ──────────────────────────────────────────────────────
-function exportXLSX(plan: any, items: any[]) {
+async function exportXLSX(plan: any, items: any[]) {
+  const XLSX = await loadXlsx();
   const MOD: Record<string, string> = { presencial: "Presencial", virtual: "Virtual", mixta: "Mixta", e_learning: "E-Learning" };
   const STA: Record<string, string> = { pendiente: "Pendiente", en_proceso: "En Proceso", completado: "Completado", cancelado: "Cancelado" };
   const rows = items.map((item) => ({

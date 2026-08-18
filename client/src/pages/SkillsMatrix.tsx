@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Download, Upload, Filter, TrendingUp, AlertCircle, Sparkles, Camera, History } from "lucide-react";
 import { Link } from "wouter";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { HeatmapExport } from "@/components/HeatmapExport";
 import { BulkHeatmapExport } from "@/components/BulkHeatmapExport";
@@ -166,6 +166,8 @@ export default function SkillsMatrix() {
         toast.error("Sin datos", { description: "No hay datos para exportar" });
         return;
       }
+
+      const XLSX = await loadXlsx();
 
       // Prepare metadata
       const now = new Date();

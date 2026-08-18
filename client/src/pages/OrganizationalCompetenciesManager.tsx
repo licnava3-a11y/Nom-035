@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Search, Download, Upload, FileSpreadsheet } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 
 type CompetencyCategory = "soft_skill" | "organizational" | "leadership" | "technical_transversal";
 type CompetencyLevel = "basico" | "intermedio" | "avanzado" | "experto";
@@ -127,7 +127,8 @@ export default function OrganizationalCompetenciesManager() {
     },
   });
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = async () => {
+    const XLSX = await loadXlsx();
     const template = [
       ["NombreCompetencia", "Categoria", "NivelRequerido", "AplicaDepartamentos", "AplicaRoles", "Descripcion"],
       ["Comunicación Efectiva", "soft_skill", "intermedio", "Todos", "Todos", "Capacidad de comunicarse con claridad"],
@@ -146,9 +147,10 @@ export default function OrganizationalCompetenciesManager() {
     if (!file) return;
     setIsImporting(true);
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const XLSX = await loadXlsx();
         const wb = XLSX.read(data, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json<any>(ws);
@@ -292,8 +294,9 @@ export default function OrganizationalCompetenciesManager() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => {
+            onClick={async () => {
               if (!competencies.length) { toast.error("No hay competencias para exportar"); return; }
+              const XLSX = await loadXlsx();
               const rows = filteredCompetencies.map((c: any) => ({
                 "Nombre": c.competencyName,
                 "Categoría": categoryLabels[c.competencyCategory as CompetencyCategory] ?? c.competencyCategory,

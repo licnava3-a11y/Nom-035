@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Clock, XCircle, Send, TrendingUp, Star, Download, Filter, RefreshCw, FileText } from "lucide-react";
 import { Chart, registerables } from "chart.js";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -157,6 +157,7 @@ export default function PostCaseSurveysDashboard() {
     }
     setIsExporting(true);
     try {
+      const XLSX = await loadXlsx();
       const wb = XLSX.utils.book_new();
 
       // Hoja 1: Listado completo de encuestas

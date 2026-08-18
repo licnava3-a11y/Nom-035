@@ -7,7 +7,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { Download, FileSpreadsheet, Upload } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 
 export default function MassiveImport() {
   const [activeTab, setActiveTab] = useState("departments");
@@ -34,9 +34,10 @@ export default function MassiveImport() {
   const processExcelFile = async (file: File): Promise<any[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = e.target?.result;
+          const XLSX = await loadXlsx();
           const workbook = XLSX.read(data, { type: "binary" });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];

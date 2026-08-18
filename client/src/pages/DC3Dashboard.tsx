@@ -36,7 +36,7 @@ import {
   FileSpreadsheet,
   Printer,
 } from "lucide-react";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import {
   Chart,
   CategoryScale,
@@ -158,8 +158,9 @@ export default function DC3Dashboard() {
   }
 
   // ── Exportar a Excel (4 hojas) ──────────────────────────────────────────────
-  function exportToExcel() {
+  async function exportToExcel() {
     if (!data) return;
+    const XLSX = await loadXlsx();
     const wb = XLSX.utils.book_new();
 
     // Hoja 1: Resumen KPIs

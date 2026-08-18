@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { toast } from "sonner";
 import { FileDown, Search, Calendar, Filter, Eye } from "lucide-react";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import ProtectedButton from "@/components/ProtectedButton";
 
 type SurveyType = 'guia_i' | 'guia_ii' | 'guia_iii' | 'all';
@@ -149,6 +149,8 @@ export default function SurveysAdminPanel() {
         toast.error("No hay datos para exportar");
         return;
       }
+
+      const XLSX = await loadXlsx();
 
       // Prepare metadata
       const now = new Date();

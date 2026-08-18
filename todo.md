@@ -1826,3 +1826,9 @@
 - [x] Configurar CI para ejecutar check:server, check:client, check:type-safety y la suite de pruebas.
 - [x] Revisar las 24 vulnerabilidades altas residuales y documentar mitigaciones, alcance y condición de actualización. Resultado vigente: 0 críticas y 22 altas con controles compensatorios registrados.
 - [x] Generar y conservar un reporte de presupuesto de bundle por publicación. Primer reporte: 24,535.2 KB sin comprimir / 3,665.1 KB gzip; 5 assets exceden 900 KB.
+
+## Endurecimiento de exportación y Quality Gate (2026-08-17)
+- [x] Migrar las exportaciones e importaciones XLSX menos frecuentes al cargador dinámico `loadXlsx`.
+- [x] Medir y publicar el tamaño de `vendor-xlsx` en el reporte de presupuesto de CI.
+- [ ] Exigir el estado `quality / Types and tests` mediante protección de la rama `main` en GitHub. **Bloqueado:** la integración autorizada de GitHub permanece deshabilitada en la sesión; no se aplicará ninguna regla hasta contar con autorización válida.
+- [x] Validar regresiones de carga diferida y del reporte de bundle antes del checkpoint. Pruebas focalizadas: 3 archivos / 4 pruebas aprobadas.

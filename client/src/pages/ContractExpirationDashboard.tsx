@@ -16,7 +16,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 
 type DaysFilter = 7 | 15 | 30;
 
@@ -102,11 +102,13 @@ export default function ContractExpirationDashboard() {
     safe: filteredRows.filter(r => r.daysUntil !== null && r.daysUntil > 15).length,
   }), [filteredRows]);
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (filteredRows.length === 0) {
       toast.error("No hay datos para exportar");
       return;
     }
+
+    const XLSX = await loadXlsx();
 
     const wsData = [
       ["Dashboard de Vencimientos de Contratos"],

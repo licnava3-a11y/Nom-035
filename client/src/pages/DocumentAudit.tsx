@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FileText, Download, Eye, CheckCircle, Users, Activity, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 import { Line, Doughnut, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -83,10 +83,12 @@ export default function DocumentAudit() {
     }
   };
 
-  const handleExportToExcel = () => {
+  const handleExportToExcel = async () => {
     if (!auditData || auditData.logs.length === 0) {
       return;
     }
+
+    const XLSX = await loadXlsx();
 
     // Preparar datos para Excel
     const excelData = auditData.logs.map((log: any) => ({

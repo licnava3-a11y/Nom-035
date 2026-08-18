@@ -39,8 +39,11 @@ const report = {
   totalBytes: assets.reduce((total, asset) => total + asset.bytes, 0),
   totalGzipBytes: assets.reduce((total, asset) => total + asset.gzipBytes, 0),
   oversizedAssets: assets.filter((asset) => asset.exceedsBudget).map((asset) => asset.file),
+  xlsxAssets: assets.filter((asset) => asset.file.includes("vendor-xlsx")),
   assets,
 };
+report.vendorXlsxBytes = report.xlsxAssets.reduce((total, asset) => total + asset.bytes, 0);
+report.vendorXlsxGzipBytes = report.xlsxAssets.reduce((total, asset) => total + asset.gzipBytes, 0);
 
 mkdirSync(REPORT_DIR, { recursive: true });
 writeFileSync(join(REPORT_DIR, "bundle-budget.json"), `${JSON.stringify(report, null, 2)}\n`);
@@ -52,6 +55,7 @@ writeFileSync(
     `Generado: ${report.generatedAt}`,
     `Presupuesto por asset: ${(BUDGET_BYTES / 1024).toFixed(0)} KB sin comprimir.`,
     `Total: ${(report.totalBytes / 1024).toFixed(1)} KB (${(report.totalGzipBytes / 1024).toFixed(1)} KB gzip).`,
+    `vendor-xlsx: ${(report.vendorXlsxBytes / 1024).toFixed(1)} KB (${(report.vendorXlsxGzipBytes / 1024).toFixed(1)} KB gzip) en ${report.xlsxAssets.length} asset(s).`,
     "",
     "| Asset | Tamaño | Gzip | Estado |",
     "|---|---:|---:|---|",

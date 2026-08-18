@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, CheckCircle2, BarChart3, Layers, Grid3X3, Lightbulb, ClipboardList, RefreshCw, FileDown, FileText, Printer } from "lucide-react";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 
 // ─── Exportación Excel ──────────────────────────────────────────────────────
-function exportToExcel(data: any) {
+async function exportToExcel(data: any) {
   if (!data) return;
+  const XLSX = await loadXlsx();
   const wb = XLSX.utils.book_new();
   const fecha = new Date().toLocaleString("es-MX");
 

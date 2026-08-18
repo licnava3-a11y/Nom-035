@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Download, QrCode, Plus, Trash2, Copy, Check } from "lucide-react";
 import QRCode from "qrcode";
-import * as XLSX from "xlsx";
+import { loadXlsx } from "@/lib/loadXlsx";
 
 type SurveyType = "guia_i" | "guia_ii" | "guia_iii";
 
@@ -96,11 +96,13 @@ export default function TokenManagement() {
     link.click();
   };
 
-  const handleExportToExcel = () => {
+  const handleExportToExcel = async () => {
     if (!tokensData?.tokens || tokensData.tokens.length === 0) {
       alert("No hay tokens para exportar");
       return;
     }
+
+    const XLSX = await loadXlsx();
 
     const exportData = tokensData.tokens.map((token: any) => ({
       Token: token.token,
