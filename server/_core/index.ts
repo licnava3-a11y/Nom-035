@@ -4,7 +4,6 @@ import express from "express";
 import { createServer, request as httpRequest } from "http";
 import helmet from "helmet";
 import { globalLimiter, authLimiter, apiLimiter } from "./rateLimiter";
-import net from "net";
 import fs from "fs";
 import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -29,25 +28,6 @@ installLegacyConsoleAdapter();
 // the health check passes, which triggers a restart loop that destroys the
 // session cookie set by the OAuth callback → infinite login cycle.
 // ─────────────────────────────────────────────────────────────────────────────
-
-function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise(resolve => {
-    const server = net.createServer();
-    server.listen(port, () => {
-      server.close(() => resolve(true));
-    });
-    server.on("error", () => resolve(false));
-  });
-}
-
-async function findAvailablePort(startPort: number = 3000): Promise<number> {
-  for (let port = startPort; port < startPort + 20; port++) {
-    if (await isPortAvailable(port)) {
-      return port;
-    }
-  }
-  throw new Error(`No available port found starting from ${startPort}`);
-}
 
 /**
  * Consolidated minute-tick scheduler.
@@ -317,14 +297,20 @@ async function startServer() {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
-
-  if (port !== preferredPort) {
-    logStructured("warn", "preferred_port_unavailable", { preferredPort, selectedPort: port });
+  // La pasarela de vista previa enruta exclusivamente al puerto configurado.
+  // Elegir un puerto alterno tras un conflicto deja el proceso saludable de forma
+  // local, pero inaccesible desde la URL temporal y se manifiesta como un 502.
+  const port = parseInt(process.env.PORT || "3000", 10);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`Invalid PORT value: ${process.env.PORT}`);
   }
 
   initializeWebSocket(server);
+
+  server.once("error", (error) => {
+    logNonBlockingFailure("server_listen_failed", error, { port });
+    process.exitCode = 1;
+  });
 
   server.listen(port, () => {
     logStructured("info", "server_started", { port });
