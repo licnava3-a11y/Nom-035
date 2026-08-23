@@ -1833,6 +1833,7 @@
 - [ ] Exigir el estado `quality / Types and tests` mediante protección de la rama `main` en GitHub. **Bloqueado:** el repositorio objetivo ya está identificado, pero el remoto local continúa en `s3://` y `licnava3-a11y/Nom-035` no tiene rama principal, workflow ni ejecuciones de CI que puedan protegerse.
 - [ ] Sincronizar el código y `.github/workflows/quality.yml` con `licnava3-a11y/Nom-035`; generar la primera ejecución exitosa de `quality / Types and tests`.
 - [ ] Configurar y verificar la protección de `main` en `licnava3-a11y/Nom-035` con el estado obligatorio `quality / Types and tests`.
+- [ ] Actualizar desde Secretos o Integraciones la autorización de GitHub con permiso efectivo de escritura para `licnava3-a11y/Nom-035`; pendiente externo solicitado por el usuario.
 - [x] Validar regresiones de carga diferida y del reporte de bundle antes del checkpoint. Pruebas focalizadas: 3 archivos / 4 pruebas aprobadas.
 
 ## Incidente crítico — Vista previa temporal rechaza la conexión (2026-08-19)
