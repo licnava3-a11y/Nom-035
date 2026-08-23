@@ -1834,9 +1834,13 @@
 - [ ] Sincronizar el código y `.github/workflows/quality.yml` con `licnava3-a11y/Nom-035`; generar la primera ejecución exitosa de `quality / Types and tests`.
 - [ ] Configurar y verificar la protección de `main` en `licnava3-a11y/Nom-035` con el estado obligatorio `quality / Types and tests`.
 - [ ] Actualizar desde Secretos o Integraciones la autorización de GitHub con permiso efectivo de escritura para `licnava3-a11y/Nom-035`; pendiente externo solicitado por el usuario.
+- [ ] Verificar el permiso efectivo de escritura de la autorización de GitHub reportada como actualizada antes de sincronizar el repositorio.
 - [x] Validar regresiones de carga diferida y del reporte de bundle antes del checkpoint. Pruebas focalizadas: 3 archivos / 4 pruebas aprobadas.
 
 ## Incidente crítico — Vista previa temporal rechaza la conexión (2026-08-19)
 - [x] Diagnosticar y corregir la causa raíz por la que una URL temporal de vista previa en el puerto 3000 rechaza la conexión. Se eliminó el desvío silencioso a puertos alternos: la pasarela solo enruta el puerto configurado y un fallback podía dejar el servidor local saludable pero la URL temporal en 502.
 - [x] Verificar el servidor, `/api/health` y una URL de vista previa renovada después de la corrección. El puerto 3000 respondió HTTP 200 en local y desde la nueva URL temporal; la ruta raíz se hidrató sin errores de consola.
 - [x] Añadir o actualizar pruebas de regresión para la disponibilidad de vista previa y guardar checkpoint validado. `previewAvailability.test.ts` y `check:server` aprobados.
+
+## Rendimiento e integridad — Auditoría histórica priorizada (2026-08-23)
+- [x] Auditar y, si faltan, declarar y aplicar índices para las relaciones de alta consulta. La auditoría confirmó índices existentes —incluidos los FK— para empleados, casos y respuestas de encuesta; se declararon y aplicaron cinco índices faltantes para `correctiveActions` (`status,dueDate`, responsable, respuesta, periodo y ámbito), verificados en la base de datos.

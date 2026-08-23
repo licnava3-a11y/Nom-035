@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, mediumtext, timestamp, varchar, boolean, decimal, date, bigint, json } from "drizzle-orm/mysql-core";
+import { index, int, mysqlEnum, mysqlTable, text, mediumtext, timestamp, varchar, boolean, decimal, date, bigint, json } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -1054,7 +1054,13 @@ export const correctiveActions = mysqlTable("correctiveActions", {
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => [
+  index("idx_corrective_actions_status_due_date").on(table.status, table.dueDate),
+  index("idx_corrective_actions_responsible_user_id").on(table.responsibleUserId),
+  index("idx_corrective_actions_survey_response_id").on(table.surveyResponseId),
+  index("idx_corrective_actions_survey_period_id").on(table.surveyPeriodId),
+  index("idx_corrective_actions_target_scope").on(table.targetScope),
+]);
 
 export type CorrectiveAction = typeof correctiveActions.$inferSelect;
 export type InsertCorrectiveAction = typeof correctiveActions.$inferInsert;
