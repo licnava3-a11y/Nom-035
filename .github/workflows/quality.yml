@@ -53,8 +53,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Migrate isolated test database
-        run: pnpm drizzle-kit migrate
+      - name: Synchronize isolated test database schema
+        run: pnpm drizzle-kit push --force
 
       - name: Check server types
         run: pnpm check:server

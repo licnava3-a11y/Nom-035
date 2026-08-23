@@ -17,7 +17,7 @@ describe("canalización de calidad", () => {
     expect(workflow).toContain("nom035-bundle-budget");
     expect(workflow).toContain("image: mysql:8.4");
     expect(workflow).toContain("DATABASE_URL: mysql://root:root@127.0.0.1:3306/nom035_test");
-    expect(workflow).toContain("pnpm drizzle-kit migrate");
+    expect(workflow).toContain("pnpm drizzle-kit push --force");
     expect(workflow.indexOf("pnpm/action-setup@v4")).toBeLessThan(workflow.indexOf("actions/setup-node@v4"));
     expect(workflow).not.toMatch(/pnpm\/action-setup@v4[\s\S]{0,160}version:\s*10/);
   });
