@@ -22,7 +22,9 @@ describe("canalización de calidad", () => {
     expect(workflow.indexOf("pnpm/action-setup@v4")).toBeLessThan(workflow.indexOf("actions/setup-node@v4"));
     expect(workflow).not.toMatch(/pnpm\/action-setup@v4[\s\S]{0,160}version:\s*10/);
     expect(packageJson.scripts["test:ci"]).toContain("--maxWorkers=1");
-    expect(packageJson.scripts["test:ci"]).toContain("correctiveActions.generatePDF");
+    expect(packageJson.scripts["test:ci"]).not.toContain("correctiveActions.generatePDF");
+    expect(packageJson.scripts["test:integration"]).toContain("RUN_DB_INTEGRATION_TESTS=true");
     expect(packageJson.scripts["test:integration"]).toContain("correctiveActions.generatePDF.test.ts");
+    expect(packageJson.scripts["test:integration"]).toContain("systemSettings.test.ts");
   });
 });
