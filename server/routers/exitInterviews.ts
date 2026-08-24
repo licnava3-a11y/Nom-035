@@ -15,6 +15,25 @@ import {
 import { eq, desc, and, sql, count, inArray } from "drizzle-orm";
 
 // ── Catálogo de 15 preguntas estándar NOM-035 sobre causas de rotación ──────
+type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+
+async function getAuthenticatedEmployeeId(db: Database, userId: number) {
+  const employee = await db
+    .select({ id: employees.id })
+    .from(employees)
+    .where(eq(employees.userId, userId))
+    .limit(1);
+
+  if (employee.length === 0) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "No existe un perfil de colaborador vinculado a esta cuenta",
+    });
+  }
+
+  return employee[0].id;
+}
+
 const DEFAULT_QUESTIONS = [
   { order: 1, category: "ambiente", questionText: "¿Cómo calificarías el ambiente de trabajo en tu área?", options: ["Muy bueno", "Bueno", "Regular", "Malo", "Muy malo"] },
   { order: 2, category: "liderazgo", questionText: "¿Cómo fue tu relación con tu jefe directo?", options: ["Excelente", "Buena", "Regular", "Difícil", "Muy difícil"] },
@@ -135,9 +154,10 @@ export const exitInterviewsRouter = router({
       if (input.status !== "all") {
         conditions.push(eq(exitInterviews.status, input.status));
       }
-      // Non-admin users can only see their own interviews
+      // Los usuarios no administradores solo ven entrevistas de su propio perfil de colaborador.
       if (ctx.user.role !== "admin") {
-        conditions.push(eq(exitInterviews.employeeId, ctx.user.id));
+        const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
+        conditions.push(eq(exitInterviews.employeeId, employeeId));
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -200,9 +220,12 @@ export const exitInterviewsRouter = router({
 
       if (!interview) throw new TRPCError({ code: "NOT_FOUND", message: "Entrevista no encontrada" });
 
-      // Confidentiality: non-admin can only see their own
-      if (ctx.user.role !== "admin" && interview.employeeId !== ctx.user.id) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes acceso a esta entrevista" });
+      // Confidentiality: los usuarios no administradores solo consultan su propia entrevista.
+      if (ctx.user.role !== "admin") {
+        const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
+        if (interview.employeeId !== employeeId) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "No tienes acceso a esta entrevista" });
+        }
       }
 
       const responses = await db
@@ -242,8 +265,11 @@ export const exitInterviewsRouter = router({
 
       if (!interview) throw new TRPCError({ code: "NOT_FOUND", message: "Entrevista no encontrada" });
       if (interview.status === "completed") throw new TRPCError({ code: "BAD_REQUEST", message: "La entrevista ya fue completada" });
-      if (ctx.user.role !== "admin" && interview.employeeId !== ctx.user.id) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes acceso a esta entrevista" });
+      if (ctx.user.role !== "admin") {
+        const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
+        if (interview.employeeId !== employeeId) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "No tienes acceso a esta entrevista" });
+        }
       }
 
       // Delete existing responses (re-submit)

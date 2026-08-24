@@ -5,8 +5,6 @@ import { Award, ArrowRight, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -96,7 +94,11 @@ export default function RecognitionsCard() {
     },
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import("jspdf"),
+      import("jspdf-autotable"),
+    ]);
     const doc = new jsPDF();
     
     // Header
@@ -119,7 +121,7 @@ export default function RecognitionsCard() {
     doc.text(`Total de reconocimientos: ${report.total}`, 25, 58);
     
     // Agregar gráfico de categorías
-    const canvas = document.querySelector('canvas');
+    const canvas = document.querySelector<HTMLCanvasElement>('#recognitions-category-chart canvas');
     if (canvas) {
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 20, 65, 80, 80);
@@ -202,7 +204,7 @@ export default function RecognitionsCard() {
           <div>
             <h4 className="text-sm font-medium mb-3 text-green-900">Por Categoría</h4>
             {report.byCategory.length > 0 ? (
-              <div className="h-[200px]">
+              <div id="recognitions-category-chart" className="h-[200px]">
                 <Doughnut data={categoryData} options={chartOptions} />
               </div>
             ) : (
@@ -258,7 +260,7 @@ export default function RecognitionsCard() {
           <Button
             variant="outline"
             className="w-full gap-2"
-            onClick={exportToPDF}
+            onClick={() => void exportToPDF()}
           >
             Exportar Reporte Mensual (PDF)
             <ArrowRight className="h-4 w-4" />
