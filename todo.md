@@ -1870,3 +1870,4 @@
 - [x] P2-A: Consolidar las rutas duplicadas de alertas en `/alerts-central`; los enlaces históricos se preservan con `legacyRedirects` y prueba de regresión.
 - [x] P2-B: Eliminar la consulta N+1 en `calculateGuideII`; respuestas y orden de preguntas se recuperan ahora con un solo join.
 - [x] P2-C: Extraer cálculo y persistencia de Guía II a `services/guideIIResults.ts`, reduciendo responsabilidad del router sin modificar el contrato tRPC.
+- [x] P2-D: Extraer la recomendación de Guías I–III y nivel de cumplimiento a `lib/nom035-guides.ts`, con pruebas por umbral de trabajadores.

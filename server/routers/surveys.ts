@@ -9,6 +9,7 @@ import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
 import * as scoring from "../lib/nom035-scoring";
 import { calculateAndPersistGuideIIResult } from "../services/guideIIResults";
+import { getNom035ComplianceLevel, getRecommendedNom035Guides } from "../lib/nom035-guides";
 import { calculateSampleSize } from "../lib/sample-size-calculator";
 import { sendSurveyTokensNotification } from "../lib/email-sender";
 import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
@@ -2663,47 +2664,12 @@ export const surveysRouter = router({
     
     const totalWorkers = Number(result?.count || 0);
 
-    // Determinar guías según NOM-035-STPS-2018
-    const guides = [];
-    
-    // Guía I (ATS) - Obligatoria para todos
-    guides.push({
-      id: 'guia_i',
-      name: 'Guía de Referencia I',
-      description: 'Cuestionario para identificar a los trabajadores que fueron sujetos a acontecimientos traumáticos severos',
-      required: true,
-      workerRange: 'Todos los centros de trabajo',
-      questionCount: 4,
-    });
-
-    // Guía II - Para 16-50 trabajadores
-    if (totalWorkers >= 16) {
-      guides.push({
-        id: 'guia_ii',
-        name: 'Guía de Referencia II',
-        description: 'Cuestionario para identificar factores de riesgo psicosocial en los centros de trabajo',
-        required: totalWorkers >= 16 && totalWorkers <= 50,
-        workerRange: '16 a 50 trabajadores',
-        questionCount: 46,
-      });
-    }
-
-    // Guía III - Para 51+ trabajadores
-    if (totalWorkers > 50) {
-      guides.push({
-        id: 'guia_iii',
-        name: 'Guía de Referencia III',
-        description: 'Cuestionario para identificar y analizar factores de riesgo psicosocial y evaluar el entorno organizacional',
-        required: true,
-        workerRange: 'Más de 50 trabajadores',
-        questionCount: 72,
-      });
-    }
+    const guides = getRecommendedNom035Guides(totalWorkers);
 
     return {
       totalWorkers,
       recommendedGuides: guides,
-      complianceLevel: totalWorkers <= 15 ? 'basic' : totalWorkers <= 50 ? 'intermediate' : 'complete',
+      complianceLevel: getNom035ComplianceLevel(totalWorkers),
     };
   }),
 
