@@ -744,6 +744,7 @@ export const surveysRouter = router({
       
       // Calcular riesgos promedio por categoría
       const categoryRisks: Record<string, { count: number; avgScore: number }> = {};
+      const domainRiskTotals: Record<string, { count: number; avgScore: number }> = {};
       for (const result of results) {
         for (const cat of result.categories) {
           if (!categoryRisks[cat.category]) {
@@ -752,12 +753,34 @@ export const surveysRouter = router({
           categoryRisks[cat.category].count++;
           categoryRisks[cat.category].avgScore += cat.score;
         }
+
+        if (survey.type === 'guia_iii') {
+          for (const domain of result.domains) {
+            if (!domainRiskTotals[domain.domain]) {
+              domainRiskTotals[domain.domain] = { count: 0, avgScore: 0 };
+            }
+            domainRiskTotals[domain.domain].count++;
+            domainRiskTotals[domain.domain].avgScore += domain.score;
+          }
+        }
       }
       
       // Calcular promedios
       for (const cat in categoryRisks) {
         categoryRisks[cat].avgScore = categoryRisks[cat].avgScore / categoryRisks[cat].count;
       }
+
+      for (const domain in domainRiskTotals) {
+        domainRiskTotals[domain].avgScore = domainRiskTotals[domain].avgScore / domainRiskTotals[domain].count;
+      }
+
+      const domainRisks = survey.type === 'guia_iii'
+        ? Object.entries(domainRiskTotals).map(([domain, data]) => ({
+            domain,
+            avgScore: data.avgScore,
+            riskLevel: calculator.determineRiskLevel(data.avgScore, 'guia_iii').level,
+          }))
+        : [];
       
       return {
         totalResponses: responses.length,
@@ -767,7 +790,10 @@ export const surveysRouter = router({
           avgScore: data.avgScore,
           riskLevel: calculator.determineRiskLevel(data.avgScore, survey.type as 'guia_ii' | 'guia_iii').level,
         })),
-        domainRisks: [], // TODO: Implementar si es necesario
+        domainRisks,
+        domainRiskStatus: survey.type === 'guia_iii'
+          ? (domainRisks.length > 0 ? 'available' : 'no_domain_data')
+          : 'not_applicable',
       };
     }),
 

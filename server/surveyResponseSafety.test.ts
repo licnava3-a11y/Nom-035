@@ -35,4 +35,11 @@ describe("seguridad y continuidad de respuestas de encuesta", () => {
     expect(aggregateRiskSource).toContain("getScoringAnswersByResponseId(db, responses.map(response => response.id))");
     expect(aggregateRiskSource).not.toContain("eq(surveyAnswers.responseId, response.id)");
   });
+
+  it("expone dominios agregados solo para Guía III e informa cuando no aplican", () => {
+    expect(aggregateRiskSource).toContain("const domainRiskTotals");
+    expect(aggregateRiskSource).toContain("if (survey.type === 'guia_iii')");
+    expect(aggregateRiskSource).toContain("domainRiskStatus");
+    expect(aggregateRiskSource).toContain("'not_applicable'");
+  });
 });
