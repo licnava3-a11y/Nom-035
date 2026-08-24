@@ -2744,10 +2744,14 @@ export const surveysRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta de encuesta no encontrada" });
       }
 
-      // Obtener respuestas individuales
+      // Obtener respuestas y orden de pregunta en una sola consulta para evitar N+1.
       const answers = await db
-        .select()
+        .select({
+          answerValue: surveyAnswers.answerValue,
+          questionOrder: surveyQuestions.order,
+        })
         .from(surveyAnswers)
+        .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
         .where(eq(surveyAnswers.responseId, input.responseId));
 
       if (answers.length === 0) {
@@ -2757,15 +2761,7 @@ export const surveysRouter = router({
       // Convertir respuestas a formato requerido por calculadora
       const answersMap: Record<number, string> = {};
       for (const answer of answers) {
-        // Obtener número de pregunta
-        const [question] = await db
-          .select()
-          .from(surveyQuestions)
-          .where(eq(surveyQuestions.id, answer.questionId));
-        
-        if (question) {
-          answersMap[question.order] = answer.answerValue;
-        }
+        answersMap[answer.questionOrder] = answer.answerValue;
       }
 
       // Validar respuestas

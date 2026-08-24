@@ -30,6 +30,12 @@ describe("seguridad y continuidad de respuestas de encuesta", () => {
     expect(tokenFormSource).toContain("periodId,");
   });
 
+  it("obtiene el orden de preguntas de Guía II mediante un join y no una consulta por respuesta", () => {
+    expect(routerSource).toContain("questionOrder: surveyQuestions.order");
+    expect(routerSource).toContain(".innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))");
+    expect(routerSource).toContain("answersMap[answer.questionOrder] = answer.answerValue;");
+  });
+
   it("crea el caso ATS sin desreferenciar un usuario inexistente en una respuesta anónima", () => {
     expect(routerSource).toContain('const caseNumber = `ATS-${Date.now()}-${actor?.id ?? "anonimo"}`;');
     expect(routerSource).toContain("isAnonymous: !actor,");
