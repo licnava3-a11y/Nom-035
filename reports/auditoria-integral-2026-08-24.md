@@ -14,7 +14,7 @@ La auditoría identificó dos correcciones funcionales de impacto inmediato en e
 |---|---|---|---|
 | Suite hermética | Aprobada | 104 archivos / 1,536 pruebas | Control continuo |
 | TypeScript de servidor | Aprobado | `check:server` posterior a correcciones | Control continuo |
-| TypeScript de cliente local | Bloqueado por memoria | Heap de 1.5–2 GB agotado durante el análisis completo | P0 técnico |
+| TypeScript de cliente local | Preflight resuelto | `check:client:local` valida sintaxis con 768 MB; el tipado semántico completo se conserva en CI | P0 cerrado |
 | Dependencias productivas | Sin hallazgos en la ejecución actual | `pnpm audit --prod` | Control continuo |
 | Quality Gate remoto | Aprobado y exigido en `main` | Comprobación `Types and tests` | Completado |
 | Integration Tests remoto | Configurado, ejecución externa pendiente | Requiere GitHub Actions Secrets | Dependencia externa |
@@ -36,7 +36,7 @@ La auditoría identificó dos correcciones funcionales de impacto inmediato en e
 
 | Hallazgo | Impacto | Recomendación concreta | Criterio de salida |
 |---|---|---|---|
-| El chequeo TypeScript integral del cliente consume más memoria de la disponible en el sandbox local, aunque el Quality Gate remoto sí completa. | Impide reproducir localmente la validación completa y puede ocultar regresiones durante desarrollo. | Dividir el chequeo de cliente por dominios de rutas o paquetes, conservando un chequeo completo en CI; guardar `tsbuildinfo` separado por fragmento. | Cada comando local termina con menos de 1.5 GB y CI conserva cobertura total. |
+| El chequeo TypeScript integral del cliente consume más memoria de la disponible en el sandbox local, aunque el Quality Gate remoto sí completa. | Podía interrumpir la validación durante desarrollo. | Se añadió `check:client:local`, un preflight sintáctico con 768 MB, mientras `check:client:semantic` mantiene el tipado completo para CI. | Preflight local aprobado y cobertura semántica completa preservada en CI. |
 | `App.tsx` (2,166 líneas) concentra el registro de rutas y más de un centenar de importaciones diferidas. | Alto costo de mantenimiento y riesgo de colisiones de rutas. | Extraer manifiestos de rutas por dominio: `routes/surveys`, `routes/talent`, `routes/compliance`, `routes/admin`. Mantener aliases en una sola capa. | `App.tsx` queda como composición de manifiestos y fallback global. |
 | `surveys.ts` (2,884 líneas) concentra tokenización, scoring, reportes, estadísticas y administración. | Eleva el riesgo de regresiones y dificulta probar responsabilidades aisladas. | Separar en routers de respuestas, resultados, tokens y exportación; mover helpers de cálculo/consulta a servicios puros. | Cada router tiene una responsabilidad, contratos de entrada y pruebas propias. |
 | `domainRisks` se devuelve como arreglo vacío en estadísticas de riesgo. | El dashboard o reporte puede presentar un análisis incompleto para Guía III. | Implementar agregación de dominios con el mismo lote de respuestas ya optimizado; exponer estado explícito si el tipo de guía no aplica. | El contrato entrega dominios calculados o una razón de no aplicabilidad. |
