@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const routerSource = readFileSync(resolve(process.cwd(), "server/routers/surveys.ts"), "utf8");
+const guideIIServiceSource = readFileSync(resolve(process.cwd(), "server/services/guideIIResults.ts"), "utf8");
 const formSource = readFileSync(resolve(process.cwd(), "client/src/components/SurveyForm.tsx"), "utf8");
 const tokenFormSource = readFileSync(resolve(process.cwd(), "client/src/components/SurveyFormWithToken.tsx"), "utf8");
 const savePartialSource = routerSource.slice(
@@ -31,9 +32,9 @@ describe("seguridad y continuidad de respuestas de encuesta", () => {
   });
 
   it("obtiene el orden de preguntas de Guía II mediante un join y no una consulta por respuesta", () => {
-    expect(routerSource).toContain("questionOrder: surveyQuestions.order");
-    expect(routerSource).toContain(".innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))");
-    expect(routerSource).toContain("answersMap[answer.questionOrder] = answer.answerValue;");
+    expect(guideIIServiceSource).toContain("questionOrder: surveyQuestions.order");
+    expect(guideIIServiceSource).toContain(".innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))");
+    expect(guideIIServiceSource).toContain("answersMap[answer.questionOrder] = answer.answerValue;");
   });
 
   it("crea el caso ATS sin desreferenciar un usuario inexistente en una respuesta anónima", () => {

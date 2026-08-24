@@ -1869,3 +1869,4 @@
 - [ ] P2: Modularizar el registro de rutas de `App.tsx` y los routers de encuestas sin alterar contratos públicos.
 - [x] P2-A: Consolidar las rutas duplicadas de alertas en `/alerts-central`; los enlaces históricos se preservan con `legacyRedirects` y prueba de regresión.
 - [x] P2-B: Eliminar la consulta N+1 en `calculateGuideII`; respuestas y orden de preguntas se recuperan ahora con un solo join.
+- [x] P2-C: Extraer cálculo y persistencia de Guía II a `services/guideIIResults.ts`, reduciendo responsabilidad del router sin modificar el contrato tRPC.

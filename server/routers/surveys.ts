@@ -8,7 +8,7 @@ import { eq, and, desc, count, sql, inArray, not } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import * as calculator from "../lib/nom035-calculator";
 import * as scoring from "../lib/nom035-scoring";
-import { calculateGuideIIResults, validateGuideIIAnswers } from "../guideIICalculator";
+import { calculateAndPersistGuideIIResult } from "../services/guideIIResults";
 import { calculateSampleSize } from "../lib/sample-size-calculator";
 import { sendSurveyTokensNotification } from "../lib/email-sender";
 import { generateConsolidatedNOM035Report } from "../lib/nom035-pdf-generator";
@@ -2734,55 +2734,7 @@ export const surveysRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      // Obtener respuesta de encuesta
-      const [response] = await db
-        .select()
-        .from(surveyResponses)
-        .where(eq(surveyResponses.id, input.responseId));
-
-      if (!response) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Respuesta de encuesta no encontrada" });
-      }
-
-      // Obtener respuestas y orden de pregunta en una sola consulta para evitar N+1.
-      const answers = await db
-        .select({
-          answerValue: surveyAnswers.answerValue,
-          questionOrder: surveyQuestions.order,
-        })
-        .from(surveyAnswers)
-        .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
-        .where(eq(surveyAnswers.responseId, input.responseId));
-
-      if (answers.length === 0) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "No se encontraron respuestas para calcular" });
-      }
-
-      // Convertir respuestas a formato requerido por calculadora
-      const answersMap: Record<number, string> = {};
-      for (const answer of answers) {
-        answersMap[answer.questionOrder] = answer.answerValue;
-      }
-
-      // Validar respuestas
-      const validation = validateGuideIIAnswers(answersMap);
-      if (!validation.valid) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `Respuestas inválidas: ${validation.errors.join(', ')}`
-        });
-      }
-
-      // Calcular resultados
-      const results = calculateGuideIIResults(answersMap);
-
-      // Guardar resultados en campo results de surveyResponses
-      await db
-        .update(surveyResponses)
-        .set({
-          results: JSON.stringify(results),
-        } as any)
-        .where(eq(surveyResponses.id, input.responseId));
+      const results = await calculateAndPersistGuideIIResult(db, input.responseId);
 
       return {
         success: true,
