@@ -59,9 +59,8 @@ export default function TakeExam() {
   }, [timeRemaining]);
 
   const handleStartExam = () => {
-    // TODO: Get employeeId from current user
-    const employeeId = 1; // Placeholder
-    startAttemptMutation.mutate({ assessmentId, employeeId });
+    // El servidor deriva el colaborador a partir de la sesión autenticada.
+    startAttemptMutation.mutate({ assessmentId });
   };
 
   const handleAnswerChange = (questionId: number, value: { selectedOptionId?: number; textAnswer?: string }) => {

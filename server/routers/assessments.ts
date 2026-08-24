@@ -1,8 +1,40 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import { router, protectedProcedure } from '../_core/trpc';
 import { getDb } from '../db';
 import { assessments, courses, employees, examAnswers, examAttempts, examQuestionOptions, examQuestions, questions, users } from '../../drizzle/schema';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+
+const ASSESSMENT_MANAGER_ROLES = new Set([
+  'super_admin',
+  'admin',
+  'instructor',
+  'rh',
+  'recursos_humanos',
+]);
+
+type Database = NonNullable<Awaited<ReturnType<typeof getDb>>>;
+
+function canManageAssessments(role: string) {
+  return ASSESSMENT_MANAGER_ROLES.has(role);
+}
+
+async function getAuthenticatedEmployeeId(db: Database, userId: number) {
+  const employee = await db
+    .select({ id: employees.id })
+    .from(employees)
+    .where(eq(employees.userId, userId))
+    .limit(1);
+
+  if (employee.length === 0) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'No existe un perfil de colaborador vinculado a esta cuenta.',
+    });
+  }
+
+  return employee[0].id;
+}
 
 export const assessmentsRouter = router({
   // Crear nueva evaluación
@@ -311,12 +343,13 @@ export const assessmentsRouter = router({
     .input(
       z.object({
         assessmentId: z.number(),
-        employeeId: z.number(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not available');
+
+      const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
 
       // Verificar evaluación activa
       const assessment = await db
@@ -341,7 +374,7 @@ export const assessmentsRouter = router({
         .where(
           and(
             eq(examAttempts.assessmentId, input.assessmentId),
-            eq(examAttempts.employeeId, input.employeeId)
+            eq(examAttempts.employeeId, employeeId)
           )
         );
 
@@ -357,7 +390,7 @@ export const assessmentsRouter = router({
       // Crear nuevo intento
       const [result] = await (db.insert(examAttempts) as any).values({
         assessmentId: input.assessmentId,
-        employeeId: input.employeeId,
+        employeeId,
         attemptNumber,
         startedAt: new Date(),
         status: 'in_progress',
@@ -384,7 +417,7 @@ export const assessmentsRouter = router({
         ),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
@@ -397,6 +430,13 @@ export const assessmentsRouter = router({
 
       if (!attempt || attempt.length === 0) {
         throw new Error('Intento no encontrado');
+      }
+
+      if (!canManageAssessments(ctx.user.role)) {
+        const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
+        if (attempt[0].employeeId !== employeeId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para enviar este intento.' });
+        }
       }
 
       if (attempt[0].status !== 'in_progress') {
@@ -495,7 +535,7 @@ export const assessmentsRouter = router({
   // Obtener resultados de intento
   getAttemptResults: protectedProcedure
     .input(z.object({ attemptId: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not available');
 
@@ -507,6 +547,13 @@ export const assessmentsRouter = router({
 
       if (!attempt || attempt.length === 0) {
         throw new Error('Intento no encontrado');
+      }
+
+      if (!canManageAssessments(ctx.user.role)) {
+        const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
+        if (attempt[0].employeeId !== employeeId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar este intento.' });
+        }
       }
 
       const answers = await db
@@ -534,9 +581,16 @@ export const assessmentsRouter = router({
   // Listar intentos de un empleado
   listEmployeeAttempts: protectedProcedure
     .input(z.object({ employeeId: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error('Database not available');
+
+      if (!canManageAssessments(ctx.user.role)) {
+        const employeeId = await getAuthenticatedEmployeeId(db, ctx.user.id);
+        if (input.employeeId !== employeeId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar estos intentos.' });
+        }
+      }
 
       const attempts = await db
         .select({
