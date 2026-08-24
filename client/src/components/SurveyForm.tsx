@@ -4,12 +4,11 @@ import { trpc } from "@/lib/trpc";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { AlertCircle, CheckCircle2, Loader2, Shield, FileText, Building2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { SurveyQuestionCards, type SurveyQuestionCardData } from "@/components/surveys/SurveyQuestionCards";
 
 interface SurveyFormProps {
   surveyId: number;
@@ -214,61 +213,11 @@ export default function SurveyForm({ surveyId, title, description, instructions,
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {questions.map((question: any, index: number) => {
-              let options = [];
-              try {
-                options = typeof question.options === 'string' 
-                  ? JSON.parse(question.options) 
-                  : (Array.isArray(question.options) ? question.options : []);
-              } catch (e) {
-                console.error('Error parsing options:', e);
-                options = [];
-              }
-
-              return (
-                <div key={question.id} className="space-y-4 p-6 border rounded-lg bg-card hover:border-primary/50 transition-colors">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold text-sm">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <Label className="text-base font-medium leading-relaxed">
-                        {question.questionText}
-                      </Label>
-                      {question.category && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Categoría: {question.category}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <RadioGroup
-                    value={answers[question.id]}
-                    onValueChange={(value) => handleAnswerChange(question.id, value)}
-                    className="ml-11 space-y-2"
-                  >
-                    {options.map((option: string) => (
-                      <div key={option} className="flex items-center space-x-3 p-3 rounded-md hover:bg-accent transition-colors">
-                        <RadioGroupItem value={option} id={`${question.id}-${option}`} />
-                        <Label 
-                          htmlFor={`${question.id}-${option}`}
-                          className="flex-1 cursor-pointer font-normal"
-                        >
-                          {option}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-
-                  {!answers[question.id] && (
-                    <p className="ml-11 text-sm text-destructive">
-                      * Campo requerido
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+            <SurveyQuestionCards
+              questions={questions as SurveyQuestionCardData[]}
+              answers={answers}
+              onAnswerChange={handleAnswerChange}
+            />
 
             <div className="flex items-center justify-between pt-6 border-t sticky bottom-0 bg-background py-4">
               <Button
