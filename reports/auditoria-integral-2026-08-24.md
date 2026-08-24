@@ -17,6 +17,7 @@ La auditoría identificó dos correcciones funcionales de impacto inmediato en e
 | TypeScript de cliente local | Preflight resuelto | `check:client:local` valida sintaxis con 1,536 MB; el tipado semántico completo se conserva en CI | P0 cerrado |
 | Dependencias productivas | Sin hallazgos en la ejecución actual | `pnpm audit --prod` | Control continuo |
 | Quality Gate remoto | Aprobado y exigido en `main` | Comprobación `Types and tests` | Completado |
+| Suite hermética local | Aprobada tras corregir mock de esquema | 114 archivos y 1,553 pruebas | Completado |
 | Integration Tests remoto | Configurado, ejecución externa pendiente | Requiere GitHub Actions Secrets | Dependencia externa |
 
 ## Correcciones aplicadas durante la auditoría

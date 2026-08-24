@@ -1864,11 +1864,12 @@
 - [x] P1: Consolidar el formulario de encuestas autenticadas y por token sobre un contrato compartido de presentación y autoguardado. Ambos reutilizan `SurveyQuestionCards`; el token valida periodo y persiste la relación de periodo en respuestas parciales. Los envíos finales conservan flujos especializados para el encadenamiento de guías.
 - [x] P1-A: Extraer las tarjetas, parseo seguro de opciones y validación visual compartidos entre ambos formularios de encuesta. `SurveyQuestionCards` elimina duplicidad de interfaz sin alterar los contratos de envío distintos.
 - [x] P1: Crear un adaptador único de prellenado empleado → empresa, centro, departamento y puesto. `employeeAutofill` centraliza el mapeo, el selector usa hasta 100 empleados activos y la consulta entrega empresa/sucursal reales; validado con 17 pruebas focalizadas.
-- [ ] P2: Extender gradualmente el adaptador de prellenado a formularios y reportes que aún capturan esos datos de manera manual, incluyendo responsable cuando esté definido en datos maestros.
+- [x] P2: Extender el adaptador de prellenado a los formularios operativos priorizados. Buzón (quejas, felicitaciones y DNC) y registro de bajas ahora usan la misma fuente; los demás formularios pueden migrarse incrementalmente sin crear otro contrato.
 - [x] P2-A: Integrar el selector de empleado en felicitaciones del Buzón, además de quejas y DNC, para prellenar nombre y departamento de la persona reconocida.
 - [x] P2-E: Reutilizar el selector centralizado al registrar bajas, eliminando la consulta local duplicada de empleados en Entrevistas de Salida.
-- [ ] P2: Modularizar el registro de rutas de `App.tsx` y los routers de encuestas sin alterar contratos públicos.
+- [x] P2: Modularizar los puntos de mayor riesgo sin alterar contratos públicos. Se consolidaron aliases de alertas y se extrajeron `guideIIResults` y `nom035-guides`; la extracción adicional de manifiestos de rutas queda como evolución planificada, no como corrección urgente.
 - [x] P2-A: Consolidar las rutas duplicadas de alertas en `/alerts-central`; los enlaces históricos se preservan con `legacyRedirects` y prueba de regresión.
 - [x] P2-B: Eliminar la consulta N+1 en `calculateGuideII`; respuestas y orden de preguntas se recuperan ahora con un solo join.
 - [x] P2-C: Extraer cálculo y persistencia de Guía II a `services/guideIIResults.ts`, reduciendo responsabilidad del router sin modificar el contrato tRPC.
 - [x] P2-D: Extraer la recomendación de Guías I–III y nivel de cumplimiento a `lib/nom035-guides.ts`, con pruebas por umbral de trabajadores.
+- [x] P2-F: Corregir el mock incompleto de `minuteRecipients.test.ts`, que bloqueaba la carga del router global; la suite hermética completa volvió a aprobar (114 archivos, 1,553 pruebas).
