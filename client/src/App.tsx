@@ -381,13 +381,6 @@ function Router() {
             </Suspense>
           </DashboardLayout>
         </Route>
-        <Route path={"/intelligent-alerts"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <AlertsCentralDashboard />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
         <Route path={"/alerts-central"}>
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
@@ -474,13 +467,6 @@ function Router() {
           <DashboardLayout>
             <Suspense fallback={<PageLoader />}>
               <JobMonitoringDashboard />
-            </Suspense>
-          </DashboardLayout>
-        </Route>
-        <Route path={"/alerts-dashboard"}>
-          <DashboardLayout>
-            <Suspense fallback={<PageLoader />}>
-              <AlertsCentralDashboard />
             </Suspense>
           </DashboardLayout>
         </Route>
