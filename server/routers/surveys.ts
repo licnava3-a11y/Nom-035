@@ -38,6 +38,52 @@ function detectATS(answers: Array<{ questionId: number; answerValue: string }>):
   return answers.some(answer => answer.answerValue === 'Si' || answer.answerValue === 'Sí');
 }
 
+type ScoringAnswer = {
+  questionId: number;
+  answer: string;
+  isReverseScored: boolean | null;
+  category: string | null;
+  domain: string | null;
+  dimension: string | null;
+};
+
+async function getScoringAnswersByResponseId(
+  db: SurveyDatabase,
+  responseIds: number[],
+): Promise<Map<number, ScoringAnswer[]>> {
+  if (responseIds.length === 0) return new Map();
+
+  const rows = await db
+    .select({
+      responseId: surveyAnswers.responseId,
+      questionId: surveyAnswers.questionId,
+      answer: surveyAnswers.answerValue,
+      isReverseScored: surveyQuestions.isReverseScored,
+      category: surveyQuestions.category,
+      domain: surveyQuestions.domain,
+      dimension: surveyQuestions.dimension,
+    })
+    .from(surveyAnswers)
+    .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
+    .where(inArray(surveyAnswers.responseId, responseIds));
+
+  const answersByResponseId = new Map<number, ScoringAnswer[]>();
+  for (const row of rows) {
+    const answers = answersByResponseId.get(row.responseId) ?? [];
+    answers.push({
+      questionId: row.questionId,
+      answer: row.answer,
+      isReverseScored: row.isReverseScored,
+      category: row.category,
+      domain: row.domain,
+      dimension: row.dimension,
+    });
+    answersByResponseId.set(row.responseId, answers);
+  }
+
+  return answersByResponseId;
+}
+
 export const surveysRouter = router({
   // Obtener todas las encuestas disponibles
   getAll: protectedProcedure
@@ -176,17 +222,16 @@ export const surveysRouter = router({
     .input(z.object({
       surveyId: z.number(),
       token: z.string().optional(), // Token de acceso anónimo
-      userId: z.number().optional(), // ID de usuario autenticado
       questionId: z.number(),
       answerValue: z.string(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
 
-      // Validar que se proporcione token o userId
-      if (!input.token && !input.userId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Se requiere token o userId" });
+      // El usuario autenticado se toma exclusivamente de la sesión; nunca del cliente.
+      if (!input.token && !ctx.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Debes iniciar sesión o proporcionar un token" });
       }
 
       // Buscar o crear respuesta parcial
@@ -229,12 +274,16 @@ export const surveysRouter = router({
         }
       } else {
         // Acceso autenticado
+        const userId = ctx.user?.id;
+        if (userId === undefined) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Debes iniciar sesión para guardar respuestas" });
+        }
         const [existingResponse] = await db
           .select()
           .from(surveyResponses)
           .where(and(
             eq(surveyResponses.surveyId, input.surveyId),
-            eq(surveyResponses.userId, input.userId!)
+            eq(surveyResponses.userId, userId)
           ))
           .limit(1);
 
@@ -245,7 +294,7 @@ export const surveysRouter = router({
           const responseToken = generateToken();
           const [newResponse] = await (db.insert(surveyResponses) as any).values({
             surveyId: input.surveyId,
-            userId: input.userId!,
+            userId,
             token: responseToken,
             startedAt: new Date(),
           });
@@ -443,23 +492,30 @@ export const surveysRouter = router({
         
         // Crear caso automáticamente si se detecta ATS
         if (atsDetected) {
-          const caseNumber = `ATS-${Date.now()}-${ctx.user!.id}`;
-          // Obtener departmentId del usuario si existe
-          const [userEmployee] = await db.select({ departmentId: employees.departmentId })
-            .from(employees)
-            .where(eq(employees.userId, ctx.user!.id))
-            .limit(1);
+          const actor = ctx.user;
+          const caseNumber = `ATS-${Date.now()}-${actor?.id ?? "anonimo"}`;
+          let departmentId: number | null = null;
+
+          if (actor) {
+            const [userEmployee] = await db.select({ departmentId: employees.departmentId })
+              .from(employees)
+              .where(eq(employees.userId, actor.id))
+              .limit(1);
+            departmentId = userEmployee?.departmentId ?? null;
+          }
           
           await db.insert(cases).values({
             caseNumber,
-            reporterName: ctx.user!.name || 'Anónimo',
-            reporterEmail: ctx.user!.email || '',
-            isAnonymous: false,
+            reporterName: actor?.name ?? null,
+            reporterEmail: actor?.email ?? null,
+            isAnonymous: !actor,
             caseType: 'other',
-            description: `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${ctx.user!.name || ctx.user!.email}. Se requiere investigación y dictamen por parte del comité.`,
+            description: actor
+              ? `Se detectó un Acontecimiento Traumático Severo en la respuesta de la Guía I del trabajador ${actor.name || actor.email || actor.id}. Se requiere investigación y dictamen por parte del comité.`
+              : 'Se detectó un Acontecimiento Traumático Severo en una respuesta anónima de la Guía I. Se requiere investigación y dictamen por parte del comité.',
             status: 'open',
             priority: 'critical',
-            departmentId: userEmployee?.departmentId || null,
+            departmentId,
             createdAt: new Date(),
           });
         }
@@ -660,20 +716,10 @@ export const surveysRouter = router({
       }
       
       // Calcular resultados para cada respuesta
+      const answersByResponseId = await getScoringAnswersByResponseId(db, responses.map(response => response.id));
       const results = [];
       for (const response of responses) {
-        const answers = await db
-          .select({
-            questionId: surveyAnswers.questionId,
-            answer: surveyAnswers.answerValue,
-            isReverseScored: surveyQuestions.isReverseScored,
-            category: surveyQuestions.category,
-            domain: surveyQuestions.domain,
-            dimension: surveyQuestions.dimension,
-          })
-          .from(surveyAnswers)
-          .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
-          .where(eq(surveyAnswers.responseId, response.id));
+        const answers = answersByResponseId.get(response.id) ?? [];
         
         const result = calculator.calculateSurveyResult(
           answers.map(a => ({
@@ -868,14 +914,12 @@ export const surveysRouter = router({
       const riskDistribution: Record<string, number> = {};
       const categoryScores: Record<string, number[]> = {};
       let atsDetected = 0;
+      const answersByResponseId = await getScoringAnswersByResponseId(db, responses.map(response => response.id));
       
       if (survey.type === 'guia_i') {
         // Contar casos ATS
         for (const response of responses) {
-          const answers = await db
-            .select({ questionId: surveyAnswers.questionId, answer: surveyAnswers.answerValue })
-            .from(surveyAnswers)
-            .where(eq(surveyAnswers.responseId, response.id));
+          const answers = answersByResponseId.get(response.id) ?? [];
           
           if (detectATS(answers.map(a => ({ questionId: a.questionId, answerValue: a.answer })))) {
             atsDetected++;
@@ -884,18 +928,7 @@ export const surveysRouter = router({
       } else {
         // Calcular para Guía II y III
         for (const response of responses) {
-          const answers = await db
-            .select({
-              questionId: surveyAnswers.questionId,
-              answer: surveyAnswers.answerValue,
-              isReverseScored: surveyQuestions.isReverseScored,
-              category: surveyQuestions.category,
-              domain: surveyQuestions.domain,
-              dimension: surveyQuestions.dimension,
-            })
-            .from(surveyAnswers)
-            .innerJoin(surveyQuestions, eq(surveyAnswers.questionId, surveyQuestions.id))
-            .where(eq(surveyAnswers.responseId, response.id));
+          const answers = answersByResponseId.get(response.id) ?? [];
           
           const guideType: "guia_ii" | "guia_iii" = survey.type === "guia_ii" ? "guia_ii" : "guia_iii";
           const result = calculator.calculateSurveyResult(

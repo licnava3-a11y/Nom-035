@@ -72,6 +72,7 @@ export default function SurveyForm({ surveyId, title, description, instructions,
     setSaveStatus('saving');
     savePartialMutation.mutate({
       surveyId,
+      token: anonymousToken,
       questionId: lastSavedAnswer.questionId,
       answerValue: lastSavedAnswer.value,
     });

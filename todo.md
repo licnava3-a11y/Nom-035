@@ -1850,3 +1850,10 @@
 - [x] Crear un Pull Request de prueba contra `main` y confirmar que exige la comprobación `Types and tests`. PR #1 permanece abierto sin fusionar; el Quality Gate `32677660671` fue exitoso y la comprobación requerida quedó aprobada.
 - [ ] Ejecutar `Integration Tests` con secretos reales de prueba y verificar el flujo externo. **Bloqueado:** la autorización actual de GitHub puede escribir código y protección de ramas, pero recibe 403 al consultar o administrar GitHub Actions Secrets.
 - [x] Validar los flujos disponibles, actualizar el seguimiento y guardar checkpoint.
+
+## Auditoría integral de calidad, rendimiento y datos (2026-08-24)
+- [x] Establecer línea base verificable de tipos, pruebas, dependencias, bundle, arranque y rutas. Servidor y health restaurados; 105 archivos / 1,539 pruebas aprobaron; auditoría productiva sin vulnerabilidades. El typecheck completo de cliente permanece limitado localmente por heap y quedó priorizado en el informe.
+- [x] Detectar duplicidades de código, contratos, consultas, rutas, componentes y controles de interfaz. Se documentaron rutas de modularización, formularios de encuesta duplicados y casts `any` en el informe técnico.
+- [x] Auditar correlaciones de empleados, empresas, departamentos, puestos, formularios y oportunidades de prellenado. Se definió el plan de datos maestros y validación transversal en el informe técnico.
+- [x] Corregir hallazgos sencillos y de alta confianza con pruebas de regresión. Se corrigió el autoguardado autenticado, el ATS anónimo y dos patrones N+1 de encuestas; 20 pruebas focalizadas y 1,539 pruebas de regresión aprobaron.
+- [x] Elaborar un informe priorizado de UX, latencia, carga, datos, reportes y visualizaciones faltantes. Disponible en `reports/auditoria-integral-2026-08-24.md`.
