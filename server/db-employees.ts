@@ -1,12 +1,43 @@
 import { eq, like, and, or, desc, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { committeeMembers, departments, employeeHistory, employees, positions, users } from "../drizzle/schema";
+import { branches, committeeMembers, companies, departments, employeeHistory, employees, positions, users } from "../drizzle/schema";
 import type { Employee, InsertEmployee } from "../drizzle/schema";
 
 // Type for employee with department and position names
 export type EmployeeWithRelations = Employee & {
   department: string;
   position: string;
+  branch?: string;
+  companyId?: number | null;
+  company?: string;
+};
+
+const employeeRelationSelection = {
+  id: employees.id,
+  firstName: employees.firstName,
+  lastName: employees.lastName,
+  email: employees.email,
+  phone: employees.phone,
+  curp: employees.curp,
+  employeeNumber: employees.employeeNumber,
+  departmentId: employees.departmentId,
+  branchId: employees.branchId,
+  positionId: employees.positionId,
+  hireDate: employees.hireDate,
+  contractType: employees.contractType,
+  isActive: employees.isActive,
+  userId: employees.userId,
+  cedulaProfesional: employees.cedulaProfesional,
+  rfc: employees.rfc,
+  nss: employees.nss,
+  createdAt: employees.createdAt,
+  updatedAt: employees.updatedAt,
+  department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
+  position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
+  branch: sql<string>`COALESCE(${branches.name}, 'Sin sucursal')`,
+  companyId: users.companyId,
+  company: sql<string>`COALESCE(${companies.razonSocial}, 'Sin empresa')`,
+  educationLevel: employees.educationLevel,
 };
 
 /**
@@ -63,60 +94,22 @@ export async function getAllEmployees(filters?: {
   }
 
   const query = conditions.length > 0
-    ? db.select({
-        id: employees.id,
-        firstName: employees.firstName,
-        lastName: employees.lastName,
-        email: employees.email,
-        phone: employees.phone,
-        curp: employees.curp,
-        employeeNumber: employees.employeeNumber,
-        departmentId: employees.departmentId,
-        positionId: employees.positionId,
-        hireDate: employees.hireDate,
-        contractType: employees.contractType,
-        isActive: employees.isActive,
-        userId: employees.userId,
-        cedulaProfesional: employees.cedulaProfesional,
-        rfc: employees.rfc,
-        nss: employees.nss,
-        createdAt: employees.createdAt,
-        updatedAt: employees.updatedAt,
-        department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
-        educationLevel: employees.educationLevel,
-      })
+    ? db.select(employeeRelationSelection)
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
       .leftJoin(positions, eq(employees.positionId, positions.id))
+      .leftJoin(branches, eq(employees.branchId, branches.id))
+      .leftJoin(users, eq(employees.userId, users.id))
+      .leftJoin(companies, eq(users.companyId, companies.id))
       .where(and(...conditions))
       .orderBy(desc(employees.createdAt))
-    : db.select({
-        id: employees.id,
-        firstName: employees.firstName,
-        lastName: employees.lastName,
-        email: employees.email,
-        phone: employees.phone,
-        curp: employees.curp,
-        employeeNumber: employees.employeeNumber,
-        departmentId: employees.departmentId,
-        positionId: employees.positionId,
-        hireDate: employees.hireDate,
-        contractType: employees.contractType,
-        isActive: employees.isActive,
-        userId: employees.userId,
-        cedulaProfesional: employees.cedulaProfesional,
-        rfc: employees.rfc,
-        nss: employees.nss,
-        createdAt: employees.createdAt,
-        updatedAt: employees.updatedAt,
-        department: sql<string>`COALESCE(${departments.name}, 'Sin departamento')`,
-        position: sql<string>`COALESCE(${positions.title}, 'Sin puesto')`,
-        educationLevel: employees.educationLevel,
-      })
+    : db.select(employeeRelationSelection)
       .from(employees)
       .leftJoin(departments, eq(employees.departmentId, departments.id))
       .leftJoin(positions, eq(employees.positionId, positions.id))
+      .leftJoin(branches, eq(employees.branchId, branches.id))
+      .leftJoin(users, eq(employees.userId, users.id))
+      .leftJoin(companies, eq(users.companyId, companies.id))
       .orderBy(desc(employees.createdAt))
   // Contar total de empleados
   const countQuery = conditions.length > 0

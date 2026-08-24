@@ -1859,8 +1859,9 @@
 - [x] Elaborar un informe priorizado de UX, latencia, carga, datos, reportes y visualizaciones faltantes. Disponible en `reports/auditoria-integral-2026-08-24.md`.
 
 ## Remediación priorizada posterior a auditoría (2026-08-24)
-- [x] P0: Hacer ejecutable el chequeo TypeScript de cliente dentro de la memoria local disponible, conservando cobertura total en CI. Se agregó `check:client:local` como preflight sintáctico de 768 MB y se conservó `check:client:semantic`/CI para el tipado semántico completo.
+- [x] P0: Hacer ejecutable el chequeo TypeScript de cliente dentro de la memoria local disponible, conservando cobertura total en CI. Se agregó `check:client:local` como preflight sintáctico de 1,536 MB y se conservó `check:client:semantic`/CI para el tipado semántico completo.
 - [x] P1: Completar agregados de riesgo por dominio para Guía III y distinguir explícitamente los casos no aplicables. `getRiskStatistics` devuelve `domainRisks` y `domainRiskStatus` (`available`, `no_domain_data` o `not_applicable`) sin reintroducir consultas N+1.
 - [ ] P1: Consolidar el formulario de encuestas autenticadas y anónimas sobre un contrato tipado compartido.
-- [ ] P1: Crear un adaptador único de prellenado empleado → empresa, centro, departamento, puesto y responsable para formularios y reportes.
+- [x] P1: Crear un adaptador único de prellenado empleado → empresa, centro, departamento y puesto. `employeeAutofill` centraliza el mapeo, el selector usa hasta 100 empleados activos y la consulta entrega empresa/sucursal reales; validado con 17 pruebas focalizadas.
+- [ ] P2: Extender gradualmente el adaptador de prellenado a formularios y reportes que aún capturan esos datos de manera manual, incluyendo responsable cuando esté definido en datos maestros.
 - [ ] P2: Modularizar el registro de rutas de `App.tsx` y los routers de encuestas sin alterar contratos públicos.

@@ -1,25 +1,14 @@
 import { useState, useCallback, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import {
+  toEmployeeAutofillData,
+  toEmployeeAutofillOption,
+  type EmployeeAutofillData,
+  type EmployeeAutofillSource,
+} from "@/lib/employeeAutofill";
 
-export interface EmployeeAutofillData {
-  employeeId: number;
-  fullName: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  employeeNumber: string;
-  departmentId: number | null;
-  departmentName: string;
-  positionId: number | null;
-  positionName: string;
-  curp: string;
-  rfc: string;
-  nss: string;
-  gender: string;
-  hireDate: string;
-}
+export type { EmployeeAutofillData } from "@/lib/employeeAutofill";
 
 /**
  * Hook para prellenado automático de formularios desde la tabla employees.
@@ -47,35 +36,19 @@ export function useEmployeeAutofill() {
 
   const { data: workersRaw, isLoading } = trpc.employees.list.useQuery({
     isActive: true,
+    pageSize: 100,
   });
 
   const employees = useMemo(() => {
     const raw = (workersRaw as any)?.employees ?? workersRaw ?? [];
-    return Array.isArray(raw) ? raw : [];
+    return Array.isArray(raw) ? raw as EmployeeAutofillSource[] : [];
   }, [workersRaw]);
 
   const selectedEmployee = useMemo((): EmployeeAutofillData | null => {
     if (!selectedEmployeeId) return null;
-    const emp = employees.find((e: any) => e.id === selectedEmployeeId);
+    const emp = employees.find((e) => e.id === selectedEmployeeId);
     if (!emp) return null;
-    return {
-      employeeId: emp.id,
-      fullName: `${emp.firstName} ${emp.lastName}`.trim(),
-      firstName: emp.firstName ?? "",
-      lastName: emp.lastName ?? "",
-      email: emp.email ?? "",
-      phone: emp.phone ?? "",
-      employeeNumber: emp.employeeNumber ?? "",
-      departmentId: emp.departmentId ?? null,
-      departmentName: emp.department ?? emp.departmentName ?? "",
-      positionId: emp.positionId ?? null,
-      positionName: emp.position ?? emp.positionName ?? "",
-      curp: emp.curp ?? "",
-      rfc: emp.rfc ?? "",
-      nss: emp.nss ?? "",
-      gender: emp.gender ?? "",
-      hireDate: emp.hireDate ?? "",
-    };
+    return toEmployeeAutofillData(emp);
   }, [selectedEmployeeId, employees]);
 
   /**
@@ -94,26 +67,9 @@ export function useEmployeeAutofill() {
         return null;
       }
       setSelectedEmployeeId(id);
-      const emp = employees.find((e: any) => e.id === id);
+      const emp = employees.find((e) => e.id === id);
       if (emp) {
-        const data: EmployeeAutofillData = {
-          employeeId: emp.id,
-          fullName: `${emp.firstName} ${emp.lastName}`.trim(),
-          firstName: emp.firstName ?? "",
-          lastName: emp.lastName ?? "",
-          email: emp.email ?? "",
-          phone: emp.phone ?? "",
-          employeeNumber: emp.employeeNumber ?? "",
-          departmentId: emp.departmentId ?? null,
-          departmentName: emp.department ?? emp.departmentName ?? "",
-          positionId: emp.positionId ?? null,
-          positionName: emp.position ?? emp.positionName ?? "",
-          curp: emp.curp ?? "",
-          rfc: emp.rfc ?? "",
-          nss: emp.nss ?? "",
-          gender: emp.gender ?? "",
-          hireDate: emp.hireDate ?? "",
-        };
+        const data = toEmployeeAutofillData(emp);
         toast.success("Datos del empleado prellenados", {
           description: `${data.fullName} — ${data.departmentName || "Sin departamento"}`,
         });
@@ -130,12 +86,7 @@ export function useEmployeeAutofill() {
 
   /** Lista de opciones para un <Select> */
   const employeeOptions = useMemo(
-    () =>
-      employees.map((emp: any) => ({
-        value: emp.id.toString(),
-        label: `${emp.firstName} ${emp.lastName} — ${emp.email ?? ""}`,
-        sublabel: emp.department ?? "",
-      })),
+    () => employees.map(toEmployeeAutofillOption),
     [employees]
   );
 

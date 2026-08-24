@@ -10,7 +10,7 @@
     "check": "pnpm check:server && pnpm check:client",
     "check:server": "NODE_OPTIONS=--max-old-space-size=1536 tsc --noEmit -p tsconfig.server.json",
     "check:client": "NODE_OPTIONS=--max-old-space-size=2048 tsc --noEmit -p tsconfig.client.json",
-    "check:client:local": "NODE_OPTIONS=--max-old-space-size=768 tsc --noEmit --noCheck -p tsconfig.client.json",
+    "check:client:local": "NODE_OPTIONS=--max-old-space-size=1536 tsc --noEmit --noCheck -p tsconfig.client.json",
     "check:client:semantic": "pnpm check:client",
     "check:type-safety": "node scripts/check-type-safety.mjs",
     "report:bundle": "node scripts/report-bundle.mjs",

@@ -9,6 +9,6 @@ describe("verificación TypeScript del cliente con memoria limitada", () => {
     expect(packageJson.scripts["check:client"]).toContain("tsconfig.client.json");
     expect(packageJson.scripts["check:client:semantic"]).toBe("pnpm check:client");
     expect(packageJson.scripts["check:client:local"]).toContain("--noCheck");
-    expect(packageJson.scripts["check:client:local"]).toContain("--max-old-space-size=768");
+    expect(packageJson.scripts["check:client:local"]).toContain("--max-old-space-size=1536");
   });
 });

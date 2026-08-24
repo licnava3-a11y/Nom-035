@@ -7,7 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEmployeeAutofill, type EmployeeAutofillData } from "@/hooks/useEmployeeAutofill";
+import { useEmployeeAutofill } from "@/hooks/useEmployeeAutofill";
+import type { EmployeeAutofillData } from "@/lib/employeeAutofill";
 
 interface EmployeeAutofillSelectorProps {
   /** Callback cuando se selecciona un empleado */
@@ -33,7 +34,7 @@ export function EmployeeAutofillSelector({
   onSelect,
   value,
   label = "Seleccionar Empleado (Prellenado Automático)",
-  helperText = "Al seleccionar un empleado, se prellenarán automáticamente nombre, email, teléfono y departamento",
+  helperText = "Al seleccionar un empleado, se prellenarán nombre, contacto, empresa, centro, departamento, puesto y responsable disponibles",
   placeholder = "Buscar empleado existente...",
   className,
 }: EmployeeAutofillSelectorProps) {
