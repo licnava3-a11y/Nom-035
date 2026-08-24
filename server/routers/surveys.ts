@@ -222,6 +222,7 @@ export const surveysRouter = router({
     .input(z.object({
       surveyId: z.number(),
       token: z.string().optional(), // Token de acceso anónimo
+      periodId: z.number().optional(), // Requerido cuando el flujo usa un token de periodo
       questionId: z.number(),
       answerValue: z.string(),
     }))
@@ -249,13 +250,18 @@ export const surveysRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Token inválido" });
         }
 
+        if (input.periodId !== undefined && tokenData.periodId !== input.periodId) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "El token no corresponde a este periodo" });
+        }
+
         // Buscar respuesta existente
         const [existingResponse] = await db
           .select()
           .from(surveyResponses)
           .where(and(
             eq(surveyResponses.surveyId, input.surveyId),
-            eq(surveyResponses.userId, tokenData.userId)
+            eq(surveyResponses.userId, tokenData.userId),
+            eq(surveyResponses.periodId, tokenData.periodId)
           ))
           .limit(1);
 
@@ -267,6 +273,7 @@ export const surveysRouter = router({
           const [newResponse] = await (db.insert(surveyResponses) as any).values({
             surveyId: input.surveyId,
             userId: tokenData.userId,
+            periodId: tokenData.periodId,
             token: responseToken,
             startedAt: new Date(),
           });

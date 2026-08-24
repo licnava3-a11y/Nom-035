@@ -69,29 +69,30 @@ export default function SurveyFormWithToken({
     },
   });
 
-  // Mutation para auto-guardado (opcional, por ahora no implementado en backend)
-  // const savePartialMutation = (trpc as any).surveys.savePartialResponse.useMutation({
-  //   onSuccess: () => {
-  //     setSaveStatus('saved');
-  //     setTimeout(() => setSaveStatus('idle'), 2000);
-  //   },
-  //   onError: () => {
-  //     setSaveStatus('error');
-  //     setTimeout(() => setSaveStatus('idle'), 3000);
-  //   },
-  // });
+  const savePartialMutation = (trpc as any).surveys.savePartialResponse.useMutation({
+    onSuccess: () => {
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    },
+    onError: () => {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    },
+  });
 
   // Auto-guardar cuando cambian las respuestas (con debounce)
-  // useEffect(() => {
-  //   if (!lastSavedAnswer) return;
-  //   
-  //   setSaveStatus('saving');
-  //   savePartialMutation.mutate({
-  //     surveyId,
-  //     questionId: lastSavedAnswer.questionId,
-  //     answerValue: lastSavedAnswer.value,
-  //   });
-  // }, [debouncedAnswers]);
+  useEffect(() => {
+    if (!lastSavedAnswer) return;
+    
+    setSaveStatus('saving');
+    savePartialMutation.mutate({
+      surveyId,
+      token,
+      periodId,
+      questionId: lastSavedAnswer.questionId,
+      answerValue: lastSavedAnswer.value,
+    });
+  }, [debouncedAnswers]);
 
   const handleAnswerChange = (questionId: number, value: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));

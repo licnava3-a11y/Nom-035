@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 
 const routerSource = readFileSync(resolve(process.cwd(), "server/routers/surveys.ts"), "utf8");
 const formSource = readFileSync(resolve(process.cwd(), "client/src/components/SurveyForm.tsx"), "utf8");
+const tokenFormSource = readFileSync(resolve(process.cwd(), "client/src/components/SurveyFormWithToken.tsx"), "utf8");
 const savePartialSource = routerSource.slice(
   routerSource.indexOf("savePartialResponse:"),
   routerSource.indexOf("// Enviar respuesta de encuesta"),
@@ -20,6 +21,13 @@ describe("seguridad y continuidad de respuestas de encuesta", () => {
     expect(savePartialSource).toContain("Debes iniciar sesión para guardar respuestas");
     expect(savePartialSource).not.toContain("userId: z.number().optional()");
     expect(formSource).toContain("token: anonymousToken,");
+  });
+
+  it("valida el periodo del token y conserva esa relación en el autoguardado", () => {
+    expect(savePartialSource).toContain("periodId: z.number().optional()");
+    expect(savePartialSource).toContain("El token no corresponde a este periodo");
+    expect(savePartialSource).toContain("periodId: tokenData.periodId,");
+    expect(tokenFormSource).toContain("periodId,");
   });
 
   it("crea el caso ATS sin desreferenciar un usuario inexistente en una respuesta anónima", () => {
